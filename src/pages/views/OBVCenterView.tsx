@@ -1,9 +1,11 @@
 import { useState } from 'react';
-import { ChevronRight } from 'lucide-react';
+import { Loader2, FileCheck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
-import { ValidationCard } from '@/components/nova/ValidationCard';
-import { PENDING_VALIDATIONS } from '@/data/mockData';
-import { Button } from '@/components/ui/button';
+import { OBVForm } from '@/components/nova/OBVForm';
+import { OBVValidationList } from '@/components/nova/OBVValidationList';
+import { useAuth } from '@/hooks/useAuth';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
 const TABS = [
@@ -13,19 +15,95 @@ const TABS = [
   { id: 'todas', label: '📊 Todas' },
 ];
 
-const OBV_TYPES = [
-  { id: 'exploracion', icon: '🔍', title: 'Exploración', desc: 'Primer contacto, investigación de mercado, networking', color: '#6366F1' },
-  { id: 'validacion', icon: '✅', title: 'Validación', desc: 'Reunión, demo, propuesta enviada, seguimiento', color: '#F59E0B' },
-  { id: 'venta', icon: '💰', title: 'Venta', desc: 'Cierre confirmado con transacción económica', color: '#22C55E' },
-];
-
 interface OBVCenterViewProps {
   onNewOBV?: () => void;
 }
 
 export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const [activeTab, setActiveTab] = useState('subir');
-  const [selectedType, setSelectedType] = useState('validacion');
+  const [showForm, setShowForm] = useState(true);
+  const { profile } = useAuth();
+
+  // Fetch user's OBVs
+  const { data: myOBVs = [], isLoading: loadingMyOBVs } = useQuery({
+    queryKey: ['my_obvs', profile?.id],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('obvs')
+        .select(`
+          id, titulo, descripcion, tipo, fecha, status, 
+          es_venta, facturacion, margen, producto, evidence_url, project_id
+        `)
+        .eq('owner_id', profile?.id)
+        .order('created_at', { ascending: false });
+      
+      if (error) throw error;
+
+      // Get projects
+      const { data: projects } = await supabase
+        .from('projects')
+        .select('id, nombre, icon, color');
+
+      const projectMap = new Map(projects?.map(p => [p.id, p]) || []);
+
+      return data?.map(obv => ({
+        ...obv,
+        project: projectMap.get(obv.project_id || ''),
+      })) || [];
+    },
+    enabled: !!profile?.id && activeTab === 'mis-obvs',
+  });
+
+  // Fetch all OBVs
+  const { data: allOBVs = [], isLoading: loadingAllOBVs } = useQuery({
+    queryKey: ['all_obvs'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('obvs')
+        .select(`
+          id, titulo, tipo, fecha, status, owner_id,
+          es_venta, facturacion, margen
+        `)
+        .order('created_at', { ascending: false })
+        .limit(50);
+      
+      if (error) throw error;
+
+      // Get profiles
+      const { data: profiles } = await supabase
+        .from('profiles')
+        .select('id, nombre, color');
+
+      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+
+      return data?.map(obv => ({
+        ...obv,
+        owner: profileMap.get(obv.owner_id),
+      })) || [];
+    },
+    enabled: activeTab === 'todas',
+  });
+
+  const handleFormSuccess = () => {
+    setShowForm(false);
+    setTimeout(() => setShowForm(true), 100);
+  };
+
+  const getStatusIcon = (status: string) => {
+    switch (status) {
+      case 'validated': return <CheckCircle size={16} className="text-success" />;
+      case 'rejected': return <XCircle size={16} className="text-destructive" />;
+      default: return <Clock size={16} className="text-warning" />;
+    }
+  };
+
+  const getStatusLabel = (status: string) => {
+    switch (status) {
+      case 'validated': return 'Validada';
+      case 'rejected': return 'Rechazada';
+      default: return 'Pendiente';
+    }
+  };
 
   return (
     <>
@@ -55,73 +133,145 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
         </div>
 
         {/* Subir OBV */}
-        {activeTab === 'subir' && (
-          <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in">
-            <div className="p-5 border-b border-border">
-              <h3 className="font-semibold">Nueva OBV</h3>
-            </div>
-            
-            <div className="p-6">
-              {/* Steps */}
-              <div className="flex items-center justify-center gap-2 mb-8">
-                {[1, 2, 3, 4, 5, 6].map((step, i) => (
-                  <div key={step} className="flex items-center gap-2">
-                    <div className={cn(
-                      "w-8 h-8 rounded-lg flex items-center justify-center text-sm font-semibold",
-                      step === 1 ? "bg-primary text-primary-foreground" : "bg-muted text-muted-foreground"
-                    )}>
-                      {step}
-                    </div>
-                    {i < 5 && (
-                      <div className="w-10 h-0.5 bg-border" />
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              <h4 className="text-lg font-semibold text-center mb-6">
-                Paso 1: Selecciona el tipo de OBV
-              </h4>
-
-              {/* OBV Types */}
-              <div className="grid grid-cols-3 gap-4 mb-8">
-                {OBV_TYPES.map(type => (
-                  <div
-                    key={type.id}
-                    onClick={() => setSelectedType(type.id)}
-                    className={cn(
-                      "bg-background border-2 rounded-2xl p-6 cursor-pointer transition-all text-center",
-                      selectedType === type.id
-                        ? "border-primary nova-gradient-subtle"
-                        : "border-border hover:border-muted-foreground/50"
-                    )}
-                  >
-                    <div 
-                      className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4"
-                      style={{ background: `${type.color}15` }}
-                    >
-                      {type.icon}
-                    </div>
-                    <h5 className="font-bold text-base mb-2">{type.title}</h5>
-                    <p className="text-sm text-muted-foreground">{type.desc}</p>
-                  </div>
-                ))}
-              </div>
-
-              {/* Actions */}
-              <div className="flex justify-center gap-3">
-                <Button variant="outline">Cancelar</Button>
-                <Button className="nova-gradient">
-                  Siguiente <ChevronRight size={16} className="ml-1" />
-                </Button>
-              </div>
-            </div>
-          </div>
+        {activeTab === 'subir' && showForm && (
+          <OBVForm 
+            onCancel={() => setActiveTab('mis-obvs')} 
+            onSuccess={handleFormSuccess}
+          />
         )}
 
         {/* Validar */}
         {activeTab === 'validar' && (
-          <ValidationCard validations={PENDING_VALIDATIONS} delay={1} />
+          <OBVValidationList />
+        )}
+
+        {/* Mis OBVs */}
+        {activeTab === 'mis-obvs' && (
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="p-5 border-b border-border flex items-center gap-2.5">
+              <FileCheck size={18} className="text-primary" />
+              <h3 className="font-semibold">Mis OBVs</h3>
+            </div>
+
+            {loadingMyOBVs ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : myOBVs.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                No has subido ninguna OBV todavía
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {myOBVs.map(obv => (
+                  <div key={obv.id} className="p-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      {/* Type icon */}
+                      <div className={cn(
+                        "w-10 h-10 rounded-xl flex items-center justify-center text-xl",
+                        obv.tipo === 'exploracion' && "bg-info/20",
+                        obv.tipo === 'validacion' && "bg-warning/20",
+                        obv.tipo === 'venta' && "bg-success/20",
+                      )}>
+                        {obv.tipo === 'exploracion' ? '🔍' : obv.tipo === 'validacion' ? '✅' : '💰'}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold truncate">{obv.titulo}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {obv.project?.icon} {obv.project?.nombre || 'Sin proyecto'} • {obv.fecha}
+                        </p>
+                      </div>
+
+                      {/* Sale amount */}
+                      {obv.es_venta && (
+                        <div className="text-right">
+                          <p className="font-bold text-success">€{obv.facturacion}</p>
+                          <p className="text-xs text-muted-foreground">+€{obv.margen} margen</p>
+                        </div>
+                      )}
+
+                      {/* Status */}
+                      <div className={cn(
+                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                        obv.status === 'validated' && "bg-success/20 text-success",
+                        obv.status === 'rejected' && "bg-destructive/20 text-destructive",
+                        obv.status === 'pending' && "bg-warning/20 text-warning",
+                      )}>
+                        {getStatusIcon(obv.status)}
+                        {getStatusLabel(obv.status)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Todas */}
+        {activeTab === 'todas' && (
+          <div className="bg-card border border-border rounded-2xl overflow-hidden">
+            <div className="p-5 border-b border-border flex items-center gap-2.5">
+              <FileCheck size={18} className="text-primary" />
+              <h3 className="font-semibold">Todas las OBVs</h3>
+            </div>
+
+            {loadingAllOBVs ? (
+              <div className="flex items-center justify-center py-20">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : allOBVs.length === 0 ? (
+              <div className="p-8 text-center text-muted-foreground">
+                No hay OBVs registradas
+              </div>
+            ) : (
+              <div className="divide-y divide-border">
+                {allOBVs.map(obv => (
+                  <div key={obv.id} className="p-4 hover:bg-muted/30 transition-colors">
+                    <div className="flex items-center gap-4">
+                      {/* Owner avatar */}
+                      <div 
+                        className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold"
+                        style={{ background: obv.owner?.color || '#6366F1' }}
+                      >
+                        {obv.owner?.nombre?.charAt(0) || '?'}
+                      </div>
+
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold truncate">{obv.titulo}</p>
+                        <p className="text-sm text-muted-foreground">
+                          {obv.owner?.nombre} • {obv.fecha}
+                        </p>
+                      </div>
+
+                      {/* Type */}
+                      <div className={cn(
+                        "px-3 py-1.5 rounded-lg text-xs font-semibold uppercase",
+                        obv.tipo === 'exploracion' && "bg-info/20 text-info",
+                        obv.tipo === 'validacion' && "bg-warning/20 text-warning",
+                        obv.tipo === 'venta' && "bg-success/20 text-success",
+                      )}>
+                        {obv.tipo}
+                      </div>
+
+                      {/* Sale amount */}
+                      {obv.es_venta && (
+                        <p className="font-bold text-success">€{obv.facturacion}</p>
+                      )}
+
+                      {/* Status */}
+                      <div className="flex items-center gap-1">
+                        {getStatusIcon(obv.status)}
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
         )}
       </div>
     </>
