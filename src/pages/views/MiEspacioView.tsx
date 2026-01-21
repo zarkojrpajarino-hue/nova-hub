@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2 } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2, Edit2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { MyTasksList } from '@/components/tasks/MyTasksList';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { useNavigate } from 'react-router-dom';
+import { KPIBaseEditor } from '@/components/kpi/KPIBaseEditor';
 
 interface MiEspacioViewProps {
   onNewOBV?: () => void;
@@ -82,6 +83,16 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
       
       <div className="p-8">
         {/* Personal Stats */}
+        <div className="flex items-center justify-between mb-4">
+          <h2 className="text-lg font-semibold">Mis KPIs</h2>
+          {profile?.id && (
+            <KPIBaseEditor 
+              memberId={profile.id} 
+              memberName={profile.nombre || 'Usuario'}
+              currentStats={stats}
+            />
+          )}
+        </div>
         <div className="grid grid-cols-6 gap-4 mb-8">
           <StatCard 
             icon={FileCheck} 
