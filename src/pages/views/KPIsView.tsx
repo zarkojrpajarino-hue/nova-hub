@@ -1,8 +1,10 @@
-import { useMemo } from 'react';
+import { useMemo, useState } from 'react';
 import { BookOpen, Trophy, Users, Crown, Diamond, Award, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { RankingCard } from '@/components/nova/RankingCard';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { KPITabContent } from '@/components/kpi/KPITabContent';
 
 interface KPIsViewProps {
   onNewOBV?: () => void;
@@ -11,6 +13,7 @@ interface KPIsViewProps {
 export function KPIsView({ onNewOBV }: KPIsViewProps) {
   const { data: members = [], isLoading } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
+  const [activeTab, setActiveTab] = useState('lp');
 
   // Map objectives
   const objectivesMap = useMemo(() => {
@@ -84,7 +87,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-warning rounded-full transition-all"
-                style={{ width: `${(totalLPs / (objectivesMap.lps * 9)) * 100}%` }}
+                style={{ width: `${Math.min((totalLPs / (objectivesMap.lps * 9)) * 100, 100)}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
@@ -105,7 +108,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-success rounded-full transition-all"
-                style={{ width: `${(totalBPs / (objectivesMap.bps * 9)) * 100}%` }}
+                style={{ width: `${Math.min((totalBPs / (objectivesMap.bps * 9)) * 100, 100)}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
@@ -126,7 +129,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-pink-500 rounded-full transition-all"
-                style={{ width: `${(totalCPs / (objectivesMap.cps * 9)) * 100}%` }}
+                style={{ width: `${Math.min((totalCPs / (objectivesMap.cps * 9)) * 100, 100)}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
@@ -135,7 +138,38 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
           </div>
         </div>
 
+        {/* Tabs for KPI types */}
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
+          <TabsList className="grid w-full max-w-md grid-cols-3">
+            <TabsTrigger value="lp" className="flex items-center gap-2">
+              <BookOpen className="w-4 h-4" />
+              Learning Paths
+            </TabsTrigger>
+            <TabsTrigger value="bp" className="flex items-center gap-2">
+              <Trophy className="w-4 h-4" />
+              Book Points
+            </TabsTrigger>
+            <TabsTrigger value="cp" className="flex items-center gap-2">
+              <Users className="w-4 h-4" />
+              Community
+            </TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="lp" className="mt-6">
+            <KPITabContent type="lp" />
+          </TabsContent>
+
+          <TabsContent value="bp" className="mt-6">
+            <KPITabContent type="bp" />
+          </TabsContent>
+
+          <TabsContent value="cp" className="mt-6">
+            <KPITabContent type="cp" />
+          </TabsContent>
+        </Tabs>
+
         {/* Rankings */}
+        <h3 className="text-lg font-semibold mb-4">🏆 Rankings</h3>
         <div className="grid grid-cols-3 gap-6">
           <RankingCard
             title="Ranking Learning Paths"
