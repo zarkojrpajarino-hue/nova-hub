@@ -13,6 +13,7 @@ import { TemporalEvolutionChart } from '@/components/analytics/TemporalEvolution
 import { ActivityHeatmap } from '@/components/analytics/ActivityHeatmap';
 import { PredictionsWidget } from '@/components/analytics/PredictionsWidget';
 import { AnalyticsFilters } from '@/components/analytics/AnalyticsFilters';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface AnalyticsViewProps {
   onNewOBV?: () => void;
@@ -68,6 +69,8 @@ export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
       />
       
       <div className="p-8 space-y-6">
+        <SectionHelp section="analytics" variant="inline" />
+
         {/* Global Filters Bar */}
         <Card>
           <CardContent className="py-4">
@@ -231,6 +234,8 @@ export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
           </TabsContent>
         </Tabs>
       </div>
+
+      <HelpWidget section="analytics" />
     </>
   );
 }

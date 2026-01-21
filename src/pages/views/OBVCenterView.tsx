@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 const TABS = [
   { id: 'subir', label: '📤 Subir OBV' },
@@ -114,6 +115,9 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
       />
       
       <div className="p-8">
+        {/* Section Help */}
+        <SectionHelp section="obvs" variant="inline" />
+
         {/* Tabs */}
         <div className="flex gap-1 bg-background p-1 rounded-xl mb-6 w-fit">
           {TABS.map(tab => (
@@ -274,6 +278,8 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
           </div>
         )}
       </div>
+
+      <HelpWidget section="obvs" />
     </>
   );
 }

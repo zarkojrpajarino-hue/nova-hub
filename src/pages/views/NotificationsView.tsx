@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead, Notification } from '@/hooks/useNotifications';
 import { cn } from '@/lib/utils';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface NotificationsViewProps {
   onNewOBV?: () => void;
@@ -103,6 +104,8 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
       />
 
       <div className="p-8 max-w-4xl mx-auto">
+        <SectionHelp section="notificaciones" variant="inline" />
+
         {/* Header actions */}
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
@@ -204,6 +207,8 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
           </div>
         )}
       </div>
+
+      <HelpWidget section="notificaciones" />
     </div>
   );
 }

@@ -13,6 +13,7 @@ import { FinancialAlertsCard } from '@/components/financiero/FinancialAlertsCard
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
@@ -106,6 +107,8 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
       />
       
       <div className="p-8 space-y-6">
+        <SectionHelp section="financiero" variant="inline" />
+
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
           <TabsList className="mb-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
@@ -348,6 +351,8 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
           </TabsContent>
         </Tabs>
       </div>
+
+      <HelpWidget section="financiero" />
     </>
   );
 }

@@ -9,6 +9,7 @@ import { useUserRoles } from '@/hooks/useSettings';
 import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { AdminSettings } from '@/components/settings/AdminSettings';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface SettingsViewProps {
   onNewOBV?: () => void;
@@ -46,6 +47,8 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
       />
       
       <div className="p-8">
+        <SectionHelp section="settings" variant="inline" />
+
         <div className="flex flex-col lg:flex-row gap-6">
           {/* Sidebar Tabs */}
           <div className="lg:w-64 space-y-2">
@@ -85,6 +88,8 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
           </div>
         </div>
       </div>
+
+      <HelpWidget section="settings" />
     </>
   );
 }

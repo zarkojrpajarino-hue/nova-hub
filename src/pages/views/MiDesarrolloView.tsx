@@ -12,6 +12,7 @@ import { RolePerformanceCard } from '@/components/development/RolePerformanceCar
 import { InsightsList } from '@/components/development/InsightsList';
 import { PlaybookViewer } from '@/components/development/PlaybookViewer';
 import { ROLE_CONFIG } from '@/data/mockData';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 export function MiDesarrolloView() {
   const { profile } = useAuth();
@@ -71,6 +72,8 @@ export function MiDesarrolloView() {
       />
       
       <div className="p-8">
+        <SectionHelp section="mi-desarrollo" variant="inline" />
+
         {/* Overall Stats */}
         {overallStats && (
           <div className="grid grid-cols-4 gap-4 mb-8">
@@ -246,6 +249,8 @@ export function MiDesarrolloView() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <HelpWidget section="mi-desarrollo" />
     </>
   );
 }

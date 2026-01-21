@@ -10,6 +10,7 @@ import { RoleHistoryList } from '@/components/rotation/RoleHistoryList';
 import { CreateRotationDialog } from '@/components/rotation/CreateRotationDialog';
 import { MyRotationRequests } from '@/components/rotation/MyRotationRequests';
 import { AIRotationSuggestions } from '@/components/rotation/AIRotationSuggestions';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 export default function RoleRotationView() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -23,7 +24,8 @@ export default function RoleRotationView() {
   const myPendingRequests = myRequests.filter(r => r.status === 'pending');
 
   return (
-    <div className="space-y-6">
+    <>
+    <div className="space-y-6 p-8">
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
@@ -37,6 +39,8 @@ export default function RoleRotationView() {
           Nueva Solicitud
         </Button>
       </div>
+
+      <SectionHelp section="rotacion" variant="inline" />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -135,5 +139,8 @@ export default function RoleRotationView() {
         onOpenChange={setCreateDialogOpen} 
       />
     </div>
+
+    <HelpWidget section="rotacion" />
+    </>
   );
 }

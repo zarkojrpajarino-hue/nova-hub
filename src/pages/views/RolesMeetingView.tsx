@@ -5,6 +5,7 @@ import { useMemberStats, useProjects, useProjectMembers } from '@/hooks/useNovaD
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { AIRoleQuestionsGenerator } from '@/components/roles/AIRoleQuestionsGenerator';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface RolesMeetingViewProps {
   onNewOBV?: () => void;
@@ -70,6 +71,8 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
       />
       
       <div className="p-8">
+        <SectionHelp section="roles-meeting" variant="inline" />
+
         {/* Banner */}
         <div className="nova-gradient-subtle nova-border rounded-2xl p-6 mb-8 flex items-center gap-5 animate-fade-in">
           <div className="w-14 h-14 rounded-2xl nova-gradient flex items-center justify-center">
@@ -156,6 +159,8 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
         role={selectedRole}
         onClose={() => setSelectedRole(null)}
       />
+
+      <HelpWidget section="roles-meeting" />
     </>
   );
 }

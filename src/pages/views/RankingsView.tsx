@@ -14,6 +14,7 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';
 import { RankingTrends } from '@/components/rankings/RankingTrends';
 import { MyRankingCard } from '@/components/rankings/MyRankingCard';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 export function RankingsView() {
   const { profile } = useAuth();
@@ -96,6 +97,8 @@ export function RankingsView() {
       />
       
       <div className="p-8">
+        <SectionHelp section="rankings" variant="inline" />
+
         {/* Stats Overview */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           <Card>
@@ -230,6 +233,8 @@ export function RankingsView() {
           </TabsContent>
         </Tabs>
       </div>
+
+      <HelpWidget section="rankings" />
     </>
   );
 }

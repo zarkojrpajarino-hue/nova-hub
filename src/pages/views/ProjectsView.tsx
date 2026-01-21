@@ -2,6 +2,7 @@ import { Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { ProjectCard } from '@/components/nova/ProjectCard';
 import { useProjects, useProjectMembers, useMemberStats } from '@/hooks/useNovaData';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface ProjectsViewProps {
   onNewOBV?: () => void;
@@ -60,6 +61,8 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
       />
       
       <div className="p-8">
+        <SectionHelp section="proyectos" variant="inline" />
+
         {projects.length === 0 ? (
           <div className="text-center py-20">
             <p className="text-muted-foreground">No hay proyectos creados</p>
@@ -83,6 +86,8 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
           </div>
         )}
       </div>
+
+      <HelpWidget section="proyectos" />
     </>
   );
 }

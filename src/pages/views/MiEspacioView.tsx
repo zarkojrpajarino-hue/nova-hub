@@ -11,6 +11,7 @@ import { MyTasksList } from '@/components/tasks/MyTasksList';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { useNavigate } from 'react-router-dom';
 import { KPIBaseEditor } from '@/components/kpi/KPIBaseEditor';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface MiEspacioViewProps {
   onNewOBV?: () => void;
@@ -82,6 +83,8 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
       />
       
       <div className="p-8">
+        <SectionHelp section="mi-espacio" variant="inline" />
+
         {/* Personal Stats */}
         <div className="flex items-center justify-between mb-4">
           <h2 className="text-lg font-semibold">Mis KPIs</h2>
@@ -270,6 +273,8 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           onOpenChange={setShowTaskForm}
         />
       )}
+
+      <HelpWidget section="mi-espacio" />
     </>
   );
 }

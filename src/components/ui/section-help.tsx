@@ -31,6 +31,7 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from './tooltip';
+import { getHelp } from '@/data/helpContent';
 
 export interface HelpContent {
   title: string;
@@ -41,9 +42,14 @@ export interface HelpContent {
   tips?: string[];
 }
 
-interface SectionHelpProps {
-  content: HelpContent;
+export interface SectionHelpProps {
+  section: string;
   variant?: 'inline' | 'floating' | 'card';
+  className?: string;
+}
+
+export interface HelpWidgetProps {
+  section: string;
   className?: string;
 }
 
@@ -128,8 +134,11 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
 );
 
 // Inline variant - expandable button
-function InlineHelp({ content, className }: SectionHelpProps) {
+function InlineHelp({ section, className }: SectionHelpProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const content = getHelp(section);
+  
+  if (!content) return null;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className={className}>
@@ -167,7 +176,11 @@ function InlineHelp({ content, className }: SectionHelpProps) {
 }
 
 // Floating variant - fixed help button that opens a modal
-function FloatingHelp({ content, className }: SectionHelpProps) {
+function FloatingHelp({ section, className }: SectionHelpProps) {
+  const content = getHelp(section);
+  
+  if (!content) return null;
+
   return (
     <Dialog>
       <DialogTrigger asChild>
@@ -206,8 +219,11 @@ function FloatingHelp({ content, className }: SectionHelpProps) {
 }
 
 // Card variant - collapsible card
-function CardHelp({ content, className }: SectionHelpProps) {
+function CardHelp({ section, className }: SectionHelpProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const content = getHelp(section);
+  
+  if (!content) return null;
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen} className={className}>
@@ -238,24 +254,23 @@ function CardHelp({ content, className }: SectionHelpProps) {
 }
 
 // Main component with variant selection
-export function SectionHelp({ content, variant = 'inline', className }: SectionHelpProps) {
+export function SectionHelp({ section, variant = 'inline', className }: SectionHelpProps) {
   switch (variant) {
     case 'floating':
-      return <FloatingHelp content={content} className={className} />;
+      return <FloatingHelp section={section} className={className} />;
     case 'card':
-      return <CardHelp content={content} className={className} />;
+      return <CardHelp section={section} className={className} />;
     default:
-      return <InlineHelp content={content} className={className} />;
+      return <InlineHelp section={section} className={className} />;
   }
 }
 
-// Compact help widget for card headers
-interface HelpWidgetProps {
-  content: HelpContent;
-  className?: string;
-}
+// Floating help widget for all sections
+export function HelpWidget({ section, className }: HelpWidgetProps) {
+  const content = getHelp(section);
+  
+  if (!content) return null;
 
-export function HelpWidget({ content, className }: HelpWidgetProps) {
   return (
     <TooltipProvider>
       <Dialog>
@@ -264,17 +279,18 @@ export function HelpWidget({ content, className }: HelpWidgetProps) {
             <DialogTrigger asChild>
               <button 
                 className={cn(
-                  "w-6 h-6 rounded-full flex items-center justify-center",
-                  "bg-muted/50 hover:bg-primary/10 text-muted-foreground hover:text-primary",
-                  "transition-all duration-200",
+                  "fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full shadow-lg",
+                  "bg-card/90 backdrop-blur-sm border border-border/50",
+                  "hover:bg-primary hover:text-primary-foreground hover:border-primary",
+                  "flex items-center justify-center transition-all duration-300",
                   className
                 )}
               >
-                <HelpCircle className="w-3.5 h-3.5" />
+                <HelpCircle className="w-5 h-5" />
               </button>
             </DialogTrigger>
           </TooltipTrigger>
-          <TooltipContent side="top" className="text-xs">
+          <TooltipContent side="left" className="text-xs">
             <p>Ver ayuda</p>
           </TooltipContent>
         </Tooltip>
@@ -300,7 +316,11 @@ export function HelpWidget({ content, className }: HelpWidgetProps) {
 }
 
 // Quick inline help icon
-export function QuickHelp({ content, className }: HelpWidgetProps) {
+export function QuickHelp({ section, className }: HelpWidgetProps) {
+  const content = getHelp(section);
+  
+  if (!content) return null;
+
   return (
     <TooltipProvider>
       <Tooltip delayDuration={100}>

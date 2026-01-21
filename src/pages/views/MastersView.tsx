@@ -13,6 +13,7 @@ import { ApplicationsList } from '@/components/masters/ApplicationsList';
 import { ChallengesList } from '@/components/masters/ChallengesList';
 import { ApplyForMasterDialog } from '@/components/masters/ApplyForMasterDialog';
 import { ROLE_CONFIG } from '@/data/mockData';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 export function MastersView() {
   const { profile } = useAuth();
@@ -87,6 +88,8 @@ export function MastersView() {
       />
       
       <div className="p-8">
+        <SectionHelp section="masters" variant="inline" />
+
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
           <Card>
@@ -260,6 +263,8 @@ export function MastersView() {
         userRoles={userRoles}
         userId={profile?.id}
       />
+
+      <HelpWidget section="masters" />
     </>
   );
 }
