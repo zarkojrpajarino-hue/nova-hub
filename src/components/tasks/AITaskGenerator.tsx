@@ -17,6 +17,8 @@ interface GeneratedTask {
   prioridad: number;
   fecha_limite: string;
   selected?: boolean;
+  saved?: boolean;
+  hasPlaybook?: boolean;
 }
 
 interface ProjectContext {
@@ -74,23 +76,14 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
     setGeneratedTasks([]);
 
     try {
-      const { data, error: funcError } = await supabase.functions.invoke('generate-tasks', {
+      // Use generate-tasks-v2 which includes playbooks
+      const { data, error: funcError } = await supabase.functions.invoke('generate-tasks-v2', {
         body: {
-          project: {
-            nombre: project.nombre,
-            fase: project.fase,
-            tipo: project.tipo,
-            onboarding_data: project.onboarding_data,
-            team: project.team.map(m => ({ nombre: m.nombre, role: m.role })),
-            obvs_count: project.obvs_count,
-            leads_count: project.leads_count,
-            last_activity: project.last_activity,
-          }
+          projectId: project.id
         }
       });
 
       if (funcError) {
-        // Handle specific HTTP error codes
         const errorMessage = funcError.message || '';
         if (errorMessage.includes('429') || funcError.context?.status === 429) {
           setError('Has excedido el límite de solicitudes. Por favor espera unos minutos antes de intentar de nuevo.');
@@ -104,7 +97,6 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
       }
 
       if (data?.error) {
-        // Handle error messages from edge function
         if (data.error.includes('429') || data.error.includes('límite')) {
           setError('Has excedido el límite de solicitudes. Por favor espera unos minutos.');
         } else if (data.error.includes('402') || data.error.includes('Créditos')) {
@@ -115,19 +107,35 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
         return;
       }
 
-      const tasks = (data?.tasks || []).map((t: GeneratedTask) => ({
-        ...t,
+      // generate-tasks-v2 saves tasks directly, so we just show success
+      const savedTasks = data?.tasks || [];
+      
+      if (savedTasks.length === 0) {
+        setError('No se pudieron generar tareas. Asegúrate de que el proyecto tenga miembros asignados.');
+        return;
+      }
+
+      // Transform saved tasks to display format
+      const displayTasks = savedTasks.map((t: any) => ({
+        assignee: t.assignee_id ? (project.team.find(m => m.id === t.assignee_id)?.nombre || 'Sin asignar') : 'Sin asignar',
+        titulo: t.titulo,
+        descripcion: t.descripcion || '',
+        prioridad: t.prioridad || 2,
+        fecha_limite: t.fecha_limite || new Date().toISOString().split('T')[0],
+        hasPlaybook: !!t.playbook,
         selected: true,
+        saved: true, // Already saved by v2
       }));
 
-      setGeneratedTasks(tasks);
+      setGeneratedTasks(displayTasks);
       
-      if (tasks.length === 0) {
-        setError('No se pudieron generar tareas. Asegúrate de que el proyecto tenga miembros asignados.');
-      }
+      toast.success(`${savedTasks.length} tareas creadas con IA (con Playbook)`);
+      queryClient.invalidateQueries({ queryKey: ['project_tasks', project.id] });
+      queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['pending_ai_tasks', project.id] });
+
     } catch (err) {
       console.error('Error generating tasks:', err);
-      // Check for network errors or specific status codes
       const error = err as { status?: number; message?: string };
       if (error.status === 429) {
         setError('Has excedido el límite de solicitudes. Espera unos minutos.');
@@ -147,58 +155,15 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
     ));
   };
 
-  const handleSave = async () => {
-    const selectedTasks = generatedTasks.filter(t => t.selected);
-    if (selectedTasks.length === 0) {
-      toast.error('Selecciona al menos una tarea');
-      return;
-    }
-
-    setIsSaving(true);
-
-    try {
-      // Map assignee names to IDs
-      const tasksToInsert = selectedTasks.map(task => {
-        const member = project.team.find(m => 
-          m.nombre.toLowerCase().includes(task.assignee.toLowerCase()) ||
-          task.assignee.toLowerCase().includes(m.nombre.toLowerCase())
-        );
-
-        return {
-          project_id: project.id,
-          titulo: task.titulo,
-          descripcion: task.descripcion,
-          prioridad: task.prioridad,
-          fecha_limite: task.fecha_limite,
-          assignee_id: member?.id || null,
-          status: 'todo' as const,
-          ai_generated: true,
-        };
-      });
-
-      const { error: insertError } = await supabase
-        .from('tasks')
-        .insert(tasksToInsert);
-
-      if (insertError) throw insertError;
-
-      toast.success(`${selectedTasks.length} tareas creadas con IA`);
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['pending_ai_tasks', project.id] });
-      
-      setIsOpen(false);
-      setGeneratedTasks([]);
-      onComplete?.();
-    } catch (err) {
-      console.error('Error saving tasks:', err);
-      toast.error('Error al guardar las tareas');
-    } finally {
-      setIsSaving(false);
-    }
+  // Tasks are already saved by generate-tasks-v2, so handleSave just closes
+  const handleClose = () => {
+    setIsOpen(false);
+    setGeneratedTasks([]);
+    onComplete?.();
   };
 
   const selectedCount = generatedTasks.filter(t => t.selected).length;
+  const allTasksSaved = generatedTasks.length > 0 && generatedTasks.every(t => t.saved);
 
   return (
     <>
@@ -317,6 +282,11 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
                               <Sparkles className="w-2.5 h-2.5 mr-1" />
                               IA
                             </Badge>
+                            {task.hasPlaybook && (
+                              <Badge variant="outline" className="text-[10px] h-5 border-primary text-primary">
+                                📖 Playbook
+                              </Badge>
+                            )}
                           </div>
 
                           <p className="font-medium text-sm mb-1">{task.titulo}</p>
@@ -350,27 +320,35 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
 
           {generatedTasks.length > 0 && !isGenerating && (
             <div className="flex items-center gap-3 pt-4 border-t">
-              <Button
-                variant="outline"
-                className="flex-1"
-                onClick={handleGenerate}
-                disabled={isSaving}
-              >
-                <Bot className="w-4 h-4 mr-2" />
-                Regenerar
-              </Button>
-              <Button
-                className="flex-1"
-                onClick={handleSave}
-                disabled={isSaving || selectedCount === 0}
-              >
-                {isSaving ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                ) : (
+              {allTasksSaved ? (
+                <Button
+                  className="flex-1"
+                  onClick={handleClose}
+                >
                   <Check className="w-4 h-4 mr-2" />
-                )}
-                Guardar {selectedCount} tarea{selectedCount !== 1 ? 's' : ''}
-              </Button>
+                  ¡Listo! Ver tareas
+                </Button>
+              ) : (
+                <>
+                  <Button
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleGenerate}
+                    disabled={isSaving}
+                  >
+                    <Bot className="w-4 h-4 mr-2" />
+                    Regenerar
+                  </Button>
+                  <Button
+                    className="flex-1"
+                    onClick={handleClose}
+                    disabled={isSaving}
+                  >
+                    <Check className="w-4 h-4 mr-2" />
+                    Guardar {selectedCount} tarea{selectedCount !== 1 ? 's' : ''}
+                  </Button>
+                </>
+              )}
             </div>
           )}
         </DialogContent>

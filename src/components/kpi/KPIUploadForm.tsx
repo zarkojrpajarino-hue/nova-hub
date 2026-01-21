@@ -1,10 +1,9 @@
 import { useState } from 'react';
-import { Loader2, AlertTriangle } from 'lucide-react';
+import { Loader2, AlertTriangle, BookOpen, Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
@@ -19,13 +18,6 @@ interface KPIUploadFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
-
-const CP_ACTIVITIES = [
-  { value: 'mentoring', label: 'Mentoring individual', points: 1 },
-  { value: 'evento_mta', label: 'Participar en evento MTA', points: 1 },
-  { value: 'workshop', label: 'Organizar workshop', points: 2 },
-  { value: 'liderar_evento', label: 'Liderar evento MTA', points: 3 },
-];
 
 const TYPE_LABELS = {
   lp: 'Learning Path',
@@ -43,8 +35,8 @@ const TYPE_PLACEHOLDERS = {
     descripcion: 'Resume los puntos clave del libro',
   },
   cp: {
-    titulo: 'Ej: Workshop de Pitch para startups',
-    descripcion: 'Describe la actividad comunitaria realizada',
+    titulo: 'Ej: Mentoring con Juan sobre ventas',
+    descripcion: 'Describe brevemente la actividad comunitaria',
   },
 };
 
@@ -57,11 +49,14 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
     titulo: '',
     descripcion: '',
     evidenceUrl: '',
-    cpActivity: '',
+    bpPoints: 1, // Número de book points
   });
 
-  const selectedActivity = CP_ACTIVITIES.find(a => a.value === formData.cpActivity);
-  const cpPoints = selectedActivity?.points || 1;
+  // CP no necesita validación ni evidencia
+  // BP necesita número de puntos + evidencia + validación
+  // LP necesita evidencia + validación (siempre 1 punto)
+  const needsValidation = type !== 'cp';
+  const needsEvidence = type !== 'cp';
 
   const handleSubmit = async () => {
     if (!profile?.id) {
@@ -74,32 +69,50 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
       return;
     }
 
-    if (type === 'cp' && !formData.cpActivity) {
-      toast.error('Selecciona el tipo de actividad');
+    // Para BP, validar que los puntos sean al menos 1
+    if (type === 'bp' && formData.bpPoints < 1) {
+      toast.error('Los Book Points deben ser al menos 1');
       return;
     }
 
     setIsSubmitting(true);
 
     try {
+      // Determinar puntos y status según el tipo
+      let points = 1;
+      let status: 'pending' | 'validated' = needsValidation ? 'pending' : 'validated';
+
+      if (type === 'bp') {
+        points = formData.bpPoints;
+      } else if (type === 'cp') {
+        points = 1; // CP siempre 1 punto
+      }
+
       const { error } = await supabase.from('kpis').insert({
         owner_id: profile.id,
         type,
         titulo: formData.titulo,
         descripcion: formData.descripcion || null,
-        evidence_url: formData.evidenceUrl || null,
-        cp_points: type === 'cp' ? cpPoints : 1,
-        status: 'pending',
+        evidence_url: needsEvidence ? (formData.evidenceUrl || null) : null,
+        cp_points: points,
+        status,
+        validated_at: !needsValidation ? new Date().toISOString() : null,
       });
 
       if (error) throw error;
 
-      toast.success(`${TYPE_LABELS[type]} enviado a validación`);
+      if (needsValidation) {
+        toast.success(`${TYPE_LABELS[type]} enviado a validación`);
+      } else {
+        toast.success(`${TYPE_LABELS[type]} registrado (+${points} punto${points > 1 ? 's' : ''})`);
+      }
+
       queryClient.invalidateQueries({ queryKey: ['kpis'] });
       queryClient.invalidateQueries({ queryKey: ['my_kpis'] });
       queryClient.invalidateQueries({ queryKey: ['pending_kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['member_stats'] });
       
-      setFormData({ titulo: '', descripcion: '', evidenceUrl: '', cpActivity: '' });
+      setFormData({ titulo: '', descripcion: '', evidenceUrl: '', bpPoints: 1 });
       onOpenChange(false);
     } catch (error) {
       console.error('Error creating KPI:', error);
@@ -109,20 +122,43 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
     }
   };
 
+  const getIcon = () => {
+    switch (type) {
+      case 'bp': return <BookOpen className="w-5 h-5 text-success" />;
+      case 'cp': return <Users className="w-5 h-5 text-pink-500" />;
+      default: return null;
+    }
+  };
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Nuevo {TYPE_LABELS[type]}</DialogTitle>
+          <DialogTitle className="flex items-center gap-2">
+            {getIcon()}
+            Nuevo {TYPE_LABELS[type]}
+          </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
-          {isBlocked && (
+          {/* Bloqueo solo aplica a tipos que necesitan validación */}
+          {isBlocked && needsValidation && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
               <AlertTitle>Estás bloqueado</AlertTitle>
               <AlertDescription>
                 No puedes subir KPIs hasta que valides tus pendientes.
+              </AlertDescription>
+            </Alert>
+          )}
+
+          {/* Info especial para CP */}
+          {type === 'cp' && (
+            <Alert>
+              <Users className="h-4 w-4" />
+              <AlertTitle>Community Points</AlertTitle>
+              <AlertDescription>
+                Los CP se suman directamente sin necesidad de validación. Cada actividad = 1 punto.
               </AlertDescription>
             </Alert>
           )}
@@ -133,7 +169,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
               value={formData.titulo}
               onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
               placeholder={TYPE_PLACEHOLDERS[type].titulo}
-              disabled={isBlocked}
+              disabled={isBlocked && needsValidation}
             />
           </div>
 
@@ -147,36 +183,31 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
             />
           </div>
 
-          {type === 'cp' && (
+          {/* Campo de Book Points (solo para BP) */}
+          {type === 'bp' && (
             <div>
-              <Label>Tipo de actividad *</Label>
-              <Select 
-                value={formData.cpActivity} 
-                onValueChange={(v) => setFormData({ ...formData, cpActivity: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Selecciona actividad" />
-                </SelectTrigger>
-                <SelectContent>
-                  {CP_ACTIVITIES.map((activity) => (
-                    <SelectItem key={activity.value} value={activity.value}>
-                      {activity.label} ({activity.points} pt{activity.points > 1 ? 's' : ''})
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              {selectedActivity && (
-                <p className="text-sm text-muted-foreground mt-1">
-                  Esta actividad otorga <span className="font-semibold text-primary">{cpPoints} punto{cpPoints > 1 ? 's' : ''}</span>
-                </p>
-              )}
+              <Label>Número de Book Points *</Label>
+              <Input
+                type="number"
+                min={1}
+                max={10}
+                value={formData.bpPoints}
+                onChange={(e) => setFormData({ ...formData, bpPoints: Math.max(1, parseInt(e.target.value) || 1) })}
+                className="w-32"
+              />
+              <p className="text-xs text-muted-foreground mt-1">
+                Este libro otorgará <span className="font-semibold text-success">{formData.bpPoints} BP</span> al ser validado
+              </p>
             </div>
           )}
 
-          <EvidenceUrlInput
-            value={formData.evidenceUrl}
-            onChange={(value) => setFormData({ ...formData, evidenceUrl: value })}
-          />
+          {/* Evidencia solo para LP y BP */}
+          {needsEvidence && (
+            <EvidenceUrlInput
+              value={formData.evidenceUrl}
+              onChange={(value) => setFormData({ ...formData, evidenceUrl: value })}
+            />
+          )}
 
           <div className="flex gap-3 pt-4">
             <Button
@@ -190,17 +221,19 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
             <Button
               className="flex-1"
               onClick={handleSubmit}
-              disabled={isSubmitting || isBlocked}
+              disabled={isSubmitting || (isBlocked && needsValidation)}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Enviando...
+                  {needsValidation ? 'Enviando...' : 'Guardando...'}
                 </>
-              ) : isBlocked ? (
+              ) : (isBlocked && needsValidation) ? (
                 'Bloqueado'
-              ) : (
+              ) : needsValidation ? (
                 'Enviar a validación'
+              ) : (
+                `Registrar (+1 CP)`
               )}
             </Button>
           </div>
