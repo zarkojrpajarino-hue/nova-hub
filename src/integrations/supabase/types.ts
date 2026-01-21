@@ -1138,7 +1138,7 @@ export type Database = {
           member_id: string
           performance_score: number | null
           project_id: string
-          role: Database["public"]["Enums"]["specialization_role"]
+          role: Database["public"]["Enums"]["specialization_role"] | null
           role_accepted: boolean | null
           role_accepted_at: string | null
           role_responsibilities: Json | null
@@ -1151,7 +1151,7 @@ export type Database = {
           member_id: string
           performance_score?: number | null
           project_id: string
-          role: Database["public"]["Enums"]["specialization_role"]
+          role?: Database["public"]["Enums"]["specialization_role"] | null
           role_accepted?: boolean | null
           role_accepted_at?: string | null
           role_responsibilities?: Json | null
@@ -1164,7 +1164,7 @@ export type Database = {
           member_id?: string
           performance_score?: number | null
           project_id?: string
-          role?: Database["public"]["Enums"]["specialization_role"]
+          role?: Database["public"]["Enums"]["specialization_role"] | null
           role_accepted?: boolean | null
           role_accepted_at?: string | null
           role_responsibilities?: Json | null
