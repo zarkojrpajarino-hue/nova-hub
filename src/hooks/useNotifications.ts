@@ -14,28 +14,28 @@ export interface Notification {
   created_at: string | null;
 }
 
-export function useNotifications() {
+// Separate hook for realtime subscription to avoid hook ordering issues
+export function useNotificationsRealtime() {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const profileId = profile?.id;
 
-  // Subscribe to realtime notifications
   useEffect(() => {
-    if (!profile?.id) return;
+    if (!profileId) return;
 
     const channel = supabase
-      .channel('notifications-realtime')
+      .channel(`notifications-${profileId}`)
       .on(
         'postgres_changes',
         {
           event: 'INSERT',
           schema: 'public',
           table: 'notifications',
-          filter: `user_id=eq.${profile.id}`,
+          filter: `user_id=eq.${profileId}`,
         },
         () => {
-          // Invalidate queries when new notification arrives
-          queryClient.invalidateQueries({ queryKey: ['notifications', profile.id] });
-          queryClient.invalidateQueries({ queryKey: ['notifications_unread_count', profile.id] });
+          queryClient.invalidateQueries({ queryKey: ['notifications', profileId] });
+          queryClient.invalidateQueries({ queryKey: ['notifications_unread_count', profileId] });
         }
       )
       .subscribe();
@@ -43,52 +43,61 @@ export function useNotifications() {
     return () => {
       supabase.removeChannel(channel);
     };
-  }, [profile?.id, queryClient]);
+  }, [profileId, queryClient]);
+}
+
+export function useNotifications() {
+  const { profile } = useAuth();
+  const profileId = profile?.id;
+
+  // Setup realtime subscription
+  useNotificationsRealtime();
 
   return useQuery({
-    queryKey: ['notifications', profile?.id],
+    queryKey: ['notifications', profileId],
     queryFn: async () => {
-      if (!profile?.id) return [];
+      if (!profileId) return [];
       
       const { data, error } = await supabase
         .from('notifications')
         .select('*')
-        .eq('user_id', profile.id)
+        .eq('user_id', profileId)
         .order('created_at', { ascending: false })
         .limit(50);
 
       if (error) throw error;
       return data as Notification[];
     },
-    enabled: !!profile?.id,
+    enabled: !!profileId,
   });
 }
 
 export function useUnreadCount() {
   const { profile } = useAuth();
+  const profileId = profile?.id;
 
   return useQuery({
-    queryKey: ['notifications_unread_count', profile?.id],
+    queryKey: ['notifications_unread_count', profileId],
     queryFn: async () => {
-      if (!profile?.id) return 0;
+      if (!profileId) return 0;
 
       const { count, error } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
-        .eq('user_id', profile.id)
+        .eq('user_id', profileId)
         .eq('leida', false);
 
       if (error) throw error;
       return count || 0;
     },
-    enabled: !!profile?.id,
-    // No need for polling, realtime handles updates
+    enabled: !!profileId,
   });
 }
 
 export function useMarkAsRead() {
   const queryClient = useQueryClient();
   const { profile } = useAuth();
+  const profileId = profile?.id;
 
   return useMutation({
     mutationFn: async (notificationId: string) => {
@@ -100,8 +109,8 @@ export function useMarkAsRead() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['notifications_unread_count', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', profileId] });
+      queryClient.invalidateQueries({ queryKey: ['notifications_unread_count', profileId] });
     },
   });
 }
@@ -109,22 +118,23 @@ export function useMarkAsRead() {
 export function useMarkAllAsRead() {
   const queryClient = useQueryClient();
   const { profile } = useAuth();
+  const profileId = profile?.id;
 
   return useMutation({
     mutationFn: async () => {
-      if (!profile?.id) return;
+      if (!profileId) return;
 
       const { error } = await supabase
         .from('notifications')
         .update({ leida: true })
-        .eq('user_id', profile.id)
+        .eq('user_id', profileId)
         .eq('leida', false);
 
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications', profile?.id] });
-      queryClient.invalidateQueries({ queryKey: ['notifications_unread_count', profile?.id] });
+      queryClient.invalidateQueries({ queryKey: ['notifications', profileId] });
+      queryClient.invalidateQueries({ queryKey: ['notifications_unread_count', profileId] });
     },
   });
 }
