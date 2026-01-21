@@ -1,6 +1,7 @@
 import { useState } from 'react';
-import { Plus, Loader2, Circle, Clock, CheckCircle2, AlertCircle, Calendar, Flag, Sparkles, User } from 'lucide-react';
+import { Plus, Loader2, Circle, Clock, CheckCircle2, AlertCircle, Calendar, Flag, Sparkles, User, BookOpen } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -8,6 +9,9 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
 import { TaskForm } from './TaskForm';
+import { TaskPlaybookViewer } from './TaskPlaybookViewer';
+import { TaskCompletionDialog } from './TaskCompletionDialog';
+import { Json } from '@/integrations/supabase/types';
 
 const TASK_COLUMNS = [
   { id: 'todo', label: 'To Do', icon: Circle, color: '#64748B' },
@@ -32,6 +36,16 @@ interface Task {
   assignee_id: string | null;
   ai_generated: boolean | null;
   created_at: string;
+  playbook: Json | null;
+  metadata: Json | null;
+}
+
+interface TaskFeedback {
+  resultado: 'exito' | 'parcial' | 'fallido';
+  insights: string;
+  aprendizaje: string;
+  siguiente_accion: string;
+  dificultad: number;
 }
 
 interface KanbanBoardProps {
@@ -43,6 +57,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
+  const [selectedTaskForPlaybook, setSelectedTaskForPlaybook] = useState<Task | null>(null);
+  const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['project_tasks', projectId],
@@ -92,9 +108,17 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
     }
   };
 
-  const toggleComplete = async (task: Task) => {
-    const newStatus = task.status === 'done' ? 'todo' : 'done';
-    
+  const handleCompleteClick = (task: Task) => {
+    if (task.status === 'done') {
+      // If already done, just toggle back to todo
+      toggleTaskStatus(task, 'todo');
+    } else {
+      // If not done, show completion dialog
+      setTaskToComplete(task);
+    }
+  };
+
+  const toggleTaskStatus = async (task: Task, newStatus: string) => {
     try {
       const { error } = await supabase
         .from('tasks')
@@ -110,6 +134,57 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
       console.error('Error toggling task:', error);
       toast.error('Error al actualizar tarea');
     }
+  };
+
+  const handleTaskComplete = async (taskId: string, feedback: TaskFeedback) => {
+    try {
+      // Save feedback as a user insight
+      if (profile?.id) {
+        await supabase.from('user_insights').insert({
+          user_id: profile.id,
+          project_id: projectId,
+          tipo: 'tarea_completada',
+          titulo: `Tarea: ${taskToComplete?.titulo}`,
+          contenido: `**Resultado:** ${feedback.resultado}\n\n**Insights:** ${feedback.insights}\n\n**Aprendizaje:** ${feedback.aprendizaje}\n\n**Siguiente acción:** ${feedback.siguiente_accion || 'No especificada'}\n\n**Dificultad:** ${feedback.dificultad}/5`,
+          tags: ['tarea', feedback.resultado],
+        });
+      }
+
+      // Update task status
+      const currentMetadata = taskToComplete?.metadata as Record<string, unknown> || {};
+      const { error } = await supabase
+        .from('tasks')
+        .update({ 
+          status: 'done' as any,
+          completed_at: new Date().toISOString(),
+          metadata: JSON.stringify({
+            ...currentMetadata,
+            completion_feedback: {
+              resultado: feedback.resultado,
+              insights: feedback.insights,
+              aprendizaje: feedback.aprendizaje,
+              siguiente_accion: feedback.siguiente_accion,
+              dificultad: feedback.dificultad,
+            },
+          }),
+        })
+        .eq('id', taskId);
+
+      if (error) throw error;
+      
+      toast.success('¡Tarea completada! Feedback guardado.');
+      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
+      setTaskToComplete(null);
+    } catch (error) {
+      console.error('Error completing task:', error);
+      throw error;
+    }
+  };
+
+  // Check if task has a playbook
+  const hasPlaybook = (task: Task) => {
+    return task.playbook && typeof task.playbook === 'object' && Object.keys(task.playbook).length > 0;
   };
 
   const getAssignee = (assigneeId: string | null) => 
@@ -206,7 +281,7 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
                                 {/* Checkbox + Title */}
                                 <div className="flex items-start gap-2 mb-2">
                                   <button
-                                    onClick={() => toggleComplete(task)}
+                                    onClick={() => handleCompleteClick(task)}
                                     className="mt-0.5 shrink-0"
                                   >
                                     {task.status === 'done' ? (
@@ -231,18 +306,35 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
                                 
                                 {/* Footer */}
                                 <div className="flex items-center justify-between pl-6">
-                                  {task.fecha_limite && (
-                                    <div className={cn(
-                                      "flex items-center gap-1 text-xs",
-                                      isOverdue ? "text-destructive" : "text-muted-foreground"
-                                    )}>
-                                      <Calendar size={10} />
-                                      {new Date(task.fecha_limite).toLocaleDateString('es-ES', {
-                                        day: 'numeric',
-                                        month: 'short',
-                                      })}
-                                    </div>
-                                  )}
+                                  <div className="flex items-center gap-2">
+                                    {task.fecha_limite && (
+                                      <div className={cn(
+                                        "flex items-center gap-1 text-xs",
+                                        isOverdue ? "text-destructive" : "text-muted-foreground"
+                                      )}>
+                                        <Calendar size={10} />
+                                        {new Date(task.fecha_limite).toLocaleDateString('es-ES', {
+                                          day: 'numeric',
+                                          month: 'short',
+                                        })}
+                                      </div>
+                                    )}
+                                    
+                                    {/* Playbook button */}
+                                    {hasPlaybook(task) && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setSelectedTaskForPlaybook(task);
+                                        }}
+                                        className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
+                                        title="Ver Playbook"
+                                      >
+                                        <BookOpen size={12} />
+                                        <span>Playbook</span>
+                                      </button>
+                                    )}
+                                  </div>
                                   
                                   {assignee && (
                                     <div 
@@ -281,6 +373,44 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
         open={showForm}
         onOpenChange={setShowForm}
       />
+
+      {/* Playbook Dialog */}
+      <Dialog 
+        open={!!selectedTaskForPlaybook} 
+        onOpenChange={(open) => !open && setSelectedTaskForPlaybook(null)}
+      >
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle className="flex items-center gap-2">
+              <BookOpen className="w-5 h-5 text-primary" />
+              Playbook de la tarea
+            </DialogTitle>
+          </DialogHeader>
+          {selectedTaskForPlaybook?.playbook && (
+            <TaskPlaybookViewer 
+              playbook={selectedTaskForPlaybook.playbook as any} 
+              taskTitle={selectedTaskForPlaybook.titulo}
+              onClose={() => setSelectedTaskForPlaybook(null)}
+            />
+          )}
+        </DialogContent>
+      </Dialog>
+
+      {/* Task Completion Dialog */}
+      {taskToComplete && (
+        <TaskCompletionDialog
+          open={!!taskToComplete}
+          onOpenChange={(open) => !open && setTaskToComplete(null)}
+          task={{
+            id: taskToComplete.id,
+            titulo: taskToComplete.titulo,
+            descripcion: taskToComplete.descripcion,
+            playbook: taskToComplete.playbook as any,
+            metadata: taskToComplete.metadata as any,
+          }}
+          onComplete={handleTaskComplete}
+        />
+      )}
     </div>
   );
 }

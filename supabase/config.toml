@@ -23,3 +23,6 @@ verify_jwt = false
 
 [functions.generate-project-roles]
 verify_jwt = false
+
+[functions.generate-task-completion-questions]
+verify_jwt = false
