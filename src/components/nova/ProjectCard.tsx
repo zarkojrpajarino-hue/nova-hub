@@ -1,5 +1,29 @@
+import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
-import { Project, Member, ProjectRole, ROLE_CONFIG } from '@/data/mockData';
+import { ROLE_CONFIG } from '@/data/mockData';
+
+interface Project {
+  id: string;
+  nombre: string;
+  icon: string;
+  color: string;
+  fase: string;
+  tipo: string;
+  onboarding_completed?: boolean;
+  members: string[];
+}
+
+interface Member {
+  id: string;
+  nombre: string;
+  color: string;
+}
+
+interface ProjectRole {
+  project_id: string;
+  member_id: string;
+  role: string;
+}
 
 interface ProjectCardProps {
   project: Project;
@@ -9,11 +33,17 @@ interface ProjectCardProps {
 }
 
 export function ProjectCard({ project, members, roles, showRoles = false }: ProjectCardProps) {
+  const navigate = useNavigate();
   const projectMembers = members.filter(m => project.members.includes(m.id));
   const projectRoles = roles.filter(r => r.project_id === project.id);
 
+  const handleClick = () => {
+    navigate(`/proyecto/${project.id}`);
+  };
+
   return (
     <div 
+      onClick={handleClick}
       className="relative bg-card border border-border rounded-2xl p-6 cursor-pointer transition-all duration-200 hover:-translate-y-0.5 hover:border-muted-foreground/30 hover:shadow-xl hover:shadow-black/20 overflow-hidden group"
     >
       {/* Top accent bar */}
@@ -48,20 +78,25 @@ export function ProjectCard({ project, members, roles, showRoles = false }: Proj
 
       {/* Team Avatars */}
       <div className="flex items-center mb-4">
-        {projectMembers.map((member, i) => (
+        {projectMembers.slice(0, 5).map((member, i) => (
           <div 
             key={member.id}
             className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs text-white border-2 border-card"
             style={{ 
-              background: member.color,
+              background: member.color || '#6366F1',
               marginLeft: i > 0 ? '-8px' : 0,
               zIndex: projectMembers.length - i
             }}
             title={member.nombre}
           >
-            {member.nombre.charAt(0)}
+            {member.nombre?.charAt(0)}
           </div>
         ))}
+        {projectMembers.length > 5 && (
+          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs bg-muted text-muted-foreground border-2 border-card" style={{ marginLeft: '-8px' }}>
+            +{projectMembers.length - 5}
+          </div>
+        )}
       </div>
 
       {/* Role badges */}
@@ -78,7 +113,7 @@ export function ProjectCard({ project, members, roles, showRoles = false }: Proj
                 className="flex items-center gap-1.5 text-[11px] bg-background px-2 py-1 rounded-md"
               >
                 <role.icon size={12} style={{ color: role.color }} />
-                <span className="text-muted-foreground">{member.nombre.split(' ')[0]}</span>
+                <span className="text-muted-foreground">{member.nombre?.split(' ')[0]}</span>
               </div>
             );
           })}
@@ -88,15 +123,15 @@ export function ProjectCard({ project, members, roles, showRoles = false }: Proj
       {/* Metrics */}
       <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
         <div className="text-center">
-          <p className="font-bold text-lg">24</p>
+          <p className="font-bold text-lg">-</p>
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">OBVs</p>
         </div>
         <div className="text-center">
-          <p className="font-bold text-lg">8</p>
+          <p className="font-bold text-lg">-</p>
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Leads</p>
         </div>
         <div className="text-center">
-          <p className="font-bold text-lg">€2.4K</p>
+          <p className="font-bold text-lg">-</p>
           <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Facturado</p>
         </div>
       </div>

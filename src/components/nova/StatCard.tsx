@@ -1,12 +1,12 @@
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
-interface StatCardProps {
+export interface StatCardProps {
   icon: LucideIcon;
   value: string | number;
   label: string;
   progress: number;
-  target: string | number;
+  target?: string | number;
   color: string;
   delay?: number;
 }
@@ -53,13 +53,14 @@ export function StatCard({ icon: Icon, value, label, progress, target, color, de
         />
       </div>
 
-      {/* Meta */}
-      <div className="flex items-center justify-between text-xs">
-        <span className="font-semibold" style={{ color }}>
-          {clampedProgress.toFixed(0)}%
-        </span>
-        <span className="text-muted-foreground">Meta: {target}</span>
-      </div>
+      {target !== undefined && (
+        <div className="flex items-center justify-between text-xs">
+          <span className="font-semibold" style={{ color }}>
+            {clampedProgress.toFixed(0)}%
+          </span>
+          <span className="text-muted-foreground">Meta: {target}</span>
+        </div>
+      )}
     </div>
   );
 }
