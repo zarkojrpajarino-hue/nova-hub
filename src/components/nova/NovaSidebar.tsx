@@ -31,6 +31,7 @@ const navItems: NavItem[] = [
   { id: 'kpis', icon: BookOpen, label: 'Otros KPIs' },
   { id: 'analytics', icon: BarChart3, label: 'Analytics' },
   { id: 'roles', icon: Users2, label: 'Reuniones de Rol' },
+  { id: 'settings', icon: Settings, label: 'Configuración' },
 ];
 
 export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOut }: NovaSidebarProps) {
@@ -85,7 +86,21 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Equipo
           </p>
-          {navItems.slice(8).map((item) => (
+          {navItems.slice(8, 10).map((item) => (
+            <NavItem
+              key={item.id}
+              item={item}
+              isActive={currentView === item.id}
+              onClick={() => setCurrentView(item.id)}
+            />
+          ))}
+        </div>
+
+        <div>
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
+            Sistema
+          </p>
+          {navItems.slice(10).map((item) => (
             <NavItem
               key={item.id}
               item={item}
