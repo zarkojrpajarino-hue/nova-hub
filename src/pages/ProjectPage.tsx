@@ -16,7 +16,7 @@ import { ProjectOBVsTab } from '@/components/project/ProjectOBVsTab';
 import { ProjectFinancialTab } from '@/components/project/ProjectFinancialTab';
 import { ProjectOnboardingTab } from '@/components/project/ProjectOnboardingTab';
 import { OnboardingGate } from '@/components/project/OnboardingGate';
-import { RoleAcceptanceGate } from '@/components/project/RoleAcceptanceGate';
+// RoleAcceptanceGate eliminado - los roles se auto-aceptan tras onboarding
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -128,45 +128,7 @@ export default function ProjectPage() {
     );
   }
 
-  // GATE 2: Onboarding complete but roles not accepted → show role acceptance
-  if (isOnboardingComplete && !allRolesAccepted && hasMembers) {
-    return (
-      <div className="min-h-screen bg-background">
-        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
-          <div className="max-w-7xl mx-auto px-6 py-4">
-            <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
-                size="icon"
-                onClick={() => navigate('/')}
-              >
-                <ArrowLeft size={20} />
-              </Button>
-              
-              <div 
-                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
-                style={{ background: `${project.color}20` }}
-              >
-                {project.icon}
-              </div>
-              
-              <div className="flex-1">
-                <h1 className="text-xl font-bold">{project.nombre}</h1>
-                <p className="text-sm text-muted-foreground">
-                  Aceptación de roles pendiente
-                </p>
-              </div>
-            </div>
-          </div>
-        </header>
-        <RoleAcceptanceGate 
-          project={project}
-          currentUserId={profile?.id}
-          teamMembers={teamMembers as any}
-        />
-      </div>
-    );
-  }
+  // GATE 2: Eliminado - los roles se auto-aceptan tras completar onboarding
 
   // UNLOCKED: Show full project
   return (

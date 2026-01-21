@@ -142,11 +142,22 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
 
       if (error) throw error;
 
+      // Auto-accept roles for all members in this project
+      const { error: acceptError } = await supabase
+        .from('project_members')
+        .update({ role_accepted: true, role_accepted_at: new Date().toISOString() })
+        .eq('project_id', project.id);
+
+      if (acceptError) {
+        console.error('Error auto-accepting roles:', acceptError);
+      }
+
       // Clear draft
       localStorage.removeItem(`onboarding-draft-${project.id}`);
       
-      toast.success('¡Onboarding completado!');
+      toast.success('¡Onboarding completado! Ya puedes trabajar en el proyecto.');
       queryClient.invalidateQueries({ queryKey: ['projects'] });
+      queryClient.invalidateQueries({ queryKey: ['project_members'] });
       onComplete?.();
     } catch (error) {
       console.error('Error saving onboarding:', error);

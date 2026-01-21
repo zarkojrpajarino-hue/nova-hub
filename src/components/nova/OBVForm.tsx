@@ -312,29 +312,37 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
         {step === 1 && (
           <>
             <h4 className="text-lg font-semibold text-center mb-6">
-              Paso 1: Selecciona el tipo de OBV
+              ¿Qué tipo de actividad registras?
             </h4>
-            <div className="grid grid-cols-3 gap-4 mb-8">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
               {OBV_TYPES.map(type => (
-                <div
+                <button
                   key={type.id}
+                  type="button"
                   onClick={() => setFormData(prev => ({ ...prev, tipo: type.id }))}
                   className={cn(
-                    "bg-background border-2 rounded-2xl p-6 cursor-pointer transition-all text-center",
-                    formData.tipo === type.id
-                      ? "border-primary nova-gradient-subtle"
-                      : "border-border hover:border-muted-foreground/50"
+                    "p-6 rounded-xl border-2 text-left transition-all duration-200 active:scale-95",
+                    "hover:shadow-lg hover:border-primary/50",
+                    formData.tipo === type.id 
+                      ? "border-primary bg-primary/5 shadow-md ring-2 ring-primary/20" 
+                      : "border-border bg-card hover:bg-muted/50"
                   )}
                 >
                   <div 
-                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mx-auto mb-4"
+                    className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-4"
                     style={{ background: `${type.color}15` }}
                   >
                     {type.icon}
                   </div>
                   <h5 className="font-bold text-base mb-2">{type.title}</h5>
                   <p className="text-sm text-muted-foreground">{type.desc}</p>
-                </div>
+                  {formData.tipo === type.id && (
+                    <div className="mt-3 flex items-center gap-1.5 text-primary text-sm font-medium">
+                      <Check size={14} />
+                      Seleccionado
+                    </div>
+                  )}
+                </button>
               ))}
             </div>
           </>
@@ -541,59 +549,74 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
                   placeholder="Ej: Pack de menús premium"
                   value={formData.producto}
                   onChange={e => setFormData(prev => ({ ...prev, producto: e.target.value }))}
+                  className="h-12 text-base"
                 />
               </div>
+              
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <Label htmlFor="cantidad">Cantidad</Label>
                   <Input
                     id="cantidad"
-                    type="number"
-                    min={1}
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     value={formData.cantidad}
-                    onChange={e => updateSaleCalculations({ cantidad: parseInt(e.target.value) || 0 })}
+                    onChange={e => {
+                      const val = e.target.value.replace(/\D/g, '');
+                      updateSaleCalculations({ cantidad: parseInt(val) || 0 });
+                    }}
+                    className="h-12 text-base text-center font-semibold"
                   />
                 </div>
                 <div>
                   <Label htmlFor="precioUnitario">Precio Unitario (€)</Label>
                   <Input
                     id="precioUnitario"
-                    type="number"
-                    min={0}
-                    step={0.01}
+                    inputMode="decimal"
                     value={formData.precioUnitario}
-                    onChange={e => updateSaleCalculations({ precioUnitario: parseFloat(e.target.value) || 0 })}
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^\d.,]/g, '').replace(',', '.');
+                      updateSaleCalculations({ precioUnitario: parseFloat(val) || 0 });
+                    }}
+                    className="h-12 text-base text-center font-semibold"
                   />
                 </div>
               </div>
+              
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="facturacion">Facturación Total (€)</Label>
-                  <Input
-                    id="facturacion"
-                    type="number"
-                    value={formData.facturacion}
-                    readOnly
-                    className="bg-muted"
-                  />
+                  <Label>Facturación Total</Label>
+                  <div className="h-12 px-3 flex items-center justify-center bg-muted rounded-md">
+                    <span className="text-lg font-bold text-primary">
+                      €{formData.facturacion.toFixed(2)}
+                    </span>
+                  </div>
                 </div>
                 <div>
                   <Label htmlFor="costes">Costes (€)</Label>
                   <Input
                     id="costes"
-                    type="number"
-                    min={0}
-                    step={0.01}
+                    inputMode="decimal"
                     value={formData.costes}
-                    onChange={e => updateSaleCalculations({ costes: parseFloat(e.target.value) || 0 })}
+                    onChange={e => {
+                      const val = e.target.value.replace(/[^\d.,]/g, '').replace(',', '.');
+                      updateSaleCalculations({ costes: parseFloat(val) || 0 });
+                    }}
+                    className="h-12 text-base text-center font-semibold"
                   />
                 </div>
               </div>
-              <div className="p-4 bg-success/10 rounded-xl">
-                <p className="text-sm text-muted-foreground">Margen Bruto</p>
-                <p className="text-2xl font-bold text-success">€{formData.margen.toFixed(2)}</p>
+              
+              {/* Margen con mejor visualización */}
+              <div className="p-4 bg-success/10 rounded-xl border border-success/20">
+                <p className="text-sm text-muted-foreground mb-1">Margen Bruto</p>
+                <p className={cn(
+                  "text-2xl font-bold",
+                  formData.margen >= 0 ? "text-success" : "text-destructive"
+                )}>
+                  €{formData.margen.toFixed(2)}
+                </p>
               </div>
-
               {/* Participants */}
               <div>
                 <Label>Participantes (opcional)</Label>
@@ -690,34 +713,38 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
           </>
         )}
 
-        {/* Actions */}
-        <div className="flex justify-center gap-3">
+        {/* Actions - Fixed at bottom for mobile */}
+        <div className="flex justify-center gap-3 pt-4 border-t border-border mt-6">
           {step === 1 ? (
-            <Button variant="outline" onClick={onCancel}>Cancelar</Button>
+            <Button variant="outline" size="lg" onClick={onCancel} className="min-w-[120px]">
+              Cancelar
+            </Button>
           ) : (
-            <Button variant="outline" onClick={handleBack}>
-              <ChevronLeft size={16} className="mr-1" /> Atrás
+            <Button variant="outline" size="lg" onClick={handleBack} className="min-w-[120px]">
+              <ChevronLeft size={18} className="mr-1" /> Atrás
             </Button>
           )}
           
           {step < totalSteps ? (
             <Button 
-              className="nova-gradient" 
+              size="lg"
+              className="nova-gradient min-w-[140px]" 
               onClick={handleNext}
               disabled={!canProceed()}
             >
-              Siguiente <ChevronRight size={16} className="ml-1" />
+              Siguiente <ChevronRight size={18} className="ml-1" />
             </Button>
           ) : (
             <Button 
-              className="nova-gradient" 
+              size="lg"
+              className="nova-gradient min-w-[160px]" 
               onClick={handleSubmit}
               disabled={isSubmitting}
             >
               {isSubmitting ? (
-                <><Loader2 size={16} className="mr-2 animate-spin" /> Guardando...</>
+                <><Loader2 size={18} className="mr-2 animate-spin" /> Guardando...</>
               ) : (
-                <>Enviar OBV <Check size={16} className="ml-1" /></>
+                <>Enviar OBV <Check size={18} className="ml-1" /></>
               )}
             </Button>
           )}

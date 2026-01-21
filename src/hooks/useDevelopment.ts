@@ -247,21 +247,353 @@ export function useRoleRankings(roleName?: string) {
   });
 }
 
-// Hook to generate playbook via edge function
+// Hook to generate playbook - using local templates (no edge function needed)
 export function useGeneratePlaybook() {
   const queryClient = useQueryClient();
   
   return useMutation({
     mutationFn: async ({ userId, roleName }: { userId: string; roleName: string }) => {
-      const { data, error } = await supabase.functions.invoke('generate-playbook', {
-        body: { userId, roleName },
+      // Get user data for context
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('nombre, especialization')
+        .eq('id', userId)
+        .single();
+
+      // Get performance data
+      const { data: performance } = await supabase
+        .from('user_role_performance')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('role_name', roleName as any)
+        .maybeSingle();
+
+      // Get recent insights
+      const { data: insights } = await supabase
+        .from('user_insights')
+        .select('titulo, tipo')
+        .eq('user_id', userId)
+        .order('created_at', { ascending: false })
+        .limit(5);
+
+      // Build playbook content based on role and data
+      const playbookContent = generateLocalPlaybook(roleName, {
+        userName: profile?.nombre || 'Usuario',
+        specialization: profile?.especialization,
+        performance: performance || {},
+        insights: insights || [],
       });
-      
+
+      // Get current version
+      const { data: existingPlaybook } = await supabase
+        .from('user_playbooks')
+        .select('version')
+        .eq('user_id', userId)
+        .eq('role_name', roleName)
+        .order('version', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+
+      const newVersion = (existingPlaybook?.version || 0) + 1;
+
+      // Deactivate previous playbooks
+      await supabase
+        .from('user_playbooks')
+        .update({ is_active: false })
+        .eq('user_id', userId)
+        .eq('role_name', roleName);
+
+      // Insert new playbook
+      const { data: newPlaybook, error } = await supabase
+        .from('user_playbooks')
+        .insert({
+          user_id: userId,
+          role_name: roleName,
+          version: newVersion,
+          contenido: { sections: playbookContent.sections },
+          fortalezas: playbookContent.fortalezas,
+          areas_mejora: playbookContent.areas_mejora,
+          objetivos_sugeridos: playbookContent.objetivos_sugeridos,
+          ai_model: 'local-template',
+          is_active: true,
+        })
+        .select()
+        .single();
+
       if (error) throw error;
-      return data;
+      return newPlaybook;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user_playbooks'] });
+      queryClient.invalidateQueries({ queryKey: ['user_playbook'] });
     },
   });
+}
+
+// Local playbook generator based on role templates
+function generateLocalPlaybook(roleName: string, context: {
+  userName: string;
+  specialization?: string | null;
+  performance: any;
+  insights: any[];
+}) {
+  const roleTemplates: Record<string, {
+    sections: Array<{ title: string; content: string; tips: string[] }>;
+    fortalezas: string[];
+    areas_mejora: string[];
+    objetivos_sugeridos: Array<{ objetivo: string; plazo: string; metricas: string[] }>;
+  }> = {
+    sales: {
+      sections: [
+        {
+          title: 'Responsabilidades del Comercial',
+          content: 'Como Comercial, eres responsable de gestionar las relaciones con clientes, liderar procesos de venta y asegurar la satisfacción del cliente.',
+          tips: [
+            'Mantén un pipeline de leads actualizado diariamente',
+            'Responde a leads en menos de 24 horas',
+            'Documenta todas las interacciones con clientes',
+          ],
+        },
+        {
+          title: 'Proceso de Ventas',
+          content: 'Sigue el proceso de ventas estructurado: Prospección → Calificación → Propuesta → Negociación → Cierre.',
+          tips: [
+            'Califica leads antes de invertir tiempo',
+            'Personaliza cada propuesta según necesidades',
+            'Haz seguimiento sistemático cada 3-5 días',
+          ],
+        },
+        {
+          title: 'Métricas Clave',
+          content: 'Tus KPIs principales son: tasa de conversión, ticket promedio, tiempo de ciclo de venta y NPS de clientes.',
+          tips: [
+            'Revisa tu pipeline semanalmente',
+            'Analiza qué leads convierten mejor',
+            'Pide feedback a clientes cerrados',
+          ],
+        },
+      ],
+      fortalezas: context.performance?.lead_conversion_rate > 20 
+        ? ['Alta conversión de leads', 'Buen cierre de ventas']
+        : ['Persistencia', 'Orientación a resultados'],
+      areas_mejora: context.performance?.lead_conversion_rate < 15
+        ? ['Mejorar tasa de conversión', 'Calificación de leads']
+        : ['Aumentar ticket promedio', 'Reducir ciclo de venta'],
+      objetivos_sugeridos: [
+        { objetivo: 'Mejorar tasa de conversión un 10%', plazo: '1 mes', metricas: ['Leads calificados', 'Propuestas enviadas', 'Cierres'] },
+        { objetivo: 'Documentar proceso de venta exitoso', plazo: '2 semanas', metricas: ['Playbook completado', 'Equipo capacitado'] },
+      ],
+    },
+    marketing: {
+      sections: [
+        {
+          title: 'Responsabilidades de Marketing',
+          content: 'Como Marketing, generas visibilidad, atraes leads cualificados y construyes la marca del proyecto.',
+          tips: [
+            'Publica contenido mínimo 3 veces por semana',
+            'Mide el engagement de cada publicación',
+            'Experimenta con diferentes formatos',
+          ],
+        },
+        {
+          title: 'Generación de Contenido',
+          content: 'Crea contenido que eduque, entretenga y convierta. Usa el framework AIDA: Atención, Interés, Deseo, Acción.',
+          tips: [
+            'Estudia qué contenido funciona en tu nicho',
+            'Reutiliza contenido en múltiples formatos',
+            'Incluye siempre un CTA claro',
+          ],
+        },
+        {
+          title: 'Métricas Clave',
+          content: 'Tus KPIs: alcance, engagement, leads generados, coste por lead y conversión de campañas.',
+          tips: [
+            'Trackea de dónde vienen los leads',
+            'A/B testea mensajes y creativos',
+            'Optimiza según datos, no intuición',
+          ],
+        },
+      ],
+      fortalezas: ['Creatividad', 'Comunicación'],
+      areas_mejora: ['Análisis de datos', 'Optimización de conversión'],
+      objetivos_sugeridos: [
+        { objetivo: 'Generar 10 leads cualificados', plazo: '1 mes', metricas: ['Leads generados', 'Coste por lead', 'Tasa de conversión'] },
+      ],
+    },
+    operations: {
+      sections: [
+        {
+          title: 'Responsabilidades de Operaciones',
+          content: 'Como Operations, aseguras que los procesos funcionen eficientemente y el equipo tenga lo necesario para ejecutar.',
+          tips: [
+            'Documenta todos los procesos críticos',
+            'Automatiza tareas repetitivas',
+            'Mantén la información organizada y accesible',
+          ],
+        },
+        {
+          title: 'Gestión de Procesos',
+          content: 'Mapea, optimiza y escala los procesos del proyecto. Identifica cuellos de botella y propón mejoras.',
+          tips: [
+            'Usa checklists para procesos recurrentes',
+            'Revisa procesos mensualmente',
+            'Mide tiempos de cada etapa',
+          ],
+        },
+        {
+          title: 'Métricas Clave',
+          content: 'Tus KPIs: eficiencia operativa, tiempo de respuesta, satisfacción del equipo y coste operativo.',
+          tips: [
+            'Reduce fricción en procesos',
+            'Anticipa necesidades del equipo',
+            'Mantén un backlog de mejoras',
+          ],
+        },
+      ],
+      fortalezas: ['Organización', 'Atención al detalle'],
+      areas_mejora: ['Visión estratégica', 'Priorización'],
+      objetivos_sugeridos: [
+        { objetivo: 'Documentar 3 procesos críticos', plazo: '2 semanas', metricas: ['Procesos documentados', 'Equipo capacitado'] },
+      ],
+    },
+    finance: {
+      sections: [
+        {
+          title: 'Responsabilidades de Finanzas',
+          content: 'Como Finanzas, gestionas la salud económica del proyecto: presupuestos, cobros, análisis de rentabilidad.',
+          tips: [
+            'Actualiza las métricas financieras semanalmente',
+            'Haz seguimiento de cobros pendientes',
+            'Mantén un forecast actualizado',
+          ],
+        },
+        {
+          title: 'Gestión de Cobros',
+          content: 'Asegura el flujo de caja gestionando cobros de manera proactiva y manteniendo relaciones sanas con clientes.',
+          tips: [
+            'Envía facturas inmediatamente tras la venta',
+            'Haz seguimiento a los 7 y 14 días',
+            'Mantén comunicación clara sobre plazos',
+          ],
+        },
+        {
+          title: 'Métricas Clave',
+          content: 'Tus KPIs: margen bruto, cash flow, DSO (días de cobro), y rentabilidad por proyecto.',
+          tips: [
+            'Analiza rentabilidad por cliente/producto',
+            'Identifica costes que se pueden optimizar',
+            'Reporta semanalmente al equipo',
+          ],
+        },
+      ],
+      fortalezas: ['Análisis', 'Precisión'],
+      areas_mejora: ['Comunicación', 'Visión comercial'],
+      objetivos_sugeridos: [
+        { objetivo: 'Reducir DSO a menos de 30 días', plazo: '1 mes', metricas: ['Días promedio de cobro', 'Cobros pendientes'] },
+      ],
+    },
+    ai_tech: {
+      sections: [
+        {
+          title: 'Responsabilidades de AI/Tech',
+          content: 'Como AI/Tech, lideras la implementación tecnológica y buscas oportunidades de automatización e IA.',
+          tips: [
+            'Identifica tareas repetitivas para automatizar',
+            'Mantente actualizado en tendencias de IA',
+            'Documenta todas las soluciones técnicas',
+          ],
+        },
+        {
+          title: 'Desarrollo de Soluciones',
+          content: 'Crea soluciones técnicas que multipliquen la capacidad del equipo. Prioriza impacto sobre perfección.',
+          tips: [
+            'Empieza con MVPs y itera',
+            'Involucra al equipo en el diseño',
+            'Mide el impacto de cada solución',
+          ],
+        },
+        {
+          title: 'Métricas Clave',
+          content: 'Tus KPIs: tiempo ahorrado por automatización, adopción de herramientas, y mejoras en eficiencia.',
+          tips: [
+            'Cuantifica el impacto de cada herramienta',
+            'Capacita al equipo en nuevas soluciones',
+            'Mantén un backlog de mejoras tech',
+          ],
+        },
+      ],
+      fortalezas: ['Innovación', 'Resolución de problemas'],
+      areas_mejora: ['Comunicación no-técnica', 'Priorización de negocio'],
+      objetivos_sugeridos: [
+        { objetivo: 'Automatizar 2 procesos clave', plazo: '1 mes', metricas: ['Horas ahorradas', 'Adopción del equipo'] },
+      ],
+    },
+    strategy: {
+      sections: [
+        {
+          title: 'Responsabilidades de Estrategia',
+          content: 'Como Strategy, defines la dirección del proyecto y aseguras que todas las acciones estén alineadas con los objetivos.',
+          tips: [
+            'Define OKRs claros trimestralmente',
+            'Revisa el progreso semanalmente',
+            'Comunica la visión constantemente',
+          ],
+        },
+        {
+          title: 'Toma de Decisiones',
+          content: 'Facilita la toma de decisiones estratégicas basándote en datos y alineando al equipo.',
+          tips: [
+            'Usa frameworks para decisiones importantes',
+            'Involucra a stakeholders relevantes',
+            'Documenta las decisiones y su contexto',
+          ],
+        },
+        {
+          title: 'Métricas Clave',
+          content: 'Tus KPIs: progreso en OKRs, alineamiento del equipo, y velocidad de ejecución.',
+          tips: [
+            'Mide lo que importa, no todo',
+            'Celebra los logros del equipo',
+            'Aprende de los fracasos rápidamente',
+          ],
+        },
+      ],
+      fortalezas: ['Visión', 'Liderazgo'],
+      areas_mejora: ['Ejecución', 'Delegación'],
+      objetivos_sugeridos: [
+        { objetivo: 'Definir OKRs del trimestre', plazo: '1 semana', metricas: ['OKRs definidos', 'Equipo alineado'] },
+      ],
+    },
+  };
+
+  // Default template for unknown roles
+  const defaultTemplate = {
+    sections: [
+      {
+        title: `Responsabilidades del ${roleName}`,
+        content: `Como ${roleName}, contribuyes al éxito del proyecto con tus habilidades y compromiso.`,
+        tips: [
+          'Comunica proactivamente tu progreso',
+          'Pide ayuda cuando la necesites',
+          'Documenta tu trabajo',
+        ],
+      },
+      {
+        title: 'Desarrollo Profesional',
+        content: 'Identifica áreas de mejora y trabaja en ellas sistemáticamente.',
+        tips: [
+          'Define objetivos claros',
+          'Busca feedback regularmente',
+          'Aprende de los errores',
+        ],
+      },
+    ],
+    fortalezas: ['Compromiso', 'Trabajo en equipo'],
+    areas_mejora: ['Definir áreas específicas'],
+    objetivos_sugeridos: [
+      { objetivo: 'Completar primeras tareas exitosamente', plazo: '2 semanas', metricas: ['Tareas completadas', 'Feedback recibido'] },
+    ],
+  };
+
+  return roleTemplates[roleName.toLowerCase()] || defaultTemplate;
 }
