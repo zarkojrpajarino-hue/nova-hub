@@ -5,6 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Projects start with no roles assigned - roles come after onboarding
 const PROJECTS = [
   { nombre: 'Payo Sushi', icon: '🍣', color: '#EF4444', fase: 'idea', tipo: 'validacion' },
   { nombre: 'Experea', icon: '🎓', color: '#22C55E', fase: 'crecimiento', tipo: 'operacion' },
@@ -15,42 +16,43 @@ const PROJECTS = [
   { nombre: 'Academia Financiera', icon: '📊', color: '#06B6D4', fase: 'idea', tipo: 'validacion' },
 ]
 
-// Map project -> members with roles (using emails to find profile IDs)
+// Members are added to projects but WITHOUT roles - roles assigned by AI after onboarding
+// Zarko only participates in Payo Sushi and Experiencia Selecta
 const PROJECT_MEMBERS = [
   { project: 'Payo Sushi', members: [
-    { email: 'manuel@nova.com', role: 'operations', is_lead: true },
-    { email: 'zarko@nova.com', role: 'ai_tech', is_lead: false },
-    { email: 'diego@nova.com', role: 'marketing', is_lead: false },
+    { email: 'manuel@nova.com' },
+    { email: 'zarko@nova.com' }, // Zarko - will get ai_tech
+    { email: 'diego@nova.com' },
   ]},
   { project: 'Experea', members: [
-    { email: 'fernandos@nova.com', role: 'sales', is_lead: true },
-    { email: 'angel@nova.com', role: 'marketing', is_lead: false },
-    { email: 'fernandog@nova.com', role: 'operations', is_lead: false },
+    { email: 'fernandos@nova.com' },
+    { email: 'angel@nova.com' },
+    { email: 'fernandog@nova.com' },
   ]},
   { project: 'Apadrina tu Olivo', members: [
-    { email: 'fernandos@nova.com', role: 'operations', is_lead: true },
-    { email: 'miguelangel@nova.com', role: 'strategy', is_lead: false },
-    { email: 'carla@nova.com', role: 'sales', is_lead: false },
+    { email: 'fernandos@nova.com' },
+    { email: 'miguelangel@nova.com' },
+    { email: 'carla@nova.com' },
   ]},
   { project: 'Experiencia Selecta', members: [
-    { email: 'luis@nova.com', role: 'finance', is_lead: true },
-    { email: 'angel@nova.com', role: 'strategy', is_lead: false },
-    { email: 'zarko@nova.com', role: 'ai_tech', is_lead: false },
+    { email: 'luis@nova.com' },
+    { email: 'angel@nova.com' },
+    { email: 'zarko@nova.com' }, // Zarko - will get ai_tech
   ]},
   { project: 'Web y SaaS', members: [
-    { email: 'zarko@nova.com', role: 'ai_tech', is_lead: true },
-    { email: 'fernandog@nova.com', role: 'strategy', is_lead: false },
-    { email: 'carla@nova.com', role: 'marketing', is_lead: false },
+    { email: 'fernandog@nova.com' },
+    { email: 'carla@nova.com' },
+    { email: 'miguel@nova.com' },
   ]},
   { project: 'Souvenirs Online', members: [
-    { email: 'diego@nova.com', role: 'operations', is_lead: true },
-    { email: 'angel@nova.com', role: 'finance', is_lead: false },
-    { email: 'manuel@nova.com', role: 'sales', is_lead: false },
+    { email: 'diego@nova.com' },
+    { email: 'angel@nova.com' },
+    { email: 'manuel@nova.com' },
   ]},
   { project: 'Academia Financiera', members: [
-    { email: 'fernandog@nova.com', role: 'finance', is_lead: true },
-    { email: 'luis@nova.com', role: 'sales', is_lead: false },
-    { email: 'miguelangel@nova.com', role: 'marketing', is_lead: false },
+    { email: 'fernandog@nova.com' },
+    { email: 'luis@nova.com' },
+    { email: 'miguelangel@nova.com' },
   ]},
 ]
 
@@ -75,9 +77,9 @@ Deno.serve(async (req) => {
     
     if (profilesError) throw profilesError
 
-    const profileByEmail = new Map(profiles?.map(p => [p.email, p.id]) || [])
+    const profileByEmail = new Map(profiles?.map(p => [p.email.toLowerCase(), p.id]) || [])
 
-    // Create projects
+    // Create projects (all start with onboarding_completed = false)
     for (const project of PROJECTS) {
       const { data: existingProject } = await supabaseAdmin
         .from('projects')
@@ -98,7 +100,7 @@ Deno.serve(async (req) => {
           color: project.color,
           fase: project.fase,
           tipo: project.tipo,
-          onboarding_completed: project.nombre === 'Payo Sushi',
+          onboarding_completed: false, // Always start with onboarding pending
         })
         .select('id')
         .single()
@@ -117,14 +119,17 @@ Deno.serve(async (req) => {
 
     const projectByName = new Map(allProjects?.map(p => [p.nombre, p.id]) || [])
 
-    // Add members to projects
+    // Add members to projects WITHOUT roles (roles assigned after onboarding)
     for (const pm of PROJECT_MEMBERS) {
       const projectId = projectByName.get(pm.project)
       if (!projectId) continue
 
       for (const member of pm.members) {
-        const memberId = profileByEmail.get(member.email)
-        if (!memberId) continue
+        const memberId = profileByEmail.get(member.email.toLowerCase())
+        if (!memberId) {
+          results.members.push({ project: pm.project, email: member.email, status: 'profile not found' })
+          continue
+        }
 
         // Check if already exists
         const { data: existing } = await supabaseAdmin
@@ -139,19 +144,21 @@ Deno.serve(async (req) => {
           continue
         }
 
+        // Insert member with placeholder role - will be assigned by AI
         const { error } = await supabaseAdmin
           .from('project_members')
           .insert({
             project_id: projectId,
             member_id: memberId,
-            role: member.role,
-            is_lead: member.is_lead,
+            role: 'strategy', // Placeholder, will be assigned by AI after onboarding
+            is_lead: false,
+            role_accepted: false,
           })
 
         if (error) {
           results.members.push({ project: pm.project, email: member.email, status: 'error', error: error.message })
         } else {
-          results.members.push({ project: pm.project, email: member.email, status: 'added' })
+          results.members.push({ project: pm.project, email: member.email, status: 'added (pending role assignment)' })
         }
       }
     }

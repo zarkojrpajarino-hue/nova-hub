@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.generate-role-questions]
 verify_jwt = false
+
+[functions.generate-playbook]
+verify_jwt = false
+
+[functions.generate-project-roles]
+verify_jwt = false

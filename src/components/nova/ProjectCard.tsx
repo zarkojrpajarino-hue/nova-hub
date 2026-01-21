@@ -34,8 +34,11 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, members, roles, showRoles = false }: ProjectCardProps) {
   const navigate = useNavigate();
-  const projectMembers = members.filter(m => project.members.includes(m.id));
-  const projectRoles = roles.filter(r => r.project_id === project.id);
+  
+  // Only show members/roles if onboarding is completed
+  const isReady = project.onboarding_completed;
+  const projectMembers = isReady ? members.filter(m => project.members.includes(m.id)) : [];
+  const projectRoles = isReady ? roles.filter(r => r.project_id === project.id) : [];
 
   const handleClick = () => {
     navigate(`/proyecto/${project.id}`);
@@ -76,31 +79,39 @@ export function ProjectCard({ project, members, roles, showRoles = false }: Proj
         Fase: {project.fase.replace('_', ' ')}
       </p>
 
-      {/* Team Avatars */}
-      <div className="flex items-center mb-4">
-        {projectMembers.slice(0, 5).map((member, i) => (
-          <div 
-            key={member.id}
-            className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs text-white border-2 border-card"
-            style={{ 
-              background: member.color || '#6366F1',
-              marginLeft: i > 0 ? '-8px' : 0,
-              zIndex: projectMembers.length - i
-            }}
-            title={member.nombre}
-          >
-            {member.nombre?.charAt(0)}
-          </div>
-        ))}
-        {projectMembers.length > 5 && (
-          <div className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs bg-muted text-muted-foreground border-2 border-card" style={{ marginLeft: '-8px' }}>
-            +{projectMembers.length - 5}
-          </div>
+      {/* Team Avatars or Onboarding Badge */}
+      <div className="flex items-center mb-4 min-h-[32px]">
+        {isReady ? (
+          <>
+            {projectMembers.slice(0, 5).map((member, i) => (
+              <div 
+                key={member.id}
+                className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs text-white border-2 border-card"
+                style={{ 
+                  background: member.color || '#6366F1',
+                  marginLeft: i > 0 ? '-8px' : 0,
+                  zIndex: projectMembers.length - i
+                }}
+                title={member.nombre}
+              >
+                {member.nombre?.charAt(0)}
+              </div>
+            ))}
+            {projectMembers.length > 5 && (
+              <div className="w-8 h-8 rounded-lg flex items-center justify-center font-semibold text-xs bg-muted text-muted-foreground border-2 border-card" style={{ marginLeft: '-8px' }}>
+                +{projectMembers.length - 5}
+              </div>
+            )}
+          </>
+        ) : (
+          <span className="text-xs font-medium text-amber-600 bg-amber-100 px-3 py-1.5 rounded-full">
+            🚀 Onboarding pendiente
+          </span>
         )}
       </div>
 
-      {/* Role badges */}
-      {showRoles && (
+      {/* Role badges - only show if ready */}
+      {showRoles && isReady && projectRoles.length > 0 && (
         <div className="flex flex-wrap gap-1.5 mb-4">
           {projectRoles.map(pr => {
             const role = ROLE_CONFIG[pr.role];

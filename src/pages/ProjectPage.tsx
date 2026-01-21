@@ -15,6 +15,8 @@ import { ProjectTasksTab } from '@/components/project/ProjectTasksTab';
 import { ProjectOBVsTab } from '@/components/project/ProjectOBVsTab';
 import { ProjectFinancialTab } from '@/components/project/ProjectFinancialTab';
 import { ProjectOnboardingTab } from '@/components/project/ProjectOnboardingTab';
+import { OnboardingGate } from '@/components/project/OnboardingGate';
+import { RoleAcceptanceGate } from '@/components/project/RoleAcceptanceGate';
 
 const TABS = [
   { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
@@ -49,8 +51,11 @@ export default function ProjectPage() {
         const member = members.find(m => m.id === pm.member_id);
         return member ? {
           ...member,
+          member_id: pm.member_id,
           role: pm.role,
           isLead: pm.is_lead,
+          role_accepted: pm.role_accepted,
+          role_responsibilities: pm.role_responsibilities,
         } : null;
       })
       .filter(Boolean);
@@ -61,6 +66,11 @@ export default function ProjectPage() {
 
   // Check if current user is a member
   const isProjectMember = teamMembers.some(m => m?.id === profile?.id);
+
+  // Check project states
+  const hasMembers = teamMembers.length > 0;
+  const allRolesAccepted = teamMembers.every(m => m?.role_accepted);
+  const isOnboardingComplete = project?.onboarding_completed;
 
   if (loadingProject) {
     return (
@@ -82,6 +92,83 @@ export default function ProjectPage() {
     );
   }
 
+  // GATE 1: Onboarding not complete → show onboarding wizard
+  if (!isOnboardingComplete) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{ background: `${project.color}20` }}
+              >
+                {project.icon}
+              </div>
+              
+              <div className="flex-1">
+                <h1 className="text-xl font-bold">{project.nombre}</h1>
+                <p className="text-sm text-muted-foreground">
+                  Onboarding pendiente
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+        <OnboardingGate project={project} hasMembers={hasMembers} />
+      </div>
+    );
+  }
+
+  // GATE 2: Onboarding complete but roles not accepted → show role acceptance
+  if (isOnboardingComplete && !allRolesAccepted && hasMembers) {
+    return (
+      <div className="min-h-screen bg-background">
+        <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
+          <div className="max-w-7xl mx-auto px-6 py-4">
+            <div className="flex items-center gap-4">
+              <Button 
+                variant="ghost" 
+                size="icon"
+                onClick={() => navigate('/')}
+              >
+                <ArrowLeft size={20} />
+              </Button>
+              
+              <div 
+                className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
+                style={{ background: `${project.color}20` }}
+              >
+                {project.icon}
+              </div>
+              
+              <div className="flex-1">
+                <h1 className="text-xl font-bold">{project.nombre}</h1>
+                <p className="text-sm text-muted-foreground">
+                  Aceptación de roles pendiente
+                </p>
+              </div>
+            </div>
+          </div>
+        </header>
+        <RoleAcceptanceGate 
+          project={project}
+          currentUserId={profile?.id}
+          teamMembers={teamMembers as any}
+        />
+      </div>
+    );
+  }
+
+  // UNLOCKED: Show full project
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
