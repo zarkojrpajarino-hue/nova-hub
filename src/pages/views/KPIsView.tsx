@@ -5,6 +5,9 @@ import { RankingCard } from '@/components/nova/RankingCard';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KPITabContent } from '@/components/kpi/KPITabContent';
+import { ValidationOrderCard } from '@/components/validation/ValidationOrderCard';
+import { BlockedBanner } from '@/components/validation/BlockedBanner';
+import { ValidatorRankingCard } from '@/components/rankings/ValidatorRankingCard';
 
 interface KPIsViewProps {
   onNewOBV?: () => void;
@@ -72,6 +75,9 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
       />
       
       <div className="p-8">
+        {/* Blocked Banner */}
+        <BlockedBanner />
+
         {/* Summary Cards */}
         <div className="grid grid-cols-3 gap-6 mb-8">
           <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in delay-1" style={{ opacity: 0 }}>
@@ -170,7 +176,8 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
 
         {/* Rankings */}
         <h3 className="text-lg font-semibold mb-4">🏆 Rankings</h3>
-        <div className="grid grid-cols-3 gap-6">
+        <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
+          <ValidationOrderCard />
           <RankingCard
             title="Ranking Learning Paths"
             icon={Crown}
@@ -198,6 +205,12 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             objective={objectivesMap.cps}
             delay={6}
           />
+        </div>
+
+        {/* Validator Ranking */}
+        <div className="mt-8">
+          <h3 className="text-lg font-semibold mb-4">🛡️ Ranking de Validadores</h3>
+          <ValidatorRankingCard />
         </div>
       </div>
     </>

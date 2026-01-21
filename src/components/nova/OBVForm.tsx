@@ -1,16 +1,18 @@
 import { useState, useMemo } from 'react';
-import { ChevronRight, ChevronLeft, Loader2, Plus, Check } from 'lucide-react';
+import { ChevronRight, ChevronLeft, Loader2, Plus, Check, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjects, useProjectMembers, useMemberStats, usePipelineGlobal } from '@/hooks/useNovaData';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
+import { useCanUpload } from '@/hooks/useValidationSystem';
 
 const OBV_TYPES = [
   { id: 'exploracion', icon: '🔍', title: 'Exploración', desc: 'Primer contacto, investigación de mercado, networking', color: '#6366F1' },
@@ -60,6 +62,7 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
   const { data: projectMembers = [] } = useProjectMembers();
   const { data: members = [] } = useMemberStats();
   const { data: leads = [] } = usePipelineGlobal();
+  const { canUpload, isBlocked } = useCanUpload();
 
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -290,6 +293,17 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
       </div>
       
       <div className="p-6">
+        {/* Blocked warning */}
+        {isBlocked && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertTriangle className="h-4 w-4" />
+            <AlertTitle>Estás bloqueado</AlertTitle>
+            <AlertDescription>
+              No puedes subir OBVs hasta que valides tus pendientes. Ve a validar para desbloquear.
+            </AlertDescription>
+          </Alert>
+        )}
+
         {/* Steps indicator */}
         <div className="flex items-center justify-center gap-2 mb-8">
           {Array.from({ length: totalSteps }, (_, i) => i + 1).map((s, i) => (
@@ -739,10 +753,12 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
               size="lg"
               className="nova-gradient min-w-[160px]" 
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isBlocked}
             >
               {isSubmitting ? (
                 <><Loader2 size={18} className="mr-2 animate-spin" /> Guardando...</>
+              ) : isBlocked ? (
+                <>Bloqueado</>
               ) : (
                 <>Enviar OBV <Check size={18} className="ml-1" /></>
               )}

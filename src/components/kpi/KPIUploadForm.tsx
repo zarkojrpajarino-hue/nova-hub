@@ -1,16 +1,18 @@
 import { useState } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
+import { useCanUpload } from '@/hooks/useValidationSystem';
 
 interface KPIUploadFormProps {
   type: 'lp' | 'bp' | 'cp';
@@ -49,6 +51,7 @@ const TYPE_PLACEHOLDERS = {
 export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const { canUpload, isBlocked } = useCanUpload();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',
@@ -114,12 +117,23 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
         </DialogHeader>
 
         <div className="space-y-4 mt-4">
+          {isBlocked && (
+            <Alert variant="destructive">
+              <AlertTriangle className="h-4 w-4" />
+              <AlertTitle>Estás bloqueado</AlertTitle>
+              <AlertDescription>
+                No puedes subir KPIs hasta que valides tus pendientes.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div>
             <Label>Título *</Label>
             <Input
               value={formData.titulo}
               onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
               placeholder={TYPE_PLACEHOLDERS[type].titulo}
+              disabled={isBlocked}
             />
           </div>
 
@@ -176,13 +190,15 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
             <Button
               className="flex-1"
               onClick={handleSubmit}
-              disabled={isSubmitting}
+              disabled={isSubmitting || isBlocked}
             >
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                   Enviando...
                 </>
+              ) : isBlocked ? (
+                'Bloqueado'
               ) : (
                 'Enviar a validación'
               )}
