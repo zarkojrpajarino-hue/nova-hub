@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
 
 interface KPIUploadFormProps {
   type: 'lp' | 'bp' | 'cp';
@@ -158,15 +159,10 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
             </div>
           )}
 
-          <div>
-            <Label>Evidencia (URL Google Drive)</Label>
-            <Input
-              value={formData.evidenceUrl}
-              onChange={(e) => setFormData({ ...formData, evidenceUrl: e.target.value })}
-              placeholder="https://drive.google.com/..."
-              type="url"
-            />
-          </div>
+          <EvidenceUrlInput
+            value={formData.evidenceUrl}
+            onChange={(value) => setFormData({ ...formData, evidenceUrl: value })}
+          />
 
           <div className="flex gap-3 pt-4">
             <Button
