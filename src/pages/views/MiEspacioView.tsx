@@ -1,13 +1,12 @@
-import { useState } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Zap, Loader2 } from 'lucide-react';
+import { useState, useMemo } from 'react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentMemberStats, useProjects, useProjectMembers, useObjectives } from '@/hooks/useNovaData';
-import { ROLE_CONFIG, PENDING_VALIDATIONS } from '@/data/mockData';
+import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
-import { useMemo } from 'react';
 import { MyTasksList } from '@/components/tasks/MyTasksList';
 import { TaskForm } from '@/components/tasks/TaskForm';
 import { useNavigate } from 'react-router-dom';
@@ -239,7 +238,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
             </div>
           </div>
 
-          <ValidationCard validations={PENDING_VALIDATIONS.slice(0, 3)} delay={4} />
+          <ValidationCard limit={3} delay={4} />
         </div>
       </div>
 
