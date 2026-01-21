@@ -633,25 +633,40 @@ export type Database = {
           id: string
           is_lead: boolean | null
           joined_at: string | null
+          last_performance_update: string | null
           member_id: string
+          performance_score: number | null
           project_id: string
           role: Database["public"]["Enums"]["specialization_role"]
+          role_accepted: boolean | null
+          role_accepted_at: string | null
+          role_responsibilities: Json | null
         }
         Insert: {
           id?: string
           is_lead?: boolean | null
           joined_at?: string | null
+          last_performance_update?: string | null
           member_id: string
+          performance_score?: number | null
           project_id: string
           role: Database["public"]["Enums"]["specialization_role"]
+          role_accepted?: boolean | null
+          role_accepted_at?: string | null
+          role_responsibilities?: Json | null
         }
         Update: {
           id?: string
           is_lead?: boolean | null
           joined_at?: string | null
+          last_performance_update?: string | null
           member_id?: string
+          performance_score?: number | null
           project_id?: string
           role?: Database["public"]["Enums"]["specialization_role"]
+          role_accepted?: boolean | null
+          role_accepted_at?: string | null
+          role_responsibilities?: Json | null
         }
         Relationships: [
           {
@@ -744,6 +759,77 @@ export type Database = {
           },
         ]
       }
+      role_rankings: {
+        Row: {
+          calculated_at: string | null
+          id: string
+          metrics: Json | null
+          period_end: string
+          period_start: string
+          previous_position: number | null
+          project_id: string | null
+          ranking_position: number
+          role_name: string
+          score: number
+          user_id: string
+        }
+        Insert: {
+          calculated_at?: string | null
+          id?: string
+          metrics?: Json | null
+          period_end: string
+          period_start: string
+          previous_position?: number | null
+          project_id?: string | null
+          ranking_position: number
+          role_name: string
+          score?: number
+          user_id: string
+        }
+        Update: {
+          calculated_at?: string | null
+          id?: string
+          metrics?: Json | null
+          period_end?: string
+          period_start?: string
+          previous_position?: number | null
+          project_id?: string | null
+          ranking_position?: number
+          role_name?: string
+          score?: number
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_rankings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rankings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rankings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rankings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tasks: {
         Row: {
           ai_generated: boolean | null
@@ -811,6 +897,137 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_insights: {
+        Row: {
+          contenido: string
+          created_at: string | null
+          id: string
+          is_private: boolean | null
+          project_id: string | null
+          role_context: string | null
+          tags: string[] | null
+          tipo: string
+          titulo: string
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          contenido: string
+          created_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          project_id?: string | null
+          role_context?: string | null
+          tags?: string[] | null
+          tipo: string
+          titulo: string
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          contenido?: string
+          created_at?: string | null
+          id?: string
+          is_private?: boolean | null
+          project_id?: string | null
+          role_context?: string | null
+          tags?: string[] | null
+          tipo?: string
+          titulo?: string
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_insights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_insights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_playbooks: {
+        Row: {
+          ai_model: string | null
+          areas_mejora: string[] | null
+          contenido: Json
+          created_at: string | null
+          fortalezas: string[] | null
+          generated_at: string | null
+          id: string
+          is_active: boolean | null
+          objetivos_sugeridos: Json | null
+          role_name: string
+          user_id: string
+          version: number | null
+        }
+        Insert: {
+          ai_model?: string | null
+          areas_mejora?: string[] | null
+          contenido: Json
+          created_at?: string | null
+          fortalezas?: string[] | null
+          generated_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          objetivos_sugeridos?: Json | null
+          role_name: string
+          user_id: string
+          version?: number | null
+        }
+        Update: {
+          ai_model?: string | null
+          areas_mejora?: string[] | null
+          contenido?: Json
+          created_at?: string | null
+          fortalezas?: string[] | null
+          generated_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          objetivos_sugeridos?: Json | null
+          role_name?: string
+          user_id?: string
+          version?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_playbooks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_playbooks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
@@ -1003,8 +1220,64 @@ export type Database = {
         }
         Relationships: []
       }
+      user_role_performance: {
+        Row: {
+          completed_tasks: number | null
+          is_lead: boolean | null
+          joined_at: string | null
+          lead_conversion_rate: number | null
+          leads_ganados: number | null
+          performance_score: number | null
+          project_id: string | null
+          project_name: string | null
+          role_accepted: boolean | null
+          role_name: Database["public"]["Enums"]["specialization_role"] | null
+          task_completion_rate: number | null
+          total_facturacion: number | null
+          total_leads: number | null
+          total_obvs: number | null
+          total_tasks: number | null
+          user_id: string | null
+          user_name: string | null
+          validated_obvs: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_members_member_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_member_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
+      calculate_role_performance_score: {
+        Args: { p_project_id: string; p_role: string; p_user_id: string }
+        Returns: number
+      }
       get_profile_id: { Args: { _auth_id: string }; Returns: string }
       has_role: {
         Args: {
@@ -1012,6 +1285,10 @@ export type Database = {
           _user_id: string
         }
         Returns: boolean
+      }
+      update_role_rankings: {
+        Args: { p_period_end?: string; p_period_start?: string; p_role: string }
+        Returns: undefined
       }
     }
     Enums: {
