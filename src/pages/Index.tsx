@@ -8,6 +8,7 @@ import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { DashboardView } from './views/DashboardView';
 import { MiEspacioView } from './views/MiEspacioView';
 import { MiDesarrolloView } from './views/MiDesarrolloView';
+import { RankingsView } from './views/RankingsView';
 import { ProjectsView } from './views/ProjectsView';
 import { OBVCenterView } from './views/OBVCenterView';
 import { CRMView } from './views/CRMView';
@@ -63,6 +64,8 @@ function IndexContent() {
         return <MiEspacioView onNewOBV={handleNewOBV} />;
       case 'mi-desarrollo':
         return <MiDesarrolloView />;
+      case 'rankings':
+        return <RankingsView />;
       case 'proyectos':
         return <ProjectsView onNewOBV={handleNewOBV} />;
       case 'obvs':
