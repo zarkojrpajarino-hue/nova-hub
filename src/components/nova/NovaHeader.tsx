@@ -1,5 +1,6 @@
-import { Search, Bell, Plus } from 'lucide-react';
+import { Search, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { NotificationDropdown } from '@/components/notifications/NotificationDropdown';
 
 interface NovaHeaderProps {
   title: string;
@@ -29,12 +30,7 @@ export function NovaHeader({ title, subtitle, onNewOBV }: NovaHeaderProps) {
         </div>
 
         {/* Notifications */}
-        <button className="relative w-10 h-10 rounded-xl border border-border bg-card flex items-center justify-center text-muted-foreground hover:text-foreground hover:bg-accent transition-colors">
-          <Bell size={18} />
-          <span className="absolute -top-1 -right-1 w-5 h-5 bg-destructive text-destructive-foreground text-[10px] font-semibold rounded-full flex items-center justify-center">
-            4
-          </span>
-        </button>
+        <NotificationDropdown />
 
         {/* New OBV Button */}
         <Button onClick={onNewOBV} className="nova-gradient nova-glow font-semibold">
