@@ -1016,6 +1016,81 @@ export type Database = {
           },
         ]
       }
+      role_history: {
+        Row: {
+          change_type: string
+          created_at: string | null
+          id: string
+          new_role: string
+          notes: string | null
+          old_role: string | null
+          previous_performance_score: number | null
+          project_id: string
+          rotation_request_id: string | null
+          user_id: string
+        }
+        Insert: {
+          change_type: string
+          created_at?: string | null
+          id?: string
+          new_role: string
+          notes?: string | null
+          old_role?: string | null
+          previous_performance_score?: number | null
+          project_id: string
+          rotation_request_id?: string | null
+          user_id: string
+        }
+        Update: {
+          change_type?: string
+          created_at?: string | null
+          id?: string
+          new_role?: string
+          notes?: string | null
+          old_role?: string | null
+          previous_performance_score?: number | null
+          project_id?: string
+          rotation_request_id?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_history_rotation_request_id_fkey"
+            columns: ["rotation_request_id"]
+            isOneToOne: false
+            referencedRelation: "role_rotation_requests"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       role_rankings: {
         Row: {
           calculated_at: string | null
@@ -1081,6 +1156,143 @@ export type Database = {
           {
             foreignKeyName: "role_rankings_user_id_fkey"
             columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      role_rotation_requests: {
+        Row: {
+          admin_approved: boolean | null
+          approved_by: string | null
+          compatibility_analysis: Json | null
+          compatibility_score: number | null
+          completed_at: string | null
+          created_at: string | null
+          id: string
+          reason: string | null
+          request_type: string
+          requester_accepted: boolean | null
+          requester_current_role: string
+          requester_id: string
+          requester_project_id: string
+          status: string
+          target_accepted: boolean | null
+          target_project_id: string | null
+          target_role: string | null
+          target_user_id: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          admin_approved?: boolean | null
+          approved_by?: string | null
+          compatibility_analysis?: Json | null
+          compatibility_score?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          request_type?: string
+          requester_accepted?: boolean | null
+          requester_current_role: string
+          requester_id: string
+          requester_project_id: string
+          status?: string
+          target_accepted?: boolean | null
+          target_project_id?: string | null
+          target_role?: string | null
+          target_user_id?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          admin_approved?: boolean | null
+          approved_by?: string | null
+          compatibility_analysis?: Json | null
+          compatibility_score?: number | null
+          completed_at?: string | null
+          created_at?: string | null
+          id?: string
+          reason?: string | null
+          request_type?: string
+          requester_accepted?: boolean | null
+          requester_current_role?: string
+          requester_id?: string
+          requester_project_id?: string
+          status?: string
+          target_accepted?: boolean | null
+          target_project_id?: string | null
+          target_role?: string | null
+          target_user_id?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_rotation_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
+            columns: ["requester_project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
+            columns: ["requester_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_target_project_id_fkey"
+            columns: ["target_project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_target_project_id_fkey"
+            columns: ["target_project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_target_user_id_fkey"
+            columns: ["target_user_id"]
             isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
@@ -1591,6 +1803,15 @@ export type Database = {
       calculate_role_performance_score: {
         Args: { p_project_id: string; p_role: string; p_user_id: string }
         Returns: number
+      }
+      calculate_rotation_compatibility: {
+        Args: {
+          p_role1: string
+          p_role2: string
+          p_user1_id: string
+          p_user2_id: string
+        }
+        Returns: Json
       }
       check_master_eligibility: {
         Args: { p_role: string; p_user_id: string }
