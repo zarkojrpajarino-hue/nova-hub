@@ -1,20 +1,45 @@
-import { TrendingUp, Wallet, PieChart, BarChart3 } from 'lucide-react';
+import { useMemo } from 'react';
+import { TrendingUp, Wallet, PieChart, BarChart3, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
-import { Member, OBJECTIVES } from '@/data/mockData';
+import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { cn } from '@/lib/utils';
 
 interface FinancieroViewProps {
-  members: Member[];
   onNewOBV?: () => void;
 }
 
-export function FinancieroView({ members, onNewOBV }: FinancieroViewProps) {
-  const totalFacturacion = members.reduce((sum, m) => sum + m.facturacion, 0);
-  const totalMargen = members.reduce((sum, m) => sum + m.margen, 0);
-  const margenPromedio = (totalMargen / totalFacturacion) * 100;
+export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
+  const { data: members = [], isLoading } = useMemberStats();
+  const { data: objectives = [] } = useObjectives();
 
-  const sortedByFacturacion = [...members].sort((a, b) => b.facturacion - a.facturacion);
+  // Map objectives
+  const objectivesMap = useMemo(() => {
+    const map: Record<string, number> = {
+      facturacion: 15000,
+      margen: 7500,
+    };
+    objectives.forEach(obj => {
+      map[obj.name] = obj.target_value;
+    });
+    return map;
+  }, [objectives]);
+
+  const totalFacturacion = members.reduce((sum, m) => sum + (Number(m.facturacion) || 0), 0);
+  const totalMargen = members.reduce((sum, m) => sum + (Number(m.margen) || 0), 0);
+  const margenPromedio = totalFacturacion > 0 ? (totalMargen / totalFacturacion) * 100 : 0;
+
+  const sortedByFacturacion = [...members].sort((a, b) => 
+    (Number(b.facturacion) || 0) - (Number(a.facturacion) || 0)
+  );
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -31,8 +56,8 @@ export function FinancieroView({ members, onNewOBV }: FinancieroViewProps) {
             icon={TrendingUp}
             value={`€${totalFacturacion.toFixed(0)}`}
             label="Facturación Total"
-            progress={(totalFacturacion / (OBJECTIVES.facturacion * 9)) * 100}
-            target={`€${OBJECTIVES.facturacion * 9}`}
+            progress={(totalFacturacion / (objectivesMap.facturacion * 9)) * 100}
+            target={`€${objectivesMap.facturacion * 9}`}
             color="#3B82F6"
             delay={1}
           />
@@ -40,8 +65,8 @@ export function FinancieroView({ members, onNewOBV }: FinancieroViewProps) {
             icon={Wallet}
             value={`€${totalMargen.toFixed(0)}`}
             label="Margen Total"
-            progress={(totalMargen / (OBJECTIVES.margen * 9)) * 100}
-            target={`€${OBJECTIVES.margen * 9}`}
+            progress={(totalMargen / (objectivesMap.margen * 9)) * 100}
+            target={`€${objectivesMap.margen * 9}`}
             color="#22C55E"
             delay={2}
           />
@@ -65,7 +90,9 @@ export function FinancieroView({ members, onNewOBV }: FinancieroViewProps) {
           
           <div className="p-4 space-y-2">
             {sortedByFacturacion.map((member, i) => {
-              const marginPercent = (member.margen / member.facturacion) * 100;
+              const facturacion = Number(member.facturacion) || 0;
+              const margen = Number(member.margen) || 0;
+              const marginPercent = facturacion > 0 ? (margen / facturacion) * 100 : 0;
               
               return (
                 <div 
@@ -86,7 +113,7 @@ export function FinancieroView({ members, onNewOBV }: FinancieroViewProps) {
                   {/* Avatar */}
                   <div 
                     className="w-9 h-9 rounded-lg flex items-center justify-center font-semibold text-sm text-white"
-                    style={{ background: member.color }}
+                    style={{ background: member.color || '#6366F1' }}
                   >
                     {member.nombre.charAt(0)}
                   </div>
@@ -101,8 +128,8 @@ export function FinancieroView({ members, onNewOBV }: FinancieroViewProps) {
 
                   {/* Values */}
                   <div className="text-right">
-                    <p className="font-bold text-base text-info">€{member.facturacion.toFixed(0)}</p>
-                    <p className="text-xs text-success">+€{member.margen.toFixed(0)}</p>
+                    <p className="font-bold text-base text-info">€{facturacion.toFixed(0)}</p>
+                    <p className="text-xs text-success">+€{margen.toFixed(0)}</p>
                   </div>
                 </div>
               );

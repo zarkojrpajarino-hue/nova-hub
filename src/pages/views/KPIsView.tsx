@@ -1,22 +1,64 @@
-import { BookOpen, Trophy, Users, Crown, Diamond, Award } from 'lucide-react';
+import { useMemo } from 'react';
+import { BookOpen, Trophy, Users, Crown, Diamond, Award, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { RankingCard } from '@/components/nova/RankingCard';
-import { Member, OBJECTIVES } from '@/data/mockData';
+import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
 
 interface KPIsViewProps {
-  members: Member[];
   onNewOBV?: () => void;
 }
 
-export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
-  const sortedByLPs = [...members].sort((a, b) => b.lps - a.lps);
-  const sortedByBPs = [...members].sort((a, b) => b.bps - a.bps);
-  const sortedByCPs = [...members].sort((a, b) => b.cps - a.cps);
+export function KPIsView({ onNewOBV }: KPIsViewProps) {
+  const { data: members = [], isLoading } = useMemberStats();
+  const { data: objectives = [] } = useObjectives();
+
+  // Map objectives
+  const objectivesMap = useMemo(() => {
+    const map: Record<string, number> = {
+      lps: 18,
+      bps: 66,
+      cps: 40,
+    };
+    objectives.forEach(obj => {
+      map[obj.name] = obj.target_value;
+    });
+    return map;
+  }, [objectives]);
+
+  // Transform members for RankingCard compatibility
+  const membersForRanking = members.map(m => ({
+    id: m.id,
+    nombre: m.nombre,
+    color: m.color || '#6366F1',
+    obvs: Number(m.obvs) || 0,
+    margen: Number(m.margen) || 0,
+    lps: Number(m.lps) || 0,
+    bps: Number(m.bps) || 0,
+    cps: Number(m.cps) || 0,
+    facturacion: Number(m.facturacion) || 0,
+    email: m.email,
+    avatar: m.avatar,
+    exploracion: 0,
+    validacion: 0,
+    venta: 0,
+  }));
+
+  const sortedByLPs = [...membersForRanking].sort((a, b) => b.lps - a.lps);
+  const sortedByBPs = [...membersForRanking].sort((a, b) => b.bps - a.bps);
+  const sortedByCPs = [...membersForRanking].sort((a, b) => b.cps - a.cps);
 
   // Calculate totals
-  const totalLPs = members.reduce((sum, m) => sum + m.lps, 0);
-  const totalBPs = members.reduce((sum, m) => sum + m.bps, 0);
-  const totalCPs = members.reduce((sum, m) => sum + m.cps, 0);
+  const totalLPs = members.reduce((sum, m) => sum + (Number(m.lps) || 0), 0);
+  const totalBPs = members.reduce((sum, m) => sum + (Number(m.bps) || 0), 0);
+  const totalCPs = members.reduce((sum, m) => sum + (Number(m.cps) || 0), 0);
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -42,11 +84,11 @@ export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-warning rounded-full transition-all"
-                style={{ width: `${(totalLPs / (OBJECTIVES.lps * 9)) * 100}%` }}
+                style={{ width: `${(totalLPs / (objectivesMap.lps * 9)) * 100}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Meta: {OBJECTIVES.lps * 9} LPs
+              Meta: {objectivesMap.lps * 9} LPs
             </p>
           </div>
 
@@ -63,11 +105,11 @@ export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-success rounded-full transition-all"
-                style={{ width: `${(totalBPs / (OBJECTIVES.bps * 9)) * 100}%` }}
+                style={{ width: `${(totalBPs / (objectivesMap.bps * 9)) * 100}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Meta: {OBJECTIVES.bps * 9} BPs
+              Meta: {objectivesMap.bps * 9} BPs
             </p>
           </div>
 
@@ -84,11 +126,11 @@ export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
             <div className="h-1 bg-muted rounded-full overflow-hidden">
               <div 
                 className="h-full bg-pink-500 rounded-full transition-all"
-                style={{ width: `${(totalCPs / (OBJECTIVES.cps * 9)) * 100}%` }}
+                style={{ width: `${(totalCPs / (objectivesMap.cps * 9)) * 100}%` }}
               />
             </div>
             <p className="text-xs text-muted-foreground mt-2">
-              Meta: {OBJECTIVES.cps * 9} CPs
+              Meta: {objectivesMap.cps * 9} CPs
             </p>
           </div>
         </div>
@@ -101,7 +143,7 @@ export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
             iconColor="#F59E0B"
             members={sortedByLPs}
             valueKey="lps"
-            objective={OBJECTIVES.lps}
+            objective={objectivesMap.lps}
             delay={4}
           />
           <RankingCard
@@ -110,7 +152,7 @@ export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
             iconColor="#22C55E"
             members={sortedByBPs}
             valueKey="bps"
-            objective={OBJECTIVES.bps}
+            objective={objectivesMap.bps}
             delay={5}
           />
           <RankingCard
@@ -119,7 +161,7 @@ export function KPIsView({ members, onNewOBV }: KPIsViewProps) {
             iconColor="#EC4899"
             members={sortedByCPs}
             valueKey="cps"
-            objective={OBJECTIVES.cps}
+            objective={objectivesMap.cps}
             delay={6}
           />
         </div>
