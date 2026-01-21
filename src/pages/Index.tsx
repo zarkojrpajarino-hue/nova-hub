@@ -4,6 +4,8 @@ import { NovaSidebar } from '@/components/nova/NovaSidebar';
 import { NavigationProvider } from '@/contexts/NavigationContext';
 import { SearchProvider, useSearch } from '@/contexts/SearchContext';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
+import { DemoModeBanner } from '@/components/demo/DemoModeBanner';
+import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { DashboardView } from './views/DashboardView';
 import { MiEspacioView } from './views/MiEspacioView';
@@ -95,14 +97,22 @@ function IndexContent() {
     }
   };
 
+  const { isDemoMode } = useDemoMode();
+
   return (
     <NavigationProvider onNavigate={handleNavigate}>
       <div className="flex min-h-screen bg-background">
+        {/* Demo Mode Banner */}
+        <DemoModeBanner />
+
         {/* Mobile menu button */}
         {isMobile && (
           <button
             onClick={() => setSidebarOpen(!sidebarOpen)}
-            className="fixed top-4 left-4 z-[60] w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-lg"
+            className={cn(
+              "fixed left-4 z-[60] w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-lg",
+              isDemoMode ? "top-16" : "top-4"
+            )}
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
           </button>
@@ -120,7 +130,8 @@ function IndexContent() {
         <div className={cn(
           "transition-transform duration-300 ease-in-out",
           isMobile && "fixed z-50",
-          isMobile && !sidebarOpen && "-translate-x-full"
+          isMobile && !sidebarOpen && "-translate-x-full",
+          isDemoMode && "pt-12"
         )}>
           <NovaSidebar 
             currentView={currentView} 
@@ -133,7 +144,8 @@ function IndexContent() {
         {/* Main content */}
         <main className={cn(
           "flex-1 min-h-screen transition-all duration-300",
-          !isMobile && "ml-64"
+          !isMobile && "ml-64",
+          isDemoMode && "pt-12"
         )}>
           {renderView()}
         </main>
