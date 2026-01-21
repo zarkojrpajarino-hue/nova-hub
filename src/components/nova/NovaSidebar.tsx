@@ -90,7 +90,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Equipo
           </p>
-          {navItems.slice(11, 13).map((item) => (
+          {navItems.slice(12, 13).map((item) => (
             <NavItem
               key={item.id}
               item={item}
@@ -104,7 +104,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Sistema
           </p>
-          {navItems.slice(10).map((item) => (
+          {navItems.slice(13).map((item) => (
             <NavItem
               key={item.id}
               item={item}

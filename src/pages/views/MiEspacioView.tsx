@@ -4,7 +4,7 @@ import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
 import { useAuth } from '@/hooks/useAuth';
-import { useCurrentMemberStats, useProjects, useProjectMembers, useObjectives } from '@/hooks/useNovaData';
+import { useCurrentMemberStats, useProjects, useProjectMembers, useObjectives, useProjectStats } from '@/hooks/useNovaData';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { MyTasksList } from '@/components/tasks/MyTasksList';
@@ -22,6 +22,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
   const { data: projects = [], isLoading: loadingProjects } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
   const { data: objectives = [] } = useObjectives();
+  const { data: projectStats = [] } = useProjectStats();
   const [showTaskForm, setShowTaskForm] = useState(false);
 
   // Map objectives
@@ -194,18 +195,25 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
                       </p>
                       
                       <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
-                        <div className="text-center">
-                          <p className="font-bold">-</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="font-bold">-</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">Tareas</p>
-                        </div>
-                        <div className="text-center">
-                          <p className="font-bold">-</p>
-                          <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
-                        </div>
+                        {(() => {
+                          const stats = projectStats.find(ps => ps.id === project.id);
+                          return (
+                            <>
+                              <div className="text-center">
+                                <p className="font-bold">{stats?.total_obvs || 0}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="font-bold">{stats?.num_members || 0}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">Miembros</p>
+                              </div>
+                              <div className="text-center">
+                                <p className="font-bold">{stats?.total_leads || 0}</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
+                              </div>
+                            </>
+                          );
+                        })()}
                       </div>
                     </div>
                   );
