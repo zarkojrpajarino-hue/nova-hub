@@ -1,6 +1,6 @@
-import { Plus } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
-import { SAMPLE_LEADS } from '@/data/mockData';
+import { usePipelineGlobal } from '@/hooks/useNovaData';
 
 const PIPELINE_STAGES = [
   { id: 'frio', label: 'Frío', color: '#64748B' },
@@ -16,6 +16,16 @@ interface CRMViewProps {
 }
 
 export function CRMView({ onNewOBV }: CRMViewProps) {
+  const { data: leads = [], isLoading } = usePipelineGlobal();
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
   return (
     <>
       <NovaHeader 
@@ -27,7 +37,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
       <div className="p-8">
         <div className="grid grid-cols-6 gap-4 overflow-x-auto pb-4">
           {PIPELINE_STAGES.map((stage, i) => {
-            const leads = SAMPLE_LEADS.filter(l => l.status === stage.id);
+            const stageLeads = leads.filter(l => l.status === stage.id);
             
             return (
               <div 
@@ -51,25 +61,25 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
                     {stage.label}
                   </div>
                   <span className="w-6 h-6 rounded-lg bg-background flex items-center justify-center text-xs font-semibold">
-                    {leads.length}
+                    {stageLeads.length}
                   </span>
                 </div>
 
                 {/* Cards Container */}
                 <div className="bg-background rounded-b-xl p-2 min-h-[200px] space-y-2">
-                  {leads.map(lead => (
+                  {stageLeads.map(lead => (
                     <div 
                       key={lead.id}
                       className="bg-card border border-border rounded-lg p-4 cursor-pointer hover:border-muted-foreground/30 transition-all"
                     >
                       <p className="font-semibold text-sm mb-1">{lead.nombre}</p>
-                      <p className="text-xs text-muted-foreground mb-3">{lead.empresa}</p>
+                      <p className="text-xs text-muted-foreground mb-3">{lead.empresa || '-'}</p>
                       <div className="flex items-center justify-between">
                         <span className="text-sm font-bold text-success">
-                          {lead.valor > 0 ? `€${lead.valor}` : '-'}
+                          {lead.valor_potencial && lead.valor_potencial > 0 ? `€${lead.valor_potencial}` : '-'}
                         </span>
                         <span className="text-[11px] bg-muted px-2 py-1 rounded-md">
-                          {lead.proyecto}
+                          {lead.proyecto_nombre || '-'}
                         </span>
                       </div>
                     </div>

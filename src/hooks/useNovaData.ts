@@ -166,3 +166,35 @@ export function useProjectStats() {
     },
   });
 }
+
+export function usePipelineGlobal() {
+  return useQuery({
+    queryKey: ['pipeline_global'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pipeline_global')
+        .select('*');
+      
+      if (error) throw error;
+      return data;
+    },
+  });
+}
+
+export function useCurrentMemberStats(email: string | undefined) {
+  return useQuery({
+    queryKey: ['member_stats', email],
+    queryFn: async () => {
+      if (!email) return null;
+      const { data, error } = await supabase
+        .from('member_stats')
+        .select('*')
+        .eq('email', email)
+        .maybeSingle();
+      
+      if (error) throw error;
+      return data as MemberStats | null;
+    },
+    enabled: !!email,
+  });
+}

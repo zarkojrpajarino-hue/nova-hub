@@ -1,27 +1,39 @@
-import { Calendar, Zap } from 'lucide-react';
+import { Calendar, Zap, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
-import { Member, PROJECTS, PROJECT_ROLES, ROLE_CONFIG } from '@/data/mockData';
+import { useMemberStats, useProjects, useProjectMembers } from '@/hooks/useNovaData';
+import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 
 interface RolesMeetingViewProps {
-  members: Member[];
   onNewOBV?: () => void;
 }
 
-export function RolesMeetingView({ members, onNewOBV }: RolesMeetingViewProps) {
+export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
+  const { data: members = [], isLoading: loadingMembers } = useMemberStats();
+  const { data: projects = [] } = useProjects();
+  const { data: projectMembers = [] } = useProjectMembers();
+
   const roles = Object.entries(ROLE_CONFIG);
 
   const getMembersWithRole = (roleKey: string) => {
-    const memberIds = PROJECT_ROLES
-      .filter(pr => pr.role === roleKey)
-      .map(pr => ({ memberId: pr.member_id, projectId: pr.project_id }));
+    const memberData = projectMembers
+      .filter(pm => pm.role === roleKey)
+      .map(pm => ({ memberId: pm.member_id, projectId: pm.project_id }));
     
-    return memberIds.map(({ memberId, projectId }) => {
+    return memberData.map(({ memberId, projectId }) => {
       const member = members.find(m => m.id === memberId);
-      const project = PROJECTS.find(p => p.id === projectId);
+      const project = projects.find(p => p.id === projectId);
       return { member, project };
     });
   };
+
+  if (loadingMembers) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -86,7 +98,7 @@ export function RolesMeetingView({ members, onNewOBV }: RolesMeetingViewProps) {
                       >
                         <div 
                           className="w-5 h-5 rounded-md flex items-center justify-center text-[9px] font-semibold text-white"
-                          style={{ background: member.color }}
+                          style={{ background: member.color || '#6366F1' }}
                         >
                           {member.nombre.charAt(0)}
                         </div>

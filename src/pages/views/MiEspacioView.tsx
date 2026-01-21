@@ -1,25 +1,73 @@
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Zap } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Zap, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
-import { Member, Project, PROJECT_ROLES, ROLE_CONFIG, OBJECTIVES, PENDING_VALIDATIONS } from '@/data/mockData';
+import { useAuth } from '@/hooks/useAuth';
+import { useCurrentMemberStats, useProjects, useProjectMembers, useObjectives } from '@/hooks/useNovaData';
+import { ROLE_CONFIG, PENDING_VALIDATIONS } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
+import { useMemo } from 'react';
 
 interface MiEspacioViewProps {
-  currentUser: Member;
-  projects: Project[];
   onNewOBV?: () => void;
 }
 
-export function MiEspacioView({ currentUser, projects, onNewOBV }: MiEspacioViewProps) {
-  const userProjects = projects.filter(p => p.members.includes(currentUser.id));
-  const userRoles = PROJECT_ROLES.filter(r => r.member_id === currentUser.id);
+export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
+  const { profile } = useAuth();
+  const { data: currentUserStats, isLoading: loadingStats } = useCurrentMemberStats(profile?.email);
+  const { data: projects = [], isLoading: loadingProjects } = useProjects();
+  const { data: projectMembers = [] } = useProjectMembers();
+  const { data: objectives = [] } = useObjectives();
+
+  // Map objectives
+  const objectivesMap = useMemo(() => {
+    const map: Record<string, number> = {
+      obvs: 150,
+      lps: 18,
+      bps: 66,
+      cps: 40,
+      facturacion: 15000,
+      margen: 7500,
+    };
+    objectives.forEach(obj => {
+      map[obj.name] = obj.target_value;
+    });
+    return map;
+  }, [objectives]);
+
+  // Get user's projects
+  const userProjectIds = projectMembers
+    .filter(pm => pm.member_id === profile?.id)
+    .map(pm => pm.project_id);
+
+  const userProjects = projects.filter(p => userProjectIds.includes(p.id));
+
+  // Get user's roles per project
+  const userRoles = projectMembers.filter(pm => pm.member_id === profile?.id);
+
+  // Stats with fallback
+  const stats = {
+    obvs: Number(currentUserStats?.obvs) || 0,
+    lps: Number(currentUserStats?.lps) || 0,
+    bps: Number(currentUserStats?.bps) || 0,
+    cps: Number(currentUserStats?.cps) || 0,
+    facturacion: Number(currentUserStats?.facturacion) || 0,
+    margen: Number(currentUserStats?.margen) || 0,
+  };
+
+  if (loadingStats || loadingProjects) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
 
   return (
     <>
       <NovaHeader 
         title="Mi Espacio" 
-        subtitle={`Bienvenido, ${currentUser.nombre}`} 
+        subtitle={`Bienvenido, ${profile?.nombre || 'Usuario'}`} 
         onNewOBV={onNewOBV} 
       />
       
@@ -28,55 +76,55 @@ export function MiEspacioView({ currentUser, projects, onNewOBV }: MiEspacioView
         <div className="grid grid-cols-6 gap-4 mb-8">
           <StatCard 
             icon={FileCheck} 
-            value={currentUser.obvs} 
+            value={stats.obvs} 
             label="Mis OBVs" 
-            progress={(currentUser.obvs / OBJECTIVES.obvs) * 100}
-            target={OBJECTIVES.obvs}
+            progress={(stats.obvs / objectivesMap.obvs) * 100}
+            target={objectivesMap.obvs}
             color="#6366F1"
             delay={1}
           />
           <StatCard 
             icon={BookOpen} 
-            value={currentUser.lps} 
+            value={stats.lps} 
             label="Mis LPs" 
-            progress={(currentUser.lps / OBJECTIVES.lps) * 100}
-            target={OBJECTIVES.lps}
+            progress={(stats.lps / objectivesMap.lps) * 100}
+            target={objectivesMap.lps}
             color="#F59E0B"
             delay={2}
           />
           <StatCard 
             icon={Trophy} 
-            value={currentUser.bps} 
+            value={stats.bps} 
             label="Mis BPs" 
-            progress={(currentUser.bps / OBJECTIVES.bps) * 100}
-            target={OBJECTIVES.bps}
+            progress={(stats.bps / objectivesMap.bps) * 100}
+            target={objectivesMap.bps}
             color="#22C55E"
             delay={3}
           />
           <StatCard 
             icon={Users} 
-            value={currentUser.cps} 
+            value={stats.cps} 
             label="Mis CPs" 
-            progress={(currentUser.cps / OBJECTIVES.cps) * 100}
-            target={OBJECTIVES.cps}
+            progress={(stats.cps / objectivesMap.cps) * 100}
+            target={objectivesMap.cps}
             color="#EC4899"
             delay={4}
           />
           <StatCard 
             icon={TrendingUp} 
-            value={`€${currentUser.facturacion.toFixed(0)}`} 
+            value={`€${stats.facturacion.toFixed(0)}`} 
             label="Mi Facturación" 
-            progress={(currentUser.facturacion / OBJECTIVES.facturacion) * 100}
-            target={`€${OBJECTIVES.facturacion}`}
+            progress={(stats.facturacion / objectivesMap.facturacion) * 100}
+            target={`€${objectivesMap.facturacion}`}
             color="#3B82F6"
             delay={5}
           />
           <StatCard 
             icon={Wallet} 
-            value={`€${currentUser.margen.toFixed(0)}`} 
+            value={`€${stats.margen.toFixed(0)}`} 
             label="Mi Margen" 
-            progress={(currentUser.margen / OBJECTIVES.margen) * 100}
-            target={`€${OBJECTIVES.margen}`}
+            progress={(stats.margen / objectivesMap.margen) * 100}
+            target={`€${objectivesMap.margen}`}
             color="#22C55E"
             delay={6}
           />
@@ -90,65 +138,71 @@ export function MiEspacioView({ currentUser, projects, onNewOBV }: MiEspacioView
           </div>
           
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {userProjects.map(project => {
-                const roleData = userRoles.find(r => r.project_id === project.id);
-                const role = roleData ? ROLE_CONFIG[roleData.role] : null;
-                
-                return (
-                  <div 
-                    key={project.id} 
-                    className="relative bg-background border border-border rounded-xl p-5 hover:border-muted-foreground/30 transition-all cursor-pointer"
-                  >
+            {userProjects.length === 0 ? (
+              <div className="text-center py-10">
+                <p className="text-muted-foreground">No estás asignado a ningún proyecto</p>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+                {userProjects.map(project => {
+                  const roleData = userRoles.find(r => r.project_id === project.id);
+                  const role = roleData ? ROLE_CONFIG[roleData.role] : null;
+                  
+                  return (
                     <div 
-                      className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl"
-                      style={{ background: project.color }}
-                    />
-                    
-                    <div className="flex items-start justify-between mb-4">
+                      key={project.id} 
+                      className="relative bg-background border border-border rounded-xl p-5 hover:border-muted-foreground/30 transition-all cursor-pointer"
+                    >
                       <div 
-                        className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
-                        style={{ background: `${project.color}20` }}
-                      >
-                        {project.icon}
-                      </div>
-                      {role && (
+                        className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl"
+                        style={{ background: project.color }}
+                      />
+                      
+                      <div className="flex items-start justify-between mb-4">
                         <div 
-                          className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
-                          style={{ 
-                            background: `${role.color}20`,
-                            color: role.color 
-                          }}
+                          className="w-11 h-11 rounded-xl flex items-center justify-center text-xl"
+                          style={{ background: `${project.color}20` }}
                         >
-                          <role.icon size={14} />
-                          {role.label}
+                          {project.icon}
                         </div>
-                      )}
+                        {role && (
+                          <div 
+                            className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg"
+                            style={{ 
+                              background: `${role.color}20`,
+                              color: role.color 
+                            }}
+                          >
+                            <role.icon size={14} />
+                            {role.label}
+                          </div>
+                        )}
+                      </div>
+                      
+                      <h4 className="font-bold text-base mb-1">{project.nombre}</h4>
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Fase: {project.fase.replace('_', ' ')} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                      </p>
+                      
+                      <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
+                        <div className="text-center">
+                          <p className="font-bold">-</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold">-</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Tareas</p>
+                        </div>
+                        <div className="text-center">
+                          <p className="font-bold">-</p>
+                          <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
+                        </div>
+                      </div>
                     </div>
-                    
-                    <h4 className="font-bold text-base mb-1">{project.nombre}</h4>
-                    <p className="text-sm text-muted-foreground mb-4">
-                      Fase: {project.fase.replace('_', ' ')} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
-                    </p>
-                    
-                    <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
-                      <div className="text-center">
-                        <p className="font-bold">12</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="font-bold">5</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">Tareas</p>
-                      </div>
-                      <div className="text-center">
-                        <p className="font-bold">3</p>
-                        <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
-                      </div>
-                    </div>
-                  </div>
-                );
-              })}
-            </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         </div>
 
