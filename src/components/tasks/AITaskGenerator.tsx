@@ -70,14 +70,33 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
         }
       });
 
-      if (funcError) throw funcError;
+      if (funcError) {
+        // Handle specific HTTP error codes
+        const errorMessage = funcError.message || '';
+        if (errorMessage.includes('429') || funcError.context?.status === 429) {
+          setError('Has excedido el límite de solicitudes. Por favor espera unos minutos antes de intentar de nuevo.');
+          return;
+        }
+        if (errorMessage.includes('402') || funcError.context?.status === 402) {
+          setError('Créditos de IA agotados. Contacta al administrador para recargar.');
+          return;
+        }
+        throw funcError;
+      }
 
-      if (data.error) {
-        setError(data.error);
+      if (data?.error) {
+        // Handle error messages from edge function
+        if (data.error.includes('429') || data.error.includes('límite')) {
+          setError('Has excedido el límite de solicitudes. Por favor espera unos minutos.');
+        } else if (data.error.includes('402') || data.error.includes('Créditos')) {
+          setError('Créditos de IA agotados. Contacta al administrador.');
+        } else {
+          setError(data.error);
+        }
         return;
       }
 
-      const tasks = (data.tasks || []).map((t: GeneratedTask) => ({
+      const tasks = (data?.tasks || []).map((t: GeneratedTask) => ({
         ...t,
         selected: true,
       }));
@@ -85,11 +104,19 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
       setGeneratedTasks(tasks);
       
       if (tasks.length === 0) {
-        setError('No se pudieron generar tareas. Inténtalo de nuevo.');
+        setError('No se pudieron generar tareas. Asegúrate de que el proyecto tenga miembros asignados.');
       }
     } catch (err) {
       console.error('Error generating tasks:', err);
-      setError('Error al generar tareas. Por favor, inténtalo de nuevo.');
+      // Check for network errors or specific status codes
+      const error = err as { status?: number; message?: string };
+      if (error.status === 429) {
+        setError('Has excedido el límite de solicitudes. Espera unos minutos.');
+      } else if (error.status === 402) {
+        setError('Créditos de IA agotados. Contacta al administrador.');
+      } else {
+        setError('Error al conectar con el servicio de IA. Por favor, inténtalo de nuevo.');
+      }
     } finally {
       setIsGenerating(false);
     }

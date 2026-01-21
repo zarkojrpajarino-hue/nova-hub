@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.generate-tasks]
 verify_jwt = false
+
+[functions.generate-role-questions]
+verify_jwt = false

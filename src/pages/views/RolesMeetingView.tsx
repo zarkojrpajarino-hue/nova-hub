@@ -1,17 +1,27 @@
+import { useState } from 'react';
 import { Calendar, Zap, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { useMemberStats, useProjects, useProjectMembers } from '@/hooks/useNovaData';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
+import { AIRoleQuestionsGenerator } from '@/components/roles/AIRoleQuestionsGenerator';
 
 interface RolesMeetingViewProps {
   onNewOBV?: () => void;
+}
+
+interface RoleContext {
+  role: string;
+  roleLabel: string;
+  roleDescription: string;
+  members: Array<{ nombre: string; projectName: string }>;
 }
 
 export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: projects = [] } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
+  const [selectedRole, setSelectedRole] = useState<RoleContext | null>(null);
 
   const roles = Object.entries(ROLE_CONFIG);
 
@@ -25,6 +35,22 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
       const project = projects.find(p => p.id === projectId);
       return { member, project };
     });
+  };
+
+  const handleGenerateQuestions = (roleKey: string, config: typeof ROLE_CONFIG[keyof typeof ROLE_CONFIG]) => {
+    const membersWithRole = getMembersWithRole(roleKey);
+    const roleContext: RoleContext = {
+      role: roleKey,
+      roleLabel: config.label,
+      roleDescription: config.desc,
+      members: membersWithRole
+        .filter(m => m.member && m.project)
+        .map(m => ({
+          nombre: m.member!.nombre,
+          projectName: m.project!.nombre,
+        })),
+    };
+    setSelectedRole(roleContext);
   };
 
   if (loadingMembers) {
@@ -55,10 +81,6 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
               Todos los miembros con el mismo rol de diferentes proyectos se reúnen para compartir aprendizajes.
             </p>
           </div>
-          <Button className="nova-gradient">
-            <Zap size={16} className="mr-1" />
-            Generar Preguntas IA
-          </Button>
         </div>
 
         {/* Roles Grid */}
@@ -78,11 +100,25 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
                   style={{ background: config.color }}
                 />
 
-                <div 
-                  className="w-12 h-12 rounded-xl flex items-center justify-center mb-4"
-                  style={{ background: `${config.color}20` }}
-                >
-                  <config.icon size={24} style={{ color: config.color }} />
+                <div className="flex items-start justify-between mb-4">
+                  <div 
+                    className="w-12 h-12 rounded-xl flex items-center justify-center"
+                    style={{ background: `${config.color}20` }}
+                  >
+                    <config.icon size={24} style={{ color: config.color }} />
+                  </div>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    className="gap-1.5 text-xs"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleGenerateQuestions(key, config);
+                    }}
+                  >
+                    <Zap size={14} />
+                    Preguntas IA
+                  </Button>
                 </div>
 
                 <h3 className="font-bold text-lg mb-2">{config.label}</h3>
@@ -114,6 +150,12 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
           })}
         </div>
       </div>
+
+      {/* AI Questions Modal */}
+      <AIRoleQuestionsGenerator
+        role={selectedRole}
+        onClose={() => setSelectedRole(null)}
+      />
     </>
   );
 }
