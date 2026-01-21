@@ -3,12 +3,15 @@ import {
   BookOpen, Users2, Settings, LogOut, LucideIcon
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { Member } from '@/data/mockData';
 
 interface NovaSidebarProps {
   currentView: string;
   setCurrentView: (view: string) => void;
-  currentUser: Member;
+  currentUser: {
+    nombre?: string;
+    color?: string;
+  } | null;
+  onSignOut?: () => void;
 }
 
 interface NavItem {
@@ -29,7 +32,7 @@ const navItems: NavItem[] = [
   { id: 'roles', icon: Users2, label: 'Reuniones de Rol' },
 ];
 
-export function NovaSidebar({ currentView, setCurrentView, currentUser }: NovaSidebarProps) {
+export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOut }: NovaSidebarProps) {
   return (
     <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col h-screen fixed z-50">
       {/* Logo */}
@@ -97,17 +100,20 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser }: NovaSi
         <div className="flex items-center gap-3 p-2 rounded-lg hover:bg-sidebar-accent transition-colors cursor-pointer group">
           <div 
             className="w-9 h-9 rounded-lg flex items-center justify-center font-semibold text-sm text-primary-foreground"
-            style={{ background: currentUser.color }}
+            style={{ background: currentUser?.color || '#6366F1' }}
           >
-            {currentUser.nombre.charAt(0)}
+            {currentUser?.nombre?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm truncate">{currentUser.nombre}</p>
-            <p className="text-xs text-muted-foreground">Team Leadership</p>
+            <p className="font-semibold text-sm truncate">{currentUser?.nombre || 'Usuario'}</p>
+            <p className="text-xs text-muted-foreground">Team Member</p>
           </div>
           <Settings size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
-        <button className="w-full mt-2 flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors text-sm">
+        <button 
+          onClick={onSignOut}
+          className="w-full mt-2 flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors text-sm"
+        >
           <LogOut size={16} />
           Cerrar sesión
         </button>
