@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { NovaSidebar } from '@/components/nova/NovaSidebar';
+import { NavigationProvider } from '@/contexts/NavigationContext';
 import { DashboardView } from './views/DashboardView';
 import { MiEspacioView } from './views/MiEspacioView';
 import { ProjectsView } from './views/ProjectsView';
@@ -11,6 +12,7 @@ import { KPIsView } from './views/KPIsView';
 import { RolesMeetingView } from './views/RolesMeetingView';
 import { AnalyticsView } from './views/AnalyticsView';
 import { SettingsView } from './views/SettingsView';
+import { NotificationsView } from './views/NotificationsView';
 import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
@@ -25,6 +27,10 @@ const Index = () => {
   const handleSignOut = async () => {
     await signOut();
     navigate('/auth');
+  };
+
+  const handleNavigate = (view: string) => {
+    setCurrentView(view);
   };
 
   const renderView = () => {
@@ -49,23 +55,27 @@ const Index = () => {
         return <RolesMeetingView onNewOBV={handleNewOBV} />;
       case 'settings':
         return <SettingsView onNewOBV={handleNewOBV} />;
+      case 'notificaciones':
+        return <NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />;
       default:
         return <DashboardView onNewOBV={handleNewOBV} />;
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-background">
-      <NovaSidebar 
-        currentView={currentView} 
-        setCurrentView={setCurrentView} 
-        currentUser={profile}
-        onSignOut={handleSignOut}
-      />
-      <main className="flex-1 ml-64 min-h-screen">
-        {renderView()}
-      </main>
-    </div>
+    <NavigationProvider onNavigate={handleNavigate}>
+      <div className="flex min-h-screen bg-background">
+        <NovaSidebar 
+          currentView={currentView} 
+          setCurrentView={setCurrentView} 
+          currentUser={profile}
+          onSignOut={handleSignOut}
+        />
+        <main className="flex-1 ml-64 min-h-screen">
+          {renderView()}
+        </main>
+      </div>
+    </NavigationProvider>
   );
 };
 
