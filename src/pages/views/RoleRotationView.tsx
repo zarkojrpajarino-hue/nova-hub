@@ -3,12 +3,13 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ArrowLeftRight, History, Plus, Users, TrendingUp, Clock } from 'lucide-react';
+import { ArrowLeftRight, History, Plus, Users, TrendingUp, Clock, Sparkles } from 'lucide-react';
 import { useRotationRequests, useRoleHistory, useMyRotationRequests } from '@/hooks/useRoleRotation';
 import { RotationRequestsList } from '@/components/rotation/RotationRequestsList';
 import { RoleHistoryList } from '@/components/rotation/RoleHistoryList';
 import { CreateRotationDialog } from '@/components/rotation/CreateRotationDialog';
 import { MyRotationRequests } from '@/components/rotation/MyRotationRequests';
+import { AIRotationSuggestions } from '@/components/rotation/AIRotationSuggestions';
 
 export default function RoleRotationView() {
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
@@ -89,6 +90,9 @@ export default function RoleRotationView() {
           </CardContent>
         </Card>
       </div>
+
+      {/* AI Suggestions */}
+      <AIRotationSuggestions />
 
       {/* Tabs */}
       <Tabs defaultValue="my-requests" className="space-y-4">

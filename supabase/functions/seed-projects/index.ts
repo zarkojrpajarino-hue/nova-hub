@@ -7,7 +7,7 @@ const corsHeaders = {
 
 // Projects start with no roles assigned - roles come after onboarding
 const PROJECTS = [
-  { nombre: 'Payo Sushi', icon: '🍣', color: '#EF4444', fase: 'idea', tipo: 'validacion' },
+  { nombre: 'Sushi Payo', icon: '🍣', color: '#EF4444', fase: 'idea', tipo: 'validacion' },
   { nombre: 'Experea', icon: '🎓', color: '#22C55E', fase: 'crecimiento', tipo: 'operacion' },
   { nombre: 'Apadrina tu Olivo', icon: '🫒', color: '#84CC16', fase: 'idea', tipo: 'validacion' },
   { nombre: 'Experiencia Selecta', icon: '💎', color: '#A855F7', fase: 'idea', tipo: 'validacion' },
@@ -19,7 +19,7 @@ const PROJECTS = [
 // Members are added to projects but WITHOUT roles - roles assigned by AI after onboarding
 // Zarko only participates in Payo Sushi and Experiencia Selecta
 const PROJECT_MEMBERS = [
-  { project: 'Payo Sushi', members: [
+  { project: 'Sushi Payo', members: [
     { email: 'manuel@nova.com' },
     { email: 'zarko@nova.com' }, // Zarko - will get ai_tech
     { email: 'diego@nova.com' },
