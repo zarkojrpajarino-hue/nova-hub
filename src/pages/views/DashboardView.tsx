@@ -1,12 +1,13 @@
 import { useMemo } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Crown, Diamond, Loader2 } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
-import { RankingCard } from '@/components/nova/RankingCard';
-import { ActivityCard } from '@/components/nova/ActivityCard';
-import { ValidationCard } from '@/components/nova/ValidationCard';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
-import { RECENT_ACTIVITY, PENDING_VALIDATIONS } from '@/data/mockData';
+import { WeeklyEvolutionChart } from '@/components/dashboard/WeeklyEvolutionChart';
+import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
+import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
+import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
+import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
 
 interface DashboardViewProps {
   onNewOBV?: () => void;
@@ -43,6 +44,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     }), { obvs: 0, lps: 0, bps: 0, cps: 0, facturacion: 0, margen: 0 });
   }, [members]);
 
+  // Team objectives (9 members)
   const teamObjectives = {
     obvs: objectivesMap.obvs * 9,
     lps: objectivesMap.lps * 9,
@@ -52,7 +54,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     margen: objectivesMap.margen * 9,
   };
 
-  // Transform members for RankingCard compatibility
+  // Transform members for widgets
   const membersForRanking = members.map(m => ({
     id: m.id,
     nombre: m.nombre,
@@ -63,15 +65,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     bps: Number(m.bps) || 0,
     cps: Number(m.cps) || 0,
     facturacion: Number(m.facturacion) || 0,
-    email: m.email,
-    avatar: m.avatar,
-    exploracion: 0,
-    validacion: 0,
-    venta: 0,
   }));
-
-  const sortedByOBVs = [...membersForRanking].sort((a, b) => b.obvs - a.obvs);
-  const sortedByMargen = [...membersForRanking].sort((a, b) => b.margen - a.margen);
 
   if (loadingMembers) {
     return (
@@ -89,9 +83,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         onNewOBV={onNewOBV} 
       />
       
-      <div className="p-8">
-        {/* Stats Grid */}
-        <div className="grid grid-cols-6 gap-4 mb-8">
+      <div className="p-8 space-y-6">
+        {/* KPIs Grid */}
+        <div className="grid grid-cols-6 gap-4">
           <StatCard 
             icon={FileCheck} 
             value={totals.obvs} 
@@ -148,33 +142,23 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           />
         </div>
 
-        {/* Rankings */}
-        <div className="grid grid-cols-2 gap-6 mb-6">
-          <RankingCard
-            title="Ranking OBVs"
-            icon={Crown}
-            iconColor="#F59E0B"
-            members={sortedByOBVs}
-            valueKey="obvs"
-            objective={objectivesMap.obvs}
-            delay={2}
-          />
-          <RankingCard
-            title="Ranking Margen"
-            icon={Diamond}
-            iconColor="#A855F7"
-            members={sortedByMargen}
-            valueKey="margen"
-            formatValue={(v) => `€${v.toFixed(0)}`}
-            objective={objectivesMap.margen}
-            delay={3}
-          />
+        {/* Charts & Rankings Row */}
+        <div className="grid grid-cols-3 gap-6">
+          <div className="col-span-2">
+            <WeeklyEvolutionChart />
+          </div>
+          <div>
+            <SmartAlertsWidget />
+          </div>
         </div>
+
+        {/* Top 3 Rankings */}
+        <TopRankingsWidget members={membersForRanking} />
 
         {/* Activity & Validations */}
         <div className="grid grid-cols-2 gap-6">
-          <ActivityCard activities={RECENT_ACTIVITY} delay={4} />
-          <ValidationCard validations={PENDING_VALIDATIONS.slice(0, 4)} delay={5} />
+          <RecentActivityFeed />
+          <PendingValidationsWidget />
         </div>
       </div>
     </>
