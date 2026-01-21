@@ -1636,9 +1636,14 @@ export type Database = {
           descripcion: string | null
           fecha_limite: string | null
           id: string
+          metadata: Json | null
+          playbook: Json | null
           prioridad: number | null
           project_id: string | null
+          relacionada_con_leads: string[] | null
           status: Database["public"]["Enums"]["task_status"] | null
+          tiempo_estimado_horas: number | null
+          tipo_tarea: string | null
           titulo: string
         }
         Insert: {
@@ -1649,9 +1654,14 @@ export type Database = {
           descripcion?: string | null
           fecha_limite?: string | null
           id?: string
+          metadata?: Json | null
+          playbook?: Json | null
           prioridad?: number | null
           project_id?: string | null
+          relacionada_con_leads?: string[] | null
           status?: Database["public"]["Enums"]["task_status"] | null
+          tiempo_estimado_horas?: number | null
+          tipo_tarea?: string | null
           titulo: string
         }
         Update: {
@@ -1662,9 +1672,14 @@ export type Database = {
           descripcion?: string | null
           fecha_limite?: string | null
           id?: string
+          metadata?: Json | null
+          playbook?: Json | null
           prioridad?: number | null
           project_id?: string | null
+          relacionada_con_leads?: string[] | null
           status?: Database["public"]["Enums"]["task_status"] | null
+          tiempo_estimado_horas?: number | null
+          tipo_tarea?: string | null
           titulo?: string
         }
         Relationships: [
