@@ -14,15 +14,21 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_MEMBERS, DEMO_FINANCIAL } from '@/data/demoData';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
 }
 
 export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
-  const { data: members = [], isLoading: loadingMembers } = useMemberStats();
+  const { isDemoMode } = useDemoMode();
+  const { data: realMembers = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
   const [viewMode, setViewMode] = useState<'dashboard' | 'cobros' | 'proyecciones'>('dashboard');
+
+  // Use demo data when in demo mode
+  const members = isDemoMode ? DEMO_MEMBERS : realMembers;
   
   // Fetch financial metrics
   const { data: financialMetrics = [] } = useQuery({
@@ -60,18 +66,45 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
     return map;
   }, [objectives]);
 
-  const totalFacturacion = members.reduce((sum, m) => sum + (Number(m.facturacion) || 0), 0);
-  const totalMargen = members.reduce((sum, m) => sum + (Number(m.margen) || 0), 0);
+  // Use demo financial data if in demo mode
+  const totalFacturacion = isDemoMode 
+    ? DEMO_FINANCIAL.facturacion_total 
+    : members.reduce((sum, m) => sum + (Number(m.facturacion) || 0), 0);
+  const totalMargen = isDemoMode 
+    ? DEMO_FINANCIAL.margen_total 
+    : members.reduce((sum, m) => sum + (Number(m.margen) || 0), 0);
   const margenPromedio = totalFacturacion > 0 ? (totalMargen / totalFacturacion) * 100 : 0;
   
   // Pending payments stats
-  const totalPending = pendingPayments.reduce((sum, p) => sum + (Number(p.pendiente) || 0), 0);
-  const overdueCount = pendingPayments.filter(p => (p.dias_vencido || 0) > 0).length;
-  const overduePayments = pendingPayments.filter(p => (p.dias_vencido || 0) > 0);
-  const upcomingPayments = pendingPayments.filter(p => (p.dias_vencido || 0) <= 0 && p.estado_cobro !== 'cobrado');
+  const totalPending = isDemoMode 
+    ? DEMO_FINANCIAL.pendiente_cobro 
+    : pendingPayments.reduce((sum, p) => sum + (Number(p.pendiente) || 0), 0);
+  const overdueCount = isDemoMode ? 2 : pendingPayments.filter(p => (p.dias_vencido || 0) > 0).length;
+  const overduePayments = isDemoMode 
+    ? DEMO_FINANCIAL.cobros_pendientes.slice(0, 2).map(c => ({
+        id: c.cliente,
+        titulo: c.cliente,
+        cliente: c.cliente,
+        proyecto_nombre: c.proyecto,
+        pendiente: c.monto,
+        dias_vencido: 5,
+        numero_factura: 'F-001',
+      }))
+    : pendingPayments.filter(p => (p.dias_vencido || 0) > 0);
+  const upcomingPayments = isDemoMode 
+    ? DEMO_FINANCIAL.cobros_pendientes.map(c => ({
+        id: c.cliente,
+        titulo: c.cliente,
+        pendiente: c.monto,
+        fecha_cobro_esperada: c.fecha_esperada,
+        estado_cobro: 'pendiente',
+        dias_vencido: 0,
+      }))
+    : pendingPayments.filter(p => (p.dias_vencido || 0) <= 0 && p.estado_cobro !== 'cobrado');
 
   // Calculate monthly growth (simplified)
   const monthlyGrowth = useMemo(() => {
+    if (isDemoMode) return 12.5;
     if (financialMetrics.length < 2) return 0;
     const sorted = [...financialMetrics].sort((a, b) => 
       new Date(b.month).getTime() - new Date(a.month).getTime()
@@ -80,17 +113,17 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
     const previousMonth = sorted[1]?.facturacion || 0;
     if (previousMonth === 0) return 0;
     return ((currentMonth - previousMonth) / previousMonth) * 100;
-  }, [financialMetrics]);
+  }, [financialMetrics, isDemoMode]);
 
   const sortedByFacturacion = [...members].sort((a, b) => 
     (Number(b.facturacion) || 0) - (Number(a.facturacion) || 0)
   );
 
   // Proyecciones
-  const metaAnual = objectivesMap.facturacion * 9; // 9 socios
+  const metaAnual = isDemoMode ? DEMO_FINANCIAL.objetivo_facturacion : objectivesMap.facturacion * 9;
   const progresoAnual = (totalFacturacion / metaAnual) * 100;
 
-  if (loadingMembers) {
+  if (loadingMembers && !isDemoMode) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />

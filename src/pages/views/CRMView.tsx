@@ -8,15 +8,33 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_LEADS, DEMO_PROJECTS, DEMO_MEMBERS } from '@/data/demoData';
 
 interface CRMViewProps {
   onNewOBV?: () => void;
 }
 
 export function CRMView({ onNewOBV }: CRMViewProps) {
-  const { data: leads = [], isLoading: loadingLeads } = usePipelineGlobal();
-  const { data: projects = [], isLoading: loadingProjects } = useProjects();
-  const { data: profiles = [], isLoading: loadingProfiles } = useProfiles();
+  const { isDemoMode } = useDemoMode();
+  const { data: realLeads = [], isLoading: loadingLeads } = usePipelineGlobal();
+  const { data: realProjects = [], isLoading: loadingProjects } = useProjects();
+  const { data: realProfiles = [], isLoading: loadingProfiles } = useProfiles();
+
+  // Use demo data when in demo mode
+  const leads = isDemoMode ? DEMO_LEADS.map(l => ({
+    id: l.id,
+    nombre: l.nombre,
+    empresa: l.empresa,
+    status: l.status,
+    valor_potencial: l.valor,
+    project_id: DEMO_PROJECTS.find(p => p.nombre === l.proyecto)?.id || 'p1',
+    responsable_id: DEMO_MEMBERS.find(m => m.nombre === l.responsable)?.id || '1',
+    proxima_accion: l.proxima_accion,
+  })) : realLeads;
+
+  const projects = isDemoMode ? DEMO_PROJECTS : realProjects;
+  const profiles = isDemoMode ? DEMO_MEMBERS : realProfiles;
 
   const [viewMode, setViewMode] = useState<'overview' | 'pipeline' | 'lista'>('overview');
   const [filters, setFilters] = useState({
@@ -27,7 +45,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
     maxValue: '',
   });
 
-  const isLoading = loadingLeads || loadingProjects || loadingProfiles;
+  const isLoading = (loadingLeads || loadingProjects || loadingProfiles) && !isDemoMode;
 
   // Apply filters
   const filteredLeads = leads.filter(lead => {

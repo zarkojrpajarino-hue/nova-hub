@@ -9,14 +9,20 @@ import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_MEMBERS, DEMO_KPIS } from '@/data/demoData';
 
 interface DashboardViewProps {
   onNewOBV?: () => void;
 }
 
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
-  const { data: members = [], isLoading: loadingMembers } = useMemberStats();
+  const { isDemoMode } = useDemoMode();
+  const { data: realMembers = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
+
+  // Use demo data when in demo mode
+  const members = isDemoMode ? DEMO_MEMBERS : realMembers;
 
   // Map objectives to easily accessible format
   const objectivesMap = useMemo(() => {
@@ -45,8 +51,15 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     }), { obvs: 0, lps: 0, bps: 0, cps: 0, facturacion: 0, margen: 0 });
   }, [members]);
 
-  // Team objectives (9 members)
-  const teamObjectives = {
+  // Team objectives (9 members) - use demo KPIs if in demo mode
+  const teamObjectives = isDemoMode ? {
+    obvs: DEMO_KPIS.obvs.objetivo,
+    lps: DEMO_KPIS.lps.objetivo,
+    bps: DEMO_KPIS.bps.objetivo,
+    cps: DEMO_KPIS.cps.objetivo,
+    facturacion: DEMO_KPIS.facturacion.objetivo,
+    margen: DEMO_KPIS.margen.objetivo,
+  } : {
     obvs: objectivesMap.obvs * 9,
     lps: objectivesMap.lps * 9,
     bps: objectivesMap.bps * 9,
@@ -54,6 +67,16 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     facturacion: objectivesMap.facturacion * 9,
     margen: objectivesMap.margen * 9,
   };
+
+  // Override totals with demo data if in demo mode
+  const displayTotals = isDemoMode ? {
+    obvs: DEMO_KPIS.obvs.actual,
+    lps: DEMO_KPIS.lps.actual,
+    bps: DEMO_KPIS.bps.actual,
+    cps: DEMO_KPIS.cps.actual,
+    facturacion: DEMO_KPIS.facturacion.actual,
+    margen: DEMO_KPIS.margen.actual,
+  } : totals;
 
   // Transform members for widgets
   const membersForRanking = members.map(m => ({
@@ -68,7 +91,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     facturacion: Number(m.facturacion) || 0,
   }));
 
-  if (loadingMembers) {
+  if (loadingMembers && !isDemoMode) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -92,54 +115,54 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         <div className="grid grid-cols-6 gap-4">
           <StatCard 
             icon={FileCheck} 
-            value={totals.obvs} 
+            value={displayTotals.obvs} 
             label="OBVs Totales" 
-            progress={(totals.obvs / teamObjectives.obvs) * 100}
+            progress={(displayTotals.obvs / teamObjectives.obvs) * 100}
             target={teamObjectives.obvs}
             color="#6366F1"
             delay={1}
           />
           <StatCard 
             icon={BookOpen} 
-            value={totals.lps} 
+            value={displayTotals.lps} 
             label="Learning Paths" 
-            progress={(totals.lps / teamObjectives.lps) * 100}
+            progress={(displayTotals.lps / teamObjectives.lps) * 100}
             target={teamObjectives.lps}
             color="#F59E0B"
             delay={2}
           />
           <StatCard 
             icon={Trophy} 
-            value={totals.bps} 
+            value={displayTotals.bps} 
             label="Book Points" 
-            progress={(totals.bps / teamObjectives.bps) * 100}
+            progress={(displayTotals.bps / teamObjectives.bps) * 100}
             target={teamObjectives.bps}
             color="#22C55E"
             delay={3}
           />
           <StatCard 
             icon={Users} 
-            value={totals.cps} 
+            value={displayTotals.cps} 
             label="Community Points" 
-            progress={(totals.cps / teamObjectives.cps) * 100}
+            progress={(displayTotals.cps / teamObjectives.cps) * 100}
             target={teamObjectives.cps}
             color="#EC4899"
             delay={4}
           />
           <StatCard 
             icon={TrendingUp} 
-            value={`€${(totals.facturacion/1000).toFixed(1)}K`} 
+            value={`€${(displayTotals.facturacion/1000).toFixed(1)}K`} 
             label="Facturación" 
-            progress={(totals.facturacion / teamObjectives.facturacion) * 100}
+            progress={(displayTotals.facturacion / teamObjectives.facturacion) * 100}
             target={`€${teamObjectives.facturacion/1000}K`}
             color="#3B82F6"
             delay={5}
           />
           <StatCard 
             icon={Wallet} 
-            value={`€${(totals.margen/1000).toFixed(1)}K`} 
+            value={`€${(displayTotals.margen/1000).toFixed(1)}K`} 
             label="Margen Bruto" 
-            progress={(totals.margen / teamObjectives.margen) * 100}
+            progress={(displayTotals.margen / teamObjectives.margen) * 100}
             target={`€${teamObjectives.margen/1000}K`}
             color="#22C55E"
             delay={6}
