@@ -1,6 +1,6 @@
 import { 
   LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet, 
-  BookOpen, Users2, Settings, LogOut, LucideIcon
+  BookOpen, Users2, Settings, LogOut, LucideIcon, BarChart3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -29,6 +29,7 @@ const navItems: NavItem[] = [
   { id: 'crm', icon: Phone, label: 'CRM Global' },
   { id: 'financiero', icon: Wallet, label: 'Financiero' },
   { id: 'kpis', icon: BookOpen, label: 'Otros KPIs' },
+  { id: 'analytics', icon: BarChart3, label: 'Analytics' },
   { id: 'roles', icon: Users2, label: 'Reuniones de Rol' },
 ];
 
@@ -70,7 +71,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Gestión
           </p>
-          {navItems.slice(2, 7).map((item) => (
+          {navItems.slice(2, 8).map((item) => (
             <NavItem
               key={item.id}
               item={item}
@@ -84,7 +85,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Equipo
           </p>
-          {navItems.slice(7).map((item) => (
+          {navItems.slice(8).map((item) => (
             <NavItem
               key={item.id}
               item={item}
