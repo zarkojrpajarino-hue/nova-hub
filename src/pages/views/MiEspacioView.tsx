@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Zap, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
@@ -7,6 +8,9 @@ import { useCurrentMemberStats, useProjects, useProjectMembers, useObjectives } 
 import { ROLE_CONFIG, PENDING_VALIDATIONS } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { useMemo } from 'react';
+import { MyTasksList } from '@/components/tasks/MyTasksList';
+import { TaskForm } from '@/components/tasks/TaskForm';
+import { useNavigate } from 'react-router-dom';
 
 interface MiEspacioViewProps {
   onNewOBV?: () => void;
@@ -14,10 +18,12 @@ interface MiEspacioViewProps {
 
 export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
   const { profile } = useAuth();
+  const navigate = useNavigate();
   const { data: currentUserStats, isLoading: loadingStats } = useCurrentMemberStats(profile?.email);
   const { data: projects = [], isLoading: loadingProjects } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
   const { data: objectives = [] } = useObjectives();
+  const [showTaskForm, setShowTaskForm] = useState(false);
 
   // Map objectives
   const objectivesMap = useMemo(() => {
@@ -54,6 +60,9 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
     facturacion: Number(currentUserStats?.facturacion) || 0,
     margen: Number(currentUserStats?.margen) || 0,
   };
+
+  // First project for task form (default)
+  const firstProject = userProjects[0];
 
   if (loadingStats || loadingProjects) {
     return (
@@ -151,7 +160,8 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
                   return (
                     <div 
                       key={project.id} 
-                      className="relative bg-background border border-border rounded-xl p-5 hover:border-muted-foreground/30 transition-all cursor-pointer"
+                      onClick={() => navigate(`/proyecto/${project.id}`)}
+                      className="relative bg-background border border-border rounded-xl p-5 hover:border-primary/30 transition-all cursor-pointer"
                     >
                       <div 
                         className="absolute top-0 left-0 right-0 h-0.5 rounded-t-xl"
@@ -212,33 +222,36 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2.5">
                 <CheckCircle2 size={18} className="text-success" />
-                Mis Tareas de Hoy
+                Mis Tareas
               </h3>
-              <Button variant="outline" size="sm">
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={() => setShowTaskForm(true)}
+                disabled={!firstProject}
+              >
                 <Plus size={14} className="mr-1" />
                 Añadir
               </Button>
             </div>
             <div className="p-6">
-              <div className="text-center py-10">
-                <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-5">
-                  <CheckCircle2 size={28} className="text-muted-foreground" />
-                </div>
-                <h4 className="font-semibold text-lg mb-2">Sin tareas pendientes</h4>
-                <p className="text-sm text-muted-foreground mb-6">
-                  ¡Buen trabajo! No tienes tareas para hoy.
-                </p>
-                <Button className="nova-gradient">
-                  <Zap size={16} className="mr-1" />
-                  Generar tareas con IA
-                </Button>
-              </div>
+              <MyTasksList />
             </div>
           </div>
 
           <ValidationCard validations={PENDING_VALIDATIONS.slice(0, 3)} delay={4} />
         </div>
       </div>
+
+      {/* Task form for first project */}
+      {firstProject && (
+        <TaskForm
+          projectId={firstProject.id}
+          projectMembers={[{ id: profile?.id || '', nombre: profile?.nombre || '', color: profile?.color || '#6366F1' }]}
+          open={showTaskForm}
+          onOpenChange={setShowTaskForm}
+        />
+      )}
     </>
   );
 }
