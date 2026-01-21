@@ -9,7 +9,9 @@ import {
   CheckCircle2, 
   Lightbulb,
   Sparkles,
-  Workflow
+  Workflow,
+  Play,
+  Eye
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
@@ -24,6 +26,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from './dialog';
 import {
   Tooltip,
@@ -32,6 +35,8 @@ import {
   TooltipTrigger,
 } from './tooltip';
 import { getHelp } from '@/data/helpContent';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { getDemoData, type DemoDataSection } from '@/data/demoData';
 
 export interface HelpContent {
   title: string;
@@ -133,6 +138,141 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
   </div>
 );
 
+// Demo Button Component
+function DemoButton({ section }: { section: string }) {
+  const { isDemoMode, enableDemo, disableDemo, setDemoSection } = useDemoMode();
+  const [showDemoDialog, setShowDemoDialog] = useState(false);
+  
+  const demoSection = section.split('.')[0] as DemoDataSection;
+  const demoData = getDemoData(demoSection);
+  
+  if (!demoData) return null;
+
+  const handleEnableDemo = () => {
+    enableDemo();
+    setDemoSection(section);
+    setShowDemoDialog(false);
+  };
+
+  const handleDisableDemo = () => {
+    disableDemo();
+    setShowDemoDialog(false);
+  };
+
+  return (
+    <Dialog open={showDemoDialog} onOpenChange={setShowDemoDialog}>
+      <DialogTrigger asChild>
+        <Button
+          variant={isDemoMode ? "default" : "outline"}
+          size="sm"
+          className={cn(
+            "gap-2 mt-4 w-full",
+            isDemoMode && "bg-amber-500 hover:bg-amber-600 text-white"
+          )}
+        >
+          {isDemoMode ? (
+            <>
+              <Eye className="w-4 h-4" />
+              Modo Demo Activo - Clic para desactivar
+            </>
+          ) : (
+            <>
+              <Play className="w-4 h-4" />
+              Mostrar datos demo
+            </>
+          )}
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-md">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
+              <Eye className="w-5 h-5 text-amber-500" />
+            </div>
+            <div>
+              <span className="text-lg">Modo Demostración</span>
+              <p className="text-sm font-normal text-muted-foreground mt-0.5">
+                {isDemoMode ? 'Actualmente activo' : 'Ver funcionalidades con datos de ejemplo'}
+              </p>
+            </div>
+          </DialogTitle>
+          <DialogDescription className="sr-only">
+            Activa o desactiva el modo de demostración para ver datos de ejemplo
+          </DialogDescription>
+        </DialogHeader>
+        
+        <div className="space-y-4 mt-4">
+          {isDemoMode ? (
+            <>
+              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
+                <p className="text-sm text-amber-700 dark:text-amber-300">
+                  El modo demo está activo. Estás viendo datos de ejemplo que muestran 
+                  todas las funcionalidades de la plataforma.
+                </p>
+              </div>
+              <Button 
+                onClick={handleDisableDemo} 
+                className="w-full"
+                variant="outline"
+              >
+                Desactivar modo demo
+              </Button>
+            </>
+          ) : (
+            <>
+              <div className="space-y-3">
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
+                    <Database className="w-4 h-4 text-primary" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">Datos realistas</h4>
+                    <p className="text-xs text-muted-foreground">
+                      9 miembros del equipo, 5 proyectos activos, OBVs, leads y más
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
+                    <CheckCircle2 className="w-4 h-4 text-green-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">Funcionalidades completas</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Explora validaciones, rankings, CRM y todas las secciones
+                    </p>
+                  </div>
+                </div>
+                
+                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
+                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
+                    <Sparkles className="w-4 h-4 text-blue-500" />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-medium">Sin afectar tus datos</h4>
+                    <p className="text-xs text-muted-foreground">
+                      Los datos demo son solo visuales, no modifican tu información real
+                    </p>
+                  </div>
+                </div>
+              </div>
+              
+              <Button 
+                onClick={handleEnableDemo} 
+                className="w-full gap-2 bg-amber-500 hover:bg-amber-600"
+              >
+                <Play className="w-4 h-4" />
+                Activar modo demo
+              </Button>
+            </>
+          )}
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+}
+
 // Inline variant - expandable button
 function InlineHelp({ section, className }: SectionHelpProps) {
   const [isOpen, setIsOpen] = useState(false);
@@ -169,6 +309,7 @@ function InlineHelp({ section, className }: SectionHelpProps) {
             </div>
           </div>
           <HelpContentDisplay content={content} />
+          <DemoButton section={section} />
         </div>
       </CollapsibleContent>
     </Collapsible>
@@ -209,9 +350,13 @@ function FloatingHelp({ section, className }: SectionHelpProps) {
               <p className="text-sm font-normal text-muted-foreground mt-0.5">Guía completa de la sección</p>
             </div>
           </DialogTitle>
+          <DialogDescription className="sr-only">
+            Guía de ayuda para {content.title}
+          </DialogDescription>
         </DialogHeader>
         <div className="mt-4 max-h-[60vh] overflow-y-auto">
           <HelpContentDisplay content={content} />
+          <DemoButton section={section} />
         </div>
       </DialogContent>
     </Dialog>
@@ -246,6 +391,7 @@ function CardHelp({ section, className }: SectionHelpProps) {
         <CollapsibleContent>
           <div className="px-4 pb-4 border-t border-border/50">
             <HelpContentDisplay content={content} />
+            <DemoButton section={section} />
           </div>
         </CollapsibleContent>
       </div>
@@ -268,6 +414,7 @@ export function SectionHelp({ section, variant = 'inline', className }: SectionH
 // Floating help widget for all sections
 export function HelpWidget({ section, className }: HelpWidgetProps) {
   const content = getHelp(section);
+  const { isDemoMode } = useDemoMode();
   
   if (!content) return null;
 
@@ -280,34 +427,52 @@ export function HelpWidget({ section, className }: HelpWidgetProps) {
               <button 
                 className={cn(
                   "fixed bottom-6 right-6 z-50 w-12 h-12 rounded-full shadow-lg",
-                  "bg-card/90 backdrop-blur-sm border border-border/50",
-                  "hover:bg-primary hover:text-primary-foreground hover:border-primary",
-                  "flex items-center justify-center transition-all duration-300",
+                  "backdrop-blur-sm border flex items-center justify-center transition-all duration-300",
+                  isDemoMode 
+                    ? "bg-amber-500 text-white border-amber-600 hover:bg-amber-600" 
+                    : "bg-card/90 border-border/50 hover:bg-primary hover:text-primary-foreground hover:border-primary",
                   className
                 )}
               >
-                <HelpCircle className="w-5 h-5" />
+                {isDemoMode ? (
+                  <Eye className="w-5 h-5" />
+                ) : (
+                  <HelpCircle className="w-5 h-5" />
+                )}
               </button>
             </DialogTrigger>
           </TooltipTrigger>
           <TooltipContent side="left" className="text-xs">
-            <p>Ver ayuda</p>
+            <p>{isDemoMode ? 'Modo Demo Activo' : 'Ver ayuda'}</p>
           </TooltipContent>
         </Tooltip>
         <DialogContent className="sm:max-w-lg">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
-                <Sparkles className="w-5 h-5 text-primary" />
+              <div className={cn(
+                "w-10 h-10 rounded-xl flex items-center justify-center",
+                isDemoMode ? "bg-amber-500/10" : "bg-primary/10"
+              )}>
+                {isDemoMode ? (
+                  <Eye className="w-5 h-5 text-amber-500" />
+                ) : (
+                  <Sparkles className="w-5 h-5 text-primary" />
+                )}
               </div>
               <div>
                 <span className="text-lg">{content.title}</span>
-                <p className="text-sm font-normal text-muted-foreground mt-0.5">Guía de uso</p>
+                <p className="text-sm font-normal text-muted-foreground mt-0.5">
+                  {isDemoMode ? 'Modo Demo Activo' : 'Guía de uso'}
+                </p>
               </div>
             </DialogTitle>
+            <DialogDescription className="sr-only">
+              Guía de ayuda para {content.title}
+            </DialogDescription>
           </DialogHeader>
           <div className="mt-4 max-h-[60vh] overflow-y-auto">
             <HelpContentDisplay content={content} />
+            <DemoButton section={section} />
           </div>
         </DialogContent>
       </Dialog>
