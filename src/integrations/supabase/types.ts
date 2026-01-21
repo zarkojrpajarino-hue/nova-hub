@@ -1087,6 +1087,67 @@ export type Database = {
           },
         ]
       }
+      pending_validations: {
+        Row: {
+          created_at: string | null
+          deadline: string
+          id: string
+          is_late: boolean | null
+          item_type: string
+          kpi_id: string | null
+          obv_id: string | null
+          owner_id: string
+          validated_at: string | null
+          validator_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          deadline: string
+          id?: string
+          is_late?: boolean | null
+          item_type: string
+          kpi_id?: string | null
+          obv_id?: string | null
+          owner_id: string
+          validated_at?: string | null
+          validator_id: string
+        }
+        Update: {
+          created_at?: string | null
+          deadline?: string
+          id?: string
+          is_late?: boolean | null
+          item_type?: string
+          kpi_id?: string | null
+          obv_id?: string | null
+          owner_id?: string
+          validated_at?: string | null
+          validator_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "pending_validations_kpi_id_fkey"
+            columns: ["kpi_id"]
+            isOneToOne: false
+            referencedRelation: "kpis"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_validations_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "pending_validations_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           auth_id: string
@@ -2032,6 +2093,66 @@ export type Database = {
           },
         ]
       }
+      validation_order: {
+        Row: {
+          created_at: string | null
+          id: string
+          month_year: string
+          position: number
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          month_year?: string
+          position: number
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          month_year?: string
+          position?: number
+          user_id?: string
+        }
+        Relationships: []
+      }
+      validator_stats: {
+        Row: {
+          blocked_until: string | null
+          id: string
+          is_blocked: boolean | null
+          late_validations: number | null
+          missed_validations: number | null
+          on_time_validations: number | null
+          total_validations: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          blocked_until?: string | null
+          id?: string
+          is_blocked?: boolean | null
+          late_validations?: number | null
+          missed_validations?: number | null
+          on_time_validations?: number | null
+          total_validations?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          blocked_until?: string | null
+          id?: string
+          is_blocked?: boolean | null
+          late_validations?: number | null
+          missed_validations?: number | null
+          on_time_validations?: number | null
+          total_validations?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       financial_metrics: {
@@ -2254,11 +2375,18 @@ export type Database = {
         }
         Returns: Json
       }
+      check_and_block_late_validators: { Args: never; Returns: undefined }
       check_master_eligibility: {
         Args: { p_role: string; p_user_id: string }
         Returns: Json
       }
       get_profile_id: { Args: { _auth_id: string }; Returns: string }
+      get_validators_for_user: {
+        Args: { p_user_id: string }
+        Returns: {
+          validator_id: string
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -2266,6 +2394,8 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_user_blocked: { Args: { p_user_id: string }; Returns: boolean }
+      rotate_validation_order: { Args: never; Returns: undefined }
       seed_member_kpi_base: { Args: never; Returns: undefined }
       update_role_rankings: {
         Args: { p_period_end?: string; p_period_start?: string; p_role: string }
