@@ -170,7 +170,7 @@ export default function ProjectPage() {
           <TabsContent value="crm">
             <ProjectCRMTab 
               projectId={projectId!}
-              leads={projectLeads}
+              projectName={project?.nombre || ''}
             />
           </TabsContent>
 
