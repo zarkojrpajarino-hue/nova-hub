@@ -124,12 +124,11 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
   }
 
   return (
-    <div className="space-y-6 animate-fade-in">
-      <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Tareas del Proyecto</h3>
-        <Button onClick={() => setShowForm(true)}>
-          <Plus size={16} className="mr-2" />
-          Nueva Tarea
+    <div className="space-y-4">
+      <div className="flex justify-end">
+        <Button onClick={() => setShowForm(true)} variant="outline" size="sm">
+          <Plus size={14} className="mr-2" />
+          Manual
         </Button>
       </div>
 

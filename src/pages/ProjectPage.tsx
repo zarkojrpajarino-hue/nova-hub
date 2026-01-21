@@ -175,7 +175,7 @@ export default function ProjectPage() {
           </TabsContent>
 
           <TabsContent value="tareas">
-            <ProjectTasksTab projectId={projectId!} />
+            <ProjectTasksTab projectId={projectId!} project={project} />
           </TabsContent>
 
           <TabsContent value="obvs">
