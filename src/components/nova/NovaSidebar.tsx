@@ -1,6 +1,6 @@
 import { 
   LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet, 
-  BookOpen, Users2, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown
+  BookOpen, Users2, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -27,6 +27,7 @@ const navItems: NavItem[] = [
   { id: 'mi-desarrollo', icon: TrendingUp, label: 'Mi Desarrollo' },
   { id: 'rankings', icon: Trophy, label: 'Rankings' },
   { id: 'masters', icon: Crown, label: 'Masters' },
+  { id: 'rotacion', icon: ArrowLeftRight, label: 'Rotación de Roles' },
   { id: 'proyectos', icon: FolderKanban, label: 'Proyectos', badge: 7 },
   { id: 'obvs', icon: FileCheck, label: 'Centro OBVs' },
   { id: 'crm', icon: Phone, label: 'CRM Global' },
@@ -61,7 +62,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Principal
           </p>
-          {navItems.slice(0, 5).map((item) => (
+          {navItems.slice(0, 6).map((item) => (
             <NavItem
               key={item.id}
               item={item}
@@ -75,7 +76,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Gestión
           </p>
-          {navItems.slice(5, 11).map((item) => (
+          {navItems.slice(6, 12).map((item) => (
             <NavItem
               key={item.id}
               item={item}
