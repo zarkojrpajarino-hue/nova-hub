@@ -9,7 +9,13 @@ verify_jwt = false
 [functions.generate-tasks]
 verify_jwt = false
 
+[functions.generate-tasks-v2]
+verify_jwt = false
+
 [functions.generate-role-questions]
+verify_jwt = false
+
+[functions.generate-role-questions-v2]
 verify_jwt = false
 
 [functions.generate-playbook]
