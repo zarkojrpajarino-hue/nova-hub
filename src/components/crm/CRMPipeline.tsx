@@ -41,15 +41,16 @@ interface CRMPipelineProps {
   projects: Array<{ id: string; nombre: string; icon: string; color: string }>;
   members: Array<{ id: string; nombre: string; color: string }>;
   isLoading: boolean;
+  defaultView?: ViewMode;
 }
 
-export function CRMPipeline({ projectId, leads, projects, members, isLoading }: CRMPipelineProps) {
+export function CRMPipeline({ projectId, leads, projects, members, isLoading, defaultView = 'kanban' }: CRMPipelineProps) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
   const [initialStatus, setInitialStatus] = useState('frio');
-  const [viewMode, setViewMode] = useState<ViewMode>('kanban');
+  const [viewMode, setViewMode] = useState<ViewMode>(defaultView);
   const [searchTerm, setSearchTerm] = useState('');
 
   // Filter leads by search term
