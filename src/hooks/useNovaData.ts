@@ -32,6 +32,10 @@ export interface ProjectMember {
   member_id: string;
   role: string;
   is_lead: boolean;
+  role_accepted: boolean;
+  role_accepted_at: string | null;
+  role_responsibilities: string[] | null;
+  performance_score: number;
 }
 
 export interface Lead {

@@ -86,39 +86,11 @@ export const MEMBERS: Member[] = [
   { id: '9', nombre: 'LUIS', email: 'luis@nova.com', color: '#06B6D4', lps: 12, bps: 51, obvs: 86, cps: 44, exploracion: 15, validacion: 14, venta: 11, facturacion: 1132, margen: 703, avatar: null },
 ];
 
-export const PROJECTS: Project[] = [
-  { id: 'p1', nombre: 'Payo Sushi', icon: '🍣', color: '#EF4444', fase: 'idea', tipo: 'validacion', onboarding_completed: true, members: ['5', '1', '8'] },
-  { id: 'p2', nombre: 'Experea', icon: '🎓', color: '#22C55E', fase: 'crecimiento', tipo: 'operacion', onboarding_completed: false, members: ['2', '3', '6'] },
-  { id: 'p3', nombre: 'Apadrina tu Olivo', icon: '🫒', color: '#84CC16', fase: 'idea', tipo: 'validacion', onboarding_completed: false, members: ['2', '4', '7'] },
-  { id: 'p4', nombre: 'Experiencia Selecta', icon: '💎', color: '#A855F7', fase: 'idea', tipo: 'validacion', onboarding_completed: false, members: ['9', '3', '1'] },
-  { id: 'p5', nombre: 'Web y SaaS', icon: '💻', color: '#6366F1', fase: 'idea', tipo: 'validacion', onboarding_completed: false, members: ['1', '6', '7'] },
-  { id: 'p6', nombre: 'Souvenirs Online', icon: '🎁', color: '#F59E0B', fase: 'idea', tipo: 'validacion', onboarding_completed: false, members: ['8', '3', '5'] },
-  { id: 'p7', nombre: 'Academia Financiera', icon: '📊', color: '#06B6D4', fase: 'idea', tipo: 'validacion', onboarding_completed: false, members: ['6', '9', '4'] },
-];
+// Projects and roles are now managed exclusively via Supabase
+// These arrays are kept empty to maintain interface compatibility
+export const PROJECTS: Project[] = [];
 
-export const PROJECT_ROLES: ProjectRole[] = [
-  { project_id: 'p1', member_id: '5', role: 'operations' },
-  { project_id: 'p1', member_id: '1', role: 'ai_tech' },
-  { project_id: 'p1', member_id: '8', role: 'marketing' },
-  { project_id: 'p2', member_id: '2', role: 'sales' },
-  { project_id: 'p2', member_id: '3', role: 'marketing' },
-  { project_id: 'p2', member_id: '6', role: 'operations' },
-  { project_id: 'p3', member_id: '2', role: 'operations' },
-  { project_id: 'p3', member_id: '4', role: 'strategy' },
-  { project_id: 'p3', member_id: '7', role: 'sales' },
-  { project_id: 'p4', member_id: '9', role: 'finance' },
-  { project_id: 'p4', member_id: '3', role: 'strategy' },
-  { project_id: 'p4', member_id: '1', role: 'ai_tech' },
-  { project_id: 'p5', member_id: '1', role: 'ai_tech' },
-  { project_id: 'p5', member_id: '6', role: 'strategy' },
-  { project_id: 'p5', member_id: '7', role: 'marketing' },
-  { project_id: 'p6', member_id: '8', role: 'operations' },
-  { project_id: 'p6', member_id: '3', role: 'finance' },
-  { project_id: 'p6', member_id: '5', role: 'sales' },
-  { project_id: 'p7', member_id: '6', role: 'finance' },
-  { project_id: 'p7', member_id: '9', role: 'sales' },
-  { project_id: 'p7', member_id: '4', role: 'marketing' },
-];
+export const PROJECT_ROLES: ProjectRole[] = [];
 
 export const OBJECTIVES = { 
   obvs: 150, 
