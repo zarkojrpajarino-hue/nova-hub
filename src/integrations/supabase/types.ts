@@ -301,6 +301,263 @@ export type Database = {
           },
         ]
       }
+      master_applications: {
+        Row: {
+          achievements: Json | null
+          created_at: string | null
+          id: string
+          motivation: string
+          project_id: string | null
+          reviewed_at: string | null
+          role_name: string
+          status: string
+          updated_at: string | null
+          user_id: string
+          votes_against: number | null
+          votes_for: number | null
+          votes_required: number | null
+          voting_deadline: string | null
+        }
+        Insert: {
+          achievements?: Json | null
+          created_at?: string | null
+          id?: string
+          motivation: string
+          project_id?: string | null
+          reviewed_at?: string | null
+          role_name: string
+          status?: string
+          updated_at?: string | null
+          user_id: string
+          votes_against?: number | null
+          votes_for?: number | null
+          votes_required?: number | null
+          voting_deadline?: string | null
+        }
+        Update: {
+          achievements?: Json | null
+          created_at?: string | null
+          id?: string
+          motivation?: string
+          project_id?: string | null
+          reviewed_at?: string | null
+          role_name?: string
+          status?: string
+          updated_at?: string | null
+          user_id?: string
+          votes_against?: number | null
+          votes_for?: number | null
+          votes_required?: number | null
+          voting_deadline?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_applications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_applications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      master_challenges: {
+        Row: {
+          challenge_type: string
+          challenger_id: string
+          completed_at: string | null
+          created_at: string | null
+          criteria: Json | null
+          deadline: string | null
+          description: string | null
+          id: string
+          master_id: string
+          result: string | null
+          result_notes: string | null
+          role_name: string
+          status: string
+        }
+        Insert: {
+          challenge_type: string
+          challenger_id: string
+          completed_at?: string | null
+          created_at?: string | null
+          criteria?: Json | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          master_id: string
+          result?: string | null
+          result_notes?: string | null
+          role_name: string
+          status?: string
+        }
+        Update: {
+          challenge_type?: string
+          challenger_id?: string
+          completed_at?: string | null
+          created_at?: string | null
+          criteria?: Json | null
+          deadline?: string | null
+          description?: string | null
+          id?: string
+          master_id?: string
+          result?: string | null
+          result_notes?: string | null
+          role_name?: string
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_challenges_challenger_id_fkey"
+            columns: ["challenger_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_challenges_challenger_id_fkey"
+            columns: ["challenger_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_challenges_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "team_masters"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      master_mentoring: {
+        Row: {
+          completed_at: string | null
+          feedback: string | null
+          goals: Json | null
+          id: string
+          master_id: string
+          mentee_id: string
+          role_name: string
+          started_at: string | null
+          status: string
+        }
+        Insert: {
+          completed_at?: string | null
+          feedback?: string | null
+          goals?: Json | null
+          id?: string
+          master_id: string
+          mentee_id: string
+          role_name: string
+          started_at?: string | null
+          status?: string
+        }
+        Update: {
+          completed_at?: string | null
+          feedback?: string | null
+          goals?: Json | null
+          id?: string
+          master_id?: string
+          mentee_id?: string
+          role_name?: string
+          started_at?: string | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_mentoring_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "team_masters"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_mentoring_mentee_id_fkey"
+            columns: ["mentee_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_mentoring_mentee_id_fkey"
+            columns: ["mentee_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      master_votes: {
+        Row: {
+          application_id: string
+          comentario: string | null
+          created_at: string | null
+          id: string
+          vote: boolean
+          voter_id: string
+        }
+        Insert: {
+          application_id: string
+          comentario?: string | null
+          created_at?: string | null
+          id?: string
+          vote: boolean
+          voter_id: string
+        }
+        Update: {
+          application_id?: string
+          comentario?: string | null
+          created_at?: string | null
+          id?: string
+          vote?: boolean
+          voter_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_votes_application_id_fkey"
+            columns: ["application_id"]
+            isOneToOne: false
+            referencedRelation: "master_applications"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -901,6 +1158,63 @@ export type Database = {
           },
         ]
       }
+      team_masters: {
+        Row: {
+          appointed_at: string | null
+          created_at: string | null
+          expires_at: string | null
+          id: string
+          is_active: boolean | null
+          level: number | null
+          role_name: string
+          successful_defenses: number | null
+          title: string | null
+          total_mentees: number | null
+          user_id: string
+        }
+        Insert: {
+          appointed_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number | null
+          role_name: string
+          successful_defenses?: number | null
+          title?: string | null
+          total_mentees?: number | null
+          user_id: string
+        }
+        Update: {
+          appointed_at?: string | null
+          created_at?: string | null
+          expires_at?: string | null
+          id?: string
+          is_active?: boolean | null
+          level?: number | null
+          role_name?: string
+          successful_defenses?: number | null
+          title?: string | null
+          total_mentees?: number | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "team_masters_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "team_masters_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_insights: {
         Row: {
           contenido: string
@@ -1277,6 +1591,10 @@ export type Database = {
       calculate_role_performance_score: {
         Args: { p_project_id: string; p_role: string; p_user_id: string }
         Returns: number
+      }
+      check_master_eligibility: {
+        Args: { p_role: string; p_user_id: string }
+        Returns: Json
       }
       get_profile_id: { Args: { _auth_id: string }; Returns: string }
       has_role: {

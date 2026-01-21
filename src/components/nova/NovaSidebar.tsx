@@ -1,6 +1,6 @@
 import { 
   LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet, 
-  BookOpen, Users2, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy
+  BookOpen, Users2, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,6 +26,7 @@ const navItems: NavItem[] = [
   { id: 'mi-espacio', icon: User, label: 'Mi Espacio' },
   { id: 'mi-desarrollo', icon: TrendingUp, label: 'Mi Desarrollo' },
   { id: 'rankings', icon: Trophy, label: 'Rankings' },
+  { id: 'masters', icon: Crown, label: 'Masters' },
   { id: 'proyectos', icon: FolderKanban, label: 'Proyectos', badge: 7 },
   { id: 'obvs', icon: FileCheck, label: 'Centro OBVs' },
   { id: 'crm', icon: Phone, label: 'CRM Global' },
@@ -60,7 +61,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Principal
           </p>
-          {navItems.slice(0, 4).map((item) => (
+          {navItems.slice(0, 5).map((item) => (
             <NavItem
               key={item.id}
               item={item}
@@ -74,7 +75,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Gestión
           </p>
-          {navItems.slice(4, 10).map((item) => (
+          {navItems.slice(5, 11).map((item) => (
             <NavItem
               key={item.id}
               item={item}
@@ -88,7 +89,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Equipo
           </p>
-          {navItems.slice(10, 12).map((item) => (
+          {navItems.slice(11, 13).map((item) => (
             <NavItem
               key={item.id}
               item={item}
