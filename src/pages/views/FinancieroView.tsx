@@ -1,17 +1,47 @@
 import { useMemo } from 'react';
-import { TrendingUp, Wallet, PieChart, BarChart3, Loader2 } from 'lucide-react';
+import { TrendingUp, Wallet, PieChart as PieChartIcon, BarChart3, Loader2, Clock } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { RevenueEvolutionChart } from '@/components/financiero/RevenueEvolutionChart';
+import { ProjectBreakdownChart } from '@/components/financiero/ProjectBreakdownChart';
+import { PendingPaymentsCard } from '@/components/financiero/PendingPaymentsCard';
+import { FinancialAlertsCard } from '@/components/financiero/FinancialAlertsCard';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
 }
 
 export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
-  const { data: members = [], isLoading } = useMemberStats();
+  const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
+  
+  // Fetch financial metrics
+  const { data: financialMetrics = [] } = useQuery({
+    queryKey: ['financial_metrics'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('financial_metrics')
+        .select('*');
+      if (error) throw error;
+      return data || [];
+    },
+  });
+
+  // Fetch pending payments
+  const { data: pendingPayments = [] } = useQuery({
+    queryKey: ['pending_payments'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('pending_payments')
+        .select('*');
+      if (error) throw error;
+      return data || [];
+    },
+  });
 
   // Map objectives
   const objectivesMap = useMemo(() => {
@@ -28,12 +58,28 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   const totalFacturacion = members.reduce((sum, m) => sum + (Number(m.facturacion) || 0), 0);
   const totalMargen = members.reduce((sum, m) => sum + (Number(m.margen) || 0), 0);
   const margenPromedio = totalFacturacion > 0 ? (totalMargen / totalFacturacion) * 100 : 0;
+  
+  // Pending payments stats
+  const totalPending = pendingPayments.reduce((sum, p) => sum + (Number(p.pendiente) || 0), 0);
+  const overdueCount = pendingPayments.filter(p => (p.dias_vencido || 0) > 0).length;
+
+  // Calculate monthly growth (simplified)
+  const monthlyGrowth = useMemo(() => {
+    if (financialMetrics.length < 2) return 0;
+    const sorted = [...financialMetrics].sort((a, b) => 
+      new Date(b.month).getTime() - new Date(a.month).getTime()
+    );
+    const currentMonth = sorted[0]?.facturacion || 0;
+    const previousMonth = sorted[1]?.facturacion || 0;
+    if (previousMonth === 0) return 0;
+    return ((currentMonth - previousMonth) / previousMonth) * 100;
+  }, [financialMetrics]);
 
   const sortedByFacturacion = [...members].sort((a, b) => 
     (Number(b.facturacion) || 0) - (Number(a.facturacion) || 0)
   );
 
-  if (isLoading) {
+  if (loadingMembers) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -49,29 +95,29 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
         onNewOBV={onNewOBV} 
       />
       
-      <div className="p-8">
+      <div className="p-8 space-y-8">
         {/* Summary Stats */}
-        <div className="grid grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           <StatCard
             icon={TrendingUp}
-            value={`€${totalFacturacion.toFixed(0)}`}
+            value={`€${totalFacturacion.toLocaleString('es-ES')}`}
             label="Facturación Total"
             progress={(totalFacturacion / (objectivesMap.facturacion * 9)) * 100}
-            target={`€${objectivesMap.facturacion * 9}`}
+            target={`€${(objectivesMap.facturacion * 9).toLocaleString('es-ES')}`}
             color="#3B82F6"
             delay={1}
           />
           <StatCard
             icon={Wallet}
-            value={`€${totalMargen.toFixed(0)}`}
+            value={`€${totalMargen.toLocaleString('es-ES')}`}
             label="Margen Total"
             progress={(totalMargen / (objectivesMap.margen * 9)) * 100}
-            target={`€${objectivesMap.margen * 9}`}
+            target={`€${(objectivesMap.margen * 9).toLocaleString('es-ES')}`}
             color="#22C55E"
             delay={2}
           />
           <StatCard
-            icon={PieChart}
+            icon={PieChartIcon}
             value={`${margenPromedio.toFixed(0)}%`}
             label="Margen Promedio"
             progress={margenPromedio}
@@ -79,10 +125,36 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
             color="#A855F7"
             delay={3}
           />
+          <StatCard
+            icon={Clock}
+            value={`€${totalPending.toLocaleString('es-ES')}`}
+            label="Pendiente de Cobro"
+            progress={overdueCount > 0 ? 100 : 0}
+            target={overdueCount > 0 ? `${overdueCount} vencidas` : 'Al día'}
+            color={overdueCount > 0 ? '#EF4444' : '#22C55E'}
+            delay={4}
+          />
+        </div>
+
+        {/* Charts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <RevenueEvolutionChart data={financialMetrics as any} />
+          <ProjectBreakdownChart data={financialMetrics as any} />
+        </div>
+
+        {/* Alerts and Pending Payments */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <FinancialAlertsCard 
+            totalPending={totalPending}
+            overdueCount={overdueCount}
+            marginPercent={margenPromedio}
+            monthlyGrowth={monthlyGrowth}
+          />
+          <PendingPaymentsCard payments={pendingPayments as any} />
         </div>
 
         {/* Facturación por Socio */}
-        <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in delay-4" style={{ opacity: 0 }}>
+        <div className="bg-card border border-border rounded-2xl overflow-hidden">
           <div className="p-5 border-b border-border flex items-center gap-2.5">
             <BarChart3 size={18} className="text-primary" />
             <h3 className="font-semibold">Facturación por Socio</h3>
@@ -128,8 +200,8 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
 
                   {/* Values */}
                   <div className="text-right">
-                    <p className="font-bold text-base text-info">€{facturacion.toFixed(0)}</p>
-                    <p className="text-xs text-success">+€{margen.toFixed(0)}</p>
+                    <p className="font-bold text-base text-blue-600">€{facturacion.toLocaleString('es-ES')}</p>
+                    <p className="text-xs text-green-600">+€{margen.toLocaleString('es-ES')}</p>
                   </div>
                 </div>
               );
