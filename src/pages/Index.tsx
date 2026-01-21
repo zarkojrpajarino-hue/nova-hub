@@ -10,6 +10,7 @@ import { FinancieroView } from './views/FinancieroView';
 import { KPIsView } from './views/KPIsView';
 import { RolesMeetingView } from './views/RolesMeetingView';
 import { AnalyticsView } from './views/AnalyticsView';
+import { SettingsView } from './views/SettingsView';
 import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
@@ -46,6 +47,8 @@ const Index = () => {
         return <AnalyticsView onNewOBV={handleNewOBV} />;
       case 'roles':
         return <RolesMeetingView onNewOBV={handleNewOBV} />;
+      case 'settings':
+        return <SettingsView onNewOBV={handleNewOBV} />;
       default:
         return <DashboardView onNewOBV={handleNewOBV} />;
     }
