@@ -34,6 +34,7 @@ import {
   StepObjetivos 
 } from './steps/OperacionSteps';
 import { CoreaEspanaStep } from './steps/CoreaEspanaStep';
+import { StepEquipo } from './steps/StepEquipo';
 
 interface OnboardingWizardProps {
   project: {
@@ -56,6 +57,7 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
 
   // Initialize data from existing onboarding_data or defaults
   const [validacionData, setValidacionData] = useState<ValidacionData>(() => {
@@ -95,7 +97,13 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
     }
   }, [project.id, project.onboarding_data]);
 
-  const handleNext = () => {
+  const handleNext = async () => {
+    // Validate team selection on step 0
+    if (currentStep === 0 && selectedMembers.length < 2) {
+      toast.error('Selecciona al menos 2 miembros para el equipo');
+      return;
+    }
+    
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
       setErrors({});
@@ -110,6 +118,12 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
   };
 
   const validateAndSubmit = async () => {
+    // Validate team selection
+    if (selectedMembers.length < 2) {
+      toast.error('Selecciona al menos 2 miembros para el equipo');
+      return;
+    }
+
     setIsSubmitting(true);
     setErrors({});
 
@@ -131,7 +145,27 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
         return;
       }
 
-      // Save to database
+      // First, remove existing members (in case of re-onboarding)
+      await supabase
+        .from('project_members')
+        .delete()
+        .eq('project_id', project.id);
+
+      // Insert new project members
+      const membersToInsert = selectedMembers.map(memberId => ({
+        project_id: project.id,
+        member_id: memberId,
+        role: null, // Will be assigned by AI
+        role_accepted: false,
+      }));
+
+      const { error: membersError } = await supabase
+        .from('project_members')
+        .insert(membersToInsert);
+
+      if (membersError) throw membersError;
+
+      // Save onboarding data to database
       const { error } = await supabase
         .from('projects')
         .update({
@@ -142,20 +176,10 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
 
       if (error) throw error;
 
-      // Auto-accept roles for all members in this project
-      const { error: acceptError } = await supabase
-        .from('project_members')
-        .update({ role_accepted: true, role_accepted_at: new Date().toISOString() })
-        .eq('project_id', project.id);
-
-      if (acceptError) {
-        console.error('Error auto-accepting roles:', acceptError);
-      }
-
       // Clear draft
       localStorage.removeItem(`onboarding-draft-${project.id}`);
       
-      toast.success('¡Onboarding completado! Ya puedes trabajar en el proyecto.');
+      toast.success('¡Equipo configurado! Generando roles con IA...');
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project_members'] });
       onComplete?.();
@@ -168,6 +192,19 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
   };
 
   const renderValidacionStep = () => {
+    // Step 0 is always team selection
+    if (currentStep === 0) {
+      return (
+        <StepEquipo 
+          projectId={project.id}
+          selectedMembers={selectedMembers}
+          onChange={setSelectedMembers}
+          minMembers={2}
+          maxMembers={6}
+        />
+      );
+    }
+
     const props = {
       data: validacionData,
       onChange: (partial: Partial<ValidacionData>) => 
@@ -176,18 +213,31 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
     };
 
     switch (currentStep) {
-      case 0: return <StepProblema {...props} />;
-      case 1: return <StepCliente {...props} />;
-      case 2: return <StepSolucion {...props} />;
-      case 3: return <StepHipotesis {...props} />;
-      case 4: return <CoreaEspanaStep {...props} />;
-      case 5: return <StepMetricas {...props} />;
-      case 6: return <StepRecursos {...props} />;
+      case 1: return <StepProblema {...props} />;
+      case 2: return <StepCliente {...props} />;
+      case 3: return <StepSolucion {...props} />;
+      case 4: return <StepHipotesis {...props} />;
+      case 5: return <CoreaEspanaStep {...props} />;
+      case 6: return <StepMetricas {...props} />;
+      case 7: return <StepRecursos {...props} />;
       default: return null;
     }
   };
 
   const renderOperacionStep = () => {
+    // Step 0 is always team selection
+    if (currentStep === 0) {
+      return (
+        <StepEquipo 
+          projectId={project.id}
+          selectedMembers={selectedMembers}
+          onChange={setSelectedMembers}
+          minMembers={2}
+          maxMembers={6}
+        />
+      );
+    }
+
     const props = {
       data: operacionData,
       onChange: (partial: Partial<OperacionData>) => 
@@ -196,11 +246,11 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
     };
 
     switch (currentStep) {
-      case 0: return <StepCanvas1 {...props} />;
-      case 1: return <StepCanvas2 {...props} />;
-      case 2: return <StepFinanzas {...props} />;
-      case 3: return <StepClientes {...props} />;
-      case 4: return <StepObjetivos {...props} />;
+      case 1: return <StepCanvas1 {...props} />;
+      case 2: return <StepCanvas2 {...props} />;
+      case 3: return <StepFinanzas {...props} />;
+      case 4: return <StepClientes {...props} />;
+      case 5: return <StepObjetivos {...props} />;
       default: return null;
     }
   };

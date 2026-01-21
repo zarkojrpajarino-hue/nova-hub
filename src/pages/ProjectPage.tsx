@@ -123,7 +123,7 @@ export default function ProjectPage() {
             </div>
           </div>
         </header>
-        <OnboardingGate project={project} hasMembers={hasMembers} />
+        <OnboardingGate project={project} />
       </div>
     );
   }
