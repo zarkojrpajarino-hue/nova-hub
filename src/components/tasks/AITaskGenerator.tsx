@@ -1,11 +1,12 @@
 import { useState } from 'react';
-import { Bot, Loader2, Sparkles, Check, X, Calendar, Flag, User } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Check, X, Calendar, Flag, User, Lock, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
-import { useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -48,6 +49,24 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
   const [isSaving, setIsSaving] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // Check for pending AI tasks
+  const { data: pendingAITasks = 0 } = useQuery({
+    queryKey: ['pending_ai_tasks', project.id],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('project_id', project.id)
+        .eq('ai_generated', true)
+        .neq('status', 'done');
+      
+      if (error) throw error;
+      return count || 0;
+    },
+  });
+
+  const canGenerateMore = pendingAITasks < 5;
 
   const handleGenerate = async () => {
     setIsGenerating(true);
@@ -166,6 +185,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
       toast.success(`${selectedTasks.length} tareas creadas con IA`);
       queryClient.invalidateQueries({ queryKey: ['project_tasks', project.id] });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
+      queryClient.invalidateQueries({ queryKey: ['pending_ai_tasks', project.id] });
       
       setIsOpen(false);
       setGeneratedTasks([]);
@@ -185,14 +205,27 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
       <Button 
         variant="outline" 
         onClick={() => {
+          if (!canGenerateMore) {
+            toast.error('Completa las tareas pendientes antes de generar más');
+            return;
+          }
           setIsOpen(true);
           handleGenerate();
         }}
-        className="gap-2"
+        className={cn("gap-2", !canGenerateMore && "opacity-70")}
+        disabled={!canGenerateMore}
       >
-        <Bot className="w-4 h-4" />
-        <span className="hidden sm:inline">Generar tareas con IA</span>
-        <span className="sm:hidden">IA</span>
+        {!canGenerateMore ? (
+          <Lock className="w-4 h-4" />
+        ) : (
+          <Bot className="w-4 h-4" />
+        )}
+        <span className="hidden sm:inline">
+          {canGenerateMore ? 'Generar tareas con IA' : `${pendingAITasks}/5 pendientes`}
+        </span>
+        <span className="sm:hidden">
+          {canGenerateMore ? 'IA' : `${pendingAITasks}/5`}
+        </span>
       </Button>
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
