@@ -114,22 +114,19 @@ Formato JSON (array):
                 properties: {
                   tasks: {
                     type: "array",
+                    description: "Array of tasks to generate",
                     items: {
                       type: "object",
                       properties: {
-                        assignee: { type: "string", description: "Name of the team member to assign" },
-                        titulo: { type: "string", description: "Task title in Spanish" },
-                        descripcion: { type: "string", description: "Task description in Spanish" },
-                        prioridad: { type: "number", enum: [1, 2, 3], description: "Priority: 1=High, 2=Medium, 3=Low" },
-                        fecha_limite: { type: "string", description: "Due date in YYYY-MM-DD format" }
-                      },
-                      required: ["assignee", "titulo", "descripcion", "prioridad", "fecha_limite"],
-                      additionalProperties: false
+                        assignee: { type: "string" },
+                        titulo: { type: "string" },
+                        descripcion: { type: "string" },
+                        prioridad: { type: "integer" },
+                        fecha_limite: { type: "string" }
+                      }
                     }
                   }
-                },
-                required: ["tasks"],
-                additionalProperties: false
+                }
               }
             }
           }
