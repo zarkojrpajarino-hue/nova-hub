@@ -12,6 +12,9 @@ export interface Member {
   bps: number;
   obvs: number;
   cps: number;
+  exploracion: number;
+  validacion: number;
+  venta: number;
   facturacion: number;
   margen: number;
   avatar: string | null;
@@ -72,15 +75,15 @@ export interface Lead {
 }
 
 export const MEMBERS: Member[] = [
-  { id: '1', nombre: 'Zarko', email: 'zarko@nova.com', color: '#6366F1', lps: 14, bps: 48, obvs: 115, cps: 52, facturacion: 1064.95, margen: 508.51, avatar: null, especialization: 'ai_tech' },
-  { id: '2', nombre: 'Fernando S', email: 'fer@nova.com', color: '#22C55E', lps: 12, bps: 56, obvs: 134, cps: 48, facturacion: 6515.71, margen: 5955.87, avatar: null },
-  { id: '3', nombre: 'Ángel', email: 'angel@nova.com', color: '#F59E0B', lps: 13, bps: 52, obvs: 110, cps: 45, facturacion: 3934.47, margen: 3097.10, avatar: null },
-  { id: '4', nombre: 'Miguel Ángel', email: 'migue@nova.com', color: '#A855F7', lps: 12, bps: 44, obvs: 94, cps: 40, facturacion: 4014.23, margen: 2416.55, avatar: null },
-  { id: '5', nombre: 'Manuel', email: 'manuel@nova.com', color: '#EC4899', lps: 12, bps: 50, obvs: 95, cps: 44, facturacion: 1073.82, margen: 1034.67, avatar: null },
-  { id: '6', nombre: 'Casti', email: 'casti@nova.com', color: '#06B6D4', lps: 12, bps: 42, obvs: 85, cps: 36, facturacion: 1132.36, margen: 702.90, avatar: null },
-  { id: '7', nombre: 'Fernando G', email: 'fernandoG@nova.com', color: '#EF4444', lps: 13, bps: 46, obvs: 101, cps: 42, facturacion: 310.09, margen: 144.07, avatar: null },
-  { id: '8', nombre: 'Carla', email: 'carla@nova.com', color: '#F472B6', lps: 12, bps: 44, obvs: 75, cps: 38, facturacion: 386.69, margen: 283.64, avatar: null },
-  { id: '9', nombre: 'Diego', email: 'diego@nova.com', color: '#84CC16', lps: 12, bps: 40, obvs: 82, cps: 35, facturacion: 1208.03, margen: 195.11, avatar: null },
+  { id: '1', nombre: 'ZARKO', email: 'zarko@nova.com', color: '#8B5CF6', lps: 14, bps: 57, obvs: 126, cps: 49, exploracion: 18, validacion: 12, venta: 10, facturacion: 1065, margen: 509, avatar: null, especialization: 'ai_tech' },
+  { id: '2', nombre: 'FERNANDO S', email: 'fernandoS@nova.com', color: '#10B981', lps: 14, bps: 52, obvs: 136, cps: 43, exploracion: 23, validacion: 14, venta: 4, facturacion: 6516, margen: 5956, avatar: null },
+  { id: '3', nombre: 'ÁNGEL', email: 'angel@nova.com', color: '#F59E0B', lps: 13, bps: 54, obvs: 117, cps: 44, exploracion: 18, validacion: 5, venta: 18, facturacion: 3934, margen: 3097, avatar: null },
+  { id: '4', nombre: 'MIGUEL ÁNGEL', email: 'miguelangel@nova.com', color: '#3B82F6', lps: 12, bps: 52, obvs: 103, cps: 41, exploracion: 25, validacion: 3, venta: 13, facturacion: 4014, margen: 2417, avatar: null },
+  { id: '5', nombre: 'MANUEL', email: 'manuel@nova.com', color: '#EC4899', lps: 13, bps: 50, obvs: 100, cps: 45, exploracion: 19, validacion: 2, venta: 20, facturacion: 1074, margen: 1035, avatar: null },
+  { id: '6', nombre: 'FERNANDO G', email: 'fernandoG@nova.com', color: '#EF4444', lps: 13, bps: 52, obvs: 109, cps: 41, exploracion: 15, validacion: 9, venta: 17, facturacion: 310, margen: 144, avatar: null },
+  { id: '7', nombre: 'CARLA', email: 'carla@nova.com', color: '#F472B6', lps: 12, bps: 49, obvs: 87, cps: 49, exploracion: 24, validacion: 7, venta: 10, facturacion: 387, margen: 284, avatar: null },
+  { id: '8', nombre: 'DIEGO', email: 'diego@nova.com', color: '#84CC16', lps: 12, bps: 54, obvs: 102, cps: 42, exploracion: 10, validacion: 12, venta: 19, facturacion: 1208, margen: 195, avatar: null },
+  { id: '9', nombre: 'LUIS', email: 'luis@nova.com', color: '#06B6D4', lps: 12, bps: 51, obvs: 86, cps: 44, exploracion: 15, validacion: 14, venta: 11, facturacion: 1132, margen: 703, avatar: null },
 ];
 
 export const PROJECTS: Project[] = [
