@@ -10,6 +10,7 @@ import { useProjects, useProjectMembers, useMemberStats, usePipelineGlobal } fro
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
 
 const OBV_TYPES = [
   { id: 'exploracion', icon: '🔍', title: 'Exploración', desc: 'Primer contacto, investigación de mercado, networking', color: '#6366F1' },
@@ -661,18 +662,11 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
               Paso {step}: Evidencia
             </h4>
             <div className="max-w-lg mx-auto space-y-4 mb-8">
-              <div>
-                <Label htmlFor="evidenceUrl">URL de Google Drive</Label>
-                <Input
-                  id="evidenceUrl"
-                  placeholder="https://drive.google.com/..."
-                  value={formData.evidenceUrl}
-                  onChange={e => setFormData(prev => ({ ...prev, evidenceUrl: e.target.value }))}
-                />
-                <p className="text-xs text-muted-foreground mt-2">
-                  Sube capturas, documentos o cualquier prueba de la actividad
-                </p>
-              </div>
+              <EvidenceUrlInput
+                value={formData.evidenceUrl}
+                onChange={(value) => setFormData(prev => ({ ...prev, evidenceUrl: value }))}
+                label="Evidencia (URL Google Drive)"
+              />
 
               {/* Summary */}
               <div className="p-4 bg-muted rounded-xl space-y-2">

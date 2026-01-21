@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, X, Loader2, ExternalLink, FileCheck } from 'lucide-react';
+import { Check, X, Loader2, FileCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
@@ -10,6 +10,7 @@ import { cn } from '@/lib/utils';
 import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonCard } from '@/components/ui/skeleton-card';
+import { EvidenceViewer } from '@/components/evidence/EvidenceViewer';
 
 interface OBV {
   id: string;
@@ -214,15 +215,7 @@ export function OBVValidationList() {
             )}
 
             {obv.evidence_url && (
-              <a 
-                href={obv.evidence_url} 
-                target="_blank" 
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-              >
-                <ExternalLink size={14} />
-                Ver evidencia
-              </a>
+              <EvidenceViewer url={obv.evidence_url} compact />
             )}
 
             {obv.validations.length > 0 && (

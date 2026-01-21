@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { Clock, CheckCircle2, XCircle, ExternalLink, Loader2, MessageSquare } from 'lucide-react';
+import { CheckCircle2, XCircle, Loader2, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
+import { EvidenceViewer } from '@/components/evidence/EvidenceViewer';
 
 interface KPIValidationListProps {
   type: 'lp' | 'bp' | 'cp';
@@ -204,15 +205,9 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
 
               {/* Evidence link */}
               {kpi.evidence_url && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => window.open(kpi.evidence_url!, '_blank')}
-                  className="mb-3"
-                >
-                  <ExternalLink className="w-4 h-4 mr-2" />
-                  Ver evidencia
-                </Button>
+                <div className="mb-3">
+                  <EvidenceViewer url={kpi.evidence_url} compact />
+                </div>
               )}
 
               {/* Existing validations */}
