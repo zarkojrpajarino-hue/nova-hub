@@ -54,6 +54,13 @@ export type Database = {
             foreignKeyName: "activity_log_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -98,6 +105,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_validaciones_validator_id_fkey"
+            columns: ["validator_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "kpi_validaciones_validator_id_fkey"
@@ -157,6 +171,13 @@ export type Database = {
             foreignKeyName: "kpis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "kpis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -197,6 +218,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "lead_history_changed_by_fkey"
@@ -275,6 +303,13 @@ export type Database = {
             foreignKeyName: "leads_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "leads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_stats"
             referencedColumns: ["id"]
           },
@@ -291,6 +326,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "leads_responsable_id_fkey"
@@ -355,6 +397,13 @@ export type Database = {
             foreignKeyName: "master_applications_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "master_applications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_stats"
             referencedColumns: ["id"]
           },
@@ -371,6 +420,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_applications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "master_applications_user_id_fkey"
@@ -434,6 +490,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_challenges_challenger_id_fkey"
+            columns: ["challenger_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "master_challenges_challenger_id_fkey"
@@ -504,6 +567,13 @@ export type Database = {
             foreignKeyName: "master_mentoring_mentee_id_fkey"
             columns: ["mentee_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "master_mentoring_mentee_id_fkey"
+            columns: ["mentee_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -553,6 +623,13 @@ export type Database = {
             foreignKeyName: "master_votes_voter_id_fkey"
             columns: ["voter_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "master_votes_voter_id_fkey"
+            columns: ["voter_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -596,6 +673,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "notifications_user_id_fkey"
@@ -664,6 +748,13 @@ export type Database = {
             foreignKeyName: "obv_participantes_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "obv_participantes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -672,6 +763,13 @@ export type Database = {
             columns: ["obv_id"]
             isOneToOne: false
             referencedRelation: "obvs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_participantes_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
             referencedColumns: ["id"]
           },
         ]
@@ -710,11 +808,25 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
+            foreignKeyName: "obv_validaciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["id"]
+          },
+          {
             foreignKeyName: "obv_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_validaciones_validator_id_fkey"
+            columns: ["validator_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "obv_validaciones_validator_id_fkey"
@@ -734,12 +846,20 @@ export type Database = {
           created_at: string | null
           descripcion: string | null
           es_venta: boolean | null
+          estado_cobro: string | null
           evidence_url: string | null
           facturacion: number | null
           fecha: string | null
+          fecha_cobro_esperada: string | null
+          forma_pago: string | null
           id: string
+          importe_cobrado: number | null
+          iva_importe: number | null
+          iva_porcentaje: number | null
           lead_id: string | null
           margen: number | null
+          numero_factura: string | null
+          numero_presupuesto: string | null
           owner_id: string
           precio_unitario: number | null
           producto: string | null
@@ -747,6 +867,7 @@ export type Database = {
           status: Database["public"]["Enums"]["kpi_status"] | null
           tipo: Database["public"]["Enums"]["obv_type"]
           titulo: string
+          total_factura: number | null
           updated_at: string | null
           validated_at: string | null
         }
@@ -758,12 +879,20 @@ export type Database = {
           created_at?: string | null
           descripcion?: string | null
           es_venta?: boolean | null
+          estado_cobro?: string | null
           evidence_url?: string | null
           facturacion?: number | null
           fecha?: string | null
+          fecha_cobro_esperada?: string | null
+          forma_pago?: string | null
           id?: string
+          importe_cobrado?: number | null
+          iva_importe?: number | null
+          iva_porcentaje?: number | null
           lead_id?: string | null
           margen?: number | null
+          numero_factura?: string | null
+          numero_presupuesto?: string | null
           owner_id: string
           precio_unitario?: number | null
           producto?: string | null
@@ -771,6 +900,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["kpi_status"] | null
           tipo: Database["public"]["Enums"]["obv_type"]
           titulo: string
+          total_factura?: number | null
           updated_at?: string | null
           validated_at?: string | null
         }
@@ -782,12 +912,20 @@ export type Database = {
           created_at?: string | null
           descripcion?: string | null
           es_venta?: boolean | null
+          estado_cobro?: string | null
           evidence_url?: string | null
           facturacion?: number | null
           fecha?: string | null
+          fecha_cobro_esperada?: string | null
+          forma_pago?: string | null
           id?: string
+          importe_cobrado?: number | null
+          iva_importe?: number | null
+          iva_porcentaje?: number | null
           lead_id?: string | null
           margen?: number | null
+          numero_factura?: string | null
+          numero_presupuesto?: string | null
           owner_id?: string
           precio_unitario?: number | null
           producto?: string | null
@@ -795,6 +933,7 @@ export type Database = {
           status?: Database["public"]["Enums"]["kpi_status"] | null
           tipo?: Database["public"]["Enums"]["obv_type"]
           titulo?: string
+          total_factura?: number | null
           updated_at?: string | null
           validated_at?: string | null
         }
@@ -824,8 +963,22 @@ export type Database = {
             foreignKeyName: "obvs_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "obvs_project_id_fkey"
@@ -937,8 +1090,22 @@ export type Database = {
             foreignKeyName: "project_members_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "project_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "project_members_project_id_fkey"
@@ -1011,6 +1178,13 @@ export type Database = {
             foreignKeyName: "projects_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1058,6 +1232,13 @@ export type Database = {
             foreignKeyName: "role_history_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "role_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_stats"
             referencedColumns: ["id"]
           },
@@ -1081,6 +1262,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_history_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "role_history_user_id_fkey"
@@ -1136,6 +1324,13 @@ export type Database = {
             foreignKeyName: "role_rankings_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "role_rankings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_stats"
             referencedColumns: ["id"]
           },
@@ -1152,6 +1347,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rankings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "role_rankings_user_id_fkey"
@@ -1238,6 +1440,13 @@ export type Database = {
             foreignKeyName: "role_rotation_requests_approved_by_fkey"
             columns: ["approved_by"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1252,8 +1461,22 @@ export type Database = {
             foreignKeyName: "role_rotation_requests_requester_id_fkey"
             columns: ["requester_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_requester_id_fkey"
+            columns: ["requester_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
+            columns: ["requester_project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
@@ -1268,6 +1491,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_target_project_id_fkey"
+            columns: ["target_project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "role_rotation_requests_target_project_id_fkey"
@@ -1289,6 +1519,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_rotation_requests_target_user_id_fkey"
+            columns: ["target_user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "role_rotation_requests_target_user_id_fkey"
@@ -1351,8 +1588,22 @@ export type Database = {
             foreignKeyName: "tasks_assignee_id_fkey"
             columns: ["assignee_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "tasks_project_id_fkey"
@@ -1422,6 +1673,13 @@ export type Database = {
             foreignKeyName: "team_masters_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "team_masters_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1472,6 +1730,13 @@ export type Database = {
             foreignKeyName: "user_insights_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "user_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_stats"
             referencedColumns: ["id"]
           },
@@ -1488,6 +1753,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_insights_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "user_insights_user_id_fkey"
@@ -1553,6 +1825,13 @@ export type Database = {
             foreignKeyName: "user_playbooks_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "user_playbooks_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1584,6 +1863,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "user_roles_user_id_fkey"
@@ -1628,6 +1914,13 @@ export type Database = {
             foreignKeyName: "user_settings_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: true
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
             referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
@@ -1635,6 +1928,22 @@ export type Database = {
       }
     }
     Views: {
+      financial_metrics: {
+        Row: {
+          cobrado: number | null
+          costes: number | null
+          facturacion: number | null
+          margen: number | null
+          margen_percent: number | null
+          month: string | null
+          num_ventas: number | null
+          pendiente_cobro: number | null
+          project_color: string | null
+          project_id: string | null
+          project_name: string | null
+        }
+        Relationships: []
+      }
       member_stats: {
         Row: {
           avatar: string | null
@@ -1677,6 +1986,27 @@ export type Database = {
         }
         Relationships: []
       }
+      pending_payments: {
+        Row: {
+          cliente: string | null
+          cliente_empresa: string | null
+          dias_vencido: number | null
+          estado_cobro: string | null
+          fecha_cobro_esperada: string | null
+          fecha_venta: string | null
+          id: string | null
+          importe: number | null
+          importe_cobrado: number | null
+          numero_factura: string | null
+          pendiente: number | null
+          proyecto_color: string | null
+          proyecto_nombre: string | null
+          responsable_id: string | null
+          responsable_nombre: string | null
+          titulo: string | null
+        }
+        Relationships: []
+      }
       pipeline_global: {
         Row: {
           created_at: string | null
@@ -1702,6 +2032,13 @@ export type Database = {
             foreignKeyName: "leads_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "leads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
             referencedRelation: "project_stats"
             referencedColumns: ["id"]
           },
@@ -1718,6 +2055,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "member_stats"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
           },
           {
             foreignKeyName: "leads_responsable_id_fkey"
@@ -1779,8 +2123,22 @@ export type Database = {
             foreignKeyName: "project_members_member_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "project_members_member_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
             referencedRelation: "profiles"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "project_members_project_id_fkey"
