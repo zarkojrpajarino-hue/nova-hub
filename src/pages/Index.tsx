@@ -9,6 +9,7 @@ import { CRMView } from './views/CRMView';
 import { FinancieroView } from './views/FinancieroView';
 import { KPIsView } from './views/KPIsView';
 import { RolesMeetingView } from './views/RolesMeetingView';
+import { AnalyticsView } from './views/AnalyticsView';
 import { useAuth } from '@/hooks/useAuth';
 
 const Index = () => {
@@ -41,6 +42,8 @@ const Index = () => {
         return <FinancieroView onNewOBV={handleNewOBV} />;
       case 'kpis':
         return <KPIsView onNewOBV={handleNewOBV} />;
+      case 'analytics':
+        return <AnalyticsView onNewOBV={handleNewOBV} />;
       case 'roles':
         return <RolesMeetingView onNewOBV={handleNewOBV} />;
       default:
