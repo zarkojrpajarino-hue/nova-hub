@@ -15,7 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_MEMBERS, DEMO_FINANCIAL } from '@/data/demoData';
+import { DEMO_MEMBERS, DEMO_FINANCIAL, DEMO_FINANCIAL_METRICS, DEMO_PENDING_PAYMENTS } from '@/data/demoData';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
@@ -31,7 +31,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   const members = isDemoMode ? DEMO_MEMBERS : realMembers;
   
   // Fetch financial metrics
-  const { data: financialMetrics = [] } = useQuery({
+  const { data: realFinancialMetrics = [] } = useQuery({
     queryKey: ['financial_metrics'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -40,10 +40,14 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
       if (error) throw error;
       return data || [];
     },
+    enabled: !isDemoMode,
   });
 
+  // Use demo financial metrics when in demo mode
+  const financialMetrics = isDemoMode ? DEMO_FINANCIAL_METRICS : realFinancialMetrics;
+
   // Fetch pending payments
-  const { data: pendingPayments = [] } = useQuery({
+  const { data: realPendingPayments = [] } = useQuery({
     queryKey: ['pending_payments'],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -52,7 +56,11 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
       if (error) throw error;
       return data || [];
     },
+    enabled: !isDemoMode,
   });
+
+  // Use demo pending payments when in demo mode
+  const pendingPayments = isDemoMode ? DEMO_PENDING_PAYMENTS : realPendingPayments;
 
   // Map objectives
   const objectivesMap = useMemo(() => {
@@ -79,32 +87,19 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   const totalPending = isDemoMode 
     ? DEMO_FINANCIAL.pendiente_cobro 
     : pendingPayments.reduce((sum, p) => sum + (Number(p.pendiente) || 0), 0);
-  const overdueCount = isDemoMode ? 2 : pendingPayments.filter(p => (p.dias_vencido || 0) > 0).length;
+  const overdueCount = isDemoMode 
+    ? DEMO_PENDING_PAYMENTS.filter(p => (p.dias_vencido || 0) > 0).length 
+    : pendingPayments.filter(p => (p.dias_vencido || 0) > 0).length;
   const overduePayments = isDemoMode 
-    ? DEMO_FINANCIAL.cobros_pendientes.slice(0, 2).map(c => ({
-        id: c.cliente,
-        titulo: c.cliente,
-        cliente: c.cliente,
-        proyecto_nombre: c.proyecto,
-        pendiente: c.monto,
-        dias_vencido: 5,
-        numero_factura: 'F-001',
-      }))
+    ? DEMO_PENDING_PAYMENTS.filter(p => (p.dias_vencido || 0) > 0)
     : pendingPayments.filter(p => (p.dias_vencido || 0) > 0);
   const upcomingPayments = isDemoMode 
-    ? DEMO_FINANCIAL.cobros_pendientes.map(c => ({
-        id: c.cliente,
-        titulo: c.cliente,
-        pendiente: c.monto,
-        fecha_cobro_esperada: c.fecha_esperada,
-        estado_cobro: 'pendiente',
-        dias_vencido: 0,
-      }))
+    ? DEMO_PENDING_PAYMENTS.filter(p => (p.dias_vencido || 0) <= 0 && p.estado_cobro !== 'cobrado')
     : pendingPayments.filter(p => (p.dias_vencido || 0) <= 0 && p.estado_cobro !== 'cobrado');
 
   // Calculate monthly growth (simplified)
   const monthlyGrowth = useMemo(() => {
-    if (isDemoMode) return 12.5;
+    if (isDemoMode) return DEMO_FINANCIAL.crecimiento_mensual;
     if (financialMetrics.length < 2) return 0;
     const sorted = [...financialMetrics].sort((a, b) => 
       new Date(b.month).getTime() - new Date(a.month).getTime()
@@ -201,8 +196,8 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
 
             {/* Charts Row */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <RevenueEvolutionChart data={financialMetrics as any} />
-              <ProjectBreakdownChart data={financialMetrics as any} />
+              <RevenueEvolutionChart data={financialMetrics} />
+              <ProjectBreakdownChart data={financialMetrics} />
             </div>
 
             {/* Alerts and Quick Stats */}
