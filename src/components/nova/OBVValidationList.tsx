@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Check, X, Loader2, ExternalLink } from 'lucide-react';
+import { Check, X, Loader2, ExternalLink, FileCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { useAuth } from '@/hooks/useAuth';
@@ -7,6 +7,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { cn } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
+import { EmptyState } from '@/components/ui/empty-state';
+import { SkeletonCard } from '@/components/ui/skeleton-card';
 
 interface OBV {
   id: string;
@@ -44,11 +47,11 @@ export function OBVValidationList() {
   const [votingId, setVotingId] = useState<string | null>(null);
   const [comentario, setComentario] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [confirmReject, setConfirmReject] = useState<string | null>(null);
 
   const { data: pendingOBVs = [], isLoading } = useQuery({
     queryKey: ['pending_obvs_for_validation'],
     queryFn: async () => {
-      // Get pending OBVs that the user hasn't validated yet
       const { data: obvs, error } = await supabase
         .from('obvs')
         .select(`
@@ -60,19 +63,16 @@ export function OBVValidationList() {
 
       if (error) throw error;
 
-      // Get validations for these OBVs
       const obvIds = obvs?.map(o => o.id) || [];
       const { data: validations } = await supabase
         .from('obv_validaciones')
         .select('obv_id, validator_id, approved, comentario')
         .in('obv_id', obvIds);
 
-      // Get profiles for owners
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, nombre, color');
 
-      // Get projects
       const { data: projects } = await supabase
         .from('projects')
         .select('id, nombre, icon, color');
@@ -95,9 +95,7 @@ export function OBVValidationList() {
           })),
         };
       }).filter(obv => {
-        // Filter out OBVs owned by current user
         if (obv.owner_id === profile?.id) return false;
-        // Filter out OBVs already validated by current user
         const alreadyVoted = obv.validations.some(v => v.validator_id === profile?.id);
         return !alreadyVoted;
       }) as OBV[];
@@ -121,13 +119,14 @@ export function OBVValidationList() {
 
       if (error) throw error;
 
-      toast.success(approved ? 'OBV aprobada' : 'OBV rechazada');
+      toast.success(approved ? '✅ OBV aprobada correctamente' : '❌ OBV rechazada');
       setVotingId(null);
       setComentario('');
+      setConfirmReject(null);
       queryClient.invalidateQueries({ queryKey: ['pending_obvs_for_validation'] });
     } catch (error) {
       console.error('Error voting:', error);
-      toast.error('Error al votar');
+      toast.error('Error al votar. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -135,20 +134,22 @@ export function OBVValidationList() {
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center py-20">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      <div className="space-y-4">
+        {[1, 2, 3].map(i => (
+          <SkeletonCard key={i} rows={4} />
+        ))}
       </div>
     );
   }
 
   if (pendingOBVs.length === 0) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-8 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-success/20 flex items-center justify-center mx-auto mb-4">
-          <Check size={32} className="text-success" />
-        </div>
-        <h3 className="font-semibold text-lg mb-2">¡Todo al día!</h3>
-        <p className="text-muted-foreground">No hay OBVs pendientes de validar</p>
+      <div className="bg-card border border-border rounded-2xl">
+        <EmptyState
+          icon={FileCheck}
+          title="¡Todo al día!"
+          description="No hay OBVs pendientes de validar. Vuelve más tarde cuando tus compañeros suban nuevas OBVs."
+        />
       </div>
     );
   }
@@ -161,7 +162,6 @@ export function OBVValidationList() {
           className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in"
         >
           <div className="p-5 border-b border-border flex items-center gap-4">
-            {/* Owner avatar */}
             <div 
               className="w-10 h-10 rounded-lg flex items-center justify-center text-white font-semibold"
               style={{ background: obv.owner.color }}
@@ -176,7 +176,6 @@ export function OBVValidationList() {
               </p>
             </div>
 
-            {/* Type badge */}
             <div className={cn(
               "px-3 py-1.5 rounded-lg text-xs font-semibold uppercase",
               obv.tipo === 'exploracion' && "bg-info/20 text-info",
@@ -188,12 +187,10 @@ export function OBVValidationList() {
           </div>
 
           <div className="p-5 space-y-4">
-            {/* Description */}
             {obv.descripcion && (
               <p className="text-sm text-muted-foreground">{obv.descripcion}</p>
             )}
 
-            {/* Project */}
             {obv.project && (
               <div className="flex items-center gap-2">
                 <span className="text-lg">{obv.project.icon}</span>
@@ -203,7 +200,6 @@ export function OBVValidationList() {
               </div>
             )}
 
-            {/* Sale details */}
             {obv.es_venta && (
               <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-xl">
                 <div>
@@ -217,7 +213,6 @@ export function OBVValidationList() {
               </div>
             )}
 
-            {/* Evidence */}
             {obv.evidence_url && (
               <a 
                 href={obv.evidence_url} 
@@ -230,7 +225,6 @@ export function OBVValidationList() {
               </a>
             )}
 
-            {/* Existing validations */}
             {obv.validations.length > 0 && (
               <div className="flex gap-2">
                 {obv.validations.map((v, i) => (
@@ -248,7 +242,6 @@ export function OBVValidationList() {
               </div>
             )}
 
-            {/* Voting UI */}
             {votingId === obv.id ? (
               <div className="space-y-3 pt-3 border-t border-border">
                 <Textarea
@@ -269,7 +262,7 @@ export function OBVValidationList() {
                   <Button
                     variant="outline"
                     className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
-                    onClick={() => handleVote(obv.id, false)}
+                    onClick={() => setConfirmReject(obv.id)}
                     disabled={isSubmitting}
                   >
                     <X size={16} className="mr-1" />
@@ -298,6 +291,19 @@ export function OBVValidationList() {
           </div>
         </div>
       ))}
+
+      {/* Confirm Reject Dialog */}
+      <ConfirmDialog
+        open={!!confirmReject}
+        onOpenChange={() => setConfirmReject(null)}
+        title="¿Rechazar esta OBV?"
+        description="Esta acción notificará al propietario de la OBV. Asegúrate de haber dejado un comentario explicando el motivo del rechazo."
+        confirmLabel="Sí, rechazar"
+        cancelLabel="Cancelar"
+        variant="destructive"
+        onConfirm={() => confirmReject && handleVote(confirmReject, false)}
+        isLoading={isSubmitting}
+      />
     </div>
   );
 }
