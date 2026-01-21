@@ -7,6 +7,8 @@ import { Card } from '@/components/ui/card';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead, Notification } from '@/hooks/useNotifications';
 import { cn } from '@/lib/utils';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_NOTIFICATIONS } from '@/data/demoData';
 
 interface NotificationsViewProps {
   onNewOBV?: () => void;
@@ -48,12 +50,27 @@ const getNotificationColor = (tipo: string | null) => {
 };
 
 export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewProps) {
-  const { data: notifications = [], isLoading } = useNotifications();
+  const { isDemoMode } = useDemoMode();
+  const { data: realNotifications = [], isLoading } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
 
-  const handleNotificationClick = (notification: Notification) => {
-    if (!notification.leida) {
+  // Transform demo notifications to match the expected format
+  const demoNotificationsFormatted = DEMO_NOTIFICATIONS.map(n => ({
+    id: n.id,
+    tipo: n.tipo,
+    titulo: n.titulo,
+    mensaje: n.mensaje,
+    leida: n.leida,
+    created_at: n.fecha,
+    link: n.tipo === 'obv_nueva' ? '/obvs' : n.tipo === 'tarea_asignada' ? '/mi-espacio' : null,
+    user_id: '1',
+  }));
+
+  const notifications = isDemoMode ? demoNotificationsFormatted : realNotifications;
+
+  const handleNotificationClick = (notification: Notification | typeof demoNotificationsFormatted[0]) => {
+    if (!notification.leida && !isDemoMode) {
       markAsRead.mutate(notification.id);
     }
     
@@ -112,7 +129,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
             <Bell className="text-primary" size={24} />
             <h2 className="text-lg font-semibold">Historial de notificaciones</h2>
           </div>
-          {unreadCount > 0 && (
+          {unreadCount > 0 && !isDemoMode && (
             <Button
               variant="outline"
               size="sm"
@@ -126,7 +143,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
         </div>
 
         {/* Notifications list */}
-        {isLoading ? (
+        {isLoading && !isDemoMode ? (
           <div className="space-y-4">
             {[1, 2, 3].map(i => (
               <Card key={i} className="p-4 animate-pulse">
