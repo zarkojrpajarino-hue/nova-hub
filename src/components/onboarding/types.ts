@@ -86,6 +86,7 @@ export interface OnboardingStep {
 }
 
 export const VALIDACION_STEPS: OnboardingStep[] = [
+  { id: 'equipo', title: 'Equipo', icon: '👥', description: 'Selecciona tu equipo' },
   { id: 'problema', title: 'Problema', icon: '⚠️', description: 'El problema que resuelves' },
   { id: 'cliente', title: 'Cliente', icon: '🎯', description: 'Tu cliente objetivo' },
   { id: 'solucion', title: 'Solución', icon: '💡', description: 'Tu propuesta de valor' },
@@ -96,6 +97,7 @@ export const VALIDACION_STEPS: OnboardingStep[] = [
 ];
 
 export const OPERACION_STEPS: OnboardingStep[] = [
+  { id: 'equipo', title: 'Equipo', icon: '👥', description: 'Selecciona tu equipo' },
   { id: 'canvas1', title: 'Canvas I', icon: '📋', description: 'Propuesta y clientes' },
   { id: 'canvas2', title: 'Canvas II', icon: '📋', description: 'Ingresos y recursos' },
   { id: 'finanzas', title: 'Finanzas', icon: '💰', description: 'Situación financiera' },

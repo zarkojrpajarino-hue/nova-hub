@@ -17,10 +17,9 @@ interface OnboardingGateProps {
     onboarding_completed: boolean;
     onboarding_data?: any;
   };
-  hasMembers: boolean;
 }
 
-export function OnboardingGate({ project, hasMembers }: OnboardingGateProps) {
+export function OnboardingGate({ project }: OnboardingGateProps) {
   const queryClient = useQueryClient();
   const [isGeneratingRoles, setIsGeneratingRoles] = useState(false);
   const [showWizard, setShowWizard] = useState(false);
@@ -131,34 +130,25 @@ export function OnboardingGate({ project, hasMembers }: OnboardingGateProps) {
             </p>
           </div>
 
-          {!hasMembers && (
-            <div className="flex items-center gap-3 p-4 rounded-xl bg-amber-50 border border-amber-200 text-amber-800">
-              <Users size={20} />
-              <p className="text-sm">
-                <strong>Nota:</strong> Este proyecto aún no tiene miembros. 
-                Añade miembros antes de completar el onboarding.
-              </p>
-            </div>
-          )}
 
           <div className="space-y-2 text-sm">
             <h4 className="font-medium">¿Qué sucederá?</h4>
             <ol className="space-y-2 text-muted-foreground">
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs flex-shrink-0">1</span>
-                <span>Completas el onboarding del proyecto</span>
+                <span>Seleccionas los miembros del equipo</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs flex-shrink-0">2</span>
-                <span>La IA genera 4 roles específicos para el proyecto</span>
+                <span>Completas los datos del proyecto</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs flex-shrink-0">3</span>
-                <span>Cada miembro acepta su rol asignado</span>
+                <span>La IA asigna roles óptimos según experiencia</span>
               </li>
               <li className="flex items-start gap-2">
                 <span className="w-5 h-5 rounded-full bg-primary text-white flex items-center justify-center text-xs flex-shrink-0">4</span>
-                <span>¡El proyecto se desbloquea para trabajar!</span>
+                <span>¡El proyecto se desbloquea automáticamente!</span>
               </li>
             </ol>
           </div>
@@ -166,7 +156,6 @@ export function OnboardingGate({ project, hasMembers }: OnboardingGateProps) {
           <Button 
             className="w-full h-12 text-lg"
             onClick={() => setShowWizard(true)}
-            disabled={!hasMembers}
             style={{ background: project.color }}
           >
             <Rocket size={20} className="mr-2" />
