@@ -44,7 +44,8 @@ export function RecentActivityFeed() {
       if (error) throw error;
       return data;
     },
-    refetchInterval: 30000, // Refresh every 30 seconds
+    refetchInterval: 120000, // Refresh every 2 minutes
+    staleTime: 1000 * 60, // 1 minuto
   });
 
   // Enrich activities with user info

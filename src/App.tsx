@@ -9,7 +9,17 @@ import Auth from "./pages/Auth";
 import ProjectPage from "./pages/ProjectPage";
 import NotFound from "./pages/NotFound";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      staleTime: 1000 * 60 * 5, // 5 minutos - datos considerados frescos
+      gcTime: 1000 * 60 * 30, // 30 minutos - mantener en cache
+      refetchOnWindowFocus: false, // No refetch al volver a la ventana
+      refetchOnReconnect: false, // No refetch al reconectar
+      retry: 1, // Solo 1 reintento en errores
+    },
+  },
+});
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { isAuthenticated, loading } = useAuth();

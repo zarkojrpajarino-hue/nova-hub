@@ -59,7 +59,8 @@ export function WeeklyEvolutionChart() {
         };
       });
     },
-    refetchInterval: 60000, // Refresh every minute
+    refetchInterval: 300000, // Refresh every 5 minutes
+    staleTime: 1000 * 60 * 2, // 2 minutos
   });
 
   if (isLoading) {
