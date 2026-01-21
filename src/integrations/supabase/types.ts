@@ -635,6 +635,97 @@ export type Database = {
           },
         ]
       }
+      member_kpi_base: {
+        Row: {
+          bps: number | null
+          cps: number | null
+          facturacion: number | null
+          id: string
+          lps: number | null
+          margen: number | null
+          member_id: string | null
+          obvs: number | null
+          obvs_exploracion: number | null
+          obvs_validacion: number | null
+          obvs_venta: number | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          bps?: number | null
+          cps?: number | null
+          facturacion?: number | null
+          id?: string
+          lps?: number | null
+          margen?: number | null
+          member_id?: string | null
+          obvs?: number | null
+          obvs_exploracion?: number | null
+          obvs_validacion?: number | null
+          obvs_venta?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          bps?: number | null
+          cps?: number | null
+          facturacion?: number | null
+          id?: string
+          lps?: number | null
+          margen?: number | null
+          member_id?: string | null
+          obvs?: number | null
+          obvs_exploracion?: number | null
+          obvs_validacion?: number | null
+          obvs_venta?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_kpi_base_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_kpi_base_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "member_kpi_base_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_kpi_base_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "member_kpi_base_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "member_kpi_base_updated_by_fkey"
+            columns: ["updated_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notifications: {
         Row: {
           created_at: string | null
@@ -1957,32 +2048,9 @@ export type Database = {
           margen: number | null
           nombre: string | null
           obvs: number | null
-        }
-        Insert: {
-          avatar?: string | null
-          bps?: never
-          color?: string | null
-          cps?: never
-          email?: string | null
-          facturacion?: never
-          id?: string | null
-          lps?: never
-          margen?: never
-          nombre?: string | null
-          obvs?: never
-        }
-        Update: {
-          avatar?: string | null
-          bps?: never
-          color?: string | null
-          cps?: never
-          email?: string | null
-          facturacion?: never
-          id?: string | null
-          lps?: never
-          margen?: never
-          nombre?: string | null
-          obvs?: never
+          obvs_exploracion: number | null
+          obvs_validacion: number | null
+          obvs_venta: number | null
         }
         Relationships: []
       }
@@ -2183,6 +2251,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      seed_member_kpi_base: { Args: never; Returns: undefined }
       update_role_rankings: {
         Args: { p_period_end?: string; p_period_start?: string; p_role: string }
         Returns: undefined

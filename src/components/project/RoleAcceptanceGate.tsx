@@ -55,7 +55,11 @@ export function RoleAcceptanceGate({ project, currentUserId, teamMembers }: Role
       if (error) throw error;
 
       toast.success('¡Rol aceptado!');
-      queryClient.invalidateQueries({ queryKey: ['project_members'] });
+      
+      // IMPORTANTE: Esperar invalidación y forzar refetch
+      await queryClient.invalidateQueries({ queryKey: ['project_members'] });
+      await queryClient.refetchQueries({ queryKey: ['project_members'] });
+      
     } catch (error) {
       console.error('Error accepting role:', error);
       toast.error('Error al aceptar el rol');
