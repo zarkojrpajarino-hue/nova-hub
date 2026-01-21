@@ -4,6 +4,38 @@ import { z } from 'zod';
 // VALIDATION SCHEMAS
 // ============================================
 
+// Contexto Corea → España para validación internacional
+export const contextoCoreaSchema = z.object({
+  que_validar_desde_corea: z.array(z.object({
+    item: z.string(),
+    checked: z.boolean().default(false),
+  })).default([
+    { item: 'Entrevistas con clientes potenciales', checked: false },
+    { item: 'Tests de pricing', checked: false },
+    { item: 'Validación de propuesta de valor', checked: false },
+    { item: 'Feedback de prototipo/MVP', checked: false },
+    { item: 'Investigación de competencia local', checked: false },
+    { item: 'Networking con stakeholders', checked: false },
+  ]),
+  
+  hipotesis_mes: z.array(z.object({
+    mes: z.number().min(1).max(3),
+    hipotesis: z.string(),
+    metrica_exito: z.string(),
+  })).max(3).default([
+    { mes: 1, hipotesis: '', metrica_exito: '' },
+    { mes: 2, hipotesis: '', metrica_exito: '' },
+    { mes: 3, hipotesis: '', metrica_exito: '' },
+  ]),
+  
+  plan_espana: z.object({
+    que_tener_listo: z.string().default(''),
+    mercado_objetivo: z.string().default(''),
+    aprendizajes_aplicar: z.string().default(''),
+    primeros_pasos: z.string().default(''),
+  }),
+});
+
 export const validacionSchema = z.object({
   tipo: z.literal('validacion'),
   problema: z.string().min(10, 'Describe el problema con al menos 10 caracteres'),
@@ -13,6 +45,8 @@ export const validacionSchema = z.object({
   metricas_exito: z.string().min(10, 'Define métricas de éxito'),
   recursos_disponibles: z.string().min(5, 'Lista tus recursos'),
   limitaciones: z.string().optional(),
+  // Contexto internacional Corea → España
+  contexto_corea: contextoCoreaSchema.optional(),
 });
 
 export const operacionSchema = z.object({
@@ -35,6 +69,7 @@ export const operacionSchema = z.object({
   objetivos_q1: z.string().min(10, 'Define al menos un objetivo'),
 });
 
+export type ContextoCoreaData = z.infer<typeof contextoCoreaSchema>;
 export type ValidacionData = z.infer<typeof validacionSchema>;
 export type OperacionData = z.infer<typeof operacionSchema>;
 export type OnboardingData = ValidacionData | OperacionData;
@@ -55,6 +90,7 @@ export const VALIDACION_STEPS: OnboardingStep[] = [
   { id: 'cliente', title: 'Cliente', icon: '🎯', description: 'Tu cliente objetivo' },
   { id: 'solucion', title: 'Solución', icon: '💡', description: 'Tu propuesta de valor' },
   { id: 'hipotesis', title: 'Hipótesis', icon: '🧪', description: 'Lo que necesitas validar' },
+  { id: 'corea-espana', title: 'Corea → España', icon: '✈️', description: 'Plan de validación internacional' },
   { id: 'metricas', title: 'Métricas', icon: '📊', description: 'Cómo medir el éxito' },
   { id: 'recursos', title: 'Recursos', icon: '👥', description: 'Con qué cuentas' },
 ];
@@ -68,6 +104,28 @@ export const OPERACION_STEPS: OnboardingStep[] = [
 ];
 
 // Default values
+export const defaultContextoCorea: ContextoCoreaData = {
+  que_validar_desde_corea: [
+    { item: 'Entrevistas con clientes potenciales', checked: false },
+    { item: 'Tests de pricing', checked: false },
+    { item: 'Validación de propuesta de valor', checked: false },
+    { item: 'Feedback de prototipo/MVP', checked: false },
+    { item: 'Investigación de competencia local', checked: false },
+    { item: 'Networking con stakeholders', checked: false },
+  ],
+  hipotesis_mes: [
+    { mes: 1, hipotesis: '', metrica_exito: '' },
+    { mes: 2, hipotesis: '', metrica_exito: '' },
+    { mes: 3, hipotesis: '', metrica_exito: '' },
+  ],
+  plan_espana: {
+    que_tener_listo: '',
+    mercado_objetivo: '',
+    aprendizajes_aplicar: '',
+    primeros_pasos: '',
+  },
+};
+
 export const defaultValidacionData: ValidacionData = {
   tipo: 'validacion',
   problema: '',
@@ -77,6 +135,7 @@ export const defaultValidacionData: ValidacionData = {
   metricas_exito: '',
   recursos_disponibles: '',
   limitaciones: '',
+  contexto_corea: defaultContextoCorea,
 };
 
 export const defaultOperacionData: OperacionData = {

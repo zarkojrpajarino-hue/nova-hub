@@ -33,6 +33,7 @@ import {
   StepClientes, 
   StepObjetivos 
 } from './steps/OperacionSteps';
+import { CoreaEspanaStep } from './steps/CoreaEspanaStep';
 
 interface OnboardingWizardProps {
   project: {
@@ -168,8 +169,9 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
       case 1: return <StepCliente {...props} />;
       case 2: return <StepSolucion {...props} />;
       case 3: return <StepHipotesis {...props} />;
-      case 4: return <StepMetricas {...props} />;
-      case 5: return <StepRecursos {...props} />;
+      case 4: return <CoreaEspanaStep {...props} />;
+      case 5: return <StepMetricas {...props} />;
+      case 6: return <StepRecursos {...props} />;
       default: return null;
     }
   };
