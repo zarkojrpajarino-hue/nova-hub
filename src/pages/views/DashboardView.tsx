@@ -8,6 +8,7 @@ import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface DashboardViewProps {
   onNewOBV?: () => void;
@@ -84,6 +85,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       />
       
       <div className="p-8 space-y-6">
+        {/* Section Help */}
+        <SectionHelp section="dashboard" variant="inline" />
+
         {/* KPIs Grid */}
         <div className="grid grid-cols-6 gap-4">
           <StatCard 
@@ -161,6 +165,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <PendingValidationsWidget />
         </div>
       </div>
+
+      {/* Floating Help Widget */}
+      <HelpWidget section="dashboard" />
     </>
   );
 }

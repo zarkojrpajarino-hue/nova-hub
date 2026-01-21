@@ -7,6 +7,7 @@ import { CRMFilters } from '@/components/crm/CRMFilters';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface CRMViewProps {
   onNewOBV?: () => void;
@@ -85,6 +86,8 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
       />
       
       <div className="p-8 space-y-6">
+        <SectionHelp section="crm" variant="inline" />
+
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
           <TabsList className="mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
@@ -230,6 +233,8 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
           </TabsContent>
         </Tabs>
       </div>
+
+      <HelpWidget section="crm" />
     </>
   );
 }

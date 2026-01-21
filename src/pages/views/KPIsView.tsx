@@ -8,6 +8,7 @@ import { KPITabContent } from '@/components/kpi/KPITabContent';
 import { ValidationOrderCard } from '@/components/validation/ValidationOrderCard';
 import { BlockedBanner } from '@/components/validation/BlockedBanner';
 import { ValidatorRankingCard } from '@/components/rankings/ValidatorRankingCard';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 
 interface KPIsViewProps {
   onNewOBV?: () => void;
@@ -75,6 +76,9 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
       />
       
       <div className="p-8">
+        {/* Section Help */}
+        <SectionHelp section="kpis" variant="inline" />
+
         {/* Blocked Banner */}
         <BlockedBanner />
 
@@ -213,6 +217,8 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
           <ValidatorRankingCard />
         </div>
       </div>
+
+      <HelpWidget section="kpis" />
     </>
   );
 }
