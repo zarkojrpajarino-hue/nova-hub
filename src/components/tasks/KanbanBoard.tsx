@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Plus, Loader2, Circle, Clock, CheckCircle2, AlertCircle, Calendar, Flag, Sparkles, User, BookOpen } from 'lucide-react';
+import { Plus, Loader2, Circle, Clock, CheckCircle2, AlertCircle, Calendar, Flag, Sparkles, User, BookOpen, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +12,16 @@ import { TaskForm } from './TaskForm';
 import { TaskPlaybookViewer } from './TaskPlaybookViewer';
 import { TaskCompletionDialog } from './TaskCompletionDialog';
 import { Json } from '@/integrations/supabase/types';
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from '@/components/ui/alert-dialog';
 
 const TASK_COLUMNS = [
   { id: 'todo', label: 'To Do', icon: Circle, color: '#64748B' },
@@ -59,6 +69,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
   const [showForm, setShowForm] = useState(false);
   const [selectedTaskForPlaybook, setSelectedTaskForPlaybook] = useState<Task | null>(null);
   const [taskToComplete, setTaskToComplete] = useState<Task | null>(null);
+  const [taskToDelete, setTaskToDelete] = useState<Task | null>(null);
+  const [isDeleting, setIsDeleting] = useState(false);
 
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['project_tasks', projectId],
@@ -189,6 +201,34 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
 
   const getAssignee = (assigneeId: string | null) => 
     projectMembers.find(m => m.id === assigneeId);
+
+  const handleDeleteTask = async () => {
+    if (!taskToDelete) return;
+    
+    setIsDeleting(true);
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .delete()
+        .eq('id', taskToDelete.id);
+
+      if (error) throw error;
+      
+      toast.success('Tarea eliminada');
+      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
+    } catch (error) {
+      console.error('Error deleting task:', error);
+      toast.error('Error al eliminar la tarea');
+    } finally {
+      setIsDeleting(false);
+      setTaskToDelete(null);
+    }
+  };
+
+  const canDeleteTask = (task: Task) => {
+    return task.assignee_id === profile?.id || !task.assignee_id;
+  };
 
   if (isLoading) {
     return (
@@ -336,15 +376,29 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
                                     )}
                                   </div>
                                   
-                                  {assignee && (
-                                    <div 
-                                      className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
-                                      style={{ backgroundColor: assignee.color }}
-                                      title={assignee.nombre}
-                                    >
-                                      {assignee.nombre.charAt(0)}
-                                    </div>
-                                  )}
+                                  <div className="flex items-center gap-2">
+                                    {canDeleteTask(task) && (
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          setTaskToDelete(task);
+                                        }}
+                                        className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
+                                        title="Eliminar tarea"
+                                      >
+                                        <Trash2 size={14} />
+                                      </button>
+                                    )}
+                                    {assignee && (
+                                      <div 
+                                        className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
+                                        style={{ backgroundColor: assignee.color }}
+                                        title={assignee.nombre}
+                                      >
+                                        {assignee.nombre.charAt(0)}
+                                      </div>
+                                    )}
+                                  </div>
                                 </div>
                               </div>
                             )}
@@ -411,6 +465,28 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
           onComplete={handleTaskComplete}
         />
       )}
+
+      {/* Delete Confirmation Dialog */}
+      <AlertDialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Esta acción no se puede deshacer. Se eliminará permanentemente la tarea "{taskToDelete?.titulo}".
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogAction 
+              onClick={handleDeleteTask}
+              disabled={isDeleting}
+              className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+            >
+              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
