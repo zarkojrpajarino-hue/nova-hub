@@ -9,6 +9,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_PLAYBOOKS, type DemoPlaybook } from '@/data/demoData';
 
 interface PlaybookViewerProps {
   roleName: string;
@@ -16,11 +18,35 @@ interface PlaybookViewerProps {
 
 export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
   const { profile } = useAuth();
-  const { data: playbook, isLoading } = usePlaybookForRole(profile?.id, roleName);
+  const { isDemoMode } = useDemoMode();
+  const { data: realPlaybook, isLoading } = usePlaybookForRole(profile?.id, roleName);
   const generatePlaybook = useGeneratePlaybook();
   const [generating, setGenerating] = useState(false);
 
+  // Use demo playbook if in demo mode
+  const demoPlaybook = DEMO_PLAYBOOKS.find(p => p.role_name === roleName);
+  const playbook: UserPlaybook | null | undefined = isDemoMode && demoPlaybook
+    ? {
+        id: demoPlaybook.id,
+        user_id: demoPlaybook.user_id,
+        role_name: demoPlaybook.role_name,
+        version: demoPlaybook.version,
+        contenido: demoPlaybook.contenido,
+        fortalezas: demoPlaybook.fortalezas,
+        areas_mejora: demoPlaybook.areas_mejora,
+        objetivos_sugeridos: demoPlaybook.objetivos_sugeridos,
+        ai_model: demoPlaybook.ai_model,
+        is_active: demoPlaybook.is_active,
+        generated_at: demoPlaybook.generated_at,
+        created_at: demoPlaybook.generated_at,
+      }
+    : realPlaybook;
+
   const handleGenerate = async () => {
+    if (isDemoMode) {
+      toast.info('En modo demo no se pueden generar playbooks');
+      return;
+    }
     if (!profile?.id) return;
     
     setGenerating(true);
@@ -37,7 +63,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isDemoMode) {
     return (
       <div className="flex items-center justify-center py-10">
         <Loader2 className="w-6 h-6 animate-spin text-primary" />

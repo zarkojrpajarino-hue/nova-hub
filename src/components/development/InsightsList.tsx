@@ -7,6 +7,8 @@ import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { InsightForm } from './InsightForm';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_INSIGHTS, type DemoInsight } from '@/data/demoData';
 
 const TIPO_CONFIG: Record<UserInsight['tipo'], { icon: React.ElementType; color: string; label: string }> = {
   aprendizaje: { icon: BookOpen, color: '#3B82F6', label: 'Aprendizaje' },
@@ -23,11 +25,21 @@ interface InsightsListProps {
 
 export function InsightsList({ projectId, roleContext }: InsightsListProps) {
   const { profile } = useAuth();
-  const { data: insights = [], isLoading } = useInsights(profile?.id);
+  const { isDemoMode } = useDemoMode();
+  const { data: realInsights = [], isLoading } = useInsights(profile?.id);
   const deleteInsight = useDeleteInsight();
   const [showForm, setShowForm] = useState(false);
   const [editingInsight, setEditingInsight] = useState<UserInsight | null>(null);
   const [filterTipo, setFilterTipo] = useState<UserInsight['tipo'] | 'all'>('all');
+
+  // Use demo data if in demo mode
+  const insights: UserInsight[] = isDemoMode 
+    ? DEMO_INSIGHTS.map(di => ({
+        ...di,
+        project_id: di.project_id || null,
+        role_context: di.role_context || null,
+      })) as UserInsight[]
+    : realInsights;
 
   const filteredInsights = insights.filter(insight => {
     if (filterTipo !== 'all' && insight.tipo !== filterTipo) return false;
@@ -36,12 +48,13 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
   });
 
   const handleDelete = async (id: string) => {
+    if (isDemoMode) return; // No delete in demo mode
     if (confirm('¿Eliminar este insight?')) {
       await deleteInsight.mutateAsync(id);
     }
   };
 
-  if (isLoading) {
+  if (isLoading && !isDemoMode) {
     return (
       <div className="flex items-center justify-center py-10">
         <div className="animate-pulse text-muted-foreground">Cargando insights...</div>
