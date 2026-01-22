@@ -96,6 +96,16 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
 
     if (newStatus === oldStatus) return;
 
+    // Si se mueve a "done", mostrar el diálogo de completar tarea
+    if (newStatus === 'done' && oldStatus !== 'done') {
+      const taskToMark = tasks.find(t => t.id === taskId);
+      if (taskToMark) {
+        setTaskToComplete(taskToMark);
+        return; // No actualizar aún, esperar a que complete el feedback
+      }
+    }
+
+    // Para otros movimientos, actualizar directamente
     // Optimistic update
     queryClient.setQueryData(['project_tasks', projectId], (old: Task[] | undefined) =>
       old?.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
