@@ -11,13 +11,56 @@ import { CreateRotationDialog } from '@/components/rotation/CreateRotationDialog
 import { MyRotationRequests } from '@/components/rotation/MyRotationRequests';
 import { AIRotationSuggestions } from '@/components/rotation/AIRotationSuggestions';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_ROTATION_REQUESTS, DEMO_ROLE_HISTORY } from '@/data/demoData';
 
 export default function RoleRotationView() {
+  const { isDemoMode } = useDemoMode();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   
-  const { data: allRequests = [] } = useRotationRequests();
-  const { data: myRequests = [] } = useMyRotationRequests();
-  const { data: history = [] } = useRoleHistory();
+  const { data: realRequests = [] } = useRotationRequests();
+  const { data: realMyRequests = [] } = useMyRotationRequests();
+  const { data: realHistory = [] } = useRoleHistory();
+
+  // Use demo data when in demo mode
+  const allRequests = isDemoMode ? DEMO_ROTATION_REQUESTS.map(r => ({
+    id: r.id,
+    requester_id: r.requester_id,
+    requester_current_role: r.requester_current_role,
+    target_user_id: r.target_user_id,
+    target_role: r.target_role,
+    requester_project_id: r.requester_project_id,
+    target_project_id: r.target_project_id,
+    status: r.status,
+    reason: r.reason,
+    created_at: r.created_at,
+    requester_name: r.requester_name,
+    target_user_name: r.target_user_name,
+    request_type: 'mutual',
+    compatibility_score: 85,
+    compatibility_analysis: null,
+    requester_accepted: true,
+    target_accepted: r.status === 'approved' || r.status === 'completed',
+    admin_approved: r.status === 'approved' || r.status === 'completed',
+    approved_by: null,
+    completed_at: r.status === 'completed' ? r.created_at : null,
+    updated_at: r.created_at,
+  })) as any[] : realRequests;
+  
+  const myRequests = isDemoMode ? [] as any[] : realMyRequests;
+  
+  const history = isDemoMode ? DEMO_ROLE_HISTORY.map(h => ({
+    id: h.id,
+    user_id: h.user_id,
+    project_id: h.project_id,
+    old_role: h.old_role,
+    new_role: h.new_role,
+    change_type: h.change_type,
+    created_at: h.created_at,
+    notes: h.notes,
+    rotation_request_id: null,
+    previous_performance_score: null,
+  })) as any[] : realHistory;
 
   const pendingRequests = allRequests.filter(r => r.status === 'pending');
   const completedRotations = allRequests.filter(r => r.status === 'completed');

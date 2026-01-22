@@ -14,20 +14,38 @@ import { ActivityHeatmap } from '@/components/analytics/ActivityHeatmap';
 import { PredictionsWidget } from '@/components/analytics/PredictionsWidget';
 import { AnalyticsFilters } from '@/components/analytics/AnalyticsFilters';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_MEMBERS, DEMO_PROJECTS } from '@/data/demoData';
 
 interface AnalyticsViewProps {
   onNewOBV?: () => void;
 }
 
 export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
+  const { isDemoMode } = useDemoMode();
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
 
-  const { data: members = [] } = useMemberStats();
-  const { data: projects = [] } = useProjects();
-  const { data: projectStats = [] } = useProjectStats();
+  const { data: realMembers = [] } = useMemberStats();
+  const { data: realProjects = [] } = useProjects();
+  const { data: realProjectStats = [] } = useProjectStats();
+
+  // Use demo data when in demo mode
+  const members = isDemoMode ? DEMO_MEMBERS : realMembers;
+  const projects = isDemoMode ? DEMO_PROJECTS : realProjects;
+  const projectStats = isDemoMode ? DEMO_PROJECTS.map(p => ({
+    id: p.id,
+    nombre: p.nombre,
+    color: p.color,
+    num_members: p.num_members || 0,
+    total_obvs: p.total_obvs || 0,
+    total_leads: p.total_leads || 0,
+    leads_ganados: p.leads_ganados || 0,
+    margen: p.margen || 0,
+    facturacion: p.facturacion || 0,
+  })) : realProjectStats;
 
   const handleExportCSV = (data: unknown[], filename: string) => {
     if (!data.length) return;

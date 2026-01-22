@@ -15,17 +15,50 @@ import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';
 import { RankingTrends } from '@/components/rankings/RankingTrends';
 import { MyRankingCard } from '@/components/rankings/MyRankingCard';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { useDemoMode } from '@/contexts/DemoModeContext';
+import { DEMO_ROLE_RANKINGS, DEMO_MEMBERS, DEMO_PROJECTS, DEMO_PROJECT_MEMBERS } from '@/data/demoData';
 
 export function RankingsView() {
+  const { isDemoMode } = useDemoMode();
   const { profile } = useAuth();
-  const { data: rankings = [], isLoading: loadingRankings } = useRoleRankings();
+  const { data: realRankings = [], isLoading: loadingRankings } = useRoleRankings();
   const { data: performances = [] } = useRolePerformance();
-  const { data: profiles = [] } = useProfiles();
-  const { data: projects = [] } = useProjects();
-  const { data: projectMembers = [] } = useProjectMembers();
+  const { data: realProfiles = [] } = useProfiles();
+  const { data: realProjects = [] } = useProjects();
+  const { data: realProjectMembers = [] } = useProjectMembers();
   
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
+
+  // Use demo data when in demo mode
+  const rankings = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
+    id: r.id,
+    user_id: r.user_id,
+    role_name: r.role_name,
+    project_id: r.project_id,
+    ranking_position: r.ranking_position,
+    previous_position: r.previous_position,
+    score: r.score,
+    period_start: '2026-01-01',
+    period_end: '2026-01-31',
+    calculated_at: '2026-01-21',
+    metrics: null,
+  })) as any[] : realRankings;
+  
+  const profiles = isDemoMode ? DEMO_MEMBERS.map(m => ({
+    id: m.id,
+    nombre: m.nombre,
+    email: m.email,
+    avatar: m.avatar,
+    color: m.color,
+    auth_id: m.id,
+    created_at: null,
+    updated_at: null,
+    especialization: null,
+  })) as any[] : realProfiles;
+  
+  const projects = isDemoMode ? DEMO_PROJECTS as any[] : realProjects;
+  const projectMembers = isDemoMode ? DEMO_PROJECT_MEMBERS as any[] : realProjectMembers;
 
   // Get all unique roles
   const allRoles = useMemo(() => {
@@ -33,10 +66,11 @@ export function RankingsView() {
     return roles.filter(role => ROLE_CONFIG[role]);
   }, [projectMembers]);
 
-  // Get user's rankings
+  // Get user's rankings - in demo mode, show Zarko's rankings
+  const demoUserId = isDemoMode ? '1' : profile?.id;
   const myRankings = useMemo(() => {
-    return rankings.filter(r => r.user_id === profile?.id);
-  }, [rankings, profile?.id]);
+    return rankings.filter(r => r.user_id === demoUserId);
+  }, [rankings, demoUserId]);
 
   // Enrich rankings with profile data
   const enrichedRankings = useMemo(() => {
