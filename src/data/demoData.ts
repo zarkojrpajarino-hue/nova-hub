@@ -178,6 +178,43 @@ export interface DemoPerformance {
   leads_ganados: number;
 }
 
+export interface DemoInsight {
+  id: string;
+  user_id: string;
+  titulo: string;
+  contenido: string;
+  tipo: 'aprendizaje' | 'reflexion' | 'error' | 'exito' | 'idea';
+  tags: string[];
+  is_private: boolean;
+  project_id?: string;
+  role_context?: string;
+  created_at: string;
+}
+
+export interface DemoPlaybook {
+  id: string;
+  user_id: string;
+  role_name: string;
+  version: number;
+  contenido: {
+    sections: Array<{
+      title: string;
+      content: string;
+      tips?: string[];
+    }>;
+  };
+  fortalezas: string[];
+  areas_mejora: string[];
+  objetivos_sugeridos: Array<{
+    objetivo: string;
+    plazo: string;
+    metricas: string[];
+  }>;
+  ai_model: string;
+  is_active: boolean;
+  generated_at: string;
+}
+
 // ============================================
 // MIEMBROS DEMO
 // ============================================
@@ -505,6 +542,230 @@ export const DEMO_PROJECT_MEMBERS = [
 ];
 
 // ============================================
+// INSIGHTS DEMO (Mi Desarrollo)
+// ============================================
+
+export const DEMO_INSIGHTS: DemoInsight[] = [
+  {
+    id: 'ins1',
+    user_id: '1',
+    titulo: 'Automatización con IA mejora conversión en 35%',
+    contenido: 'Al implementar el chatbot con IA en TechNova Solutions, descubrimos que los leads respondían mucho mejor cuando el bot personalizaba las respuestas según el sector del cliente. La tasa de conversión subió del 12% al 35% en el primer mes.',
+    tipo: 'exito',
+    tags: ['ia', 'ventas', 'automatización', 'chatbot'],
+    is_private: false,
+    project_id: 'p4',
+    role_context: 'ai_tech',
+    created_at: '2026-01-20T14:30:00Z'
+  },
+  {
+    id: 'ins2',
+    user_id: '1',
+    titulo: 'Error crítico: No validar datos antes de ML pipeline',
+    contenido: 'Lancé un modelo de predicción de churn sin validar correctamente los datos de entrada. El modelo daba predicciones erróneas porque había outliers no tratados. Lección: siempre incluir paso de data quality antes de entrenar.',
+    tipo: 'error',
+    tags: ['machine-learning', 'data-quality', 'lección'],
+    is_private: false,
+    project_id: 'p4',
+    role_context: 'ai_tech',
+    created_at: '2026-01-18T10:15:00Z'
+  },
+  {
+    id: 'ins3',
+    user_id: '1',
+    titulo: 'Framework MEDDIC para calificar leads B2B',
+    contenido: 'He aprendido a usar el framework MEDDIC (Metrics, Economic Buyer, Decision Criteria, Decision Process, Identify Pain, Champion) para calificar leads enterprise. Ayuda muchísimo a priorizar y no perder tiempo con leads que no van a cerrar.',
+    tipo: 'aprendizaje',
+    tags: ['ventas', 'b2b', 'metodología', 'meddic'],
+    is_private: false,
+    role_context: 'sales',
+    created_at: '2026-01-15T16:45:00Z'
+  },
+  {
+    id: 'ins4',
+    user_id: '1',
+    titulo: 'Reflexión: Equilibrio entre perfeccionismo y velocidad',
+    contenido: 'Me doy cuenta de que a veces paso demasiado tiempo perfeccionando una solución cuando el cliente necesita algo funcional rápido. Debo aplicar más el principio 80/20 y entregar MVPs iterativos.',
+    tipo: 'reflexion',
+    tags: ['productividad', 'mindset', 'mvp'],
+    is_private: true,
+    created_at: '2026-01-12T09:00:00Z'
+  },
+  {
+    id: 'ins5',
+    user_id: '1',
+    titulo: 'Idea: Dashboard predictivo para rotación de roles',
+    contenido: 'Podríamos crear un dashboard que use los datos históricos de rendimiento para sugerir automáticamente cuándo una persona debería rotar de rol. Incluiría métricas como tiempo en rol, curva de aprendizaje y satisfacción.',
+    tipo: 'idea',
+    tags: ['producto', 'analytics', 'rotación', 'predicción'],
+    is_private: false,
+    project_id: 'p4',
+    role_context: 'ai_tech',
+    created_at: '2026-01-10T11:30:00Z'
+  },
+  {
+    id: 'ins6',
+    user_id: '1',
+    titulo: 'Primera venta enterprise cerrada autónomamente',
+    contenido: 'He cerrado mi primera venta de +10K€ sin ayuda del equipo senior. Clave: entender profundamente el dolor del cliente antes de presentar la solución. El proceso tomó 3 reuniones pero valió la pena.',
+    tipo: 'exito',
+    tags: ['ventas', 'enterprise', 'milestone'],
+    is_private: false,
+    project_id: 'p4',
+    role_context: 'sales',
+    created_at: '2026-01-08T17:20:00Z'
+  },
+  {
+    id: 'ins7',
+    user_id: '1',
+    titulo: 'Documentación técnica como herramienta de venta',
+    contenido: 'Crear documentación técnica clara y visual (diagramas de arquitectura, flujos de datos) genera mucha confianza en clientes técnicos. He empezado a incluirla en todas las propuestas B2B.',
+    tipo: 'aprendizaje',
+    tags: ['documentación', 'ventas', 'b2b', 'técnico'],
+    is_private: false,
+    role_context: 'ai_tech',
+    created_at: '2026-01-05T14:00:00Z'
+  },
+];
+
+// ============================================
+// PLAYBOOKS DEMO (Mi Desarrollo)
+// ============================================
+
+export const DEMO_PLAYBOOKS: DemoPlaybook[] = [
+  {
+    id: 'pb1',
+    user_id: '1',
+    role_name: 'ai_tech',
+    version: 3,
+    contenido: {
+      sections: [
+        {
+          title: 'Responsabilidades Clave del AI Tech Lead',
+          content: 'Como AI Tech en TechNova Solutions, tu función principal es liderar el desarrollo e implementación de soluciones basadas en inteligencia artificial. Esto incluye desde el diseño de arquitecturas ML hasta la puesta en producción y monitoreo de modelos.',
+          tips: [
+            'Mantén un backlog técnico priorizado por impacto de negocio',
+            'Documenta todos los experimentos y sus resultados',
+            'Programa revisiones semanales de métricas de modelos en producción'
+          ]
+        },
+        {
+          title: 'Mejores Prácticas Basadas en tu Rendimiento',
+          content: 'Tu tasa de completitud del 92% indica excelente ejecución. Para mantener este nivel, enfócate en la planificación semanal y evita el scope creep en proyectos técnicos.',
+          tips: [
+            'Divide tareas complejas en subtareas de máximo 4 horas',
+            'Usa timeboxing para investigación y experimentación',
+            'Involucra al cliente en demos tempranas para validar dirección'
+          ]
+        },
+        {
+          title: 'Desarrollo de Habilidades Prioritarias',
+          content: 'Basado en el contexto del proyecto y tendencias del mercado, las áreas de desarrollo más relevantes son: MLOps para automatizar pipelines, y comunicación técnica para presentar a stakeholders no técnicos.',
+          tips: [
+            'Dedica 2h semanales a formación en MLOps/DevOps',
+            'Practica explicar conceptos técnicos con analogías simples',
+            'Participa en demos con clientes para ganar exposición'
+          ]
+        }
+      ]
+    },
+    fortalezas: [
+      'Ejecución técnica excelente',
+      'Alta tasa de OBVs validadas',
+      'Capacidad de cerrar proyectos complejos',
+      'Documentación clara'
+    ],
+    areas_mejora: [
+      'Delegación de tareas técnicas',
+      'Estimación de tiempos',
+      'Comunicación proactiva de bloqueos'
+    ],
+    objetivos_sugeridos: [
+      {
+        objetivo: 'Implementar pipeline CI/CD para modelos ML',
+        plazo: '3 semanas',
+        metricas: ['Tiempo de deploy reducido 50%', 'Zero downtime en releases']
+      },
+      {
+        objetivo: 'Mentorizar a 1 junior en técnicas de ML',
+        plazo: '2 meses',
+        metricas: ['Junior completa 2 proyectos autónomos', 'Feedback positivo']
+      },
+      {
+        objetivo: 'Presentar caso de éxito en meetup local',
+        plazo: '1 mes',
+        metricas: ['Presentación realizada', '3 leads generados']
+      }
+    ],
+    ai_model: 'google/gemini-2.5-flash',
+    is_active: true,
+    generated_at: '2026-01-19T10:00:00Z'
+  },
+  {
+    id: 'pb2',
+    user_id: '1',
+    role_name: 'sales',
+    version: 2,
+    contenido: {
+      sections: [
+        {
+          title: 'Estrategia de Ventas B2B Tech',
+          content: 'En ventas de consultoría tecnológica, el ciclo es largo y consultivo. Tu rol es identificar dolor, educar al cliente sobre posibles soluciones, y construir confianza antes de presentar propuesta.',
+          tips: [
+            'Usa framework MEDDIC para calificar leads',
+            'Prepara casos de éxito relevantes para cada industria',
+            'Nunca hables de precio antes de establecer valor'
+          ]
+        },
+        {
+          title: 'Proceso de Venta Consultiva',
+          content: 'Sigue el proceso: Discovery (entender dolor) → Demo (mostrar posibilidad) → Propuesta (valor + precio) → Negociación → Cierre. Cada fase tiene objetivos claros.',
+          tips: [
+            'En discovery, escucha 70% y habla 30%',
+            'Personaliza cada demo al contexto del cliente',
+            'Incluye ROI estimado en todas las propuestas'
+          ]
+        },
+        {
+          title: 'Gestión de Pipeline y Forecast',
+          content: 'Mantén tu pipeline actualizado diariamente. Usa probabilidades realistas: Tibio (20%), Hot (50%), Propuesta (70%), Negociación (90%).',
+          tips: [
+            'Revisa pipeline cada lunes para priorizar semana',
+            'Mueve leads a perdido si no hay respuesta en 3 seguimientos',
+            'Documenta razón de pérdida para mejorar'
+          ]
+        }
+      ]
+    },
+    fortalezas: [
+      'Conocimiento técnico diferenciador',
+      'Capacidad de generar confianza rápido',
+      'Buen ratio de cierre en enterprise'
+    ],
+    areas_mejora: [
+      'Volumen de prospección',
+      'Seguimiento sistemático',
+      'Negociación de precios'
+    ],
+    objetivos_sugeridos: [
+      {
+        objetivo: 'Alcanzar 20 leads activos en pipeline',
+        plazo: '4 semanas',
+        metricas: ['20 leads en CRM', '5 en fase propuesta']
+      },
+      {
+        objetivo: 'Implementar secuencia de seguimiento automatizada',
+        plazo: '2 semanas',
+        metricas: ['Secuencia creada', 'Tasa respuesta +15%']
+      }
+    ],
+    ai_model: 'google/gemini-2.5-flash',
+    is_active: true,
+    generated_at: '2026-01-15T14:30:00Z'
+  }
+];
+
+// ============================================
 // FUNCIÓN HELPER PARA OBTENER DATOS DEMO
 // ============================================
 
@@ -620,6 +881,8 @@ export function getDemoData(section: DemoDataSection) {
         rankings: DEMO_ROLE_RANKINGS.filter(r => r.user_id === '1'),
         masters: DEMO_MASTERS,
         projectMembers: DEMO_PROJECT_MEMBERS.filter(pm => pm.member_id === '1'),
+        insights: DEMO_INSIGHTS.filter(i => i.user_id === '1'),
+        playbooks: DEMO_PLAYBOOKS.filter(p => p.user_id === '1'),
       };
     case 'settings':
       return {
