@@ -5,17 +5,27 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+// Users are seeded WITHOUT passwords in code
+// Passwords should be set via environment/secrets or manual setup
 const NOVA_USERS = [
-  { email: 'zarko@nova.com', password: 'Zarko2026!', nombre: 'ZARKO', color: '#8B5CF6' },
-  { email: 'fernandos@nova.com', password: 'FernandoS2026!', nombre: 'FERNANDO S', color: '#10B981' },
-  { email: 'angel@nova.com', password: 'Angel2026!', nombre: 'ÁNGEL', color: '#F59E0B' },
-  { email: 'miguelangel@nova.com', password: 'MiguelAngel2026!', nombre: 'MIGUEL ÁNGEL', color: '#3B82F6' },
-  { email: 'manuel@nova.com', password: 'Manuel2026!', nombre: 'MANUEL', color: '#EC4899' },
-  { email: 'fernandog@nova.com', password: 'FernandoG2026!', nombre: 'FERNANDO G', color: '#EF4444' },
-  { email: 'carla@nova.com', password: 'Carla2026!', nombre: 'CARLA', color: '#F472B6' },
-  { email: 'diego@nova.com', password: 'Diego2026!', nombre: 'DIEGO', color: '#84CC16' },
-  { email: 'luis@nova.com', password: 'Luis2026!', nombre: 'LUIS', color: '#06B6D4' },
+  { email: 'zarko@nova.com', nombre: 'ZARKO', color: '#8B5CF6' },
+  { email: 'fernandos@nova.com', nombre: 'FERNANDO S', color: '#10B981' },
+  { email: 'angel@nova.com', nombre: 'ÁNGEL', color: '#F59E0B' },
+  { email: 'miguelangel@nova.com', nombre: 'MIGUEL ÁNGEL', color: '#3B82F6' },
+  { email: 'manuel@nova.com', nombre: 'MANUEL', color: '#EC4899' },
+  { email: 'fernandog@nova.com', nombre: 'FERNANDO G', color: '#EF4444' },
+  { email: 'carla@nova.com', nombre: 'CARLA', color: '#F472B6' },
+  { email: 'diego@nova.com', nombre: 'DIEGO', color: '#84CC16' },
+  { email: 'luis@nova.com', nombre: 'LUIS', color: '#06B6D4' },
 ]
+
+// Generate a secure random password
+function generateSecurePassword(): string {
+  const charset = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789!@#$%^&*'
+  const array = new Uint8Array(16)
+  crypto.getRandomValues(array)
+  return Array.from(array, byte => charset[byte % charset.length]).join('')
+}
 
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
@@ -23,6 +33,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Check for admin authorization via internal secret
+    const adminSecret = req.headers.get('x-admin-secret')
+    const expectedSecret = Deno.env.get('SEED_ADMIN_SECRET')
+    
+    // If SEED_ADMIN_SECRET is configured, require it
+    if (expectedSecret && adminSecret !== expectedSecret) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - admin secret required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -32,10 +54,13 @@ Deno.serve(async (req) => {
     const results = []
 
     for (const user of NOVA_USERS) {
-      // Create user in auth
+      // Generate a secure random password for each user
+      const securePassword = generateSecurePassword()
+      
+      // Create user in auth with random password
       const { data: authData, error: authError } = await supabaseAdmin.auth.admin.createUser({
         email: user.email,
-        password: user.password,
+        password: securePassword,
         email_confirm: true,
         user_metadata: { nombre: user.nombre }
       })
@@ -45,7 +70,7 @@ Deno.serve(async (req) => {
         if (authError.message.includes('already been registered')) {
           results.push({ email: user.email, status: 'already exists' })
         } else {
-          results.push({ email: user.email, status: 'error', error: authError.message })
+          results.push({ email: user.email, status: 'error', error: 'Failed to create user' })
         }
         continue
       }
@@ -58,17 +83,27 @@ Deno.serve(async (req) => {
           .eq('auth_id', authData.user.id)
       }
 
-      results.push({ email: user.email, status: 'created' })
+      // Note: In production, send password reset email instead of exposing password
+      // Users should reset their password on first login
+      results.push({ 
+        email: user.email, 
+        status: 'created',
+        note: 'User created with random password. Password reset required.' 
+      })
     }
 
     return new Response(
-      JSON.stringify({ success: true, results }),
+      JSON.stringify({ 
+        success: true, 
+        results,
+        message: 'Users created. Send password reset emails for users to set their passwords.'
+      }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
+    console.error('Seed users error:', error)
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'An error occurred during user seeding' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

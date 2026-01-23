@@ -5,6 +5,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Valid roles for validation
+const VALID_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'leader', 'customer'];
+
 interface PlaybookRequest {
   userId: string;
   roleName: string;
@@ -16,18 +19,77 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { userId, roleName }: PlaybookRequest = await req.json();
-
-    if (!userId || !roleName) {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
-        JSON.stringify({ error: 'userId and roleName are required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user token and get user ID
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
+    
+    if (claimsError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const authUserId = claims.claims.sub;
+
+    const { userId, roleName }: PlaybookRequest = await req.json();
+
+    // Validate inputs
+    if (!userId || typeof userId !== 'string' || userId.length > 36) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid user ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!roleName || !VALID_ROLES.includes(roleName.toLowerCase())) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid role name' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role for data operations
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
+
+    // Verify the requesting user matches the target user or is authorized
+    const { data: requestingProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', authUserId)
+      .single();
+
+    if (!requestingProfile || requestingProfile.id !== userId) {
+      // Check if user is admin (optional additional authorization)
+      const { data: isAdmin } = await supabase.rpc('has_role', { 
+        user_id: requestingProfile?.id, 
+        required_role: 'admin' 
+      });
+      
+      if (!isAdmin) {
+        return new Response(
+          JSON.stringify({ error: 'Unauthorized to generate playbook for this user' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        );
+      }
+    }
 
     // Get user performance data
     const { data: performance, error: perfError } = await supabase
@@ -38,7 +100,7 @@ Deno.serve(async (req) => {
       .maybeSingle();
 
     if (perfError) {
-      console.error('Error fetching performance:', perfError);
+      console.error('Error fetching performance');
     }
 
     // Get user profile
@@ -56,21 +118,31 @@ Deno.serve(async (req) => {
       .order('created_at', { ascending: false })
       .limit(5);
 
-    // Build context for AI
+    // Build context for AI (sanitized)
     const context = {
-      userName: profile?.nombre || 'Usuario',
-      roleName,
+      userName: String(profile?.nombre || 'Usuario').slice(0, 100),
+      roleName: roleName.toLowerCase(),
       specialization: profile?.especialization,
       performance: performance || {
         task_completion_rate: 0,
         validated_obvs: 0,
         lead_conversion_rate: 0,
       },
-      recentInsights: insights || [],
+      recentInsights: (insights || []).slice(0, 5).map(i => ({
+        tipo: String(i.tipo || '').slice(0, 50),
+        titulo: String(i.titulo || '').slice(0, 200)
+      })),
     };
 
     // Call Lovable AI Gateway
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
+    if (!lovableApiKey) {
+      console.error('LOVABLE_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Unable to generate playbook at this time' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
     
     const aiResponse = await fetch('https://ai.lovable.dev/v1/chat/completions', {
       method: 'POST',
@@ -138,9 +210,11 @@ Responde con este JSON exacto:
     });
 
     if (!aiResponse.ok) {
-      const errorText = await aiResponse.text();
-      console.error('AI API error:', errorText);
-      throw new Error('Failed to generate playbook with AI');
+      console.error('AI API error:', aiResponse.status);
+      return new Response(
+        JSON.stringify({ error: 'Unable to generate playbook at this time' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiData = await aiResponse.json();
@@ -156,7 +230,7 @@ Responde con este JSON exacto:
         .trim();
       playbookContent = JSON.parse(cleanedContent);
     } catch (parseError) {
-      console.error('Failed to parse AI response:', aiContent);
+      console.error('Failed to parse AI response');
       // Fallback content
       playbookContent = {
         sections: [
@@ -215,8 +289,11 @@ Responde con este JSON exacto:
       .single();
 
     if (insertError) {
-      console.error('Error inserting playbook:', insertError);
-      throw insertError;
+      console.error('Error inserting playbook');
+      return new Response(
+        JSON.stringify({ error: 'Failed to save playbook' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     return new Response(
@@ -226,9 +303,8 @@ Responde con este JSON exacto:
 
   } catch (error: unknown) {
     console.error('Error in generate-playbook:', error);
-    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: 'Unable to generate playbook at this time' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
