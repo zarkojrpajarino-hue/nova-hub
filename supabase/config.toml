@@ -6,9 +6,6 @@ verify_jwt = false
 [functions.seed-users]
 verify_jwt = false
 
-[functions.generate-tasks]
-verify_jwt = false
-
 [functions.generate-tasks-v2]
 verify_jwt = false
 
