@@ -238,19 +238,8 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
         if (partError) throw partError;
       }
 
-      // Create notifications for other team members to validate
-      const otherMembers = members.filter(m => m.id !== profile.id);
-      const notifications = otherMembers.map(m => ({
-        user_id: m.id,
-        tipo: 'validacion',
-        titulo: 'Nueva OBV para validar',
-        mensaje: `${profile.nombre} ha subido una OBV: "${formData.titulo}"`,
-        link: `/obvs?validate=${newOBV.id}`,
-      }));
-
-      if (notifications.length > 0) {
-        await supabase.from('notifications').insert(notifications);
-      }
+      // Notifications are now handled automatically by database triggers (notify_new_obv)
+      // This ensures proper access control and respects user notification preferences
 
       toast.success('OBV creada correctamente');
       onSuccess();
