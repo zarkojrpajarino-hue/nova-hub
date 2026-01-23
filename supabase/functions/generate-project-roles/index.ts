@@ -21,17 +21,48 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { project_id, onboarding_data } = await req.json()
-
-    if (!project_id) {
-      throw new Error('project_id is required')
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
-    const supabaseAdmin = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
-      { auth: { autoRefreshToken: false, persistSession: false } }
-    )
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
+    
+    if (claimsError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { project_id, onboarding_data } = await req.json()
+
+    // Validate input
+    if (!project_id || typeof project_id !== 'string' || project_id.length > 36) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid project ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role for data operations
+    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
 
     // Get the project
     const { data: project, error: projectError } = await supabaseAdmin
@@ -41,7 +72,10 @@ Deno.serve(async (req) => {
       .single()
 
     if (projectError || !project) {
-      throw new Error('Project not found')
+      return new Response(
+        JSON.stringify({ error: 'Project not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Get project members (just member_ids, not roles yet)
@@ -50,7 +84,13 @@ Deno.serve(async (req) => {
       .select('id, member_id')
       .eq('project_id', project_id)
 
-    if (membersError) throw membersError
+    if (membersError) {
+      console.error('Error fetching members');
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch project members' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     if (!projectMembers || projectMembers.length === 0) {
       return new Response(
@@ -66,7 +106,13 @@ Deno.serve(async (req) => {
       .select('id, email, nombre')
       .in('id', memberIds)
 
-    if (profilesError) throw profilesError
+    if (profilesError) {
+      console.error('Error fetching profiles');
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch profiles' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     // Get all current role assignments for these members (across all projects)
     const { data: allRoleAssignments, error: rolesError } = await supabaseAdmin
@@ -80,7 +126,9 @@ Deno.serve(async (req) => {
       .in('member_id', memberIds)
       .neq('project_id', project_id) // Exclude current project
 
-    if (rolesError) throw rolesError
+    if (rolesError) {
+      console.error('Error fetching role assignments');
+    }
 
     // Build member history
     const memberHistory: MemberRoleHistory[] = profiles?.map(profile => ({
@@ -142,10 +190,9 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Generate roles error:', message)
+    console.error('Generate roles error:', error)
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'Failed to generate roles' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

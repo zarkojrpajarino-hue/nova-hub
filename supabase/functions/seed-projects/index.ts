@@ -62,6 +62,18 @@ Deno.serve(async (req) => {
   }
 
   try {
+    // Check for admin authorization via internal secret
+    const adminSecret = req.headers.get('x-admin-secret')
+    const expectedSecret = Deno.env.get('SEED_ADMIN_SECRET')
+    
+    // If SEED_ADMIN_SECRET is configured, require it
+    if (expectedSecret && adminSecret !== expectedSecret) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized - admin secret required' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      )
+    }
+
     const supabaseAdmin = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
@@ -75,7 +87,13 @@ Deno.serve(async (req) => {
       .from('profiles')
       .select('id, email')
     
-    if (profilesError) throw profilesError
+    if (profilesError) {
+      console.error('Error fetching profiles');
+      return new Response(
+        JSON.stringify({ error: 'Failed to fetch profiles' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
     const profileByEmail = new Map(profiles?.map(p => [p.email.toLowerCase(), p.id]) || [])
 
@@ -106,7 +124,7 @@ Deno.serve(async (req) => {
         .single()
 
       if (error) {
-        results.projects.push({ nombre: project.nombre, status: 'error', error: error.message })
+        results.projects.push({ nombre: project.nombre, status: 'error' })
       } else {
         results.projects.push({ nombre: project.nombre, status: 'created', id: newProject.id })
       }
@@ -156,7 +174,7 @@ Deno.serve(async (req) => {
           })
 
         if (error) {
-          results.members.push({ project: pm.project, email: member.email, status: 'error', error: error.message })
+          results.members.push({ project: pm.project, email: member.email, status: 'error' })
         } else {
           results.members.push({ project: pm.project, email: member.email, status: 'added (pending role assignment)' })
         }
@@ -168,10 +186,9 @@ Deno.serve(async (req) => {
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error'
-    console.error('Seed projects error:', message)
+    console.error('Seed projects error:', error)
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'Failed to seed projects' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }

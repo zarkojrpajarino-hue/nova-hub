@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -25,14 +26,75 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      // Return fallback questions
+      return new Response(
+        JSON.stringify({ 
+          questions: [
+            {
+              pregunta: "¿Qué fue lo más desafiante de esta tarea?",
+              tipo: "texto",
+              placeholder: "Describe el principal obstáculo que encontraste..."
+            },
+            {
+              pregunta: "¿Qué recursos o apoyo te hubieran ayudado?",
+              tipo: "texto",
+              placeholder: "Herramientas, información, contactos..."
+            }
+          ]
+        }),
+        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const { task } = await req.json() as { task: TaskContext };
 
-    console.log('Generating completion questions for task:', task.titulo);
+    // Validate input
+    if (!task || typeof task !== 'object') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid task data' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const taskTitle = String(task.titulo || '').slice(0, 200);
+    if (!taskTitle) {
+      return new Response(
+        JSON.stringify({ error: 'Task title is required' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    console.log('Generating completion questions for task:', taskTitle);
 
     const systemPrompt = `Eres un coach de startups experto. Tu tarea es generar 2-3 preguntas de reflexión personalizadas para cuando un miembro del equipo completa una tarea.
 
@@ -53,13 +115,16 @@ Responde ÚNICAMENTE con un JSON válido con el formato:
   ]
 }`;
 
+    const taskDescription = String(task.descripcion || 'Sin descripción').slice(0, 500);
+    const metadata = task.metadata || {};
+    
     const userPrompt = `Tarea completada:
-Título: ${task.titulo}
-Descripción: ${task.descripcion || 'Sin descripción'}
+Título: ${taskTitle}
+Descripción: ${taskDescription}
 
-${task.metadata ? `Contexto adicional:
-- Tipo de tarea: ${(task.metadata as Record<string, unknown>).tipo_tarea || 'general'}
-- Resultado esperado: ${(task.metadata as Record<string, unknown>).resultado_esperado || 'No especificado'}
+${metadata ? `Contexto adicional:
+- Tipo de tarea: ${String((metadata as Record<string, unknown>).tipo_tarea || 'general').slice(0, 100)}
+- Resultado esperado: ${String((metadata as Record<string, unknown>).resultado_esperado || 'No especificado').slice(0, 300)}
 ` : ''}
 
 Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
@@ -81,8 +146,7 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
+      console.error("AI gateway error:", response.status);
       
       // Return fallback questions
       return new Response(
@@ -117,7 +181,7 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
         questions = parsed.questions || [];
       }
     } catch (parseErr) {
-      console.error('Error parsing AI response:', parseErr);
+      console.error('Error parsing AI response');
       // Use fallback questions
       questions = [
         {
@@ -139,7 +203,7 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
     console.error("Error generating questions:", error);
     return new Response(
       JSON.stringify({ 
-        error: error instanceof Error ? error.message : "Error desconocido",
+        error: "Unable to generate questions at this time",
         questions: []
       }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }

@@ -1,4 +1,5 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,18 +20,62 @@ serve(async (req) => {
   }
 
   try {
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
+    
+    if (claimsError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) {
-      throw new Error("LOVABLE_API_KEY is not configured");
+      console.error("LOVABLE_API_KEY is not configured");
+      return new Response(
+        JSON.stringify({ error: "Unable to generate questions at this time" }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const { role } = await req.json() as { role: RoleContext };
 
-    console.log('Generating questions for role:', role.roleLabel);
+    // Validate input
+    if (!role || typeof role !== 'object') {
+      return new Response(
+        JSON.stringify({ error: 'Invalid role data' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
 
-    // Build members context
-    const membersContext = role.members.length > 0
-      ? role.members.map(m => `- ${m.nombre} (Proyecto: ${m.projectName})`).join('\n')
+    const roleLabel = String(role.roleLabel || '').slice(0, 100);
+    const roleDescription = String(role.roleDescription || '').slice(0, 500);
+
+    console.log('Generating questions for role:', roleLabel);
+
+    // Build members context (sanitized)
+    const membersContext = (role.members || []).length > 0
+      ? (role.members || []).slice(0, 10).map(m => 
+          `- ${String(m.nombre || '').slice(0, 100)} (Proyecto: ${String(m.projectName || '').slice(0, 100)})`
+        ).join('\n')
       : 'Sin miembros asignados a este rol actualmente';
 
     const systemPrompt = `Eres un facilitador experto en reuniones de equipos de innovación y startups. 
@@ -45,14 +90,14 @@ Las preguntas deben:
 
 Responde ÚNICAMENTE con un array JSON válido, sin texto adicional.`;
 
-    const userPrompt = `ROL: ${role.roleLabel}
-DESCRIPCIÓN: ${role.roleDescription}
+    const userPrompt = `ROL: ${roleLabel}
+DESCRIPCIÓN: ${roleDescription}
 
 MIEMBROS CON ESTE ROL:
 ${membersContext}
 
 Genera exactamente 5 preguntas poderosas para la próxima reunión de rol.
-Las preguntas deben ser específicas para el rol "${role.roleLabel}" y ayudar a compartir aprendizajes entre proyectos.
+Las preguntas deben ser específicas para el rol "${roleLabel}" y ayudar a compartir aprendizajes entre proyectos.
 
 Formato JSON (array):
 [
@@ -110,20 +155,22 @@ Formato JSON (array):
       if (response.status === 429) {
         console.error("Rate limit exceeded");
         return new Response(
-          JSON.stringify({ error: "Límite de solicitudes excedido. Inténtalo de nuevo en unos minutos." }),
+          JSON.stringify({ error: "Too many requests. Please try again later." }),
           { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
       if (response.status === 402) {
         console.error("Payment required");
         return new Response(
-          JSON.stringify({ error: "Créditos de IA agotados. Contacta al administrador." }),
-          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          JSON.stringify({ error: "Unable to generate questions at this time." }),
+          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
         );
       }
-      const errorText = await response.text();
-      console.error("AI gateway error:", response.status, errorText);
-      throw new Error(`AI gateway error: ${response.status}`);
+      console.error("AI gateway error:", response.status);
+      return new Response(
+        JSON.stringify({ error: "Unable to generate questions at this time." }),
+        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      );
     }
 
     const aiResponse = await response.json();
@@ -138,7 +185,7 @@ Formato JSON (array):
         const parsed = JSON.parse(toolCall.function.arguments);
         questions = parsed.questions || [];
       } catch (e) {
-        console.error('Error parsing tool call arguments:', e);
+        console.error('Error parsing tool call arguments');
       }
     }
 
@@ -151,7 +198,7 @@ Formato JSON (array):
           questions = JSON.parse(jsonMatch[0]);
         }
       } catch (e) {
-        console.error('Error parsing content fallback:', e);
+        console.error('Error parsing content fallback');
       }
     }
 
@@ -165,7 +212,7 @@ Formato JSON (array):
   } catch (error) {
     console.error("Error generating questions:", error);
     return new Response(
-      JSON.stringify({ error: error instanceof Error ? error.message : "Error desconocido" }),
+      JSON.stringify({ error: "Unable to generate questions at this time." }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

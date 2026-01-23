@@ -23,13 +23,44 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { projectId } = await req.json();
-    
-    if (!projectId) {
-      throw new Error('projectId is required');
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
+    
+    if (claimsError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { projectId } = await req.json();
+    
+    // Validate input
+    if (!projectId || typeof projectId !== 'string' || projectId.length > 36) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid project ID' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Use service role for data operations
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
@@ -43,7 +74,10 @@ Deno.serve(async (req) => {
       .single();
 
     if (projectError || !project) {
-      throw new Error('Project not found');
+      return new Response(
+        JSON.stringify({ error: 'Project not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // 2. Get team members with profiles
@@ -58,7 +92,10 @@ Deno.serve(async (req) => {
       .eq('project_id', projectId);
 
     if (teamError || !teamMembers || teamMembers.length === 0) {
-      throw new Error('No team members found');
+      return new Response(
+        JSON.stringify({ error: 'No team members found' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // 3. Get metrics for each member
@@ -114,7 +151,11 @@ Deno.serve(async (req) => {
     // 6. Call AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+      console.error('LOVABLE_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Unable to generate tasks at this time' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('Calling AI with context for', teamWithMetrics.length, 'members');
@@ -137,16 +178,21 @@ Deno.serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', errorText);
-      throw new Error(`AI API error: ${response.status}`);
+      console.error('AI API error:', response.status);
+      return new Response(
+        JSON.stringify({ error: 'Unable to generate tasks at this time' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiData = await response.json();
     const content = aiData.choices?.[0]?.message?.content;
 
     if (!content) {
-      throw new Error('No content from AI');
+      return new Response(
+        JSON.stringify({ error: 'No response from AI' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     console.log('AI response received, parsing...');
@@ -157,8 +203,11 @@ Deno.serve(async (req) => {
     try {
       parsed = JSON.parse(cleanContent);
     } catch (e) {
-      console.error('Parse error:', e, 'Content:', cleanContent.substring(0, 500));
-      throw new Error('Failed to parse AI response');
+      console.error('Parse error, content preview:', cleanContent.substring(0, 200));
+      return new Response(
+        JSON.stringify({ error: 'Failed to parse AI response' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const generatedTasks = parsed.tasks || [];
@@ -186,8 +235,8 @@ Deno.serve(async (req) => {
         .insert({
           project_id: projectId,
           assignee_id: member.id,
-          titulo: task.titulo,
-          descripcion: task.descripcion_corta,
+          titulo: String(task.titulo || '').slice(0, 200),
+          descripcion: String(task.descripcion_corta || '').slice(0, 1000),
           prioridad: task.prioridad || 2,
           fecha_limite: task.fecha_limite || fechaLimite.toISOString().split('T')[0],
           playbook: task.playbook || null,
@@ -207,7 +256,7 @@ Deno.serve(async (req) => {
         .single();
 
       if (insertError) {
-        console.error('Error inserting task:', insertError);
+        console.error('Error inserting task');
       } else {
         savedTasks.push(newTask);
       }
@@ -226,10 +275,9 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Error:', message);
+    console.error('Error in generate-tasks-v2:', error);
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'Unable to generate tasks at this time' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -317,17 +365,17 @@ function buildContext(project: any, team: any[], obvs: any[], leads: any[], task
   
   return {
     project: {
-      nombre: project.nombre,
-      descripcion: project.descripcion || '',
+      nombre: String(project.nombre || '').slice(0, 200),
+      descripcion: String(project.descripcion || '').slice(0, 500),
       fase: project.fase || 'validacion',
       tipo: project.tipo || 'validacion',
     },
     onboarding: {
-      problema: onboarding.problema || onboarding.problema_resuelve || 'No definido',
-      cliente_objetivo: onboarding.cliente_objetivo || 'No definido',
-      solucion: onboarding.solucion_propuesta || onboarding.solucion || 'No definida',
-      hipotesis: Array.isArray(onboarding.hipotesis) ? onboarding.hipotesis.join(', ') : 'No definidas',
-      metricas: onboarding.metricas_exito || 'No definidas',
+      problema: String(onboarding.problema || onboarding.problema_resuelve || 'No definido').slice(0, 500),
+      cliente_objetivo: String(onboarding.cliente_objetivo || 'No definido').slice(0, 500),
+      solucion: String(onboarding.solucion_propuesta || onboarding.solucion || 'No definida').slice(0, 500),
+      hipotesis: Array.isArray(onboarding.hipotesis) ? onboarding.hipotesis.slice(0, 5).join(', ') : 'No definidas',
+      metricas: String(onboarding.metricas_exito || 'No definidas').slice(0, 300),
     },
     team,
     metrics: {
@@ -340,8 +388,12 @@ function buildContext(project: any, team: any[], obvs: any[], leads: any[], task
       tareas_completadas: tasks.filter(t => t.status === 'done').length,
     },
     history: {
-      ultimas_obvs: obvs.slice(0, 5).map(o => ({ tipo: o.tipo, titulo: o.titulo })),
-      ultimos_leads: leads.slice(0, 5).map(l => ({ nombre: l.nombre, empresa: l.empresa, status: l.status })),
+      ultimas_obvs: obvs.slice(0, 5).map(o => ({ tipo: o.tipo, titulo: String(o.titulo || '').slice(0, 100) })),
+      ultimos_leads: leads.slice(0, 5).map(l => ({ 
+        nombre: String(l.nombre || '').slice(0, 50), 
+        empresa: String(l.empresa || '').slice(0, 50), 
+        status: l.status 
+      })),
     },
   };
 }
