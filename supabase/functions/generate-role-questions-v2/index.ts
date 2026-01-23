@@ -5,6 +5,9 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Valid roles for validation
+const VALID_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'leader', 'customer'];
+
 const ROLE_INFO: Record<string, { label: string; description: string; kpis: string[] }> = {
   sales: { 
     label: 'Customer (Ventas)', 
@@ -48,23 +51,67 @@ const ROLE_INFO: Record<string, { label: string; description: string; kpis: stri
   },
 };
 
+// Sanitize text input to prevent prompt injection
+function sanitizeText(input: unknown, maxLength: number): string {
+  return String(input || '')
+    .slice(0, maxLength)
+    .replace(/[<>]/g, '')
+    .replace(/\n{3,}/g, '\n\n');
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    const { role, meetingType = 'semanal', duracionMinutos = 30 } = await req.json();
-    
-    if (!role) {
-      throw new Error('role is required');
+    // Verify authentication
+    const authHeader = req.headers.get('Authorization');
+    if (!authHeader?.startsWith('Bearer ')) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    
+    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
+      global: { headers: { Authorization: authHeader } }
+    });
+
+    // Verify the user token
+    const token = authHeader.replace('Bearer ', '');
+    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
+    
+    if (claimsError || !claims?.claims) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized' }),
+        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { role, meetingType = 'semanal', duracionMinutos = 30 } = await req.json();
+    
+    // Validate role input
+    const roleName = String(role || '').toLowerCase().slice(0, 50);
+    if (!roleName || !VALID_ROLES.includes(roleName)) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid role specified' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Validate other inputs
+    const sanitizedMeetingType = sanitizeText(meetingType, 50);
+    const sanitizedDuration = Math.min(Math.max(Number(duracionMinutos) || 30, 15), 180);
+
+    // Use service role for data queries
     const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseKey);
 
-    console.log('Generating questions for role:', role);
+    console.log('Generating questions for role:', roleName);
 
     // Get all members with this role
     const { data: members, error: membersError } = await supabase
@@ -76,10 +123,14 @@ Deno.serve(async (req) => {
         projects!inner(nombre, fase),
         profiles!inner(id, nombre)
       `)
-      .eq('role', role);
+      .eq('role', roleName);
 
     if (membersError) {
-      throw membersError;
+      console.error('Error fetching members');
+      return new Response(
+        JSON.stringify({ error: 'Unable to fetch role members' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     if (!members || members.length === 0) {
@@ -89,9 +140,9 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Get context for each member
+    // Get context for each member (limit to first 10)
     const membersWithContext = await Promise.all(
-      members.map(async (m) => {
+      members.slice(0, 10).map(async (m) => {
         const memberId = m.member_id;
         
         // Recent tasks
@@ -139,27 +190,34 @@ Deno.serve(async (req) => {
 
         return {
           id: memberId,
-          nombre: (m.profiles as any).nombre,
-          project_nombre: (m.projects as any).nombre,
-          project_fase: (m.projects as any).fase,
+          nombre: sanitizeText((m.profiles as any).nombre, 100),
+          project_nombre: sanitizeText((m.projects as any).nombre, 100),
+          project_fase: sanitizeText((m.projects as any).fase, 50),
           tareas_completadas_semana: completedThisWeek || 0,
           tareas_pendientes: pendingTasks || 0,
           obvs_mes: obvsThisMonth || 0,
-          ultimas_tareas: (tasks || []).map(t => ({
-            titulo: t.titulo,
+          ultimas_tareas: (tasks || []).slice(0, 5).map(t => ({
+            titulo: sanitizeText(t.titulo, 100),
             completada: t.status === 'done',
           })),
-          insights: insights || [],
+          insights: (insights || []).slice(0, 3).map(i => ({
+            tipo: sanitizeText(i.tipo, 50),
+            titulo: sanitizeText(i.titulo, 100),
+          })),
         };
       })
     );
 
-    const roleInfo = ROLE_INFO[role] || ROLE_INFO.operations;
+    const roleInfo = ROLE_INFO[roleName] || ROLE_INFO.operations;
 
     // Call AI
     const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
     if (!LOVABLE_API_KEY) {
-      throw new Error('LOVABLE_API_KEY not configured');
+      console.error('LOVABLE_API_KEY not configured');
+      return new Response(
+        JSON.stringify({ error: 'Unable to generate questions at this time' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const response = await fetch('https://ai.lovable.dev/v1/chat/completions', {
@@ -172,7 +230,7 @@ Deno.serve(async (req) => {
         model: 'google/gemini-2.5-flash',
         messages: [
           { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildPrompt(roleInfo, membersWithContext, meetingType, duracionMinutos) },
+          { role: 'user', content: buildPrompt(roleInfo, membersWithContext, sanitizedMeetingType, sanitizedDuration) },
         ],
         temperature: 0.7,
         max_tokens: 6000,
@@ -180,16 +238,21 @@ Deno.serve(async (req) => {
     });
 
     if (!response.ok) {
-      const errorText = await response.text();
-      console.error('AI API error:', errorText);
-      throw new Error(`AI API error: ${response.status}`);
+      console.error('AI API error:', response.status);
+      return new Response(
+        JSON.stringify({ error: 'Unable to generate questions at this time' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     const aiData = await response.json();
     const content = aiData.choices?.[0]?.message?.content;
 
     if (!content) {
-      throw new Error('No content from AI');
+      return new Response(
+        JSON.stringify({ error: 'No response from AI' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     // Parse response
@@ -198,8 +261,11 @@ Deno.serve(async (req) => {
     try {
       parsed = JSON.parse(cleanContent);
     } catch (e) {
-      console.error('Parse error:', e);
-      throw new Error('Failed to parse AI response');
+      console.error('Parse error');
+      return new Response(
+        JSON.stringify({ error: 'Failed to process AI response' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
     }
 
     return new Response(
@@ -214,10 +280,9 @@ Deno.serve(async (req) => {
     );
 
   } catch (error: unknown) {
-    const message = error instanceof Error ? error.message : 'Unknown error';
-    console.error('Error:', message);
+    console.error('Error in generate-role-questions-v2:', error);
     return new Response(
-      JSON.stringify({ error: message }),
+      JSON.stringify({ error: 'Unable to generate questions at this time' }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }

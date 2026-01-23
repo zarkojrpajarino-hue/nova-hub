@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { mapDatabaseError, logError } from '@/lib/errorMapper';
 
 export interface RoleRotationRequest {
   id: string;
@@ -211,7 +212,8 @@ export function useCreateRotationRequest() {
       toast.success('Solicitud de rotación creada');
     },
     onError: (error) => {
-      toast.error(`Error: ${error.message}`);
+      logError('useCreateRotationRequest', error);
+      toast.error(mapDatabaseError(error, 'rotation'));
     },
   });
 }
@@ -265,7 +267,8 @@ export function useRespondToRotation() {
       }
     },
     onError: (error) => {
-      toast.error(`Error: ${error.message}`);
+      logError('useRespondToRotation', error);
+      toast.error(mapDatabaseError(error, 'rotation'));
     },
   });
 }
@@ -289,7 +292,8 @@ export function useCancelRotationRequest() {
       toast.success('Solicitud cancelada');
     },
     onError: (error) => {
-      toast.error(`Error: ${error.message}`);
+      logError('useCancelRotationRequest', error);
+      toast.error(mapDatabaseError(error, 'rotation'));
     },
   });
 }

@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { toast } from 'sonner';
 import { Loader2, Mail, Lock } from 'lucide-react';
 import { z } from 'zod';
+import { mapAuthError, logError } from '@/lib/errorMapper';
 
 const emailSchema = z.string().email('Email inválido');
 const passwordSchema = z.string().min(6, 'Mínimo 6 caracteres');
@@ -54,11 +55,8 @@ export default function Auth() {
         password,
       });
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
-          toast.error('Email o contraseña incorrectos');
-        } else {
-          toast.error(error.message);
-        }
+        logError('Auth.signIn', error);
+        toast.error(mapAuthError(error));
       } else {
         toast.success('¡Bienvenido de vuelta!');
       }
