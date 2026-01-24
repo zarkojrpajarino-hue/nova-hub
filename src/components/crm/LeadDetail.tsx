@@ -36,6 +36,26 @@ interface Lead {
   updated_at: string;
 }
 
+interface LeadHistory {
+  id: string;
+  lead_id: string;
+  old_status: string;
+  new_status: string;
+  changed_by: string | null;
+  notas: string | null;
+  created_at: string;
+  changer_nombre?: string;
+}
+
+interface LinkedOBV {
+  id: string;
+  titulo: string;
+  tipo: string;
+  status: string;
+  facturacion: number | null;
+  created_at: string;
+}
+
 interface LeadDetailProps {
   lead: Lead | null;
   open: boolean;
@@ -420,7 +440,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
               </div>
             ) : (
               <div className="space-y-3">
-                {history.map((h: any) => {
+                {history.map((h: LeadHistory) => {
                   const oldStage = PIPELINE_STAGES.find(s => s.id === h.old_status);
                   const newStage = PIPELINE_STAGES.find(s => s.id === h.new_status);
                   
@@ -477,7 +497,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
               </div>
             ) : (
               <div className="space-y-3">
-                {linkedOBVs.map((obv: any) => (
+                {linkedOBVs.map((obv: LinkedOBV) => (
                   <div key={obv.id} className="p-3 bg-card border border-border rounded-xl">
                     <div className="flex items-start justify-between">
                       <div>

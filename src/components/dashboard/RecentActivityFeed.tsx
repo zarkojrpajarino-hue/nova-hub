@@ -6,6 +6,16 @@ import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+interface ActivityMetadata {
+  titulo?: string;
+  facturacion?: number;
+  tipo?: string;
+  type?: string;
+  nombre?: string;
+  proyecto_nombre?: string;
+  [key: string]: unknown;
+}
+
 interface ActivityItem {
   id: string;
   action: string;
@@ -13,7 +23,7 @@ interface ActivityItem {
   entity_id: string;
   user_id: string;
   created_at: string;
-  metadata: Record<string, any>;
+  metadata: ActivityMetadata;
   user_nombre?: string;
   user_color?: string;
 }
@@ -52,7 +62,7 @@ export function RecentActivityFeed() {
   const enrichedActivities: ActivityItem[] = activities.map(activity => {
     const user = profiles.find(p => p.id === activity.user_id);
     const meta = typeof activity.metadata === 'object' && activity.metadata && !Array.isArray(activity.metadata)
-      ? activity.metadata as Record<string, any>
+      ? activity.metadata as ActivityMetadata
       : {};
     return {
       ...activity,

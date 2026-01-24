@@ -21,6 +21,15 @@ interface GeneratedTask {
   hasPlaybook?: boolean;
 }
 
+interface SavedTask {
+  assignee_id: string | null;
+  titulo: string;
+  descripcion: string | null;
+  prioridad: number | null;
+  fecha_limite: string | null;
+  playbook?: string | null;
+}
+
 interface ProjectContext {
   id: string;
   nombre: string;
@@ -116,7 +125,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
       }
 
       // Transform saved tasks to display format
-      const displayTasks = savedTasks.map((t: any) => ({
+      const displayTasks = savedTasks.map((t: SavedTask) => ({
         assignee: t.assignee_id ? (project.team.find(m => m.id === t.assignee_id)?.nombre || 'Sin asignar') : 'Sin asignar',
         titulo: t.titulo,
         descripcion: t.descripcion || '',

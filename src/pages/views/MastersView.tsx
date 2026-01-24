@@ -259,7 +259,7 @@ export function MastersView() {
               </Card>
             ) : (
               <div className="space-y-6">
-                {Object.entries(mastersByRole).map(([roleName, roleMasters]: [string, any[]]) => {
+                {Object.entries(mastersByRole).map(([roleName, roleMasters]: [string, EnrichedMaster[]]) => {
                   const roleConfig = ROLE_CONFIG[roleName];
                   const RoleIcon = roleConfig?.icon || Crown;
 

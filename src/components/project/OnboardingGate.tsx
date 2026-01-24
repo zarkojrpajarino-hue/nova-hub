@@ -6,17 +6,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
+import type { Project } from '@/hooks/useNovaData';
 
 interface OnboardingGateProps {
-  project: {
-    id: string;
-    nombre: string;
-    tipo: string;
-    color: string;
-    icon: string;
-    onboarding_completed: boolean;
-    onboarding_data?: any;
-  };
+  project: Project;
 }
 
 export function OnboardingGate({ project }: OnboardingGateProps) {

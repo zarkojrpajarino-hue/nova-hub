@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { 
-  Loader2, CheckCircle2, Circle, Calendar, Filter, 
-  ChevronRight, Flag, AlertCircle 
+import {
+  Loader2, CheckCircle2, Circle, Calendar, Filter,
+  ChevronRight, Flag, AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
+import type { Database } from '@/integrations/supabase/types';
 
 interface TaskWithProject {
   id: string;
@@ -96,8 +97,8 @@ export function MyTasksList() {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ 
-          status: 'done' as any,
+        .update({
+          status: 'done' as Database['public']['Enums']['task_status'],
           completed_at: new Date().toISOString(),
         })
         .eq('id', taskId);
@@ -190,7 +191,7 @@ export function MyTasksList() {
     <div className="space-y-4">
       {/* Filters */}
       <div className="flex items-center gap-3">
-        <Select value={filterType} onValueChange={(v: any) => setFilterType(v)}>
+        <Select value={filterType} onValueChange={(v: 'today' | 'pending' | 'all') => setFilterType(v)}>
           <SelectTrigger className="w-[140px]">
             <SelectValue />
           </SelectTrigger>
