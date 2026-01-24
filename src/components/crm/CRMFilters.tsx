@@ -6,17 +6,19 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { PIPELINE_STAGES } from './LeadForm';
 
+export interface CRMFilters {
+  project: string;
+  responsable: string;
+  status: string;
+  minValue: string;
+  maxValue: string;
+}
+
 interface CRMFiltersProps {
   projects: Array<{ id: string; nombre: string; icon: string }>;
   members: Array<{ id: string; nombre: string; color: string }>;
-  filters: {
-    project: string;
-    responsable: string;
-    status: string;
-    minValue: string;
-    maxValue: string;
-  };
-  onFiltersChange: (filters: any) => void;
+  filters: CRMFilters;
+  onFiltersChange: (filters: CRMFilters) => void;
 }
 
 export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMFiltersProps) {

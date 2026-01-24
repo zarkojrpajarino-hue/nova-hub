@@ -62,6 +62,14 @@ export interface MemberStats {
   margen: number;
 }
 
+export interface ProjectStat {
+  id: string;
+  facturacion?: number;
+  margen?: number;
+  total_obvs?: number;
+  leads_ganados?: number;
+}
+
 export interface Objective {
   id: string;
   name: string;

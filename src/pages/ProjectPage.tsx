@@ -1,12 +1,12 @@
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { 
-  ArrowLeft, LayoutDashboard, Users, Kanban, FileCheck, 
+import {
+  ArrowLeft, LayoutDashboard, Users, Kanban, FileCheck,
   TrendingUp, Rocket, Target, Loader2, Settings
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProjects, useProjectMembers, useMemberStats, useProjectStats, usePipelineGlobal } from '@/hooks/useNovaData';
+import { useProjects, useProjectMembers, useMemberStats, useProjectStats, usePipelineGlobal, type ProjectStat } from '@/hooks/useNovaData';
 import { useAuth } from '@/hooks/useAuth';
 import { ProjectDashboardTab } from '@/components/project/ProjectDashboardTab';
 import { ProjectTeamTab } from '@/components/project/ProjectTeamTab';
@@ -41,7 +41,7 @@ export default function ProjectPage() {
   const { data: allLeads = [] } = usePipelineGlobal();
 
   const project = projects.find(p => p.id === projectId);
-  const stats = projectStats.find((s: any) => s.id === projectId);
+  const stats = projectStats.find((s: ProjectStat) => s.id === projectId);
   
   // Get project members with their info
   const teamMembers = useMemo(() => {

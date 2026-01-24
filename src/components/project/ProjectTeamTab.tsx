@@ -1,18 +1,28 @@
 import { Users, Crown } from 'lucide-react';
 import { ROLE_CONFIG } from '@/data/mockData';
+import type { Project } from '@/hooks/useNovaData';
+
+interface TeamMemberDisplay {
+  id: string;
+  nombre: string;
+  role: string;
+  color?: string;
+  isLead?: boolean;
+  email?: string;
+}
 
 interface ProjectTeamTabProps {
-  project: any;
-  teamMembers: any[];
+  project: Project;
+  teamMembers: TeamMemberDisplay[];
 }
 
 export function ProjectTeamTab({ project, teamMembers }: ProjectTeamTabProps) {
   // Group by role
-  const membersByRole = teamMembers.reduce((acc: any, member: any) => {
+  const membersByRole = teamMembers.reduce((acc: Record<string, TeamMemberDisplay[]>, member: TeamMemberDisplay) => {
     if (!acc[member.role]) acc[member.role] = [];
     acc[member.role].push(member);
     return acc;
-  }, {});
+  }, {} as Record<string, TeamMemberDisplay[]>);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -24,9 +34,9 @@ export function ProjectTeamTab({ project, teamMembers }: ProjectTeamTabProps) {
 
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            {teamMembers.map((member: any) => {
+            {teamMembers.map((member: TeamMemberDisplay) => {
               const roleConfig = ROLE_CONFIG[member.role];
-              
+
               return (
                 <div 
                   key={member.id}

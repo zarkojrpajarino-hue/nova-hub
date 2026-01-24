@@ -224,7 +224,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             />
             <div className="mt-6">
               <CRMPipeline
-                leads={filteredLeads as any[]}
+                leads={filteredLeads}
                 projects={projectsData}
                 members={membersData}
                 isLoading={false}
@@ -241,7 +241,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             />
             <div className="mt-6">
               <CRMPipeline
-                leads={filteredLeads as any[]}
+                leads={filteredLeads}
                 projects={projectsData}
                 members={membersData}
                 isLoading={false}

@@ -1,9 +1,15 @@
 import { TrendingUp, Wallet, PieChart, BarChart3 } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
+import type { Project } from '@/hooks/useNovaData';
+
+interface ProjectFinancialStats {
+  facturacion?: number;
+  margen?: number;
+}
 
 interface ProjectFinancialTabProps {
-  project: any;
-  stats: any;
+  project: Project;
+  stats: ProjectFinancialStats;
 }
 
 export function ProjectFinancialTab({ project, stats }: ProjectFinancialTabProps) {

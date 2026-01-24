@@ -1,11 +1,27 @@
 import { FileCheck, TrendingUp, Target, Users, Wallet } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
 import { ROLE_CONFIG } from '@/data/mockData';
+import type { Project } from '@/hooks/useNovaData';
+
+interface ProjectStats {
+  facturacion?: number;
+  margen?: number;
+  total_obvs?: number;
+  leads_ganados?: number;
+}
+
+interface TeamMemberDisplay {
+  id: string;
+  nombre: string;
+  role: string;
+  color?: string;
+  isLead?: boolean;
+}
 
 interface ProjectDashboardTabProps {
-  project: any;
-  stats: any;
-  teamMembers: any[];
+  project: Project;
+  stats: ProjectStats;
+  teamMembers: TeamMemberDisplay[];
   leadsCount: number;
 }
 
@@ -68,7 +84,7 @@ export function ProjectDashboardTab({ project, stats, teamMembers, leadsCount }:
             Equipo
           </h3>
           <div className="space-y-3">
-            {teamMembers.map((member: any) => {
+            {teamMembers.map((member: TeamMemberDisplay) => {
               const roleConfig = ROLE_CONFIG[member.role];
               return (
                 <div key={member.id} className="flex items-center gap-3 p-3 bg-background rounded-xl">

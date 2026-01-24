@@ -316,7 +316,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
             )}
 
             {/* Todos los pagos pendientes */}
-            <PendingPaymentsCard payments={pendingPayments as any} />
+            <PendingPaymentsCard payments={pendingPayments} />
           </TabsContent>
 
           <TabsContent value="proyecciones" className="space-y-6">
