@@ -23,6 +23,14 @@ export interface RolePerformance {
   joined_at: string;
 }
 
+// Type for playbook generation context
+interface PlaybookContext {
+  userName: string;
+  specialization?: string | null;
+  performance: Partial<RolePerformance> | Record<string, never>;
+  insights: Array<{ titulo: string; tipo: string }>;
+}
+
 export interface UserInsight {
   id: string;
   user_id: string;
@@ -265,8 +273,8 @@ export function useGeneratePlaybook() {
         .from('user_role_performance')
         .select('*')
         .eq('user_id', userId)
-        .eq('role_name', roleName as any)
-        .maybeSingle();
+        .eq('role_name', roleName)
+        .maybeSingle() as { data: Partial<RolePerformance> | null };
 
       // Get recent insights
       const { data: insights } = await supabase
@@ -331,12 +339,7 @@ export function useGeneratePlaybook() {
 }
 
 // Local playbook generator based on role templates
-function generateLocalPlaybook(roleName: string, context: {
-  userName: string;
-  specialization?: string | null;
-  performance: any;
-  insights: any[];
-}) {
+function generateLocalPlaybook(roleName: string, context: PlaybookContext) {
   const roleTemplates: Record<string, {
     sections: Array<{ title: string; content: string; tips: string[] }>;
     fortalezas: string[];

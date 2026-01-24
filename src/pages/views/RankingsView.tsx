@@ -7,8 +7,8 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useRoleRankings, useRolePerformance } from '@/hooks/useDevelopment';
-import { useProfiles, useProjects, useProjectMembers } from '@/hooks/useNovaData';
+import { useRoleRankings, useRolePerformance, type RoleRanking } from '@/hooks/useDevelopment';
+import { useProfiles, useProjects, useProjectMembers, type Profile, type Project, type ProjectMember } from '@/hooks/useNovaData';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';
@@ -31,7 +31,7 @@ export function RankingsView() {
   const [selectedProject, setSelectedProject] = useState<string>('all');
 
   // Use demo data when in demo mode
-  const rankings = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
+  const rankings: RoleRanking[] = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
     id: r.id,
     user_id: r.user_id,
     role_name: r.role_name,
@@ -43,9 +43,9 @@ export function RankingsView() {
     period_end: '2026-01-31',
     calculated_at: '2026-01-21',
     metrics: null,
-  })) as any[] : realRankings;
-  
-  const profiles = isDemoMode ? DEMO_MEMBERS.map(m => ({
+  })) : realRankings;
+
+  const profiles: Profile[] = isDemoMode ? DEMO_MEMBERS.map(m => ({
     id: m.id,
     nombre: m.nombre,
     email: m.email,
@@ -55,10 +55,10 @@ export function RankingsView() {
     created_at: null,
     updated_at: null,
     especialization: null,
-  })) as any[] : realProfiles;
-  
-  const projects = isDemoMode ? DEMO_PROJECTS as any[] : realProjects;
-  const projectMembers = isDemoMode ? DEMO_PROJECT_MEMBERS as any[] : realProjectMembers;
+  })) : realProfiles;
+
+  const projects: Project[] = isDemoMode ? DEMO_PROJECTS : realProjects;
+  const projectMembers: ProjectMember[] = isDemoMode ? DEMO_PROJECT_MEMBERS : realProjectMembers;
 
   // Get all unique roles
   const allRoles = useMemo(() => {

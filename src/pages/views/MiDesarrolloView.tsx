@@ -6,8 +6,8 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
-import { useRolePerformance, useRoleRankings } from '@/hooks/useDevelopment';
-import { useProjectMembers } from '@/hooks/useNovaData';
+import { useRolePerformance, useRoleRankings, type RolePerformance, type RoleRanking } from '@/hooks/useDevelopment';
+import { useProjectMembers, type ProjectMember } from '@/hooks/useNovaData';
 import { RolePerformanceCard } from '@/components/development/RolePerformanceCard';
 import { InsightsList } from '@/components/development/InsightsList';
 import { PlaybookViewer } from '@/components/development/PlaybookViewer';
@@ -28,7 +28,7 @@ export function MiDesarrolloView() {
 
   // Use demo data when in demo mode - show Zarko's data
   const demoUserId = isDemoMode ? '1' : profile?.id;
-  const performances = isDemoMode ? DEMO_PERFORMANCES.filter(p => p.user_id === '1').map(p => ({
+  const performances: RolePerformance[] = isDemoMode ? DEMO_PERFORMANCES.filter(p => p.user_id === '1').map(p => ({
     user_id: p.user_id,
     project_id: p.project_id,
     role_name: p.role_name,
@@ -47,10 +47,12 @@ export function MiDesarrolloView() {
     role_accepted: true,
     role_accepted_at: '2025-09-01',
     role_responsibilities: null,
-  })) as any[] : realPerformances;
-  
-  const projectMembers = isDemoMode ? DEMO_PROJECT_MEMBERS as any[] : realProjectMembers;
-  const rankings = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
+    lead_conversion_rate: p.lead_conversion_rate || 0,
+    joined_at: p.joined_at || '2025-09-01',
+  })) : realPerformances;
+
+  const projectMembers: ProjectMember[] = isDemoMode ? DEMO_PROJECT_MEMBERS : realProjectMembers;
+  const rankings: RoleRanking[] = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
     id: r.id,
     user_id: r.user_id,
     role_name: r.role_name,
@@ -62,19 +64,19 @@ export function MiDesarrolloView() {
     period_end: '2026-01-31',
     calculated_at: '2026-01-21',
     metrics: null,
-  })) as any[] : realRankings;
+  })) : realRankings;
 
   // Get user's roles
   const userRoles = useMemo(() => {
     const roles = projectMembers
-      .filter((pm: any) => pm.member_id === demoUserId)
-      .map((pm: any) => pm.role);
+      .filter((pm: ProjectMember) => pm.member_id === demoUserId)
+      .map((pm: ProjectMember) => pm.role);
     return [...new Set(roles)] as string[];
   }, [projectMembers, demoUserId]);
 
   // Get rankings for current user
   const userRankings = useMemo(() => {
-    return rankings.reduce((acc: any, r: any) => {
+    return rankings.reduce((acc: Record<string, { position: number; previousPosition: number | null }>, r: RoleRanking) => {
       if (r.user_id === demoUserId) {
         acc[`${r.role_name}-${r.project_id}`] = {
           position: r.ranking_position,

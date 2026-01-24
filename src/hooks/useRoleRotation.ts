@@ -61,6 +61,21 @@ export interface CompatibilityAnalysis {
   risks: string[];
 }
 
+// Type for inserting rotation requests
+type RotationRequestInsert = {
+  requester_id: string;
+  requester_project_id: string;
+  requester_current_role: string;
+  target_user_id?: string;
+  target_project_id?: string;
+  target_role?: string;
+  request_type: 'swap' | 'transfer' | 'rotation';
+  reason?: string;
+  compatibility_score?: number;
+  compatibility_analysis?: Record<string, unknown>;
+  requester_accepted: boolean;
+};
+
 // Fetch rotation requests
 export function useRotationRequests(status?: string) {
   return useQuery({
@@ -173,33 +188,24 @@ export function useCreateRotationRequest() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (request: {
-      requester_id: string;
-      requester_project_id: string;
-      requester_current_role: string;
-      target_user_id?: string;
-      target_project_id?: string;
-      target_role?: string;
-      request_type: 'swap' | 'transfer' | 'rotation';
-      reason?: string;
-      compatibility_score?: number;
-      compatibility_analysis?: object;
-    }) => {
+    mutationFn: async (request: Omit<RotationRequestInsert, 'requester_accepted'>) => {
+      const insertData: RotationRequestInsert = {
+        requester_id: request.requester_id,
+        requester_project_id: request.requester_project_id,
+        requester_current_role: request.requester_current_role,
+        target_user_id: request.target_user_id,
+        target_project_id: request.target_project_id,
+        target_role: request.target_role,
+        request_type: request.request_type,
+        reason: request.reason,
+        compatibility_score: request.compatibility_score,
+        compatibility_analysis: request.compatibility_analysis,
+        requester_accepted: true,
+      };
+
       const { data, error } = await supabase
         .from('role_rotation_requests')
-        .insert({
-          requester_id: request.requester_id,
-          requester_project_id: request.requester_project_id,
-          requester_current_role: request.requester_current_role,
-          target_user_id: request.target_user_id,
-          target_project_id: request.target_project_id,
-          target_role: request.target_role,
-          request_type: request.request_type,
-          reason: request.reason,
-          compatibility_score: request.compatibility_score,
-          compatibility_analysis: request.compatibility_analysis as any,
-          requester_accepted: true,
-        } as any)
+        .insert(insertData)
         .select()
         .single();
 
