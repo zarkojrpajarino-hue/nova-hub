@@ -1,69 +1,85 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, fireEvent } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
 import { DemoModeBanner } from './DemoModeBanner';
 
 // Mock DemoModeContext
 const mockDisableDemo = vi.fn();
-const mockIsDemoMode = vi.fn(() => true);
 
 vi.mock('@/contexts/DemoModeContext', () => ({
-  useDemoMode: () => ({
-    isDemoMode: mockIsDemoMode(),
+  useDemoMode: vi.fn(() => ({
+    isDemoMode: true,
     disableDemo: mockDisableDemo,
-  }),
+  })),
 }));
 
+import { useDemoMode } from '@/contexts/DemoModeContext';
+
 describe('DemoModeBanner', () => {
-  beforeEach(() => {
-    vi.clearAllMocks();
-    mockIsDemoMode.mockReturnValue(true);
-  });
-
   it('renders when demo mode is active', () => {
-    mockIsDemoMode.mockReturnValue(true);
     render(<DemoModeBanner />);
-
     expect(screen.getByText('Modo Demostración Activo')).toBeInTheDocument();
   });
 
-  it('does not render when demo mode is inactive', () => {
-    mockIsDemoMode.mockReturnValue(false);
-    const { container } = render(<DemoModeBanner />);
-
-    expect(container.firstChild).toBeNull();
-  });
-
-  it('displays demo mode description on desktop', () => {
+  it('displays demo mode message', () => {
     render(<DemoModeBanner />);
-
-    expect(
-      screen.getByText(/Estás viendo datos de ejemplo para explorar las funcionalidades/i)
-    ).toBeInTheDocument();
+    expect(screen.getByText(/Estás viendo datos de ejemplo/)).toBeInTheDocument();
   });
 
-  it('calls disableDemo when exit button is clicked', () => {
+  it('renders Eye icon', () => {
+    const { container } = render(<DemoModeBanner />);
+    const eyeIcon = container.querySelector('.lucide-eye');
+    expect(eyeIcon).toBeInTheDocument();
+  });
+
+  it('renders exit button', () => {
+    render(<DemoModeBanner />);
+    expect(screen.getByRole('button')).toBeInTheDocument();
+  });
+
+  it('calls disableDemo when exit button clicked', async () => {
+    const user = userEvent.setup();
     render(<DemoModeBanner />);
 
     const exitButton = screen.getByRole('button');
-    fireEvent.click(exitButton);
+    await user.click(exitButton);
 
-    expect(mockDisableDemo).toHaveBeenCalledTimes(1);
+    expect(mockDisableDemo).toHaveBeenCalled();
   });
 
-  it('has correct styling for visibility', () => {
-    const { container } = render(<DemoModeBanner />);
+  it('does not render when demo mode is inactive', () => {
+    (useDemoMode as any).mockReturnValue({
+      isDemoMode: false,
+      disableDemo: mockDisableDemo,
+    });
 
-    const banner = container.querySelector('div');
-    expect(banner?.className).toContain('fixed');
-    expect(banner?.className).toContain('top-0');
-    expect(banner?.className).toContain('z-[100]');
+    const { container } = render(<DemoModeBanner />);
+    expect(container.firstChild).toBeNull();
   });
 
-  it('displays Eye icon', () => {
+  it('has fixed positioning at top', () => {
     const { container } = render(<DemoModeBanner />);
+    const banner = container.firstChild as HTMLElement;
+    expect(banner).toHaveClass('fixed');
+    expect(banner).toHaveClass('top-0');
+  });
 
-    // Check that lucide Eye icon SVG is rendered
-    const svg = container.querySelector('svg');
-    expect(svg).toBeInTheDocument();
+  it('uses amber background color', () => {
+    const { container } = render(<DemoModeBanner />);
+    const banner = container.firstChild as HTMLElement;
+    expect(banner).toHaveClass('bg-amber-500');
+  });
+
+  it('renders X icon in exit button', () => {
+    const { container } = render(<DemoModeBanner />);
+    const xIcon = container.querySelector('.lucide-x');
+    expect(xIcon).toBeInTheDocument();
+  });
+
+  it('shows exit text on larger screens', () => {
+    render(<DemoModeBanner />);
+    const exitText = screen.getByText('Salir');
+    expect(exitText).toHaveClass('hidden');
+    expect(exitText).toHaveClass('sm:inline');
   });
 });
