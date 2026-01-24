@@ -23,3 +23,11 @@ global.ResizeObserver = class ResizeObserver {
 
 // Mock scrollIntoView
 Element.prototype.scrollIntoView = () => {};
+
+// Mock IntersectionObserver
+global.IntersectionObserver = class IntersectionObserver {
+  constructor() {}
+  observe() {}
+  unobserve() {}
+  disconnect() {}
+} as any;
