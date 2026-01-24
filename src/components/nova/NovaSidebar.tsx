@@ -40,11 +40,17 @@ const navItems: NavItem[] = [
 
 export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOut }: NovaSidebarProps) {
   return (
-    <div className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col h-screen fixed z-50">
+    <aside
+      className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col h-screen fixed z-50"
+      aria-label="Navegación principal"
+    >
       {/* Logo */}
       <div className="p-5 border-b border-sidebar-border">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 nova-gradient rounded-xl flex items-center justify-center font-bold text-lg text-primary-foreground animate-pulse-glow">
+        <div className="flex items-center gap-3" role="banner">
+          <div
+            className="w-10 h-10 nova-gradient rounded-xl flex items-center justify-center font-bold text-lg text-primary-foreground animate-pulse-glow"
+            aria-label="Logo NOVA"
+          >
             N
           </div>
           <div>
@@ -57,7 +63,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 p-3 overflow-y-auto space-y-6">
+      <nav className="flex-1 p-3 overflow-y-auto space-y-6" aria-label="Menú de navegación">
         <div>
           <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
             Principal
@@ -130,15 +136,16 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           </div>
           <Settings size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
-        <button 
+        <button
           onClick={onSignOut}
           className="w-full mt-2 flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors text-sm"
+          aria-label="Cerrar sesión"
         >
-          <LogOut size={16} />
+          <LogOut size={16} aria-hidden="true" />
           Cerrar sesión
         </button>
       </div>
-    </div>
+    </aside>
   );
 }
 
@@ -158,17 +165,24 @@ function NavItem({ item, isActive, onClick }: NavItemProps) {
           ? "nova-gradient-subtle nova-border text-foreground"
           : "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
       )}
+      aria-label={`Navegar a ${item.label}`}
+      aria-current={isActive ? 'page' : undefined}
+      role="menuitem"
     >
-      <item.icon 
-        size={18} 
+      <item.icon
+        size={18}
         className={cn(
           "transition-colors",
           isActive ? "text-primary" : "opacity-70"
-        )} 
+        )}
+        aria-hidden="true"
       />
       {item.label}
       {item.badge && (
-        <span className="ml-auto bg-destructive text-destructive-foreground text-[11px] font-semibold px-2 py-0.5 rounded-full">
+        <span
+          className="ml-auto bg-destructive text-destructive-foreground text-[11px] font-semibold px-2 py-0.5 rounded-full"
+          aria-label={`${item.badge} pendientes`}
+        >
           {item.badge}
         </span>
       )}
