@@ -1,4 +1,5 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -360,9 +361,15 @@ FORMATO DE RESPUESTA (JSON válido):
   ]
 }`;
 
-function buildContext(project: any, team: any[], obvs: any[], leads: any[], tasks: any[]) {
+function buildContext(
+  project: Project,
+  team: EnrichedTeamMember[],
+  obvs: OBV[],
+  leads: Lead[],
+  tasks: Task[]
+): ProjectContext {
   const onboarding = project.onboarding_data || {};
-  
+
   return {
     project: {
       nombre: String(project.nombre || '').slice(0, 200),
@@ -380,25 +387,25 @@ function buildContext(project: any, team: any[], obvs: any[], leads: any[], task
     team,
     metrics: {
       obvs_total: obvs.length,
-      obvs_validadas: obvs.filter(o => o.status === 'validated').length,
-      obvs_pendientes: obvs.filter(o => o.status === 'pending').length,
+      obvs_validadas: obvs.filter((o: OBV) => o.status === 'validated').length,
+      obvs_pendientes: obvs.filter((o: OBV) => o.status === 'pending').length,
       leads_total: leads.length,
-      leads_calientes: leads.filter(l => l.status === 'caliente' || l.status === 'propuesta_enviada').length,
-      tareas_pendientes: tasks.filter(t => t.status !== 'done').length,
-      tareas_completadas: tasks.filter(t => t.status === 'done').length,
+      leads_calientes: leads.filter((l: Lead) => l.status === 'caliente' || l.status === 'propuesta_enviada').length,
+      tareas_pendientes: tasks.filter((t: Task) => t.status !== 'done').length,
+      tareas_completadas: tasks.filter((t: Task) => t.status === 'done').length,
     },
     history: {
-      ultimas_obvs: obvs.slice(0, 5).map(o => ({ tipo: o.tipo, titulo: String(o.titulo || '').slice(0, 100) })),
-      ultimos_leads: leads.slice(0, 5).map(l => ({ 
-        nombre: String(l.nombre || '').slice(0, 50), 
-        empresa: String(l.empresa || '').slice(0, 50), 
-        status: l.status 
+      ultimas_obvs: obvs.slice(0, 5).map((o: OBV) => ({ tipo: o.tipo, titulo: String(o.titulo || '').slice(0, 100) })),
+      ultimos_leads: leads.slice(0, 5).map((l: Lead) => ({
+        nombre: String(l.nombre || '').slice(0, 50),
+        empresa: String(l.empresa || '').slice(0, 50),
+        status: l.status
       })),
     },
   };
 }
 
-function buildUserPrompt(context: any) {
+function buildUserPrompt(context: ProjectContext): string {
   return `
 # CONTEXTO DEL PROYECTO
 
@@ -415,7 +422,7 @@ function buildUserPrompt(context: any) {
 - Métricas de éxito: ${context.onboarding.metricas}
 
 ## EQUIPO (${context.team.length} miembros)
-${context.team.map((m: any) => `
+${context.team.map((m: EnrichedTeamMember) => `
 - **${m.nombre}** - Rol: ${m.roleLabel}
   - Especialización: ${m.especialization || 'No definida'}
   - Tareas completadas: ${m.tareas_completadas_mes}
@@ -429,10 +436,10 @@ ${context.team.map((m: any) => `
 
 ## ACTIVIDAD RECIENTE
 ### Últimas OBVs
-${context.history.ultimas_obvs.map((o: any) => `- [${o.tipo}] ${o.titulo}`).join('\n') || 'Sin OBVs recientes'}
+${context.history.ultimas_obvs.map((o: { tipo: string; titulo: string }) => `- [${o.tipo}] ${o.titulo}`).join('\n') || 'Sin OBVs recientes'}
 
 ### Leads recientes
-${context.history.ultimos_leads.map((l: any) => `- ${l.nombre} (${l.empresa || 'Sin empresa'}) - ${l.status}`).join('\n') || 'Sin leads recientes'}
+${context.history.ultimos_leads.map((l: { nombre: string; empresa: string; status: string }) => `- ${l.nombre} (${l.empresa || 'Sin empresa'}) - ${l.status}`).join('\n') || 'Sin leads recientes'}
 
 ---
 

@@ -16,6 +16,7 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_MASTERS, DEMO_MASTER_APPLICATIONS, DEMO_MASTER_CHALLENGES, DEMO_MEMBERS, DEMO_PROJECT_MEMBERS } from '@/data/demoData';
+import type { Master, MasterApplication, MasterChallenge, Profile, ProjectMember, EnrichedMaster, MastersByRole } from '@/types/masters';
 
 export function MastersView() {
   const { isDemoMode } = useDemoMode();
@@ -30,7 +31,7 @@ export function MastersView() {
   const [showApplyDialog, setShowApplyDialog] = useState(false);
 
   // Use demo data when in demo mode
-  const masters = isDemoMode ? DEMO_MASTERS.map(m => ({
+  const masters: Master[] = isDemoMode ? DEMO_MASTERS.map(m => ({
     id: m.id,
     user_id: m.user_id,
     role_name: m.role_name,
@@ -42,9 +43,9 @@ export function MastersView() {
     total_mentees: m.total_mentees,
     expires_at: null,
     created_at: m.appointed_at,
-  })) as any[] : realMasters;
-  
-  const applications = isDemoMode ? DEMO_MASTER_APPLICATIONS.map(a => ({
+  })) : realMasters;
+
+  const applications: MasterApplication[] = isDemoMode ? DEMO_MASTER_APPLICATIONS.map(a => ({
     id: a.id,
     user_id: a.user_id,
     role_name: a.role_name,
@@ -59,9 +60,9 @@ export function MastersView() {
     achievements: null,
     reviewed_at: null,
     updated_at: a.created_at,
-  })) as any[] : realApplications;
-  
-  const challenges = isDemoMode ? DEMO_MASTER_CHALLENGES.map(c => ({
+  })) : realApplications;
+
+  const challenges: MasterChallenge[] = isDemoMode ? DEMO_MASTER_CHALLENGES.map(c => ({
     id: c.id,
     master_id: c.master_id,
     challenger_id: c.challenger_id,
@@ -75,9 +76,9 @@ export function MastersView() {
     result: null,
     result_notes: null,
     completed_at: null,
-  })) as any[] : realChallenges;
-  
-  const profiles = isDemoMode ? DEMO_MEMBERS.map(m => ({
+  })) : realChallenges;
+
+  const profiles: Profile[] = isDemoMode ? DEMO_MEMBERS.map(m => ({
     id: m.id,
     nombre: m.nombre,
     email: m.email,
@@ -87,54 +88,54 @@ export function MastersView() {
     created_at: null,
     updated_at: null,
     especialization: null,
-  })) as any[] : realProfiles;
-  
-  const projectMembers = isDemoMode ? DEMO_PROJECT_MEMBERS as any[] : realProjectMembers;
+  })) : realProfiles;
+
+  const projectMembers: ProjectMember[] = isDemoMode ? DEMO_PROJECT_MEMBERS : realProjectMembers;
 
   // Get user's roles for applying - in demo mode, show Zarko's roles
   const demoUserId = isDemoMode ? '1' : profile?.id;
-  const userRoles = useMemo(() => {
+  const userRoles = useMemo<string[]>(() => {
     if (!demoUserId) return [];
     const roles = projectMembers
-      .filter((pm: any) => pm.member_id === demoUserId)
-      .map((pm: any) => pm.role);
-    return [...new Set(roles)] as string[];
+      .filter((pm: ProjectMember) => pm.member_id === demoUserId)
+      .map((pm: ProjectMember) => pm.role);
+    return [...new Set(roles)];
   }, [projectMembers, demoUserId]);
 
   // Check if user is already a master
-  const isUserMaster = useMemo(() => {
-    return masters.some((m: any) => m.user_id === demoUserId);
+  const isUserMaster = useMemo<boolean>(() => {
+    return masters.some((m: Master) => m.user_id === demoUserId);
   }, [masters, demoUserId]);
 
   // Enrich masters with profile data
-  const enrichedMasters = useMemo(() => {
-    return masters.map((master: any) => {
-      const userProfile = profiles.find((p: any) => p.id === master.user_id);
+  const enrichedMasters = useMemo<EnrichedMaster[]>(() => {
+    return masters.map((master: Master): EnrichedMaster => {
+      const userProfile = profiles.find((p: Profile) => p.id === master.user_id);
       return {
         ...master,
         userName: userProfile?.nombre || 'Usuario',
-        userAvatar: userProfile?.avatar,
+        userAvatar: userProfile?.avatar ?? null,
         userColor: userProfile?.color || '#6366F1',
       };
     });
   }, [masters, profiles]);
 
   // Group masters by role
-  const mastersByRole = useMemo(() => {
-    return enrichedMasters.reduce((acc: Record<string, any[]>, master: any) => {
+  const mastersByRole = useMemo<MastersByRole>(() => {
+    return enrichedMasters.reduce((acc: MastersByRole, master: EnrichedMaster) => {
       if (!acc[master.role_name]) {
         acc[master.role_name] = [];
       }
       acc[master.role_name].push(master);
       return acc;
-    }, {} as Record<string, any[]>);
+    }, {} as MastersByRole);
   }, [enrichedMasters]);
 
   // Stats
   const stats = useMemo(() => ({
     totalMasters: masters.length,
     pendingApplications: applications.length,
-    activeChallenges: challenges.filter((c: any) => c.status === 'in_progress').length,
+    activeChallenges: challenges.filter((c: MasterChallenge) => c.status === 'in_progress').length,
     myApplications: myApplications.length,
   }), [masters, applications, challenges, myApplications]);
 
@@ -285,9 +286,9 @@ export function MastersView() {
                       
                       <CardContent>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                          {roleMasters.map((master: any) => (
-                            <MasterCard 
-                              key={master.id} 
+                          {roleMasters.map((master: EnrichedMaster) => (
+                            <MasterCard
+                              key={master.id}
                               master={master}
                               canChallenge={profile?.id !== master.user_id}
                             />

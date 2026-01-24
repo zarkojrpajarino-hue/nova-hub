@@ -1,25 +1,27 @@
 project_id = "tqvzdgysxjrjtwvkhkli"
 
+# Seeding functions - No JWT required (admin operations)
 [functions.seed-projects]
 verify_jwt = false
 
 [functions.seed-users]
 verify_jwt = false
 
+# Generation functions - JWT verification enabled for security
 [functions.generate-tasks-v2]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-role-questions]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-role-questions-v2]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-playbook]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-project-roles]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-task-completion-questions]
-verify_jwt = false
+verify_jwt = true
