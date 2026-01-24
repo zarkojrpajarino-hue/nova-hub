@@ -8,6 +8,17 @@ const corsHeaders = {
 // Available roles
 const AVAILABLE_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy'] as const
 
+interface ProjectNested {
+  nombre: string;
+}
+
+interface RoleAssignment {
+  member_id: string;
+  role: string;
+  project_id: string;
+  projects: ProjectNested;
+}
+
 interface MemberRoleHistory {
   member_id: string
   email: string
@@ -124,7 +135,7 @@ Deno.serve(async (req) => {
         projects!inner(nombre)
       `)
       .in('member_id', memberIds)
-      .neq('project_id', project_id) // Exclude current project
+      .neq('project_id', project_id) as { data: RoleAssignment[] | null; error: unknown } // Exclude current project
 
     if (rolesError) {
       console.error('Error fetching role assignments');
@@ -136,10 +147,10 @@ Deno.serve(async (req) => {
       email: profile.email,
       nombre: profile.nombre,
       current_roles: (allRoleAssignments || [])
-        .filter(ra => ra.member_id === profile.id)
-        .map(ra => ({
+        .filter((ra: RoleAssignment) => ra.member_id === profile.id)
+        .map((ra: RoleAssignment) => ({
           project_id: ra.project_id,
-          project_name: (ra.projects as any)?.nombre || 'Unknown',
+          project_name: ra.projects?.nombre || 'Unknown',
           role: ra.role,
         })),
     })) || []

@@ -5,6 +5,23 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 }
 
+interface ProjectResult {
+  nombre: string;
+  status: string;
+  id?: string;
+}
+
+interface MemberResult {
+  project: string;
+  email: string;
+  status: string;
+}
+
+interface SeedResults {
+  projects: ProjectResult[];
+  members: MemberResult[];
+}
+
 // Projects start with no roles assigned - roles come after onboarding
 const PROJECTS = [
   { nombre: 'Sushi Payo', icon: '🍣', color: '#EF4444', fase: 'idea', tipo: 'validacion' },
@@ -80,7 +97,7 @@ Deno.serve(async (req) => {
       { auth: { autoRefreshToken: false, persistSession: false } }
     )
 
-    const results = { projects: [] as any[], members: [] as any[] }
+    const results: SeedResults = { projects: [], members: [] }
 
     // Get all profiles first
     const { data: profiles, error: profilesError } = await supabaseAdmin

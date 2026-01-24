@@ -90,7 +90,7 @@ Deno.serve(async (req) => {
         role_responsibilities,
         profiles!inner(id, nombre, email, especialization)
       `)
-      .eq('project_id', projectId);
+      .eq('project_id', projectId) as { data: TeamMember[] | null; error: unknown };
 
     if (teamError || !teamMembers || teamMembers.length === 0) {
       return new Response(
@@ -101,9 +101,9 @@ Deno.serve(async (req) => {
 
     // 3. Get metrics for each member
     const teamWithMetrics = await Promise.all(
-      teamMembers.map(async (tm) => {
+      teamMembers.map(async (tm: TeamMember) => {
         const memberId = tm.member_id;
-        
+
         // Get task stats
         const { count: completedTasks } = await supabase
           .from('tasks')
@@ -120,10 +120,10 @@ Deno.serve(async (req) => {
 
         return {
           id: memberId,
-          nombre: (tm.profiles as any).nombre,
+          nombre: tm.profiles.nombre,
           role: tm.role || 'operations',
           roleLabel: ROLE_LABELS[tm.role || 'operations'] || tm.role,
-          especialization: (tm.profiles as any).especialization,
+          especialization: tm.profiles.especialization,
           tareas_completadas_mes: completedTasks || 0,
           obvs_validadas_mes: validatedObvs || 0,
         };

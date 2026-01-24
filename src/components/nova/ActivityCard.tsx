@@ -11,30 +11,34 @@ interface ActivityCardProps {
 
 export function ActivityCard({ activities, delay = 4 }: ActivityCardProps) {
   return (
-    <div 
+    <section
       className={cn(
         "bg-card border border-border rounded-2xl overflow-hidden animate-fade-in",
         `delay-${delay}`
       )}
       style={{ opacity: 0 }}
+      aria-label="Actividad reciente del equipo"
     >
       <div className="p-5 border-b border-border flex items-center gap-2.5">
-        <Zap size={18} className="text-warning" />
+        <Zap size={18} className="text-warning" aria-hidden="true" />
         <h3 className="font-semibold">Actividad Reciente</h3>
       </div>
 
       <div className="p-3">
-        <div className="space-y-1">
+        <ul className="space-y-1" role="feed" aria-label="Feed de actividades recientes">
           {activities.map((activity, i) => (
-            <div 
+            <li
               key={activity.id}
               className="flex items-center gap-3 px-4 py-3 rounded-lg hover:bg-muted/50 transition-colors"
+              role="article"
+              aria-label={`${activity.user} ${activity.action} ${activity.target}${activity.amount ? ` ${activity.amount}` : ''} hace ${activity.time}`}
             >
-              <div 
+              <div
                 className="w-2 h-2 rounded-full flex-shrink-0"
                 style={{ background: DOT_COLORS[i % DOT_COLORS.length] }}
+                aria-hidden="true"
               />
-              
+
               <div className="flex-1 text-sm">
                 <span className="font-semibold">{activity.user}</span>
                 <span className="text-muted-foreground"> {activity.action} </span>
@@ -43,12 +47,12 @@ export function ActivityCard({ activities, delay = 4 }: ActivityCardProps) {
                   <span className="text-success font-bold"> {activity.amount}</span>
                 )}
               </div>
-              
-              <span className="text-xs text-muted-foreground">{activity.time}</span>
-            </div>
+
+              <time className="text-xs text-muted-foreground" dateTime={activity.time}>{activity.time}</time>
+            </li>
           ))}
-        </div>
+        </ul>
       </div>
-    </div>
+    </section>
   );
 }

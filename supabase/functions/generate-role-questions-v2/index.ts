@@ -5,6 +5,49 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// Types for nested Supabase query results
+interface ProfileNested {
+  id: string;
+  nombre: string;
+}
+
+interface ProjectNested {
+  nombre: string;
+  fase: string;
+}
+
+interface ProjectMemberWithRelations {
+  member_id: string;
+  role: string;
+  project_id: string;
+  projects: ProjectNested;
+  profiles: ProfileNested;
+}
+
+interface TaskData {
+  titulo: string;
+  status: string;
+  completed_at: string | null;
+}
+
+interface InsightData {
+  tipo: string;
+  titulo: string;
+  contenido: string;
+}
+
+interface MemberContext {
+  id: string;
+  nombre: string;
+  project_nombre: string;
+  project_fase: string;
+  tareas_completadas_semana: number;
+  tareas_pendientes: number;
+  obvs_mes: number;
+  ultimas_tareas: { titulo: string; completada: boolean }[];
+  insights: { tipo: string; titulo: string }[];
+}
+
 // Valid roles for validation
 const VALID_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'leader', 'customer'];
 
@@ -123,7 +166,7 @@ Deno.serve(async (req) => {
         projects!inner(nombre, fase),
         profiles!inner(id, nombre)
       `)
-      .eq('role', roleName);
+      .eq('role', roleName) as { data: ProjectMemberWithRelations[] | null; error: unknown };
 
     if (membersError) {
       console.error('Error fetching members');
@@ -142,16 +185,16 @@ Deno.serve(async (req) => {
 
     // Get context for each member (limit to first 10)
     const membersWithContext = await Promise.all(
-      members.slice(0, 10).map(async (m) => {
+      members.slice(0, 10).map(async (m): Promise<MemberContext> => {
         const memberId = m.member_id;
-        
+
         // Recent tasks
         const { data: tasks } = await supabase
           .from('tasks')
           .select('titulo, status, completed_at')
           .eq('assignee_id', memberId)
           .order('created_at', { ascending: false })
-          .limit(5);
+          .limit(5) as { data: TaskData[] | null };
 
         // Recent insights
         const { data: insights } = await supabase
@@ -159,12 +202,12 @@ Deno.serve(async (req) => {
           .select('tipo, titulo, contenido')
           .eq('user_id', memberId)
           .order('created_at', { ascending: false })
-          .limit(3);
+          .limit(3) as { data: InsightData[] | null };
 
         // Task stats this week
         const weekAgo = new Date();
         weekAgo.setDate(weekAgo.getDate() - 7);
-        
+
         const { count: completedThisWeek } = await supabase
           .from('tasks')
           .select('*', { count: 'exact', head: true })
@@ -181,7 +224,7 @@ Deno.serve(async (req) => {
         // OBVs this month
         const monthStart = new Date();
         monthStart.setDate(1);
-        
+
         const { count: obvsThisMonth } = await supabase
           .from('obvs')
           .select('*', { count: 'exact', head: true })
@@ -190,17 +233,17 @@ Deno.serve(async (req) => {
 
         return {
           id: memberId,
-          nombre: sanitizeText((m.profiles as any).nombre, 100),
-          project_nombre: sanitizeText((m.projects as any).nombre, 100),
-          project_fase: sanitizeText((m.projects as any).fase, 50),
+          nombre: sanitizeText(m.profiles.nombre, 100),
+          project_nombre: sanitizeText(m.projects.nombre, 100),
+          project_fase: sanitizeText(m.projects.fase, 50),
           tareas_completadas_semana: completedThisWeek || 0,
           tareas_pendientes: pendingTasks || 0,
           obvs_mes: obvsThisMonth || 0,
-          ultimas_tareas: (tasks || []).slice(0, 5).map(t => ({
+          ultimas_tareas: (tasks || []).slice(0, 5).map((t: TaskData) => ({
             titulo: sanitizeText(t.titulo, 100),
             completada: t.status === 'done',
           })),
-          insights: (insights || []).slice(0, 3).map(i => ({
+          insights: (insights || []).slice(0, 3).map((i: InsightData) => ({
             tipo: sanitizeText(i.tipo, 50),
             titulo: sanitizeText(i.titulo, 100),
           })),
@@ -343,7 +386,7 @@ FORMATO JSON:
 
 function buildPrompt(
   roleInfo: { label: string; description: string; kpis: string[] },
-  members: any[],
+  members: MemberContext[],
   meetingType: string,
   duracion: number
 ) {
@@ -365,8 +408,8 @@ ${members.map(m => `
 - Tareas completadas esta semana: ${m.tareas_completadas_semana}
 - Tareas pendientes: ${m.tareas_pendientes}
 - OBVs del mes: ${m.obvs_mes}
-- Últimas tareas: ${m.ultimas_tareas.map((t: any) => `${t.completada ? '✅' : '⏳'} ${t.titulo}`).join(', ') || 'Sin tareas'}
-- Insights: ${m.insights.map((i: any) => `[${i.tipo}] ${i.titulo}`).join(', ') || 'Sin insights'}
+- Últimas tareas: ${m.ultimas_tareas.map(t => `${t.completada ? '✅' : '⏳'} ${t.titulo}`).join(', ') || 'Sin tareas'}
+- Insights: ${m.insights.map(i => `[${i.tipo}] ${i.titulo}`).join(', ') || 'Sin insights'}
 `).join('\n---\n')}
 
 ---
