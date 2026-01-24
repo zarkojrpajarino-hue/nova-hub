@@ -17,6 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { PIPELINE_STAGES } from './LeadForm';
 import { cn } from '@/lib/utils';
+import type { Database } from '@/integrations/supabase/types';
 
 interface Lead {
   id: string;
@@ -131,7 +132,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
           empresa: editData.empresa,
           email: editData.email,
           telefono: editData.telefono,
-          status: editData.status as any,
+          status: editData.status as Database["public"]["Enums"]["lead_status"],
           valor_potencial: editData.valor_potencial,
           notas: editData.notas,
           proxima_accion: editData.proxima_accion,

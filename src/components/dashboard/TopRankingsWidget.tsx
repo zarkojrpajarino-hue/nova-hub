@@ -1,3 +1,4 @@
+import { useMemo, memo } from 'react';
 import { Crown, TrendingUp, BookOpen } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -19,10 +20,21 @@ interface TopRankingsWidgetProps {
   }>;
 }
 
-export function TopRankingsWidget({ members }: TopRankingsWidgetProps) {
-  const topByOBVs = [...members].sort((a, b) => b.obvs - a.obvs).slice(0, 3);
-  const topByFacturacion = [...members].sort((a, b) => b.facturacion - a.facturacion).slice(0, 3);
-  const topByLPs = [...members].sort((a, b) => b.lps - a.lps).slice(0, 3);
+function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
+  const topByOBVs = useMemo(
+    () => [...members].sort((a, b) => b.obvs - a.obvs).slice(0, 3),
+    [members]
+  );
+
+  const topByFacturacion = useMemo(
+    () => [...members].sort((a, b) => b.facturacion - a.facturacion).slice(0, 3),
+    [members]
+  );
+
+  const topByLPs = useMemo(
+    () => [...members].sort((a, b) => b.lps - a.lps).slice(0, 3),
+    [members]
+  );
 
   const renderPodium = (
     items: TopMember[], 
@@ -124,3 +136,5 @@ export function TopRankingsWidget({ members }: TopRankingsWidgetProps) {
     </div>
   );
 }
+
+export const TopRankingsWidget = memo(TopRankingsWidgetComponent);

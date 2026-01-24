@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
 import { useCanUpload } from '@/hooks/useValidationSystem';
+import type { Database } from '@/integrations/supabase/types';
 
 const OBV_TYPES = [
   { id: 'exploracion', icon: '🔍', title: 'Exploración', desc: 'Primer contacto, investigación de mercado, networking', color: '#6366F1' },
@@ -180,7 +181,7 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
             nombre: formData.leadNombre,
             empresa: formData.leadEmpresa || null,
             email: formData.leadEmail || null,
-            status: formData.leadStatus as any,
+            status: formData.leadStatus as Database["public"]["Enums"]["lead_status"],
             responsable_id: profile.id,
             valor_potencial: isVenta ? formData.facturacion : null,
           })
@@ -201,7 +202,7 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
           titulo: formData.titulo,
           descripcion: formData.descripcion || null,
           fecha: formData.fecha,
-          tipo: formData.tipo as any,
+          tipo: formData.tipo as Database["public"]["Enums"]["obv_type"],
           status: 'pending',
           es_venta: isVenta,
           producto: isVenta ? formData.producto : null,
@@ -443,14 +444,14 @@ export function OBVForm({ onCancel, onSuccess }: { onCancel: () => void; onSucce
             </h4>
             <div className="max-w-lg mx-auto space-y-4 mb-8">
               <div className="grid grid-cols-3 gap-3">
-                {[
+                {([
                   { id: 'none', label: 'Sin Lead' },
                   { id: 'existing', label: 'Lead Existente' },
                   { id: 'new', label: 'Nuevo Lead' },
-                ].map(opt => (
+                ] as const).map(opt => (
                   <button
                     key={opt.id}
-                    onClick={() => setFormData(prev => ({ ...prev, leadOption: opt.id as any }))}
+                    onClick={() => setFormData(prev => ({ ...prev, leadOption: opt.id }))}
                     className={cn(
                       "p-3 rounded-xl border-2 text-sm font-medium transition-all",
                       formData.leadOption === opt.id

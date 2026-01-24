@@ -11,7 +11,7 @@ import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea
 import { TaskForm } from './TaskForm';
 import { TaskPlaybookViewer } from './TaskPlaybookViewer';
 import { TaskCompletionDialog } from './TaskCompletionDialog';
-import { Json } from '@/integrations/supabase/types';
+import type { Database, Json } from '@/integrations/supabase/types';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -114,8 +114,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ 
-          status: newStatus as any,
+        .update({
+          status: newStatus as Database["public"]["Enums"]["task_status"],
           completed_at: newStatus === 'done' ? new Date().toISOString() : null,
         })
         .eq('id', taskId);
@@ -144,8 +144,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
     try {
       const { error } = await supabase
         .from('tasks')
-        .update({ 
-          status: newStatus as any,
+        .update({
+          status: newStatus as Database["public"]["Enums"]["task_status"],
           completed_at: newStatus === 'done' ? new Date().toISOString() : null,
         })
         .eq('id', task.id);
@@ -176,8 +176,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
       const currentMetadata = taskToComplete?.metadata as Record<string, unknown> || {};
       const { error } = await supabase
         .from('tasks')
-        .update({ 
-          status: 'done' as any,
+        .update({
+          status: 'done' as Database["public"]["Enums"]["task_status"],
           completed_at: new Date().toISOString(),
           metadata: JSON.stringify({
             ...currentMetadata,
@@ -451,8 +451,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
             </DialogTitle>
           </DialogHeader>
           {selectedTaskForPlaybook?.playbook && (
-            <TaskPlaybookViewer 
-              playbook={selectedTaskForPlaybook.playbook as any} 
+            <TaskPlaybookViewer
+              playbook={selectedTaskForPlaybook.playbook as Json}
               taskTitle={selectedTaskForPlaybook.titulo}
               onClose={() => setSelectedTaskForPlaybook(null)}
             />
@@ -469,8 +469,8 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
             id: taskToComplete.id,
             titulo: taskToComplete.titulo,
             descripcion: taskToComplete.descripcion,
-            playbook: taskToComplete.playbook as any,
-            metadata: taskToComplete.metadata as any,
+            playbook: taskToComplete.playbook as Json,
+            metadata: taskToComplete.metadata as Json,
           }}
           onComplete={handleTaskComplete}
         />

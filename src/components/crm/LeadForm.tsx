@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import type { Database } from '@/integrations/supabase/types';
 
 export const PIPELINE_STAGES = [
   { id: 'frio', label: 'Frío', color: '#64748B' },
@@ -66,7 +67,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
         empresa: formData.empresa || null,
         email: formData.email || null,
         telefono: formData.telefono || null,
-        status: formData.status as any,
+        status: formData.status as Database["public"]["Enums"]["lead_status"],
         valor_potencial: formData.valor_potencial ? parseFloat(formData.valor_potencial) : null,
         notas: formData.notas || null,
         proxima_accion: formData.proxima_accion || null,

@@ -12,6 +12,7 @@ import { PIPELINE_STAGES, LeadForm } from './LeadForm';
 import { LeadDetail } from './LeadDetail';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Badge } from '@/components/ui/badge';
+import type { Database } from '@/integrations/supabase/types';
 
 interface Lead {
   id: string;
@@ -80,8 +81,8 @@ export function CRMPipeline({ projectId, leads, projects, members, isLoading, de
     try {
       const { error: updateError } = await supabase
         .from('leads')
-        .update({ 
-          status: newStatus as any,
+        .update({
+          status: newStatus as Database["public"]["Enums"]["lead_status"],
           updated_at: new Date().toISOString(),
         })
         .eq('id', leadId);
@@ -92,8 +93,8 @@ export function CRMPipeline({ projectId, leads, projects, members, isLoading, de
         .from('lead_history')
         .insert({
           lead_id: leadId,
-          old_status: oldStatus as any,
-          new_status: newStatus as any,
+          old_status: oldStatus as Database["public"]["Enums"]["lead_status"],
+          new_status: newStatus as Database["public"]["Enums"]["lead_status"],
           changed_by: profile.id,
         });
 

@@ -3,17 +3,20 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles } from '@/hooks/useNovaData';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
+import type { Database } from '@/integrations/supabase/types';
 
 interface ProjectCRMTabProps {
   projectId: string;
   projectName: string;
 }
 
+type Lead = Database['public']['Tables']['leads']['Row'];
+
 export function ProjectCRMTab({ projectId, projectName }: ProjectCRMTabProps) {
   const { data: profiles = [] } = useProfiles();
 
   // Fetch project leads
-  const { data: leads = [], isLoading } = useQuery({
+  const { data: leads = [], isLoading } = useQuery<Lead[]>({
     queryKey: ['project_leads', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
@@ -21,9 +24,9 @@ export function ProjectCRMTab({ projectId, projectName }: ProjectCRMTabProps) {
         .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
-      return data;
+      return data as Lead[];
     },
   });
 
@@ -51,7 +54,7 @@ export function ProjectCRMTab({ projectId, projectName }: ProjectCRMTabProps) {
   return (
     <CRMPipeline
       projectId={projectId}
-      leads={leads as any[]}
+      leads={leads}
       projects={projectData}
       members={membersData}
       isLoading={false}
