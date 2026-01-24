@@ -32,11 +32,11 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   
   // Fetch financial metrics
   const { data: realFinancialMetrics = [] } = useQuery({
-    queryKey: ['financial_metrics'],
+    queryKey: ['financial_metrics_secure'],
     queryFn: async () => {
+      // Use secure RPC function that restricts access to admins, project leads, and finance specialists
       const { data, error } = await supabase
-        .from('financial_metrics')
-        .select('*');
+        .rpc('get_financial_metrics_secure');
       if (error) throw error;
       return data || [];
     },
