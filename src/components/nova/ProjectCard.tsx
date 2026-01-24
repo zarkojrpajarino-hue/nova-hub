@@ -1,3 +1,4 @@
+import { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ROLE_CONFIG } from '@/data/mockData';
@@ -32,17 +33,25 @@ interface ProjectCardProps {
   showRoles?: boolean;
 }
 
-export function ProjectCard({ project, members, roles, showRoles = false }: ProjectCardProps) {
+function ProjectCardComponent({ project, members, roles, showRoles = false }: ProjectCardProps) {
   const navigate = useNavigate();
-  
+
   // Only show members/roles if onboarding is completed
   const isReady = project.onboarding_completed;
-  const projectMembers = isReady ? members.filter(m => project.members.includes(m.id)) : [];
-  const projectRoles = isReady ? roles.filter(r => r.project_id === project.id) : [];
 
-  const handleClick = () => {
+  const projectMembers = useMemo(
+    () => isReady ? members.filter(m => project.members.includes(m.id)) : [],
+    [isReady, members, project.members]
+  );
+
+  const projectRoles = useMemo(
+    () => isReady ? roles.filter(r => r.project_id === project.id) : [],
+    [isReady, roles, project.id]
+  );
+
+  const handleClick = useCallback(() => {
     navigate(`/proyecto/${project.id}`);
-  };
+  }, [navigate, project.id]);
 
   return (
     <div 
@@ -149,3 +158,5 @@ export function ProjectCard({ project, members, roles, showRoles = false }: Proj
     </div>
   );
 }
+
+export const ProjectCard = memo(ProjectCardComponent);

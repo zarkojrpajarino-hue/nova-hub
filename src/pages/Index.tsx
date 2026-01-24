@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, lazy, Suspense } from 'react';
 import { useNavigate } from 'react-router-dom';
+import { Loader2 } from 'lucide-react';
 import { NovaSidebar } from '@/components/nova/NovaSidebar';
 import { NavigationProvider } from '@/contexts/NavigationContext';
 import { SearchProvider, useSearch } from '@/contexts/SearchContext';
@@ -7,25 +8,27 @@ import { GlobalSearch } from '@/components/search/GlobalSearch';
 import { DemoModeBanner } from '@/components/demo/DemoModeBanner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
-import { DashboardView } from './views/DashboardView';
-import { MiEspacioView } from './views/MiEspacioView';
-import { MiDesarrolloView } from './views/MiDesarrolloView';
-import { RankingsView } from './views/RankingsView';
-import { MastersView } from './views/MastersView';
-import RoleRotationView from './views/RoleRotationView';
-import { ProjectsView } from './views/ProjectsView';
-import { OBVCenterView } from './views/OBVCenterView';
-import { CRMView } from './views/CRMView';
-import { FinancieroView } from './views/FinancieroView';
-import { KPIsView } from './views/KPIsView';
-import { RolesMeetingView } from './views/RolesMeetingView';
-import { AnalyticsView } from './views/AnalyticsView';
-import { SettingsView } from './views/SettingsView';
-import { NotificationsView } from './views/NotificationsView';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+
+// Lazy load views for better code splitting
+const DashboardView = lazy(() => import('./views/DashboardView').then(m => ({ default: m.DashboardView })));
+const MiEspacioView = lazy(() => import('./views/MiEspacioView').then(m => ({ default: m.MiEspacioView })));
+const MiDesarrolloView = lazy(() => import('./views/MiDesarrolloView').then(m => ({ default: m.MiDesarrolloView })));
+const RankingsView = lazy(() => import('./views/RankingsView').then(m => ({ default: m.RankingsView })));
+const MastersView = lazy(() => import('./views/MastersView').then(m => ({ default: m.MastersView })));
+const RoleRotationView = lazy(() => import('./views/RoleRotationView'));
+const ProjectsView = lazy(() => import('./views/ProjectsView').then(m => ({ default: m.ProjectsView })));
+const OBVCenterView = lazy(() => import('./views/OBVCenterView').then(m => ({ default: m.OBVCenterView })));
+const CRMView = lazy(() => import('./views/CRMView').then(m => ({ default: m.CRMView })));
+const FinancieroView = lazy(() => import('./views/FinancieroView').then(m => ({ default: m.FinancieroView })));
+const KPIsView = lazy(() => import('./views/KPIsView').then(m => ({ default: m.KPIsView })));
+const RolesMeetingView = lazy(() => import('./views/RolesMeetingView').then(m => ({ default: m.RolesMeetingView })));
+const AnalyticsView = lazy(() => import('./views/AnalyticsView').then(m => ({ default: m.AnalyticsView })));
+const SettingsView = lazy(() => import('./views/SettingsView').then(m => ({ default: m.SettingsView })));
+const NotificationsView = lazy(() => import('./views/NotificationsView').then(m => ({ default: m.NotificationsView })));
 
 function IndexContent() {
   const [currentView, setCurrentView] = useState('dashboard');
@@ -60,41 +63,55 @@ function IndexContent() {
     },
   });
 
+  const LoadingFallback = () => (
+    <div className="flex items-center justify-center h-screen">
+      <Loader2 className="w-8 h-8 animate-spin text-primary" />
+    </div>
+  );
+
   const renderView = () => {
-    switch (currentView) {
-      case 'dashboard':
-        return <DashboardView onNewOBV={handleNewOBV} />;
-      case 'mi-espacio':
-        return <MiEspacioView onNewOBV={handleNewOBV} />;
-      case 'mi-desarrollo':
-        return <MiDesarrolloView />;
-      case 'rankings':
-        return <RankingsView />;
-      case 'masters':
-        return <MastersView />;
-      case 'rotacion':
-        return <RoleRotationView />;
-      case 'proyectos':
-        return <ProjectsView onNewOBV={handleNewOBV} />;
-      case 'obvs':
-        return <OBVCenterView onNewOBV={handleNewOBV} />;
-      case 'crm':
-        return <CRMView onNewOBV={handleNewOBV} />;
-      case 'financiero':
-        return <FinancieroView onNewOBV={handleNewOBV} />;
-      case 'kpis':
-        return <KPIsView onNewOBV={handleNewOBV} />;
-      case 'analytics':
-        return <AnalyticsView onNewOBV={handleNewOBV} />;
-      case 'roles':
-        return <RolesMeetingView onNewOBV={handleNewOBV} />;
-      case 'settings':
-        return <SettingsView onNewOBV={handleNewOBV} />;
-      case 'notificaciones':
-        return <NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />;
-      default:
-        return <DashboardView onNewOBV={handleNewOBV} />;
-    }
+    const view = (() => {
+      switch (currentView) {
+        case 'dashboard':
+          return <DashboardView onNewOBV={handleNewOBV} />;
+        case 'mi-espacio':
+          return <MiEspacioView onNewOBV={handleNewOBV} />;
+        case 'mi-desarrollo':
+          return <MiDesarrolloView />;
+        case 'rankings':
+          return <RankingsView />;
+        case 'masters':
+          return <MastersView />;
+        case 'rotacion':
+          return <RoleRotationView />;
+        case 'proyectos':
+          return <ProjectsView onNewOBV={handleNewOBV} />;
+        case 'obvs':
+          return <OBVCenterView onNewOBV={handleNewOBV} />;
+        case 'crm':
+          return <CRMView onNewOBV={handleNewOBV} />;
+        case 'financiero':
+          return <FinancieroView onNewOBV={handleNewOBV} />;
+        case 'kpis':
+          return <KPIsView onNewOBV={handleNewOBV} />;
+        case 'analytics':
+          return <AnalyticsView onNewOBV={handleNewOBV} />;
+        case 'roles':
+          return <RolesMeetingView onNewOBV={handleNewOBV} />;
+        case 'settings':
+          return <SettingsView onNewOBV={handleNewOBV} />;
+        case 'notificaciones':
+          return <NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />;
+        default:
+          return <DashboardView onNewOBV={handleNewOBV} />;
+      }
+    })();
+
+    return (
+      <Suspense fallback={<LoadingFallback />}>
+        {view}
+      </Suspense>
+    );
   };
 
   const { isDemoMode } = useDemoMode();
