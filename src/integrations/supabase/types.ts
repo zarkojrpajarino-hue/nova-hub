@@ -2380,6 +2380,28 @@ export type Database = {
         Args: { p_role: string; p_user_id: string }
         Returns: Json
       }
+      get_financial_metrics_secure: {
+        Args: never
+        Returns: {
+          cobrado: number | null
+          costes: number | null
+          facturacion: number | null
+          margen: number | null
+          margen_percent: number | null
+          month: string | null
+          num_ventas: number | null
+          pendiente_cobro: number | null
+          project_color: string | null
+          project_id: string | null
+          project_name: string | null
+        }[]
+        SetofOptions: {
+          from: "*"
+          to: "financial_metrics"
+          isOneToOne: false
+          isSetofReturn: true
+        }
+      }
       get_profile_id: { Args: { _auth_id: string }; Returns: string }
       get_validators_for_user: {
         Args: { p_user_id: string }
