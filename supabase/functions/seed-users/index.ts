@@ -1,3 +1,4 @@
+// SECURITY: Admin secret is now MANDATORY (not optional) - deploy trigger
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
