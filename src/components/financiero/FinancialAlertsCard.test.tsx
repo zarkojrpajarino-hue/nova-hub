@@ -1,72 +1,46 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { FinancialAlertsCard } from './FinancialAlertsCard';
 
-// Mock date-fns
-vi.mock('date-fns', () => ({
-  formatDistanceToNow: () => 'hace 2 días',
-  format: () => '15/03/2024',
-}));
-
-vi.mock('date-fns/locale', () => ({
-  es: {},
-}));
-
-const mockAlerts = [
-  {
-    id: 'alert1',
-    type: 'overdue' as const,
-    title: 'Pago vencido',
-    description: 'Factura #123 vencida',
-    severity: 'high' as const,
-    project_name: 'Proyecto Alpha',
-    amount: 5000,
-    created_at: new Date().toISOString(),
-  },
-  {
-    id: 'alert2',
-    type: 'low_margin' as const,
-    title: 'Margen bajo',
-    description: 'Margen por debajo del objetivo',
-    severity: 'medium' as const,
-    project_name: 'Proyecto Beta',
-    amount: 2000,
-    created_at: new Date().toISOString(),
-  },
-];
-
 describe('FinancialAlertsCard', () => {
-  it('renders alerts title', () => {
-    render(<FinancialAlertsCard alerts={mockAlerts} />);
+  it('renders card title', () => {
+    render(<FinancialAlertsCard totalPending={1000} overdueCount={0} marginPercent={50} monthlyGrowth={5} />);
     expect(screen.getByText('Alertas Financieras')).toBeInTheDocument();
   });
 
-  it('renders alert items', () => {
-    render(<FinancialAlertsCard alerts={mockAlerts} />);
-    expect(screen.getByText('Pago vencido')).toBeInTheDocument();
+  it('shows overdue alert when overdueCount > 0', () => {
+    render(<FinancialAlertsCard totalPending={5000} overdueCount={3} marginPercent={50} monthlyGrowth={5} />);
+    expect(screen.getByText(/3 facturas vencidas/)).toBeInTheDocument();
+  });
+
+  it('shows low margin warning when margin < 30', () => {
+    render(<FinancialAlertsCard totalPending={1000} overdueCount={0} marginPercent={25} monthlyGrowth={5} />);
     expect(screen.getByText('Margen bajo')).toBeInTheDocument();
   });
 
-  it('displays project names', () => {
-    render(<FinancialAlertsCard alerts={mockAlerts} />);
-    expect(screen.getByText('Proyecto Alpha')).toBeInTheDocument();
-    expect(screen.getByText('Proyecto Beta')).toBeInTheDocument();
+  it('shows positive growth alert when growth > 10', () => {
+    render(<FinancialAlertsCard totalPending={1000} overdueCount={0} marginPercent={50} monthlyGrowth={15} />);
+    expect(screen.getByText('Crecimiento positivo')).toBeInTheDocument();
   });
 
-  it('renders empty state when no alerts', () => {
-    render(<FinancialAlertsCard alerts={[]} />);
-    expect(screen.getByText('No hay alertas financieras')).toBeInTheDocument();
+  it('shows negative growth warning when growth < -10', () => {
+    render(<FinancialAlertsCard totalPending={1000} overdueCount={0} marginPercent={50} monthlyGrowth={-15} />);
+    expect(screen.getByText('Descenso en facturación')).toBeInTheDocument();
+  });
+
+  it('shows all good message when no alerts', () => {
+    render(<FinancialAlertsCard totalPending={0} overdueCount={0} marginPercent={50} monthlyGrowth={5} />);
+    expect(screen.getByText('¡Todo en orden!')).toBeInTheDocument();
   });
 
   it('renders AlertTriangle icon', () => {
-    const { container } = render(<FinancialAlertsCard alerts={mockAlerts} />);
-    const icon = container.querySelector('.lucide-alert-triangle');
-    expect(icon).toBeInTheDocument();
+    const { container } = render(<FinancialAlertsCard totalPending={1000} overdueCount={0} marginPercent={50} monthlyGrowth={5} />);
+    const icons = container.querySelectorAll('.lucide-alert-triangle');
+    expect(icons.length).toBeGreaterThan(0);
   });
 
-  it('displays alert amounts', () => {
-    render(<FinancialAlertsCard alerts={mockAlerts} />);
-    expect(screen.getByText('5.000 €')).toBeInTheDocument();
-    expect(screen.getByText('2.000 €')).toBeInTheDocument();
+  it('formats pending amount correctly', () => {
+    render(<FinancialAlertsCard totalPending={5000} overdueCount={2} marginPercent={50} monthlyGrowth={5} />);
+    expect(screen.getByText(/5.000/)).toBeInTheDocument();
   });
 });
