@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Rocket, ChevronLeft, ChevronRight, Check, Loader2 } from 'lucide-react';
+import { Rocket, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';

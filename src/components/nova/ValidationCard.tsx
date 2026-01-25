@@ -1,4 +1,4 @@
-import { CheckCircle2, Eye, Check, X, Loader2, Search, FileText, ShoppingCart, Users, BookOpen, Trophy } from 'lucide-react';
+import { CheckCircle2, Check, X, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
@@ -9,31 +9,6 @@ interface ValidationCardProps {
   limit?: number;
   delay?: number;
 }
-
-const getTypeIcon = (type: string, subtype?: string) => {
-  if (type === 'obv') {
-    switch (subtype) {
-      case 'exploracion':
-        return <Search size={14} />;
-      case 'validacion':
-        return <CheckCircle2 size={14} />;
-      case 'venta':
-        return <ShoppingCart size={14} />;
-      default:
-        return <FileText size={14} />;
-    }
-  }
-  switch (type) {
-    case 'lp':
-      return <BookOpen size={14} />;
-    case 'bp':
-      return <Trophy size={14} />;
-    case 'cp':
-      return <Users size={14} />;
-    default:
-      return <FileText size={14} />;
-  }
-};
 
 const getTypeLabel = (type: string, subtype?: string) => {
   if (type === 'obv' && subtype) {

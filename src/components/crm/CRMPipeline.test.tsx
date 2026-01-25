@@ -15,25 +15,39 @@ const mockLeads = [
   {
     id: 'lead1',
     nombre: 'Empresa Alpha',
-    status: 'cold',
-    valor_estimado: 10000,
-    proyecto_id: 'proj1',
+    status: 'frio',
+    valor_potencial: 10000,
+    project_id: 'proj1',
     responsable_id: 'user1',
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    empresa: 'Alpha Corp',
+    email: 'contact@alpha.com',
+    telefono: '123456789',
+    notas: null,
+    proxima_accion: null,
+    proxima_accion_fecha: null,
   },
   {
     id: 'lead2',
     nombre: 'Empresa Beta',
     status: 'hot',
-    valor_estimado: 25000,
-    proyecto_id: 'proj1',
+    valor_potencial: 25000,
+    project_id: 'proj1',
     responsable_id: 'user2',
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    empresa: 'Beta Inc',
+    email: 'contact@beta.com',
+    telefono: '987654321',
+    notas: null,
+    proxima_accion: null,
+    proxima_accion_fecha: null,
   },
 ];
 
 const mockProjects = [
-  { id: 'proj1', nombre: 'Proyecto 1', icon: '🚀' },
+  { id: 'proj1', nombre: 'Proyecto 1', icon: '🚀', color: '#6366F1' },
 ];
 
 const mockMembers = [
@@ -57,9 +71,10 @@ describe('CRMPipeline', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <CRMPipeline
-          leads={mockLeads}
+          leads={mockLeads as any}
           projects={mockProjects}
           members={mockMembers}
+          isLoading={false}
         />
       </QueryClientProvider>
     );

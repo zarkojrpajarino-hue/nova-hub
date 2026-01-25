@@ -1,7 +1,7 @@
 import { Check, Edit } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { VALIDACION_STEPS, OPERACION_STEPS, type OnboardingData, type ValidacionData, type OperacionData } from './types';
+import { type OnboardingData, type ValidacionData, type OperacionData } from './types';
 
 interface OnboardingSummaryProps {
   data: OnboardingData;

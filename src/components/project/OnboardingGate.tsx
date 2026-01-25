@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Rocket, Loader2, Users, Sparkles } from 'lucide-react';
+import { Rocket, Loader2, Sparkles } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,7 +22,7 @@ export function OnboardingGate({ project }: OnboardingGateProps) {
     setIsGeneratingRoles(true);
     
     try {
-      const { data, error } = await supabase.functions.invoke('generate-project-roles', {
+      const { error } = await supabase.functions.invoke('generate-project-roles', {
         body: { 
           project_id: project.id,
           onboarding_data: project.onboarding_data,

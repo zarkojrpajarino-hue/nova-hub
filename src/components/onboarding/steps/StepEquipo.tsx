@@ -53,7 +53,11 @@ export function StepEquipo({
 
         if (membersError) throw membersError;
 
-        setProfiles(profilesData || []);
+        setProfiles((profilesData || []).map(p => ({
+          ...p,
+          avatar: p.avatar ?? undefined,
+          color: p.color ?? undefined,
+        })));
         const existingIds = (membersData || []).map(m => m.member_id);
         setExistingMembers(existingIds);
 

@@ -10,7 +10,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_PLAYBOOKS, type DemoPlaybook } from '@/data/demoData';
+import { DEMO_PLAYBOOKS } from '@/data/demoData';
 
 interface PlaybookViewerProps {
   roleName: string;

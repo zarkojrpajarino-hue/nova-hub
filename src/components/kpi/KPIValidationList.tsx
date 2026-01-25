@@ -245,7 +245,11 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
             type: kpi.type,
             cp_points: kpi.cp_points,
             created_at: kpi.created_at || '',
-            owner: owner || { id: kpi.owner_id, nombre: 'Desconocido', color: '#6366F1' },
+            owner: {
+              id: owner?.id || kpi.owner_id,
+              nombre: owner?.nombre || 'Desconocido',
+              color: owner?.color || '#6366F1',
+            },
             validations: kpiValidations,
           };
         })

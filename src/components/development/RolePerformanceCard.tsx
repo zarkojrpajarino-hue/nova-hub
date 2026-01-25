@@ -1,4 +1,4 @@
-import { TrendingUp, CheckCircle2, FileCheck, Users, Target, ArrowUp, ArrowDown, Minus } from 'lucide-react';
+import { CheckCircle2, FileCheck, Users, Target, ArrowUp, ArrowDown, Minus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';

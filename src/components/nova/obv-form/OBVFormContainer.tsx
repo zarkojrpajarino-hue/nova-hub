@@ -19,7 +19,7 @@ interface OBVFormContainerProps {
 }
 
 export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps) {
-  const { canUpload, isBlocked } = useCanUpload();
+  const { isBlocked } = useCanUpload();
   const { data: members = [] } = useMemberStats();
   const { data: projects = [] } = useProjects();
 

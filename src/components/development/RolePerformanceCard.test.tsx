@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { RolePerformanceCard } from './RolePerformanceCard';
+import type { RolePerformance } from '@/hooks/useDevelopment';
 
 // Mock ROLE_CONFIG
 vi.mock('@/data/mockData', () => ({
@@ -13,9 +14,9 @@ vi.mock('@/data/mockData', () => ({
   },
 }));
 
-const mockPerformance = {
-  id: 'perf1',
+const mockPerformance: RolePerformance = {
   user_id: 'user1',
+  user_name: 'Test User',
   project_id: 'proj1',
   role_name: 'comercial',
   role_accepted: true,
@@ -26,12 +27,12 @@ const mockPerformance = {
   total_tasks: 10,
   completed_tasks: 9,
   validated_obvs: 15,
+  total_obvs: 20,
   total_facturacion: 5000,
   lead_conversion_rate: 60,
   total_leads: 10,
   leads_ganados: 6,
-  created_at: new Date().toISOString(),
-  updated_at: new Date().toISOString(),
+  joined_at: new Date().toISOString(),
 };
 
 describe('RolePerformanceCard', () => {
@@ -91,7 +92,7 @@ describe('RolePerformanceCard', () => {
   });
 
   it('shows lead badge when is_lead is true', () => {
-    const leadPerformance = { ...mockPerformance, is_lead: true };
+    const leadPerformance: RolePerformance = { ...mockPerformance, is_lead: true };
     render(<RolePerformanceCard performance={leadPerformance} />);
     expect(screen.getByText('Lead del Proyecto')).toBeInTheDocument();
   });
