@@ -2,7 +2,6 @@ import { useQuery } from '@tanstack/react-query';
 import { Zap, FileCheck, CheckCircle2, Users, UserPlus, TrendingUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles, useProjects } from '@/hooks/useNovaData';
-import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -19,10 +18,10 @@ interface ActivityMetadata {
 interface ActivityItem {
   id: string;
   action: string;
-  entity_type: string;
-  entity_id: string;
-  user_id: string;
-  created_at: string;
+  entity_type: string | null;
+  entity_id: string | null;
+  user_id: string | null;
+  created_at: string | null;
   metadata: ActivityMetadata;
   user_nombre?: string;
   user_color?: string;

@@ -82,8 +82,9 @@ Deno.serve(async (req) => {
     console.log('Generating questions for role:', roleLabel);
 
     // Build members context (sanitized)
+    interface RoleMember { nombre?: string; projectName?: string; }
     const membersContext = (role.members || []).length > 0
-      ? (role.members || []).slice(0, 10).map(m => 
+      ? (role.members || []).slice(0, 10).map((m: RoleMember) => 
           `- ${String(m.nombre || '').slice(0, 100)} (Proyecto: ${String(m.projectName || '').slice(0, 100)})`
         ).join('\n')
       : 'Sin miembros asignados a este rol actualmente';

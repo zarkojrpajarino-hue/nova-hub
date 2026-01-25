@@ -138,11 +138,15 @@ Deno.serve(async (req) => {
           .eq('status', 'validated');
 
         return {
-          id: memberId,
+          member_id: memberId,
           nombre: tm.profiles.nombre,
+          email: tm.profiles.email,
           role: tm.role || 'operations',
           roleLabel: ROLE_LABELS[tm.role || 'operations'] || tm.role,
           especialization: tm.profiles.especialization,
+          role_responsibilities: typeof tm.role_responsibilities === 'string' 
+            ? tm.role_responsibilities 
+            : null,
           tareas_completadas_mes: completedTasks || 0,
           obvs_validadas_mes: validatedObvs || 0,
         };
@@ -247,7 +251,7 @@ Deno.serve(async (req) => {
         .from('tasks')
         .insert({
           project_id: projectId,
-          assignee_id: member.id,
+          assignee_id: member.member_id,
           titulo: String(task.titulo || '').slice(0, 200),
           descripcion: String(task.descripcion_corta || '').slice(0, 1000),
           prioridad: task.prioridad || 2,

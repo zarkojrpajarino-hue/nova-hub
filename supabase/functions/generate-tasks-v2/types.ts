@@ -44,27 +44,24 @@ export interface EnrichedTeamMember {
 }
 
 export interface OBV {
-  id: string;
   tipo: string;
   titulo: string;
   status: string;
-  created_at: string;
+  facturacion?: number | null;
+  fecha?: string | null;
 }
 
 export interface Lead {
-  id: string;
   nombre: string;
   empresa: string | null;
   status: string;
-  created_at: string;
 }
 
 export interface Task {
-  id: string;
   titulo: string;
   status: string;
-  assigned_to: string | null;
-  created_at: string;
+  assignee_id?: string | null;
+  completed_at?: string | null;
 }
 
 export interface ProjectContext {

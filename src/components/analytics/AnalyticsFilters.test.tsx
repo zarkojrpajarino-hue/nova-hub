@@ -4,9 +4,9 @@ import userEvent from '@testing-library/user-event';
 import { AnalyticsFilters } from './AnalyticsFilters';
 
 const mockMembers = [
-  { id: 'user1', nombre: 'Juan Pérez', color: '#6366F1', obvs: 10, lps: 2, facturacion: 5000 },
-  { id: 'user2', nombre: 'María García', color: '#22C55E', obvs: 8, lps: 1, facturacion: 3000 },
-  { id: 'user3', nombre: 'Carlos López', color: '#F59E0B', obvs: 12, lps: 3, facturacion: 7000 },
+  { id: 'user1', nombre: 'Juan Pérez', color: '#6366F1', avatar: null, email: 'juan@test.com', obvs: 10, lps: 2, bps: 15, cps: 8, facturacion: 5000, margen: 2500 },
+  { id: 'user2', nombre: 'María García', color: '#22C55E', avatar: null, email: 'maria@test.com', obvs: 8, lps: 1, bps: 12, cps: 6, facturacion: 3000, margen: 1500 },
+  { id: 'user3', nombre: 'Carlos López', color: '#F59E0B', avatar: null, email: 'carlos@test.com', obvs: 12, lps: 3, bps: 18, cps: 10, facturacion: 7000, margen: 3500 },
 ];
 
 describe('AnalyticsFilters', () => {
@@ -125,7 +125,7 @@ describe('AnalyticsFilters', () => {
   });
 
   it('displays member initials in colored badges', () => {
-    const { container } = render(
+    render(
       <AnalyticsFilters
         members={mockMembers}
         selectedPartners={[]}

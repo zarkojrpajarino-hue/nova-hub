@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { 
   Loader2, Building2, Phone, Mail, Calendar, FileText, 
-  User, Clock, History, X, Edit2, Save, ExternalLink, Plus
+  Clock, History, Edit2, Save, Plus
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +16,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { PIPELINE_STAGES } from './LeadForm';
-import { cn } from '@/lib/utils';
 import type { Database } from '@/integrations/supabase/types';
 
 interface Lead {
@@ -39,11 +38,11 @@ interface Lead {
 interface LeadHistory {
   id: string;
   lead_id: string;
-  old_status: string;
-  new_status: string;
+  old_status: string | null;
+  new_status: string | null;
   changed_by: string | null;
   notas: string | null;
-  created_at: string;
+  created_at: string | null;
   changer_nombre?: string;
 }
 
@@ -51,9 +50,9 @@ interface LinkedOBV {
   id: string;
   titulo: string;
   tipo: string;
-  status: string;
+  status: string | null;
   facturacion: number | null;
-  created_at: string;
+  created_at: string | null;
 }
 
 interface LeadDetailProps {
@@ -87,11 +86,11 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
       if (error) throw error;
       
       // Get changer names
-      const changerIds = [...new Set(data.map(h => h.changed_by).filter(Boolean))];
+      const changerIds = [...new Set(data.map(h => h.changed_by).filter((id): id is string => id !== null))];
       const { data: profiles } = await supabase
         .from('profiles')
         .select('id, nombre')
-        .in('id', changerIds);
+        .in('id', changerIds as string[]);
       
       const profilesMap = new Map(profiles?.map(p => [p.id, p.nombre]) || []);
       
