@@ -1,8 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { leadService } from '@/services/LeadService';
 import { PIPELINE_STAGES } from '@/components/crm/LeadForm';
 import type { DropResult } from '@hello-pangea/dnd';
 import type { Database } from '@/integrations/supabase/types';
@@ -101,26 +101,12 @@ export function useCRMPipeline(
     );
 
     try {
-      const { error: updateError } = await supabase
-        .from('leads')
-        .update({
-          status: newStatus as Database["public"]["Enums"]["lead_status"],
-          updated_at: new Date().toISOString(),
-        })
-        .eq('id', leadId);
-
-      if (updateError) throw updateError;
-
-      const { error: historyError } = await supabase
-        .from('lead_history')
-        .insert({
-          lead_id: leadId,
-          old_status: oldStatus as Database["public"]["Enums"]["lead_status"],
-          new_status: newStatus as Database["public"]["Enums"]["lead_status"],
-          changed_by: profile.id,
-        });
-
-      if (historyError) console.error('Error inserting history:', historyError);
+      await leadService.updateStatus(
+        leadId,
+        newStatus as Database["public"]["Enums"]["lead_status"],
+        oldStatus as Database["public"]["Enums"]["lead_status"],
+        profile.id
+      );
 
       const stageName = PIPELINE_STAGES.find(s => s.id === newStatus)?.label;
       toast.success(`Lead movido a ${stageName}`);

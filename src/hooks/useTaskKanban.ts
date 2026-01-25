@@ -1,8 +1,8 @@
 import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { taskService } from '@/services/TaskService';
 import type { DropResult } from '@hello-pangea/dnd';
 import type { Database, Json } from '@/integrations/supabase/types';
 
@@ -49,14 +49,7 @@ export function useTaskKanban(projectId: string) {
   const { data: tasks = [], isLoading } = useQuery({
     queryKey: ['project_tasks', projectId],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('tasks')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('prioridad', { ascending: true })
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
+      const data = await taskService.getByProject(projectId);
       return data as Task[];
     },
   });
@@ -89,15 +82,10 @@ export function useTaskKanban(projectId: string) {
     );
 
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          status: newStatus as Database["public"]["Enums"]["task_status"],
-          completed_at: newStatus === 'done' ? new Date().toISOString() : null,
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
+      await taskService.updateStatus(
+        taskId,
+        newStatus as Database["public"]["Enums"]["task_status"]
+      );
 
       toast.success(`Tarea movida a ${TASK_COLUMNS.find(c => c.id === newStatus)?.label}`);
     } catch (error) {
@@ -121,15 +109,10 @@ export function useTaskKanban(projectId: string) {
 
   const toggleTaskStatus = async (task: Task, newStatus: string) => {
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          status: newStatus as Database["public"]["Enums"]["task_status"],
-          completed_at: newStatus === 'done' ? new Date().toISOString() : null,
-        })
-        .eq('id', task.id);
-
-      if (error) throw error;
+      await taskService.updateStatus(
+        task.id,
+        newStatus as Database["public"]["Enums"]["task_status"]
+      );
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
     } catch (error) {
       console.error('Error toggling task:', error);
@@ -139,40 +122,17 @@ export function useTaskKanban(projectId: string) {
 
   // Complete task with feedback
   const handleTaskComplete = useCallback(async (taskId: string, feedback: TaskFeedback) => {
+    if (!profile?.id || !taskToComplete) return;
+
     try {
-      // Save feedback as a user insight
-      if (profile?.id) {
-        await supabase.from('user_insights').insert({
-          user_id: profile.id,
-          project_id: projectId,
-          tipo: 'tarea_completada',
-          titulo: `Tarea: ${taskToComplete?.titulo}`,
-          contenido: `**Resultado:** ${feedback.resultado}\n\n**Insights:** ${feedback.insights}\n\n**Aprendizaje:** ${feedback.aprendizaje}\n\n**Siguiente acción:** ${feedback.siguiente_accion || 'No especificada'}\n\n**Dificultad:** ${feedback.dificultad}/5`,
-          tags: ['tarea', feedback.resultado],
-        });
-      }
-
-      // Update task status with feedback metadata
-      const currentMetadata = taskToComplete?.metadata as Record<string, unknown> || {};
-      const { error } = await supabase
-        .from('tasks')
-        .update({
-          status: 'done' as Database["public"]["Enums"]["task_status"],
-          completed_at: new Date().toISOString(),
-          metadata: JSON.stringify({
-            ...currentMetadata,
-            completion_feedback: {
-              resultado: feedback.resultado,
-              insights: feedback.insights,
-              aprendizaje: feedback.aprendizaje,
-              siguiente_accion: feedback.siguiente_accion,
-              dificultad: feedback.dificultad,
-            },
-          }),
-        })
-        .eq('id', taskId);
-
-      if (error) throw error;
+      await taskService.completeWithFeedback(
+        taskId,
+        feedback,
+        profile.id,
+        projectId,
+        taskToComplete.titulo,
+        taskToComplete.metadata
+      );
 
       toast.success('¡Tarea completada! Feedback guardado.');
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
@@ -190,12 +150,7 @@ export function useTaskKanban(projectId: string) {
 
     setIsDeleting(true);
     try {
-      const { error } = await supabase
-        .from('tasks')
-        .delete()
-        .eq('id', taskToDelete.id);
-
-      if (error) throw error;
+      await taskService.delete(taskToDelete.id);
 
       toast.success('Tarea eliminada');
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
