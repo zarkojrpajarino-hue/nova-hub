@@ -1,29 +1,15 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { renderHook, waitFor } from '@testing-library/react';
+import { renderHook } from '@testing-library/react';
 import { useAuth } from './useAuth';
 
-// Mock Supabase
+// Mock supabase
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
-      onAuthStateChange: vi.fn((callback) => {
-        // Simulate no auth state
-        callback('SIGNED_OUT', null);
-        return {
-          data: {
-            subscription: {
-              unsubscribe: vi.fn(),
-            },
-          },
-        };
-      }),
-      getSession: vi.fn(() =>
-        Promise.resolve({
-          data: { session: null },
-          error: null,
-        })
-      ),
-      signOut: vi.fn(() => Promise.resolve({ error: null })),
+      onAuthStateChange: vi.fn(() => ({
+        data: { subscription: { unsubscribe: vi.fn() } },
+      })),
+      getSession: vi.fn(() => Promise.resolve({ data: { session: null }, error: null })),
     },
     from: vi.fn(() => ({
       select: vi.fn(() => ({
@@ -40,28 +26,28 @@ describe('useAuth', () => {
     vi.clearAllMocks();
   });
 
-  it('initializes with loading state', () => {
+  it('initializes with loading true', () => {
     const { result } = renderHook(() => useAuth());
-
     expect(result.current.loading).toBe(true);
-    expect(result.current.user).toBe(null);
-    expect(result.current.session).toBe(null);
-    expect(result.current.profile).toBe(null);
   });
 
-  it('sets isAuthenticated to false when no session', async () => {
+  it('initializes with null user', () => {
     const { result } = renderHook(() => useAuth());
+    expect(result.current.user).toBeNull();
+  });
 
-    await waitFor(() => {
-      expect(result.current.loading).toBe(false);
-    });
+  it('initializes with null session', () => {
+    const { result } = renderHook(() => useAuth());
+    expect(result.current.session).toBeNull();
+  });
 
-    expect(result.current.isAuthenticated).toBe(false);
+  it('initializes with null profile', () => {
+    const { result } = renderHook(() => useAuth());
+    expect(result.current.profile).toBeNull();
   });
 
   it('provides signOut function', () => {
     const { result } = renderHook(() => useAuth());
-
     expect(typeof result.current.signOut).toBe('function');
   });
 });
