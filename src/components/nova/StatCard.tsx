@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -11,7 +12,7 @@ export interface StatCardProps {
   delay?: number;
 }
 
-export function StatCard({ icon: Icon, value, label, progress, target, color, delay = 1 }: StatCardProps) {
+export const StatCard = memo(function StatCard({ icon: Icon, value, label, progress, target, color, delay = 1 }: StatCardProps) {
   const clampedProgress = Math.min(progress, 100);
 
   return (
@@ -74,4 +75,4 @@ export function StatCard({ icon: Icon, value, label, progress, target, color, de
       )}
     </article>
   );
-}
+});
