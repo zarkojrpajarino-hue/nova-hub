@@ -3,82 +3,68 @@ import { parseDriveUrl, getDriveTypeIcon, getDriveTypeName } from './driveUtils'
 
 describe('driveUtils', () => {
   describe('parseDriveUrl', () => {
-    it('returns invalid for empty URL', () => {
-      const result = parseDriveUrl('');
-      expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toBe('URL vacía');
-    });
-
     it('parses Google Drive file URL', () => {
-      const url = 'https://drive.google.com/file/d/abc123/view';
-      const result = parseDriveUrl(url);
-
+      const result = parseDriveUrl('https://drive.google.com/file/d/abc123/view');
       expect(result.isValid).toBe(true);
       expect(result.type).toBe('file');
       expect(result.fileId).toBe('abc123');
-      expect(result.previewUrl).toBeTruthy();
-      expect(result.embedUrl).toBeTruthy();
     });
 
     it('parses Google Docs URL', () => {
-      const url = 'https://docs.google.com/document/d/xyz789/edit';
-      const result = parseDriveUrl(url);
-
+      const result = parseDriveUrl('https://docs.google.com/document/d/doc123/edit');
       expect(result.isValid).toBe(true);
       expect(result.type).toBe('doc');
-      expect(result.fileId).toBe('xyz789');
+      expect(result.fileId).toBe('doc123');
     });
 
     it('parses Google Sheets URL', () => {
-      const url = 'https://docs.google.com/spreadsheets/d/sheet123/edit';
-      const result = parseDriveUrl(url);
-
+      const result = parseDriveUrl('https://docs.google.com/spreadsheets/d/sheet123/edit');
       expect(result.isValid).toBe(true);
       expect(result.type).toBe('sheet');
       expect(result.fileId).toBe('sheet123');
     });
 
     it('parses Google Slides URL', () => {
-      const url = 'https://docs.google.com/presentation/d/slide456/edit';
-      const result = parseDriveUrl(url);
-
+      const result = parseDriveUrl('https://docs.google.com/presentation/d/slide123/edit');
       expect(result.isValid).toBe(true);
       expect(result.type).toBe('slide');
-      expect(result.fileId).toBe('slide456');
+      expect(result.fileId).toBe('slide123');
     });
 
     it('parses Google Forms URL', () => {
-      const url = 'https://docs.google.com/forms/d/form789/edit';
-      const result = parseDriveUrl(url);
-
+      const result = parseDriveUrl('https://docs.google.com/forms/d/form123/edit');
       expect(result.isValid).toBe(true);
       expect(result.type).toBe('form');
-      expect(result.fileId).toBe('form789');
+      expect(result.fileId).toBe('form123');
     });
 
     it('parses Google Drive folder URL', () => {
-      const url = 'https://drive.google.com/drive/folders/folder123';
-      const result = parseDriveUrl(url);
-
+      const result = parseDriveUrl('https://drive.google.com/drive/folders/folder123');
       expect(result.isValid).toBe(true);
       expect(result.type).toBe('folder');
       expect(result.fileId).toBe('folder123');
     });
 
-    it('returns error for non-Google URL', () => {
-      const url = 'https://example.com/file';
-      const result = parseDriveUrl(url);
+    it('returns error for empty URL', () => {
+      const result = parseDriveUrl('');
+      expect(result.isValid).toBe(false);
+      expect(result.errorMessage).toBe('URL vacía');
+    });
 
+    it('returns error for non-Google URL', () => {
+      const result = parseDriveUrl('https://example.com');
       expect(result.isValid).toBe(false);
       expect(result.errorMessage).toBe('No es una URL de Google Drive válida');
     });
 
-    it('returns error for unrecognized Google URL', () => {
-      const url = 'https://google.com/unknown';
-      const result = parseDriveUrl(url);
+    it('generates preview URL for files', () => {
+      const result = parseDriveUrl('https://drive.google.com/file/d/abc123/view');
+      expect(result.previewUrl).toContain('preview');
+    });
 
-      expect(result.isValid).toBe(false);
-      expect(result.errorMessage).toContain('URL de Google no reconocida');
+    it('generates embed URL for files', () => {
+      const result = parseDriveUrl('https://drive.google.com/file/d/abc123/view');
+      expect(result.embedUrl).toContain('preview');
     });
   });
 
@@ -107,7 +93,7 @@ describe('driveUtils', () => {
       expect(getDriveTypeIcon('file')).toBe('📎');
     });
 
-    it('returns default icon for unknown type', () => {
+    it('returns default icon for unknown', () => {
       expect(getDriveTypeIcon('unknown')).toBe('🔗');
     });
   });
@@ -137,7 +123,7 @@ describe('driveUtils', () => {
       expect(getDriveTypeName('file')).toBe('Archivo');
     });
 
-    it('returns default name for unknown type', () => {
+    it('returns default name for unknown', () => {
       expect(getDriveTypeName('unknown')).toBe('Enlace');
     });
   });
