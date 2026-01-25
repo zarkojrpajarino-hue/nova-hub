@@ -1,3 +1,4 @@
+import { memo, useMemo } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
@@ -10,6 +11,7 @@ interface RoleHistoryListProps {
   history: RoleHistory[];
 }
 
+// Move constants outside component for better performance
 const changeTypeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
   assignment: { label: 'Asignación', icon: <UserPlus className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
   swap: { label: 'Intercambio', icon: <ArrowLeftRight className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
@@ -27,7 +29,94 @@ const roleLabels: Record<string, string> = {
   strategy: 'Estrategia',
 };
 
+// Memoized history item card
+const HistoryCard = memo(function HistoryCard({ item }: { item: RoleHistory }) {
+  const typeConfig = changeTypeConfig[item.change_type] || changeTypeConfig.assignment;
+
+  return (
+    <Card>
+      <CardContent className="py-4">
+        <div className="flex items-center gap-4">
+          {/* User */}
+          <Avatar className="h-10 w-10">
+            <AvatarImage src={item.user?.avatar || undefined} />
+            <AvatarFallback>{item.user?.nombre?.charAt(0) || '?'}</AvatarFallback>
+          </Avatar>
+
+          {/* Change info */}
+          <div className="flex-1">
+            <div className="flex items-center gap-2">
+              <span className="font-medium">{item.user?.nombre}</span>
+              <Badge variant="outline" className={typeConfig.color}>
+                {typeConfig.icon}
+                <span className="ml-1">{typeConfig.label}</span>
+              </Badge>
+            </div>
+
+            <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
+              {item.old_role && (
+                <>
+                  <span>{roleLabels[item.old_role] || item.old_role}</span>
+                  <ArrowRight className="h-3 w-3" />
+                </>
+              )}
+              <span className="font-medium text-foreground">
+                {roleLabels[item.new_role] || item.new_role}
+              </span>
+
+              {item.project && (
+                <>
+                  <span className="mx-2">•</span>
+                  <div className="flex items-center gap-1">
+                    <div
+                      className="w-2 h-2 rounded-full"
+                      style={{ backgroundColor: item.project.color || '#6366F1' }}
+                    />
+                    <span>{item.project.nombre}</span>
+                  </div>
+                </>
+              )}
+            </div>
+
+            {item.notes && (
+              <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
+            )}
+          </div>
+
+          {/* Performance score change */}
+          {item.previous_performance_score !== null && (
+            <div className="text-right">
+              <p className="text-xs text-muted-foreground">Score anterior</p>
+              <p className="font-medium">{item.previous_performance_score?.toFixed(0)}%</p>
+            </div>
+          )}
+
+          {/* Time */}
+          <div className="text-right text-sm text-muted-foreground">
+            {formatDistanceToNow(new Date(item.created_at), {
+              addSuffix: true,
+              locale: es
+            })}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
+  );
+});
+
 export function RoleHistoryList({ history }: RoleHistoryListProps) {
+  // Memoize expensive grouping operation
+  const groupedHistory = useMemo(() => {
+    return history.reduce((groups, item) => {
+      const date = format(new Date(item.created_at), 'yyyy-MM-dd');
+      if (!groups[date]) {
+        groups[date] = [];
+      }
+      groups[date].push(item);
+      return groups;
+    }, {} as Record<string, RoleHistory[]>);
+  }, [history]);
+
   if (history.length === 0) {
     return (
       <Card>
@@ -42,16 +131,6 @@ export function RoleHistoryList({ history }: RoleHistoryListProps) {
     );
   }
 
-  // Group by date
-  const groupedHistory = history.reduce((groups, item) => {
-    const date = format(new Date(item.created_at), 'yyyy-MM-dd');
-    if (!groups[date]) {
-      groups[date] = [];
-    }
-    groups[date].push(item);
-    return groups;
-  }, {} as Record<string, RoleHistory[]>);
-
   return (
     <div className="space-y-6">
       {Object.entries(groupedHistory).map(([date, items]) => (
@@ -61,79 +140,9 @@ export function RoleHistoryList({ history }: RoleHistoryListProps) {
           </h4>
 
           <div className="space-y-2">
-            {items.map((item) => {
-              const typeConfig = changeTypeConfig[item.change_type] || changeTypeConfig.assignment;
-
-              return (
-                <Card key={item.id}>
-                  <CardContent className="py-4">
-                    <div className="flex items-center gap-4">
-                      {/* User */}
-                      <Avatar className="h-10 w-10">
-                        <AvatarImage src={item.user?.avatar || undefined} />
-                        <AvatarFallback>{item.user?.nombre?.charAt(0) || '?'}</AvatarFallback>
-                      </Avatar>
-
-                      {/* Change info */}
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium">{item.user?.nombre}</span>
-                          <Badge variant="outline" className={typeConfig.color}>
-                            {typeConfig.icon}
-                            <span className="ml-1">{typeConfig.label}</span>
-                          </Badge>
-                        </div>
-
-                        <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
-                          {item.old_role && (
-                            <>
-                              <span>{roleLabels[item.old_role] || item.old_role}</span>
-                              <ArrowRight className="h-3 w-3" />
-                            </>
-                          )}
-                          <span className="font-medium text-foreground">
-                            {roleLabels[item.new_role] || item.new_role}
-                          </span>
-
-                          {item.project && (
-                            <>
-                              <span className="mx-2">•</span>
-                              <div className="flex items-center gap-1">
-                                <div 
-                                  className="w-2 h-2 rounded-full"
-                                  style={{ backgroundColor: item.project.color || '#6366F1' }}
-                                />
-                                <span>{item.project.nombre}</span>
-                              </div>
-                            </>
-                          )}
-                        </div>
-
-                        {item.notes && (
-                          <p className="text-xs text-muted-foreground mt-1">{item.notes}</p>
-                        )}
-                      </div>
-
-                      {/* Performance score change */}
-                      {item.previous_performance_score !== null && (
-                        <div className="text-right">
-                          <p className="text-xs text-muted-foreground">Score anterior</p>
-                          <p className="font-medium">{item.previous_performance_score?.toFixed(0)}%</p>
-                        </div>
-                      )}
-
-                      {/* Time */}
-                      <div className="text-right text-sm text-muted-foreground">
-                        {formatDistanceToNow(new Date(item.created_at), { 
-                          addSuffix: true, 
-                          locale: es 
-                        })}
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {items.map((item) => (
+              <HistoryCard key={item.id} item={item} />
+            ))}
           </div>
         </div>
       ))}

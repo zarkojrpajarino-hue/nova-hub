@@ -1,3 +1,4 @@
+import { memo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { Clock, CheckCircle2, XCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -15,6 +16,99 @@ const TYPE_LABELS = {
   cp: 'Community Point',
 };
 
+// Helper functions moved outside component for better performance
+const getStatusIcon = (status: string) => {
+  switch (status) {
+    case 'validated':
+      return <CheckCircle2 className="w-4 h-4 text-success" />;
+    case 'rejected':
+      return <XCircle className="w-4 h-4 text-destructive" />;
+    default:
+      return <Clock className="w-4 h-4 text-warning" />;
+  }
+};
+
+const getStatusLabel = (status: string) => {
+  switch (status) {
+    case 'validated':
+      return 'Validado';
+    case 'rejected':
+      return 'Rechazado';
+    default:
+      return 'Pendiente';
+  }
+};
+
+const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
+  switch (status) {
+    case 'validated':
+      return 'default';
+    case 'rejected':
+      return 'destructive';
+    default:
+      return 'secondary';
+  }
+};
+
+// Memoized KPI item component
+const KPIItem = memo(function KPIItem({
+  kpi,
+  type,
+  onOpenEvidence,
+}: {
+  kpi: any;
+  type: 'lp' | 'bp' | 'cp';
+  onOpenEvidence?: (url: string) => void;
+}) {
+  return (
+    <div className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
+      <div className="flex items-start justify-between gap-4">
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            {getStatusIcon(kpi.status || 'pending')}
+            <h4 className="font-medium truncate">{kpi.titulo}</h4>
+            {type === 'cp' && kpi.cp_points && kpi.cp_points > 1 && (
+              <Badge variant="outline" className="text-xs">
+                {kpi.cp_points} pts
+              </Badge>
+            )}
+          </div>
+
+          {kpi.descripcion && (
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
+              {kpi.descripcion}
+            </p>
+          )}
+
+          <div className="flex items-center gap-3">
+            <Badge variant={getStatusVariant(kpi.status || 'pending')}>
+              {getStatusLabel(kpi.status || 'pending')}
+            </Badge>
+
+            <span className="text-xs text-muted-foreground">
+              {new Date(kpi.created_at || '').toLocaleDateString('es-ES', {
+                day: 'numeric',
+                month: 'short',
+                year: 'numeric',
+              })}
+            </span>
+          </div>
+        </div>
+
+        {kpi.evidence_url && onOpenEvidence && (
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onOpenEvidence(kpi.evidence_url)}
+          >
+            <ExternalLink className="w-4 h-4" />
+          </Button>
+        )}
+      </div>
+    </div>
+  );
+});
+
 export function KPIList({ type }: KPIListProps) {
   const { profile } = useAuth();
 
@@ -22,52 +116,23 @@ export function KPIList({ type }: KPIListProps) {
     queryKey: ['my_kpis', profile?.id, type],
     queryFn: async () => {
       if (!profile?.id) return [];
-      
+
       const { data, error } = await supabase
         .from('kpis')
         .select('*')
         .eq('owner_id', profile.id)
         .eq('type', type)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
       return data;
     },
     enabled: !!profile?.id,
   });
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case 'validated':
-        return <CheckCircle2 className="w-4 h-4 text-success" />;
-      case 'rejected':
-        return <XCircle className="w-4 h-4 text-destructive" />;
-      default:
-        return <Clock className="w-4 h-4 text-warning" />;
-    }
-  };
-
-  const getStatusLabel = (status: string) => {
-    switch (status) {
-      case 'validated':
-        return 'Validado';
-      case 'rejected':
-        return 'Rechazado';
-      default:
-        return 'Pendiente';
-    }
-  };
-
-  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
-    switch (status) {
-      case 'validated':
-        return 'default';
-      case 'rejected':
-        return 'destructive';
-      default:
-        return 'secondary';
-    }
-  };
+  const handleOpenEvidence = useCallback((url: string) => {
+    window.open(url, '_blank');
+  }, []);
 
   if (isLoading) {
     return (
@@ -89,54 +154,12 @@ export function KPIList({ type }: KPIListProps) {
   return (
     <div className="space-y-3">
       {kpis.map((kpi) => (
-        <div
+        <KPIItem
           key={kpi.id}
-          className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors"
-        >
-          <div className="flex items-start justify-between gap-4">
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                {getStatusIcon(kpi.status || 'pending')}
-                <h4 className="font-medium truncate">{kpi.titulo}</h4>
-                {type === 'cp' && kpi.cp_points && kpi.cp_points > 1 && (
-                  <Badge variant="outline" className="text-xs">
-                    {kpi.cp_points} pts
-                  </Badge>
-                )}
-              </div>
-              
-              {kpi.descripcion && (
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-2">
-                  {kpi.descripcion}
-                </p>
-              )}
-
-              <div className="flex items-center gap-3">
-                <Badge variant={getStatusVariant(kpi.status || 'pending')}>
-                  {getStatusLabel(kpi.status || 'pending')}
-                </Badge>
-                
-                <span className="text-xs text-muted-foreground">
-                  {new Date(kpi.created_at || '').toLocaleDateString('es-ES', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                  })}
-                </span>
-              </div>
-            </div>
-
-            {kpi.evidence_url && (
-              <Button
-                variant="ghost"
-                size="icon"
-                onClick={() => window.open(kpi.evidence_url!, '_blank')}
-              >
-                <ExternalLink className="w-4 h-4" />
-              </Button>
-            )}
-          </div>
-        </div>
+          kpi={kpi}
+          type={type}
+          onOpenEvidence={handleOpenEvidence}
+        />
       ))}
     </div>
   );

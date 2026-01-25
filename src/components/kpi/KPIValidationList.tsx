@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { CheckCircle2, XCircle, Loader2, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -39,6 +39,141 @@ interface KPIWithOwner {
     validator_nombre: string;
   }>;
 }
+
+// Memoized KPI Card component to prevent unnecessary re-renders
+const KPICard = memo(function KPICard({
+  kpi,
+  type,
+  isVoting,
+  comment,
+  isSubmitting,
+  onStartVoting,
+  onCancelVoting,
+  onCommentChange,
+  onApprove,
+  onReject,
+}: {
+  kpi: KPIWithOwner;
+  type: 'lp' | 'bp' | 'cp';
+  isVoting: boolean;
+  comment: string;
+  isSubmitting: boolean;
+  onStartVoting: () => void;
+  onCancelVoting: () => void;
+  onCommentChange: (value: string) => void;
+  onApprove: () => void;
+  onReject: () => void;
+}) {
+  return (
+    <div className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors">
+      <div className="flex items-start gap-4">
+        {/* Owner avatar */}
+        <div
+          className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
+          style={{ backgroundColor: kpi.owner.color }}
+        >
+          {kpi.owner.nombre.charAt(0)}
+        </div>
+
+        <div className="flex-1 min-w-0">
+          <div className="flex items-center gap-2 mb-1">
+            <h4 className="font-medium">{kpi.titulo}</h4>
+            {type === 'cp' && kpi.cp_points && kpi.cp_points > 1 && (
+              <Badge variant="outline" className="text-xs">
+                {kpi.cp_points} pts
+              </Badge>
+            )}
+          </div>
+
+          <p className="text-sm text-muted-foreground mb-2">
+            Por <span className="font-medium">{kpi.owner.nombre}</span>
+          </p>
+
+          {kpi.descripcion && (
+            <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
+              {kpi.descripcion}
+            </p>
+          )}
+
+          {/* Evidence link */}
+          {kpi.evidence_url && (
+            <div className="mb-3">
+              <EvidenceViewer url={kpi.evidence_url} compact />
+            </div>
+          )}
+
+          {/* Existing validations */}
+          {kpi.validations.length > 0 && (
+            <div className="mb-3 space-y-1">
+              <p className="text-xs font-medium text-muted-foreground">Votos:</p>
+              {kpi.validations.map((v, idx) => (
+                <div key={idx} className="flex items-center gap-2 text-sm">
+                  {v.approved ? (
+                    <CheckCircle2 className="w-3 h-3 text-success" />
+                  ) : (
+                    <XCircle className="w-3 h-3 text-destructive" />
+                  )}
+                  <span>{v.validator_nombre}</span>
+                  {v.comentario && (
+                    <span className="text-muted-foreground">- "{v.comentario}"</span>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
+
+          {/* Voting form */}
+          {isVoting ? (
+            <div className="space-y-3 pt-2 border-t border-border">
+              <Textarea
+                value={comment}
+                onChange={(e) => onCommentChange(e.target.value)}
+                placeholder="Comentario opcional..."
+                rows={2}
+              />
+              <div className="flex gap-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={onCancelVoting}
+                  disabled={isSubmitting}
+                >
+                  Cancelar
+                </Button>
+                <Button
+                  variant="destructive"
+                  size="sm"
+                  onClick={onReject}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4 mr-1" />}
+                  Rechazar
+                </Button>
+                <Button
+                  size="sm"
+                  onClick={onApprove}
+                  disabled={isSubmitting}
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-1" />}
+                  Aprobar
+                </Button>
+              </div>
+            </div>
+          ) : (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={onStartVoting}
+            >
+              <MessageSquare className="w-4 h-4 mr-2" />
+              Validar
+            </Button>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+});
 
 export function KPIValidationList({ type }: KPIValidationListProps) {
   const { profile } = useAuth();
@@ -121,7 +256,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
     enabled: !!profile?.id,
   });
 
-  const handleVote = async (kpiId: string, approved: boolean) => {
+  const handleVote = useCallback(async (kpiId: string, approved: boolean) => {
     if (!profile?.id) return;
 
     setIsSubmitting(true);
@@ -139,7 +274,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
       toast.success(approved ? 'KPI aprobado' : 'KPI rechazado');
       queryClient.invalidateQueries({ queryKey: ['pending_kpis'] });
       queryClient.invalidateQueries({ queryKey: ['member_stats'] });
-      
+
       setVotingId(null);
       setComment('');
     } catch (error) {
@@ -148,7 +283,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
     } finally {
       setIsSubmitting(false);
     }
-  };
+  }, [profile?.id, comment, queryClient]);
 
   if (isLoading) {
     return (
@@ -170,119 +305,22 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
   return (
     <div className="space-y-4">
       {pendingKPIs.map((kpi) => (
-        <div
+        <KPICard
           key={kpi.id}
-          className="bg-card border border-border rounded-xl p-4 hover:border-primary/30 transition-colors"
-        >
-          <div className="flex items-start gap-4">
-            {/* Owner avatar */}
-            <div
-              className="w-10 h-10 rounded-full flex items-center justify-center text-white font-bold shrink-0"
-              style={{ backgroundColor: kpi.owner.color }}
-            >
-              {kpi.owner.nombre.charAt(0)}
-            </div>
-
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h4 className="font-medium">{kpi.titulo}</h4>
-                {kpi.type === 'cp' && kpi.cp_points && kpi.cp_points > 1 && (
-                  <Badge variant="outline" className="text-xs">
-                    {kpi.cp_points} pts
-                  </Badge>
-                )}
-              </div>
-              
-              <p className="text-sm text-muted-foreground mb-2">
-                Por <span className="font-medium">{kpi.owner.nombre}</span>
-              </p>
-
-              {kpi.descripcion && (
-                <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
-                  {kpi.descripcion}
-                </p>
-              )}
-
-              {/* Evidence link */}
-              {kpi.evidence_url && (
-                <div className="mb-3">
-                  <EvidenceViewer url={kpi.evidence_url} compact />
-                </div>
-              )}
-
-              {/* Existing validations */}
-              {kpi.validations.length > 0 && (
-                <div className="mb-3 space-y-1">
-                  <p className="text-xs font-medium text-muted-foreground">Votos:</p>
-                  {kpi.validations.map((v, idx) => (
-                    <div key={idx} className="flex items-center gap-2 text-sm">
-                      {v.approved ? (
-                        <CheckCircle2 className="w-3 h-3 text-success" />
-                      ) : (
-                        <XCircle className="w-3 h-3 text-destructive" />
-                      )}
-                      <span>{v.validator_nombre}</span>
-                      {v.comentario && (
-                        <span className="text-muted-foreground">- "{v.comentario}"</span>
-                      )}
-                    </div>
-                  ))}
-                </div>
-              )}
-
-              {/* Voting form */}
-              {votingId === kpi.id ? (
-                <div className="space-y-3 pt-2 border-t border-border">
-                  <Textarea
-                    value={comment}
-                    onChange={(e) => setComment(e.target.value)}
-                    placeholder="Comentario opcional..."
-                    rows={2}
-                  />
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => {
-                        setVotingId(null);
-                        setComment('');
-                      }}
-                      disabled={isSubmitting}
-                    >
-                      Cancelar
-                    </Button>
-                    <Button
-                      variant="destructive"
-                      size="sm"
-                      onClick={() => handleVote(kpi.id, false)}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <XCircle className="w-4 h-4 mr-1" />}
-                      Rechazar
-                    </Button>
-                    <Button
-                      size="sm"
-                      onClick={() => handleVote(kpi.id, true)}
-                      disabled={isSubmitting}
-                    >
-                      {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-1" />}
-                      Aprobar
-                    </Button>
-                  </div>
-                </div>
-              ) : (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={() => setVotingId(kpi.id)}
-                >
-                  <MessageSquare className="w-4 h-4 mr-2" />
-                  Validar
-                </Button>
-              )}
-            </div>
-          </div>
-        </div>
+          kpi={kpi}
+          type={type}
+          isVoting={votingId === kpi.id}
+          comment={comment}
+          isSubmitting={isSubmitting}
+          onStartVoting={useCallback(() => setVotingId(kpi.id), [kpi.id])}
+          onCancelVoting={useCallback(() => {
+            setVotingId(null);
+            setComment('');
+          }, [])}
+          onCommentChange={useCallback((value: string) => setComment(value), [])}
+          onApprove={useCallback(() => handleVote(kpi.id, true), [kpi.id, handleVote])}
+          onReject={useCallback(() => handleVote(kpi.id, false), [kpi.id, handleVote])}
+        />
       ))}
     </div>
   );
