@@ -1,6 +1,5 @@
 import { useMemo, memo } from 'react';
 import { Crown, TrendingUp, BookOpen } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface TopMember {
   id: string;
@@ -39,7 +38,7 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
   const renderPodium = (
     items: TopMember[], 
     formatValue: (v: number) => string,
-    icon: React.ReactNode
+    _icon: React.ReactNode
   ) => (
     <div className="flex items-end justify-center gap-2 h-[120px]">
       {/* Second place */}

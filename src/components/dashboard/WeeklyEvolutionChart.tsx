@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { TrendingUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -41,11 +40,13 @@ export function WeeklyEvolutionChart() {
       // Aggregate data by week
       return weeks.map(week => {
         const weekOBVs = obvs?.filter(o => {
+          if (!o.created_at) return false;
           const date = new Date(o.created_at);
           return date >= week.start && date <= week.end;
         }) || [];
 
         const weekKPIs = kpis?.filter(k => {
+          if (!k.created_at) return false;
           const date = new Date(k.created_at);
           return date >= week.start && date <= week.end;
         }) || [];

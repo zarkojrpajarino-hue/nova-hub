@@ -466,14 +466,16 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                         {h.notas && (
                           <p className="text-xs text-muted-foreground mt-2">{h.notas}</p>
                         )}
-                        <p className="text-xs text-muted-foreground mt-1">
-                          {new Date(h.created_at).toLocaleDateString('es-ES', {
-                            day: 'numeric',
-                            month: 'short',
-                            hour: '2-digit',
-                            minute: '2-digit',
-                          })}
-                        </p>
+                        {h.created_at && (
+                          <p className="text-xs text-muted-foreground mt-1">
+                            {new Date(h.created_at).toLocaleDateString('es-ES', {
+                              day: 'numeric',
+                              month: 'short',
+                              hour: '2-digit',
+                              minute: '2-digit',
+                            })}
+                          </p>
+                        )}
                       </div>
                     </div>
                   );
@@ -517,9 +519,11 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                         <span className="font-bold text-success">€{obv.facturacion}</span>
                       )}
                     </div>
-                    <p className="text-xs text-muted-foreground mt-2">
-                      {new Date(obv.created_at).toLocaleDateString('es-ES')}
-                    </p>
+                    {obv.created_at && (
+                      <p className="text-xs text-muted-foreground mt-2">
+                        {new Date(obv.created_at).toLocaleDateString('es-ES')}
+                      </p>
+                    )}
                   </div>
                 ))}
               </div>

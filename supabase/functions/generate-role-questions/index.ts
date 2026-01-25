@@ -4,13 +4,6 @@ import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
-interface RoleContext {
-  role: string;
-  roleLabel: string;
-  roleDescription: string;
-  members: Array<{ nombre: string; projectName: string }>;
-}
-
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
   const corsHeaders = getCorsHeaders(origin);
@@ -76,15 +69,17 @@ Deno.serve(async (req) => {
 
     const { role } = validation.data;
 
-    const roleLabel = String(role.roleLabel || '').slice(0, 100);
-    const roleDescription = String(role.roleDescription || '').slice(0, 500);
+    // Support both new schema (nombre/descripcion) and legacy (roleLabel/roleDescription)
+    const roleLabel = String(role.roleLabel || role.nombre || '').slice(0, 100);
+    const roleDescription = String(role.roleDescription || role.descripcion || '').slice(0, 500);
 
     console.log('Generating questions for role:', roleLabel);
 
     // Build members context (sanitized)
     interface RoleMember { nombre?: string; projectName?: string; }
-    const membersContext = (role.members || []).length > 0
-      ? (role.members || []).slice(0, 10).map((m: RoleMember) => 
+    const members = role.members || [];
+    const membersContext = members.length > 0
+      ? members.slice(0, 10).map((m: RoleMember) => 
           `- ${String(m.nombre || '').slice(0, 100)} (Proyecto: ${String(m.projectName || '').slice(0, 100)})`
         ).join('\n')
       : 'Sin miembros asignados a este rol actualmente';

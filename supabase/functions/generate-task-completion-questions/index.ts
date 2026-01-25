@@ -4,13 +4,6 @@ import { requireEnv } from '../_shared/env-validation.ts';
 import { TaskCompletionQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
-interface TaskContext {
-  titulo: string;
-  descripcion: string | null;
-  playbook?: Record<string, unknown>;
-  metadata?: Record<string, unknown>;
-}
-
 interface Question {
   pregunta: string;
   tipo: 'texto' | 'escala' | 'opciones';
@@ -112,15 +105,15 @@ Responde ÚNICAMENTE con un JSON válido con el formato:
 }`;
 
     const taskDescription = String(task.descripcion || 'Sin descripción').slice(0, 500);
-    const metadata = task.metadata || {};
+    const metadata = (task.metadata || {}) as Record<string, unknown>;
     
     const userPrompt = `Tarea completada:
 Título: ${taskTitle}
 Descripción: ${taskDescription}
 
-${metadata ? `Contexto adicional:
-- Tipo de tarea: ${String((metadata as Record<string, unknown>).tipo_tarea || 'general').slice(0, 100)}
-- Resultado esperado: ${String((metadata as Record<string, unknown>).resultado_esperado || 'No especificado').slice(0, 300)}
+${Object.keys(metadata).length > 0 ? `Contexto adicional:
+- Tipo de tarea: ${String(metadata.tipo_tarea || 'general').slice(0, 100)}
+- Resultado esperado: ${String(metadata.resultado_esperado || 'No especificado').slice(0, 300)}
 ` : ''}
 
 Genera 2-3 preguntas de reflexión específicas para esta tarea.`;

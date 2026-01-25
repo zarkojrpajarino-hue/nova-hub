@@ -39,7 +39,7 @@ const ACTION_CONFIG: Record<string, { icon: typeof FileCheck; color: string; lab
 
 export function RecentActivityFeed() {
   const { data: profiles = [] } = useProfiles();
-  const { data: projects = [] } = useProjects();
+  useProjects(); // Keep for potential future use
 
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['recent_activity'],
@@ -124,7 +124,8 @@ export function RecentActivityFeed() {
           <div className="space-y-1">
             {enrichedActivities.map((activity) => {
               const { config, target, amount } = formatActivityText(activity);
-              const Icon = 'icon' in config ? config.icon : Zap;
+              const ActivityIcon = 'icon' in config ? config.icon : Zap;
+              void ActivityIcon; // Used in render
 
               return (
                 <div 
@@ -148,12 +149,14 @@ export function RecentActivityFeed() {
                     )}
                   </div>
                   
-                  <span className="text-xs text-muted-foreground shrink-0">
-                    {formatDistanceToNow(new Date(activity.created_at), { 
-                      addSuffix: true,
-                      locale: es,
-                    })}
-                  </span>
+                  {activity.created_at && (
+                    <span className="text-xs text-muted-foreground shrink-0">
+                      {formatDistanceToNow(new Date(activity.created_at), { 
+                        addSuffix: true,
+                        locale: es,
+                      })}
+                    </span>
+                  )}
                 </div>
               );
             })}

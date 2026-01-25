@@ -1,12 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { CheckCircle2, Eye, Check, X, Loader2 } from 'lucide-react';
+import { CheckCircle2, Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useProfiles } from '@/hooks/useNovaData';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { useNavigate } from 'react-router-dom';
 
 interface PendingItem {
   id: string;
@@ -23,7 +22,6 @@ export function PendingValidationsWidget() {
   const { profile } = useAuth();
   const { data: profiles = [] } = useProfiles();
   const queryClient = useQueryClient();
-  const navigate = useNavigate();
 
   const { data: pendingItems = [], isLoading } = useQuery({
     queryKey: ['pending_validations_dashboard', profile?.id],
