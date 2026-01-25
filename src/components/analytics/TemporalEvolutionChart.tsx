@@ -25,7 +25,7 @@ export function TemporalEvolutionChart({ period }: TemporalEvolutionChartProps) 
     queryKey: ['obvs-temporal', dateRange],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select('fecha, tipo')
         .gte('fecha', format(dateRange.start, 'yyyy-MM-dd'))
         .lte('fecha', format(dateRange.end, 'yyyy-MM-dd'));

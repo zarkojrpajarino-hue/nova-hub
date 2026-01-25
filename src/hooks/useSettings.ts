@@ -121,7 +121,7 @@ export function useUpdateProfile() {
       if (!user?.id) throw new Error('No user');
 
       const { error } = await supabase
-        .from('profiles')
+        .from('members_public')
         .update({
           nombre: data.nombre,
           color: data.color,

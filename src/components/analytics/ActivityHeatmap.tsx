@@ -32,7 +32,7 @@ export function ActivityHeatmap() {
     queryKey: ['obvs-heatmap', dateRange],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select('created_at')
         .gte('created_at', dateRange.start.toISOString())
         .lte('created_at', dateRange.end.toISOString());

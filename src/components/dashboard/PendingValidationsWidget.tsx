@@ -30,7 +30,7 @@ export function PendingValidationsWidget() {
 
       // Fetch pending OBVs
       const { data: obvs } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select('id, titulo, tipo, owner_id, project_id, created_at')
         .eq('status', 'pending')
         .neq('owner_id', profile.id)

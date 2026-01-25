@@ -85,7 +85,7 @@ export class KPIRepository {
     // Fetch owner profiles
     const ownerIds = [...new Set(kpis.map(k => k.owner_id))];
     const { data: owners, error: ownersError } = await supabase
-      .from('members')
+      .from('members_public')
       .select('id, nombre, color')
       .in('id', ownerIds);
 
@@ -94,7 +94,7 @@ export class KPIRepository {
     // Fetch validator profiles
     const validatorIds = [...new Set((validaciones || []).map(v => v.validator_id))];
     const { data: validators, error: validatorsError } = await supabase
-      .from('members')
+      .from('members_public')
       .select('id, nombre')
       .in('id', validatorIds);
 

@@ -12,16 +12,16 @@ export function ProjectOBVsTab({ projectId }: ProjectOBVsTabProps) {
     queryKey: ['project_obvs', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select('*')
         .eq('project_id', projectId)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
 
       // Get profiles
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('id, nombre, color');
 
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);

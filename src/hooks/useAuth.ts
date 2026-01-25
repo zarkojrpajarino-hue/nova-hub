@@ -30,7 +30,7 @@ export function useAuth() {
       try {
         const { data, error } = await Promise.race([
           supabase
-            .from('profiles')
+            .from('members_public')
             .select('*')
             .eq('auth_id', authId)
             .single(),

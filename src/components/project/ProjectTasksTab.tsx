@@ -44,7 +44,7 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
 
       const [obvsResult, leadsResult, lastActivityResult] = await Promise.all([
         supabase
-          .from('obvs')
+          .from('obvs_public')
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId)
           .gte('created_at', startOfMonth.toISOString()),
@@ -53,7 +53,7 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId),
         supabase
-          .from('obvs')
+          .from('obvs_public')
           .select('created_at')
           .eq('project_id', projectId)
           .order('created_at', { ascending: false })

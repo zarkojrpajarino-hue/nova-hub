@@ -25,7 +25,7 @@ export function WeeklyEvolutionChart() {
 
       // Query OBVs grouped by week
       const { data: obvs } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select('created_at, tipo')
         .gte('created_at', weeks[0].start.toISOString())
         .order('created_at', { ascending: true });

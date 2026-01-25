@@ -39,7 +39,7 @@ export function StepEquipo({
       try {
         // Fetch all profiles
         const { data: profilesData, error: profilesError } = await supabase
-          .from('profiles')
+          .from('members_public')
           .select('id, nombre, email, avatar, color')
           .order('nombre');
 

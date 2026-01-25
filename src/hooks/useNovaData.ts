@@ -83,7 +83,7 @@ export function useProfiles() {
     queryKey: ['profiles'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('*')
         .order('nombre');
       

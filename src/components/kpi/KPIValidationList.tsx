@@ -209,7 +209,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
       // Fetch owners
       const ownerIds = [...new Set(kpis.map(k => k.owner_id))];
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('id, nombre, color')
         .in('id', ownerIds);
 
@@ -218,7 +218,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
       // Fetch validator names
       const validatorIds = [...new Set((validaciones || []).map(v => v.validator_id))];
       const { data: validators } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('id, nombre')
         .in('id', validatorIds);
       

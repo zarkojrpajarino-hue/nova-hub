@@ -30,10 +30,10 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
     queryKey: ['my_obvs', profile?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select(`
-          id, titulo, descripcion, tipo, fecha, status, 
-          es_venta, facturacion, margen, producto, evidence_url, project_id
+          id, titulo, descripcion, tipo, fecha, status,
+          es_venta, producto, evidence_url, project_id
         `)
         .eq('owner_id', profile?.id)
         .order('created_at', { ascending: false });
@@ -60,10 +60,10 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
     queryKey: ['all_obvs'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select(`
           id, titulo, tipo, fecha, status, owner_id,
-          es_venta, facturacion, margen
+          es_venta
         `)
         .order('created_at', { ascending: false })
         .limit(50);
@@ -72,7 +72,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
       // Get profiles
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('id, nombre, color');
 
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);

@@ -88,7 +88,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
       // Get changer names
       const changerIds = [...new Set(data.map(h => h.changed_by).filter((id): id is string => id !== null))];
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('id, nombre')
         .in('id', changerIds as string[]);
       
@@ -109,8 +109,8 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
       if (!lead?.id) return [];
       
       const { data, error } = await supabase
-        .from('obvs')
-        .select('id, titulo, tipo, status, facturacion, created_at')
+        .from('obvs_public')
+        .select('id, titulo, tipo, status, created_at')
         .eq('lead_id', lead.id)
         .order('created_at', { ascending: false });
       

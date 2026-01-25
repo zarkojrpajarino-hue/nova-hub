@@ -30,7 +30,7 @@ export function SmartAlertsWidget() {
 
       // 1. Check for inactive members (5+ days without activity)
       const { data: recentActivity } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select('owner_id, created_at')
         .gte('created_at', new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString())
         .order('created_at', { ascending: false });

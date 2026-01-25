@@ -204,10 +204,10 @@ export function OBVValidationList() {
     queryKey: ['pending_obvs_for_validation'],
     queryFn: async () => {
       const { data: obvs, error } = await supabase
-        .from('obvs')
+        .from('obvs_public')
         .select(`
-          id, titulo, descripcion, tipo, fecha, evidence_url, 
-          es_venta, facturacion, margen, producto, status, owner_id, project_id
+          id, titulo, descripcion, tipo, fecha, evidence_url,
+          es_venta, producto, status, owner_id, project_id
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
@@ -221,7 +221,7 @@ export function OBVValidationList() {
         .in('obv_id', obvIds);
 
       const { data: profiles } = await supabase
-        .from('profiles')
+        .from('members_public')
         .select('id, nombre, color');
 
       const { data: projects } = await supabase
