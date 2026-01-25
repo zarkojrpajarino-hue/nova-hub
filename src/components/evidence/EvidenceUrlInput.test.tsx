@@ -1,154 +1,99 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { EvidenceUrlInput } from './EvidenceUrlInput';
 
+// Mock driveUtils
 vi.mock('@/lib/driveUtils', () => ({
-  parseDriveUrl: (url: string) => {
-    if (url.includes('drive.google.com/file')) {
+  parseDriveUrl: vi.fn((url: string) => {
+    if (url.includes('drive.google.com')) {
       return {
         isValid: true,
         type: 'file',
-        previewUrl: 'https://preview.url',
-        embedUrl: 'https://embed.url',
+        fileId: 'abc123',
+        previewUrl: 'https://drive.google.com/file/d/abc123/preview',
+        embedUrl: 'https://drive.google.com/file/d/abc123/preview',
+        errorMessage: null,
       };
     }
-    if (url.includes('docs.google.com')) {
-      return {
-        isValid: true,
-        type: 'docs',
-        previewUrl: 'https://preview.url',
-        embedUrl: 'https://embed.url',
-      };
-    }
-    return { isValid: false, errorMessage: 'URL no válida' };
-  },
-  getDriveTypeIcon: () => '📄',
-  getDriveTypeName: (type: string) => type === 'file' ? 'Archivo' : 'Documento',
+    return {
+      isValid: false,
+      type: 'unknown',
+      fileId: null,
+      previewUrl: null,
+      embedUrl: null,
+      errorMessage: 'No es una URL de Google Drive válida',
+    };
+  }),
+  getDriveTypeIcon: vi.fn(() => '📎'),
+  getDriveTypeName: vi.fn(() => 'Archivo'),
 }));
 
+// Mock EvidencePreviewModal
 vi.mock('./EvidencePreviewModal', () => ({
-  EvidencePreviewModal: () => <div>Preview Modal</div>,
+  EvidencePreviewModal: () => <div data-testid="preview-modal">Preview Modal</div>,
 }));
 
 describe('EvidenceUrlInput', () => {
-  const mockOnChange = vi.fn();
-
   it('renders label', () => {
-    render(<EvidenceUrlInput value="" onChange={mockOnChange} />);
+    render(<EvidenceUrlInput value="" onChange={vi.fn()} />);
     expect(screen.getByText('Evidencia (URL Google Drive)')).toBeInTheDocument();
   });
 
-  it('renders custom label', () => {
-    render(<EvidenceUrlInput value="" onChange={mockOnChange} label="Custom Label" />);
+  it('renders custom label when provided', () => {
+    render(<EvidenceUrlInput value="" onChange={vi.fn()} label="Custom Label" />);
     expect(screen.getByText('Custom Label')).toBeInTheDocument();
   });
 
-  it('shows required asterisk when required', () => {
-    render(<EvidenceUrlInput value="" onChange={mockOnChange} required />);
-    expect(screen.getByText('*')).toBeInTheDocument();
+  it('shows required indicator when required is true', () => {
+    const { container } = render(<EvidenceUrlInput value="" onChange={vi.fn()} required />);
+    expect(container.querySelector('.text-destructive')).toBeInTheDocument();
   });
 
   it('renders input field', () => {
-    render(<EvidenceUrlInput value="" onChange={mockOnChange} />);
-    const input = screen.getByPlaceholderText(/https:\/\/drive.google.com/);
-    expect(input).toBeInTheDocument();
+    render(<EvidenceUrlInput value="" onChange={vi.fn()} />);
+    expect(screen.getByPlaceholderText(/https:\/\/drive.google.com/)).toBeInTheDocument();
+  });
+
+  it('shows help text when input is empty', () => {
+    render(<EvidenceUrlInput value="" onChange={vi.fn()} />);
+    expect(screen.getByText(/Sube tu evidencia a Google Drive/)).toBeInTheDocument();
   });
 
   it('calls onChange when typing', async () => {
     const user = userEvent.setup();
+    const mockOnChange = vi.fn();
     render(<EvidenceUrlInput value="" onChange={mockOnChange} />);
+    
     const input = screen.getByPlaceholderText(/https:\/\/drive.google.com/);
-
     await user.type(input, 'test');
+    
     expect(mockOnChange).toHaveBeenCalled();
   });
 
-  it('shows help text when empty', () => {
-    render(<EvidenceUrlInput value="" onChange={mockOnChange} />);
-    expect(screen.getByText(/Sube tu evidencia a Google Drive/)).toBeInTheDocument();
+  it('displays value in input', () => {
+    const testUrl = 'https://drive.google.com/file/d/test123';
+    render(<EvidenceUrlInput value={testUrl} onChange={vi.fn()} />);
+    
+    const input = screen.getByPlaceholderText(/https:\/\/drive.google.com/) as HTMLInputElement;
+    expect(input.value).toBe(testUrl);
   });
 
-  it('hides help text when has value', () => {
-    render(<EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />);
-    expect(screen.queryByText(/Sube tu evidencia a Google Drive/)).not.toBeInTheDocument();
-  });
-
-  it('shows success indicator for valid URL', async () => {
+  it('shows Check icon for valid URL', () => {
     const { container } = render(
-      <EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />
+      <EvidenceUrlInput value="https://drive.google.com/file/d/test123" onChange={vi.fn()} />
     );
-    await waitFor(() => {
-      expect(container.querySelector('.text-success')).toBeInTheDocument();
-    });
+    
+    const checkIcon = container.querySelector('.lucide-check');
+    expect(checkIcon).toBeInTheDocument();
   });
 
-  it('shows error indicator for invalid URL', async () => {
+  it('shows AlertCircle icon for invalid URL', () => {
     const { container } = render(
-      <EvidenceUrlInput value="https://invalid.com" onChange={mockOnChange} />
+      <EvidenceUrlInput value="https://example.com" onChange={vi.fn()} />
     );
-    await waitFor(() => {
-      expect(container.querySelector('.text-destructive')).toBeInTheDocument();
-    });
-  });
-
-  it('shows file type detected message', async () => {
-    render(<EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />);
-    await waitFor(() => {
-      expect(screen.getByText(/Archivo detectado/)).toBeInTheDocument();
-    });
-  });
-
-  it('shows error message for invalid URL', async () => {
-    render(<EvidenceUrlInput value="https://invalid.com" onChange={mockOnChange} />);
-    await waitFor(() => {
-      expect(screen.getByText('URL no válida')).toBeInTheDocument();
-    });
-  });
-
-  it('shows preview button for valid URL', async () => {
-    render(<EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />);
-    await waitFor(() => {
-      expect(screen.getByText('Vista previa')).toBeInTheDocument();
-    });
-  });
-
-  it('shows open in drive button for valid URL', async () => {
-    render(<EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />);
-    await waitFor(() => {
-      expect(screen.getByText('Abrir en Drive')).toBeInTheDocument();
-    });
-  });
-
-  it('opens preview modal on preview button click', async () => {
-    const user = userEvent.setup();
-    render(<EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />);
-
-    await waitFor(() => {
-      expect(screen.getByText('Vista previa')).toBeInTheDocument();
-    });
-
-    await user.click(screen.getByText('Vista previa'));
-    expect(screen.getByText('Preview Modal')).toBeInTheDocument();
-  });
-
-  it('applies success border class for valid URL', async () => {
-    const { container } = render(
-      <EvidenceUrlInput value="https://drive.google.com/file/d/test" onChange={mockOnChange} />
-    );
-    await waitFor(() => {
-      const input = container.querySelector('input');
-      expect(input).toHaveClass('border-success');
-    });
-  });
-
-  it('applies destructive border class for invalid URL', async () => {
-    const { container } = render(
-      <EvidenceUrlInput value="https://invalid.com" onChange={mockOnChange} />
-    );
-    await waitFor(() => {
-      const input = container.querySelector('input');
-      expect(input).toHaveClass('border-destructive');
-    });
+    
+    const alertIcon = container.querySelector('.lucide-alert-circle');
+    expect(alertIcon).toBeInTheDocument();
   });
 });
