@@ -1,73 +1,62 @@
-import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TopRankingsWidget } from './TopRankingsWidget';
 
-// Mock useNovaData
-vi.mock('@/hooks/useNovaData', () => ({
-  useTopRankings: vi.fn(() => ({
-    data: {
-      topByObvs: [
-        { id: 'user1', nombre: 'Juan', apellidos: 'Pérez', obvs_count: 10, avatar: null, color: '#6366F1' },
-        { id: 'user2', nombre: 'María', apellidos: 'García', obvs_count: 8, avatar: null, color: '#22C55E' },
-      ],
-      topByFacturacion: [
-        { id: 'user1', nombre: 'Juan', apellidos: 'Pérez', facturacion_total: 50000, avatar: null, color: '#6366F1' },
-      ],
-      topByLPs: [
-        { id: 'user3', nombre: 'Carlos', apellidos: 'López', lp_count: 5, avatar: null, color: '#F59E0B' },
-      ],
-    },
-    isLoading: false,
-  })),
-}));
+const mockMembers = [
+  { id: 'user1', nombre: 'Alice', color: '#6366F1', obvs: 10, facturacion: 5000, lps: 3 },
+  { id: 'user2', nombre: 'Bob', color: '#22C55E', obvs: 15, facturacion: 8000, lps: 5 },
+  { id: 'user3', nombre: 'Charlie', color: '#F59E0B', obvs: 8, facturacion: 3000, lps: 2 },
+];
 
 describe('TopRankingsWidget', () => {
-  let queryClient: QueryClient;
-
-  beforeEach(() => {
-    queryClient = new QueryClient({
-      defaultOptions: {
-        queries: { retry: false },
-      },
-    });
-    vi.clearAllMocks();
+  it('renders Top OBVs section', () => {
+    render(<TopRankingsWidget members={mockMembers} />);
+    expect(screen.getByText('Top OBVs')).toBeInTheDocument();
   });
 
-  const renderComponent = () => {
-    return render(
-      <QueryClientProvider client={queryClient}>
-        <TopRankingsWidget />
-      </QueryClientProvider>
-    );
-  };
-
-  it('renders rankings title', () => {
-    renderComponent();
-    expect(screen.getByText('Rankings')).toBeInTheDocument();
+  it('renders Top Facturación section', () => {
+    render(<TopRankingsWidget members={mockMembers} />);
+    expect(screen.getByText('Top Facturación')).toBeInTheDocument();
   });
 
-  it('renders podium tabs', () => {
-    renderComponent();
-    expect(screen.getByText('OBVs')).toBeInTheDocument();
-    expect(screen.getByText('Facturación')).toBeInTheDocument();
-    expect(screen.getByText('LPs')).toBeInTheDocument();
+  it('renders Top LPs section', () => {
+    render(<TopRankingsWidget members={mockMembers} />);
+    expect(screen.getByText('Top LPs')).toBeInTheDocument();
   });
 
-  it('renders top performers by OBVs', () => {
-    renderComponent();
-    expect(screen.getByText('Juan Pérez')).toBeInTheDocument();
-    expect(screen.getByText('María García')).toBeInTheDocument();
+  it('renders Crown icon for Top OBVs', () => {
+    const { container } = render(<TopRankingsWidget members={mockMembers} />);
+    const icons = container.querySelectorAll('.lucide-crown');
+    expect(icons.length).toBeGreaterThan(0);
   });
 
-  it('displays OBV count', () => {
-    renderComponent();
-    expect(screen.getByText('10 OBVs')).toBeInTheDocument();
+  it('renders TrendingUp icon for Top Facturación', () => {
+    const { container } = render(<TopRankingsWidget members={mockMembers} />);
+    const icon = container.querySelector('.lucide-trending-up');
+    expect(icon).toBeInTheDocument();
   });
 
-  it('renders Trophy icon', () => {
-    const { container } = renderComponent();
-    const trophyIcon = container.querySelector('.lucide-trophy');
-    expect(trophyIcon).toBeInTheDocument();
+  it('renders BookOpen icon for Top LPs', () => {
+    const { container } = render(<TopRankingsWidget members={mockMembers} />);
+    const icon = container.querySelector('.lucide-book-open');
+    expect(icon).toBeInTheDocument();
+  });
+
+  it('displays first place indicator', () => {
+    render(<TopRankingsWidget members={mockMembers} />);
+    const firstPlaces = screen.getAllByText('1');
+    expect(firstPlaces.length).toBeGreaterThan(0);
+  });
+
+  it('displays second place indicator', () => {
+    render(<TopRankingsWidget members={mockMembers} />);
+    const secondPlaces = screen.getAllByText('2');
+    expect(secondPlaces.length).toBeGreaterThan(0);
+  });
+
+  it('displays third place indicator', () => {
+    render(<TopRankingsWidget members={mockMembers} />);
+    const thirdPlaces = screen.getAllByText('3');
+    expect(thirdPlaces.length).toBeGreaterThan(0);
   });
 });

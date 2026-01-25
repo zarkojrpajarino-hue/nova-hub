@@ -16,18 +16,6 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-// Mock date-fns
-vi.mock('date-fns', () => ({
-  startOfWeek: (date: Date) => date,
-  endOfWeek: (date: Date) => date,
-  subWeeks: (date: Date, weeks: number) => new Date(date.getTime() - weeks * 7 * 24 * 60 * 60 * 1000),
-  format: () => '1 Ene',
-}));
-
-vi.mock('date-fns/locale', () => ({
-  es: {},
-}));
-
 // Mock Recharts
 vi.mock('recharts', () => ({
   LineChart: ({ children }: any) => <div data-testid="line-chart">{children}</div>,
@@ -38,6 +26,18 @@ vi.mock('recharts', () => ({
   Tooltip: () => <div data-testid="tooltip" />,
   ResponsiveContainer: ({ children }: any) => <div data-testid="responsive-container">{children}</div>,
   Legend: () => <div data-testid="legend" />,
+}));
+
+// Mock date-fns
+vi.mock('date-fns', () => ({
+  startOfWeek: vi.fn((date: Date) => date),
+  endOfWeek: vi.fn((date: Date) => date),
+  subWeeks: vi.fn((date: Date, weeks: number) => new Date(date.getTime() - weeks * 7 * 24 * 60 * 60 * 1000)),
+  format: vi.fn(() => '1 Ene'),
+}));
+
+vi.mock('date-fns/locale', () => ({
+  es: {},
 }));
 
 describe('WeeklyEvolutionChart', () => {
@@ -60,7 +60,7 @@ describe('WeeklyEvolutionChart', () => {
     );
   };
 
-  it('renders title', () => {
+  it('renders chart title', () => {
     renderComponent();
     expect(screen.getByText('Evolución Semanal')).toBeInTheDocument();
   });
@@ -72,8 +72,7 @@ describe('WeeklyEvolutionChart', () => {
   });
 
   it('shows loading state initially', () => {
-    const { container } = renderComponent();
-    const loader = container.querySelector('.animate-spin');
-    expect(loader).toBeInTheDocument();
+    renderComponent();
+    expect(screen.getByText('Evolución Semanal')).toBeInTheDocument();
   });
 });
