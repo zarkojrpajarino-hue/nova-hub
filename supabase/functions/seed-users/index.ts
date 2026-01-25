@@ -1,6 +1,7 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets, getIdentifier } from '../_shared/rate-limiter.ts';
 
 // Users are seeded WITHOUT passwords in code
 // Passwords should be set via environment/secrets or manual setup
@@ -35,13 +36,25 @@ Deno.serve(async (req) => {
     // Check for admin authorization via internal secret
     const adminSecret = req.headers.get('x-admin-secret')
     const expectedSecret = Deno.env.get('SEED_ADMIN_SECRET')
-    
+
     // If SEED_ADMIN_SECRET is configured, require it
     if (expectedSecret && adminSecret !== expectedSecret) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized - admin secret required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
+    }
+
+    // Rate limiting - Admin operations are sensitive
+    const identifier = getIdentifier(req);
+    const rateLimitResult = checkRateLimit(
+      identifier,
+      'seed-users',
+      RateLimitPresets.ADMIN
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
 
     const supabaseAdmin = createClient(

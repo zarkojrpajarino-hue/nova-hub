@@ -1,14 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-
-// Valid roles for validation
-const VALID_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'leader', 'customer'];
-
-interface PlaybookRequest {
-  userId: string;
-  roleName: string;
-}
+import { PlaybookRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
+import { checkRateLimit, createRateLimitResponse, getIdentifier, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -48,22 +42,29 @@ Deno.serve(async (req) => {
 
     const authUserId = claims.claims.sub;
 
-    const { userId, roleName }: PlaybookRequest = await req.json();
+    // Rate limiting - AI generation is expensive
+    const rateLimitResult = checkRateLimit(
+      authUserId,
+      'generate-playbook',
+      RateLimitPresets.AI_GENERATION
+    );
 
-    // Validate inputs
-    if (!userId || typeof userId !== 'string' || userId.length > 36) {
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = await validateRequestSafe(PlaybookRequestSchema, body);
+
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid user ID' }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    if (!roleName || !VALID_ROLES.includes(roleName.toLowerCase())) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid role name' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const { userId, roleName } = validation.data;
 
     // Use service role for data operations
     const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');

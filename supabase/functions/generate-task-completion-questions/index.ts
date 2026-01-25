@@ -1,6 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
+import { TaskCompletionQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
 interface TaskContext {
   titulo: string;
@@ -52,38 +54,33 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
-      // Return fallback questions
-      return new Response(
-        JSON.stringify({ 
-          questions: [
-            {
-              pregunta: "¿Qué fue lo más desafiante de esta tarea?",
-              tipo: "texto",
-              placeholder: "Describe el principal obstáculo que encontraste..."
-            },
-            {
-              pregunta: "¿Qué recursos o apoyo te hubieran ayudado?",
-              tipo: "texto",
-              placeholder: "Herramientas, información, contactos..."
-            }
-          ]
-        }),
-        { headers: { ...corsHeaders, "Content-Type": "application/json" } }
-      );
+    const authUserId = claims.claims.sub;
+
+    // Rate limiting - AI generation is expensive
+    const rateLimitResult = checkRateLimit(
+      authUserId,
+      'generate-task-completion-questions',
+      RateLimitPresets.AI_GENERATION
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
 
-    const { task } = await req.json() as { task: TaskContext };
+    const LOVABLE_API_KEY = requireEnv("LOVABLE_API_KEY");
 
-    // Validate input
-    if (!task || typeof task !== 'object') {
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = await validateRequestSafe(TaskCompletionQuestionsRequestSchema, body);
+
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid task data' }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { task } = validation.data;
 
     const taskTitle = String(task.titulo || '').slice(0, 200);
     if (!taskTitle) {

@@ -2,6 +2,8 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { requireEnv } from '../_shared/env-validation.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';
+import { TasksGenerationRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
 
 // Role labels for display
@@ -52,15 +54,31 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { projectId } = await req.json();
-    
-    // Validate input
-    if (!projectId || typeof projectId !== 'string' || projectId.length > 36) {
+    const authUserId = claims.claims.sub;
+
+    // Rate limiting - AI generation is expensive
+    const rateLimitResult = checkRateLimit(
+      authUserId,
+      'generate-tasks-v2',
+      RateLimitPresets.AI_GENERATION
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = await validateRequestSafe(TasksGenerationRequestSchema, body);
+
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid project ID' }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { projectId } = validation.data;
 
     // Use service role for data operations
     const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');

@@ -1,6 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
+import { RoleQuestionsV2RequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
 // Types for nested Supabase query results
 interface ProfileNested {
@@ -135,20 +137,43 @@ Deno.serve(async (req) => {
       );
     }
 
-    const { role, meetingType = 'semanal', duracionMinutos = 30 } = await req.json();
-    
-    // Validate role input
-    const roleName = String(role || '').toLowerCase().slice(0, 50);
-    if (!roleName || !VALID_ROLES.includes(roleName)) {
+    const authUserId = claims.claims.sub;
+
+    // Rate limiting - AI generation is expensive
+    const rateLimitResult = checkRateLimit(
+      authUserId,
+      'generate-role-questions-v2',
+      RateLimitPresets.AI_GENERATION
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
+    }
+
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = await validateRequestSafe(RoleQuestionsV2RequestSchema, body);
+
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const { role, meetingType, duracionMinutos } = validation.data;
+
+    // Additional validation for role
+    const roleName = role.toLowerCase();
+    if (!VALID_ROLES.includes(roleName)) {
       return new Response(
         JSON.stringify({ error: 'Invalid role specified' }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Validate other inputs
     const sanitizedMeetingType = sanitizeText(meetingType, 50);
-    const sanitizedDuration = Math.min(Math.max(Number(duracionMinutos) || 30, 15), 180);
+    const sanitizedDuration = duracionMinutos;
 
     // Use service role for data queries
     const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');

@@ -1,6 +1,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
+import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
 
 interface RoleContext {
   role: string;
@@ -46,24 +48,33 @@ Deno.serve(async (req) => {
       );
     }
 
-    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
-    if (!LOVABLE_API_KEY) {
-      console.error("LOVABLE_API_KEY is not configured");
-      return new Response(
-        JSON.stringify({ error: "Unable to generate questions at this time" }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    const authUserId = claims.claims.sub;
+
+    // Rate limiting - AI generation is expensive
+    const rateLimitResult = checkRateLimit(
+      authUserId,
+      'generate-role-questions',
+      RateLimitPresets.AI_GENERATION
+    );
+
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
 
-    const { role } = await req.json() as { role: RoleContext };
+    const LOVABLE_API_KEY = requireEnv("LOVABLE_API_KEY");
 
-    // Validate input
-    if (!role || typeof role !== 'object') {
+    // Parse and validate request body
+    const body = await req.json();
+    const validation = await validateRequestSafe(RoleQuestionsRequestSchema, body);
+
+    if (!validation.success) {
       return new Response(
-        JSON.stringify({ error: 'Invalid role data' }),
+        JSON.stringify({ error: validation.error }),
         { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
+
+    const { role } = validation.data;
 
     const roleLabel = String(role.roleLabel || '').slice(0, 100);
     const roleDescription = String(role.roleDescription || '').slice(0, 500);
