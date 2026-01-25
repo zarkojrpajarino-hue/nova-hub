@@ -1,10 +1,7 @@
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { TrendingUp, Wallet, PieChart as PieChartIcon, BarChart3, Loader2, Clock, Receipt, Target } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
-import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
-import { useQuery } from '@tanstack/react-query';
-import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { RevenueEvolutionChart } from '@/components/financiero/RevenueEvolutionChart';
 import { ProjectBreakdownChart } from '@/components/financiero/ProjectBreakdownChart';
@@ -13,112 +10,37 @@ import { FinancialAlertsCard } from '@/components/financiero/FinancialAlertsCard
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_MEMBERS, DEMO_FINANCIAL, DEMO_FINANCIAL_METRICS, DEMO_PENDING_PAYMENTS } from '@/data/demoData';
+import { SectionHelp } from '@/components/ui/section-help';
+import { useFinancieroData } from '@/hooks/useFinancieroData';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
 }
 
 export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
-  const { isDemoMode } = useDemoMode();
-  const { data: realMembers = [], isLoading: loadingMembers } = useMemberStats();
-  const { data: objectives = [] } = useObjectives();
   const [viewMode, setViewMode] = useState<'dashboard' | 'cobros' | 'proyecciones'>('dashboard');
 
-  // Use demo data when in demo mode
-  const members = isDemoMode ? DEMO_MEMBERS : realMembers;
-  
-  // Fetch financial metrics
-  const { data: realFinancialMetrics = [] } = useQuery({
-    queryKey: ['financial_metrics_secure'],
-    queryFn: async () => {
-      // Use secure RPC function that restricts access to admins, project leads, and finance specialists
-      const { data, error } = await supabase
-        .rpc('get_financial_metrics_secure');
-      if (error) throw error;
-      return data || [];
+  const {
+    isLoading,
+    sortedByFacturacion,
+    financialMetrics,
+    pendingPayments,
+    overduePayments,
+    upcomingPayments,
+    objectivesMap,
+    metrics: {
+      totalFacturacion,
+      totalMargen,
+      margenPromedio,
+      totalPending,
+      overdueCount,
+      monthlyGrowth,
+      metaAnual,
+      progresoAnual,
     },
-    enabled: !isDemoMode,
-  });
+  } = useFinancieroData();
 
-  // Use demo financial metrics when in demo mode
-  const financialMetrics = isDemoMode ? DEMO_FINANCIAL_METRICS : realFinancialMetrics;
-
-  // Fetch pending payments
-  const { data: realPendingPayments = [] } = useQuery({
-    queryKey: ['pending_payments'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pending_payments')
-        .select('*');
-      if (error) throw error;
-      return data || [];
-    },
-    enabled: !isDemoMode,
-  });
-
-  // Use demo pending payments when in demo mode
-  const pendingPayments = isDemoMode ? DEMO_PENDING_PAYMENTS : realPendingPayments;
-
-  // Map objectives
-  const objectivesMap = useMemo(() => {
-    const map: Record<string, number> = {
-      facturacion: 15000,
-      margen: 7500,
-    };
-    objectives.forEach(obj => {
-      map[obj.name] = obj.target_value;
-    });
-    return map;
-  }, [objectives]);
-
-  // Use demo financial data if in demo mode
-  const totalFacturacion = isDemoMode 
-    ? DEMO_FINANCIAL.facturacion_total 
-    : members.reduce((sum, m) => sum + (Number(m.facturacion) || 0), 0);
-  const totalMargen = isDemoMode 
-    ? DEMO_FINANCIAL.margen_total 
-    : members.reduce((sum, m) => sum + (Number(m.margen) || 0), 0);
-  const margenPromedio = totalFacturacion > 0 ? (totalMargen / totalFacturacion) * 100 : 0;
-  
-  // Pending payments stats
-  const totalPending = isDemoMode 
-    ? DEMO_FINANCIAL.pendiente_cobro 
-    : pendingPayments.reduce((sum, p) => sum + (Number(p.pendiente) || 0), 0);
-  const overdueCount = isDemoMode 
-    ? DEMO_PENDING_PAYMENTS.filter(p => (p.dias_vencido || 0) > 0).length 
-    : pendingPayments.filter(p => (p.dias_vencido || 0) > 0).length;
-  const overduePayments = isDemoMode 
-    ? DEMO_PENDING_PAYMENTS.filter(p => (p.dias_vencido || 0) > 0)
-    : pendingPayments.filter(p => (p.dias_vencido || 0) > 0);
-  const upcomingPayments = isDemoMode 
-    ? DEMO_PENDING_PAYMENTS.filter(p => (p.dias_vencido || 0) <= 0 && p.estado_cobro !== 'cobrado')
-    : pendingPayments.filter(p => (p.dias_vencido || 0) <= 0 && p.estado_cobro !== 'cobrado');
-
-  // Calculate monthly growth (simplified)
-  const monthlyGrowth = useMemo(() => {
-    if (isDemoMode) return DEMO_FINANCIAL.crecimiento_mensual;
-    if (financialMetrics.length < 2) return 0;
-    const sorted = [...financialMetrics].sort((a, b) => 
-      new Date(b.month).getTime() - new Date(a.month).getTime()
-    );
-    const currentMonth = sorted[0]?.facturacion || 0;
-    const previousMonth = sorted[1]?.facturacion || 0;
-    if (previousMonth === 0) return 0;
-    return ((currentMonth - previousMonth) / previousMonth) * 100;
-  }, [financialMetrics, isDemoMode]);
-
-  const sortedByFacturacion = [...members].sort((a, b) => 
-    (Number(b.facturacion) || 0) - (Number(a.facturacion) || 0)
-  );
-
-  // Proyecciones
-  const metaAnual = isDemoMode ? DEMO_FINANCIAL.objetivo_facturacion : objectivesMap.facturacion * 9;
-  const progresoAnual = (totalFacturacion / metaAnual) * 100;
-
-  if (loadingMembers && !isDemoMode) {
+  if (isLoading) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
