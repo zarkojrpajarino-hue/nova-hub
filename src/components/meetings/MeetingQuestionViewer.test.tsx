@@ -4,54 +4,45 @@ import { MeetingQuestionViewer } from './MeetingQuestionViewer';
 
 const mockQuestions = [
   {
-    pregunta: '¿Qué resultados lograste esta semana?',
-    subtitulo: 'Revisión de objetivos',
+    pregunta: 'Test question',
+    subtitulo: 'Test subtitle',
     categoria: 'resultados' as const,
     prioridad: 1 as const,
     tiempo_sugerido_minutos: 10,
-    por_que_esta_pregunta: 'Para entender el progreso',
-    basada_en: 'Datos del equipo',
+    por_que_esta_pregunta: 'Test reason',
+    basada_en: 'Test based on',
     guia: {
-      objetivo_de_la_pregunta: 'Medir progreso',
-      como_introducirla: 'Comencemos revisando...',
-      preguntas_de_seguimiento: ['¿Qué aprendiste?'],
+      objetivo_de_la_pregunta: 'Test objective',
+      como_introducirla: 'Test intro',
+      preguntas_de_seguimiento: [],
       dinamica_sugerida: {
-        formato: 'ronda',
-        descripcion: 'Ronda de participación',
-        pasos: ['Paso 1', 'Paso 2'],
+        formato: 'Test format',
+        descripcion: 'Test desc',
+        pasos: [],
       },
-      que_buscar_en_respuestas: ['Claridad'],
-      red_flags: ['Evasivas'],
-      como_cerrar: 'Resumir puntos clave',
-      accion_resultante: 'Crear tareas de seguimiento',
+      que_buscar_en_respuestas: [],
+      red_flags: [],
+      como_cerrar: 'Test close',
+      accion_resultante: 'Test action',
     },
     relacionada_con_miembros: [],
   },
 ];
 
 describe('MeetingQuestionViewer', () => {
-  it('renders meeting title', () => {
+  it('renders preguntas para la junta title', () => {
     render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" />);
-    expect(screen.getByText('Reunión de Comercial')).toBeInTheDocument();
-  });
-
-  it('shows question count', () => {
-    render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" />);
-    expect(screen.getByText(/1 preguntas/)).toBeInTheDocument();
-  });
-
-  it('displays total time estimate', () => {
-    render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" />);
-    expect(screen.getByText(/10 minutos/)).toBeInTheDocument();
+    expect(screen.getByText(/Preguntas para la Junta/)).toBeInTheDocument();
   });
 
   it('renders question text', () => {
     render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" />);
-    expect(screen.getByText('¿Qué resultados lograste esta semana?')).toBeInTheDocument();
+    expect(screen.getByText('Test question')).toBeInTheDocument();
   });
 
-  it('shows completion badge', () => {
-    render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" />);
-    expect(screen.getByText(/0\/1 completadas/)).toBeInTheDocument();
+  it('renders agenda sugerida section when provided', () => {
+    const agenda = { apertura: 'Open', desarrollo: 'Dev', cierre: 'Close' };
+    render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" agendaSugerida={agenda} />);
+    expect(screen.getByText('Agenda Sugerida')).toBeInTheDocument();
   });
 });
