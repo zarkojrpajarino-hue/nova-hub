@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, User, FolderKanban, TrendingDown, Calendar, Loader2 } from 'lucide-react';
+import { AlertTriangle, User, TrendingDown, Calendar, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles, useProjects, useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { cn } from '@/lib/utils';
