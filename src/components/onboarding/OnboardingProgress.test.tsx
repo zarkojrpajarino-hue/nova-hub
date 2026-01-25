@@ -2,11 +2,12 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { OnboardingProgress } from './OnboardingProgress';
+import type { OnboardingStep } from './types';
 
-const mockSteps = [
-  { id: 'step1', title: 'Paso 1', icon: '1', component: () => null },
-  { id: 'step2', title: 'Paso 2', icon: '2', component: () => null },
-  { id: 'step3', title: 'Paso 3', icon: '3', component: () => null },
+const mockSteps: OnboardingStep[] = [
+  { id: 'step1', title: 'Paso 1', icon: '1', description: 'Primer paso' },
+  { id: 'step2', title: 'Paso 2', icon: '2', description: 'Segundo paso' },
+  { id: 'step3', title: 'Paso 3', icon: '3', description: 'Tercer paso' },
 ];
 
 describe('OnboardingProgress', () => {

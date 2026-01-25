@@ -8,7 +8,7 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { InsightForm } from './InsightForm';
 import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_INSIGHTS, type DemoInsight } from '@/data/demoData';
+import { DEMO_INSIGHTS } from '@/data/demoData';
 
 const TIPO_CONFIG: Record<UserInsight['tipo'], { icon: React.ElementType; color: string; label: string }> = {
   aprendizaje: { icon: BookOpen, color: '#3B82F6', label: 'Aprendizaje' },

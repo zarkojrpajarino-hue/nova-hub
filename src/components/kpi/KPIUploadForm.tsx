@@ -43,7 +43,7 @@ const TYPE_PLACEHOLDERS = {
 export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
-  const { canUpload, isBlocked } = useCanUpload();
+  const { isBlocked } = useCanUpload();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     titulo: '',

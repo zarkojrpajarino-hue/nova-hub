@@ -1,5 +1,5 @@
 import { memo, useRef, useState } from 'react';
-import { ThumbsUp, ThumbsDown, Clock, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { ThumbsUp, ThumbsDown, Clock, CheckCircle2, Loader2 } from 'lucide-react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';

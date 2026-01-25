@@ -1,6 +1,6 @@
 import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
-import { StepCanvas1, StepCanvas2, StepMetrics, StepObjectives } from './OperacionSteps';
+import { StepCanvas1, StepCanvas2, StepFinanzas, StepObjetivos } from './OperacionSteps';
 
 const mockData = {
   tipo: 'operacion' as const,
@@ -36,13 +36,13 @@ describe('OperacionSteps', () => {
     expect(screen.getByText('Business Model Canvas - Parte 2')).toBeInTheDocument();
   });
 
-  it('StepMetrics renders metricas actuales', () => {
-    render(<StepMetrics data={mockData} onChange={onChange} errors={errors} />);
+  it('StepFinanzas renders metricas actuales', () => {
+    render(<StepFinanzas data={mockData} onChange={onChange} errors={errors} />);
     expect(screen.getByText('Métricas Actuales')).toBeInTheDocument();
   });
 
-  it('StepObjectives renders objetivos title', () => {
-    render(<StepObjectives data={mockData} onChange={onChange} errors={errors} />);
+  it('StepObjetivos renders objetivos title', () => {
+    render(<StepObjetivos data={mockData} onChange={onChange} errors={errors} />);
     expect(screen.getByText(/Objetivos/)).toBeInTheDocument();
   });
 });

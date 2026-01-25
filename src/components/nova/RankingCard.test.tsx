@@ -71,7 +71,7 @@ describe('RankingCard', () => {
   });
 
   it('displays position badges with correct styling', () => {
-    const { container } = render(<RankingCard {...defaultProps} />);
+    render(<RankingCard {...defaultProps} />);
 
     // Check that position numbers are rendered (1, 2, 3, 4, 5)
     expect(screen.getByText('1')).toBeInTheDocument();

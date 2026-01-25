@@ -131,12 +131,7 @@ export function PredictionsWidget({ members }: PredictionsWidgetProps) {
     }
   };
 
-  const getProgressColor = (percentage: number) => {
-    if (percentage >= 100) return 'bg-green-500';
-    if (percentage >= 80) return 'bg-primary';
-    if (percentage >= 60) return 'bg-yellow-500';
-    return 'bg-red-500';
-  };
+  // getProgressColor removed - not currently used
 
   return (
     <div className="space-y-6">

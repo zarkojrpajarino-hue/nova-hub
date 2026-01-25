@@ -16,7 +16,7 @@ interface CoreaEspanaStepProps {
   errors: Record<string, string>;
 }
 
-export function CoreaEspanaStep({ data, onChange, errors }: CoreaEspanaStepProps) {
+export function CoreaEspanaStep({ data, onChange }: CoreaEspanaStepProps) {
   const [newItem, setNewItem] = useState('');
   
   // Initialize contexto_corea if not present

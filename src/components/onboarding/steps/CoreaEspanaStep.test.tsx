@@ -1,22 +1,17 @@
-import { describe, it, expect, beforeEach } from 'vitest';
+import { describe, it, expect } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { CoreaEspanaStep } from './CoreaEspanaStep';
+import { defaultContextoCorea } from '../types';
 
 const mockData = {
   tipo: 'validacion' as const,
   problema: 'Test problem',
   cliente_objetivo: 'Test client',
   solucion_propuesta: 'Test solution',
-  hipotesis: [],
+  hipotesis: ['Test hypothesis'],
   metricas_exito: 'Test metrics',
   recursos_disponibles: 'Test resources',
-  contexto_corea: {
-    viaje_planeado: false,
-    fechas_tentativas: '',
-    que_validar_desde_corea: [],
-    conexiones_locales: '',
-    necesidades_especificas: '',
-  },
+  contexto_corea: defaultContextoCorea,
 };
 
 describe('CoreaEspanaStep', () => {

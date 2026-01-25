@@ -1,4 +1,4 @@
-import { AlertTriangle, TrendingDown, TrendingUp, CheckCircle2 } from 'lucide-react';
+import { AlertTriangle, TrendingDown, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 

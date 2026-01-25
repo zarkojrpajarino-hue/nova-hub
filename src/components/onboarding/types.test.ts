@@ -1,7 +1,6 @@
 import { describe, it, expect } from 'vitest';
 
 // Type-only imports for testing purposes
-type OnboardingData = import('./types').OnboardingData;
 type ValidacionData = import('./types').ValidacionData;
 type OperacionData = import('./types').OperacionData;
 

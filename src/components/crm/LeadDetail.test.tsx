@@ -19,20 +19,19 @@ vi.mock('@/hooks/useCRM', () => ({
 const mockLead = {
   id: 'lead1',
   nombre: 'Empresa Alpha',
-  status: 'warm',
-  valor_estimado: 15000,
-  proyecto_id: 'proj1',
+  status: 'tibio',
+  valor_potencial: 15000,
+  project_id: 'proj1',
   responsable_id: 'user1',
-  contacto: 'contacto@empresa.com',
+  empresa: 'Alpha Corp',
+  email: 'contacto@empresa.com',
   telefono: '123456789',
   notas: 'Cliente potencial interesante',
+  proxima_accion: 'Llamar',
+  proxima_accion_fecha: null,
   created_at: new Date().toISOString(),
   updated_at: new Date().toISOString(),
 };
-
-const mockProjects = [
-  { id: 'proj1', nombre: 'Proyecto Alpha', icon: '🚀' },
-];
 
 const mockMembers = [
   { id: 'user1', nombre: 'Juan Pérez', color: '#6366F1' },
@@ -40,7 +39,7 @@ const mockMembers = [
 
 describe('LeadDetail', () => {
   let queryClient: QueryClient;
-  const mockOnClose = vi.fn();
+  const mockOnOpenChange = vi.fn();
 
   beforeEach(() => {
     queryClient = new QueryClient({
@@ -51,15 +50,14 @@ describe('LeadDetail', () => {
     vi.clearAllMocks();
   });
 
-  const renderComponent = (isOpen = true) => {
+  const renderComponent = (open = true) => {
     return render(
       <QueryClientProvider client={queryClient}>
         <LeadDetail
-          lead={mockLead}
-          projects={mockProjects}
+          lead={mockLead as any}
           members={mockMembers}
-          isOpen={isOpen}
-          onClose={mockOnClose}
+          open={open}
+          onOpenChange={mockOnOpenChange}
         />
       </QueryClientProvider>
     );
@@ -82,12 +80,12 @@ describe('LeadDetail', () => {
     expect(closeButton).toBeInTheDocument();
   });
 
-  it('calls onClose when close button clicked', async () => {
+  it('calls onOpenChange when close button clicked', async () => {
     const user = userEvent.setup();
     renderComponent();
     const closeButton = screen.getByRole('button', { name: /close/i });
     await user.click(closeButton);
-    expect(mockOnClose).toHaveBeenCalled();
+    expect(mockOnOpenChange).toHaveBeenCalled();
   });
 
   it('does not render when closed', () => {

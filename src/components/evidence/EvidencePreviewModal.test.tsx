@@ -9,7 +9,7 @@ describe('EvidencePreviewModal', () => {
         open={true}
         onOpenChange={() => {}}
         embedUrl="https://test.com"
-        type="document"
+        type="doc"
       />
     );
     expect(screen.getByText(/Vista previa/)).toBeInTheDocument();

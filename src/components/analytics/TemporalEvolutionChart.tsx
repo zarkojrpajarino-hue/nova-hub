@@ -71,7 +71,6 @@ export function TemporalEvolutionChart({ period }: TemporalEvolutionChartProps) 
     }
 
     return intervals.map(date => {
-      const dateStr = format(date, 'yyyy-MM-dd');
       let nextDate: Date;
       
       switch (period) {
