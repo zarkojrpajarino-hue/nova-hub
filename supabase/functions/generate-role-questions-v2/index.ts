@@ -173,7 +173,7 @@ Deno.serve(async (req) => {
     }
 
     const sanitizedMeetingType = sanitizeText(meetingType, 50);
-    const sanitizedDuration = duracionMinutos;
+    const sanitizedDuration = duracionMinutos ?? 60;
 
     // Use service role for data queries
     const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');

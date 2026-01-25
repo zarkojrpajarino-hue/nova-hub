@@ -4,7 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle } from 'lucide-react';
 import { useObjectives } from '@/hooks/useNovaData';
 import type { MemberStats } from '@/hooks/useNovaData';
-import { differenceInDays, endOfMonth, startOfMonth } from 'date-fns';
+import { differenceInDays } from 'date-fns';
 
 interface PredictionsWidgetProps {
   members: MemberStats[];
@@ -22,7 +22,7 @@ interface Prediction {
   message: string;
 }
 
-export function PredictionsWidget({ members, period }: PredictionsWidgetProps) {
+export function PredictionsWidget({ members }: PredictionsWidgetProps) {
   const { data: objectives = [] } = useObjectives();
 
   const predictions = useMemo((): Prediction[] => {
