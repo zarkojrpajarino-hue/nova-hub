@@ -20,6 +20,7 @@ export function useAuth() {
 
   useEffect(() => {
     let isMounted = true;
+    let sessionChecked = false;
 
     const fetchProfile = async (authId: string) => {
       const { data, error } = await supabase
@@ -28,12 +29,18 @@ export function useAuth() {
         .eq('auth_id', authId)
         .single();
 
-      if (isMounted && !error && data) {
+      if (error) {
+        console.error('Error fetching profile:', error);
+        if (isMounted) setProfile(null);
+        return;
+      }
+
+      if (isMounted && data) {
         setProfile(data as Profile);
       }
     };
 
-    // Set up auth state listener FIRST
+    // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, session) => {
         if (!isMounted) return;
@@ -46,10 +53,15 @@ export function useAuth() {
         } else {
           setProfile(null);
         }
+
+        // Only set loading to false if we've already checked initial session
+        if (sessionChecked) {
+          setLoading(false);
+        }
       }
     );
 
-    // THEN check for existing session
+    // Check for existing session
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!isMounted) return;
 
@@ -59,6 +71,8 @@ export function useAuth() {
       if (session?.user) {
         await fetchProfile(session.user.id);
       }
+
+      sessionChecked = true;
       setLoading(false);
     });
 

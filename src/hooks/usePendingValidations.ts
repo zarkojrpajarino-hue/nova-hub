@@ -28,7 +28,7 @@ export function usePendingValidations(limit = 10) {
     queryFn: async () => {
       if (!profileId) return [];
 
-      // Fetch pending OBVs that user hasn't validated
+      // Fetch pending OBVs with validations in a single query using nested selects
       const { data: obvs, error: obvError } = await supabase
         .from('obvs')
         .select(`
@@ -39,7 +39,8 @@ export function usePendingValidations(limit = 10) {
           project_id,
           created_at,
           profiles!obvs_owner_id_fkey(id, nombre, color),
-          projects!obvs_project_id_fkey(id, nombre, icon, color)
+          projects!obvs_project_id_fkey(id, nombre, icon, color),
+          obv_validaciones(validator_id)
         `)
         .eq('status', 'pending')
         .neq('owner_id', profileId)
@@ -50,7 +51,7 @@ export function usePendingValidations(limit = 10) {
         console.error('Error fetching OBVs:', obvError);
       }
 
-      // Fetch pending KPIs that user hasn't validated
+      // Fetch pending KPIs with validations in a single query
       const { data: kpis, error: kpiError } = await supabase
         .from('kpis')
         .select(`
@@ -59,7 +60,8 @@ export function usePendingValidations(limit = 10) {
           type,
           owner_id,
           created_at,
-          profiles!kpis_owner_id_fkey(id, nombre, color)
+          profiles!kpis_owner_id_fkey(id, nombre, color),
+          kpi_validaciones(validator_id)
         `)
         .eq('status', 'pending')
         .neq('owner_id', profileId)
@@ -70,39 +72,27 @@ export function usePendingValidations(limit = 10) {
         console.error('Error fetching KPIs:', kpiError);
       }
 
-      // Get user's existing validations to filter out already voted items
-      const obvIds = obvs?.map(o => o.id) || [];
-      const kpiIds = kpis?.map(k => k.id) || [];
-
-      const [obvVotesResult, kpiVotesResult, obvValidationCounts, kpiValidationCounts] = await Promise.all([
-        obvIds.length > 0
-          ? supabase.from('obv_validaciones').select('obv_id').eq('validator_id', profileId).in('obv_id', obvIds)
-          : Promise.resolve({ data: [] }),
-        kpiIds.length > 0
-          ? supabase.from('kpi_validaciones').select('kpi_id').eq('validator_id', profileId).in('kpi_id', kpiIds)
-          : Promise.resolve({ data: [] }),
-        // Get validation counts for OBVs
-        obvIds.length > 0
-          ? supabase.from('obv_validaciones').select('obv_id').in('obv_id', obvIds)
-          : Promise.resolve({ data: [] }),
-        // Get validation counts for KPIs
-        kpiIds.length > 0
-          ? supabase.from('kpi_validaciones').select('kpi_id').in('kpi_id', kpiIds)
-          : Promise.resolve({ data: [] }),
-      ]);
-
-      const votedObvIds = new Set(obvVotesResult.data?.map(v => v.obv_id) || []);
-      const votedKpiIds = new Set(kpiVotesResult.data?.map(v => v.kpi_id) || []);
-
-      // Count validations per item
+      // Process validations directly from nested data
+      const votedObvIds = new Set<string>();
       const obvCountMap = new Map<string, number>();
-      obvValidationCounts.data?.forEach(v => {
-        obvCountMap.set(v.obv_id, (obvCountMap.get(v.obv_id) || 0) + 1);
+
+      obvs?.forEach(obv => {
+        const validations = obv.obv_validaciones as unknown as Array<{ validator_id: string }> || [];
+        obvCountMap.set(obv.id, validations.length);
+        if (validations.some(v => v.validator_id === profileId)) {
+          votedObvIds.add(obv.id);
+        }
       });
 
+      const votedKpiIds = new Set<string>();
       const kpiCountMap = new Map<string, number>();
-      kpiValidationCounts.data?.forEach(v => {
-        kpiCountMap.set(v.kpi_id, (kpiCountMap.get(v.kpi_id) || 0) + 1);
+
+      kpis?.forEach(kpi => {
+        const validations = kpi.kpi_validaciones as unknown as Array<{ validator_id: string }> || [];
+        kpiCountMap.set(kpi.id, validations.length);
+        if (validations.some(v => v.validator_id === profileId)) {
+          votedKpiIds.add(kpi.id);
+        }
       });
 
       // Build unified list

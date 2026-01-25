@@ -106,6 +106,9 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
     }
 
     // Para otros movimientos, actualizar directamente
+    // Save previous state for rollback
+    const previousTasks = queryClient.getQueryData<Task[]>(['project_tasks', projectId]);
+
     // Optimistic update
     queryClient.setQueryData(['project_tasks', projectId], (old: Task[] | undefined) =>
       old?.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
@@ -121,12 +124,13 @@ export function KanbanBoard({ projectId, projectMembers }: KanbanBoardProps) {
         .eq('id', taskId);
 
       if (error) throw error;
-      
+
       toast.success(`Tarea movida a ${TASK_COLUMNS.find(c => c.id === newStatus)?.label}`);
     } catch (error) {
+      // ROLLBACK on failure
+      queryClient.setQueryData(['project_tasks', projectId], previousTasks);
       console.error('Error updating task:', error);
-      toast.error('Error al mover la tarea');
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
+      toast.error('Error al mover la tarea. Se ha revertido el cambio.');
     }
   };
 
