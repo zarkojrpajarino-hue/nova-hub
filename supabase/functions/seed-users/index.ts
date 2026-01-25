@@ -34,13 +34,13 @@ Deno.serve(async (req) => {
 
   try {
     // Check for admin authorization via internal secret
+    // SECURITY: Admin secret is MANDATORY - fail if not configured
+    const expectedSecret = requireEnv('SEED_ADMIN_SECRET')
     const adminSecret = req.headers.get('x-admin-secret')
-    const expectedSecret = Deno.env.get('SEED_ADMIN_SECRET')
 
-    // If SEED_ADMIN_SECRET is configured, require it
-    if (expectedSecret && adminSecret !== expectedSecret) {
+    if (!adminSecret || adminSecret !== expectedSecret) {
       return new Response(
-        JSON.stringify({ error: 'Unauthorized - admin secret required' }),
+        JSON.stringify({ error: 'Unauthorized - valid admin secret required' }),
         { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       )
     }
