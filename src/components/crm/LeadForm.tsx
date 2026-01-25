@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
+import { leadService } from '@/services/LeadService';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -62,7 +62,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
     setIsSubmitting(true);
 
     try {
-      const { error } = await supabase.from('leads').insert({
+      await leadService.create({
         nombre: formData.nombre,
         empresa: formData.empresa || null,
         email: formData.email || null,
@@ -75,8 +75,6 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
         responsable_id: formData.responsable_id || profile?.id || null,
         project_id: formData.project_id,
       });
-
-      if (error) throw error;
 
       toast.success('Lead creado correctamente');
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
