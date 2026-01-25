@@ -37,7 +37,7 @@ export function SmartAlertsWidget() {
 
       const lastActivityByMember = new Map<string, Date>();
       recentActivity?.forEach(a => {
-        if (!lastActivityByMember.has(a.owner_id)) {
+        if (a.created_at && !lastActivityByMember.has(a.owner_id)) {
           lastActivityByMember.set(a.owner_id, new Date(a.created_at));
         }
       });

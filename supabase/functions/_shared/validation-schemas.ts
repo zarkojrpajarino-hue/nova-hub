@@ -1,5 +1,5 @@
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
-import { sanitizePromptInput, SanitizerPresets } from './ai-prompt-sanitizer.ts';
+import { sanitizePromptInput } from './ai-prompt-sanitizer.ts';
 
 /**
  * Shared Zod validation schemas for edge functions
@@ -10,11 +10,23 @@ import { sanitizePromptInput, SanitizerPresets } from './ai-prompt-sanitizer.ts'
 // Valid roles for the system
 const VALID_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'leader', 'customer'] as const;
 
+// Sanitizer config interface
+interface SanitizerConfig {
+  maxLength: number;
+  allowNewlines: boolean;
+  allowSpecialChars: boolean;
+  strictMode: boolean;
+}
+
+// Default configs
+const SHORT_CONFIG: SanitizerConfig = { maxLength: 100, allowNewlines: false, allowSpecialChars: false, strictMode: true };
+const MEDIUM_CONFIG: SanitizerConfig = { maxLength: 500, allowNewlines: true, allowSpecialChars: true, strictMode: false };
+
 /**
  * Custom Zod validator for AI-safe strings
  * Sanitizes input and blocks prompt injection attempts
  */
-function aiSafeString(config = SanitizerPresets.MEDIUM_INPUT) {
+function aiSafeString(config: SanitizerConfig = MEDIUM_CONFIG) {
   return z.string().transform((val, ctx) => {
     const result = sanitizePromptInput(val, config);
 
@@ -53,9 +65,15 @@ export const ProjectRolesRequestSchema = z.object({
  */
 export const RoleQuestionsRequestSchema = z.object({
   role: z.object({
-    nombre: aiSafeString(SanitizerPresets.SHORT_INPUT),
-    descripcion: aiSafeString(SanitizerPresets.MEDIUM_INPUT).optional(),
-    responsabilidades: z.array(aiSafeString(SanitizerPresets.MEDIUM_INPUT)).optional(),
+    nombre: z.string().max(100),
+    descripcion: z.string().max(500).optional(),
+    responsabilidades: z.array(z.string().max(500)).optional(),
+    roleLabel: z.string().max(100).optional(),
+    roleDescription: z.string().max(500).optional(),
+    members: z.array(z.object({
+      nombre: z.string().optional(),
+      projectName: z.string().optional(),
+    })).optional(),
   }),
 });
 
@@ -63,8 +81,8 @@ export const RoleQuestionsRequestSchema = z.object({
  * Role questions generation V2 request schema
  */
 export const RoleQuestionsV2RequestSchema = z.object({
-  role: aiSafeString(SanitizerPresets.SHORT_INPUT),
-  meetingType: aiSafeString({ ...SanitizerPresets.SHORT_INPUT, maxLength: 50 }).optional().default('semanal'),
+  role: z.string().max(100),
+  meetingType: z.string().max(50).optional().default('semanal'),
   duracionMinutos: z.number().int().min(15, 'Duration must be at least 15 minutes').max(180, 'Duration cannot exceed 180 minutes').optional().default(30),
 });
 
@@ -73,10 +91,11 @@ export const RoleQuestionsV2RequestSchema = z.object({
  */
 export const TaskCompletionQuestionsRequestSchema = z.object({
   task: z.object({
-    titulo: aiSafeString(SanitizerPresets.SHORT_INPUT),
-    descripcion: aiSafeString(SanitizerPresets.MEDIUM_INPUT).optional(),
+    titulo: z.string().max(200),
+    descripcion: z.string().max(500).optional(),
     assignee_id: z.string().uuid().optional(),
     project_id: z.string().uuid().optional(),
+    metadata: z.record(z.unknown()).optional(),
   }),
 });
 
