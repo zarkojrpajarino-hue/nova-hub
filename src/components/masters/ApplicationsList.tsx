@@ -1,4 +1,6 @@
+import { memo, useRef, useState } from 'react';
 import { ThumbsUp, ThumbsDown, Clock, CheckCircle2, XCircle, Loader2 } from 'lucide-react';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -10,7 +12,6 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { toast } from 'sonner';
-import { useState } from 'react';
 
 interface ApplicationsListProps {
   applications: MasterApplication[];
@@ -28,6 +29,14 @@ const STATUS_CONFIG = {
 
 export function ApplicationsList({ applications, profiles, currentUserId }: ApplicationsListProps) {
   const voteOnApplication = useVoteOnApplication();
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: applications.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 400,
+    overscan: 2,
+  });
 
   if (applications.length === 0) {
     return (
@@ -44,29 +53,50 @@ export function ApplicationsList({ applications, profiles, currentUserId }: Appl
   }
 
   return (
-    <div className="space-y-4">
-      {applications.map(application => {
-        const applicant = profiles.find(p => p.id === application.user_id);
-        const roleConfig = ROLE_CONFIG[application.role_name];
-        const statusConfig = STATUS_CONFIG[application.status];
-        const isOwnApplication = application.user_id === currentUserId;
-        const votesProgress = ((application.votes_for + application.votes_against) / 8) * 100;
+    <div ref={parentRef} className="h-[800px] overflow-auto">
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => {
+          const application = applications[virtualItem.index];
+          const applicant = profiles.find(p => p.id === application.user_id);
+          const roleConfig = ROLE_CONFIG[application.role_name];
+          const statusConfig = STATUS_CONFIG[application.status];
+          const isOwnApplication = application.user_id === currentUserId;
+          const votesProgress = ((application.votes_for + application.votes_against) / 8) * 100;
 
-        return (
-          <ApplicationCard
-            key={application.id}
-            application={application}
-            applicant={applicant}
-            roleConfig={roleConfig}
-            statusConfig={statusConfig}
-            isOwnApplication={isOwnApplication}
-            votesProgress={votesProgress}
-            currentUserId={currentUserId}
-            onVote={voteOnApplication.mutateAsync}
-            isVoting={voteOnApplication.isPending}
-          />
-        );
-      })}
+          return (
+            <div
+              key={virtualItem.key}
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                width: '100%',
+                height: `${virtualItem.size}px`,
+                transform: `translateY(${virtualItem.start}px)`,
+              }}
+              className="px-1 pb-4"
+            >
+              <ApplicationCard
+                application={application}
+                applicant={applicant}
+                roleConfig={roleConfig}
+                statusConfig={statusConfig}
+                isOwnApplication={isOwnApplication}
+                votesProgress={votesProgress}
+                currentUserId={currentUserId}
+                onVote={voteOnApplication.mutateAsync}
+                isVoting={voteOnApplication.isPending}
+              />
+            </div>
+          );
+        })}
+      </div>
     </div>
   );
 }
@@ -83,7 +113,7 @@ interface ApplicationCardProps {
   isVoting: boolean;
 }
 
-function ApplicationCard({
+const ApplicationCard = memo(function ApplicationCard({
   application,
   applicant,
   roleConfig,
@@ -242,4 +272,4 @@ function ApplicationCard({
       </CardContent>
     </Card>
   );
-}
+});

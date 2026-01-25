@@ -1,5 +1,6 @@
-import { memo, useCallback } from 'react';
+import { memo, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
+import { useVirtualizer } from '@tanstack/react-virtual';
 import { Clock, CheckCircle2, XCircle, ExternalLink, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -142,6 +143,15 @@ export function KPIList({ type }: KPIListProps) {
     );
   }
 
+  const parentRef = useRef<HTMLDivElement>(null);
+
+  const virtualizer = useVirtualizer({
+    count: kpis.length,
+    getScrollElement: () => parentRef.current,
+    estimateSize: () => 120,
+    overscan: 5,
+  });
+
   if (kpis.length === 0) {
     return (
       <div className="text-center py-8 text-muted-foreground">
@@ -152,15 +162,35 @@ export function KPIList({ type }: KPIListProps) {
   }
 
   return (
-    <div className="space-y-3">
-      {kpis.map((kpi) => (
-        <KPIItem
-          key={kpi.id}
-          kpi={kpi}
-          type={type}
-          onOpenEvidence={handleOpenEvidence}
-        />
-      ))}
+    <div ref={parentRef} className="h-[600px] overflow-auto">
+      <div
+        style={{
+          height: `${virtualizer.getTotalSize()}px`,
+          width: '100%',
+          position: 'relative',
+        }}
+      >
+        {virtualizer.getVirtualItems().map((virtualItem) => (
+          <div
+            key={virtualItem.key}
+            style={{
+              position: 'absolute',
+              top: 0,
+              left: 0,
+              width: '100%',
+              height: `${virtualItem.size}px`,
+              transform: `translateY(${virtualItem.start}px)`,
+            }}
+            className="px-1"
+          >
+            <KPIItem
+              kpi={kpis[virtualItem.index]}
+              type={type}
+              onOpenEvidence={handleOpenEvidence}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
