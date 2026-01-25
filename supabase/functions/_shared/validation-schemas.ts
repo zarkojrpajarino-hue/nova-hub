@@ -1,12 +1,34 @@
 import { z } from 'https://deno.land/x/zod@v3.22.4/mod.ts';
+import { sanitizePromptInput, SanitizerPresets } from './ai-prompt-sanitizer.ts';
 
 /**
  * Shared Zod validation schemas for edge functions
  * Provides type-safe input validation with clear error messages
+ * Includes AI prompt injection protection via sanitization
  */
 
 // Valid roles for the system
 const VALID_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'leader', 'customer'] as const;
+
+/**
+ * Custom Zod validator for AI-safe strings
+ * Sanitizes input and blocks prompt injection attempts
+ */
+function aiSafeString(config = SanitizerPresets.MEDIUM_INPUT) {
+  return z.string().transform((val, ctx) => {
+    const result = sanitizePromptInput(val, config);
+
+    if (result.blocked) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: result.reason || 'Input blocked by security filters',
+      });
+      return z.NEVER;
+    }
+
+    return result.sanitized;
+  });
+}
 
 /**
  * Playbook generation request schema
@@ -30,15 +52,19 @@ export const ProjectRolesRequestSchema = z.object({
  * Role questions generation request schema
  */
 export const RoleQuestionsRequestSchema = z.object({
-  role: z.any(), // Flexible schema for role context object
+  role: z.object({
+    nombre: aiSafeString(SanitizerPresets.SHORT_INPUT),
+    descripcion: aiSafeString(SanitizerPresets.MEDIUM_INPUT).optional(),
+    responsabilidades: z.array(aiSafeString(SanitizerPresets.MEDIUM_INPUT)).optional(),
+  }),
 });
 
 /**
  * Role questions generation V2 request schema
  */
 export const RoleQuestionsV2RequestSchema = z.object({
-  role: z.string().min(1, 'Role is required').max(50, 'Role name too long'),
-  meetingType: z.string().max(50).optional().default('semanal'),
+  role: aiSafeString(SanitizerPresets.SHORT_INPUT),
+  meetingType: aiSafeString({ ...SanitizerPresets.SHORT_INPUT, maxLength: 50 }).optional().default('semanal'),
   duracionMinutos: z.number().int().min(15, 'Duration must be at least 15 minutes').max(180, 'Duration cannot exceed 180 minutes').optional().default(30),
 });
 
@@ -46,7 +72,12 @@ export const RoleQuestionsV2RequestSchema = z.object({
  * Task completion questions request schema
  */
 export const TaskCompletionQuestionsRequestSchema = z.object({
-  task: z.any(), // Flexible schema for task context object
+  task: z.object({
+    titulo: aiSafeString(SanitizerPresets.SHORT_INPUT),
+    descripcion: aiSafeString(SanitizerPresets.MEDIUM_INPUT).optional(),
+    assignee_id: z.string().uuid().optional(),
+    project_id: z.string().uuid().optional(),
+  }),
 });
 
 /**
