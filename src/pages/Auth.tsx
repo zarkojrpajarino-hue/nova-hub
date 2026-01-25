@@ -10,7 +10,7 @@ import { z } from 'zod';
 import { mapAuthError, logError } from '@/lib/errorMapper';
 
 const emailSchema = z.string().email('Email inválido');
-const passwordSchema = z.string().min(6, 'Mínimo 6 caracteres');
+const passwordSchema = z.string().min(8, 'Mínimo 8 caracteres');
 
 export default function Auth() {
   const [loading, setLoading] = useState(false);

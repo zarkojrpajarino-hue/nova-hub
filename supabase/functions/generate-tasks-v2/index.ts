@@ -1,10 +1,8 @@
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { requireEnv } from '../_shared/env-validation.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 // Role labels for display
 const ROLE_LABELS: Record<string, string> = {
@@ -19,8 +17,11 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsPreflightRequest(origin);
   }
 
   try {
@@ -33,8 +34,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseUrl = requireEnv('SUPABASE_URL');
+    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
     
     const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
@@ -62,7 +63,7 @@ Deno.serve(async (req) => {
     }
 
     // Use service role for data operations
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('Generating tasks for project:', projectId);
@@ -150,14 +151,7 @@ Deno.serve(async (req) => {
     const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || []);
 
     // 6. Call AI
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: 'Unable to generate tasks at this time' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const LOVABLE_API_KEY = requireEnv('LOVABLE_API_KEY');
 
     console.log('Calling AI with context for', teamWithMetrics.length, 'members');
 

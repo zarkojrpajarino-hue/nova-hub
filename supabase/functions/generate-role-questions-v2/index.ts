@@ -1,9 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { requireEnv } from '../_shared/env-validation.ts';
 
 // Types for nested Supabase query results
 interface ProfileNested {
@@ -103,8 +100,11 @@ function sanitizeText(input: unknown, maxLength: number): string {
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    return handleCorsPreflightRequest(origin);
   }
 
   try {
@@ -117,8 +117,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseUrl = requireEnv('SUPABASE_URL');
+    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
     
     const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
@@ -151,7 +151,7 @@ Deno.serve(async (req) => {
     const sanitizedDuration = Math.min(Math.max(Number(duracionMinutos) || 30, 15), 180);
 
     // Use service role for data queries
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('Generating questions for role:', roleName);
@@ -254,14 +254,7 @@ Deno.serve(async (req) => {
     const roleInfo = ROLE_INFO[roleName] || ROLE_INFO.operations;
 
     // Call AI
-    const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
-    if (!LOVABLE_API_KEY) {
-      console.error('LOVABLE_API_KEY not configured');
-      return new Response(
-        JSON.stringify({ error: 'Unable to generate questions at this time' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
-    }
+    const LOVABLE_API_KEY = requireEnv('LOVABLE_API_KEY');
 
     const response = await fetch('https://ai.lovable.dev/v1/chat/completions', {
       method: 'POST',

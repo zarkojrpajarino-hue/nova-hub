@@ -1,9 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-}
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { requireEnv } from '../_shared/env-validation.ts';
 
 // Available roles
 const AVAILABLE_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy'] as const
@@ -27,8 +24,11 @@ interface MemberRoleHistory {
 }
 
 Deno.serve(async (req) => {
+  const origin = req.headers.get('origin');
+  const corsHeaders = getCorsHeaders(origin);
+
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders })
+    return handleCorsPreflightRequest(origin);
   }
 
   try {
@@ -41,8 +41,8 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
+    const supabaseUrl = requireEnv('SUPABASE_URL');
+    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
     
     const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
@@ -70,7 +70,7 @@ Deno.serve(async (req) => {
     }
 
     // Use service role for data operations
-    const supabaseKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
