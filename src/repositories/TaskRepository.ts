@@ -1,18 +1,14 @@
 import { supabase } from '@/integrations/supabase/client';
-import type { Database } from '@/integrations/supabase/types';
+import type { Database, Json } from '@/integrations/supabase/types';
 
 type Task = Database['public']['Tables']['tasks']['Row'];
 type TaskInsert = Database['public']['Tables']['tasks']['Insert'];
 type TaskUpdate = Database['public']['Tables']['tasks']['Update'];
 type TaskStatus = Database['public']['Enums']['task_status'];
 
-/**
- * Repository pattern for Task data access
- * Abstracts Supabase operations behind a clean interface
- */
 export class TaskRepository {
   /**
-   * Find task by ID
+   * Find a task by ID
    */
   async findById(id: string): Promise<Task | null> {
     const { data, error } = await supabase
@@ -33,25 +29,26 @@ export class TaskRepository {
       .from('tasks')
       .select('*')
       .eq('project_id', projectId)
+      .order('prioridad', { ascending: true })
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return data;
   }
 
   /**
-   * Find tasks by status
+   * Find tasks assigned to a user
    */
-  async findByStatus(projectId: string, status: TaskStatus): Promise<Task[]> {
+  async findByAssignee(assigneeId: string): Promise<Task[]> {
     const { data, error } = await supabase
       .from('tasks')
       .select('*')
-      .eq('project_id', projectId)
-      .eq('status', status)
+      .eq('assignee_id', assigneeId)
+      .order('prioridad', { ascending: true })
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return data;
   }
 
   /**
@@ -69,21 +66,7 @@ export class TaskRepository {
   }
 
   /**
-   * Update task status
-   */
-  async updateStatus(id: string, status: TaskStatus): Promise<void> {
-    const completed_at = status === 'done' ? new Date().toISOString() : null;
-
-    const { error } = await supabase
-      .from('tasks')
-      .update({ status, completed_at })
-      .eq('id', id);
-
-    if (error) throw error;
-  }
-
-  /**
-   * Update task
+   * Update a task
    */
   async update(id: string, updates: TaskUpdate): Promise<Task> {
     const { data, error } = await supabase
@@ -98,7 +81,53 @@ export class TaskRepository {
   }
 
   /**
-   * Delete task
+   * Update task status
+   */
+  async updateStatus(id: string, status: TaskStatus): Promise<void> {
+    const { error } = await supabase
+      .from('tasks')
+      .update({
+        status,
+        completed_at: status === 'done' ? new Date().toISOString() : null,
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Complete task with feedback metadata
+   */
+  async completeWithFeedback(
+    id: string,
+    feedback: {
+      resultado: string;
+      insights: string;
+      aprendizaje: string;
+      siguiente_accion: string;
+      dificultad: number;
+    },
+    currentMetadata?: Json
+  ): Promise<void> {
+    const metadata = currentMetadata as Record<string, unknown> || {};
+
+    const { error } = await supabase
+      .from('tasks')
+      .update({
+        status: 'done' as TaskStatus,
+        completed_at: new Date().toISOString(),
+        metadata: JSON.stringify({
+          ...metadata,
+          completion_feedback: feedback,
+        }),
+      })
+      .eq('id', id);
+
+    if (error) throw error;
+  }
+
+  /**
+   * Delete a task
    */
   async delete(id: string): Promise<void> {
     const { error } = await supabase
@@ -108,26 +137,6 @@ export class TaskRepository {
 
     if (error) throw error;
   }
-
-  /**
-   * Mark task as complete with completion data
-   */
-  async complete(id: string, completedBy: string, feedback?: string): Promise<Task> {
-    const { data, error } = await supabase
-      .from('tasks')
-      .update({
-        status: 'done',
-        completed_at: new Date().toISOString(),
-        completed_by: completedBy,
-      })
-      .eq('id', id)
-      .select()
-      .single();
-
-    if (error) throw error;
-    return data;
-  }
 }
 
-// Singleton instance
 export const taskRepository = new TaskRepository();

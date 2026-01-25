@@ -4,30 +4,16 @@ import type { Database } from '@/integrations/supabase/types';
 type OBV = Database['public']['Tables']['obvs']['Row'];
 type OBVInsert = Database['public']['Tables']['obvs']['Insert'];
 type OBVUpdate = Database['public']['Tables']['obvs']['Update'];
+type OBVParticipant = Database['public']['Tables']['obv_participantes']['Insert'];
 
-/**
- * Repository for OBV (Objetivo de Valor de Negocio) data access
- */
 export class OBVRepository {
   /**
-   * Find OBV by ID with full relations
+   * Find an OBV by ID
    */
-  async findById(id: string) {
+  async findById(id: string): Promise<OBV | null> {
     const { data, error } = await supabase
       .from('obvs')
-      .select(`
-        *,
-        profiles:owner_id(id, nombre, color),
-        projects:project_id(id, nombre, icon, color),
-        leads:lead_id(id, titulo, empresa),
-        obv_participants(
-          id,
-          member_id,
-          rol_contribucion,
-          porcentaje,
-          profiles:member_id(id, nombre, color)
-        )
-      `)
+      .select('*')
       .eq('id', id)
       .single();
 
@@ -36,7 +22,7 @@ export class OBVRepository {
   }
 
   /**
-   * Find OBVs by project
+   * Find all OBVs for a project
    */
   async findByProject(projectId: string): Promise<OBV[]> {
     const { data, error } = await supabase
@@ -46,30 +32,25 @@ export class OBVRepository {
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return data;
   }
 
   /**
-   * Find pending OBVs for validation
+   * Find all OBVs created by a user
    */
-  async findPendingForValidation(excludeOwnerId: string) {
+  async findByCreator(userId: string): Promise<OBV[]> {
     const { data, error } = await supabase
       .from('obvs')
-      .select(`
-        *,
-        profiles:owner_id(id, nombre, color),
-        projects:project_id(id, nombre, icon, color)
-      `)
-      .eq('status', 'pending')
-      .neq('owner_id', excludeOwnerId)
+      .select('*')
+      .eq('created_by', userId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data || [];
+    return data;
   }
 
   /**
-   * Create OBV
+   * Create a new OBV
    */
   async create(obv: OBVInsert): Promise<OBV> {
     const { data, error } = await supabase
@@ -83,7 +64,7 @@ export class OBVRepository {
   }
 
   /**
-   * Update OBV
+   * Update an OBV
    */
   async update(id: string, updates: OBVUpdate): Promise<OBV> {
     const { data, error } = await supabase
@@ -98,7 +79,7 @@ export class OBVRepository {
   }
 
   /**
-   * Delete OBV
+   * Delete an OBV
    */
   async delete(id: string): Promise<void> {
     const { error } = await supabase
@@ -110,58 +91,28 @@ export class OBVRepository {
   }
 
   /**
-   * Update OBV status
+   * Add participants to an OBV
    */
-  async updateStatus(id: string, status: Database['public']['Enums']['obv_status']): Promise<void> {
+  async addParticipants(participants: OBVParticipant[]): Promise<void> {
     const { error } = await supabase
-      .from('obvs')
-      .update({ status })
-      .eq('id', id);
+      .from('obv_participantes')
+      .insert(participants);
 
     if (error) throw error;
   }
 
   /**
-   * Add participant to OBV
+   * Get participants for an OBV
    */
-  async addParticipant(obvId: string, memberId: string, rolContribucion: string, porcentaje: number) {
-    const { error } = await supabase
-      .from('obv_participants')
-      .insert({
-        obv_id: obvId,
-        member_id: memberId,
-        rol_contribucion: rolContribucion,
-        porcentaje,
-      });
-
-    if (error) throw error;
-  }
-
-  /**
-   * Remove participant from OBV
-   */
-  async removeParticipant(participantId: string): Promise<void> {
-    const { error } = await supabase
-      .from('obv_participants')
-      .delete()
-      .eq('id', participantId);
-
-    if (error) throw error;
-  }
-
-  /**
-   * Get OBV validation count
-   */
-  async getValidationCount(obvId: string): Promise<number> {
-    const { count, error } = await supabase
-      .from('obv_validaciones')
-      .select('*', { count: 'exact', head: true })
+  async getParticipants(obvId: string) {
+    const { data, error } = await supabase
+      .from('obv_participantes')
+      .select('*')
       .eq('obv_id', obvId);
 
     if (error) throw error;
-    return count || 0;
+    return data;
   }
 }
 
-// Singleton instance
 export const obvRepository = new OBVRepository();
