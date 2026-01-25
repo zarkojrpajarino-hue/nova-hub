@@ -2,7 +2,8 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { checkRateLimit, createRateLimitResponse, RateLimitPresets, getIdentifier } from '../_shared/rate-limiter.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets, getIdentifier } from '../_shared/rate-limiter-persistent.ts';
+import { SeedUsersRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 
 // Users are seeded WITHOUT passwords in code
 // Passwords should be set via environment/secrets or manual setup
@@ -48,7 +49,7 @@ Deno.serve(async (req) => {
 
     // Rate limiting - Admin operations are sensitive
     const identifier = getIdentifier(req);
-    const rateLimitResult = checkRateLimit(
+    const rateLimitResult = await checkRateLimit(
       identifier,
       'seed-users',
       RateLimitPresets.ADMIN
@@ -57,6 +58,20 @@ Deno.serve(async (req) => {
     if (!rateLimitResult.allowed) {
       return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
+
+    // Validate request body
+    const body = req.method === 'POST' ? await req.json().catch(() => ({})) : {};
+    const validation = await validateRequestSafe(SeedUsersRequestSchema, body);
+
+    if (!validation.success) {
+      return new Response(
+        JSON.stringify({ error: validation.error }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Note: validation.data contains organizationId, count, roles if provided
+    // For now, we ignore them as the function seeds a fixed set of users
 
     const supabaseAdmin = createClient(
       requireEnv('SUPABASE_URL'),

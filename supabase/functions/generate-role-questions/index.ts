@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
-import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -44,7 +44,7 @@ Deno.serve(async (req) => {
     const authUserId = claims.claims.sub;
 
     // Rate limiting - AI generation is expensive
-    const rateLimitResult = checkRateLimit(
+    const rateLimitResult = await checkRateLimit(
       authUserId,
       'generate-role-questions',
       RateLimitPresets.AI_GENERATION

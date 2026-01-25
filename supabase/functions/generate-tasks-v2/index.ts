@@ -3,7 +3,7 @@ import { requireEnv } from '../_shared/env-validation.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';
 import { TasksGenerationRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
-import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 
 // Role labels for display
@@ -57,7 +57,7 @@ Deno.serve(async (req) => {
     const authUserId = claims.claims.sub;
 
     // Rate limiting - AI generation is expensive
-    const rateLimitResult = checkRateLimit(
+    const rateLimitResult = await checkRateLimit(
       authUserId,
       'generate-tasks-v2',
       RateLimitPresets.AI_GENERATION
@@ -97,6 +97,38 @@ Deno.serve(async (req) => {
       return new Response(
         JSON.stringify({ error: 'Project not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // Authorization: Verify user is a member of this project
+    // First get the member_id from the authenticated user's auth_id
+    const { data: userProfile, error: profileError } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', authUserId)
+      .single();
+
+    if (profileError || !userProfile) {
+      return new Response(
+        JSON.stringify({ error: 'User profile not found' }),
+        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    const memberId = userProfile.id;
+
+    // Now verify user is a member of this project
+    const { data: userMembership, error: membershipError } = await supabase
+      .from('project_members')
+      .select('id')
+      .eq('project_id', projectId)
+      .eq('member_id', memberId)
+      .single();
+
+    if (membershipError || !userMembership) {
+      return new Response(
+        JSON.stringify({ error: 'Unauthorized: You are not a member of this project' }),
+        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 

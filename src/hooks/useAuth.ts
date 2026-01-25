@@ -23,20 +23,32 @@ export function useAuth() {
     let sessionChecked = false;
 
     const fetchProfile = async (authId: string) => {
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('auth_id', authId)
-        .single();
+      const timeoutPromise = new Promise<never>((_, reject) =>
+        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
+      );
 
-      if (error) {
+      try {
+        const { data, error } = await Promise.race([
+          supabase
+            .from('profiles')
+            .select('*')
+            .eq('auth_id', authId)
+            .single(),
+          timeoutPromise
+        ]);
+
+        if (error) {
+          console.error('Error fetching profile:', error);
+          if (isMounted) setProfile(null);
+          return;
+        }
+
+        if (isMounted && data) {
+          setProfile(data as Profile);
+        }
+      } catch (error) {
         console.error('Error fetching profile:', error);
         if (isMounted) setProfile(null);
-        return;
-      }
-
-      if (isMounted && data) {
-        setProfile(data as Profile);
       }
     };
 
