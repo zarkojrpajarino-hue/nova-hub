@@ -204,42 +204,45 @@ export function OBVValidationList() {
     queryKey: ['pending_obvs_for_validation'],
     queryFn: async () => {
       const { data: obvs, error } = await supabase
-        .from('obvs_public')
+        .from('obvs')
         .select(`
           id, titulo, descripcion, tipo, fecha, evidence_url,
-          es_venta, producto, status, owner_id, project_id
+          es_venta, facturacion, margen, producto, status, owner_id, project_id
         `)
         .eq('status', 'pending')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const obvIds = obvs?.map(o => o.id) || [];
+      const obvIds = (obvs || []).map(o => o.id);
       const { data: validations } = await supabase
         .from('obv_validaciones')
         .select('obv_id, validator_id, approved, comentario')
         .in('obv_id', obvIds);
 
-      const { data: profiles } = await supabase
-        .from('members_public')
+      const { data: profilesData } = await supabase
+        .from('profiles')
         .select('id, nombre, color');
 
       const { data: projects } = await supabase
         .from('projects')
         .select('id, nombre, icon, color');
 
-      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
-      const projectMap = new Map(projects?.map(p => [p.id, p]) || []);
+      type ProfileData = { id: string; nombre: string; color: string | null };
+      type ProjectData = { id: string; nombre: string; icon: string | null; color: string | null };
+      
+      const profileMap = new Map<string, ProfileData>((profilesData || []).map(p => [p.id, p]));
+      const projectMap = new Map<string, ProjectData>((projects || []).map(p => [p.id, p]));
 
-      return obvs?.map(obv => {
-        const obvValidations = validations?.filter(v => v.obv_id === obv.id) || [];
+      return (obvs || []).map(obv => {
+        const obvValidations = (validations || []).filter(v => v.obv_id === obv.id);
         const owner = profileMap.get(obv.owner_id);
-        const project = projectMap.get(obv.project_id || '');
+        const project = obv.project_id ? projectMap.get(obv.project_id) : null;
 
         return {
           ...obv,
-          owner: owner ? { id: owner.id, nombre: owner.nombre, color: owner.color } : { id: '', nombre: 'Unknown', color: '#6366F1' },
-          project: project ? { nombre: project.nombre, icon: project.icon, color: project.color } : null,
+          owner: owner ? { id: owner.id, nombre: owner.nombre, color: owner.color || '#6366F1' } : { id: '', nombre: 'Unknown', color: '#6366F1' },
+          project: project ? { nombre: project.nombre, icon: project.icon || '📁', color: project.color || '#6366F1' } : null,
           validations: obvValidations.map(v => ({
             ...v,
             validator_nombre: profileMap.get(v.validator_id)?.nombre || 'Unknown',

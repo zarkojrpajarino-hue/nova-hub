@@ -7,33 +7,62 @@ interface ProjectOBVsTabProps {
   projectId: string;
 }
 
+interface OBVWithOwner {
+  id: string;
+  titulo: string;
+  tipo: string;
+  fecha: string | null;
+  status: string | null;
+  es_venta: boolean | null;
+  facturacion: number | null;
+  margen: number | null;
+  owner: {
+    id: string;
+    nombre: string;
+    color: string;
+  } | null;
+}
+
 export function ProjectOBVsTab({ projectId }: ProjectOBVsTabProps) {
-  const { data: obvs = [], isLoading } = useQuery({
+  const { data: obvs = [], isLoading } = useQuery<OBVWithOwner[]>({
     queryKey: ['project_obvs', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs_public')
-        .select('*')
+        .from('obvs')
+        .select('id, titulo, tipo, fecha, status, es_venta, facturacion, margen, owner_id')
         .eq('project_id', projectId)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
       // Get profiles
+      const ownerIds = [...new Set((data || []).map(o => o.owner_id))];
       const { data: profiles } = await supabase
-        .from('members_public')
-        .select('id, nombre, color');
+        .from('profiles')
+        .select('id, nombre, color')
+        .in('id', ownerIds);
 
-      const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      type ProfileData = { id: string; nombre: string; color: string | null };
+      const profileMap = new Map<string, ProfileData>((profiles || []).map(p => [p.id, p]));
 
-      return data?.map(obv => ({
-        ...obv,
-        owner: profileMap.get(obv.owner_id),
-      })) || [];
+      return (data || []).map(obv => {
+        const owner = profileMap.get(obv.owner_id);
+        return {
+          id: obv.id,
+          titulo: obv.titulo,
+          tipo: obv.tipo,
+          fecha: obv.fecha,
+          status: obv.status,
+          es_venta: obv.es_venta,
+          facturacion: obv.facturacion,
+          margen: obv.margen,
+          owner: owner ? { id: owner.id, nombre: owner.nombre, color: owner.color || '#6366F1' } : null,
+        };
+      });
     },
   });
 
-  const getStatusIcon = (status: string) => {
+  const getStatusIcon = (status: string | null) => {
     switch (status) {
       case 'validated': return <CheckCircle size={16} className="text-success" />;
       case 'rejected': return <XCircle size={16} className="text-destructive" />;
@@ -41,7 +70,7 @@ export function ProjectOBVsTab({ projectId }: ProjectOBVsTabProps) {
     }
   };
 
-  const getStatusLabel = (status: string) => {
+  const getStatusLabel = (status: string | null) => {
     switch (status) {
       case 'validated': return 'Validada';
       case 'rejected': return 'Rechazada';
@@ -87,7 +116,7 @@ export function ProjectOBVsTab({ projectId }: ProjectOBVsTabProps) {
                   <div className="flex-1 min-w-0">
                     <p className="font-semibold truncate">{obv.titulo}</p>
                     <p className="text-sm text-muted-foreground">
-                      {obv.owner?.nombre} • {obv.fecha}
+                      {obv.owner?.nombre || 'Unknown'} • {obv.fecha || 'Sin fecha'}
                     </p>
                   </div>
 
@@ -104,8 +133,8 @@ export function ProjectOBVsTab({ projectId }: ProjectOBVsTabProps) {
                   {/* Sale amount */}
                   {obv.es_venta && (
                     <div className="text-right">
-                      <p className="font-bold text-success">€{obv.facturacion}</p>
-                      <p className="text-xs text-muted-foreground">+€{obv.margen} margen</p>
+                      <p className="font-bold text-success">€{obv.facturacion || 0}</p>
+                      <p className="text-xs text-muted-foreground">+€{obv.margen || 0} margen</p>
                     </div>
                   )}
 

@@ -87,12 +87,12 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
       
       // Get changer names
       const changerIds = [...new Set(data.map(h => h.changed_by).filter((id): id is string => id !== null))];
-      const { data: profiles } = await supabase
-        .from('members_public')
+      const { data: profilesData } = await supabase
+        .from('profiles')
         .select('id, nombre')
         .in('id', changerIds as string[]);
       
-      const profilesMap = new Map(profiles?.map(p => [p.id, p.nombre]) || []);
+      const profilesMap = new Map((profilesData || []).map(p => [p.id, p.nombre]));
       
       return data.map(h => ({
         ...h,
@@ -103,19 +103,19 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
   });
 
   // Fetch linked OBVs
-  const { data: linkedOBVs = [] } = useQuery({
+  const { data: linkedOBVs = [] } = useQuery<LinkedOBV[]>({
     queryKey: ['lead_obvs', lead?.id],
     queryFn: async () => {
       if (!lead?.id) return [];
       
       const { data, error } = await supabase
-        .from('obvs_public')
-        .select('id, titulo, tipo, status, created_at')
+        .from('obvs')
+        .select('id, titulo, tipo, status, facturacion, created_at')
         .eq('lead_id', lead.id)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data;
+      return (data || []) as LinkedOBV[];
     },
     enabled: !!lead?.id && open,
   });

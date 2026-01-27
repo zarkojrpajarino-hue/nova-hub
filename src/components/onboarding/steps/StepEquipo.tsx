@@ -39,7 +39,7 @@ export function StepEquipo({
       try {
         // Fetch all profiles
         const { data: profilesData, error: profilesError } = await supabase
-          .from('members_public')
+          .from('profiles')
           .select('id, nombre, email, avatar, color')
           .order('nombre');
 
@@ -53,8 +53,11 @@ export function StepEquipo({
 
         if (membersError) throw membersError;
 
-        setProfiles((profilesData || []).map(p => ({
-          ...p,
+        type ProfileRow = { id: string; nombre: string; email: string; avatar: string | null; color: string | null };
+        setProfiles((profilesData as ProfileRow[] || []).map(p => ({
+          id: p.id,
+          nombre: p.nombre,
+          email: p.email,
           avatar: p.avatar ?? undefined,
           color: p.color ?? undefined,
         })));
