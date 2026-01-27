@@ -45,6 +45,21 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
     setIsSubmitting(true);
 
     try {
+      // Check active tasks limit (5 tasks per project)
+      const { data: activeTasks, error: countError } = await supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: false })
+        .eq('project_id', projectId)
+        .neq('status', 'done');
+
+      if (countError) throw countError;
+
+      if (activeTasks && activeTasks.length >= 5) {
+        toast.error('Máximo 5 tareas activas por proyecto. Completa una antes de crear otra.');
+        setIsSubmitting(false);
+        return;
+      }
+
       const { error } = await supabase.from('tasks').insert({
         project_id: projectId,
         titulo: formData.titulo,
@@ -61,7 +76,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       toast.success('Tarea creada');
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
-      
+
       setFormData({ titulo: '', descripcion: '', assigneeId: '', prioridad: '2', fechaLimite: '' });
       onOpenChange(false);
     } catch (error) {

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Rocket, ChevronLeft, ChevronRight, Loader2 } from 'lucide-react';
+import { Rocket, ChevronLeft, ChevronRight, Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
@@ -7,8 +7,9 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { OnboardingProgress } from './OnboardingProgress';
-import { 
-  VALIDACION_STEPS, 
+import { useOnboardingEdit } from '@/hooks/useOnboardingEdit';
+import {
+  VALIDACION_STEPS,
   OPERACION_STEPS,
   defaultValidacionData,
   defaultOperacionData,
@@ -18,20 +19,20 @@ import {
   type OperacionData,
   type OnboardingData,
 } from './types';
-import { 
-  StepProblema, 
-  StepCliente, 
-  StepSolucion, 
-  StepHipotesis, 
-  StepMetricas, 
-  StepRecursos 
+import {
+  StepProblema,
+  StepCliente,
+  StepSolucion,
+  StepHipotesis,
+  StepMetricas,
+  StepRecursos
 } from './steps/ValidacionSteps';
-import { 
-  StepCanvas1, 
-  StepCanvas2, 
-  StepFinanzas, 
-  StepClientes, 
-  StepObjetivos 
+import {
+  StepCanvas1,
+  StepCanvas2,
+  StepFinanzas,
+  StepClientes,
+  StepObjetivos
 } from './steps/OperacionSteps';
 import { CoreaEspanaStep } from './steps/CoreaEspanaStep';
 import { StepEquipo } from './steps/StepEquipo';
@@ -47,17 +48,39 @@ interface OnboardingWizardProps {
   };
   onComplete?: () => void;
   onCancel?: () => void;
+  editMode?: boolean; // NEW: Enable edit mode
 }
 
-export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWizardProps) {
+export function OnboardingWizard({ project, onComplete, onCancel, editMode = false }: OnboardingWizardProps) {
   const queryClient = useQueryClient();
   const isValidacion = project.tipo === 'validacion';
   const steps = isValidacion ? VALIDACION_STEPS : OPERACION_STEPS;
-  
+  const { saveOnboardingData, isSaving: isSavingEdit } = useOnboardingEdit({
+    projectId: project.id,
+    onSuccess: onComplete,
+  });
+
   const [currentStep, setCurrentStep] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [selectedMembers, setSelectedMembers] = useState<string[]>([]);
+
+  // Load existing team members in edit mode
+  useEffect(() => {
+    if (editMode) {
+      const loadMembers = async () => {
+        const { data } = await supabase
+          .from('project_members')
+          .select('member_id')
+          .eq('project_id', project.id);
+
+        if (data) {
+          setSelectedMembers(data.map(m => m.member_id));
+        }
+      };
+      loadMembers();
+    }
+  }, [editMode, project.id]);
 
   // Initialize data from existing onboarding_data or defaults
   const [validacionData, setValidacionData] = useState<ValidacionData>(() => {
@@ -130,10 +153,10 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
     try {
       const data = isValidacion ? validacionData : operacionData;
       const schema = isValidacion ? validacionSchema : operacionSchema;
-      
+
       // Validate with zod
       const result = schema.safeParse(data);
-      
+
       if (!result.success) {
         const fieldErrors: Record<string, string> = {};
         result.error.errors.forEach(err => {
@@ -145,6 +168,13 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
         return;
       }
 
+      // Use edit hook if in edit mode
+      if (editMode) {
+        await saveOnboardingData(data, selectedMembers);
+        return; // Hook handles success callback
+      }
+
+      // Original onboarding flow (first time)
       // First, remove existing members (in case of re-onboarding)
       await supabase
         .from('project_members')
@@ -178,7 +208,7 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
 
       // Clear draft
       localStorage.removeItem(`onboarding-draft-${project.id}`);
-      
+
       toast.success('¡Equipo configurado! Generando roles con IA...');
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project_members'] });
@@ -326,15 +356,20 @@ export function OnboardingWizard({ project, onComplete, onCancel }: OnboardingWi
               <ChevronRight size={16} className="ml-1" />
             </Button>
           ) : (
-            <Button 
+            <Button
               onClick={validateAndSubmit}
-              disabled={isSubmitting}
-              className="bg-green-600 hover:bg-green-700"
+              disabled={isSubmitting || isSavingEdit}
+              className={editMode ? "" : "bg-green-600 hover:bg-green-700"}
             >
-              {isSubmitting ? (
+              {isSubmitting || isSavingEdit ? (
                 <>
                   <Loader2 size={16} className="mr-2 animate-spin" />
                   Guardando...
+                </>
+              ) : editMode ? (
+                <>
+                  <Save size={16} className="mr-2" />
+                  Save Changes
                 </>
               ) : (
                 <>

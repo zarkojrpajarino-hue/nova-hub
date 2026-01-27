@@ -35,10 +35,11 @@ export function ProjectOnboardingTab({ project, isCompleted }: ProjectOnboarding
   // Show wizard for new onboarding or editing
   return (
     <div className="animate-fade-in">
-      <OnboardingWizard 
+      <OnboardingWizard
         project={project}
         onComplete={() => setIsEditing(false)}
         onCancel={isEditing ? () => setIsEditing(false) : undefined}
+        editMode={isEditing}
       />
     </div>
   );

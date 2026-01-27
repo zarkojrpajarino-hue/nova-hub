@@ -1,5 +1,12 @@
-import { Plus, Loader2, BookOpen } from 'lucide-react';
+import { Plus, Loader2, BookOpen, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipProvider,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   AlertDialog,
@@ -62,14 +69,52 @@ export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardC
     );
   }
 
+  const activeTasks = tasks.filter(t => t.status !== 'done');
+  const activeTaskCount = activeTasks.length;
+  const taskLimitReached = activeTaskCount >= 5;
+
   return (
     <div className="space-y-4">
       {/* Header */}
-      <div className="flex justify-end">
-        <Button onClick={() => setShowForm(true)} variant="outline" size="sm">
-          <Plus size={14} className="mr-2" />
-          Manual
-        </Button>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Badge
+            variant={taskLimitReached ? 'destructive' : 'secondary'}
+            className="text-sm font-medium"
+          >
+            {activeTaskCount}/5 tareas activas
+          </Badge>
+          {taskLimitReached && (
+            <div className="flex items-center gap-1 text-sm text-destructive">
+              <AlertCircle size={14} />
+              <span>Límite alcanzado</span>
+            </div>
+          )}
+        </div>
+
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div>
+                <Button
+                  onClick={() => setShowForm(true)}
+                  variant="outline"
+                  size="sm"
+                  disabled={taskLimitReached}
+                >
+                  <Plus size={14} className="mr-2" />
+                  Manual
+                </Button>
+              </div>
+            </TooltipTrigger>
+            {taskLimitReached && (
+              <TooltipContent>
+                <p>Máximo 5 tareas activas por proyecto.</p>
+                <p>Completa una tarea antes de crear otra.</p>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
       </div>
 
       {/* Kanban Board */}

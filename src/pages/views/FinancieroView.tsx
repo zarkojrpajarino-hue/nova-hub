@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { SectionHelp } from '@/components/ui/section-help';
 import { useFinancieroData } from '@/hooks/useFinancieroData';
+import { ExportButton } from '@/components/export/ExportButton';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
@@ -179,6 +180,43 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
           </TabsContent>
 
           <TabsContent value="cobros" className="space-y-6">
+            {/* Header with Export Button */}
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h3 className="text-lg font-semibold">Control de Cobros</h3>
+                <p className="text-sm text-muted-foreground">
+                  Gestión y seguimiento de pagos
+                </p>
+              </div>
+              <ExportButton
+                options={[
+                  {
+                    label: 'Exportar Pagos Pendientes',
+                    type: 'cobros',
+                    data: pendingPayments.map(p => ({
+                      obv_titulo: p.titulo || p.numero_factura || '',
+                      empresa: p.cliente || '',
+                      facturacion: p.monto || 0,
+                      cobrado: (p.monto || 0) - (p.pendiente || 0),
+                      pendiente_cobro: p.pendiente || 0,
+                      cobro_estado: p.estado || 'pendiente',
+                      cobro_dias_retraso: p.dias_vencido || 0,
+                      cobro_fecha_esperada: p.fecha_vencimiento || '',
+                      responsable_nombre: p.responsable || '',
+                      email_contacto: '',
+                      telefono_contacto: '',
+                    })),
+                    metadata: {
+                      title: 'Control de Cobros',
+                      currencyColumns: [2, 3, 4], // facturacion, cobrado, pendiente
+                    },
+                  },
+                ]}
+                variant="outline"
+                size="sm"
+              />
+            </div>
+
             {/* Resumen cobros */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>

@@ -16,6 +16,7 @@ import { AnalyticsFilters } from '@/components/analytics/AnalyticsFilters';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_MEMBERS, DEMO_PROJECTS } from '@/data/demoData';
+import { ExportButton } from '@/components/export/ExportButton';
 
 interface AnalyticsViewProps {
   onNewOBV?: () => void;
@@ -133,16 +134,50 @@ export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
               </Button>
 
               <div className="ml-auto flex items-center gap-2">
-                <Button 
-                  variant="outline" 
+                <ExportButton
+                  options={[
+                    {
+                      label: 'Exportar Socios',
+                      type: 'members',
+                      data: filteredMembers.map(m => ({
+                        nombre: m.nombre || '',
+                        email: m.email || '',
+                        rol: m.rol || '',
+                        facturacion: m.facturacion || 0,
+                        margen: m.margen || 0,
+                        obvs_creadas: m.obvs_creadas || 0,
+                        obvs_validadas: m.obvs_validadas || 0,
+                        kpis_validados: m.kpis_validados || 0,
+                        tareas_completadas: m.tareas_completadas || 0,
+                      })),
+                      metadata: {
+                        title: 'Analytics - Socios',
+                        currencyColumns: [3, 4],
+                      },
+                    },
+                    {
+                      label: 'Exportar Proyectos',
+                      type: 'proyectos',
+                      data: filteredProjectStats.map(p => ({
+                        nombre: p.nombre || '',
+                        num_miembros: p.num_members || 0,
+                        obvs_total: p.total_obvs || 0,
+                        leads_total: p.total_leads || 0,
+                        leads_ganados: p.leads_ganados || 0,
+                        facturacion: p.facturacion || 0,
+                        margen: p.margen || 0,
+                      })),
+                      metadata: {
+                        title: 'Analytics - Proyectos',
+                        currencyColumns: [5, 6],
+                      },
+                    },
+                  ]}
+                  variant="outline"
                   size="sm"
-                  onClick={() => handleExportCSV(members as unknown[], 'analytics-members')}
-                >
-                  <FileSpreadsheet className="w-4 h-4 mr-2" />
-                  Exportar CSV
-                </Button>
-                <Button 
-                  variant="outline" 
+                />
+                <Button
+                  variant="outline"
                   size="sm"
                   onClick={handleExportPDF}
                 >
@@ -178,13 +213,32 @@ export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Tabla Comparativa de Socios</CardTitle>
-                    <Button 
-                      variant="ghost" 
+                    <ExportButton
+                      options={[
+                        {
+                          label: 'Exportar',
+                          type: 'members',
+                          data: filteredMembers.map(m => ({
+                            nombre: m.nombre || '',
+                            email: m.email || '',
+                            rol: m.rol || '',
+                            facturacion: m.facturacion || 0,
+                            margen: m.margen || 0,
+                            obvs_creadas: m.obvs_creadas || 0,
+                            obvs_validadas: m.obvs_validadas || 0,
+                            kpis_validados: m.kpis_validados || 0,
+                            tareas_completadas: m.tareas_completadas || 0,
+                          })),
+                          metadata: {
+                            title: 'Socios - Comparativa',
+                            currencyColumns: [3, 4],
+                          },
+                        },
+                      ]}
+                      variant="ghost"
                       size="sm"
-                      onClick={() => handleExportCSV(filteredMembers as unknown[], 'socios-comparativa')}
-                    >
-                      <Download className="w-4 h-4" />
-                    </Button>
+                      showLabel={false}
+                    />
                   </CardHeader>
                   <CardContent>
                     <PartnerComparisonTable 

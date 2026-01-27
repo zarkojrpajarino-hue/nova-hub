@@ -10,7 +10,6 @@ import { Badge } from '@/components/ui/badge';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_LEADS, DEMO_PROJECTS, DEMO_MEMBERS } from '@/data/demoData';
-import { ExportButton } from '@/components/export/ExportButton';
 
 interface CRMViewProps {
   onNewOBV?: () => void;
@@ -124,66 +123,6 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
-            {/* Header with Export Button */}
-            <div className="flex items-center justify-between mb-4">
-              <div>
-                <h3 className="text-lg font-semibold">Resumen del Pipeline</h3>
-                <p className="text-sm text-muted-foreground">
-                  Vista general de todos los leads
-                </p>
-              </div>
-              <ExportButton
-                options={[
-                  {
-                    label: 'Exportar Todos los Leads',
-                    type: 'crm',
-                    data: filteredLeads.map(lead => {
-                      const project = projects.find(p => p.id === lead.project_id);
-                      const responsable = profiles.find(p => p.id === lead.responsable_id);
-                      return {
-                        obv_titulo: lead.nombre || '',
-                        empresa: lead.empresa || '',
-                        estado: lead.status || '',
-                        valor_potencial: lead.valor_potencial || 0,
-                        proyecto_nombre: project?.nombre || '',
-                        responsable_nombre: responsable?.nombre || '',
-                        proxima_accion: lead.proxima_accion || '',
-                        email_contacto: '',
-                        telefono_contacto: '',
-                      };
-                    }),
-                    metadata: {
-                      title: 'Pipeline CRM - Todos los Leads',
-                      currencyColumns: [3],
-                    },
-                  },
-                  {
-                    label: 'Exportar Solo Cerrados Ganados',
-                    type: 'crm_cerrados',
-                    data: filteredLeads
-                      .filter(lead => lead.status === 'cerrado_ganado')
-                      .map(lead => {
-                        const project = projects.find(p => p.id === lead.project_id);
-                        const responsable = profiles.find(p => p.id === lead.responsable_id);
-                        return {
-                          obv_titulo: lead.nombre || '',
-                          empresa: lead.empresa || '',
-                          valor_potencial: lead.valor_potencial || 0,
-                          proyecto_nombre: project?.nombre || '',
-                          responsable_nombre: responsable?.nombre || '',
-                        };
-                      }),
-                    metadata: {
-                      title: 'CRM - Cerrados Ganados',
-                      currencyColumns: [2],
-                    },
-                  },
-                ]}
-                variant="outline"
-                size="sm"
-              />
-            </div>
-
             {/* Métricas */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
@@ -294,43 +233,12 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
           </TabsContent>
 
           <TabsContent value="lista">
-            <div className="flex items-center justify-between mb-4">
-              <CRMFilters
-                projects={projectsData}
-                members={membersData}
-                filters={filters}
-                onFiltersChange={setFilters}
-              />
-              <ExportButton
-                options={[
-                  {
-                    label: 'Exportar Lista Filtrada',
-                    type: 'crm',
-                    data: filteredLeads.map(lead => {
-                      const project = projects.find(p => p.id === lead.project_id);
-                      const responsable = profiles.find(p => p.id === lead.responsable_id);
-                      return {
-                        obv_titulo: lead.nombre || '',
-                        empresa: lead.empresa || '',
-                        estado: lead.status || '',
-                        valor_potencial: lead.valor_potencial || 0,
-                        proyecto_nombre: project?.nombre || '',
-                        responsable_nombre: responsable?.nombre || '',
-                        proxima_accion: lead.proxima_accion || '',
-                        email_contacto: '',
-                        telefono_contacto: '',
-                      };
-                    }),
-                    metadata: {
-                      title: 'Pipeline CRM - Lista Filtrada',
-                      currencyColumns: [3],
-                    },
-                  },
-                ]}
-                variant="outline"
-                size="sm"
-              />
-            </div>
+            <CRMFilters
+              projects={projectsData}
+              members={membersData}
+              filters={filters}
+              onFiltersChange={setFilters}
+            />
             <div className="mt-6">
               <CRMPipeline
                 leads={filteredLeads}
