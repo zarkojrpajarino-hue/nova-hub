@@ -208,21 +208,23 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
 
       // Fetch owners
       const ownerIds = [...new Set(kpis.map(k => k.owner_id))];
-      const { data: profiles } = await supabase
-        .from('members_public')
+      const { data: profilesData } = await supabase
+        .from('profiles')
         .select('id, nombre, color')
         .in('id', ownerIds);
 
-      const profilesMap = new Map(profiles?.map(p => [p.id, p]) || []);
+      type ProfileData = { id: string; nombre: string; color: string | null };
+      const profilesMap = new Map<string, ProfileData>((profilesData || []).map(p => [p.id, p]));
       
       // Fetch validator names
       const validatorIds = [...new Set((validaciones || []).map(v => v.validator_id))];
       const { data: validators } = await supabase
-        .from('members_public')
+        .from('profiles')
         .select('id, nombre')
         .in('id', validatorIds);
       
-      const validatorsMap = new Map(validators?.map(v => [v.id, v.nombre]) || []);
+      type ValidatorData = { id: string; nombre: string };
+      const validatorsMap = new Map<string, string>((validators as ValidatorData[] || []).map(v => [v.id, v.nombre]));
 
       // Map and filter
       const result: KPIWithOwner[] = kpis

@@ -30,8 +30,12 @@ export function ValidatorRankingCard() {
 
   // Sort by on-time rate
   const sortedStats = [...(stats || [])].sort((a, b) => {
-    const rateA = a.total_validations > 0 ? a.on_time_validations / a.total_validations : 1;
-    const rateB = b.total_validations > 0 ? b.on_time_validations / b.total_validations : 1;
+    const totalA = a.total_validations || 0;
+    const onTimeA = a.on_time_validations || 0;
+    const totalB = b.total_validations || 0;
+    const onTimeB = b.on_time_validations || 0;
+    const rateA = totalA > 0 ? onTimeA / totalA : 1;
+    const rateB = totalB > 0 ? onTimeB / totalB : 1;
     return rateB - rateA;
   });
 
@@ -46,11 +50,16 @@ export function ValidatorRankingCard() {
       <CardContent>
         <div className="space-y-3">
           {sortedStats.map((stat, index) => {
-            const onTimeRate = stat.total_validations > 0
-              ? Math.round((stat.on_time_validations / stat.total_validations) * 100)
+            const totalValidations = stat.total_validations || 0;
+            const onTimeValidations = stat.on_time_validations || 0;
+            const lateValidations = stat.late_validations || 0;
+            const onTimeRate = totalValidations > 0
+              ? Math.round((onTimeValidations / totalValidations) * 100)
               : 100;
             
             const isTop3 = index < 3;
+            const profileColor = (stat.profile as { color?: string } | null)?.color || '#6366F1';
+            const profileName = (stat.profile as { nombre?: string } | null)?.nombre || 'Usuario';
             
             return (
               <div 
@@ -74,16 +83,16 @@ export function ValidatorRankingCard() {
                 {/* Avatar */}
                 <div 
                   className="w-10 h-10 rounded-lg flex items-center justify-center font-semibold text-sm text-white"
-                  style={{ backgroundColor: stat.profile?.color || '#6366F1' }}
+                  style={{ backgroundColor: profileColor }}
                 >
-                  {stat.profile?.nombre?.charAt(0) || '?'}
+                  {profileName.charAt(0)}
                 </div>
 
                 {/* Info */}
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
                     <p className="font-semibold text-sm truncate">
-                      {stat.profile?.nombre || 'Usuario'}
+                      {profileName}
                     </p>
                     {stat.is_blocked && (
                       <Badge variant="destructive" className="text-xs">
@@ -111,12 +120,12 @@ export function ValidatorRankingCard() {
                 <div className="text-right text-xs space-y-1">
                   <div className="flex items-center gap-1 text-success">
                     <TrendingUp size={10} />
-                    {stat.on_time_validations}
+                    {onTimeValidations}
                   </div>
-                  {stat.late_validations > 0 && (
+                  {lateValidations > 0 && (
                     <div className="flex items-center gap-1 text-destructive">
                       <Clock size={10} />
-                      {stat.late_validations}
+                      {lateValidations}
                     </div>
                   )}
                 </div>

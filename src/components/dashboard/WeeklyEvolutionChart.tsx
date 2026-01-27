@@ -25,7 +25,7 @@ export function WeeklyEvolutionChart() {
 
       // Query OBVs grouped by week
       const { data: obvs } = await supabase
-        .from('obvs_public')
+        .from('obvs')
         .select('created_at, tipo')
         .gte('created_at', weeks[0].start.toISOString())
         .order('created_at', { ascending: true });
@@ -37,19 +37,22 @@ export function WeeklyEvolutionChart() {
         .gte('created_at', weeks[0].start.toISOString())
         .order('created_at', { ascending: true });
 
+      type OBVRecord = { created_at: string | null; tipo: string };
+      type KPIRecord = { created_at: string | null; type: string };
+
       // Aggregate data by week
       return weeks.map(week => {
-        const weekOBVs = obvs?.filter(o => {
+        const weekOBVs = (obvs as OBVRecord[] || []).filter(o => {
           if (!o.created_at) return false;
           const date = new Date(o.created_at);
           return date >= week.start && date <= week.end;
-        }) || [];
+        });
 
-        const weekKPIs = kpis?.filter(k => {
+        const weekKPIs = (kpis as KPIRecord[] || []).filter(k => {
           if (!k.created_at) return false;
           const date = new Date(k.created_at);
           return date >= week.start && date <= week.end;
-        }) || [];
+        });
 
         return {
           name: week.label,

@@ -1,18 +1,19 @@
 import { TrendingUp, Wallet, PieChart, BarChart3 } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
-import type { Project } from '@/hooks/useNovaData';
 
 interface ProjectFinancialStats {
   facturacion?: number;
   margen?: number;
+  total_obvs?: number;
+  leads_ganados?: number;
+  total_leads?: number;
 }
 
 interface ProjectFinancialTabProps {
-  project: Project;
   stats: ProjectFinancialStats;
 }
 
-export function ProjectFinancialTab({ project, stats }: ProjectFinancialTabProps) {
+export function ProjectFinancialTab({ stats }: ProjectFinancialTabProps) {
   const facturacion = Number(stats?.facturacion) || 0;
   const margen = Number(stats?.margen) || 0;
   const margenPercent = facturacion > 0 ? (margen / facturacion) * 100 : 0;
