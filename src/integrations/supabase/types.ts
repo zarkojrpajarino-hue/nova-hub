@@ -47,21 +47,180 @@ export type Database = {
             foreignKeyName: "activity_log_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "activity_log_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "activity_log_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      badges: {
+        Row: {
+          condicion: Json | null
+          descripcion: string | null
+          icon: string | null
+          id: string
+          nombre: string
+        }
+        Insert: {
+          condicion?: Json | null
+          descripcion?: string | null
+          icon?: string | null
+          id?: string
+          nombre: string
+        }
+        Update: {
+          condicion?: Json | null
+          descripcion?: string | null
+          icon?: string | null
+          id?: string
+          nombre?: string
+        }
+        Relationships: []
+      }
+      cobros_parciales: {
+        Row: {
+          created_at: string | null
+          created_by: string | null
+          fecha_cobro: string
+          id: string
+          metodo: string | null
+          monto: number
+          notas: string | null
+          obv_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          created_by?: string | null
+          fecha_cobro: string
+          id?: string
+          metodo?: string | null
+          monto: number
+          notas?: string | null
+          obv_id: string
+        }
+        Update: {
+          created_at?: string | null
+          created_by?: string | null
+          fecha_cobro?: string
+          id?: string
+          metodo?: string | null
+          monto?: number
+          notas?: string | null
+          obv_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cobros_parciales_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "crm_cerrados_ganados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_financial"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "cobros_parciales_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      key_results: {
+        Row: {
+          actual_valor: number | null
+          created_at: string | null
+          id: string
+          meta_valor: number | null
+          okr_id: string | null
+          titulo: string
+          unidad: string | null
+        }
+        Insert: {
+          actual_valor?: number | null
+          created_at?: string | null
+          id?: string
+          meta_valor?: number | null
+          okr_id?: string | null
+          titulo: string
+          unidad?: string | null
+        }
+        Update: {
+          actual_valor?: number | null
+          created_at?: string | null
+          id?: string
+          meta_valor?: number | null
+          okr_id?: string | null
+          titulo?: string
+          unidad?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "key_results_okr_id_fkey"
+            columns: ["okr_id"]
+            isOneToOne: false
+            referencedRelation: "okrs"
             referencedColumns: ["id"]
           },
         ]
@@ -72,24 +231,24 @@ export type Database = {
           comentario: string | null
           created_at: string | null
           id: string
-          kpi_id: string
-          validator_id: string
+          kpi_id: string | null
+          validator_id: string | null
         }
         Insert: {
           approved?: boolean | null
           comentario?: string | null
           created_at?: string | null
           id?: string
-          kpi_id: string
-          validator_id: string
+          kpi_id?: string | null
+          validator_id?: string | null
         }
         Update: {
           approved?: boolean | null
           comentario?: string | null
           created_at?: string | null
           id?: string
-          kpi_id?: string
-          validator_id?: string
+          kpi_id?: string | null
+          validator_id?: string | null
         }
         Relationships: [
           {
@@ -103,21 +262,28 @@ export type Database = {
             foreignKeyName: "kpi_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "kpi_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "kpi_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpi_validaciones_validator_id_fkey"
+            columns: ["validator_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
@@ -129,7 +295,7 @@ export type Database = {
           descripcion: string | null
           evidence_url: string | null
           id: string
-          owner_id: string
+          owner_id: string | null
           status: Database["public"]["Enums"]["kpi_status"] | null
           titulo: string
           type: string
@@ -141,7 +307,7 @@ export type Database = {
           descripcion?: string | null
           evidence_url?: string | null
           id?: string
-          owner_id: string
+          owner_id?: string | null
           status?: Database["public"]["Enums"]["kpi_status"] | null
           titulo: string
           type: string
@@ -153,7 +319,7 @@ export type Database = {
           descripcion?: string | null
           evidence_url?: string | null
           id?: string
-          owner_id?: string
+          owner_id?: string | null
           status?: Database["public"]["Enums"]["kpi_status"] | null
           titulo?: string
           type?: string
@@ -164,21 +330,28 @@ export type Database = {
             foreignKeyName: "kpis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "kpis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "kpis_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "kpis_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
@@ -188,7 +361,7 @@ export type Database = {
           changed_by: string | null
           created_at: string | null
           id: string
-          lead_id: string
+          lead_id: string | null
           new_status: Database["public"]["Enums"]["lead_status"] | null
           notas: string | null
           old_status: Database["public"]["Enums"]["lead_status"] | null
@@ -197,7 +370,7 @@ export type Database = {
           changed_by?: string | null
           created_at?: string | null
           id?: string
-          lead_id: string
+          lead_id?: string | null
           new_status?: Database["public"]["Enums"]["lead_status"] | null
           notas?: string | null
           old_status?: Database["public"]["Enums"]["lead_status"] | null
@@ -206,7 +379,7 @@ export type Database = {
           changed_by?: string | null
           created_at?: string | null
           id?: string
-          lead_id?: string
+          lead_id?: string | null
           new_status?: Database["public"]["Enums"]["lead_status"] | null
           notas?: string | null
           old_status?: Database["public"]["Enums"]["lead_status"] | null
@@ -216,21 +389,28 @@ export type Database = {
             foreignKeyName: "lead_history_changed_by_fkey"
             columns: ["changed_by"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "lead_history_changed_by_fkey"
             columns: ["changed_by"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "lead_history_changed_by_fkey"
             columns: ["changed_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "lead_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
           {
@@ -238,13 +418,6 @@ export type Database = {
             columns: ["lead_id"]
             isOneToOne: false
             referencedRelation: "leads"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "lead_history_lead_id_fkey"
-            columns: ["lead_id"]
-            isOneToOne: false
-            referencedRelation: "pipeline_global"
             referencedColumns: ["id"]
           },
         ]
@@ -257,7 +430,7 @@ export type Database = {
           id: string
           nombre: string
           notas: string | null
-          project_id: string
+          project_id: string | null
           proxima_accion: string | null
           proxima_accion_fecha: string | null
           responsable_id: string | null
@@ -273,7 +446,7 @@ export type Database = {
           id?: string
           nombre: string
           notas?: string | null
-          project_id: string
+          project_id?: string | null
           proxima_accion?: string | null
           proxima_accion_fecha?: string | null
           responsable_id?: string | null
@@ -289,7 +462,7 @@ export type Database = {
           id?: string
           nombre?: string
           notas?: string | null
-          project_id?: string
+          project_id?: string | null
           proxima_accion?: string | null
           proxima_accion_fecha?: string | null
           responsable_id?: string | null
@@ -303,14 +476,21 @@ export type Database = {
             foreignKeyName: "leads_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
+            referencedRelation: "analisis_costes_por_proyecto"
             referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "leads_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "leads_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
@@ -324,407 +504,151 @@ export type Database = {
             foreignKeyName: "leads_responsable_id_fkey"
             columns: ["responsable_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "leads_responsable_id_fkey"
             columns: ["responsable_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "leads_responsable_id_fkey"
             columns: ["responsable_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "leads_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
       }
-      master_applications: {
+      member_badges: {
         Row: {
-          achievements: Json | null
-          created_at: string | null
+          badge_id: string | null
           id: string
-          motivation: string
-          project_id: string | null
-          reviewed_at: string | null
-          role_name: string
-          status: string
-          updated_at: string | null
-          user_id: string
-          votes_against: number | null
-          votes_for: number | null
-          votes_required: number | null
-          voting_deadline: string | null
+          member_id: string | null
+          unlocked_at: string | null
         }
         Insert: {
-          achievements?: Json | null
-          created_at?: string | null
+          badge_id?: string | null
           id?: string
-          motivation: string
-          project_id?: string | null
-          reviewed_at?: string | null
-          role_name: string
-          status?: string
-          updated_at?: string | null
-          user_id: string
-          votes_against?: number | null
-          votes_for?: number | null
-          votes_required?: number | null
-          voting_deadline?: string | null
+          member_id?: string | null
+          unlocked_at?: string | null
         }
         Update: {
-          achievements?: Json | null
-          created_at?: string | null
+          badge_id?: string | null
           id?: string
-          motivation?: string
-          project_id?: string | null
-          reviewed_at?: string | null
-          role_name?: string
-          status?: string
-          updated_at?: string | null
-          user_id?: string
-          votes_against?: number | null
-          votes_for?: number | null
-          votes_required?: number | null
-          voting_deadline?: string | null
+          member_id?: string | null
+          unlocked_at?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "master_applications_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "member_badges_badge_id_fkey"
+            columns: ["badge_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "master_applications_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "badges"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "master_applications_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "member_badges_member_id_fkey"
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "projects"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "master_applications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "member_badges_member_id_fkey"
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "members"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "master_applications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "member_badges_member_id_fkey"
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "master_applications_user_id_fkey"
-            columns: ["user_id"]
+            foreignKeyName: "member_badges_member_id_fkey"
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
       }
-      master_challenges: {
+      members: {
         Row: {
-          challenge_type: string
-          challenger_id: string
-          completed_at: string | null
-          created_at: string | null
-          criteria: Json | null
-          deadline: string | null
-          description: string | null
-          id: string
-          master_id: string
-          result: string | null
-          result_notes: string | null
-          role_name: string
-          status: string
-        }
-        Insert: {
-          challenge_type: string
-          challenger_id: string
-          completed_at?: string | null
-          created_at?: string | null
-          criteria?: Json | null
-          deadline?: string | null
-          description?: string | null
-          id?: string
-          master_id: string
-          result?: string | null
-          result_notes?: string | null
-          role_name: string
-          status?: string
-        }
-        Update: {
-          challenge_type?: string
-          challenger_id?: string
-          completed_at?: string | null
-          created_at?: string | null
-          criteria?: Json | null
-          deadline?: string | null
-          description?: string | null
-          id?: string
-          master_id?: string
-          result?: string | null
-          result_notes?: string | null
-          role_name?: string
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "master_challenges_challenger_id_fkey"
-            columns: ["challenger_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "master_challenges_challenger_id_fkey"
-            columns: ["challenger_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "master_challenges_challenger_id_fkey"
-            columns: ["challenger_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "master_challenges_master_id_fkey"
-            columns: ["master_id"]
-            isOneToOne: false
-            referencedRelation: "team_masters"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      master_mentoring: {
-        Row: {
-          completed_at: string | null
-          feedback: string | null
-          goals: Json | null
-          id: string
-          master_id: string
-          mentee_id: string
-          role_name: string
-          started_at: string | null
-          status: string
-        }
-        Insert: {
-          completed_at?: string | null
-          feedback?: string | null
-          goals?: Json | null
-          id?: string
-          master_id: string
-          mentee_id: string
-          role_name: string
-          started_at?: string | null
-          status?: string
-        }
-        Update: {
-          completed_at?: string | null
-          feedback?: string | null
-          goals?: Json | null
-          id?: string
-          master_id?: string
-          mentee_id?: string
-          role_name?: string
-          started_at?: string | null
-          status?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "master_mentoring_master_id_fkey"
-            columns: ["master_id"]
-            isOneToOne: false
-            referencedRelation: "team_masters"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "master_mentoring_mentee_id_fkey"
-            columns: ["mentee_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "master_mentoring_mentee_id_fkey"
-            columns: ["mentee_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "master_mentoring_mentee_id_fkey"
-            columns: ["mentee_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      master_votes: {
-        Row: {
-          application_id: string
-          comentario: string | null
-          created_at: string | null
-          id: string
-          vote: boolean
-          voter_id: string
-        }
-        Insert: {
-          application_id: string
-          comentario?: string | null
-          created_at?: string | null
-          id?: string
-          vote: boolean
-          voter_id: string
-        }
-        Update: {
-          application_id?: string
-          comentario?: string | null
-          created_at?: string | null
-          id?: string
-          vote?: boolean
-          voter_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "master_votes_application_id_fkey"
-            columns: ["application_id"]
-            isOneToOne: false
-            referencedRelation: "master_applications"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "master_votes_voter_id_fkey"
-            columns: ["voter_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "master_votes_voter_id_fkey"
-            columns: ["voter_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "master_votes_voter_id_fkey"
-            columns: ["voter_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      member_kpi_base: {
-        Row: {
+          auth_id: string | null
+          avatar: string | null
           bps: number | null
+          color: string | null
           cps: number | null
+          created_at: string | null
+          email: string
+          especialization:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
           facturacion: number | null
           id: string
           lps: number | null
           margen: number | null
-          member_id: string | null
+          nombre: string
           obvs: number | null
-          obvs_exploracion: number | null
-          obvs_validacion: number | null
-          obvs_venta: number | null
+          role: string | null
           updated_at: string | null
-          updated_by: string | null
         }
         Insert: {
+          auth_id?: string | null
+          avatar?: string | null
           bps?: number | null
+          color?: string | null
           cps?: number | null
+          created_at?: string | null
+          email: string
+          especialization?:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
           facturacion?: number | null
           id?: string
           lps?: number | null
           margen?: number | null
-          member_id?: string | null
+          nombre: string
           obvs?: number | null
-          obvs_exploracion?: number | null
-          obvs_validacion?: number | null
-          obvs_venta?: number | null
+          role?: string | null
           updated_at?: string | null
-          updated_by?: string | null
         }
         Update: {
+          auth_id?: string | null
+          avatar?: string | null
           bps?: number | null
+          color?: string | null
           cps?: number | null
+          created_at?: string | null
+          email?: string
+          especialization?:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
           facturacion?: number | null
           id?: string
           lps?: number | null
           margen?: number | null
-          member_id?: string | null
+          nombre?: string
           obvs?: number | null
-          obvs_exploracion?: number | null
-          obvs_validacion?: number | null
-          obvs_venta?: number | null
+          role?: string | null
           updated_at?: string | null
-          updated_by?: string | null
         }
-        Relationships: [
-          {
-            foreignKeyName: "member_kpi_base_member_id_fkey"
-            columns: ["member_id"]
-            isOneToOne: true
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "member_kpi_base_member_id_fkey"
-            columns: ["member_id"]
-            isOneToOne: true
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "member_kpi_base_member_id_fkey"
-            columns: ["member_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "member_kpi_base_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "member_kpi_base_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "member_kpi_base_updated_by_fkey"
-            columns: ["updated_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       notifications: {
         Row: {
@@ -735,7 +659,7 @@ export type Database = {
           mensaje: string | null
           tipo: string | null
           titulo: string | null
-          user_id: string
+          user_id: string | null
         }
         Insert: {
           created_at?: string | null
@@ -745,7 +669,7 @@ export type Database = {
           mensaje?: string | null
           tipo?: string | null
           titulo?: string | null
-          user_id: string
+          user_id?: string | null
         }
         Update: {
           created_at?: string | null
@@ -755,76 +679,146 @@ export type Database = {
           mensaje?: string | null
           tipo?: string | null
           titulo?: string | null
-          user_id?: string
+          user_id?: string | null
         }
         Relationships: [
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
       }
-      objectives: {
+      objetivos_semanales: {
         Row: {
+          ai_generated: boolean | null
+          completado: boolean | null
           created_at: string | null
           id: string
-          name: string
-          period: string | null
-          target_value: number
-          unit: string | null
+          member_id: string | null
+          project_id: string | null
+          semana: string | null
+          titulo: string
         }
         Insert: {
+          ai_generated?: boolean | null
+          completado?: boolean | null
           created_at?: string | null
           id?: string
-          name: string
-          period?: string | null
-          target_value: number
-          unit?: string | null
+          member_id?: string | null
+          project_id?: string | null
+          semana?: string | null
+          titulo: string
         }
         Update: {
+          ai_generated?: boolean | null
+          completado?: boolean | null
           created_at?: string | null
           id?: string
-          name?: string
-          period?: string | null
-          target_value?: number
-          unit?: string | null
+          member_id?: string | null
+          project_id?: string | null
+          semana?: string | null
+          titulo?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "objetivos_semanales_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "objetivos_semanales_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       obv_participantes: {
         Row: {
           id: string
-          member_id: string
-          obv_id: string
+          member_id: string | null
+          obv_id: string | null
           porcentaje: number | null
         }
         Insert: {
           id?: string
-          member_id: string
-          obv_id: string
+          member_id?: string | null
+          obv_id?: string | null
           porcentaje?: number | null
         }
         Update: {
           id?: string
-          member_id?: string
-          obv_id?: string
+          member_id?: string | null
+          obv_id?: string | null
           porcentaje?: number | null
         }
         Relationships: [
@@ -832,21 +826,35 @@ export type Database = {
             foreignKeyName: "obv_participantes_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obv_participantes_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obv_participantes_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_participantes_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_participantes_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "crm_cerrados_ganados"
             referencedColumns: ["id"]
           },
           {
@@ -860,7 +868,101 @@ export type Database = {
             foreignKeyName: "obv_participantes_obv_id_fkey"
             columns: ["obv_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
+            referencedRelation: "obvs_financial"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_participantes_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_public"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      obv_pipeline_history: {
+        Row: {
+          changed_by: string | null
+          created_at: string | null
+          id: string
+          new_status: Database["public"]["Enums"]["lead_status"]
+          notas: string | null
+          obv_id: string
+          old_status: Database["public"]["Enums"]["lead_status"] | null
+        }
+        Insert: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_status: Database["public"]["Enums"]["lead_status"]
+          notas?: string | null
+          obv_id: string
+          old_status?: Database["public"]["Enums"]["lead_status"] | null
+        }
+        Update: {
+          changed_by?: string | null
+          created_at?: string | null
+          id?: string
+          new_status?: Database["public"]["Enums"]["lead_status"]
+          notas?: string | null
+          obv_id?: string
+          old_status?: Database["public"]["Enums"]["lead_status"] | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obv_pipeline_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_changed_by_fkey"
+            columns: ["changed_by"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "crm_cerrados_ganados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_financial"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_pipeline_history_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_public"
             referencedColumns: ["id"]
           },
         ]
@@ -871,26 +973,33 @@ export type Database = {
           comentario: string | null
           created_at: string | null
           id: string
-          obv_id: string
-          validator_id: string
+          obv_id: string | null
+          validator_id: string | null
         }
         Insert: {
           approved?: boolean | null
           comentario?: string | null
           created_at?: string | null
           id?: string
-          obv_id: string
-          validator_id: string
+          obv_id?: string | null
+          validator_id?: string | null
         }
         Update: {
           approved?: boolean | null
           comentario?: string | null
           created_at?: string | null
           id?: string
-          obv_id?: string
-          validator_id?: string
+          obv_id?: string | null
+          validator_id?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "obv_validaciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "crm_cerrados_ganados"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "obv_validaciones_obv_id_fkey"
             columns: ["obv_id"]
@@ -902,28 +1011,42 @@ export type Database = {
             foreignKeyName: "obv_validaciones_obv_id_fkey"
             columns: ["obv_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
+            referencedRelation: "obvs_financial"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_validaciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_public"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obv_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obv_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obv_validaciones_validator_id_fkey"
             columns: ["validator_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obv_validaciones_validator_id_fkey"
+            columns: ["validator_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
@@ -933,100 +1056,118 @@ export type Database = {
           cantidad: number | null
           cobrado: boolean | null
           cobrado_parcial: number | null
+          cobro_estado: string | null
+          cobro_fecha_esperada: string | null
+          cobro_fecha_real: string | null
+          cobro_metodo: string | null
           costes: number | null
+          costes_detalle: Json | null
           created_at: string | null
           descripcion: string | null
+          email_contacto: string | null
+          empresa: string | null
           es_venta: boolean | null
-          estado_cobro: string | null
           evidence_url: string | null
           facturacion: number | null
           fecha: string | null
-          fecha_cobro_esperada: string | null
-          forma_pago: string | null
           id: string
-          importe_cobrado: number | null
-          iva_importe: number | null
-          iva_porcentaje: number | null
           lead_id: string | null
           margen: number | null
-          numero_factura: string | null
-          numero_presupuesto: string | null
-          owner_id: string
+          nombre_contacto: string | null
+          notas: string | null
+          owner_id: string | null
+          pipeline_status: Database["public"]["Enums"]["lead_status"] | null
           precio_unitario: number | null
           producto: string | null
           project_id: string | null
+          proxima_accion: string | null
+          proxima_accion_fecha: string | null
+          responsable_id: string | null
           status: Database["public"]["Enums"]["kpi_status"] | null
+          telefono_contacto: string | null
           tipo: Database["public"]["Enums"]["obv_type"]
           titulo: string
-          total_factura: number | null
           updated_at: string | null
           validated_at: string | null
+          valor_potencial: number | null
         }
         Insert: {
           cantidad?: number | null
           cobrado?: boolean | null
           cobrado_parcial?: number | null
+          cobro_estado?: string | null
+          cobro_fecha_esperada?: string | null
+          cobro_fecha_real?: string | null
+          cobro_metodo?: string | null
           costes?: number | null
+          costes_detalle?: Json | null
           created_at?: string | null
           descripcion?: string | null
+          email_contacto?: string | null
+          empresa?: string | null
           es_venta?: boolean | null
-          estado_cobro?: string | null
           evidence_url?: string | null
           facturacion?: number | null
           fecha?: string | null
-          fecha_cobro_esperada?: string | null
-          forma_pago?: string | null
           id?: string
-          importe_cobrado?: number | null
-          iva_importe?: number | null
-          iva_porcentaje?: number | null
           lead_id?: string | null
           margen?: number | null
-          numero_factura?: string | null
-          numero_presupuesto?: string | null
-          owner_id: string
+          nombre_contacto?: string | null
+          notas?: string | null
+          owner_id?: string | null
+          pipeline_status?: Database["public"]["Enums"]["lead_status"] | null
           precio_unitario?: number | null
           producto?: string | null
           project_id?: string | null
+          proxima_accion?: string | null
+          proxima_accion_fecha?: string | null
+          responsable_id?: string | null
           status?: Database["public"]["Enums"]["kpi_status"] | null
+          telefono_contacto?: string | null
           tipo: Database["public"]["Enums"]["obv_type"]
           titulo: string
-          total_factura?: number | null
           updated_at?: string | null
           validated_at?: string | null
+          valor_potencial?: number | null
         }
         Update: {
           cantidad?: number | null
           cobrado?: boolean | null
           cobrado_parcial?: number | null
+          cobro_estado?: string | null
+          cobro_fecha_esperada?: string | null
+          cobro_fecha_real?: string | null
+          cobro_metodo?: string | null
           costes?: number | null
+          costes_detalle?: Json | null
           created_at?: string | null
           descripcion?: string | null
+          email_contacto?: string | null
+          empresa?: string | null
           es_venta?: boolean | null
-          estado_cobro?: string | null
           evidence_url?: string | null
           facturacion?: number | null
           fecha?: string | null
-          fecha_cobro_esperada?: string | null
-          forma_pago?: string | null
           id?: string
-          importe_cobrado?: number | null
-          iva_importe?: number | null
-          iva_porcentaje?: number | null
           lead_id?: string | null
           margen?: number | null
-          numero_factura?: string | null
-          numero_presupuesto?: string | null
-          owner_id?: string
+          nombre_contacto?: string | null
+          notas?: string | null
+          owner_id?: string | null
+          pipeline_status?: Database["public"]["Enums"]["lead_status"] | null
           precio_unitario?: number | null
           producto?: string | null
           project_id?: string | null
+          proxima_accion?: string | null
+          proxima_accion_fecha?: string | null
+          responsable_id?: string | null
           status?: Database["public"]["Enums"]["kpi_status"] | null
+          telefono_contacto?: string | null
           tipo?: Database["public"]["Enums"]["obv_type"]
           titulo?: string
-          total_factura?: number | null
           updated_at?: string | null
           validated_at?: string | null
+          valor_potencial?: number | null
         }
         Relationships: [
           {
@@ -1037,45 +1178,52 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "obvs_lead_id_fkey"
-            columns: ["lead_id"]
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "pipeline_global"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obvs_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "members"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obvs_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obvs_owner_id_fkey"
             columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "obvs_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
+            referencedRelation: "analisis_costes_por_proyecto"
             referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "obvs_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
@@ -1085,185 +1233,252 @@ export type Database = {
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "obvs_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_responsable_id_fkey"
+            columns: ["responsable_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
         ]
       }
-      pending_validations: {
+      okrs: {
         Row: {
           created_at: string | null
-          deadline: string
+          descripcion: string | null
           id: string
-          is_late: boolean | null
-          item_type: string
-          kpi_id: string | null
-          obv_id: string | null
-          owner_id: string
-          validated_at: string | null
-          validator_id: string
+          progreso: number | null
+          project_id: string | null
+          titulo: string
+          trimestre: string | null
         }
         Insert: {
           created_at?: string | null
-          deadline: string
+          descripcion?: string | null
           id?: string
-          is_late?: boolean | null
-          item_type: string
-          kpi_id?: string | null
-          obv_id?: string | null
-          owner_id: string
-          validated_at?: string | null
-          validator_id: string
+          progreso?: number | null
+          project_id?: string | null
+          titulo: string
+          trimestre?: string | null
         }
         Update: {
           created_at?: string | null
-          deadline?: string
+          descripcion?: string | null
           id?: string
-          is_late?: boolean | null
-          item_type?: string
-          kpi_id?: string | null
-          obv_id?: string | null
-          owner_id?: string
-          validated_at?: string | null
-          validator_id?: string
+          progreso?: number | null
+          project_id?: string | null
+          titulo?: string
+          trimestre?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "pending_validations_kpi_id_fkey"
-            columns: ["kpi_id"]
+            foreignKeyName: "okrs_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "kpis"
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "okrs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "okrs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "pending_validations_obv_id_fkey"
-            columns: ["obv_id"]
+            foreignKeyName: "okrs_project_id_fkey"
+            columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "obvs"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "pending_validations_obv_id_fkey"
-            columns: ["obv_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
       }
-      profiles: {
+      project_context: {
         Row: {
-          auth_id: string
-          avatar: string | null
-          color: string | null
+          content: string | null
+          context_type: string | null
           created_at: string | null
-          email: string
-          especialization:
-            | Database["public"]["Enums"]["specialization_role"]
-            | null
+          created_by: string | null
           id: string
-          nombre: string
-          updated_at: string | null
+          project_id: string | null
         }
         Insert: {
-          auth_id: string
-          avatar?: string | null
-          color?: string | null
+          content?: string | null
+          context_type?: string | null
           created_at?: string | null
-          email: string
-          especialization?:
-            | Database["public"]["Enums"]["specialization_role"]
-            | null
+          created_by?: string | null
           id?: string
-          nombre: string
-          updated_at?: string | null
+          project_id?: string | null
         }
         Update: {
-          auth_id?: string
-          avatar?: string | null
-          color?: string | null
+          content?: string | null
+          context_type?: string | null
           created_at?: string | null
-          email?: string
-          especialization?:
-            | Database["public"]["Enums"]["specialization_role"]
-            | null
+          created_by?: string | null
           id?: string
-          nombre?: string
-          updated_at?: string | null
+          project_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "project_context_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_context_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_context_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_context_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_context_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_context_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_context_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_context_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       project_members: {
         Row: {
           id: string
           is_lead: boolean | null
           joined_at: string | null
-          last_performance_update: string | null
-          member_id: string
-          performance_score: number | null
-          project_id: string
-          role: Database["public"]["Enums"]["specialization_role"] | null
-          role_accepted: boolean | null
-          role_accepted_at: string | null
-          role_responsibilities: Json | null
+          member_id: string | null
+          project_id: string | null
+          role: Database["public"]["Enums"]["specialization_role"]
         }
         Insert: {
           id?: string
           is_lead?: boolean | null
           joined_at?: string | null
-          last_performance_update?: string | null
-          member_id: string
-          performance_score?: number | null
-          project_id: string
-          role?: Database["public"]["Enums"]["specialization_role"] | null
-          role_accepted?: boolean | null
-          role_accepted_at?: string | null
-          role_responsibilities?: Json | null
+          member_id?: string | null
+          project_id?: string | null
+          role: Database["public"]["Enums"]["specialization_role"]
         }
         Update: {
           id?: string
           is_lead?: boolean | null
           joined_at?: string | null
-          last_performance_update?: string | null
-          member_id?: string
-          performance_score?: number | null
-          project_id?: string
-          role?: Database["public"]["Enums"]["specialization_role"] | null
-          role_accepted?: boolean | null
-          role_accepted_at?: string | null
-          role_responsibilities?: Json | null
+          member_id?: string | null
+          project_id?: string | null
+          role?: Database["public"]["Enums"]["specialization_role"]
         }
         Relationships: [
           {
             foreignKeyName: "project_members_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_member_id_fkey"
             columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
+            referencedRelation: "analisis_costes_por_proyecto"
             referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "project_members_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
@@ -1323,370 +1538,149 @@ export type Database = {
             foreignKeyName: "projects_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "projects_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "projects_created_by_fkey"
             columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "projects_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
         ]
       }
-      role_history: {
+      role_meeting_insights: {
         Row: {
-          change_type: string
           created_at: string | null
           id: string
-          new_role: string
-          notes: string | null
-          old_role: string | null
-          previous_performance_score: number | null
-          project_id: string
-          rotation_request_id: string | null
-          user_id: string
-        }
-        Insert: {
-          change_type: string
-          created_at?: string | null
-          id?: string
-          new_role: string
-          notes?: string | null
-          old_role?: string | null
-          previous_performance_score?: number | null
-          project_id: string
-          rotation_request_id?: string | null
-          user_id: string
-        }
-        Update: {
-          change_type?: string
-          created_at?: string | null
-          id?: string
-          new_role?: string
-          notes?: string | null
-          old_role?: string | null
-          previous_performance_score?: number | null
-          project_id?: string
-          rotation_request_id?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "role_history_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "financial_metrics"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "role_history_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_history_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_history_rotation_request_id_fkey"
-            columns: ["rotation_request_id"]
-            isOneToOne: false
-            referencedRelation: "role_rotation_requests"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "role_history_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      role_rankings: {
-        Row: {
-          calculated_at: string | null
-          id: string
-          metrics: Json | null
-          period_end: string
-          period_start: string
-          previous_position: number | null
+          insight: string
+          meeting_id: string | null
+          member_id: string | null
           project_id: string | null
-          ranking_position: number
-          role_name: string
-          score: number
-          user_id: string
+          tipo: string | null
         }
         Insert: {
-          calculated_at?: string | null
+          created_at?: string | null
           id?: string
-          metrics?: Json | null
-          period_end: string
-          period_start: string
-          previous_position?: number | null
+          insight: string
+          meeting_id?: string | null
+          member_id?: string | null
           project_id?: string | null
-          ranking_position: number
-          role_name: string
-          score?: number
-          user_id: string
+          tipo?: string | null
         }
         Update: {
-          calculated_at?: string | null
+          created_at?: string | null
           id?: string
-          metrics?: Json | null
-          period_end?: string
-          period_start?: string
-          previous_position?: number | null
+          insight?: string
+          meeting_id?: string | null
+          member_id?: string | null
           project_id?: string | null
-          ranking_position?: number
-          role_name?: string
-          score?: number
-          user_id?: string
+          tipo?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "role_rankings_project_id_fkey"
+            foreignKeyName: "role_meeting_insights_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "role_meetings"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_meeting_insights_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_meeting_insights_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_meeting_insights_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_meeting_insights_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "role_meeting_insights_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
+            referencedRelation: "analisis_costes_por_proyecto"
             referencedColumns: ["project_id"]
           },
           {
-            foreignKeyName: "role_rankings_project_id_fkey"
+            foreignKeyName: "role_meeting_insights_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "role_meeting_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "role_rankings_project_id_fkey"
+            foreignKeyName: "role_meeting_insights_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rankings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rankings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "role_rankings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
             referencedColumns: ["id"]
           },
         ]
       }
-      role_rotation_requests: {
+      role_meetings: {
         Row: {
-          admin_approved: boolean | null
-          approved_by: string | null
-          compatibility_analysis: Json | null
-          compatibility_score: number | null
-          completed_at: string | null
+          ai_questions: Json | null
           created_at: string | null
+          fecha: string
           id: string
-          reason: string | null
-          request_type: string
-          requester_accepted: boolean | null
-          requester_current_role: string
-          requester_id: string
-          requester_project_id: string
-          status: string
-          target_accepted: boolean | null
-          target_project_id: string | null
-          target_role: string | null
-          target_user_id: string | null
-          updated_at: string | null
+          role: Database["public"]["Enums"]["specialization_role"]
         }
         Insert: {
-          admin_approved?: boolean | null
-          approved_by?: string | null
-          compatibility_analysis?: Json | null
-          compatibility_score?: number | null
-          completed_at?: string | null
+          ai_questions?: Json | null
           created_at?: string | null
+          fecha: string
           id?: string
-          reason?: string | null
-          request_type?: string
-          requester_accepted?: boolean | null
-          requester_current_role: string
-          requester_id: string
-          requester_project_id: string
-          status?: string
-          target_accepted?: boolean | null
-          target_project_id?: string | null
-          target_role?: string | null
-          target_user_id?: string | null
-          updated_at?: string | null
+          role: Database["public"]["Enums"]["specialization_role"]
         }
         Update: {
-          admin_approved?: boolean | null
-          approved_by?: string | null
-          compatibility_analysis?: Json | null
-          compatibility_score?: number | null
-          completed_at?: string | null
+          ai_questions?: Json | null
           created_at?: string | null
+          fecha?: string
           id?: string
-          reason?: string | null
-          request_type?: string
-          requester_accepted?: boolean | null
-          requester_current_role?: string
-          requester_id?: string
-          requester_project_id?: string
-          status?: string
-          target_accepted?: boolean | null
-          target_project_id?: string | null
-          target_role?: string | null
-          target_user_id?: string | null
-          updated_at?: string | null
+          role?: Database["public"]["Enums"]["specialization_role"]
         }
-        Relationships: [
-          {
-            foreignKeyName: "role_rotation_requests_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_approved_by_fkey"
-            columns: ["approved_by"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_requester_id_fkey"
-            columns: ["requester_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
-            columns: ["requester_project_id"]
-            isOneToOne: false
-            referencedRelation: "financial_metrics"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
-            columns: ["requester_project_id"]
-            isOneToOne: false
-            referencedRelation: "project_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_requester_project_id_fkey"
-            columns: ["requester_project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_target_project_id_fkey"
-            columns: ["target_project_id"]
-            isOneToOne: false
-            referencedRelation: "financial_metrics"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_target_project_id_fkey"
-            columns: ["target_project_id"]
-            isOneToOne: false
-            referencedRelation: "project_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_target_project_id_fkey"
-            columns: ["target_project_id"]
-            isOneToOne: false
-            referencedRelation: "projects"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_target_user_id_fkey"
-            columns: ["target_user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_target_user_id_fkey"
-            columns: ["target_user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "role_rotation_requests_target_user_id_fkey"
-            columns: ["target_user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
+        Relationships: []
       }
       tasks: {
         Row: {
@@ -1697,14 +1691,11 @@ export type Database = {
           descripcion: string | null
           fecha_limite: string | null
           id: string
-          metadata: Json | null
-          playbook: Json | null
+          objetivo_vinculado: string | null
           prioridad: number | null
           project_id: string | null
-          relacionada_con_leads: string[] | null
           status: Database["public"]["Enums"]["task_status"] | null
-          tiempo_estimado_horas: number | null
-          tipo_tarea: string | null
+          tiempo_estimado: number | null
           titulo: string
         }
         Insert: {
@@ -1715,14 +1706,11 @@ export type Database = {
           descripcion?: string | null
           fecha_limite?: string | null
           id?: string
-          metadata?: Json | null
-          playbook?: Json | null
+          objetivo_vinculado?: string | null
           prioridad?: number | null
           project_id?: string | null
-          relacionada_con_leads?: string[] | null
           status?: Database["public"]["Enums"]["task_status"] | null
-          tiempo_estimado_horas?: number | null
-          tipo_tarea?: string | null
+          tiempo_estimado?: number | null
           titulo: string
         }
         Update: {
@@ -1733,14 +1721,11 @@ export type Database = {
           descripcion?: string | null
           fecha_limite?: string | null
           id?: string
-          metadata?: Json | null
-          playbook?: Json | null
+          objetivo_vinculado?: string | null
           prioridad?: number | null
           project_id?: string | null
-          relacionada_con_leads?: string[] | null
           status?: Database["public"]["Enums"]["task_status"] | null
-          tiempo_estimado_horas?: number | null
-          tipo_tarea?: string | null
+          tiempo_estimado?: number | null
           titulo?: string
         }
         Relationships: [
@@ -1748,35 +1733,56 @@ export type Database = {
             foreignKeyName: "tasks_assignee_id_fkey"
             columns: ["assignee_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "tasks_assignee_id_fkey"
             columns: ["assignee_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "tasks_assignee_id_fkey"
             columns: ["assignee_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_assignee_id_fkey"
+            columns: ["assignee_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_objetivo_vinculado_fkey"
+            columns: ["objetivo_vinculado"]
+            isOneToOne: false
+            referencedRelation: "objetivos_semanales"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
+            referencedRelation: "analisis_costes_por_proyecto"
             referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "tasks_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
@@ -1788,567 +1794,663 @@ export type Database = {
           },
         ]
       }
-      team_masters: {
+      transacciones: {
         Row: {
-          appointed_at: string | null
+          cobrado_pagado: boolean | null
+          concepto: string
           created_at: string | null
-          expires_at: string | null
+          created_by: string | null
+          fecha: string | null
           id: string
-          is_active: boolean | null
-          level: number | null
-          role_name: string
-          successful_defenses: number | null
-          title: string | null
-          total_mentees: number | null
-          user_id: string
-        }
-        Insert: {
-          appointed_at?: string | null
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          level?: number | null
-          role_name: string
-          successful_defenses?: number | null
-          title?: string | null
-          total_mentees?: number | null
-          user_id: string
-        }
-        Update: {
-          appointed_at?: string | null
-          created_at?: string | null
-          expires_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          level?: number | null
-          role_name?: string
-          successful_defenses?: number | null
-          title?: string | null
-          total_mentees?: number | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "team_masters_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "team_masters_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "team_masters_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_insights: {
-        Row: {
-          contenido: string
-          created_at: string | null
-          id: string
-          is_private: boolean | null
+          monto: number
+          obv_id: string | null
           project_id: string | null
-          role_context: string | null
-          tags: string[] | null
           tipo: string
-          titulo: string
-          updated_at: string | null
-          user_id: string
         }
         Insert: {
-          contenido: string
+          cobrado_pagado?: boolean | null
+          concepto: string
           created_at?: string | null
+          created_by?: string | null
+          fecha?: string | null
           id?: string
-          is_private?: boolean | null
+          monto: number
+          obv_id?: string | null
           project_id?: string | null
-          role_context?: string | null
-          tags?: string[] | null
           tipo: string
-          titulo: string
-          updated_at?: string | null
-          user_id: string
         }
         Update: {
-          contenido?: string
+          cobrado_pagado?: boolean | null
+          concepto?: string
           created_at?: string | null
+          created_by?: string | null
+          fecha?: string | null
           id?: string
-          is_private?: boolean | null
+          monto?: number
+          obv_id?: string | null
           project_id?: string | null
-          role_context?: string | null
-          tags?: string[] | null
           tipo?: string
-          titulo?: string
-          updated_at?: string | null
-          user_id?: string
         }
         Relationships: [
           {
-            foreignKeyName: "user_insights_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "transacciones_created_by_fkey"
+            columns: ["created_by"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "user_insights_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "user_insights_project_id_fkey"
+            foreignKeyName: "transacciones_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "crm_cerrados_ganados"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_financial"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_obv_id_fkey"
+            columns: ["obv_id"]
+            isOneToOne: false
+            referencedRelation: "obvs_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "transacciones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "transacciones_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transacciones_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
-          {
-            foreignKeyName: "user_insights_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_insights_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "user_insights_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
         ]
-      }
-      user_playbooks: {
-        Row: {
-          ai_model: string | null
-          areas_mejora: string[] | null
-          contenido: Json
-          created_at: string | null
-          fortalezas: string[] | null
-          generated_at: string | null
-          id: string
-          is_active: boolean | null
-          objetivos_sugeridos: Json | null
-          role_name: string
-          user_id: string
-          version: number | null
-        }
-        Insert: {
-          ai_model?: string | null
-          areas_mejora?: string[] | null
-          contenido: Json
-          created_at?: string | null
-          fortalezas?: string[] | null
-          generated_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          objetivos_sugeridos?: Json | null
-          role_name: string
-          user_id: string
-          version?: number | null
-        }
-        Update: {
-          ai_model?: string | null
-          areas_mejora?: string[] | null
-          contenido?: Json
-          created_at?: string | null
-          fortalezas?: string[] | null
-          generated_at?: string | null
-          id?: string
-          is_active?: boolean | null
-          objetivos_sugeridos?: Json | null
-          role_name?: string
-          user_id?: string
-          version?: number | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_playbooks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_playbooks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "user_playbooks_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_roles: {
-        Row: {
-          created_at: string | null
-          id: string
-          role: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          role?: Database["public"]["Enums"]["app_role"]
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      user_settings: {
-        Row: {
-          created_at: string | null
-          id: string
-          notifications: Json | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          notifications?: Json | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          notifications?: Json | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "member_stats"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
-          },
-          {
-            foreignKeyName: "user_settings_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: true
-            referencedRelation: "profiles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      validation_order: {
-        Row: {
-          created_at: string | null
-          id: string
-          month_year: string
-          position: number
-          user_id: string
-        }
-        Insert: {
-          created_at?: string | null
-          id?: string
-          month_year?: string
-          position: number
-          user_id: string
-        }
-        Update: {
-          created_at?: string | null
-          id?: string
-          month_year?: string
-          position?: number
-          user_id?: string
-        }
-        Relationships: []
-      }
-      validator_stats: {
-        Row: {
-          blocked_until: string | null
-          id: string
-          is_blocked: boolean | null
-          late_validations: number | null
-          missed_validations: number | null
-          on_time_validations: number | null
-          total_validations: number | null
-          updated_at: string | null
-          user_id: string
-        }
-        Insert: {
-          blocked_until?: string | null
-          id?: string
-          is_blocked?: boolean | null
-          late_validations?: number | null
-          missed_validations?: number | null
-          on_time_validations?: number | null
-          total_validations?: number | null
-          updated_at?: string | null
-          user_id: string
-        }
-        Update: {
-          blocked_until?: string | null
-          id?: string
-          is_blocked?: boolean | null
-          late_validations?: number | null
-          missed_validations?: number | null
-          on_time_validations?: number | null
-          total_validations?: number | null
-          updated_at?: string | null
-          user_id?: string
-        }
-        Relationships: []
       }
     }
     Views: {
-      financial_metrics: {
+      analisis_costes_global: {
+        Row: {
+          num_ventas: number | null
+          total_comisiones: number | null
+          total_costes: number | null
+          total_herramientas: number | null
+          total_logistica: number | null
+          total_marketing: number | null
+          total_materiales: number | null
+          total_otros: number | null
+          total_subcontratacion: number | null
+        }
+        Relationships: []
+      }
+      analisis_costes_por_proyecto: {
+        Row: {
+          facturacion: number | null
+          margen: number | null
+          num_ventas: number | null
+          project_id: string | null
+          proyecto: string | null
+          total_costes: number | null
+          total_materiales: number | null
+          total_subcontratacion: number | null
+        }
+        Relationships: []
+      }
+      cobros_por_proyecto: {
         Row: {
           cobrado: number | null
-          costes: number | null
-          facturacion: number | null
-          margen: number | null
-          margen_percent: number | null
-          month: string | null
+          facturado: number | null
           num_ventas: number | null
-          pendiente_cobro: number | null
-          project_color: string | null
           project_id: string | null
-          project_name: string | null
+          proyecto: string | null
         }
         Relationships: []
       }
-      member_stats: {
-        Row: {
-          avatar: string | null
-          bps: number | null
-          color: string | null
-          cps: number | null
-          email: string | null
-          facturacion: number | null
-          id: string | null
-          lps: number | null
-          margen: number | null
-          nombre: string | null
-          obvs: number | null
-          obvs_exploracion: number | null
-          obvs_validacion: number | null
-          obvs_venta: number | null
-        }
-        Relationships: []
-      }
-      pending_payments: {
-        Row: {
-          cliente: string | null
-          cliente_empresa: string | null
-          dias_vencido: number | null
-          estado_cobro: string | null
-          fecha_cobro_esperada: string | null
-          fecha_venta: string | null
-          id: string | null
-          importe: number | null
-          importe_cobrado: number | null
-          numero_factura: string | null
-          pendiente: number | null
-          proyecto_color: string | null
-          proyecto_nombre: string | null
-          responsable_id: string | null
-          responsable_nombre: string | null
-          titulo: string | null
-        }
-        Relationships: []
-      }
-      pipeline_global: {
+      crm_cerrados_ganados: {
         Row: {
           created_at: string | null
-          email: string | null
+          email_contacto: string | null
           empresa: string | null
+          facturacion: number | null
           id: string | null
-          nombre: string | null
-          notas: string | null
+          nombre_contacto: string | null
+          owner_color: string | null
+          owner_id: string | null
+          owner_nombre: string | null
+          pipeline_status: Database["public"]["Enums"]["lead_status"] | null
           project_id: string | null
-          proxima_accion: string | null
-          proxima_accion_fecha: string | null
           proyecto_color: string | null
+          proyecto_icon: string | null
           proyecto_nombre: string | null
-          responsable_id: string | null
-          responsable_nombre: string | null
-          status: Database["public"]["Enums"]["lead_status"] | null
-          telefono: string | null
-          updated_at: string | null
+          telefono_contacto: string | null
+          titulo: string | null
           valor_potencial: number | null
         }
         Relationships: [
           {
-            foreignKeyName: "leads_project_id_fkey"
-            columns: ["project_id"]
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
-            referencedColumns: ["project_id"]
-          },
-          {
-            foreignKeyName: "leads_project_id_fkey"
-            columns: ["project_id"]
-            isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "leads_project_id_fkey"
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
             referencedColumns: ["id"]
           },
+        ]
+      }
+      dashboard_cobros: {
+        Row: {
+          num_pendientes: number | null
+          total_cobrado: number | null
+          total_facturado: number | null
+          total_ventas: number | null
+        }
+        Relationships: []
+      }
+      forecast_ingresos: {
+        Row: {
+          proyeccion_hot: number | null
+          proyeccion_negociacion: number | null
+          proyeccion_propuesta: number | null
+          total_proyectado_30_dias: number | null
+        }
+        Relationships: []
+      }
+      member_stats_complete: {
+        Row: {
+          avatar: string | null
+          color: string | null
+          email: string | null
+          especialization:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
+          facturacion_total: number | null
+          id: string | null
+          margen_total: number | null
+          nombre: string | null
+          num_proyectos: number | null
+          obvs_validated: number | null
+        }
+        Relationships: []
+      }
+      members_public: {
+        Row: {
+          auth_id: string | null
+          avatar: string | null
+          color: string | null
+          created_at: string | null
+          email: string | null
+          especialization:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
+          id: string | null
+          nombre: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auth_id?: string | null
+          avatar?: string | null
+          color?: string | null
+          created_at?: string | null
+          email?: never
+          especialization?:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
+          id?: string | null
+          nombre?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auth_id?: string | null
+          avatar?: string | null
+          color?: string | null
+          created_at?: string | null
+          email?: never
+          especialization?:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
+          id?: string | null
+          nombre?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      mis_validaciones_pendientes: {
+        Row: {
+          created_at: string | null
+          descripcion: string | null
+          evidence_url: string | null
+          item_id: string | null
+          owner_color: string | null
+          owner_id: string | null
+          owner_nombre: string | null
+          proyecto_nombre: string | null
+          tipo: string | null
+          titulo: string | null
+        }
+        Relationships: []
+      }
+      obvs_financial: {
+        Row: {
+          cantidad: number | null
+          cobrado: boolean | null
+          cobrado_parcial: number | null
+          costes: number | null
+          created_at: string | null
+          descripcion: string | null
+          es_venta: boolean | null
+          evidence_url: string | null
+          facturacion: number | null
+          fecha: string | null
+          id: string | null
+          lead_id: string | null
+          margen: number | null
+          owner_id: string | null
+          precio_unitario: number | null
+          producto: string | null
+          project_id: string | null
+          status: Database["public"]["Enums"]["kpi_status"] | null
+          tipo: Database["public"]["Enums"]["obv_type"] | null
+          titulo: string | null
+          updated_at: string | null
+          validated_at: string | null
+        }
+        Insert: {
+          cantidad?: number | null
+          cobrado?: boolean | null
+          cobrado_parcial?: number | null
+          costes?: number | null
+          created_at?: string | null
+          descripcion?: string | null
+          es_venta?: boolean | null
+          evidence_url?: string | null
+          facturacion?: number | null
+          fecha?: string | null
+          id?: string | null
+          lead_id?: string | null
+          margen?: number | null
+          owner_id?: string | null
+          precio_unitario?: number | null
+          producto?: string | null
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          tipo?: Database["public"]["Enums"]["obv_type"] | null
+          titulo?: string | null
+          updated_at?: string | null
+          validated_at?: string | null
+        }
+        Update: {
+          cantidad?: number | null
+          cobrado?: boolean | null
+          cobrado_parcial?: number | null
+          costes?: number | null
+          created_at?: string | null
+          descripcion?: string | null
+          es_venta?: boolean | null
+          evidence_url?: string | null
+          facturacion?: number | null
+          fecha?: string | null
+          id?: string | null
+          lead_id?: string | null
+          margen?: number | null
+          owner_id?: string | null
+          precio_unitario?: number | null
+          producto?: string | null
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          tipo?: Database["public"]["Enums"]["obv_type"] | null
+          titulo?: string | null
+          updated_at?: string | null
+          validated_at?: string | null
+        }
+        Relationships: [
           {
-            foreignKeyName: "leads_responsable_id_fkey"
-            columns: ["responsable_id"]
+            foreignKeyName: "obvs_lead_id_fkey"
+            columns: ["lead_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "leads"
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "leads_responsable_id_fkey"
-            columns: ["responsable_id"]
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "leads_responsable_id_fkey"
-            columns: ["responsable_id"]
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
             referencedColumns: ["id"]
           },
         ]
       }
-      project_stats: {
+      obvs_public: {
         Row: {
-          color: string | null
-          facturacion: number | null
-          fase: Database["public"]["Enums"]["project_phase"] | null
-          icon: string | null
+          cantidad: number | null
+          cobrado: boolean | null
+          created_at: string | null
+          descripcion: string | null
+          es_venta: boolean | null
+          evidence_url: string | null
+          fecha: string | null
           id: string | null
-          leads_ganados: number | null
-          margen: number | null
-          nombre: string | null
-          num_members: number | null
-          onboarding_completed: boolean | null
-          tipo: Database["public"]["Enums"]["project_type"] | null
-          total_leads: number | null
-          total_obvs: number | null
-        }
-        Relationships: []
-      }
-      user_role_performance: {
-        Row: {
-          completed_tasks: number | null
-          is_lead: boolean | null
-          joined_at: string | null
-          lead_conversion_rate: number | null
-          leads_ganados: number | null
-          performance_score: number | null
+          lead_id: string | null
+          nota_datos_financieros: string | null
+          owner_id: string | null
+          producto: string | null
           project_id: string | null
-          project_name: string | null
-          role_accepted: boolean | null
-          role_name: Database["public"]["Enums"]["specialization_role"] | null
-          task_completion_rate: number | null
-          total_facturacion: number | null
-          total_leads: number | null
-          total_obvs: number | null
-          total_tasks: number | null
-          user_id: string | null
-          user_name: string | null
-          validated_obvs: number | null
+          status: Database["public"]["Enums"]["kpi_status"] | null
+          tipo: Database["public"]["Enums"]["obv_type"] | null
+          titulo: string | null
+          updated_at: string | null
+          validated_at: string | null
+        }
+        Insert: {
+          cantidad?: number | null
+          cobrado?: boolean | null
+          created_at?: string | null
+          descripcion?: string | null
+          es_venta?: boolean | null
+          evidence_url?: string | null
+          fecha?: string | null
+          id?: string | null
+          lead_id?: string | null
+          nota_datos_financieros?: never
+          owner_id?: string | null
+          producto?: string | null
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          tipo?: Database["public"]["Enums"]["obv_type"] | null
+          titulo?: string | null
+          updated_at?: string | null
+          validated_at?: string | null
+        }
+        Update: {
+          cantidad?: number | null
+          cobrado?: boolean | null
+          created_at?: string | null
+          descripcion?: string | null
+          es_venta?: boolean | null
+          evidence_url?: string | null
+          fecha?: string | null
+          id?: string | null
+          lead_id?: string | null
+          nota_datos_financieros?: never
+          owner_id?: string | null
+          producto?: string | null
+          project_id?: string | null
+          status?: Database["public"]["Enums"]["kpi_status"] | null
+          tipo?: Database["public"]["Enums"]["obv_type"] | null
+          titulo?: string | null
+          updated_at?: string | null
+          validated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "obvs_lead_id_fkey"
+            columns: ["lead_id"]
+            isOneToOne: false
+            referencedRelation: "leads"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_owner_id_fkey"
+            columns: ["owner_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "analisis_costes_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "obvs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_roles_view: {
+        Row: {
+          is_lead: boolean | null
+          member_id: string | null
+          member_nombre: string | null
+          project_id: string | null
+          project_nombre: string | null
+          role: Database["public"]["Enums"]["specialization_role"] | null
         }
         Relationships: [
           {
             foreignKeyName: "project_members_member_id_fkey"
-            columns: ["user_id"]
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "member_stats"
+            referencedRelation: "member_stats_complete"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_member_id_fkey"
-            columns: ["user_id"]
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "pending_payments"
-            referencedColumns: ["responsable_id"]
+            referencedRelation: "members"
+            referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_member_id_fkey"
-            columns: ["user_id"]
+            columns: ["member_id"]
             isOneToOne: false
-            referencedRelation: "profiles"
+            referencedRelation: "members_public"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_members_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: false
+            referencedRelation: "public_members"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "project_members_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "financial_metrics"
+            referencedRelation: "analisis_costes_por_proyecto"
             referencedColumns: ["project_id"]
           },
           {
             foreignKeyName: "project_members_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
-            referencedRelation: "project_stats"
+            referencedRelation: "cobros_por_proyecto"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_members_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats_complete"
             referencedColumns: ["id"]
           },
           {
@@ -2360,72 +2462,106 @@ export type Database = {
           },
         ]
       }
+      project_stats_complete: {
+        Row: {
+          color: string | null
+          facturacion_total: number | null
+          fase: Database["public"]["Enums"]["project_phase"] | null
+          icon: string | null
+          id: string | null
+          leads_ganados: number | null
+          margen_total: number | null
+          nombre: string | null
+          num_miembros: number | null
+          total_obvs: number | null
+        }
+        Relationships: []
+      }
+      public_members: {
+        Row: {
+          auth_id: string | null
+          avatar: string | null
+          color: string | null
+          created_at: string | null
+          email: string | null
+          id: string | null
+          nombre: string | null
+          role: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          auth_id?: string | null
+          avatar?: string | null
+          color?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          nombre?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          auth_id?: string | null
+          avatar?: string | null
+          color?: string | null
+          created_at?: string | null
+          email?: never
+          id?: string | null
+          nombre?: string | null
+          role?: string | null
+          updated_at?: string | null
+        }
+        Relationships: []
+      }
+      top_clientes_valor: {
+        Row: {
+          email_contacto: string | null
+          empresa: string | null
+          num_compras: number | null
+          telefono_contacto: string | null
+          ultima_compra: string | null
+          valor_total_facturado: number | null
+          valor_total_margen: number | null
+        }
+        Relationships: []
+      }
+      top_productos_rentables: {
+        Row: {
+          facturacion_total: number | null
+          margen_porcentaje: number | null
+          margen_total: number | null
+          num_ventas: number | null
+          producto: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      calculate_role_performance_score: {
-        Args: { p_project_id: string; p_role: string; p_user_id: string }
-        Returns: number
-      }
-      calculate_rotation_compatibility: {
+      calcular_costes_desde_detalle: { Args: { costes: Json }; Returns: number }
+      crear_costes_detalle: {
         Args: {
-          p_role1: string
-          p_role2: string
-          p_user1_id: string
-          p_user2_id: string
+          p_comisiones?: number
+          p_herramientas?: number
+          p_logistica?: number
+          p_marketing?: number
+          p_materiales?: number
+          p_otros?: number
+          p_subcontratacion?: number
         }
         Returns: Json
       }
-      check_and_block_late_validators: { Args: never; Returns: undefined }
-      check_master_eligibility: {
-        Args: { p_role: string; p_user_id: string }
-        Returns: Json
-      }
-      get_financial_metrics_secure: {
-        Args: never
+      get_member_id: { Args: { _auth_id: string }; Returns: string }
+      get_pipeline_stats: {
+        Args: { p_project_id?: string }
         Returns: {
-          cobrado: number | null
-          costes: number | null
-          facturacion: number | null
-          margen: number | null
-          margen_percent: number | null
-          month: string | null
-          num_ventas: number | null
-          pendiente_cobro: number | null
-          project_color: string | null
-          project_id: string | null
-          project_name: string | null
+          conversion_rate: number
+          count: number
+          status: Database["public"]["Enums"]["lead_status"]
+          valor_total: number
         }[]
-        SetofOptions: {
-          from: "*"
-          to: "financial_metrics"
-          isOneToOne: false
-          isSetofReturn: true
-        }
-      }
-      get_profile_id: { Args: { _auth_id: string }; Returns: string }
-      get_validators_for_user: {
-        Args: { p_user_id: string }
-        Returns: {
-          validator_id: string
-        }[]
-      }
-      has_role: {
-        Args: {
-          _role: Database["public"]["Enums"]["app_role"]
-          _user_id: string
-        }
-        Returns: boolean
-      }
-      is_user_blocked: { Args: { p_user_id: string }; Returns: boolean }
-      rotate_validation_order: { Args: never; Returns: undefined }
-      seed_member_kpi_base: { Args: never; Returns: undefined }
-      update_role_rankings: {
-        Args: { p_period_end?: string; p_period_start?: string; p_role: string }
-        Returns: undefined
       }
     }
     Enums: {
-      app_role: "admin" | "tlt" | "member"
       kpi_status: "pending" | "validated" | "rejected"
       lead_status:
         | "frio"
@@ -2579,7 +2715,6 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "tlt", "member"],
       kpi_status: ["pending", "validated", "rejected"],
       lead_status: [
         "frio",
