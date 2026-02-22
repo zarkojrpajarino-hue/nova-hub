@@ -1941,12 +1941,41 @@ export type Database = {
         }
         Relationships: []
       }
+      profiles: {
+        Row: {
+          auth_id: string
+          avatar: string | null
+          color: string | null
+          created_at: string | null
+          email: string
+          especialization:
+            | Database["public"]["Enums"]["specialization_role"]
+            | null
+          id: string
+          nombre: string
+          role: string | null
+          updated_at: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       auto_rotate_to_next_role: { Args: never; Returns: undefined }
       can_challenge_master: {
         Args: { p_member_id: string; p_role: string }
         Returns: Json
+      }
+      calculate_rotation_compatibility: {
+        Args: { p_user1_id: string; p_user2_id: string; p_role1: string; p_role2: string }
+        Returns: number
+      }
+      can_execute_ai_task: {
+        Args: { p_user_id: string; p_credits_needed?: number }
+        Returns: Json
+      }
+      has_role: {
+        Args: { user_id: string; required_role: string }
+        Returns: boolean
       }
       show_limit: { Args: never; Returns: number }
       show_trgm: { Args: { "": string }; Returns: string[] }
