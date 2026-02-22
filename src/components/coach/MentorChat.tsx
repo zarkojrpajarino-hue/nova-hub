@@ -30,7 +30,7 @@ interface MentorChatProps {
 }
 
 export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
-  const { user } = useAuth();
+  const { user: _user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);

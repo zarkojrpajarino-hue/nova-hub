@@ -22,6 +22,7 @@ export function useFinancieroData() {
     enabled: !isDemoMode,
   });
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const financialMetrics = isDemoMode ? DEMO_FINANCIAL_METRICS : (Array.isArray(realFinancialMetrics) ? realFinancialMetrics : []);
 
   const { data: realPendingPayments = [] } = useQuery({

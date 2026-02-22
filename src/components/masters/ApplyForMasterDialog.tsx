@@ -70,7 +70,7 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
       onOpenChange(false);
       setMotivation('');
       setAchievements([{ title: '', description: '' }]);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al enviar la aplicación');
     }
   };

@@ -5,7 +5,7 @@
  * Con avatares, badges y animaciones
  */
 
-import { Trophy, TrendingUp, Star } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';

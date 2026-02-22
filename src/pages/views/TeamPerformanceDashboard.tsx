@@ -20,7 +20,6 @@ import {
   Users,
   Trophy,
   AlertTriangle,
-  CheckCircle2,
   Clock,
   TrendingUp,
   Lightbulb,
@@ -35,7 +34,6 @@ import { useNavigation } from '@/contexts/NavigationContext';
 import { BackButton } from '@/components/navigation/BackButton';
 import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
-import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { TeamPerformancePreviewModal } from '@/components/preview/TeamPerformancePreviewModal';
 
@@ -44,10 +42,10 @@ interface TeamPerformanceDashboardProps {
 }
 
 // Componente interno que renderiza el contenido
-function TeamPerformanceContent({ isDemoMode = false }: TeamPerformanceDashboardProps = {}) {
+function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerformanceDashboardProps = {}) {
   const { user } = useAuth();
   const { goBack, canGoBack } = useNavigation();
-  const { currentProject: contextProject } = useCurrentProject();
+  const { currentProject: _contextProject } = useCurrentProject();
   const [myProjects, setMyProjects] = useState<Record<string, unknown>[]>([]);
   const [selectedProject, setSelectedProject] = useState<string | null>(null);
   const [explorations, setExplorations] = useState<Record<string, unknown>[]>([]);
@@ -61,10 +59,12 @@ function TeamPerformanceContent({ isDemoMode = false }: TeamPerformanceDashboard
     if (user?.id) {
       loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   useEffect(() => {
     loadRoleInsights();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedInsightRole]);
 
   const loadData = async () => {
@@ -169,7 +169,7 @@ function TeamPerformanceContent({ isDemoMode = false }: TeamPerformanceDashboard
     );
   }
 
-  const currentProject = myProjects.find((p) => p.id === selectedProject);
+  const _currentProject = myProjects.find((p) => p.id === selectedProject);
   const needsAttention = explorations.filter(
     (e) => new Date(e.end_date) <= new Date() || (e.peer_feedback_count || 0) < 2
   );

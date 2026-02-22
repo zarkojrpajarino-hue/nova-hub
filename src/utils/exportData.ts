@@ -99,8 +99,8 @@ export async function downloadPDF(
 ): Promise<void> {
   // Lazy load jsPDF
   const { jsPDF } = await import('jspdf');
-  // @ts-ignore - autoTable es un plugin
-  const autoTable = (await import('jspdf-autotable')).default;
+  // @ts-expect-error - autoTable es un plugin
+  const _autoTable = (await import('jspdf-autotable')).default;
 
   const doc = new jsPDF();
 
@@ -122,7 +122,7 @@ export async function downloadPDF(
     startY: 35,
     head: [columns.map((col) => col.header)],
     body: data.map((row) => columns.map((col) => {
-      let value = row[col.key];
+      const value = row[col.key];
 
       if (value === null || value === undefined) return '';
       if (value instanceof Date) return format(value, 'dd/MM/yyyy');

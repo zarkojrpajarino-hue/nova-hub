@@ -15,7 +15,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
@@ -50,7 +49,7 @@ interface BusinessIdeasSectionProps {
 }
 
 export function BusinessIdeasSection({
-  projectId,
+  projectId: _projectId,
   initialIdeas,
   onComplete,
   onCancel,

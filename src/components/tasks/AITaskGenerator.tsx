@@ -1,10 +1,10 @@
 import { useState } from 'react';
-import { Bot, Loader2, Sparkles, Check, X, Calendar, Flag, User, Lock, AlertCircle } from 'lucide-react';
+import { Bot, Loader2, Sparkles, Check, X, Calendar, Flag, User, Lock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+// import { Alert, AlertDescription } from '@/components/ui/alert';
 import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
@@ -66,7 +66,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
 
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
-  const [isSaving, setIsSaving] = useState(false);
+  const [isSaving] = useState(false);
   const [generatedTasks, setGeneratedTasks] = useState<GeneratedTask[]>([]);
   const [error, setError] = useState<string | null>(null);
 

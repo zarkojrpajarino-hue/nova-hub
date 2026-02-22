@@ -7,7 +7,7 @@
 
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Plus, Loader2, X } from 'lucide-react';
+import { Plus, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,

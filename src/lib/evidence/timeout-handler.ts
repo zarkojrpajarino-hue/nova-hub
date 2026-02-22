@@ -224,13 +224,13 @@ export async function exampleUsageInEdgeFunction() {
       return response.json();
     },
 
-    internal_data: async (signal: AbortSignal) => {
+    internal_data: async (_signal: AbortSignal) => {
       // Query internal DB
       // (En Supabase, signal se pasa a fetch interno)
       return []; // Placeholder
     },
 
-    web_news: async (signal: AbortSignal) => {
+    web_news: async (_signal: AbortSignal) => {
       // Web scraping (si aplica)
       return []; // Placeholder
     },

@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink, Check, Trash2 } from 'lucide-react';
+import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink, Check } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { NovaHeader } from '@/components/nova/NovaHeader';
@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead, Notification } from '@/hooks/useNotifications';
 import { cn } from '@/lib/utils';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_NOTIFICATIONS } from '@/data/demoData';
 import { HowItWorks } from '@/components/ui/how-it-works';

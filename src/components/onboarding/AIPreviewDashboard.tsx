@@ -20,12 +20,6 @@ import {
   ChevronDown,
   ChevronUp,
   Sparkles,
-  Users,
-  Target,
-  TrendingUp,
-  FileText,
-  Rocket,
-  Grid3x3
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

@@ -6,12 +6,12 @@
  */
 
 import { useState } from 'react';
-import { Rocket, Star, Trophy, TrendingUp, Lock } from 'lucide-react';
+import { Rocket, Star } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Progress } from '@/components/ui/progress';
+// import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
 interface PathToMasterProps {

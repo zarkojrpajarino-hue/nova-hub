@@ -29,7 +29,7 @@ const OBVCenterView = lazy(() => import('./views/OBVCenterView').then(m => ({ de
 const CRMView = lazy(() => import('./views/CRMView').then(m => ({ default: m.CRMView })));
 const FinancieroView = lazy(() => import('./views/FinancieroView').then(m => ({ default: m.FinancieroView })));
 const KPIsView = lazy(() => import('./views/KPIsView').then(m => ({ default: m.KPIsView })));
-const RolesMeetingView = lazy(() => import('./views/RolesMeetingView').then(m => ({ default: m.RolesMeetingView })));
+const _RolesMeetingView = lazy(() => import('./views/RolesMeetingView').then(m => ({ default: m.RolesMeetingView })));
 const AnalyticsView = lazy(() => import('./views/AnalyticsView').then(m => ({ default: m.AnalyticsView })));
 const SettingsView = lazy(() => import('./views/SettingsView').then(m => ({ default: m.SettingsView })));
 const NotificationsView = lazy(() => import('./views/NotificationsView').then(m => ({ default: m.NotificationsView })));
@@ -52,7 +52,7 @@ function IndexContent() {
   const { isOpen: searchOpen, open: openSearch, close: closeSearch } = useSearch();
   const { hasCompletedOnboarding, completeOnboarding, isLoading: isLoadingOnboarding } = useOnboarding();
   const { navigateTo, goBack, canGoBack, currentView: navCurrentView } = useNavigationHistory();
-  const { currentProject, setCurrentProject } = useCurrentProject();
+  const { currentProject } = useCurrentProject();
 
   const currentView = navCurrentView.view;
 

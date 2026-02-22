@@ -39,7 +39,7 @@ const passwordSchema = z.string().min(8, 'Mínimo 8 caracteres');
 const nameSchema = z.string().min(2, 'Nombre muy corto').max(50, 'Nombre muy largo');
 
 export default function AuthPage() {
-  const [searchParams] = useSearchParams();
+  const [_searchParams] = useSearchParams();
   const navigate = useNavigate();
 
   // States
@@ -138,7 +138,7 @@ export default function AuthPage() {
       } else {
         toast.success('¡Bienvenido de vuelta!');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error de conexión');
     } finally {
       setLoading(false);
@@ -191,7 +191,7 @@ export default function AuthPage() {
         setEmailSent(true);
         toast.success('Cuenta creada! Revisa tu email para confirmar.');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error de conexión');
     } finally {
       setLoading(false);
@@ -225,7 +225,7 @@ export default function AuthPage() {
         setEmailSent(true);
         toast.success('Email enviado! Revisa tu bandeja de entrada.');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error de conexión');
     } finally {
       setLoading(false);

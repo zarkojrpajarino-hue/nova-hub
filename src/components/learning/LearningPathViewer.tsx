@@ -5,14 +5,13 @@
  * Permite marcar pasos como completados y trackear progreso
  */
 
-import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, ArrowLeft, CheckCircle2, Circle, Clock, BookOpen, Target, ExternalLink } from 'lucide-react';
+import { Loader2, ArrowLeft, CheckCircle2, Clock, BookOpen, Target, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -175,7 +174,7 @@ export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) 
 
       {/* Steps List */}
       <div className="space-y-4">
-        {steps.map((step: LearningPathStep, index: number) => (
+        {steps.map((step: LearningPathStep) => (
           <Card
             key={step.id}
             className={`transition-all ${

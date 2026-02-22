@@ -61,7 +61,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
   const handleQuickGenerate = async () => {
     setIsGenerating(true);
     try {
-      const { data, error } = await supabase.functions.invoke('generate-learning-path', {
+      const { data: _data, error } = await supabase.functions.invoke('generate-learning-path', {
         body: {
           quick: true, // Generate based on current context
         },

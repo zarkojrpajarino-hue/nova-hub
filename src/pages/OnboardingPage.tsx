@@ -16,7 +16,7 @@ export function OnboardingPage() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [projectName, setProjectName] = useState('');
+  const [_projectName, setProjectName] = useState('');
 
   useEffect(() => {
     const loadProject = async () => {

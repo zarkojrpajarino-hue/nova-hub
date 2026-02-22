@@ -4,7 +4,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Download, FileSpreadsheet, FileText, Filter } from 'lucide-react';
+import { FileText, Filter } from 'lucide-react';
 import { useMemberStats, useProjects, useProjectStats } from '@/hooks/useNovaData';
 import { PartnerComparisonTable } from '@/components/analytics/PartnerComparisonTable';
 import { PartnerRadarChart } from '@/components/analytics/PartnerRadarChart';
@@ -13,7 +13,7 @@ import { TemporalEvolutionChart } from '@/components/analytics/TemporalEvolution
 import { ActivityHeatmap } from '@/components/analytics/ActivityHeatmap';
 import { PredictionsWidget } from '@/components/analytics/PredictionsWidget';
 import { AnalyticsFilters } from '@/components/analytics/AnalyticsFilters';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { ExportButton } from '@/components/export/ExportButton';
 import { AnalyticsPreviewModal } from '@/components/preview/AnalyticsPreviewModal';
@@ -24,7 +24,7 @@ interface AnalyticsViewProps {
 }
 
 // Componente interno que renderiza el contenido
-function AnalyticsContent({ onNewOBV, isDemoMode = false }: AnalyticsViewProps) {
+function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: AnalyticsViewProps) {
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [selectedPartners, setSelectedPartners] = useState<string[]>([]);

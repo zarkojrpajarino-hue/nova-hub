@@ -3,7 +3,7 @@ import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/compone
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, X, Users, Target, TrendingUp, Briefcase, Award, Network, BarChart3, Building2, Zap, Clock, CheckCircle2, Activity } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Users, Target, TrendingUp, Briefcase, Award, Network, BarChart3, Building2, Zap, Clock, CheckCircle2, Activity } from 'lucide-react';
 
 interface TeamPerformancePreviewModalProps {
   open: boolean;
@@ -395,7 +395,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
-                  {departments.map((dept, index) => (
+                  {departments.map((dept) => (
                     <div
                       key={dept.name}
                       className="p-6 rounded-xl border-2 hover:shadow-xl transition-all bg-gradient-to-br from-white to-gray-50"

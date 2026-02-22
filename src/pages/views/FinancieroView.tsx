@@ -19,7 +19,7 @@ import { AIForecastWidget } from '@/components/financiero/AIForecastWidget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { useFinancieroData } from '@/hooks/useFinancieroData';
 import { ExportButton } from '@/components/export/ExportButton';
 import { FinancieroPreviewModal } from '@/components/preview/FinancieroPreviewModal';

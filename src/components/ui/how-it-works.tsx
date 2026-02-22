@@ -10,7 +10,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, BookOpen, Download, Upload, ArrowRight, Play, Sparkles, Lock, Zap } from 'lucide-react';
-import { cn } from '@/lib/utils';
 import { useFeatureAccess, type SubscriptionPlan } from '@/hooks/useSubscription';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { LockedFeatureOverlay } from '@/components/subscription/LockedFeatureOverlay';
@@ -52,36 +51,6 @@ const featureNames: Record<string, string> = {
   custom_branding: 'Branding Personalizado',
 };
 
-// Benefits for each feature
-const featureBenefits: Record<string, string[]> = {
-  advanced_analytics: [
-    'Comparativas de socios y proyectos',
-    'Predicciones con IA',
-    'Reportes exportables',
-    'Dashboards personalizados',
-  ],
-  api_access: [
-    'Integración con herramientas externas',
-    'Webhooks personalizados',
-    'Documentación completa',
-    'Rate limits ampliados',
-  ],
-  ai_role_generation: [
-    'Generación automática de roles',
-    'Competencias personalizadas',
-    'Templates enterprise-level',
-  ],
-  ai_task_generation: [
-    'Generación automática de tareas',
-    'Priorización inteligente',
-    'Estimaciones de tiempo',
-  ],
-  custom_branding: [
-    'Logo personalizado',
-    'Colores de marca',
-    'White label',
-  ],
-};
 
 export function HowItWorks({
   title,

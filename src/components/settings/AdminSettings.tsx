@@ -36,7 +36,7 @@ export function AdminSettings() {
         delete copy[id];
         return copy;
       });
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al actualizar objetivo');
     }
   };
@@ -45,7 +45,7 @@ export function AdminSettings() {
     try {
       await updateRole.mutateAsync({ userId, role });
       toast.success('Rol actualizado');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Solo los administradores pueden cambiar roles');
     }
   };

@@ -28,7 +28,6 @@ import { BrandingPreviewSelector } from './BrandingPreviewSelector';
 import { OnboardingStepGuide } from './OnboardingStepGuide';
 import { Slider } from '@/components/ui/slider';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { toast } from 'sonner';
 import {
@@ -131,7 +130,7 @@ export function GenerativeOnboardingWizard({
   const { projectId } = useParams();
   const [step, setStep] = useState<WizardStep>('interests');
   const [completedSteps, setCompletedSteps] = useState<string[]>([]);
-  const [userStage, setUserStage] = useState<string | null>(null);
+  const [_userStage, setUserStage] = useState<string | null>(null);
   const [selectedIdeaId, setSelectedIdeaId] = useState<string | null>(null);
   const [brandingPreviewOpen, setBrandingPreviewOpen] = useState(false);
 
@@ -770,7 +769,7 @@ export function GenerativeOnboardingWizard({
     );
   };
 
-  const handleClose = () => {
+  const _handleClose = () => {
     onOpenChange(false);
     if (onComplete) onComplete();
   };
@@ -1242,7 +1241,7 @@ export function GenerativeOnboardingWizard({
           </div>
         );
 
-      case 'tengo-idea-monetization':
+      case 'tengo-idea-monetization': {
         // Smart defaults based on detected industry
         const getRecommendedModel = () => {
           if (!detectedIndustry) return null;
@@ -1387,6 +1386,7 @@ export function GenerativeOnboardingWizard({
             </div>
           </div>
         );
+      }
 
       case 'tengo-idea-built':
         return (
@@ -2306,7 +2306,7 @@ export function GenerativeOnboardingWizard({
           </div>
         );
 
-      case 'preview-ready':
+      case 'preview-ready': {
         const latestPreview = pendingPreviews && pendingPreviews.length > 0 ? pendingPreviews[0] : null;
 
         return (
@@ -2340,6 +2340,7 @@ export function GenerativeOnboardingWizard({
             </Button>
           </div>
         );
+      }
 
       default:
         return null;

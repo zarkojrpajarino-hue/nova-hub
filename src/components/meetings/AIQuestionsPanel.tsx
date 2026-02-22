@@ -58,11 +58,13 @@ export function AIQuestionsPanel({
       generateSmartQuestions();
       setQuestionsGenerated(true);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordingTime, questionsGenerated]);
 
   // Cargar preguntas existentes de la BD
   useEffect(() => {
     loadExistingQuestions();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [meetingId]);
 
   /**

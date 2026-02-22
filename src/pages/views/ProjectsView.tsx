@@ -29,7 +29,7 @@ interface ProjectsViewProps {
 }
 
 export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('projects');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 

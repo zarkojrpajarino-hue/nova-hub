@@ -10,7 +10,7 @@
  */
 
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
@@ -20,8 +20,7 @@ import type {
   NotificationGroup,
   NotificationPriority,
 } from '@/types/notifications';
-import { PRIORITY_CONFIG } from '@/types/notifications';
-import { isToday, isYesterday, startOfWeek, format } from 'date-fns';
+import { isToday, isYesterday, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 // Fetch notifications with filters

@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2, Edit2, Sparkles } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2, Sparkles } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
@@ -12,7 +12,7 @@ import { TaskForm } from '@/components/tasks/TaskForm';
 import { AITaskRouter } from '@/components/tasks/AITaskRouter';
 import { useNavigate } from 'react-router-dom';
 import { KPIBaseEditor } from '@/components/kpi/KPIBaseEditor';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { MiEspacioPreviewModal } from '@/components/preview/MiEspacioPreviewModal';
 

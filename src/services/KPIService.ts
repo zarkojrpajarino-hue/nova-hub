@@ -3,7 +3,6 @@ import type { Database } from '@/integrations/supabase/types';
 
 type KPIInsert = Database['public']['Tables']['kpis']['Insert'];
 type KPIUpdate = Database['public']['Tables']['kpis']['Update'];
-type KPIStatus = Database['public']['Enums']['kpi_status'];
 type KPIType = Database['public']['Enums']['kpi_type'];
 
 export class KPIService {

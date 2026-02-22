@@ -76,6 +76,8 @@ export function StepEquipo({
     };
 
     fetchData();
+    // intentional: runs only when projectId changes; onChange and selectedMembers are used only for initial preselection
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const toggleMember = (profileId: string) => {

@@ -2,7 +2,6 @@ import { memo } from 'react';
 import { Circle, CheckCircle2, Calendar, Sparkles, BookOpen, Trash2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/hooks/useTaskKanban';
-import type { Json } from '@/integrations/supabase/types';
 import type { DraggableProvidedDragHandleProps, DraggableProvidedDraggableProps } from '@hello-pangea/dnd';
 
 const PRIORITY_COLORS: Record<number, string> = {

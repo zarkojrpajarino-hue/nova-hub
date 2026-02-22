@@ -17,7 +17,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 
 const TABS = [
   { id: 'subir', label: '📤 Subir OBV' },

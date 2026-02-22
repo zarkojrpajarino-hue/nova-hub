@@ -8,15 +8,12 @@
 import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, ChevronLeft, ChevronRight, Sparkles, Target, TrendingUp, User, MapPin, Lightbulb, Users, Briefcase, Building2, TrendingUp as Growth } from 'lucide-react';
+import { Loader2, ChevronLeft, ChevronRight, Sparkles, Target, TrendingUp, User, MapPin, Building2, TrendingUp as Growth } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { OnboardingStepper } from './OnboardingStepper';
 
 // Original components
-import { ProgressTracker } from './ProgressTracker';
-import { GeoIntelligenceSelector } from './GeoIntelligenceSelector';
-import { TypeSelectionStep } from './TypeSelectionStep';
 
 // NEW: Import all Perfect 100% components
 import {
@@ -53,8 +50,6 @@ import {
   TeamBreakdownStep,
 
   // Phase 4: UX Polish
-  RedFlagDetector,
-  ProgressEncouragement,
   CompletionSummary,
 
   // Auto-Fill & Geo-Personalization
@@ -137,8 +132,8 @@ export function EnhancedOnboardingWizard({ projectId, onComplete }: EnhancedOnbo
   // Core state
   const [currentStep, setCurrentStep] = useState<WizardStep>('type_selection');
   const [onboardingType, setOnboardingType] = useState<OnboardingType | null>(null);
-  const [phase, setPhase] = useState<OnboardingPhase>('essentials');
-  const [completionPercentage, setCompletionPercentage] = useState(0);
+  const [_phase, setPhase] = useState<OnboardingPhase>('essentials');
+  const [_completionPercentage, setCompletionPercentage] = useState(0);
   const [loading, setLoading] = useState(false);
 
   // Phase 1 state
@@ -317,7 +312,7 @@ export function EnhancedOnboardingWizard({ projectId, onComplete }: EnhancedOnbo
 
   const stepFlow = getStepFlow();
   const currentStepIndex = stepFlow.indexOf(currentStep);
-  const totalSteps = stepFlow.filter(s => !['type_selection', 'generating_roadmap', 'complete'].includes(s)).length;
+  const _totalSteps = stepFlow.filter(s => !['type_selection', 'generating_roadmap', 'complete'].includes(s)).length;
 
   // Crear pasos visuales simplificados para el stepper
   const getVisualSteps = () => {

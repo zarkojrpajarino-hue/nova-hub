@@ -8,7 +8,6 @@
 import { useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { StartChallengeDialog } from './StartChallengeDialog';
@@ -53,6 +52,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
 
   useEffect(() => {
     loadRequirements();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [role, currentUserId]);
 
   const loadRequirements = async () => {

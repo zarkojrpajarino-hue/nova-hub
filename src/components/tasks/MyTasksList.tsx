@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import {
   Loader2, CheckCircle2, Circle, Calendar, Filter,
-  ChevronRight, Flag, AlertCircle
+  ChevronRight, AlertCircle
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';

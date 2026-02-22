@@ -142,7 +142,7 @@ const ApplicationCard = memo(function ApplicationCard({
       });
       toast.success(vote ? 'Voto a favor registrado' : 'Voto en contra registrado');
       setComment('');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al votar');
     }
   };

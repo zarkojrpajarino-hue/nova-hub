@@ -55,8 +55,8 @@ interface EvidenceReportProps {
 
 export function EvidenceReport({
   generationId,
-  functionName,
-  sourcesPlanned,
+  functionName: _functionName,
+  sourcesPlanned: _sourcesPlanned,
   sourcesFound,
   sources,
   claims,
@@ -66,7 +66,7 @@ export function EvidenceReport({
   searchDurationMs,
 }: EvidenceReportProps) {
   const [expandedClaim, setExpandedClaim] = useState<string | null>(null);
-  const [expandedSource, setExpandedSource] = useState<string | null>(null);
+  const [_expandedSource, _setExpandedSource] = useState<string | null>(null);
 
   // Get status color and icon
   function getStatusInfo(status: EvidenceStatus) {

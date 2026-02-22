@@ -36,6 +36,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
   // Load documents
   useEffect(() => {
     loadDocuments();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, refreshTrigger]);
 
   async function loadDocuments() {

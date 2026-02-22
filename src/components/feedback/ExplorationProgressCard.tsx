@@ -10,7 +10,6 @@
 
 import { useState, useEffect } from 'react';
 import {
-  Calendar,
   CheckCircle2,
   Target,
   TrendingUp,

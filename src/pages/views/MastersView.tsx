@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { Crown, Trophy, Star, Users, Swords, Loader2, Award, Medal, Shield, TrendingUp } from 'lucide-react';
+import { Crown, Star, Swords, Loader2, TrendingUp } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -13,10 +13,10 @@ import { ApplicationsList } from '@/components/masters/ApplicationsList';
 import { ChallengesList } from '@/components/masters/ChallengesList';
 import { ApplyForMasterDialog } from '@/components/masters/ApplyForMasterDialog';
 import { ROLE_CONFIG } from '@/data/mockData';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { MastersPreviewModal } from '@/components/preview/MastersPreviewModal';
-import type { Master, MasterApplication, MasterChallenge, Profile, ProjectMember, EnrichedMaster, MastersByRole } from '@/types/masters';
+import type { Master, MasterChallenge, Profile, ProjectMember, EnrichedMaster, MastersByRole } from '@/types/masters';
 
 export function MastersView() {
   const { profile } = useAuth();

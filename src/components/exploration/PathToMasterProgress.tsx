@@ -51,7 +51,7 @@ interface Requirement {
 }
 
 export function PathToMasterProgress({
-  explorationId,
+  explorationId: _explorationId,
   role,
   startDate,
   endDate,

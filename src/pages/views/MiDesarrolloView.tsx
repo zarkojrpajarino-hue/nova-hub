@@ -8,7 +8,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
-import { useRolePerformance, useRoleRankings, type RolePerformance, type RoleRanking } from '@/hooks/useDevelopment';
+import { useRolePerformance, useRoleRankings, type RoleRanking } from '@/hooks/useDevelopment';
 import { useProjectMembers, type ProjectMember } from '@/hooks/useNovaData';
 import { RolePerformanceCard } from '@/components/development/RolePerformanceCard';
 import { InsightsList } from '@/components/development/InsightsList';
@@ -18,7 +18,7 @@ import { LearningPathList } from '@/components/learning/LearningPathList';
 import { LearningPathViewer } from '@/components/learning/LearningPathViewer';
 import { LearningPathGenerator } from '@/components/learning/LearningPathGenerator';
 import { ROLE_CONFIG } from '@/data/mockData';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { MiDesarrolloPreviewModal } from '@/components/preview/MiDesarrolloPreviewModal';
 
@@ -74,6 +74,7 @@ export function MiDesarrolloView() {
     if (profile?.id) {
       loadBadges();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile]);
 
   const loadBadges = async () => {

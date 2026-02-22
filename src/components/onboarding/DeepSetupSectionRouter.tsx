@@ -34,7 +34,6 @@ import {
   DollarSign,
   Beaker,
   Rocket,
-  BarChart3,
   Users,
   TrendingUp,
   Target,
@@ -42,7 +41,6 @@ import {
   Database,
   GitBranch,
   LineChart,
-  Zap,
 } from 'lucide-react';
 
 type OnboardingType = 'generative' | 'idea' | 'existing';
@@ -71,7 +69,7 @@ export function DeepSetupSectionRouter({
   sectionProgressValue,
 }: DeepSetupSectionRouterProps) {
   const navigate = useNavigate();
-  const [saving, setSaving] = useState(false);
+  const [_saving, setSaving] = useState(false);
 
   const handleSectionComplete = async (data: Record<string, unknown>) => {
     setSaving(true);

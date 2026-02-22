@@ -223,8 +223,8 @@ function getIdeaTemplate(
   // For now: Return intelligent defaults based on keywords
 
   const isMobile = description?.toLowerCase().includes('mobile') || description?.toLowerCase().includes('app');
-  const isAI = description?.toLowerCase().includes('ai') || description?.toLowerCase().includes('machine learning');
-  const isMarketplace = description?.toLowerCase().includes('marketplace') || description?.toLowerCase().includes('platform');
+  const _isAI = description?.toLowerCase().includes('ai') || description?.toLowerCase().includes('machine learning');
+  const _isMarketplace = description?.toLowerCase().includes('marketplace') || description?.toLowerCase().includes('platform');
 
   if (isMobile) {
     return {

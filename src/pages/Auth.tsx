@@ -60,7 +60,7 @@ export default function Auth() {
       } else {
         toast.success('¡Bienvenido de vuelta!');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error de conexión');
     } finally {
       setLoading(false);

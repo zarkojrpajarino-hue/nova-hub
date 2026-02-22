@@ -353,7 +353,7 @@ function IntroSlide() {
             description: 'Professional project structure',
             color: 'text-blue-500',
           },
-        ].map((feature, index) => (
+        ].map((feature) => (
           <div
             key={feature.title}
             className="group p-6 rounded-2xl border-2 border-dashed hover:border-solid hover:bg-muted/50 transition-all cursor-pointer"
@@ -421,7 +421,7 @@ function Step1BasicInfo() {
             <div className="flex-1 space-y-3">
               <label className="text-sm font-medium text-muted-foreground">Initial Goals</label>
               <div className="space-y-2">
-                {demoCompanyData.goals.map((goal, index) => (
+                {demoCompanyData.goals.map((goal) => (
                   <div
                     key={goal}
                     className="flex items-center gap-3 p-3 bg-muted/50 rounded-lg"
@@ -440,7 +440,7 @@ function Step1BasicInfo() {
 }
 
 // Slide 2: Generating Roles
-function Step2GeneratingRoles({ isGenerating }: { isGenerating: boolean }) {
+function Step2GeneratingRoles({ isGenerating: _isGenerating }: { isGenerating: boolean }) {
   return (
     <div
       className="space-y-8 text-center max-w-2xl mx-auto"
@@ -474,7 +474,7 @@ function Step2GeneratingRoles({ isGenerating }: { isGenerating: boolean }) {
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {['Executive Roles', 'Technical Roles', 'Business Roles'].map((item, index) => (
+        {['Executive Roles', 'Technical Roles', 'Business Roles'].map((item) => (
           <div
             key={item}
             className="p-4 rounded-xl border-2 border-dashed bg-muted/30"
@@ -506,7 +506,7 @@ function Step3GeneratedRoles() {
       </div>
 
       <div className="space-y-4 pt-6">
-        {generatedRoles.map((role, index) => (
+        {generatedRoles.map((role) => (
           <div
             key={role.id}
             className="group relative p-6 rounded-xl border-2 hover:border-purple-300 hover:shadow-xl transition-all bg-card overflow-hidden"
@@ -532,7 +532,7 @@ function Step3GeneratedRoles() {
                 <div className="space-y-2">
                   <p className="text-sm font-medium text-muted-foreground">Core Competencies</p>
                   <div className="flex flex-wrap gap-2">
-                    {role.competencies.map((competency, idx) => (
+                    {role.competencies.map((competency) => (
                       <div
                         key={competency}
                         className="px-3 py-1.5 bg-muted rounded-lg text-sm font-medium hover:bg-purple-100 hover:text-purple-700 transition-colors cursor-pointer"
@@ -558,7 +558,7 @@ function Step3GeneratedRoles() {
 }
 
 // Slide 4: Generating Tasks
-function Step4GeneratingTasks({ isGenerating }: { isGenerating: boolean }) {
+function Step4GeneratingTasks({ isGenerating: _isGenerating }: { isGenerating: boolean }) {
   return (
     <div
       className="space-y-8 text-center max-w-2xl mx-auto"
@@ -594,7 +594,7 @@ function Step4GeneratingTasks({ isGenerating }: { isGenerating: boolean }) {
       </div>
 
       <div className="space-y-3">
-        {generatedRoles.map((role, index) => (
+        {generatedRoles.map((role) => (
           <div
             key={role.id}
             className="flex items-center gap-4 p-4 rounded-xl border bg-card"

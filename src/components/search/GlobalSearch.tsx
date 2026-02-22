@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Search, FileCheck, FolderKanban, Users, X } from 'lucide-react';
+import { Search } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { useProjects, useProfiles } from '@/hooks/useNovaData';

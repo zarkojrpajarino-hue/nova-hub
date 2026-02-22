@@ -80,7 +80,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
     try {
       // Determinar puntos y status según el tipo
       let points = 1;
-      let status: 'pending' | 'validated' = needsValidation ? 'pending' : 'validated';
+      const status: 'pending' | 'validated' = needsValidation ? 'pending' : 'validated';
 
       if (type === 'bp') {
         points = formData.bpPoints;

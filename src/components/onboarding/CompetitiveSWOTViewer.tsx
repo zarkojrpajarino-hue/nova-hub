@@ -18,8 +18,6 @@ import {
   ExternalLink,
   Shield,
   Zap,
-  Users,
-  DollarSign,
   ChevronDown,
   ChevronUp,
 } from 'lucide-react';

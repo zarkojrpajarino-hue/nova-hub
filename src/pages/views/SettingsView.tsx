@@ -11,7 +11,7 @@ import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { AdminSettings } from '@/components/settings/AdminSettings';
 import { DocumentManager } from '@/components/evidence';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { SettingsPreviewModal } from '@/components/preview/SettingsPreviewModal';
 

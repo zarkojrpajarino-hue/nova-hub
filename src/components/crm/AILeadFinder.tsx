@@ -14,10 +14,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Sparkles, Search, Building2, MapPin, DollarSign, Users, Mail, Phone, Plus, CheckCircle2, ExternalLink, Globe, Shield, AlertTriangle, Database } from 'lucide-react';
+import { Loader2, Sparkles, Building2, MapPin, DollarSign, Users, Mail, Phone, Plus, CheckCircle2, ExternalLink, Globe, Shield, AlertTriangle, Database } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 

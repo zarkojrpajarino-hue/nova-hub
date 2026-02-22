@@ -28,7 +28,6 @@ import {
   Smartphone,
   Lock,
   Key,
-  UserCheck,
   AlertCircle,
   Calendar,
   TrendingUp,

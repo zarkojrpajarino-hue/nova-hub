@@ -1,7 +1,7 @@
 import { memo, useCallback, useRef } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Clock, CheckCircle2, XCircle, ExternalLink, Loader2 } from 'lucide-react';
+import { Clock, CheckCircle2, XCircle, ExternalLink } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
@@ -123,7 +123,7 @@ const KPIItem = memo(function KPIItem({
 export function KPIList({ type }: KPIListProps) {
   const { profile } = useAuth();
 
-  const { data: kpis = [], isLoading } = useQuery({
+  const { data: kpis = [] } = useQuery({
     queryKey: ['my_kpis', profile?.id, type],
     queryFn: async () => {
       if (!profile?.id) return [];

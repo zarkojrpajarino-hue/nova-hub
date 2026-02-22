@@ -59,15 +59,6 @@ import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
 const ALL_PRIORITIES: NotificationPriority[] = ['critical', 'high', 'medium', 'low'];
-const ALL_TYPES: NotificationType[] = [
-  'lead_inactive',
-  'task_overdue',
-  'validation_expiring',
-  'project_inactive',
-  'objective_near',
-  'lead_won',
-  'obv_validated',
-];
 
 interface NotificationItemProps {
   notification: Notification;
@@ -215,7 +206,7 @@ export function NotificationCenterV2() {
     }));
   };
 
-  const handleTypeToggle = (type: NotificationType) => {
+  const _handleTypeToggle = (type: NotificationType) => {
     setFilters((prev) => ({
       ...prev,
       type: prev.type?.includes(type)

@@ -44,7 +44,7 @@ export function OnboardingProgressBanner({
   progress,
   fastStartCompleted,
   deepSetupSections,
-  onboardingType,
+  onboardingType: _onboardingType,
 }: OnboardingProgressBannerProps) {
   const navigate = useNavigate();
 

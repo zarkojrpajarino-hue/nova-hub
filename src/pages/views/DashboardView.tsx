@@ -17,7 +17,7 @@ import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { DashboardPreviewModal } from '@/components/preview/DashboardPreviewModal';
 import { OnboardingProgressBanner } from '@/components/onboarding/OnboardingProgressBanner';
 import { RegenerationTriggersWidget } from '@/components/onboarding/RegenerationTriggersWidget';

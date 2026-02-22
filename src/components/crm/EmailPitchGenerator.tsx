@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Sparkles, Mail, Copy, Download, CheckCircle2 } from 'lucide-react';
+import { Mail, Copy, Download, CheckCircle2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { EvidenceAIGenerator } from '@/components/evidence';
@@ -45,7 +45,7 @@ export function EmailPitchGenerator() {
   const [tone, setTone] = useState('professional');
   const [callToAction, setCallToAction] = useState('');
 
-  const handleGenerate = async () => {
+  const _handleGenerate = async () => {
     if (!recipientName || !yourProduct) {
       toast.error('Por favor completa al menos el nombre del destinatario y tu producto');
       return;

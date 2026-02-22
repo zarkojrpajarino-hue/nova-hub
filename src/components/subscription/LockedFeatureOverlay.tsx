@@ -108,7 +108,7 @@ export function LockedFeatureOverlay({
   requiredPlan,
   description,
   currentPlan,
-  projectId,
+  projectId: _projectId,
   variant = 'default',
   className,
 }: LockedFeatureOverlayProps) {

@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, Sparkles, Calendar, User, TrendingUp, MessageCircle, CheckCircle2, Copy, Download } from 'lucide-react';
+import { Calendar, TrendingUp, MessageCircle, CheckCircle2, Copy, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -164,19 +164,6 @@ export function OneOnOnePrep() {
         return 'Baja';
       default:
         return priority;
-    }
-  };
-
-  const getMoodColor = (mood: string) => {
-    switch (mood) {
-      case 'positive':
-        return 'text-green-500';
-      case 'neutral':
-        return 'text-yellow-500';
-      case 'concern':
-        return 'text-red-500';
-      default:
-        return 'text-muted-foreground';
     }
   };
 

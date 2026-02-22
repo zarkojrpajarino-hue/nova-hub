@@ -38,10 +38,10 @@ interface ActiveChallengeViewProps {
 }
 
 export function ActiveChallengeView({
-  challengeId,
+  challengeId: _challengeId,
   role,
   challengeType,
-  startDate,
+  startDate: _startDate,
   endDate,
   masterName,
   challengerName,

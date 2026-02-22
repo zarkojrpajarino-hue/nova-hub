@@ -42,7 +42,7 @@ export function StreamlinedOnboardingWizard({
   projectId,
   onComplete
 }: StreamlinedOnboardingWizardProps) {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [onboardingType, setOnboardingType] = useState<OnboardingType | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);

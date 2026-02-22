@@ -1,20 +1,17 @@
 import { useState, useMemo } from 'react';
-import { Trophy, TrendingUp, TrendingDown, Minus, Medal, Crown, Star, Loader2, RefreshCw } from 'lucide-react';
+import { Trophy, TrendingUp, Medal, Crown, Star, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useRoleRankings, useRolePerformance, type RoleRanking } from '@/hooks/useDevelopment';
-import { useProfiles, useProjects, useProjectMembers, type Profile, type Project, type ProjectMember } from '@/hooks/useNovaData';
+import { useRoleRankings, useRolePerformance } from '@/hooks/useDevelopment';
+import { useProfiles, useProjects, useProjectMembers } from '@/hooks/useNovaData';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';
 import { RankingTrends } from '@/components/rankings/RankingTrends';
 import { MyRankingCard } from '@/components/rankings/MyRankingCard';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { RankingsPreviewModal } from '@/components/preview/RankingsPreviewModal';
 

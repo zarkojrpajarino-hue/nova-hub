@@ -1,6 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
 import { Zap, FileCheck, CheckCircle2, Users, UserPlus, TrendingUp, Loader2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { useProfiles, useProjects } from '@/hooks/useNovaData';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';

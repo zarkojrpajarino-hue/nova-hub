@@ -3,7 +3,7 @@
  * Geo-personalization - Diferentes outputs para cada onboarding type
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -79,7 +79,7 @@ export function LocationStep({ answers, onChange, onboardingType }: LocationStep
     setIsGenerating(false);
   };
 
-  const generateMockData = (city: string, country: string, type: string) => {
+  const generateMockData = (city: string, country: string, _type: string) => {
     // Mock data - would be real data from API
     if (country.toLowerCase() === 'españa' || country.toLowerCase() === 'spain') {
       return {
@@ -216,32 +216,6 @@ export function LocationStep({ answers, onChange, onboardingType }: LocationStep
 
   const localContext = answers.local_context;
 
-  // Titles personalizados por onboarding type
-  const getContextTitle = () => {
-    switch (onboardingType) {
-      case 'generative':
-        return '🌍 Contexto Local para Emprendedores';
-      case 'idea':
-        return '🌍 Recursos Locales para Validar Tu Idea';
-      case 'existing':
-        return '🌍 Ecosistema Local para Escalar';
-      default:
-        return '🌍 Contexto Local';
-    }
-  };
-
-  const getContextDescription = () => {
-    switch (onboardingType) {
-      case 'generative':
-        return 'Inversores, aceleradoras y eventos locales para empezar';
-      case 'idea':
-        return 'Beta testers, eventos y costos para validar en tu mercado';
-      case 'existing':
-        return 'Inversores Series A+, costos de hiring y regulaciones para escalar';
-      default:
-        return 'Recursos específicos de tu ubicación';
-    }
-  };
 
   return (
     <div className="space-y-6">

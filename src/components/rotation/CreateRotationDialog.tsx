@@ -94,6 +94,8 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
     } else {
       setCompatibility(null);
     }
+    // intentional: only recalculate when project or target selection changes; other deps are derived from these
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedProjectId, selectedTargetUserId]);
 
   const handleSubmit = () => {

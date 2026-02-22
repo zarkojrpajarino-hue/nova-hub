@@ -163,6 +163,8 @@ export function useRealtimeSubscription({
         channelRef.current = null;
       }
     };
+    // filter object is tracked via filter?.column and filter?.value to avoid re-subscribing on reference changes
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [table, filter?.column, filter?.value, event, enabled, queryKey, onEvent, queryClient]);
 }
 

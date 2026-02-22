@@ -114,6 +114,7 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
     } else {
       setLoading(false);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [members.length, projectId]);
 
   const getRecommendationColor = (rec: string) => {
@@ -137,7 +138,7 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
   const getUserName = (id: string) => 
     profiles.find(p => p.id === id)?.nombre || 'Usuario';
 
-  const handleProposeSuggestion = async (suggestion: Suggestion) => {
+  const handleProposeSuggestion = async (_suggestion: Suggestion) => {
     toast.info('Para proponer este intercambio, usa el botón "Nueva Solicitud" y selecciona al compañero.');
   };
 

@@ -21,7 +21,6 @@ import type {
   RealSource,
   SourcePolicy,
   SearchResults,
-  SourceTier,
 } from '../types';
 import { searchUserDocuments } from './user-documents';
 import { searchOfficialSources } from './official-sources';
@@ -50,7 +49,7 @@ export async function searchEvidenceSources(
   }
 ): Promise<SearchResults> {
   const startTime = Date.now();
-  let allSources: RealSource[] = [];
+  const allSources: RealSource[] = [];
 
   // Tier 1: User Documents (highest priority)
   if (policy.tier_1_enabled) {
@@ -188,7 +187,7 @@ function applySourceFilters(
  *
  * Tier weights: Tier 1 = 100, Tier 2 = 80, Tier 3 = 60, Tier 4 = 40
  */
-function rankSources(sources: RealSource[], query: string): RealSource[] {
+function rankSources(sources: RealSource[], _query: string): RealSource[] {
   const rankedSources = sources.map((source) => {
     // Tier weight
     let tierWeight = 40;

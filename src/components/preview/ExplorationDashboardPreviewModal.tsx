@@ -323,7 +323,7 @@ export function ExplorationDashboardPreviewModal({
           </div>
         );
 
-      case 2:
+      case 2: {
         if (!selectedRole) {
           return (
             <div className="flex flex-col items-center justify-center py-12">
@@ -423,6 +423,7 @@ export function ExplorationDashboardPreviewModal({
             </div>
           </div>
         );
+      }
 
       case 3:
         return (
@@ -663,7 +664,7 @@ export function ExplorationDashboardPreviewModal({
           </div>
         );
 
-      case 5:
+      case 5: {
         const recommendedRoles = getRecommendedRoles(selectedIndustry);
         return (
           <div>
@@ -770,6 +771,7 @@ export function ExplorationDashboardPreviewModal({
             </div>
           </div>
         );
+      }
 
       default:
         return null;

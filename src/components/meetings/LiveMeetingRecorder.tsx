@@ -296,7 +296,7 @@ export function LiveMeetingRecorder({
       }, 200);
 
       // Upload a Supabase Storage
-      const { data, error } = await supabase.storage
+      const { data: _data, error } = await supabase.storage
         .from('meeting-recordings')
         .upload(storagePath, audioBlob, {
           contentType: audioBlob.type,

@@ -232,7 +232,7 @@ export function UpgradeBadge({
   className?: string;
 }) {
   const planStyle = PLAN_STYLES[requiredPlan];
-  const PlanIcon = planStyle.icon;
+  const _PlanIcon = planStyle.icon;
 
   return (
     <TooltipProvider delayDuration={100}>

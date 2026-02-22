@@ -6,7 +6,7 @@
  */
 
 import { Lightbulb, Trophy, TrendingUp, Users } from 'lucide-react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -42,7 +42,7 @@ const TIPO_CONFIG = {
 
 export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsightsPanelProps) {
   const myInsights = insights.filter((i) => i.user_id === currentUserId);
-  const othersInsights = insights.filter((i) => i.user_id !== currentUserId);
+  const _othersInsights = insights.filter((i) => i.user_id !== currentUserId);
 
   // Top insights (mayor fit score)
   const topInsights = [...insights]

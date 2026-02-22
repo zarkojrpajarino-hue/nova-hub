@@ -554,7 +554,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
               <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border" />
 
               <div className="space-y-6">
-                {rotationHistory.map((item, index) => (
+                {rotationHistory.map((item) => (
                   <div key={item.id} className="relative flex gap-4">
                     <div className="relative z-10">
                       <div className="w-16 h-16 bg-gradient-to-br from-green-500 to-emerald-500 rounded-full flex items-center justify-center text-white font-semibold border-4 border-background">

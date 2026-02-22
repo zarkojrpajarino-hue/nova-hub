@@ -11,7 +11,7 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +26,6 @@ import {
   AlertCircle,
   Loader2,
   Target,
-  Users,
   Briefcase,
   AlertTriangle,
   BarChart3,
@@ -540,7 +539,7 @@ interface EditInsightModalProps {
 }
 
 function EditInsightModal({
-  insight,
+  insight: _insight,
   editedContent,
   setEditedContent,
   onSave,

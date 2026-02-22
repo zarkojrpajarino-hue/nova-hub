@@ -107,7 +107,7 @@ export function PhaseTimeline({
         {/* Connecting Line */}
         <div className="absolute left-8 top-8 bottom-8 w-0.5 bg-border -z-10" />
 
-        {phases.map((phase, index) => {
+        {phases.map((phase) => {
           const Icon = phase.icon;
           const isLocked = currentPhase < phase.number;
 

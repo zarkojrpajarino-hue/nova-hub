@@ -16,14 +16,13 @@
 
 import { useMemo } from 'react';
 import {
-  TrendingUp, TrendingDown, Target, Zap, AlertTriangle,
-  CheckCircle, Clock, DollarSign, Sparkles, Brain
+  TrendingUp, Target, Zap,
+  DollarSign, Sparkles, Brain
 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
-import type { LeadStatus } from '@/types';
 
 interface Lead {
   id: string;
@@ -87,7 +86,6 @@ const STAGE_WIN_PROBABILITY: Record<string, number> = {
 export function AILeadScoring({ leads }: AILeadScoringProps) {
   const scoredLeads = useMemo(() => {
     const now = new Date();
-    const avgValue = leads.reduce((sum, l) => sum + (l.valor_potencial || 0), 0) / leads.length || 1;
     const maxValue = Math.max(...leads.map(l => l.valor_potencial || 0), 1);
 
     return leads

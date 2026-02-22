@@ -9,7 +9,6 @@ import { Textarea } from '@/components/ui/textarea';
 import {
   ChevronLeft,
   ChevronRight,
-  X,
   Target,
   TrendingUp,
   Users,
@@ -877,7 +876,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
           </div>
         );
 
-      case 3:
+      case 3: {
         const obvToShow = selectedOBV || DEMO_OBVS[0];
         return (
           <div className="overflow-auto p-6">
@@ -1024,8 +1023,9 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
             </div>
           </div>
         );
+      }
 
-      case 4:
+      case 4: {
         const timelineData = DEMO_OBVS.sort((a, b) => new Date(a.startDate).getTime() - new Date(b.startDate).getTime());
         return (
           <div className="overflow-auto p-6">
@@ -1055,7 +1055,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
             </div>
 
             <div className="space-y-3">
-              {timelineData.slice(0, 10).map((obv, idx) => (
+              {timelineData.slice(0, 10).map((obv) => (
                 <div
                   key={obv.id}
                   className="bg-white border border-gray-200 rounded-lg p-4 hover:border-purple-300 hover:shadow-md transition-all cursor-pointer"
@@ -1099,6 +1099,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
             </div>
           </div>
         );
+      }
 
       case 5:
         return (

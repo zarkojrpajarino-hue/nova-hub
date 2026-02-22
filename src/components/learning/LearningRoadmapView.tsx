@@ -66,7 +66,7 @@ export function LearningRoadmapView({
       return (data || []).map((step, index) => {
         const isCompleted = step.completed_at !== null;
         const isActive = !isCompleted && (index === 0 || data[index - 1]?.completed_at);
-        const isLocked = !isActive && !isCompleted;
+        const _isLocked = !isActive && !isCompleted;
 
         return {
           ...step,
@@ -145,7 +145,7 @@ export function LearningRoadmapView({
 
       {/* Roadmap Steps */}
       <div className="space-y-4">
-        {steps.map((step, index) => {
+        {steps.map((step) => {
           const isSelected = selectedStep === step.id;
           const progressPercentage =
             ((step.tasks_completed + step.obvs_completed) /

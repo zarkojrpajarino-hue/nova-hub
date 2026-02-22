@@ -6,7 +6,6 @@ import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Loader2 } from 'lucide-react';
-import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
 interface ActivityHeatmapProps {
   isDemoMode?: boolean;

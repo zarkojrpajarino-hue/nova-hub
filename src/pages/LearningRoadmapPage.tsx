@@ -21,7 +21,7 @@ export function LearningRoadmapPage() {
   const { currentProject } = useCurrentProject();
   const { profile } = useAuth();
   const generateRoadmap = useGenerateLearningRoadmap();
-  const [hasRoadmap, setHasRoadmap] = useState(false);
+  const [_hasRoadmap, setHasRoadmap] = useState(false);
 
   if (!currentProject) {
     return (

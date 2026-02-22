@@ -218,6 +218,8 @@ export function OnboardingWizard({
       const data = isValidacion ? validacionData : operacionData;
       localStorage.setItem(`onboarding-draft-${project.id}`, JSON.stringify(data));
     }
+    // getStateData is an inline function that reads state already tracked by the listed deps below
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     validacionData,
     operacionData,
@@ -252,7 +254,7 @@ export function OnboardingWizard({
             setOperacionData(parsed);
           }
         }
-      } catch (e) {
+      } catch (_e) {
         // Ignore invalid drafts
       }
     }

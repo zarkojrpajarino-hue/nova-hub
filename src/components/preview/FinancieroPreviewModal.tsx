@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight, X, TrendingUp, TrendingDown, AlertTriangle, DollarSign, PieChart, Activity, Target, Calendar, Wallet, CreditCard, Building2, Users, Zap, Server, Megaphone, BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, CheckCircle2 } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, AlertTriangle, DollarSign, PieChart, Activity, Target, Wallet, CreditCard, Building2, Users, Zap, Server, Megaphone, BarChart3, ArrowUpRight, ArrowDownRight, Sparkles, CheckCircle2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FinancieroPreviewModalProps {

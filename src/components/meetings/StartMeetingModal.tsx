@@ -33,7 +33,6 @@ import {
   Users,
   Target,
   Sparkles,
-  Clock,
   ChevronRight,
   Mic,
   Brain,
@@ -272,7 +271,7 @@ export function StartMeetingModal({
   isOpen,
   onClose,
   onStart,
-  projectId,
+  projectId: _projectId,
   projectMembers,
   currentOBVs = [],
 }: StartMeetingModalProps) {

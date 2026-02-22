@@ -153,7 +153,7 @@ export function AutoFillStep({ answers, onChange }: AutoFillStepProps) {
     }
   };
 
-  const autoFill = async () => {
+  const _autoFill = async () => {
     const validLinkedins = linkedinUrls.filter(url => url.trim() !== '');
     const validCompetitors = competitorUrls.filter(url => url.trim() !== '');
 

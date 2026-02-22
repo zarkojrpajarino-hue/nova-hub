@@ -68,7 +68,7 @@ export function CompetitorIntelligenceStep({ answers, onChange }: CompetitorInte
     setUrls(newUrls);
   };
 
-  const analyzeCompetitors = async () => {
+  const _analyzeCompetitors = async () => {
     const validUrls = urls.filter(url => url.trim() !== '' && url.includes('.'));
 
     if (validUrls.length < 2) {

@@ -80,7 +80,7 @@ export function ActivityHeatmap({ data, weeks = 12 }: ActivityHeatmapProps) {
   };
 
   // Max count for legend
-  const maxCount = Math.max(...data.map((d) => d.count), 10);
+  const _maxCount = Math.max(...data.map((d) => d.count), 10);
 
   return (
     <Card className="elevation-2">

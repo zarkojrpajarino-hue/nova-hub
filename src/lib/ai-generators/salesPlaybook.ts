@@ -127,7 +127,7 @@ export async function generateSalesPlaybook(
 }
 
 function getPlaybookTemplate(input: GeneratorInput): Omit<SalesPlaybook, 'confidence_score' | 'generated_at'> {
-  const { onboarding_type, industry, value_proposition, pricing } = input;
+  const { onboarding_type: _onboarding_type, industry, value_proposition, pricing } = input;
 
   // B2B SaaS Playbook
   if (industry?.toLowerCase().includes('saas') || industry?.toLowerCase().includes('b2b')) {

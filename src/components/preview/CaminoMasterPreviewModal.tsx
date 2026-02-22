@@ -4,7 +4,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
-import { ChevronLeft, ChevronRight, X, BookOpen, Trophy, Target, Clock, Award, TrendingUp, CheckCircle2, Lock, Play, Users, BarChart3, Zap, Star } from 'lucide-react';
+import { ChevronLeft, ChevronRight, BookOpen, Trophy, Target, Clock, Award, TrendingUp, CheckCircle2, Lock, Play, Users, BarChart3, Zap, Star } from 'lucide-react';
 
 interface CaminoMasterPreviewModalProps {
   open: boolean;

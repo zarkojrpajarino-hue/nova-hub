@@ -360,7 +360,7 @@ describe('Command Components', () => {
 
   describe('CommandSeparator', () => {
     it('renders separator', () => {
-      const { container } = render(
+      render(
         <Command>
           <CommandList>
             <CommandGroup>

@@ -13,7 +13,7 @@ export function ViewContainer({
   children,
   onBack,
   showBackButton = false,
-  title,
+  title: _title,
   className = ''
 }: ViewContainerProps) {
   return (

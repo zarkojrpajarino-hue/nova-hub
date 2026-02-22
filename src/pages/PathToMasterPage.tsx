@@ -10,7 +10,6 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
   Rocket,
@@ -21,13 +20,12 @@ import {
   Users,
   TrendingUp,
   Zap,
-  Award,
   BookOpen,
 } from 'lucide-react';
 import { PathToMaster } from '@/components/exploration/PathToMaster';
 import { PathToMasterProgress } from '@/components/exploration/PathToMasterProgress';
 import { ActiveChallengeView } from '@/components/exploration/ActiveChallengeView';
-import { ChallengeChecker } from '@/components/challenges/ChallengeChecker';
+// import { ChallengeChecker } from '@/components/challenges/ChallengeChecker';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { BackButton } from '@/components/navigation/BackButton';
 import { HelpWidget } from '@/components/ui/section-help';
@@ -58,6 +56,7 @@ export function PathToMasterPage() {
     if (user?.id) {
       loadData();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const loadData = async () => {

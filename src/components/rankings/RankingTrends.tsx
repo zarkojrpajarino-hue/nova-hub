@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { TrendingUp, TrendingDown, Minus, Users } from 'lucide-react';
+import { TrendingUp, TrendingDown, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { ROLE_CONFIG } from '@/data/mockData';

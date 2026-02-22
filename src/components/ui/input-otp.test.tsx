@@ -81,7 +81,7 @@ describe('InputOTP Components', () => {
 
   describe('InputOTPGroup', () => {
     it('renders group container', () => {
-      const { container } = render(
+      render(
         <InputOTP maxLength={3}>
           <InputOTPGroup data-testid="otp-group">
             <InputOTPSlot index={0} />
@@ -140,7 +140,7 @@ describe('InputOTP Components', () => {
 
   describe('InputOTPSlot', () => {
     it('renders slot', () => {
-      const { container } = render(
+      render(
         <InputOTP maxLength={1}>
           <InputOTPGroup>
             <InputOTPSlot index={0} data-testid="slot-0" />

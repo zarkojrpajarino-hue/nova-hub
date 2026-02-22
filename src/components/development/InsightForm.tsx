@@ -114,7 +114,7 @@ export function InsightForm({
         toast.success('Insight guardado');
       }
       onOpenChange(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al guardar el insight');
     }
   };

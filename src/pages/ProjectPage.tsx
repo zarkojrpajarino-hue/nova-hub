@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, LayoutDashboard, Users, Kanban, FileCheck,
-  TrendingUp, Rocket, Target, Loader2, Settings, MoreVertical, Trash2, Sparkles
+  TrendingUp, Rocket, Target, Loader2, MoreVertical, Trash2, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -23,7 +23,7 @@ import { ProjectTasksTab } from '@/components/project/ProjectTasksTab';
 import { ProjectOBVsTab } from '@/components/project/ProjectOBVsTab';
 import { ProjectFinancialTab } from '@/components/project/ProjectFinancialTab';
 import { ProjectOnboardingTab } from '@/components/project/ProjectOnboardingTab';
-import { OnboardingGate } from '@/components/project/OnboardingGate';
+// import { OnboardingGate } from '@/components/project/OnboardingGate';
 import { ProjectHelpMenu } from '@/components/project/ProjectHelpMenu';
 import { HelpWidget } from '@/components/ui/section-help';
 import { GeneratedBusinessDashboard } from '@/components/generative/GeneratedBusinessDashboard';
@@ -71,10 +71,10 @@ export default function ProjectPage() {
   // Check if current user is a member
   const isProjectMember = teamMembers.some(m => m?.id === profile?.id);
 
-  // Check project states
-  const hasMembers = teamMembers.length > 0;
-  const allRolesAccepted = teamMembers.every(m => m?.role_accepted);
-  const isOnboardingComplete = project?.onboarding_completed;
+  // Check project states (used in commented-out gates below)
+  // const hasMembers = teamMembers.length > 0;
+  // const allRolesAccepted = teamMembers.every(m => m?.role_accepted);
+  // const isOnboardingComplete = project?.onboarding_completed;
 
   if (loadingProject) {
     return (

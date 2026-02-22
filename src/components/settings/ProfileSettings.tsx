@@ -48,8 +48,8 @@ export function ProfileSettings() {
       // Update profile with new avatar URL
       await updateProfile.mutateAsync({ avatar: publicUrl });
       toast.success('Avatar actualizado');
-    } catch (error) {
-      console.error('Error uploading avatar:', error);
+    } catch (_error) {
+      console.error('Error uploading avatar:', _error);
       toast.error('Error al subir el avatar');
       setAvatarPreview(profile?.avatar || null);
     }
@@ -60,7 +60,7 @@ export function ProfileSettings() {
       await updateProfile.mutateAsync({ avatar: null });
       setAvatarPreview(null);
       toast.success('Avatar eliminado');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al eliminar el avatar');
     }
   };
@@ -69,7 +69,7 @@ export function ProfileSettings() {
     try {
       await updateProfile.mutateAsync({ nombre, color });
       toast.success('Perfil actualizado');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al guardar');
     }
   };

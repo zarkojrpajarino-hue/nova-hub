@@ -56,6 +56,7 @@ export function ExplorationDashboard() {
       loadPhaseProgress();
       loadCurrentRoles();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [user]);
 
   const loadExplorations = async () => {

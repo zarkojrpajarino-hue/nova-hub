@@ -11,10 +11,8 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Badge } from '@/components/ui/badge';
 import { Users, UserPlus, Mail, AlertCircle, CheckCircle2, X } from 'lucide-react';
 import type { TeamStructure } from '@/types/ultra-onboarding';
-import { cn } from '@/lib/utils';
 
 interface TeamStructureStepProps {
   teamStructure: Partial<TeamStructure>;

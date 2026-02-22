@@ -114,12 +114,12 @@ export async function searchSEC(
 // US CENSUS BUREAU API
 // =====================================================
 
-interface CensusDataPoint {
-  name: string;
-  value: string;
-  year: string;
-  geography: string;
-}
+// interface CensusDataPoint {
+//   name: string;
+//   value: string;
+//   year: string;
+//   geography: string;
+// }
 
 /**
  * Search US Census Bureau data
@@ -128,12 +128,12 @@ interface CensusDataPoint {
  * Get free key at: https://api.census.gov/data/key_signup.html
  *
  * @param query - Search query (e.g., "population California 2020")
- * @param apiKey - Optional Census API key
+ * @param _apiKey - Optional Census API key
  * @returns Real sources from Census data
  */
 export async function searchCensus(
   query: string,
-  apiKey?: string
+  _apiKey?: string
 ): Promise<RealSource[]> {
   try {
     // For MVP, we'll use the public-facing data portal
@@ -283,7 +283,7 @@ export async function searchWorldBank(
  * @param apiKey - Optional BLS API key
  * @returns Real sources from BLS data
  */
-export async function searchBLS(seriesId: string, apiKey?: string): Promise<RealSource[]> {
+export async function searchBLS(seriesId: string, _apiKey?: string): Promise<RealSource[]> {
   try {
     // For MVP, return metadata
     // TODO: Implement actual BLS API integration
@@ -334,7 +334,7 @@ export async function searchBLS(seriesId: string, apiKey?: string): Promise<Real
 export async function searchOfficialSources(
   query: string,
   country: string = 'US',
-  userEmail?: string
+  _userEmail?: string
 ): Promise<RealSource[]> {
   const sources: RealSource[] = [];
 
@@ -397,7 +397,7 @@ export async function searchOfficialSources(
  */
 export async function extractOfficialCitations(
   source: RealSource,
-  claim: string
+  _claim: string
 ): Promise<Citation[]> {
   // For official APIs, the "quote" is the data point itself
   const location: CitationLocation = {

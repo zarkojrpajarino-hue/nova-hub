@@ -19,7 +19,7 @@ import {
   Clock,
   Zap,
 } from 'lucide-react';
-import { ContextAggregator, REGENERATION_TRIGGERS } from '@/lib/context-aggregator';
+import { ContextAggregator } from '@/lib/context-aggregator';
 import { toast } from 'sonner';
 import confetti from '@/lib/confetti';
 
@@ -35,6 +35,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
 
   useEffect(() => {
     loadTriggerData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const loadTriggerData = async () => {

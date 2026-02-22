@@ -5,7 +5,7 @@
  * Identifica bottlenecks y plan de acción
  */
 
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -13,12 +13,9 @@ import { Progress } from '@/components/ui/progress';
 import {
   AlertCircle,
   TrendingUp,
-  TrendingDown,
   Target,
   CheckCircle2,
-  Clock,
   DollarSign,
-  Users,
   Zap,
   ChevronRight,
 } from 'lucide-react';

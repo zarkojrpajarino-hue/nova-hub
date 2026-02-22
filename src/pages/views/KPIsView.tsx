@@ -8,7 +8,7 @@ import { KPITabContent } from '@/components/kpi/KPITabContent';
 import { ValidationOrderCard } from '@/components/validation/ValidationOrderCard';
 import { BlockedBanner } from '@/components/validation/BlockedBanner';
 import { ValidatorRankingCard } from '@/components/rankings/ValidatorRankingCard';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { KPIsPreviewModal } from '@/components/preview/KPIsPreviewModal';
 
@@ -89,7 +89,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             {
               from: 'Centro OBVs',
               items: [
-                'OBVs de tipo \"validación\" generan Learning Paths',
+                'OBVs de tipo "validación" generan Learning Paths',
                 'OBVs con evidencia de lectura generan Book Points',
                 'OBVs de eventos/networking generan Community Points',
               ],

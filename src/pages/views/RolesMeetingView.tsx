@@ -5,7 +5,7 @@ import { useMemberStats, useProjects, useProjectMembers } from '@/hooks/useNovaD
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { AIRoleQuestionsGenerator } from '@/components/roles/AIRoleQuestionsGenerator';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { CaminoMasterPreviewModal } from '@/components/preview/CaminoMasterPreviewModal';
 

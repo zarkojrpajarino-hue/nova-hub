@@ -100,9 +100,9 @@ export async function generateAllArtifacts(input: Record<string, unknown>): Prom
 /**
  * Generate Business Model Canvas
  */
-function generateBusinessModelCanvas(input: Record<string, unknown>, baseConfidence: number) {
-  const industry = input.industry || 'software';
-  const description = input.business_description || 'innovative solution';
+function generateBusinessModelCanvas(_input: Record<string, unknown>, baseConfidence: number) {
+  // const industry = _input.industry || 'software';
+  // const description = _input.business_description || 'innovative solution';
 
   return {
     customer_segments: [
@@ -158,7 +158,7 @@ function generateBusinessModelCanvas(input: Record<string, unknown>, baseConfide
 /**
  * Generate Buyer Personas
  */
-function generateBuyerPersonas(input: Record<string, unknown>, baseConfidence: number) {
+function generateBuyerPersonas(_input: Record<string, unknown>, baseConfidence: number) {
   return [
     {
       name: 'Tech-Savvy Manager Maria',
@@ -200,7 +200,7 @@ function generateBuyerPersonas(input: Record<string, unknown>, baseConfidence: n
 /**
  * Generate Sales Playbook
  */
-function generateSalesPlaybook(input: Record<string, unknown>, baseConfidence: number) {
+function generateSalesPlaybook(_input: Record<string, unknown>, baseConfidence: number) {
   return {
     sales_process: [
       '1. Qualification: BANT (Budget, Authority, Need, Timeline)',
@@ -235,7 +235,7 @@ function generateSalesPlaybook(input: Record<string, unknown>, baseConfidence: n
 /**
  * Generate Competitive Analysis
  */
-function generateCompetitiveAnalysis(input: Record<string, unknown>, baseConfidence: number) {
+function generateCompetitiveAnalysis(_input: Record<string, unknown>, _baseConfidence: number) {
   return {
     competitors: [
       'Competitor A (market leader)',
@@ -265,7 +265,7 @@ function generateCompetitiveAnalysis(input: Record<string, unknown>, baseConfide
 /**
  * Generate Financial Projections
  */
-function generateFinancialProjections(input: Record<string, unknown>, baseConfidence: number) {
+function generateFinancialProjections(input: Record<string, unknown>, _baseConfidence: number) {
   const mrr = parseInt(String(input.mrr ?? '')) || 5000;
   const growthRate = 0.10; // 10% monthly growth
 

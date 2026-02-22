@@ -23,7 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { useGenerativeBusiness } from '@/hooks/useGenerativeBusiness';
-import { CheckCircle2, Loader2, Sparkles, Rocket, ExternalLink } from 'lucide-react';
+import { CheckCircle2, Loader2, Sparkles, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface BrandingOption {

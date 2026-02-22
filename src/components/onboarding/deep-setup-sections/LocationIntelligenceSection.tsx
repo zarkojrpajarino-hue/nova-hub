@@ -78,8 +78,8 @@ interface LocationIntelligenceSectionProps {
 }
 
 export function LocationIntelligenceSection({
-  projectId,
-  onboardingType,
+  projectId: _projectId,
+  onboardingType: _onboardingType,
   onComplete,
   onCancel,
 }: LocationIntelligenceSectionProps) {

@@ -22,7 +22,7 @@ interface FounderProfileSectionProps {
   onCancel: () => void;
 }
 
-export function FounderProfileSection({ projectId, onComplete, onCancel }: FounderProfileSectionProps) {
+export function FounderProfileSection({ projectId: _projectId, onComplete, onCancel }: FounderProfileSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',

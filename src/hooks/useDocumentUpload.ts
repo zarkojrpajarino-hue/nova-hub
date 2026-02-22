@@ -133,23 +133,26 @@ export function useDocumentUpload(projectId: string) {
       let pagesCount: number | undefined;
 
       switch (fileType) {
-        case 'pdf':
+        case 'pdf': {
           const pdfData = await extractPDFText(file);
           rawContent = pdfData.text;
           pagesCount = pdfData.pages;
           break;
+        }
 
-        case 'csv':
+        case 'csv': {
           const csvData = await extractCSVData(file);
           rawContent = csvData.text;
           structuredData = { sheets: [{ name: 'Sheet1', rows: csvData.data }] };
           break;
+        }
 
-        case 'xlsx':
+        case 'xlsx': {
           const xlsxData = await extractXLSXData(file);
           rawContent = xlsxData.text;
           structuredData = xlsxData.data;
           break;
+        }
 
         case 'txt':
           rawContent = await extractTextFile(file);

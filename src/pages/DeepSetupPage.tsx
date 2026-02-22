@@ -56,7 +56,7 @@ function DeepSetupList() {
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
-  const [onboardingType, setOnboardingType] = useState<OnboardingType | null>(null);
+  const [_onboardingType, setOnboardingType] = useState<OnboardingType | null>(null);
   const [currentProgress, setCurrentProgress] = useState(25); // Starts at 25% (Fast Start)
   const [sections, setSections] = useState<DeepSetupSection[]>([]);
 

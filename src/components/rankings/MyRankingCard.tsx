@@ -1,6 +1,5 @@
 import { Trophy, TrendingUp, TrendingDown, Minus, Crown, Medal, Award } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { cn } from '@/lib/utils';

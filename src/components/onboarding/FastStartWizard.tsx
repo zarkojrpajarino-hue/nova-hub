@@ -20,7 +20,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import confetti from '@/lib/confetti';
 
@@ -37,12 +37,12 @@ interface FastStartWizardProps {
 }
 
 export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps) {
-  const navigate = useNavigate();
+  const _navigate = useNavigate();
   const [onboardingType, setOnboardingType] = useState<OnboardingType | null>(null);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState<'fast-start' | 'complete'>('fast-start');
-  const [completedData, setCompletedData] = useState<Record<string, unknown> | null>(null);
+  const [_completedData, setCompletedData] = useState<Record<string, unknown> | null>(null);
 
   // Load onboarding type from project metadata
   useEffect(() => {

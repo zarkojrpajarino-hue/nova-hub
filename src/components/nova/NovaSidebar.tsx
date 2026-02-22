@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet,
-  BookOpen, Users2, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target
+  BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -111,7 +111,7 @@ const systemItems: NavItem[] = [
 export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOut, onMenuHover, projectId }: NovaSidebarProps) {
   const navigate = useNavigate();
   const location = useLocation();
-  const { canUseFeature, plan } = useFeatureAccess(projectId);
+  const { canUseFeature } = useFeatureAccess(projectId);
   const availablePlans = useAvailablePlans();
 
   // Estado para controlar qué secciones están abiertas (solo una a la vez)
@@ -119,7 +119,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
 
   // Estado para modal de upgrade
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
-  const [selectedLockedFeature, setSelectedLockedFeature] = useState<{ name: string; requiredPlan: string } | null>(null);
+  const [_selectedLockedFeature, setSelectedLockedFeature] = useState<{ name: string; requiredPlan: string } | null>(null);
 
   const toggleSection = (section: string) => {
     setOpenSection(openSection === section ? '' : section);

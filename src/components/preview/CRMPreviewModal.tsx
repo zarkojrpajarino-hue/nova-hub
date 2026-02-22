@@ -14,8 +14,6 @@ import {
   MapPin,
   Clock,
   Filter,
-  BarChart3,
-  Activity,
   Zap,
   ArrowRight,
   Target,
@@ -46,7 +44,7 @@ interface Lead {
 export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) => {
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
-  const [selectedLead, setSelectedLead] = useState<string | null>(null);
+  const [_selectedLead, setSelectedLead] = useState<string | null>(null);
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
 
   const totalSlides = 7;
@@ -175,7 +173,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
 
             <div className="flex-1 overflow-x-auto">
               <div className="flex gap-4 h-full min-w-max pb-4">
-                {stages.map((stage, index) => (
+                {stages.map((stage) => (
                   <div
                     key={stage.id}
                     className={`flex-1 min-w-[280px] bg-gradient-to-br ${stage.color} rounded-2xl border ${stage.borderColor} p-4 flex flex-col`}
@@ -193,7 +191,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                     <div className="flex-1 overflow-y-auto space-y-3">
                       {leads
                         .filter(lead => lead.stage === stage.id)
-                        .map((lead, idx) => (
+                        .map((lead) => (
                           <div
                             key={lead.id}
                             className={`bg-gray-900/80 backdrop-blur-sm rounded-xl p-4 border border-gray-700/50 cursor-pointer transition-all hover:border-gray-600 hover:shadow-lg ${
@@ -234,7 +232,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
           </div>
         );
 
-      case 2:
+      case 2: {
         const detailLead = leads[2];
         return (
           <div className="flex p-8 gap-6">
@@ -344,6 +342,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
             </div>
           </div>
         );
+      }
 
       case 3:
         return (
@@ -359,7 +358,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                 { label: 'Qualified', value: 'qualified', icon: CheckCircle2, color: 'from-purple-500/20 to-purple-600/20' },
                 { label: 'Proposal', value: 'proposal', icon: FileText, color: 'from-orange-500/20 to-orange-600/20' },
                 { label: 'High Value ($100K+)', value: 'high-value', icon: DollarSign, color: 'from-green-500/20 to-green-600/20' },
-              ].map((filter, index) => (
+              ].map((filter) => (
                 <button
                   key={filter.value}
                   onClick={() => toggleFilter(filter.value)}
@@ -418,7 +417,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               </div>
 
               <div className="overflow-y-auto max-h-[400px] space-y-2">
-                {leads.slice(0, 6).map((lead, idx) => (
+                {leads.slice(0, 6).map((lead) => (
                   <div
                     key={lead.id}
                     className="bg-gray-900/50 rounded-xl p-4 border border-gray-700/30 hover:border-gray-600 transition-all cursor-pointer"
@@ -459,7 +458,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                 { label: 'Conversion Rate', value: '32%', change: '+5%', icon: TrendingUp, color: 'from-blue-500/20 to-blue-600/20' },
                 { label: 'Avg Deal Size', value: '$25K', change: '+8%', icon: Target, color: 'from-purple-500/20 to-purple-600/20' },
                 { label: 'Win Rate', value: '68%', change: '+3%', icon: CheckCircle2, color: 'from-orange-500/20 to-orange-600/20' },
-              ].map((stat, index) => (
+              ].map((stat) => (
                 <div
                   key={stat.label}
                   className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 border border-gray-700/30`}
@@ -485,7 +484,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                     { stage: 'Qualified', count: 35, percentage: 73, color: 'bg-purple-500' },
                     { stage: 'Proposal', count: 22, percentage: 46, color: 'bg-orange-500' },
                     { stage: 'Closed Won', count: 15, percentage: 31, color: 'bg-green-500' },
-                  ].map((stage, idx) => (
+                  ].map((stage) => (
                     <div
                       key={stage.stage}
                     >
@@ -518,7 +517,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                       { month: 'January', amount: 125, probability: 85 },
                       { month: 'February', amount: 142, probability: 70 },
                       { month: 'March', amount: 117, probability: 60 },
-                    ].map((forecast, idx) => (
+                    ].map((forecast) => (
                       <div
                         key={forecast.month}
                         className="bg-gray-900/50 rounded-xl p-4 border border-gray-700/30"
@@ -558,7 +557,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                 { label: 'Calls Made', value: '67', icon: Phone, color: 'from-green-500/20 to-green-600/20' },
                 { label: 'Meetings', value: '42', icon: Calendar, color: 'from-purple-500/20 to-purple-600/20' },
                 { label: 'Tasks Done', value: '189', icon: CheckCircle2, color: 'from-orange-500/20 to-orange-600/20' },
-              ].map((stat, index) => (
+              ].map((stat) => (
                 <div
                   key={stat.label}
                   className={`bg-gradient-to-br ${stat.color} rounded-xl p-4 border border-gray-700/30`}
@@ -574,7 +573,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               className="flex-1 bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700/50 p-6 overflow-hidden"
             >
               <div className="h-full overflow-y-auto space-y-3">
-                {activities.map((activity, idx) => (
+                {activities.map((activity) => (
                   <div
                     key={activity.id}
                     className="bg-gray-900/50 rounded-xl p-4 border border-gray-700/30 hover:border-gray-600 transition-all"
@@ -637,7 +636,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
             </div>
 
             <div className="grid grid-cols-2 gap-6 w-full max-w-4xl">
-              {integrations.map((integration, idx) => (
+              {integrations.map((integration) => (
                 <div
                   key={integration.name}
                   className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700/50 p-6 hover:border-gray-600 transition-all cursor-pointer group"

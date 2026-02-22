@@ -19,7 +19,7 @@ import { HowItWorks } from '@/components/ui/how-it-works';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { ExportButton } from '@/components/export/ExportButton';
 import { CRMPreviewModal } from '@/components/preview/CRMPreviewModal';
 

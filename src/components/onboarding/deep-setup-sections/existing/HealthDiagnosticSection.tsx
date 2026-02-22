@@ -25,7 +25,7 @@ interface HealthDiagnosticSectionProps {
   onCancel: () => void;
 }
 
-export function HealthDiagnosticSection({ projectId, onComplete, onCancel }: HealthDiagnosticSectionProps) {
+export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onCancel }: HealthDiagnosticSectionProps) {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [metrics, setMetrics] = useState({

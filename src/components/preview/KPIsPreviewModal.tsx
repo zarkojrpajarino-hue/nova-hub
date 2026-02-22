@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle2, Clock, DollarSign, Users, Package, BarChart3, Activity } from 'lucide-react';
+import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle2, Clock, DollarSign, Users, Package, BarChart3, Activity } from 'lucide-react';
 
 interface KPIsPreviewModalProps {
   open: boolean;

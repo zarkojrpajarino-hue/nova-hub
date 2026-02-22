@@ -12,7 +12,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
-import { Loader2, Sparkles, Users, Target, CheckCircle2, TrendingUp } from 'lucide-react';
+import { Sparkles, Users, Target, CheckCircle2, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
@@ -50,7 +50,7 @@ export function AITaskRouter() {
   const [routingResult, setRoutingResult] = useState<TaskRoutingResult | null>(null);
 
   // Fetch team members for context
-  const { data: teamMembers = [] } = useQuery({
+  const { data: _teamMembers = [] } = useQuery({
     queryKey: ['team-members'],
     queryFn: async () => {
       const { data, error } = await supabase

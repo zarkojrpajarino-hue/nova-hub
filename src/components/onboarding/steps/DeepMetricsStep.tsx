@@ -8,7 +8,6 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { BarChart3, TrendingUp, Users, DollarSign, AlertCircle, CheckCircle2 } from 'lucide-react';
 import type { DeepMetrics } from '@/types/ultra-onboarding';
 

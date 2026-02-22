@@ -72,7 +72,7 @@ export function NotificationSettings() {
     try {
       await updateSettings.mutateAsync(notifications);
       toast.success('Preferencias guardadas');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al guardar');
     }
   };

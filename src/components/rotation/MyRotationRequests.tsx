@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { ArrowRight, Check, X, Clock, AlertCircle, ArrowLeftRight } from 'lucide-react';
+import { Check, X, Clock, ArrowLeftRight } from 'lucide-react';
 import { RoleRotationRequest, useRespondToRotation, useCancelRotationRequest } from '@/hooks/useRoleRotation';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';

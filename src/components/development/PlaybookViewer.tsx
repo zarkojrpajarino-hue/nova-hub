@@ -56,7 +56,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
         roleName,
       });
       toast.success('Playbook generado con éxito');
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al generar el playbook');
     } finally {
       setGenerating(false);

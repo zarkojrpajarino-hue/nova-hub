@@ -23,7 +23,6 @@ import {
   Users,
   FileText,
   CheckSquare,
-  MessageSquare,
   AlertCircle,
   Calendar,
   DollarSign,

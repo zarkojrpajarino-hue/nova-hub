@@ -63,7 +63,7 @@ describe('Toast Components', () => {
 
   describe('Toast', () => {
     it('renders toast with open state', () => {
-      const { container } = render(
+      render(
         <ToastProvider>
           <Toast open>
             <ToastTitle>Title</ToastTitle>

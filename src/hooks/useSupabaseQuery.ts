@@ -172,7 +172,7 @@ export function useSupabaseQuery<T = unknown>({
  * Hook para mutations genéricas de Supabase
  * (insert, update, delete)
  */
-export function useSupabaseMutation<T = unknown>() {
+export function useSupabaseMutation<_T = unknown>() {
   // Implementar en el futuro si es necesario
   // Por ahora, usar useMutation de React Query directamente
   return null;

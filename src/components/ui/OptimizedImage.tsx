@@ -117,11 +117,11 @@ export function OptimizedImage({
 
     // ✨ OPTIMIZADO: Intentar cargar versión WebP si está disponible
     // (Esto requiere que las imágenes se generen en WebP)
-    let optimizedSrc = src;
+    const optimizedSrc = src;
 
     // Si es una URL de Supabase Storage, agregar transformación
     if (src.includes('supabase.co/storage') && (targetWidth || targetHeight)) {
-      const url = new URL(src);
+      const _url = new URL(src);
       const params = new URLSearchParams();
 
       if (targetWidth) params.append('width', targetWidth.toString());

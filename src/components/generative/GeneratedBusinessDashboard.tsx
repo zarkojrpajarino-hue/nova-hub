@@ -14,7 +14,6 @@ import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Progress } from '@/components/ui/progress';
 import { supabase } from '@/integrations/supabase/client';
 import {
   ExternalLink,
@@ -24,11 +23,9 @@ import {
   Target,
   Sparkles,
   DollarSign,
-  TrendingUp,
   CheckCircle2,
   Loader2,
 } from 'lucide-react';
-import { cn } from '@/lib/utils';
 
 interface BrandGuidelines {
   tone_attributes: string[];

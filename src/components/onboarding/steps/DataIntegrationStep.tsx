@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Loader2, Sparkles, CheckCircle2, Globe, BarChart3, CreditCard, Linkedin, Target, Users, TrendingUp } from 'lucide-react';
+import { Loader2, Sparkles, CheckCircle2, Globe, BarChart3, Target, Users, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
@@ -77,7 +77,7 @@ export function DataIntegrationStep({ answers, onChange }: DataIntegrationStepPr
   const [progress, setProgress] = useState(0);
   const [currentStep, setCurrentStep] = useState('');
 
-  const integrateAll = async () => {
+  const _integrateAll = async () => {
     if (!websiteUrl && !stripeUrl && !analyticsUrl) {
       alert('Por favor ingresa al menos tu website, Stripe o Analytics');
       return;

@@ -19,7 +19,7 @@ interface BuyerPersonasExtendedSectionProps {
   onCancel: () => void;
 }
 
-export function BuyerPersonasExtendedSection({ projectId, onComplete, onCancel }: BuyerPersonasExtendedSectionProps) {
+export function BuyerPersonasExtendedSection({ projectId: _projectId, onComplete, onCancel }: BuyerPersonasExtendedSectionProps) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [personas, setPersonas] = useState([
     { name: '', role: '', goals: '', pain_points: '', buying_behavior: '' }

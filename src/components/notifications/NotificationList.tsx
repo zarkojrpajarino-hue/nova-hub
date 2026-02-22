@@ -9,7 +9,7 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   CheckCircle2,
   AlertTriangle,
@@ -74,6 +74,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
 
   useEffect(() => {
     loadNotifications();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId, filter]);
 
   const loadNotifications = async () => {

@@ -53,7 +53,7 @@ interface TaskPlaybookViewerProps {
   onClose?: () => void;
 }
 
-export function TaskPlaybookViewer({ playbook, taskTitle, onClose }: TaskPlaybookViewerProps) {
+export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: TaskPlaybookViewerProps) {
   const [copiedScript, setCopiedScript] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [checkedItems, setCheckedItems] = useState<number[]>([]);

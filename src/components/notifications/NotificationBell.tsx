@@ -52,6 +52,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
     return () => {
       supabase.removeChannel(channel);
     };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [userId]);
 
   const loadUnreadCount = async () => {

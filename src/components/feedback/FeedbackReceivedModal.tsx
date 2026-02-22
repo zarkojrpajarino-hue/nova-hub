@@ -54,6 +54,7 @@ export function FeedbackReceivedModal({
     if (open) {
       loadFeedback();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [open, explorationPeriodId]);
 
   const loadFeedback = async () => {

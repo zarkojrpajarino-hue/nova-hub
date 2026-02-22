@@ -89,7 +89,7 @@ export async function generateBuyerPersonas(
 }
 
 function getPersonasForType(input: GeneratorInput): BuyerPersona[] {
-  const { onboarding_type, industry, target_market, customer_data } = input;
+  const { industry } = input;
 
   // B2B SaaS personas
   if (industry?.toLowerCase().includes('saas') || industry?.toLowerCase().includes('b2b')) {

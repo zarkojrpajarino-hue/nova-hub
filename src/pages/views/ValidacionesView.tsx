@@ -12,7 +12,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { OBVValidationList } from '@/components/nova/OBVValidationList';
 import { KPIValidationList } from '@/components/kpi/KPIValidationList';
 import { HowItWorks } from '@/components/ui/how-it-works';
-import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HelpWidget } from '@/components/ui/section-help';
 import { BlockedBanner } from '@/components/validation/BlockedBanner';
 import { ValidacionesPreviewModal } from '@/components/preview/ValidacionesPreviewModal';
 import { useAuth } from '@/hooks/useAuth';

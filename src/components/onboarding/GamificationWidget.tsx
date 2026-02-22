@@ -13,9 +13,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   Trophy,
   Star,
-  TrendingUp,
   Award,
-  Zap,
   Crown,
   Target,
   Sparkles,
@@ -41,6 +39,7 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
 
   useEffect(() => {
     loadGamificationData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId]);
 
   const loadGamificationData = async () => {

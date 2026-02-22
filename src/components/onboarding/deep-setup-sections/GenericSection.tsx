@@ -31,7 +31,7 @@ interface GenericSectionProps {
 }
 
 export function GenericSection({
-  projectId,
+  projectId: _projectId,
   sectionId,
   title,
   description,

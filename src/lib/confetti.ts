@@ -60,7 +60,7 @@ export function triggerConfetti() {
 }
 
 // Confetti object with similar API to canvas-confetti
-export const confetti = (options?: { particleCount?: number; spread?: number; origin?: { y?: number } }) => {
+export const confetti = (_options?: { particleCount?: number; spread?: number; origin?: { y?: number } }) => {
   triggerConfetti();
 };
 

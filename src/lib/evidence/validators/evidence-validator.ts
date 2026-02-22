@@ -10,16 +10,13 @@ import type {
   ClaimWithEvidence,
   Citation,
   EvidenceContract,
-  EvidenceStatus,
   EvidenceConflict,
   RealSource,
   StrictModeExitOptions,
 } from '../types';
 import {
   calculateCoverage,
-  getEvidenceStatus,
   areSourcesIndependent,
-  getUniqueDomains,
 } from '../types';
 
 // =====================================================
@@ -277,17 +274,20 @@ export function detectEvidenceConflicts(
 function extractValueFromQuote(quote: string, valueType: string): string | null {
   // Simplified extraction - in production use proper NLP
   switch (valueType) {
-    case 'currency':
+    case 'currency': {
       const currencyMatch = quote.match(/\$[\d,]+(?:\.\d{2})?[MBK]?/i);
       return currencyMatch ? currencyMatch[0] : null;
+    }
 
-    case 'percentage':
+    case 'percentage': {
       const percentMatch = quote.match(/\d+(?:\.\d+)?%/);
       return percentMatch ? percentMatch[0] : null;
+    }
 
-    case 'number':
+    case 'number': {
       const numberMatch = quote.match(/\d+(?:,\d{3})*(?:\.\d+)?/);
       return numberMatch ? numberMatch[0] : null;
+    }
 
     default:
       return null;

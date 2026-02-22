@@ -4,13 +4,12 @@
  * Autocomplete de ubicación + visualización de datos locales
  */
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
-import { Loader2, MapPin, TrendingUp, Users, DollarSign, Sparkles, ExternalLink } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import { MapPin, TrendingUp, Users, DollarSign, Sparkles, ExternalLink } from 'lucide-react';
+// import { supabase } from '@/integrations/supabase/client';
 import type { GeoIntelligence } from '@/types/ultra-onboarding';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';

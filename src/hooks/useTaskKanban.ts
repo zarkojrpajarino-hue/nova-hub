@@ -105,6 +105,7 @@ export function useTaskKanban(projectId: string) {
       // If not done, show completion dialog
       setTaskToComplete(task);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const toggleTaskStatus = async (task: Task, newStatus: string) => {

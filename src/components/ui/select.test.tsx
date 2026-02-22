@@ -6,9 +6,6 @@ import {
   SelectItem,
   SelectTrigger,
   SelectValue,
-  SelectLabel,
-  SelectSeparator,
-  SelectGroup,
 } from './select';
 
 describe('Select Components', () => {

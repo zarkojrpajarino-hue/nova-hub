@@ -28,8 +28,6 @@ import {
   TrendingUp,
   Award,
   Clock,
-  AlertCircle,
-  MessageSquare,
   Zap,
   Star,
   ArrowUp,

@@ -29,7 +29,7 @@ interface IntegrationsViewProps {
 // Componente interno que renderiza el contenido
 function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {}) {
   const { goBack, canGoBack } = useNavigation();
-  const { currentProject } = useCurrentProject();
+  const { currentProject: _currentProject } = useCurrentProject();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const demoData = PREMIUM_DEMO_DATA.integrations;

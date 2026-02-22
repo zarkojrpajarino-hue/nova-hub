@@ -94,7 +94,7 @@ export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboa
             
             <CardContent>
               <div className="space-y-2">
-                {roleRankings.slice(0, 10).map((ranking, index) => {
+                {roleRankings.slice(0, 10).map((ranking) => {
                   const positionStyle = POSITION_STYLES[ranking.ranking_position as keyof typeof POSITION_STYLES];
                   const positionChange = getPositionChange(ranking.ranking_position, ranking.previous_position);
                   const isCurrentUser = ranking.user_id === currentUserId;

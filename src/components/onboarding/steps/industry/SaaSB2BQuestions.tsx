@@ -10,7 +10,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Checkbox } from '@/components/ui/checkbox';
-import { Code, Users, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
+import { Users, DollarSign, TrendingUp, AlertCircle } from 'lucide-react';
 import type { SaaSB2BAnswers } from '@/types/ultra-onboarding';
 
 interface SaaSB2BQuestionsProps {
