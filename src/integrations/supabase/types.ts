@@ -14,6 +14,69 @@ export type Database = {
   }
   public: {
     Tables: {
+      master_challenges: {
+        Row: {
+          id: string
+          challenger_id: string
+          master_id: string
+          role_name: string
+          status: "pending" | "accepted" | "in_progress" | "completed" | "declined" | "expired"
+          challenge_type: "performance" | "project" | "peer_vote"
+          description: string | null
+          criteria: Json | null
+          deadline: string | null
+          result: "challenger_wins" | "master_wins" | "draw" | null
+          result_notes: string | null
+          created_at: string | null
+          completed_at: string | null
+        }
+        Insert: {
+          id?: string
+          challenger_id: string
+          master_id: string
+          role_name: string
+          status?: "pending" | "accepted" | "in_progress" | "completed" | "declined" | "expired"
+          challenge_type: "performance" | "project" | "peer_vote"
+          description?: string | null
+          criteria?: Json | null
+          deadline?: string | null
+          result?: "challenger_wins" | "master_wins" | "draw" | null
+          result_notes?: string | null
+          created_at?: string | null
+          completed_at?: string | null
+        }
+        Update: {
+          id?: string
+          challenger_id?: string
+          master_id?: string
+          role_name?: string
+          status?: "pending" | "accepted" | "in_progress" | "completed" | "declined" | "expired"
+          challenge_type?: "performance" | "project" | "peer_vote"
+          description?: string | null
+          criteria?: Json | null
+          deadline?: string | null
+          result?: "challenger_wins" | "master_wins" | "draw" | null
+          result_notes?: string | null
+          created_at?: string | null
+          completed_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "master_challenges_challenger_id_fkey"
+            columns: ["challenger_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "master_challenges_master_id_fkey"
+            columns: ["master_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       activity_log: {
         Row: {
           id: string
@@ -1955,6 +2018,21 @@ export type Database = {
           nombre: string
           role: string | null
           updated_at: string | null
+        }
+        Relationships: []
+      }
+      deleted_projects: {
+        Row: {
+          id: string
+          nombre: string
+          descripcion: string | null
+          icon: string
+          color: string
+          tipo: string | null
+          deleted_at: string | null
+          deleted_by_name: string
+          deleted_by_email: string
+          deletion_reason: string | null
         }
         Relationships: []
       }
