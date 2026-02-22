@@ -9,6 +9,9 @@ interface TeamMemberDisplay {
   color?: string;
   isLead?: boolean;
   email?: string;
+  obvs?: number;
+  facturacion?: number;
+  margen?: number;
 }
 
 interface ProjectTeamTabProps {

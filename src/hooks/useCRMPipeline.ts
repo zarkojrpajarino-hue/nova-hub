@@ -20,8 +20,8 @@ export interface Lead {
   proxima_accion_fecha: string | null;
   responsable_id: string | null;
   project_id: string;
-  created_at: string;
-  updated_at: string;
+  created_at: string | null;
+  updated_at: string | null;
   proyecto_nombre?: string;
   proyecto_color?: string;
   responsable_nombre?: string;

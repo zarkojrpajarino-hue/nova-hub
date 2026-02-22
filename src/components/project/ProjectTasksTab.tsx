@@ -44,7 +44,7 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
 
       const [obvsResult, leadsResult, lastActivityResult] = await Promise.all([
         supabase
-          .from('obvs_public')
+          .from('obvs')
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId)
           .gte('created_at', startOfMonth.toISOString()),
@@ -53,7 +53,7 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId),
         supabase
-          .from('obvs_public')
+          .from('obvs')
           .select('created_at')
           .eq('project_id', projectId)
           .order('created_at', { ascending: false })
@@ -63,7 +63,7 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
       return {
         obvs_count: obvsResult.count || 0,
         leads_count: leadsResult.count || 0,
-        last_activity: lastActivityResult.data?.[0]?.created_at || null,
+        last_activity: (lastActivityResult.data as Array<{ created_at: string | null }>)?.[0]?.created_at || null,
       };
     },
     enabled: !!projectId,
@@ -87,7 +87,7 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
     fase: project.fase,
     tipo: project.tipo,
     onboarding_data: project.onboarding_data,
-    team: projectMembers.map(m => ({ id: m.id, nombre: m.nombre, role: m.role })),
+    team: projectMembers.map(m => ({ id: m.id, nombre: m.nombre, role: m.role || '' })),
     obvs_count: projectStats?.obvs_count || 0,
     leads_count: projectStats?.leads_count || 0,
     last_activity: projectStats?.last_activity || null,

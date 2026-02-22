@@ -12,7 +12,7 @@
  * - Cerrado Ganado: Convertir a venta (facturación, costes, producto)
  */
 
-import { useState, useMemo } from 'react';
+import { useMemo } from 'react';
 import {
   Building2,
   Phone,
@@ -25,6 +25,7 @@ import {
   Calculator,
   CheckCircle,
   AlertCircle,
+  type LucideIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,20 +46,40 @@ import type { LeadStatus } from '@/types';
 interface PipelineStageFormProps {
   currentStage: LeadStatus;
   onStageChange: (newStage: LeadStatus) => void;
-  formData: Record<string, any>;
-  onChange: (field: string, value: any) => void;
+  formData: Record<string, unknown>;
+  onChange: (field: string, value: unknown) => void;
   showStageSelector?: boolean;
 }
 
+interface StageConfig {
+  title: string;
+  color: string;
+  icon: LucideIcon;
+  description: string;
+  fields: string[];
+  nextStage: LeadStatus | null;
+}
+
+interface FieldDefinition {
+  label: string;
+  type: string;
+  icon: LucideIcon;
+  required?: boolean;
+  placeholder?: string;
+  prefix?: string;
+  readonly?: boolean;
+  options?: Array<{ value: string; label: string }>;
+}
+
 // Configuración de campos por fase
-const STAGE_CONFIG = {
+const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
   frio: {
     title: 'Lead Frío',
     color: '#64748B',
     icon: AlertCircle,
     description: 'Contacto inicial sin engagement',
     fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial'],
-    nextStage: 'tibio' as LeadStatus,
+    nextStage: 'tibio',
   },
   tibio: {
     title: 'Lead Tibio',
@@ -73,7 +94,7 @@ const STAGE_CONFIG = {
       'valor_potencial',
       'notas',
     ],
-    nextStage: 'hot' as LeadStatus,
+    nextStage: 'hot',
   },
   hot: {
     title: 'Lead Hot',
@@ -90,7 +111,7 @@ const STAGE_CONFIG = {
       'proxima_accion_fecha',
       'notas',
     ],
-    nextStage: 'propuesta' as LeadStatus,
+    nextStage: 'propuesta',
   },
   propuesta: {
     title: 'Propuesta Enviada',
@@ -110,7 +131,7 @@ const STAGE_CONFIG = {
       'proxima_accion_fecha',
       'notas',
     ],
-    nextStage: 'negociacion' as LeadStatus,
+    nextStage: 'negociacion',
   },
   negociacion: {
     title: 'En Negociación',
@@ -131,7 +152,7 @@ const STAGE_CONFIG = {
       'proxima_accion_fecha',
       'notas',
     ],
-    nextStage: 'cerrado_ganado' as LeadStatus,
+    nextStage: 'cerrado_ganado',
   },
   cerrado_ganado: {
     title: 'Cerrado Ganado',
@@ -167,7 +188,7 @@ const STAGE_CONFIG = {
 };
 
 // Definición de todos los campos posibles
-const FIELD_DEFINITIONS = {
+const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
   // Campos básicos
   nombre_contacto: {
     label: 'Nombre del Contacto',
@@ -315,9 +336,9 @@ export function PipelineStageForm({
 
   // Calcular automáticamente facturación y margen
   useMemo(() => {
-    const cantidad = parseFloat(formData.cantidad) || 0;
-    const precioUnitario = parseFloat(formData.precio_unitario) || 0;
-    const costes = parseFloat(formData.costes) || 0;
+    const cantidad = parseFloat(String(formData.cantidad)) || 0;
+    const precioUnitario = parseFloat(String(formData.precio_unitario)) || 0;
+    const costes = parseFloat(String(formData.costes)) || 0;
 
     const facturacion = cantidad * precioUnitario;
     const margen = facturacion - costes;
@@ -328,14 +349,14 @@ export function PipelineStageForm({
     if (formData.margen !== margen) {
       onChange('margen', margen);
     }
-  }, [formData.cantidad, formData.precio_unitario, formData.costes]);
+  }, [formData.cantidad, formData.precio_unitario, formData.costes, formData.facturacion, formData.margen, onChange]);
 
   const renderField = (fieldName: string) => {
-    const field = FIELD_DEFINITIONS[fieldName as keyof typeof FIELD_DEFINITIONS];
+    const field = FIELD_DEFINITIONS[fieldName];
     if (!field) return null;
 
     const FieldIcon = field.icon;
-    const value = formData[fieldName] || '';
+    const value = String(formData[fieldName] || '');
 
     if (field.type === 'textarea') {
       return (
@@ -498,29 +519,10 @@ export function PipelineStageForm({
               </div>
               <Button
                 onClick={() => onStageChange(stageConfig.nextStage!)}
-                variant="default"
-                className="gap-2"
+                style={{ backgroundColor: STAGE_CONFIG[stageConfig.nextStage].color }}
               >
-                Avanzar Fase
-                <CheckCircle className="w-4 h-4" />
+                Avanzar a {STAGE_CONFIG[stageConfig.nextStage].title}
               </Button>
-            </div>
-          </CardContent>
-        </Card>
-      )}
-
-      {/* Mensaje Final si está cerrado */}
-      {currentStage === 'cerrado_ganado' && (
-        <Card className="bg-green-500/10 border-green-500/20">
-          <CardContent className="pt-6">
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-6 h-6 text-green-600" />
-              <div>
-                <p className="font-semibold text-green-600">¡Venta Cerrada!</p>
-                <p className="text-sm text-muted-foreground">
-                  Esta oportunidad se convertirá en una OBV de venta al guardar
-                </p>
-              </div>
             </div>
           </CardContent>
         </Card>

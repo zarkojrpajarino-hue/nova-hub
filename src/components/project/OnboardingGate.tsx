@@ -80,7 +80,14 @@ export function OnboardingGate({ project }: OnboardingGateProps) {
     return (
       <div className="p-6">
         <OnboardingWizard 
-          project={project}
+          project={{
+            id: project.id,
+            nombre: project.nombre,
+            tipo: project.tipo || 'validacion',
+            color: project.color || '#6366F1',
+            icon: project.icon || '📁',
+            onboarding_data: project.onboarding_data as never,
+          }}
           onComplete={handleOnboardingComplete}
           onCancel={() => setShowWizard(false)}
         />
