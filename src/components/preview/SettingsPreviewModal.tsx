@@ -1,0 +1,695 @@
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
+import { Badge } from '@/components/ui/badge';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Settings,
+  Building2,
+  Shield,
+  Bell,
+  CreditCard,
+  Users,
+  Globe,
+  Clock,
+  Upload,
+  Check,
+  X,
+  Mail,
+  Smartphone,
+  Lock,
+  Key,
+  UserCheck,
+  AlertCircle,
+  Calendar,
+  TrendingUp,
+  CheckCircle2,
+} from 'lucide-react';
+
+interface SettingsPreviewModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+export const SettingsPreviewModal: React.FC<SettingsPreviewModalProps> = ({
+  open,
+  onOpenChange,
+}) => {
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const totalSlides = 6;
+
+  const nextSlide = () => {
+    if (currentSlide < totalSlides - 1) {
+      setCurrentSlide(currentSlide + 1);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
+  const renderSlide = () => {
+    switch (currentSlide) {
+      case 0:
+        return (
+          <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
+            <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-blue-500 rounded-2xl flex items-center justify-center mb-6 shadow-lg">
+              <Settings className="w-10 h-10 text-white" />
+            </div>
+            <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
+              Personaliza tu Workspace
+            </h2>
+            <p className="text-muted-foreground text-lg max-w-md mb-8">
+              Configura tu organización con ajustes empresariales completos. Gestiona seguridad, notificaciones, facturación y equipos desde un único panel de control.
+            </p>
+            <div className="grid grid-cols-2 gap-4 w-full max-w-md">
+              <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                <Building2 className="w-5 h-5 text-purple-500" />
+                <span className="text-sm font-medium">Organización</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                <Shield className="w-5 h-5 text-blue-500" />
+                <span className="text-sm font-medium">Seguridad</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                <Bell className="w-5 h-5 text-green-500" />
+                <span className="text-sm font-medium">Notificaciones</span>
+              </div>
+              <div className="flex items-center gap-3 p-3 bg-secondary/50 rounded-lg">
+                <Users className="w-5 h-5 text-orange-500" />
+                <span className="text-sm font-medium">Equipos</span>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 1:
+        return (
+          <div className="py-6 px-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-purple-500/10 rounded-lg flex items-center justify-center">
+                <Building2 className="w-5 h-5 text-purple-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Organization Settings</h3>
+                <p className="text-sm text-muted-foreground">Configura la información básica de tu organización</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Organization Name */}
+              <div className="space-y-2">
+                <Label htmlFor="org-name">Nombre de la Organización</Label>
+                <Input
+                  id="org-name"
+                  defaultValue="Acme Corporation"
+                  className="font-medium"
+                />
+              </div>
+
+              {/* Logo Upload */}
+              <div className="space-y-2">
+                <Label>Logo de la Empresa</Label>
+                <div className="flex items-center gap-4">
+                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center text-white font-bold text-xl">
+                    AC
+                  </div>
+                  <Button variant="outline" size="sm" className="gap-2">
+                    <Upload className="w-4 h-4" />
+                    Subir Logo
+                  </Button>
+                </div>
+              </div>
+
+              {/* Timezone */}
+              <div className="space-y-2">
+                <Label htmlFor="timezone" className="flex items-center gap-2">
+                  <Clock className="w-4 h-4" />
+                  Zona Horaria
+                </Label>
+                <select
+                  id="timezone"
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                  defaultValue="utc-5"
+                >
+                  <option value="utc-5">UTC-5 (Eastern Time)</option>
+                  <option value="utc-6">UTC-6 (Central Time)</option>
+                  <option value="utc-7">UTC-7 (Mountain Time)</option>
+                  <option value="utc-8">UTC-8 (Pacific Time)</option>
+                </select>
+              </div>
+
+              {/* Language */}
+              <div className="space-y-2">
+                <Label htmlFor="language" className="flex items-center gap-2">
+                  <Globe className="w-4 h-4" />
+                  Idioma Predeterminado
+                </Label>
+                <select
+                  id="language"
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                  defaultValue="es"
+                >
+                  <option value="es">Español</option>
+                  <option value="en">English</option>
+                  <option value="pt">Português</option>
+                  <option value="fr">Français</option>
+                </select>
+              </div>
+
+              {/* URL Slug */}
+              <div className="space-y-2">
+                <Label htmlFor="url-slug">URL del Workspace</Label>
+                <div className="flex items-center gap-2">
+                  <span className="text-sm text-muted-foreground">app.nova-hub.com/</span>
+                  <Input
+                    id="url-slug"
+                    defaultValue="acme-corp"
+                    className="flex-1"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 2:
+        return (
+          <div className="py-6 px-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-blue-500/10 rounded-lg flex items-center justify-center">
+                <Shield className="w-5 h-5 text-blue-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Security & Permissions</h3>
+                <p className="text-sm text-muted-foreground">Protege tu organización con controles de seguridad avanzados</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Two-Factor Authentication */}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Smartphone className="w-5 h-5 text-blue-500" />
+                  <div>
+                    <div className="font-medium">Autenticación de Dos Factores (2FA)</div>
+                    <div className="text-sm text-muted-foreground">Requerida para todos los miembros</div>
+                  </div>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              {/* SSO */}
+              <div className="flex items-center justify-between p-4 border rounded-lg">
+                <div className="flex items-center gap-3">
+                  <Key className="w-5 h-5 text-purple-500" />
+                  <div>
+                    <div className="font-medium flex items-center gap-2">
+                      Single Sign-On (SSO)
+                      <Badge variant="secondary" className="text-xs">Enterprise</Badge>
+                    </div>
+                    <div className="text-sm text-muted-foreground">Google Workspace, Okta, Azure AD</div>
+                  </div>
+                </div>
+                <Switch defaultChecked />
+              </div>
+
+              {/* Access Control */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <Lock className="w-4 h-4" />
+                  Control de Acceso por Roles
+                </Label>
+                <div className="border rounded-lg overflow-hidden">
+                  <table className="w-full text-sm">
+                    <thead className="bg-secondary/50">
+                      <tr>
+                        <th className="text-left p-3 font-medium">Rol</th>
+                        <th className="text-center p-3 font-medium">Ver</th>
+                        <th className="text-center p-3 font-medium">Editar</th>
+                        <th className="text-center p-3 font-medium">Admin</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y">
+                      <tr>
+                        <td className="p-3 font-medium">Owner</td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-medium">Admin</td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><X className="w-4 h-4 text-red-500 mx-auto" /></td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-medium">Member</td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><X className="w-4 h-4 text-red-500 mx-auto" /></td>
+                      </tr>
+                      <tr>
+                        <td className="p-3 font-medium">Viewer</td>
+                        <td className="text-center p-3"><Check className="w-4 h-4 text-green-500 mx-auto" /></td>
+                        <td className="text-center p-3"><X className="w-4 h-4 text-red-500 mx-auto" /></td>
+                        <td className="text-center p-3"><X className="w-4 h-4 text-red-500 mx-auto" /></td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              {/* Session Timeout */}
+              <div className="space-y-2">
+                <Label htmlFor="session-timeout">Tiempo de Expiración de Sesión</Label>
+                <select
+                  id="session-timeout"
+                  className="w-full h-10 px-3 rounded-md border border-input bg-background text-sm"
+                  defaultValue="30"
+                >
+                  <option value="15">15 minutos</option>
+                  <option value="30">30 minutos</option>
+                  <option value="60">1 hora</option>
+                  <option value="480">8 horas</option>
+                </select>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 3:
+        return (
+          <div className="py-6 px-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-green-500/10 rounded-lg flex items-center justify-center">
+                <Bell className="w-5 h-5 text-green-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Notification Preferences</h3>
+                <p className="text-sm text-muted-foreground">Configura cómo y cuándo recibir notificaciones</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Email Notifications */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 font-medium">
+                  <Mail className="w-4 h-4 text-blue-500" />
+                  Notificaciones por Email
+                </div>
+                <div className="space-y-2 ml-6">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="email-mentions" className="text-sm font-normal">Menciones y respuestas</Label>
+                    <Switch id="email-mentions" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="email-assignments" className="text-sm font-normal">Asignaciones de tareas</Label>
+                    <Switch id="email-assignments" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="email-deadlines" className="text-sm font-normal">Fechas límite próximas</Label>
+                    <Switch id="email-deadlines" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="email-updates" className="text-sm font-normal">Actualizaciones de proyectos</Label>
+                    <Switch id="email-updates" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Slack Notifications */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 font-medium">
+                  <div className="w-4 h-4 bg-purple-500 rounded flex items-center justify-center text-white text-xs font-bold">
+                    S
+                  </div>
+                  Notificaciones de Slack
+                </div>
+                <div className="space-y-2 ml-6">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="slack-urgent" className="text-sm font-normal">Alertas urgentes</Label>
+                    <Switch id="slack-urgent" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="slack-daily" className="text-sm font-normal">Resumen diario</Label>
+                    <Switch id="slack-daily" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="slack-team" className="text-sm font-normal">Actividad del equipo</Label>
+                    <Switch id="slack-team" />
+                  </div>
+                </div>
+              </div>
+
+              {/* In-App Notifications */}
+              <div className="space-y-3">
+                <div className="flex items-center gap-2 font-medium">
+                  <Bell className="w-4 h-4 text-green-500" />
+                  Notificaciones In-App
+                </div>
+                <div className="space-y-2 ml-6">
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="app-comments" className="text-sm font-normal">Comentarios nuevos</Label>
+                    <Switch id="app-comments" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="app-status" className="text-sm font-normal">Cambios de estado</Label>
+                    <Switch id="app-status" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="app-files" className="text-sm font-normal">Archivos compartidos</Label>
+                    <Switch id="app-files" defaultChecked />
+                  </div>
+                  <div className="flex items-center justify-between">
+                    <Label htmlFor="app-sound" className="text-sm font-normal">Sonido de notificaciones</Label>
+                    <Switch id="app-sound" />
+                  </div>
+                </div>
+              </div>
+
+              {/* Do Not Disturb */}
+              <div className="p-4 border rounded-lg bg-secondary/30">
+                <div className="flex items-center justify-between mb-3">
+                  <div className="flex items-center gap-2 font-medium">
+                    <AlertCircle className="w-4 h-4 text-orange-500" />
+                    Modo No Molestar
+                  </div>
+                  <Switch />
+                </div>
+                <div className="flex items-center gap-3 text-sm text-muted-foreground ml-6">
+                  <span>Desde</span>
+                  <Input type="time" defaultValue="22:00" className="w-24 h-8" />
+                  <span>hasta</span>
+                  <Input type="time" defaultValue="08:00" className="w-24 h-8" />
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 4:
+        return (
+          <div className="py-6 px-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                <CreditCard className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Billing & Subscription</h3>
+                <p className="text-sm text-muted-foreground">Gestiona tu plan, pagos y facturación</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Current Plan */}
+              <div className="border rounded-lg p-5 bg-gradient-to-br from-purple-500/5 to-blue-500/5">
+                <div className="flex items-start justify-between mb-4">
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <h4 className="text-lg font-semibold">Enterprise Plan</h4>
+                      <Badge className="bg-gradient-to-r from-purple-500 to-blue-500">Activo</Badge>
+                    </div>
+                    <p className="text-sm text-muted-foreground">Para equipos grandes con necesidades avanzadas</p>
+                  </div>
+                  <div className="text-right">
+                    <div className="text-2xl font-bold">$299</div>
+                    <div className="text-sm text-muted-foreground">/mes</div>
+                  </div>
+                </div>
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                  <Calendar className="w-4 h-4" />
+                  Próxima facturación: 1 de Marzo, 2026
+                </div>
+              </div>
+
+              {/* Payment Method */}
+              <div className="space-y-3">
+                <Label>Método de Pago</Label>
+                <div className="border rounded-lg p-4 flex items-center justify-between">
+                  <div className="flex items-center gap-3">
+                    <div className="w-10 h-7 bg-gradient-to-br from-blue-600 to-blue-400 rounded flex items-center justify-center text-white text-xs font-bold">
+                      VISA
+                    </div>
+                    <div>
+                      <div className="font-medium">•••• •••• •••• 4242</div>
+                      <div className="text-sm text-muted-foreground">Expira 12/2026</div>
+                    </div>
+                  </div>
+                  <Button variant="outline" size="sm">Actualizar</Button>
+                </div>
+              </div>
+
+              {/* Usage Stats */}
+              <div className="space-y-3">
+                <Label className="flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4" />
+                  Uso del Plan
+                </Label>
+                <div className="space-y-3">
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span>Usuarios activos</span>
+                      <span className="font-medium">47 / 50</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-purple-500 to-blue-500 rounded-full" style={{ width: '94%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span>Almacenamiento</span>
+                      <span className="font-medium">238 GB / 500 GB</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-green-500 to-emerald-500 rounded-full" style={{ width: '47.6%' }} />
+                    </div>
+                  </div>
+                  <div>
+                    <div className="flex items-center justify-between text-sm mb-2">
+                      <span>API Calls</span>
+                      <span className="font-medium">124K / 250K</span>
+                    </div>
+                    <div className="w-full h-2 bg-secondary rounded-full overflow-hidden">
+                      <div className="h-full bg-gradient-to-r from-orange-500 to-red-500 rounded-full" style={{ width: '49.6%' }} />
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Billing History */}
+              <div className="space-y-3">
+                <Label>Historial de Facturación</Label>
+                <div className="border rounded-lg divide-y">
+                  {[
+                    { date: '1 Feb 2026', amount: '$299.00', status: 'Pagado' },
+                    { date: '1 Ene 2026', amount: '$299.00', status: 'Pagado' },
+                    { date: '1 Dic 2025', amount: '$299.00', status: 'Pagado' },
+                  ].map((invoice, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3">
+                      <div className="flex items-center gap-3">
+                        <div className="text-sm font-medium">{invoice.date}</div>
+                        <Badge variant="outline" className="text-xs">{invoice.status}</Badge>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="font-medium">{invoice.amount}</div>
+                        <Button variant="ghost" size="sm">Descargar</Button>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      case 5:
+        return (
+          <div className="py-6 px-6">
+            <div className="flex items-center gap-3 mb-6">
+              <div className="w-10 h-10 bg-orange-500/10 rounded-lg flex items-center justify-center">
+                <Users className="w-5 h-5 text-orange-500" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold">Team Management</h3>
+                <p className="text-sm text-muted-foreground">Invita usuarios y gestiona permisos del equipo</p>
+              </div>
+            </div>
+
+            <div className="space-y-6">
+              {/* Invite Users */}
+              <div className="space-y-3">
+                <Label>Invitar Nuevos Miembros</Label>
+                <div className="flex gap-2">
+                  <Input
+                    placeholder="email@ejemplo.com"
+                    className="flex-1"
+                  />
+                  <select className="h-10 px-3 rounded-md border border-input bg-background text-sm min-w-[120px]">
+                    <option>Member</option>
+                    <option>Admin</option>
+                    <option>Viewer</option>
+                  </select>
+                  <Button className="gap-2">
+                    <Mail className="w-4 h-4" />
+                    Enviar
+                  </Button>
+                </div>
+              </div>
+
+              {/* Team Members */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <Label>Miembros del Equipo (47)</Label>
+                  <Button variant="outline" size="sm">Exportar Lista</Button>
+                </div>
+                <div className="border rounded-lg divide-y max-h-[340px] overflow-y-auto">
+                  {[
+                    { name: 'Sarah Johnson', email: 's.johnson@acme.com', role: 'Owner', status: 'active', avatar: 'SJ' },
+                    { name: 'Michael Chen', email: 'm.chen@acme.com', role: 'Admin', status: 'active', avatar: 'MC' },
+                    { name: 'Emma Williams', email: 'e.williams@acme.com', role: 'Admin', status: 'active', avatar: 'EW' },
+                    { name: 'David Martinez', email: 'd.martinez@acme.com', role: 'Member', status: 'active', avatar: 'DM' },
+                    { name: 'Lisa Anderson', email: 'l.anderson@acme.com', role: 'Member', status: 'active', avatar: 'LA' },
+                    { name: 'James Taylor', email: 'j.taylor@acme.com', role: 'Member', status: 'invited', avatar: 'JT' },
+                    { name: 'Sophie Brown', email: 's.brown@acme.com', role: 'Viewer', status: 'active', avatar: 'SB' },
+                    { name: 'Tom Wilson', email: 't.wilson@acme.com', role: 'Viewer', status: 'active', avatar: 'TW' },
+                  ].map((member, idx) => (
+                    <div key={idx} className="flex items-center justify-between p-3 hover:bg-secondary/30 transition-colors">
+                      <div className="flex items-center gap-3 flex-1">
+                        <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-blue-500 flex items-center justify-center text-white font-medium text-sm">
+                          {member.avatar}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="font-medium flex items-center gap-2">
+                            {member.name}
+                            {member.status === 'invited' && (
+                              <Badge variant="outline" className="text-xs">Invitado</Badge>
+                            )}
+                          </div>
+                          <div className="text-sm text-muted-foreground truncate">{member.email}</div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <select
+                          className="h-8 px-2 rounded-md border border-input bg-background text-xs min-w-[90px]"
+                          defaultValue={member.role}
+                          disabled={member.role === 'Owner'}
+                        >
+                          <option>Owner</option>
+                          <option>Admin</option>
+                          <option>Member</option>
+                          <option>Viewer</option>
+                        </select>
+                        {member.role !== 'Owner' && (
+                          <Button variant="ghost" size="sm" className="h-8 w-8 p-0 text-red-500 hover:text-red-600">
+                            <X className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Team Stats */}
+              <div className="grid grid-cols-3 gap-3">
+                <div className="border rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-purple-500">47</div>
+                  <div className="text-xs text-muted-foreground">Total</div>
+                </div>
+                <div className="border rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-green-500">45</div>
+                  <div className="text-xs text-muted-foreground">Activos</div>
+                </div>
+                <div className="border rounded-lg p-3 text-center">
+                  <div className="text-2xl font-bold text-orange-500">2</div>
+                  <div className="text-xs text-muted-foreground">Pendientes</div>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+
+      default:
+        return null;
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-3xl h-[85vh] p-0 gap-0">
+        <div className="flex flex-col h-full">
+          <DialogHeader className="p-6 pb-4 border-b">
+            <DialogTitle className="flex items-center justify-between">
+              <span>Settings Preview</span>
+              <div className="flex items-center gap-2 text-sm font-normal text-muted-foreground">
+                <span>
+                  {currentSlide + 1} / {totalSlides}
+                </span>
+              </div>
+            </DialogTitle>
+          </DialogHeader>
+
+          <div className="flex-1 overflow-y-auto max-h-[calc(85vh-160px)]">
+            {renderSlide()}
+          </div>
+
+          <div className="p-6 pt-4 border-t flex items-center justify-between bg-secondary/20">
+          <Button
+            variant="outline"
+            onClick={prevSlide}
+            disabled={currentSlide === 0}
+            className="gap-2"
+          >
+            <ChevronLeft className="w-4 h-4" />
+            Anterior
+          </Button>
+
+          <div className="flex gap-2">
+            {Array.from({ length: totalSlides }).map((_, idx) => (
+              <button
+                key={idx}
+                onClick={() => setCurrentSlide(idx)}
+                className={`w-2 h-2 rounded-full transition-all ${
+                  idx === currentSlide
+                    ? 'bg-primary w-8'
+                    : 'bg-primary/30 hover:bg-primary/50'
+                }`}
+              />
+            ))}
+          </div>
+
+          <Button
+            onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : nextSlide}
+            className="gap-2"
+          >
+            {currentSlide === totalSlides - 1 ? (
+              <>
+                Finalizar
+                <CheckCircle2 className="w-4 h-4" />
+              </>
+            ) : (
+              <>
+                Siguiente
+                <ChevronRight className="w-4 h-4" />
+              </>
+            )}
+          </Button>
+        </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};
+

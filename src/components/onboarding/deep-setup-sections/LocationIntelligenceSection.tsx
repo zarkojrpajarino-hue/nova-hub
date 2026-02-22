@@ -1,0 +1,418 @@
+/**
+ * 🌍 LOCATION INTELLIGENCE SECTION
+ *
+ * Local context generation: investors, accelerators, costs, grants, regulations
+ * Reusable across all onboarding types (Generative, Idea, Existing)
+ *
+ * UNLOCKS:
+ * - Investor Map
+ * - Grant Finder
+ * - Local Market Data
+ *
+ * PROGRESS: +8%
+ */
+
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  MapPin,
+  Loader2,
+  ArrowRight,
+  Building2,
+  DollarSign,
+  Users,
+  FileText,
+  TrendingUp,
+  Sparkles,
+  CheckCircle2,
+} from 'lucide-react';
+import { toast } from 'sonner';
+
+interface LocationIntelligenceSectionProps {
+  projectId: string;
+  onboardingType: 'generative' | 'idea' | 'existing';
+  onComplete: (data: any) => void;
+  onCancel: () => void;
+}
+
+export function LocationIntelligenceSection({
+  projectId,
+  onboardingType,
+  onComplete,
+  onCancel,
+}: LocationIntelligenceSectionProps) {
+  const [location, setLocation] = useState('');
+  const [isGenerating, setIsGenerating] = useState(false);
+  const [locationData, setLocationData] = useState<any>(null);
+
+  const handleGenerate = async () => {
+    if (!location.trim()) return;
+
+    setIsGenerating(true);
+
+    try {
+      // Simulate AI generation (in real implementation, call AI service)
+      await new Promise(resolve => setTimeout(resolve, 2500));
+
+      // Mock location intelligence data
+      const mockData = {
+        location,
+        investors: [
+          {
+            name: 'Seaya Ventures',
+            type: 'VC',
+            stage: 'Series A-B',
+            focus: 'SaaS, Marketplace',
+            website: 'https://seaya.vc',
+          },
+          {
+            name: 'K Fund',
+            type: 'VC',
+            stage: 'Seed, Series A',
+            focus: 'Deep Tech, B2B',
+            website: 'https://kfund.vc',
+          },
+          {
+            name: 'JME Ventures',
+            type: 'VC',
+            stage: 'Pre-seed, Seed',
+            focus: 'Consumer, Marketplace',
+            website: 'https://jmeventures.com',
+          },
+        ],
+        accelerators: [
+          {
+            name: 'Lanzadera',
+            duration: '6 months',
+            investment: '€50k for 7% equity',
+            website: 'https://lanzadera.es',
+          },
+          {
+            name: 'Startup Valencia',
+            duration: '4 months',
+            investment: 'Non-equity',
+            website: 'https://startupvalencia.com',
+          },
+        ],
+        costs: {
+          office_space: '€200-400/month per desk',
+          living_cost: '€1,200-1,800/month',
+          incorporation: '€300-600',
+          accountant: '€100-200/month',
+        },
+        grants: [
+          {
+            name: 'CDTI NEOTEC',
+            amount: '€250k-€300k',
+            type: 'Loan + Grant',
+            focus: 'Deep tech startups',
+          },
+          {
+            name: 'Enisa',
+            amount: '€25k-€300k',
+            type: 'Participative loan',
+            focus: 'Early-stage startups',
+          },
+        ],
+        events: [
+          'Valencia Digital Summit (Oct)',
+          'South Summit (Jun)',
+          'Startup Valencia Meetups (Monthly)',
+        ],
+      };
+
+      setLocationData(mockData);
+
+      toast.success('Location intelligence generated!', {
+        description: 'Investor Map and Grant Finder unlocked'
+      });
+    } catch (error) {
+      console.error('Error generating location data:', error);
+      toast.error('Generation failed', {
+        description: 'Please try again'
+      });
+      setIsGenerating(false);
+    }
+  };
+
+  const handleComplete = () => {
+    onComplete({
+      section_id: 'location-intelligence',
+      location,
+      location_data: locationData,
+      unlocked_tools: ['Investor Map', 'Grant Finder', 'Local Market Data'],
+    });
+  };
+
+  if (isGenerating) {
+    return (
+      <Card className="max-w-4xl mx-auto">
+        <CardContent className="pt-12 pb-12">
+          <div className="flex flex-col items-center justify-center space-y-6 text-center">
+            <div className="relative">
+              <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center">
+                <Loader2 className="h-10 w-10 text-blue-600 animate-spin" />
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h3 className="text-2xl font-bold">
+                Analyzing local ecosystem for {location}
+              </h3>
+              <p className="text-muted-foreground max-w-md">
+                Gathering data on investors, accelerators, costs, grants, regulations, and events
+              </p>
+            </div>
+
+            <div className="flex items-center gap-2">
+              <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '0ms' }} />
+              <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '150ms' }} />
+              <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '300ms' }} />
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  if (locationData) {
+    return (
+      <div className="max-w-6xl mx-auto space-y-6">
+        {/* Header */}
+        <Card className="border-2 border-green-200 bg-gradient-to-r from-green-50 to-emerald-50">
+          <CardHeader>
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-green-500 to-emerald-600 rounded-lg flex items-center justify-center">
+                <CheckCircle2 className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl">Location Intelligence Complete</CardTitle>
+                <CardDescription className="text-base">
+                  Local ecosystem data for {locationData.location}
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+        </Card>
+
+        {/* Results Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          {/* Investors */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <DollarSign className="h-5 w-5 text-green-600" />
+                Local Investors
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {locationData.investors.map((inv: any, idx: number) => (
+                <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold text-gray-900">{inv.name}</h4>
+                  <p className="text-sm text-gray-600">
+                    {inv.type} • {inv.stage}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">Focus: {inv.focus}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Accelerators */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Building2 className="h-5 w-5 text-blue-600" />
+                Accelerators & Incubators
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {locationData.accelerators.map((acc: any, idx: number) => (
+                <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold text-gray-900">{acc.name}</h4>
+                  <p className="text-sm text-gray-600">{acc.duration}</p>
+                  <p className="text-xs text-gray-500 mt-1">{acc.investment}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Costs */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5 text-purple-600" />
+                Local Costs
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Office Space:</span>
+                <span className="font-semibold">{locationData.costs.office_space}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Living Cost:</span>
+                <span className="font-semibold">{locationData.costs.living_cost}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Incorporation:</span>
+                <span className="font-semibold">{locationData.costs.incorporation}</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Accountant:</span>
+                <span className="font-semibold">{locationData.costs.accountant}</span>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Grants */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <FileText className="h-5 w-5 text-orange-600" />
+                Available Grants
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              {locationData.grants.map((grant: any, idx: number) => (
+                <div key={idx} className="p-3 bg-gray-50 rounded-lg">
+                  <h4 className="font-semibold text-gray-900">{grant.name}</h4>
+                  <p className="text-sm text-gray-600">
+                    {grant.amount} • {grant.type}
+                  </p>
+                  <p className="text-xs text-gray-500 mt-1">{grant.focus}</p>
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Events */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="h-5 w-5 text-pink-600" />
+              Startup Events & Community
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ul className="space-y-2">
+              {locationData.events.map((event: string, idx: number) => (
+                <li key={idx} className="flex items-center gap-2 text-sm">
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />
+                  <span>{event}</span>
+                </li>
+              ))}
+            </ul>
+          </CardContent>
+        </Card>
+
+        {/* Actions */}
+        <div className="flex items-center justify-between pt-6 border-t">
+          <Button variant="outline" onClick={onCancel}>
+            Cancel
+          </Button>
+
+          <div className="flex items-center gap-3">
+            <div className="text-right">
+              <p className="text-sm text-gray-600">Section Progress</p>
+              <p className="text-lg font-bold text-green-600">+8%</p>
+            </div>
+            <Button
+              onClick={handleComplete}
+              className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+              size="lg"
+            >
+              <CheckCircle2 className="h-4 w-4" />
+              Complete Section
+              <ArrowRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="max-w-4xl mx-auto space-y-6">
+      {/* Header */}
+      <Card className="border-2 border-blue-200 bg-gradient-to-r from-blue-50 to-cyan-50">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-lg flex items-center justify-center">
+              <MapPin className="h-6 w-6 text-white" />
+            </div>
+            <div>
+              <CardTitle className="text-2xl">Location Intelligence</CardTitle>
+              <CardDescription className="text-base">
+                Get local insights: investors, accelerators, costs, grants, and events
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      {/* Alert */}
+      <Alert className="bg-blue-50 border-blue-200">
+        <Sparkles className="h-4 w-4 text-blue-600" />
+        <AlertDescription className="text-blue-900">
+          <strong>What you'll get:</strong> Local investor database, accelerator programs, cost estimates, available grants, regulatory info, and startup events.
+        </AlertDescription>
+      </Alert>
+
+      {/* Input Form */}
+      <Card>
+        <CardHeader>
+          <CardTitle>Enter Your Location</CardTitle>
+          <CardDescription>
+            City, region, or country where you plan to operate
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <div>
+            <Label htmlFor="location">Location</Label>
+            <Input
+              id="location"
+              type="text"
+              placeholder="e.g., Valencia, Spain"
+              value={location}
+              onChange={(e) => setLocation(e.target.value)}
+              className="mt-2"
+            />
+            <p className="text-xs text-gray-500 mt-2">
+              💡 Be specific for better results (e.g., "Barcelona" instead of "Spain")
+            </p>
+          </div>
+        </CardContent>
+      </Card>
+
+      {/* Actions */}
+      <div className="flex items-center justify-between pt-6 border-t">
+        <Button variant="outline" onClick={onCancel}>
+          Cancel
+        </Button>
+
+        <div className="flex items-center gap-3">
+          <div className="text-right">
+            <p className="text-sm text-gray-600">Section Progress</p>
+            <p className="text-lg font-bold text-blue-600">+8%</p>
+          </div>
+          <Button
+            onClick={handleGenerate}
+            disabled={!location.trim() || isGenerating}
+            className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
+            size="lg"
+          >
+            <TrendingUp className="h-4 w-4" />
+            Generate Location Intelligence
+            <ArrowRight className="h-4 w-4" />
+          </Button>
+        </div>
+      </div>
+    </div>
+  );
+}

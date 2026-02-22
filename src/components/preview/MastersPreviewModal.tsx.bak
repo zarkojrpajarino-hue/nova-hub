@@ -1,0 +1,683 @@
+import React, { useState } from 'react';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
+import {
+  ChevronLeft,
+  ChevronRight,
+  Award,
+  Trophy,
+  CheckCircle2,
+  Star,
+  Target,
+  Zap,
+  Users,
+  BookOpen,
+  TrendingUp,
+  Check,
+  Crown,
+  Sparkles,
+  Brain,
+  Rocket,
+} from 'lucide-react';
+import { CheckCircle2 } from 'lucide-react';
+
+interface MastersPreviewModalProps {
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
+
+interface Master {
+  id: string;
+  name: string;
+  role: string;
+  avatar: string;
+  level: number;
+  competencies: number;
+  achievements: number;
+  specialty: string;
+}
+
+interface Competency {
+  name: string;
+  level: number;
+  category: string;
+}
+
+interface Achievement {
+  title: string;
+  date: string;
+  description: string;
+}
+
+const MASTERS_DATA: Master[] = [
+  { id: '1', name: 'Sarah Chen', role: 'Frontend Architect', avatar: '👩‍💻', level: 10, competencies: 15, achievements: 24, specialty: 'React Ecosystem' },
+  { id: '2', name: 'Marcus Johnson', role: 'Backend Lead', avatar: '👨‍💼', level: 10, competencies: 18, achievements: 31, specialty: 'System Design' },
+  { id: '3', name: 'Elena Rodriguez', role: 'DevOps Master', avatar: '👩‍🔧', level: 10, competencies: 14, achievements: 28, specialty: 'Cloud Infrastructure' },
+  { id: '4', name: 'David Kim', role: 'Security Expert', avatar: '👨‍🔬', level: 10, competencies: 12, achievements: 22, specialty: 'Penetration Testing' },
+  { id: '5', name: 'Olivia Thompson', role: 'Data Architect', avatar: '👩‍🎓', level: 10, competencies: 16, achievements: 26, specialty: 'ML Pipeline' },
+  { id: '6', name: 'Raj Patel', role: 'Mobile Lead', avatar: '👨‍💻', level: 10, competencies: 13, achievements: 20, specialty: 'Cross-Platform' },
+  { id: '7', name: 'Sofia Martinez', role: 'UX Master', avatar: '👩‍🎨', level: 10, competencies: 11, achievements: 19, specialty: 'Design Systems' },
+  { id: '8', name: 'Chen Wei', role: 'AI Specialist', avatar: '👨‍🚀', level: 10, competencies: 17, achievements: 29, specialty: 'Deep Learning' },
+];
+
+const FEATURED_MASTER = MASTERS_DATA[0];
+
+const MASTER_COMPETENCIES: Competency[] = [
+  { name: 'Advanced React Patterns', level: 100, category: 'Frontend' },
+  { name: 'TypeScript Mastery', level: 100, category: 'Languages' },
+  { name: 'Performance Optimization', level: 98, category: 'Technical' },
+  { name: 'Code Architecture', level: 100, category: 'Design' },
+  { name: 'Testing Strategies', level: 95, category: 'Quality' },
+  { name: 'Team Leadership', level: 92, category: 'Soft Skills' },
+  { name: 'Build Tools', level: 97, category: 'DevOps' },
+  { name: 'Web Security', level: 94, category: 'Security' },
+  { name: 'GraphQL', level: 100, category: 'APIs' },
+  { name: 'State Management', level: 100, category: 'Frontend' },
+  { name: 'Component Libraries', level: 98, category: 'Frontend' },
+  { name: 'Mentorship', level: 96, category: 'Soft Skills' },
+];
+
+const MASTER_ACHIEVEMENTS: Achievement[] = [
+  { title: 'Master Certification Achieved', date: '2024-01', description: 'Completed all requirements for Master status' },
+  { title: 'Led 5 Critical Projects', date: '2024-03', description: 'Successfully delivered enterprise-level initiatives' },
+  { title: 'Mentored 15 Developers', date: '2024-06', description: 'Guided team members to advanced competency levels' },
+  { title: 'Published 8 Tech Articles', date: '2024-09', description: 'Shared knowledge with the engineering community' },
+  { title: 'Innovation Award Winner', date: '2024-11', description: 'Introduced groundbreaking architectural patterns' },
+];
+
+const CERTIFICATION_STEPS = [
+  {
+    title: 'Expert Level',
+    description: 'Achieve Expert (Level 8+) in your primary role',
+    icon: Star,
+    requirements: ['Complete all core competencies', 'Pass advanced assessments', '3+ years experience'],
+  },
+  {
+    title: 'Competency Mastery',
+    description: 'Master 12+ competencies in your domain',
+    icon: Target,
+    requirements: ['100% proficiency in 8 core skills', '90%+ in 4 advanced skills', 'Cross-functional knowledge'],
+  },
+  {
+    title: 'Leadership Impact',
+    description: 'Demonstrate significant team and project leadership',
+    icon: Users,
+    requirements: ['Lead 3+ major projects', 'Mentor 5+ team members', 'Drive technical decisions'],
+  },
+  {
+    title: 'Community Contribution',
+    description: 'Share knowledge and elevate team capabilities',
+    icon: BookOpen,
+    requirements: ['Write technical documentation', 'Present at team sessions', 'Code review participation'],
+  },
+];
+
+const MASTER_BENEFITS = [
+  {
+    title: 'Executive Recognition',
+    description: 'Direct acknowledgment from leadership team',
+    icon: Crown,
+    perks: ['Quarterly leadership meetings', 'Strategic planning input', 'Company-wide announcements'],
+  },
+  {
+    title: 'Compensation Package',
+    description: 'Enhanced rewards and incentives',
+    icon: Sparkles,
+    perks: ['20% salary increase eligibility', 'Signing bonus opportunities', 'Stock options consideration'],
+  },
+  {
+    title: 'Learning Budget',
+    description: 'Unlimited professional development',
+    icon: Brain,
+    perks: ['$10,000 annual learning budget', 'Conference speaker opportunities', 'Premium course access'],
+  },
+  {
+    title: 'Career Acceleration',
+    description: 'Fast-track to senior positions',
+    icon: Rocket,
+    perks: ['Priority for promotions', 'Cross-team project leads', 'Architecture council seat'],
+  },
+];
+
+const USER_PROGRESS = {
+  currentLevel: 7,
+  requiredLevel: 8,
+  competenciesMastered: 8,
+  competenciesRequired: 12,
+  projectsLed: 2,
+  projectsRequired: 3,
+  mentoringHours: 45,
+  mentoringRequired: 80,
+  overallProgress: 67,
+};
+
+export function MastersPreviewModal({ open, onOpenChange }: MastersPreviewModalProps) {
+  const [currentSlide, setCurrentSlide] = useState(0);
+
+  const nextSlide = () => {
+    if (currentSlide < 5) {
+      setCurrentSlide(currentSlide + 1);
+    }
+  };
+
+  const prevSlide = () => {
+    if (currentSlide > 0) {
+      setCurrentSlide(currentSlide - 1);
+    }
+  };
+
+  const renderSlide = () => {
+    switch (currentSlide) {
+      case 0:
+        return <IntroSlide />;
+      case 1:
+        return <MastersGallerySlide />;
+      case 2:
+        return <MasterProfileSlide />;
+      case 3:
+        return <CertificationProcessSlide />;
+      case 4:
+        return <MasterBenefitsSlide />;
+      case 5:
+        return <PathToMasterySlide />;
+      default:
+        return <IntroSlide />;
+    }
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={onOpenChange}>
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden">
+        <DialogHeader>
+          <DialogTitle className="flex items-center gap-2">
+            <Trophy className="h-5 w-5 text-yellow-500" />
+            Masters Preview
+          </DialogTitle>
+        </DialogHeader>
+
+        <div className="flex-1 overflow-y-auto px-1">
+          {renderSlide()}
+        </div>
+
+        <div className="flex items-center justify-between pt-4 border-t">
+          <div className="flex gap-1">
+            {[0, 1, 2, 3, 4, 5].map((index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentSlide(index)}
+                className={`h-2 rounded-full transition-all ${
+                  index === currentSlide
+                    ? 'w-8 bg-blue-600'
+                    : 'w-2 bg-gray-300 hover:bg-gray-400'
+                }`}
+                aria-label={`Go to slide ${index + 1}`}
+              />
+            ))}
+          </div>
+
+          <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={prevSlide}
+              disabled={currentSlide === 0}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+              Previous
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={currentSlide === 5 ? () => onOpenChange(false) : nextSlide}
+            >
+              {currentSlide === 5 ? (
+                <>
+                  Finalizar
+                  <CheckCircle2 className="h-4 w-4 ml-1" />
+                </>
+              ) : (
+                <>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </>
+              )}
+            </Button>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+              onClick={currentSlide === 5 ? () => onOpenChange(false) : nextSlide}
+            >
+              {currentSlide === 5 ? (
+                <>
+                  Finalizar
+                  <CheckCircle2 className="h-4 w-4 ml-1" />
+                </>
+              ) : (
+                <>
+                  Next
+                  <ChevronRight className="h-4 w-4 ml-1" />
+                </>
+              )}
+        <div className="relative">
+          <div className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full blur-2xl opacity-20 animate-pulse" />
+          <Trophy className="h-24 w-24 text-yellow-500 relative" />
+        </div>
+      </div>
+
+      <div className="space-y-3">
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 to-orange-500 bg-clip-text text-transparent">
+          Masters Hall of Fame
+        </h2>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          El reconocimiento definitivo para quienes dominan su rol y elevan a todo el equipo
+        </p>
+      </div>
+
+      <div className="grid grid-cols-3 gap-6 max-w-3xl mx-auto pt-8">
+        <Card className="border-2 border-yellow-200 bg-yellow-50">
+          <CardContent className="pt-6 text-center">
+            <Award className="h-10 w-10 text-yellow-600 mx-auto mb-3" />
+            <div className="text-3xl font-bold text-yellow-900">8</div>
+            <div className="text-sm text-yellow-700">Masters Activos</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-purple-200 bg-purple-50">
+          <CardContent className="pt-6 text-center">
+            <Target className="h-10 w-10 text-purple-600 mx-auto mb-3" />
+            <div className="text-3xl font-bold text-purple-900">12</div>
+            <div className="text-sm text-purple-700">Competencias Dominadas</div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-2 border-blue-200 bg-blue-50">
+          <CardContent className="pt-6 text-center">
+            <Users className="h-10 w-10 text-blue-600 mx-auto mb-3" />
+            <div className="text-3xl font-bold text-blue-900">45+</div>
+            <div className="text-sm text-blue-700">Desarrolladores Mentoreados</div>
+          </CardContent>
+        </Card>
+      </div>
+
+      <div className="pt-6">
+        <Badge variant="outline" className="text-base px-4 py-2">
+          <Crown className="h-4 w-4 mr-2 text-yellow-500" />
+          Elite Performance Recognition
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+function MastersGallerySlide() {
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <h3 className="text-2xl font-bold">Masters Gallery</h3>
+        <p className="text-gray-600">Los expertos que definen la excelencia en sus dominios</p>
+      </div>
+
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+        {MASTERS_DATA.map((master) => (
+          <Card
+            key={master.id}
+            className="relative overflow-hidden hover:shadow-lg transition-shadow cursor-pointer group"
+          >
+            <div className="absolute top-0 right-0 p-2">
+              <Crown className="h-5 w-5 text-yellow-500" />
+            </div>
+            <CardContent className="pt-6 text-center space-y-3">
+              <div className="text-5xl mb-2 group-hover:scale-110 transition-transform">
+                {master.avatar}
+              </div>
+              <div>
+                <div className="font-semibold text-sm mb-1">{master.name}</div>
+                <div className="text-xs text-gray-600">{master.role}</div>
+                <Badge variant="outline" className="mt-2 text-xs">
+                  {master.specialty}
+                </Badge>
+              </div>
+              <div className="flex justify-around text-xs pt-2 border-t">
+                <div>
+                  <div className="font-bold text-blue-600">{master.competencies}</div>
+                  <div className="text-gray-500">Skills</div>
+                </div>
+                <div>
+                  <div className="font-bold text-purple-600">{master.achievements}</div>
+                  <div className="text-gray-500">Wins</div>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <div className="flex justify-center pt-4">
+        <Badge variant="secondary" className="text-sm px-4 py-2">
+          <Trophy className="h-4 w-4 mr-2" />
+          8 Masters reconocidos en 2024
+        </Badge>
+      </div>
+    </div>
+  );
+}
+
+function MasterProfileSlide() {
+  return (
+    <div className="space-y-6">
+      <Card className="border-2 border-yellow-200 bg-gradient-to-r from-yellow-50 to-orange-50">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-6">
+            <div className="text-6xl">{FEATURED_MASTER.avatar}</div>
+            <div className="flex-1">
+              <div className="flex items-start justify-between">
+                <div>
+                  <h3 className="text-2xl font-bold">{FEATURED_MASTER.name}</h3>
+                  <p className="text-gray-600">{FEATURED_MASTER.role}</p>
+                  <Badge variant="outline" className="mt-2">
+                    <Star className="h-3 w-3 mr-1 text-yellow-500" />
+                    Master Level {FEATURED_MASTER.level}
+                  </Badge>
+                </div>
+                <Crown className="h-8 w-8 text-yellow-500" />
+              </div>
+              <p className="text-sm text-gray-700 mt-4">
+                Arquitecta frontend con más de 8 años de experiencia. Especialista en React ecosystem
+                y performance optimization. Ha liderado la transformación técnica de 5 productos críticos
+                y mentoreado a 15 desarrolladores hasta posiciones senior.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-6">
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Target className="h-5 w-5 text-blue-600" />
+              Competencias Dominadas (12)
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {MASTER_COMPETENCIES.slice(0, 6).map((comp, index) => (
+              <div key={index}>
+                <div className="flex justify-between text-sm mb-1">
+                  <span className="font-medium">{comp.name}</span>
+                  <span className="text-gray-600">{comp.level}%</span>
+                </div>
+                <Progress value={comp.level} className="h-2" />
+              </div>
+            ))}
+            <Button variant="ghost" size="sm" className="w-full mt-2">
+              Ver todas las competencias
+            </Button>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle className="text-lg flex items-center gap-2">
+              <Award className="h-5 w-5 text-purple-600" />
+              Logros Destacados
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="space-y-4">
+              {MASTER_ACHIEVEMENTS.map((achievement, index) => (
+                <div key={index} className="flex gap-3">
+                  <div className="flex-shrink-0 w-2 h-2 mt-2 rounded-full bg-purple-600" />
+                  <div className="flex-1">
+                    <div className="font-medium text-sm">{achievement.title}</div>
+                    <div className="text-xs text-gray-600">{achievement.description}</div>
+                    <div className="text-xs text-gray-500 mt-1">{achievement.date}</div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
+
+function CertificationProcessSlide() {
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <h3 className="text-2xl font-bold">El Camino al Master Status</h3>
+        <p className="text-gray-600">4 pilares fundamentales para alcanzar la maestría</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {CERTIFICATION_STEPS.map((step, index) => (
+          <Card
+            key={index}
+            className="border-2 hover:border-blue-300 transition-colors"
+          >
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-10 h-10 rounded-full bg-blue-100 flex items-center justify-center">
+                  <step.icon className="h-5 w-5 text-blue-600" />
+                </div>
+                <div className="flex-1">
+                  <Badge variant="outline" className="mb-2">
+                    Paso {index + 1}
+                  </Badge>
+                  <CardTitle className="text-lg">{step.title}</CardTitle>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent className="space-y-3">
+              <p className="text-sm text-gray-600">{step.description}</p>
+              <div className="space-y-2">
+                <div className="text-xs font-semibold text-gray-700">Requisitos:</div>
+                {step.requirements.map((req, reqIndex) => (
+                  <div key={reqIndex} className="flex items-start gap-2 text-sm">
+                    <Check className="h-4 w-4 text-green-600 flex-shrink-0 mt-0.5" />
+                    <span className="text-gray-600">{req}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="bg-blue-50 border-blue-200">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Zap className="h-6 w-6 text-blue-600 flex-shrink-0" />
+            <div>
+              <div className="font-semibold text-blue-900 mb-1">
+                Proceso de Evaluación
+              </div>
+              <p className="text-sm text-blue-800">
+                El comité de Masters revisa las nominaciones trimestralmente. Se evalúan métricas
+                objetivas, feedback de equipo, y contribuciones al ecosistema técnico. El proceso
+                incluye presentación técnica y entrevista con leadership.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function MasterBenefitsSlide() {
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <h3 className="text-2xl font-bold">Master Benefits</h3>
+        <p className="text-gray-600">Reconocimiento, recompensas y oportunidades exclusivas</p>
+      </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        {MASTER_BENEFITS.map((benefit, index) => (
+          <Card
+            key={index}
+            className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-pink-50"
+          >
+            <CardHeader>
+              <div className="flex items-start gap-3">
+                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-purple-100 flex items-center justify-center">
+                  <benefit.icon className="h-6 w-6 text-purple-600" />
+                </div>
+                <div className="flex-1">
+                  <CardTitle className="text-lg">{benefit.title}</CardTitle>
+                  <p className="text-sm text-gray-600 mt-1">{benefit.description}</p>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                {benefit.perks.map((perk, perkIndex) => (
+                  <div key={perkIndex} className="flex items-start gap-2">
+                    <Star className="h-4 w-4 text-yellow-500 flex-shrink-0 mt-0.5" />
+                    <span className="text-sm text-gray-700">{perk}</span>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+
+      <Card className="bg-gradient-to-r from-yellow-50 to-orange-50 border-yellow-200">
+        <CardContent className="pt-6">
+          <div className="flex items-center gap-4">
+            <Trophy className="h-12 w-12 text-yellow-500 flex-shrink-0" />
+            <div className="flex-1">
+              <div className="font-bold text-lg text-gray-900 mb-2">
+                Impacto a Largo Plazo
+              </div>
+              <p className="text-sm text-gray-700">
+                Los Masters no solo reciben beneficios inmediatos, sino que se convierten en
+                referencias técnicas permanentes, influyen en decisiones estratégicas, y tienen
+                acceso prioritario a oportunidades de liderazgo ejecutivo y proyectos de innovación.
+              </p>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
+
+function PathToMasterySlide() {
+  const milestones = [
+    { label: 'Nivel Expert', current: USER_PROGRESS.currentLevel, required: USER_PROGRESS.requiredLevel, icon: TrendingUp },
+    { label: 'Competencias', current: USER_PROGRESS.competenciesMastered, required: USER_PROGRESS.competenciesRequired, icon: Target },
+    { label: 'Proyectos Liderados', current: USER_PROGRESS.projectsLed, required: USER_PROGRESS.projectsRequired, icon: Award },
+    { label: 'Horas Mentoring', current: USER_PROGRESS.mentoringHours, required: USER_PROGRESS.mentoringRequired, icon: Users },
+  ];
+
+  return (
+    <div className="space-y-6">
+      <div className="text-center space-y-2">
+        <h3 className="text-2xl font-bold">Tu Camino a la Maestría</h3>
+        <p className="text-gray-600">Progreso actual hacia el Master status</p>
+      </div>
+
+      <Card className="bg-gradient-to-r from-blue-50 to-purple-50 border-blue-200">
+        <CardContent className="pt-6">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <div className="text-sm text-gray-600">Progreso General</div>
+              <div className="text-3xl font-bold text-blue-900">
+                {USER_PROGRESS.overallProgress}%
+              </div>
+            </div>
+            <Rocket className="h-12 w-12 text-blue-600" />
+          </div>
+          <Progress value={USER_PROGRESS.overallProgress} className="h-3" />
+          <p className="text-sm text-gray-600 mt-3">
+            Estás en camino hacia el reconocimiento Master. Continúa desarrollando competencias
+            y liderando proyectos para alcanzar este hito.
+          </p>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-2 gap-4">
+        {milestones.map((milestone, index) => {
+          const progress = (milestone.current / milestone.required) * 100;
+          const isComplete = milestone.current >= milestone.required;
+
+          return (
+            <Card
+              key={index}
+              className={`border-2 ${
+                isComplete
+                  ? 'border-green-200 bg-green-50'
+                  : 'border-gray-200'
+              }`}
+            >
+              <CardContent className="pt-6">
+                <div className="flex items-start justify-between mb-3">
+                  <div className="flex items-center gap-2">
+                    <milestone.icon className={`h-5 w-5 ${isComplete ? 'text-green-600' : 'text-gray-600'}`} />
+                    <div className="text-sm font-semibold">{milestone.label}</div>
+                  </div>
+                  {isComplete && (
+                    <Check className="h-5 w-5 text-green-600" />
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <div className="flex justify-between text-sm">
+                    <span className="text-gray-600">Progreso</span>
+                    <span className="font-semibold">
+                      {milestone.current} / {milestone.required}
+                    </span>
+                  </div>
+                  <Progress value={progress} className="h-2" />
+                </div>
+              </CardContent>
+            </Card>
+          );
+        })}
+      </div>
+
+      <Card className="bg-yellow-50 border-yellow-200">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-3">
+            <Crown className="h-6 w-6 text-yellow-600 flex-shrink-0" />
+            <div>
+              <div className="font-semibold text-yellow-900 mb-2">
+                Próximos Pasos Recomendados
+              </div>
+              <ul className="space-y-1 text-sm text-yellow-800">
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600">•</span>
+                  <span>Alcanzar nivel 8 completando el assessment de arquitectura avanzada</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600">•</span>
+                  <span>Dominar 4 competencias adicionales en tu área de especialización</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600">•</span>
+                  <span>Liderar 1 proyecto crítico adicional en el próximo trimestre</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-yellow-600">•</span>
+                  <span>Incrementar mentoría a 35 horas más (8 horas mensuales)</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
