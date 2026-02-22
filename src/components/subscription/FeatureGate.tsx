@@ -163,13 +163,14 @@ export function FeatureGate({
   className,
   showLoadingSkeleton = false,
 }: FeatureGateProps) {
+  // Hook must be called unconditionally before any early returns
+  const { canUseFeature, isLoading, plan } = useFeatureAccess(projectId);
+
   // 🎯 FEATURE FLAG: If payments are disabled, grant full access to everything
   // This allows testing with known users before activating payment system
   if (!isPaymentsEnabled()) {
     return <>{children}</>;
   }
-
-  const { canUseFeature, isLoading, plan } = useFeatureAccess(projectId);
 
   // 🎯 MODO DEMO: Siempre mostrar con datos demo (sin verificar acceso)
   // Esto permite que usuarios sin plan vean el valor de las features premium INMEDIATAMENTE
@@ -286,11 +287,13 @@ export function useFeatureAvailable(
   feature: GateableFeature,
   projectId: string | undefined
 ): boolean {
+  // Hook must be called unconditionally before any early returns
+  const { canUseFeature } = useFeatureAccess(projectId);
+
   // 🎯 FEATURE FLAG: If payments disabled, all features are available
   if (!isPaymentsEnabled()) {
     return true;
   }
 
-  const { canUseFeature } = useFeatureAccess(projectId);
   return canUseFeature(feature);
 }

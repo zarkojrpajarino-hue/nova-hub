@@ -317,11 +317,11 @@ export function OBVValidationList() {
           isVoting={votingId === obv.id}
           comentario={comentario}
           isSubmitting={isSubmitting}
-          onStartVoting={useCallback(() => setVotingId(obv.id), [obv.id])}
-          onCancelVoting={useCallback(() => setVotingId(null), [])}
-          onCommentChange={useCallback((value: string) => setComentario(value), [])}
-          onConfirmReject={useCallback(() => setConfirmReject(obv.id), [obv.id])}
-          onVote={useCallback((approved: boolean) => handleVote(obv.id, approved), [obv.id, handleVote])}
+          onStartVoting={() => setVotingId(obv.id)}
+          onCancelVoting={() => setVotingId(null)}
+          onCommentChange={(value: string) => setComentario(value)}
+          onConfirmReject={() => setConfirmReject(obv.id)}
+          onVote={(approved: boolean) => handleVote(obv.id, approved)}
         />
       ))}
 

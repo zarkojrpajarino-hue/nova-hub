@@ -318,14 +318,11 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
           isVoting={votingId === kpi.id}
           comment={comment}
           isSubmitting={isSubmitting}
-          onStartVoting={useCallback(() => setVotingId(kpi.id), [kpi.id])}
-          onCancelVoting={useCallback(() => {
-            setVotingId(null);
-            setComment('');
-          }, [])}
-          onCommentChange={useCallback((value: string) => setComment(value), [])}
-          onApprove={useCallback(() => handleVote(kpi.id, true), [kpi.id, handleVote])}
-          onReject={useCallback(() => handleVote(kpi.id, false), [kpi.id, handleVote])}
+          onStartVoting={() => setVotingId(kpi.id)}
+          onCancelVoting={() => { setVotingId(null); setComment(''); }}
+          onCommentChange={(value: string) => setComment(value)}
+          onApprove={() => handleVote(kpi.id, true)}
+          onReject={() => handleVote(kpi.id, false)}
         />
       ))}
     </div>

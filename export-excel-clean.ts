@@ -271,13 +271,14 @@ function convertDataToRows(exportType: string, data: any): any[][] {
         ])
       ];
 
-    default:
+    default: {
       if (dataArray.length === 0) return [['No hay datos']];
       const headers = Object.keys(dataArray[0]);
       return [
         headers,
         ...dataArray.map(item => headers.map(h => item[h] ?? ''))
       ];
+    }
   }
 }
 
