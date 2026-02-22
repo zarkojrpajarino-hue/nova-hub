@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { ProjectsView } from './ProjectsView';
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -11,6 +12,13 @@ vi.mock('@/integrations/supabase/client', () => ({
       })),
     })),
   },
+}));
+
+vi.mock('@/hooks/useNovaData', () => ({
+  useProjects: () => ({ data: [], isLoading: false }),
+  useProjectMembers: () => ({ data: [] }),
+  useMemberStats: () => ({ data: [] }),
+  useProfiles: () => ({ data: [] }),
 }));
 
 vi.mock('@/contexts/DemoModeContext', () => ({
@@ -30,6 +38,30 @@ vi.mock('@/components/ui/section-help', () => ({
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
 }));
 
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/projects/CreateProjectDialog', () => ({
+  CreateProjectDialog: ({ trigger }: { trigger: React.ReactNode }) => <div data-testid="create-project-dialog">{trigger}</div>,
+}));
+
+vi.mock('@/components/projects/DeletedProjectsDialog', () => ({
+  DeletedProjectsDialog: () => <div data-testid="deleted-projects-dialog" />,
+}));
+
+vi.mock('./GenerativeOnboardingView', () => ({
+  GenerativeOnboardingView: () => <div data-testid="generative-onboarding">Onboarding</div>,
+}));
+
+vi.mock('@/components/preview/GenerativeOnboardingPreviewModal', () => ({
+  GenerativeOnboardingPreviewModal: () => <div data-testid="preview-modal" />,
+}));
+
+vi.mock('@/components/ui/empty-state', () => ({
+  EmptyState: ({ title }: { title: string }) => <div data-testid="empty-state">{title}</div>,
+}));
+
 describe('ProjectsView', () => {
   let queryClient: QueryClient;
 
@@ -39,9 +71,11 @@ describe('ProjectsView', () => {
   });
 
   const renderComponent = () => render(
-    <QueryClientProvider client={queryClient}>
-      <ProjectsView />
-    </QueryClientProvider>
+    <MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <ProjectsView />
+      </QueryClientProvider>
+    </MemoryRouter>
   );
 
   it('renders proyectos title', () => {
@@ -49,8 +83,8 @@ describe('ProjectsView', () => {
     expect(screen.getByText('Proyectos')).toBeInTheDocument();
   });
 
-  it('renders empty state', () => {
+  it('renders empty state when no projects', () => {
     renderComponent();
-    expect(screen.getByText('No hay proyectos creados')).toBeInTheDocument();
+    expect(screen.getByText('Aún no tienes proyectos')).toBeInTheDocument();
   });
 });

@@ -30,9 +30,9 @@ const mockQuestions = [
 ];
 
 describe('MeetingQuestionViewer', () => {
-  it('renders preguntas para la junta title', () => {
+  it('renders reunion title with roleLabel', () => {
     render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" />);
-    expect(screen.getByText(/Preguntas para la Junta/)).toBeInTheDocument();
+    expect(screen.getByText(/Reunión de Comercial/)).toBeInTheDocument();
   });
 
   it('renders question text', () => {
@@ -40,9 +40,9 @@ describe('MeetingQuestionViewer', () => {
     expect(screen.getByText('Test question')).toBeInTheDocument();
   });
 
-  it('renders agenda sugerida section when provided', () => {
+  it('renders agenda apertura section when agendaSugerida provided', () => {
     const agenda = { apertura: 'Open', desarrollo: 'Dev', cierre: 'Close' };
     render(<MeetingQuestionViewer questions={mockQuestions} roleLabel="Comercial" agendaSugerida={agenda} />);
-    expect(screen.getByText('Agenda Sugerida')).toBeInTheDocument();
+    expect(screen.getByText('Apertura')).toBeInTheDocument();
   });
 });

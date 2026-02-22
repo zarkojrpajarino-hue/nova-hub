@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
 import type { Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
@@ -17,6 +17,14 @@ vi.mock('@/contexts/DemoModeContext', () => ({
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
 describe('DemoModeBanner', () => {
+  beforeEach(() => {
+    (useDemoMode as Mock).mockReturnValue({
+      isDemoMode: true,
+      disableDemo: mockDisableDemo,
+    });
+    vi.clearAllMocks();
+    mockDisableDemo.mockReset();
+  });
   it('renders when demo mode is active', () => {
     render(<DemoModeBanner />);
     expect(screen.getByText('Modo Demostración Activo')).toBeInTheDocument();

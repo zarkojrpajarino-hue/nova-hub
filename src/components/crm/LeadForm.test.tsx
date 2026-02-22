@@ -1,5 +1,4 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import type { Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -12,16 +11,14 @@ vi.mock('@/hooks/useAuth', () => ({
   })),
 }));
 
-// Mock supabase
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
-    })),
+// Mock leadService - the form uses leadService.create() internally
+vi.mock('@/services/LeadService', () => ({
+  leadService: {
+    create: vi.fn(() => Promise.resolve({ id: 'new-lead', nombre: 'Test' })),
   },
 }));
 
-import { supabase } from '@/integrations/supabase/client';
+import { leadService } from '@/services/LeadService';
 
 const mockProjects = [
   { id: 'proj1', nombre: 'Proyecto Alpha', icon: '🚀' },
@@ -67,17 +64,18 @@ describe('LeadForm', () => {
 
   it('renders all form fields', () => {
     renderComponent();
-    expect(screen.getByLabelText(/Nombre del contacto/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Empresa/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Email/)).toBeInTheDocument();
-    expect(screen.getByLabelText(/Teléfono/)).toBeInTheDocument();
+    // Labels contain icons (SVG) + text, use flexible matchers
+    expect(screen.getByLabelText(/nombre del contacto/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/empresa/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
+    expect(screen.getByLabelText(/teléfono/i)).toBeInTheDocument();
   });
 
   it('allows typing in nombre field', async () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const nombreInput = screen.getByLabelText(/Nombre del contacto/);
+    const nombreInput = screen.getByLabelText(/nombre del contacto/i);
     await user.type(nombreInput, 'Cliente Potencial');
 
     expect(nombreInput).toHaveValue('Cliente Potencial');
@@ -87,7 +85,7 @@ describe('LeadForm', () => {
     const user = userEvent.setup();
     renderComponent();
 
-    const empresaInput = screen.getByLabelText(/Empresa/);
+    const empresaInput = screen.getByLabelText(/empresa/i);
     await user.type(empresaInput, 'Empresa XYZ');
 
     expect(empresaInput).toHaveValue('Empresa XYZ');
@@ -100,37 +98,36 @@ describe('LeadForm', () => {
     const submitButton = screen.getByText(/Crear Lead/);
     await user.click(submitButton);
 
-    // Should show toast error (testing by checking that insert was not called)
-    expect(supabase.from).not.toHaveBeenCalled();
+    // Validation fires before leadService.create() is called
+    expect(leadService.create).not.toHaveBeenCalled();
   });
 
   it('submits form successfully', async () => {
     const user = userEvent.setup();
-    const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as Mock).mockReturnValue({
-      insert: mockInsert,
-    });
+    const mockCreate = vi.fn(() => Promise.resolve({ id: 'new-lead', nombre: 'Test Lead' }));
+    (leadService.create as ReturnType<typeof vi.fn>).mockImplementation(mockCreate);
 
     renderComponent({ projectId: 'proj1' });
 
-    await user.type(screen.getByLabelText(/Nombre del contacto/), 'Test Lead');
+    await user.type(screen.getByLabelText(/nombre del contacto/i), 'Test Lead');
+    await user.type(screen.getByLabelText(/empresa/i), 'Test Corp');
     await user.click(screen.getByText(/Crear Lead/));
 
     await waitFor(() => {
-      expect(mockInsert).toHaveBeenCalled();
+      expect(mockCreate).toHaveBeenCalled();
     });
   });
 
   it('shows loading state during submission', async () => {
     const user = userEvent.setup();
-    const mockInsert = vi.fn(() => new Promise((resolve) => setTimeout(() => resolve({ data: null, error: null }), 100)));
-    (supabase.from as Mock).mockReturnValue({
-      insert: mockInsert,
-    });
+    (leadService.create as ReturnType<typeof vi.fn>).mockImplementation(
+      () => new Promise((resolve) => setTimeout(() => resolve({ id: 'x' }), 100))
+    );
 
     renderComponent({ projectId: 'proj1' });
 
-    await user.type(screen.getByLabelText(/Nombre del contacto/), 'Test');
+    await user.type(screen.getByLabelText(/nombre del contacto/i), 'Test');
+    await user.type(screen.getByLabelText(/empresa/i), 'Test Corp');
     await user.click(screen.getByText(/Crear Lead/));
 
     expect(screen.getByText(/Creando/)).toBeInTheDocument();
@@ -138,15 +135,13 @@ describe('LeadForm', () => {
 
   it('invalidates queries after successful submission', async () => {
     const user = userEvent.setup();
-    const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as Mock).mockReturnValue({
-      insert: mockInsert,
-    });
+    (leadService.create as ReturnType<typeof vi.fn>).mockResolvedValue({ id: 'new-lead' });
     const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
 
     renderComponent({ projectId: 'proj1' });
 
-    await user.type(screen.getByLabelText(/Nombre del contacto/), 'Test');
+    await user.type(screen.getByLabelText(/nombre del contacto/i), 'Test');
+    await user.type(screen.getByLabelText(/empresa/i), 'Test Corp');
     await user.click(screen.getByText(/Crear Lead/));
 
     await waitFor(() => {

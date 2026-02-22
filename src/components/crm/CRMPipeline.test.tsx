@@ -1,9 +1,33 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { ReactNode } from 'react';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CRMPipeline } from './CRMPipeline';
 import type { Lead } from '@/hooks/useCRMPipeline';
+
+// Mock useAuth
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: vi.fn(() => ({
+    profile: { id: 'user1', nombre: 'Test User' },
+  })),
+}));
+
+// Mock leadService
+vi.mock('@/services/LeadService', () => ({
+  leadService: {
+    updateStatus: vi.fn(() => Promise.resolve()),
+  },
+}));
+
+// Mock @hello-pangea/dnd
+vi.mock('@hello-pangea/dnd', () => ({
+  DragDropContext: ({ children }: { children: ReactNode }) => <>{children}</>,
+  Droppable: ({ children }: { children: (provided: object, snapshot: object) => ReactNode }) =>
+    <>{children({ innerRef: vi.fn(), droppableProps: {}, placeholder: null }, { isDraggingOver: false })}</>,
+  Draggable: ({ children }: { children: (provided: object, snapshot: object) => ReactNode }) =>
+    <>{children({ innerRef: vi.fn(), draggableProps: {}, dragHandleProps: {} }, { isDragging: false })}</>,
+}));
 
 // Mock hooks
 vi.mock('@/hooks/useCRM', () => ({
@@ -83,9 +107,10 @@ describe('CRMPipeline', () => {
 
   it('renders view toggle buttons', () => {
     renderComponent();
-    expect(screen.getByText('Kanban')).toBeInTheDocument();
-    expect(screen.getByText('Lista')).toBeInTheDocument();
-    expect(screen.getByText('Tabla')).toBeInTheDocument();
+    // View toggle buttons use icon-only buttons with title attributes, not visible text
+    expect(screen.getByTitle('Vista Kanban')).toBeInTheDocument();
+    expect(screen.getByTitle('Vista Lista')).toBeInTheDocument();
+    expect(screen.getByTitle('Vista Tabla')).toBeInTheDocument();
   });
 
   it('renders leads in default view', () => {
@@ -97,20 +122,25 @@ describe('CRMPipeline', () => {
   it('switches to list view', async () => {
     const user = userEvent.setup();
     renderComponent();
-    await user.click(screen.getByText('Lista'));
+    await user.click(screen.getByTitle('Vista Lista'));
     expect(screen.getByText('Empresa Alpha')).toBeInTheDocument();
   });
 
   it('displays lead value', () => {
     renderComponent();
-    expect(screen.getByText('10.000 €')).toBeInTheDocument();
-    expect(screen.getByText('25.000 €')).toBeInTheDocument();
+    // Values appear in both the column header total and the individual lead card
+    // Use getAllByText since the value may appear multiple times (column total + card)
+    const value10k = screen.getAllByText(`€${(10000).toLocaleString()}`);
+    expect(value10k.length).toBeGreaterThanOrEqual(1);
+    const value25k = screen.getAllByText(`€${(25000).toLocaleString()}`);
+    expect(value25k.length).toBeGreaterThanOrEqual(1);
   });
 
   it('renders status columns in kanban view', () => {
     renderComponent();
-    expect(screen.getByText('Cold')).toBeInTheDocument();
-    expect(screen.getByText('Warm')).toBeInTheDocument();
+    // PIPELINE_STAGES labels are in Spanish: 'Frío', 'Tibio', 'Hot'
+    expect(screen.getByText('Frío')).toBeInTheDocument();
+    expect(screen.getByText('Tibio')).toBeInTheDocument();
     expect(screen.getByText('Hot')).toBeInTheDocument();
   });
 });

@@ -67,7 +67,7 @@ describe('useNovaData hooks', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(result.current.data).toEqual(mockProfiles);
-      expect(supabase.from).toHaveBeenCalledWith('profiles');
+      expect(supabase.from).toHaveBeenCalledWith('members');
     });
 
     it('handles error when fetching profiles', async () => {

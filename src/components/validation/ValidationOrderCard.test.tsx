@@ -3,16 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ValidationOrderCard } from './ValidationOrderCard';
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-        order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-    })),
-    rpc: vi.fn(() => Promise.resolve({ data: [], error: null })),
-  },
+// Mock the validation system hooks to return non-loading state
+vi.mock('@/hooks/useValidationSystem', () => ({
+  useValidationOrder: vi.fn(() => ({ data: [], isLoading: false })),
+  useMyValidators: vi.fn(() => ({ data: [], isLoading: false })),
+  useValidatorStats: vi.fn(() => ({ data: null, isLoading: false })),
 }));
 
 vi.mock('@/hooks/useAuth', () => ({
@@ -35,16 +30,19 @@ describe('ValidationOrderCard', () => {
 
   it('renders orden de validacion title', () => {
     renderComponent();
-    expect(screen.getByText('Orden de Validación')).toBeInTheDocument();
+    // Component renders "Sistema de Validación" as the card title
+    expect(screen.getByText('Sistema de Validación')).toBeInTheDocument();
   });
 
   it('renders yo valido a section', () => {
     renderComponent();
-    expect(screen.getByText(/Yo valido a/)).toBeInTheDocument();
+    // Component renders "Validas a" for the section where the user validates others
+    expect(screen.getByText(/Validas a/)).toBeInTheDocument();
   });
 
   it('renders me validan section', () => {
     renderComponent();
-    expect(screen.getByText(/Me validan/)).toBeInTheDocument();
+    // Component renders "Te validan" for the section showing who validates the user
+    expect(screen.getByText(/Te validan/)).toBeInTheDocument();
   });
 });

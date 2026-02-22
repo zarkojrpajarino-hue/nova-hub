@@ -3,15 +3,11 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { BlockedBanner } from './BlockedBanner';
 
-vi.mock('@/integrations/supabase/client', () => ({
-  supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-    })),
-    rpc: vi.fn(() => Promise.resolve({ data: false, error: null })),
-  },
+// Mock the validation system hooks directly so the component returns null (not blocked)
+vi.mock('@/hooks/useValidationSystem', () => ({
+  useIsBlocked: vi.fn(() => ({ data: false, isLoading: false })),
+  useMyPendingValidations: vi.fn(() => ({ data: [], isLoading: false })),
+  useCanUpload: vi.fn(() => ({ canUpload: true, isBlocked: false })),
 }));
 
 vi.mock('date-fns', () => ({

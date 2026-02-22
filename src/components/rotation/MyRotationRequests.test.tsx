@@ -21,6 +21,11 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ profile: { id: 'user1', nombre: 'Test User' } }),
 }));
 
+vi.mock('@/hooks/useRoleRotation', () => ({
+  useRespondToRotation: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+  useCancelRotationRequest: vi.fn(() => ({ mutate: vi.fn(), isPending: false })),
+}));
+
 vi.mock('date-fns', () => ({
   formatDistanceToNow: () => 'hace 2 días',
 }));
@@ -43,13 +48,13 @@ describe('MyRotationRequests', () => {
     </QueryClientProvider>
   );
 
-  it('renders mis solicitudes title', () => {
-    renderComponent([]);
-    expect(screen.getByText('Mis Solicitudes')).toBeInTheDocument();
-  });
-
   it('shows empty state when no requests', () => {
     renderComponent([]);
-    expect(screen.getByText(/Sin solicitudes/)).toBeInTheDocument();
+    expect(screen.getByText('No tienes solicitudes de rotación')).toBeInTheDocument();
+  });
+
+  it('shows empty state description', () => {
+    renderComponent([]);
+    expect(screen.getByText(/Crea una nueva solicitud/)).toBeInTheDocument();
   });
 });

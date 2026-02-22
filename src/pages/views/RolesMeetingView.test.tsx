@@ -13,6 +13,12 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
+vi.mock('@/hooks/useNovaData', () => ({
+  useMemberStats: () => ({ data: [], isLoading: false }),
+  useProjects: () => ({ data: [] }),
+  useProjectMembers: () => ({ data: [] }),
+}));
+
 vi.mock('@/components/nova/NovaHeader', () => ({
   NovaHeader: ({ title }: { title: string }) => <div data-testid="nova-header">{title}</div>,
 }));
@@ -25,6 +31,23 @@ vi.mock('@/components/ui/section-help', () => ({
   SectionHelp: () => <div data-testid="section-help">Help</div>,
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
 }));
+
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/CaminoMasterPreviewModal', () => ({
+  CaminoMasterPreviewModal: () => <div data-testid="preview-modal" />,
+}));
+
+vi.mock('@/data/mockData', () => {
+  const { Briefcase } = require('lucide-react');
+  return {
+    ROLE_CONFIG: {
+      sales: { icon: Briefcase, label: 'Sales', color: '#EF4444', desc: 'Prospección, cierre, relación cliente' },
+    },
+  };
+});
 
 describe('RolesMeetingView', () => {
   let queryClient: QueryClient;
@@ -40,18 +63,18 @@ describe('RolesMeetingView', () => {
     </QueryClientProvider>
   );
 
-  it('renders juntas de rol title', () => {
+  it('renders reuniones de rol title', () => {
     renderComponent();
-    expect(screen.getByText('Juntas de Rol')).toBeInTheDocument();
+    expect(screen.getByText('Reuniones de Rol')).toBeInTheDocument();
   });
 
-  it('renders selecciona un rol title', () => {
+  it('renders proxima reunion banner', () => {
     renderComponent();
-    expect(screen.getByText('Selecciona un Rol')).toBeInTheDocument();
+    expect(screen.getByText(/Próxima Reunión de Rol/)).toBeInTheDocument();
   });
 
   it('renders sales role option', () => {
     renderComponent();
-    expect(screen.getByText('Comercial')).toBeInTheDocument();
+    expect(screen.getByText('Sales')).toBeInTheDocument();
   });
 });

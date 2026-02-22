@@ -99,7 +99,8 @@ describe('Card Components', () => {
       const { container } = render(<CardDescription>Description</CardDescription>);
       const description = container.firstChild as HTMLElement;
       expect(description).toHaveClass('text-sm');
-      expect(description).toHaveClass('text-muted-foreground');
+      // The actual component uses text-gray-700 instead of text-muted-foreground
+      expect(description).toHaveClass('text-gray-700');
     });
 
     it('applies custom className', () => {

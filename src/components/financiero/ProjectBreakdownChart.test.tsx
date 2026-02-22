@@ -42,7 +42,8 @@ describe('ProjectBreakdownChart', () => {
 
   it('renders PieChart icon', () => {
     const { container } = render(<ProjectBreakdownChart data={mockData} />);
-    const icon = container.querySelector('.lucide-pie-chart');
+    // PieChart is aliased to ChartPie in lucide-react v0.462, so the class is lucide-chart-pie
+    const icon = container.querySelector('.lucide-chart-pie');
     expect(icon).toBeInTheDocument();
   });
 

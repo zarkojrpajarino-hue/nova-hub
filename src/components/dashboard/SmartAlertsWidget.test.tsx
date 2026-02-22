@@ -64,7 +64,8 @@ describe('SmartAlertsWidget', () => {
 
   it('renders AlertTriangle icon', () => {
     const { container } = renderComponent();
-    const icon = container.querySelector('.lucide-alert-triangle');
+    // AlertTriangle is aliased to TriangleAlert in lucide-react v0.462, so the class is lucide-triangle-alert
+    const icon = container.querySelector('.lucide-triangle-alert');
     expect(icon).toBeInTheDocument();
   });
 

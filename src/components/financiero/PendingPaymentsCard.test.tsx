@@ -48,7 +48,8 @@ describe('PendingPaymentsCard', () => {
 
   it('displays total pending amount', () => {
     render(<PendingPaymentsCard payments={mockPayments} />);
-    expect(screen.getByText('€3.000')).toBeInTheDocument();
+    // toLocaleString('es-ES') may render 3000 or 3.000 depending on ICU data availability
+    expect(screen.getByText(/€3[,.]?000/)).toBeInTheDocument();
   });
 
   it('shows empty state when no payments', () => {

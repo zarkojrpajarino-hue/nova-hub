@@ -50,7 +50,8 @@ describe('OnboardingWizard', () => {
 
   it('renders onboarding mode', () => {
     renderComponent();
-    expect(screen.getByText('Onboarding - Modo Validación')).toBeInTheDocument();
+    // Project has no onboarding_data, so usingStateBased=true -> renders 'Onboarding Adaptativo'
+    expect(screen.getByText('Onboarding Adaptativo')).toBeInTheDocument();
   });
 
   it('renders siguiente button', () => {

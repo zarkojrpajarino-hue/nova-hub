@@ -34,7 +34,7 @@ const mockData = [
 describe('RevenueEvolutionChart', () => {
   it('renders chart title', () => {
     render(<RevenueEvolutionChart data={mockData} />);
-    expect(screen.getByText('Evolución de Ingresos')).toBeInTheDocument();
+    expect(screen.getByText('Evolución Mensual')).toBeInTheDocument();
   });
 
   it('renders TrendingUp icon', () => {
@@ -51,7 +51,7 @@ describe('RevenueEvolutionChart', () => {
 
   it('renders with empty data', () => {
     render(<RevenueEvolutionChart data={[]} />);
-    expect(screen.getByText('Evolución de Ingresos')).toBeInTheDocument();
+    expect(screen.getByText('Evolución Mensual')).toBeInTheDocument();
   });
 
   it('aggregates monthly data correctly', () => {

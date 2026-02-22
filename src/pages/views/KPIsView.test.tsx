@@ -16,6 +16,19 @@ vi.mock('@/components/validation/BlockedBanner', () => ({
 vi.mock('@/components/rankings/ValidatorRankingCard', () => ({
   ValidatorRankingCard: () => <div data-testid="validator-ranking-card">Validator Ranking</div>,
 }));
+vi.mock('@/components/nova/RankingCard', () => ({
+  RankingCard: () => <div data-testid="ranking-card">Ranking</div>,
+}));
+vi.mock('@/components/preview/KPIsPreviewModal', () => ({
+  KPIsPreviewModal: () => null,
+}));
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+vi.mock('@/components/ui/section-help', () => ({
+  HelpWidget: () => <div data-testid="help-widget">Help</div>,
+  SectionHelp: () => <div data-testid="section-help">Help</div>,
+}));
 
 // Mock data hooks
 vi.mock('@/hooks/useNovaData', () => ({
@@ -55,17 +68,17 @@ describe('KPIsView', () => {
 
   it('renders subtitle', () => {
     renderComponent();
-    expect(screen.getByText('Learning Paths, Book Points y Community Points')).toBeInTheDocument();
+    expect(screen.getByText(/Trackea aprendizaje/)).toBeInTheDocument();
   });
 
   it('renders Learning Paths summary', () => {
     renderComponent();
-    expect(screen.getByText('Learning Paths')).toBeInTheDocument();
+    expect(screen.getAllByText('Learning Paths').length).toBeGreaterThan(0);
   });
 
   it('renders Book Points summary', () => {
     renderComponent();
-    expect(screen.getByText('Book Points')).toBeInTheDocument();
+    expect(screen.getAllByText('Book Points').length).toBeGreaterThan(0);
   });
 
   it('renders Community Points summary', () => {

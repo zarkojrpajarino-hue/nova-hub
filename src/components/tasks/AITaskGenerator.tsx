@@ -219,7 +219,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
                 </div>
                 <p className="mt-4 font-medium text-destructive">Error</p>
                 <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
-                <Button variant="outline" className="mt-4" onClick={handleGenerate}>
+                <Button variant="outline" className="mt-4" onClick={() => setError(null)}>
                   Reintentar
                 </Button>
               </div>

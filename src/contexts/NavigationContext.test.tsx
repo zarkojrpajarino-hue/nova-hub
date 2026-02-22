@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+
+vi.unmock('@/contexts/NavigationContext');
+
 import { NavigationProvider, useNavigation } from './NavigationContext';
 
 function TestComponent() {

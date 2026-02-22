@@ -18,10 +18,14 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 vi.mock('@/hooks/useAuth', () => ({
-  useAuth: () => ({ 
+  useAuth: () => ({
     profile: { id: 'user1', nombre: 'Test User', email: 'test@test.com' },
     signOut: vi.fn(),
   }),
+}));
+
+vi.mock('@/hooks/useSettings', () => ({
+  useUserRoles: () => ({ data: [] }),
 }));
 
 vi.mock('@/components/nova/NovaHeader', () => ({
@@ -32,9 +36,29 @@ vi.mock('@/components/settings/ProfileSettings', () => ({
   ProfileSettings: () => <div data-testid="profile-settings">Profile</div>,
 }));
 
+vi.mock('@/components/settings/NotificationSettings', () => ({
+  NotificationSettings: () => <div data-testid="notification-settings">Notifications</div>,
+}));
+
+vi.mock('@/components/settings/AdminSettings', () => ({
+  AdminSettings: () => <div data-testid="admin-settings">Admin</div>,
+}));
+
+vi.mock('@/components/evidence', () => ({
+  DocumentManager: () => <div data-testid="document-manager">Documents</div>,
+}));
+
 vi.mock('@/components/ui/section-help', () => ({
   SectionHelp: () => <div data-testid="section-help">Help</div>,
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
+}));
+
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/SettingsPreviewModal', () => ({
+  SettingsPreviewModal: () => <div data-testid="preview-modal" />,
 }));
 
 describe('SettingsView', () => {
@@ -70,6 +94,6 @@ describe('SettingsView', () => {
 
   it('renders cerrar sesion button', () => {
     renderComponent();
-    expect(screen.getByText('Cerrar Sesión')).toBeInTheDocument();
+    expect(screen.getByText('Cerrar sesión')).toBeInTheDocument();
   });
 });

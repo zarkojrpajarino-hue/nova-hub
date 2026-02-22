@@ -79,7 +79,8 @@ describe('EvidenceViewer', () => {
 
   it('renders AlertTriangle icon for invalid URL', () => {
     const { container } = render(<EvidenceViewer url="https://example.com/file" />);
-    const icon = container.querySelector('.lucide-alert-triangle');
+    // AlertTriangle is aliased to TriangleAlert in lucide-react v0.462, so the class is lucide-triangle-alert
+    const icon = container.querySelector('.lucide-triangle-alert');
     expect(icon).toBeInTheDocument();
   });
 });

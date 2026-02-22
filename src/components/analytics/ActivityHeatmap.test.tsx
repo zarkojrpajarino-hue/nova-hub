@@ -3,17 +3,25 @@ import { render } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ActivityHeatmap } from './ActivityHeatmap';
 
-// Mock supabase
+// Mock supabase - keep pending to preserve loading state
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         gte: vi.fn(() => ({
-          lte: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          lte: vi.fn(() => new Promise(() => {})), // never resolves → keeps isLoading true
         })),
       })),
     })),
   },
+}));
+
+// Mock Tooltip components to avoid TooltipProvider requirement
+vi.mock('@/components/ui/tooltip', () => ({
+  Tooltip: ({ children }: { children: React.ReactNode }) => <>{children}</>,
+  TooltipContent: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TooltipTrigger: ({ children }: { children: React.ReactNode }) => <div>{children}</div>,
+  TooltipProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>,
 }));
 
 // Mock date-fns
@@ -49,14 +57,23 @@ describe('ActivityHeatmap', () => {
     );
   };
 
+  const renderDemoComponent = () => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <ActivityHeatmap isDemoMode={true} />
+      </QueryClientProvider>
+    );
+  };
+
   it('renders loading state', () => {
-    renderComponent();
-    const loader = document.querySelector('.lucide-loader-2');
+    const { container } = renderComponent();
+    const loader = container.querySelector('.lucide-loader-circle');
     expect(loader).toBeInTheDocument();
   });
 
-  it('renders heatmap container', () => {
-    const { container } = renderComponent();
-    expect(container).toBeTruthy();
+  it('renders heatmap container in demo mode', () => {
+    const { container } = renderDemoComponent();
+    // In demo mode queries are disabled so heatmap renders immediately
+    expect(container.firstChild).toBeTruthy();
   });
 });

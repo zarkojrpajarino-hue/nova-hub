@@ -10,30 +10,33 @@ import {
 } from './useMasters';
 import { ReactNode } from 'react';
 
+// Thenable chain mock: every chainable method returns the same chain object,
+// and the chain itself is awaitable (thenable) so `await chain` resolves to
+// { data: [], error: null }.
+function createChain(resolveData: unknown[] | null = []) {
+  const chain: Record<string, unknown> = {};
+  const methods = ['select', 'eq', 'neq', 'order', 'limit', 'or', 'in', 'is', 'gte', 'lte', 'lt', 'gt', 'not', 'range', 'ilike', 'like', 'filter', 'match'];
+  methods.forEach(m => {
+    chain[m] = vi.fn(() => chain);
+  });
+  chain['single'] = vi.fn(() => Promise.resolve({ data: null, error: null }));
+  chain['maybeSingle'] = vi.fn(() => Promise.resolve({ data: null, error: null }));
+  // Make thenable so `await chain` resolves
+  chain['then'] = (resolve: (val: unknown) => unknown) => Promise.resolve({ data: resolveData, error: null }).then(resolve);
+  chain['catch'] = (reject: (val: unknown) => unknown) => Promise.resolve({ data: resolveData, error: null }).catch(reject);
+  return chain;
+}
+
 // Mock supabase
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-        })),
-        order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn(() => Promise.resolve({ data: null, error: null })),
-        })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: vi.fn(() => Promise.resolve({ data: null, error: null })),
-          })),
-        })),
-      })),
-    })),
+    from: vi.fn(() => createChain()),
     rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn(),
+    })),
+    removeChannel: vi.fn(),
   },
 }));
 
@@ -85,7 +88,8 @@ describe('useMasters hooks', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.data).toEqual([]);
+      // Query is disabled when no userId (enabled: !!userId), so data is undefined
+      expect(result.current.data).toEqual(undefined);
     });
 
     it('fetches user applications when userId provided', async () => {
@@ -129,7 +133,8 @@ describe('useMasters hooks', () => {
         expect(result.current.isLoading).toBe(false);
       });
 
-      expect(result.current.data).toEqual([]);
+      // Query is disabled when no applicationId (enabled: !!applicationId), so data is undefined
+      expect(result.current.data).toEqual(undefined);
     });
 
     it('fetches votes when applicationId provided', async () => {

@@ -4,10 +4,12 @@ import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ValidationCard } from './ValidationCard';
 
 // Mock hooks
+const mockUsePendingValidations = vi.fn(() => ({ data: [], isLoading: true }));
 vi.mock('@/hooks/usePendingValidations', () => ({
-  usePendingValidations: vi.fn(() => []),
+  usePendingValidations: (...args: unknown[]) => mockUsePendingValidations(...args),
   useValidate: vi.fn(() => ({
     mutate: vi.fn(),
+    isPending: false,
   })),
 }));
 
@@ -37,6 +39,8 @@ describe('ValidationCard', () => {
       },
     });
     vi.clearAllMocks();
+    // Re-set the default return value after clearAllMocks
+    mockUsePendingValidations.mockReturnValue({ data: [], isLoading: true });
   });
 
   const renderComponent = () => {
@@ -54,13 +58,14 @@ describe('ValidationCard', () => {
 
   it('renders CheckCircle2 icon', () => {
     const { container } = renderComponent();
-    const checkIcon = container.querySelector('.lucide-check-circle-2');
+    const checkIcon = container.querySelector('.lucide-circle-check');
     expect(checkIcon).toBeInTheDocument();
   });
 
   it('shows loading state', () => {
     const { container } = renderComponent();
-    const loader = container.querySelector('.lucide-loader-2');
+    // Loader2 is aliased to LoaderCircle in lucide-react, so class is .lucide-loader-circle
+    const loader = container.querySelector('.lucide-loader-circle');
     expect(loader).toBeInTheDocument();
   });
 

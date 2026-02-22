@@ -125,6 +125,12 @@ export const RECENT_ACTIVITY: Activity[] = [
   { id: 'a5', user: 'Casti', action: 'completó onboarding de', target: 'Academia Financiera', time: 'hace 6h' },
 ];
 
+export const OBV_TYPES = [
+  { value: 'exploracion', label: 'Exploración' },
+  { value: 'validacion', label: 'Validación' },
+  { value: 'venta', label: 'Venta' },
+];
+
 export const SAMPLE_LEADS: Lead[] = [
   { id: 'l1', nombre: 'Colegio San José', empresa: 'Educación', status: 'hot', valor: 2500, proyecto: 'Experea', responsable: 'Fernando S' },
   { id: 'l2', nombre: 'Ayto. Málaga', empresa: 'Gobierno', status: 'propuesta', valor: 5000, proyecto: 'Experea', responsable: 'Ángel' },

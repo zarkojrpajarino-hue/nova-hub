@@ -33,9 +33,8 @@ describe('RoleHistoryList', () => {
         change_type: 'swap',
         created_at: '2026-01-20',
         notes: 'Test swap',
-        user_nombre: 'Test User',
-        user_avatar: null,
-        project_nombre: 'Test Project',
+        user: { id: 'user1', nombre: 'Test User', avatar: null },
+        project: { id: 'proj1', nombre: 'Test Project', color: null },
       },
     ];
     render(<RoleHistoryList history={history} />);

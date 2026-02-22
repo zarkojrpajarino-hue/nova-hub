@@ -20,16 +20,16 @@ describe('CoreaEspanaStep', () => {
 
   it('renders corea espana step title', () => {
     render(<CoreaEspanaStep data={mockData} onChange={onChange} errors={errors} />);
-    expect(screen.getByText(/Contexto Corea-España/)).toBeInTheDocument();
-  });
-
-  it('renders viaje planeado section', () => {
-    render(<CoreaEspanaStep data={mockData} onChange={onChange} errors={errors} />);
-    expect(screen.getByText(/¿Tienes planeado viajar a Corea?/)).toBeInTheDocument();
+    expect(screen.getByText(/Plan Corea/)).toBeInTheDocument();
   });
 
   it('renders validar desde corea section', () => {
     render(<CoreaEspanaStep data={mockData} onChange={onChange} errors={errors} />);
-    expect(screen.getByText(/¿Qué necesitas validar desde Corea?/)).toBeInTheDocument();
+    expect(screen.getByText(/¿Qué puedes validar DESDE Corea?/)).toBeInTheDocument();
+  });
+
+  it('renders plan espana section', () => {
+    render(<CoreaEspanaStep data={mockData} onChange={onChange} errors={errors} />);
+    expect(screen.getByText(/Plan para España/)).toBeInTheDocument();
   });
 });

@@ -50,12 +50,14 @@ describe('TaskForm', () => {
 
   it('renders titulo input', () => {
     renderComponent();
-    expect(screen.getByLabelText(/Título/)).toBeInTheDocument();
+    // Label has no htmlFor, use placeholder to find the input
+    expect(screen.getByPlaceholderText(/Preparar presentación del pitch/)).toBeInTheDocument();
   });
 
   it('renders descripcion textarea', () => {
     renderComponent();
-    expect(screen.getByLabelText('Descripción')).toBeInTheDocument();
+    // Label has no htmlFor, use placeholder to find the textarea
+    expect(screen.getByPlaceholderText(/Detalles de la tarea/)).toBeInTheDocument();
   });
 
   it('renders crear tarea button', () => {

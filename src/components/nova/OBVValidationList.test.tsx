@@ -10,15 +10,15 @@ vi.mock('@/hooks/useAuth', () => ({
   })),
 }));
 
-// Mock supabase
+// Mock supabase - never resolve to keep loading state
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         eq: vi.fn(() => ({
-          order: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          order: vi.fn(() => new Promise(() => {})), // never resolves → keeps isLoading true
         })),
-        in: vi.fn(() => Promise.resolve({ data: [], error: null })),
+        in: vi.fn(() => new Promise(() => {})),
       })),
     })),
   },
@@ -46,8 +46,9 @@ describe('OBVValidationList', () => {
 
   it('renders loading state', () => {
     const { container } = renderComponent();
-    const loader = container.querySelector('.lucide-loader-2');
-    expect(loader).toBeTruthy();
+    // Loading state renders SkeletonCard components with animate-pulse
+    const skeleton = container.querySelector('.animate-pulse');
+    expect(skeleton).toBeTruthy();
   });
 
   it('renders component container', () => {

@@ -19,6 +19,12 @@ vi.mock('@/contexts/DemoModeContext', () => ({
   useDemoMode: () => ({ isDemoMode: false }),
 }));
 
+vi.mock('@/hooks/useNotifications', () => ({
+  useNotifications: () => ({ data: [], isLoading: false }),
+  useMarkAsRead: () => ({ mutate: vi.fn(), isPending: false }),
+  useMarkAllAsRead: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
 vi.mock('@/components/nova/NovaHeader', () => ({
   NovaHeader: ({ title }: { title: string }) => <div data-testid="nova-header">{title}</div>,
 }));
@@ -26,6 +32,14 @@ vi.mock('@/components/nova/NovaHeader', () => ({
 vi.mock('@/components/ui/section-help', () => ({
   SectionHelp: () => <div data-testid="section-help">Help</div>,
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
+}));
+
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/NotificationsPreviewModal', () => ({
+  NotificationsPreviewModal: () => <div data-testid="preview-modal" />,
 }));
 
 vi.mock('date-fns', () => ({

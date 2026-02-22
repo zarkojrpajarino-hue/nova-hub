@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { KPIValidationList } from './KPIValidationList';
 
@@ -8,20 +8,26 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: vi.fn(() => ({ profile: { id: 'user1', nombre: 'Test User' } })),
 }));
 
-// Mock supabase
+// Mock supabase - chain: select().eq('type').eq('status').neq('owner_id').order()
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          eq: vi.fn(() => ({
-            neq: vi.fn(() => ({
-              order: vi.fn(() => Promise.resolve({ data: [], error: null })),
-            })),
-          })),
-        })),
+        eq: vi.fn(function chainableEq() {
+          return {
+            eq: vi.fn(function chainableEq2() {
+              return {
+                neq: vi.fn(() => ({
+                  order: vi.fn(() => Promise.resolve({ data: [], error: null })),
+                })),
+              };
+            }),
+            in: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          };
+        }),
         in: vi.fn(() => Promise.resolve({ data: [], error: null })),
       })),
+      insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
     })),
   },
 }));
@@ -59,24 +65,33 @@ describe('KPIValidationList', () => {
     );
   };
 
-  it('shows empty state for Learning Paths', () => {
+  it('shows empty state for Learning Paths', async () => {
     renderComponent('lp');
-    expect(screen.getByText(/No hay Learning Paths pendientes de validar/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/No hay Learning Paths pendientes de validar/)).toBeInTheDocument();
+    });
   });
 
-  it('shows empty state for Book Points', () => {
+  it('shows empty state for Book Points', async () => {
     renderComponent('bp');
-    expect(screen.getByText(/No hay Book Points pendientes de validar/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/No hay Book Points pendientes de validar/)).toBeInTheDocument();
+    });
   });
 
-  it('shows empty state for Community Points', () => {
+  it('shows empty state for Community Points', async () => {
     renderComponent('cp');
-    expect(screen.getByText(/No hay Community Points pendientes de validar/)).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.getByText(/No hay Community Points pendientes de validar/)).toBeInTheDocument();
+    });
   });
 
-  it('renders CheckCircle2 icon in empty state', () => {
+  it('renders CheckCircle2 icon in empty state', async () => {
     const { container } = renderComponent();
-    const icon = container.querySelector('.lucide-check-circle-2');
-    expect(icon).toBeInTheDocument();
+    // lucide-react v0.462+ uses lucide-circle-check (was lucide-check-circle-2)
+    await waitFor(() => {
+      const icon = container.querySelector('.lucide-circle-check') || container.querySelector('.lucide-check-circle-2');
+      expect(icon).toBeInTheDocument();
+    });
   });
 });

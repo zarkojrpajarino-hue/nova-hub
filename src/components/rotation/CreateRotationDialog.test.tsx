@@ -3,19 +3,44 @@ import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { CreateRotationDialog } from './CreateRotationDialog';
 
+// Supabase chainable mock
+function createChain(resolveData = null) {
+  const chain: Record<string, unknown> = {};
+  ['select','eq','neq','order','limit','or','in','is','gte','lte','insert','update','delete','upsert'].forEach(m => {
+    chain[m] = vi.fn(() => chain);
+  });
+  chain.single = vi.fn(() => Promise.resolve({ data: resolveData, error: null }));
+  chain.maybeSingle = vi.fn(() => Promise.resolve({ data: resolveData, error: null }));
+  chain.then = (resolve: (v: unknown) => unknown) =>
+    Promise.resolve({ data: resolveData ? [resolveData] : [], error: null }).then(resolve);
+  chain.catch = (reject: (v: unknown) => unknown) =>
+    Promise.resolve({ data: [], error: null }).catch(reject);
+  return chain;
+}
+
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
-      })),
-      insert: vi.fn(() => Promise.resolve({ data: null, error: null })),
-    })),
+    from: vi.fn(() => createChain()),
+    auth: {
+      getUser: vi.fn(() => Promise.resolve({ data: { user: { id: 'user1' } }, error: null })),
+      onAuthStateChange: vi.fn(() => ({ data: { subscription: { unsubscribe: vi.fn() } } })),
+    },
   },
 }));
 
 vi.mock('@/hooks/useAuth', () => ({
-  useAuth: () => ({ profile: { id: 'user1', nombre: 'Test User' } }),
+  useAuth: vi.fn(() => ({ profile: { id: 'user1', nombre: 'Test User' } })),
+}));
+
+vi.mock('@/hooks/useNovaData', () => ({
+  useProjects: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
+  useProfiles: vi.fn(() => ({ data: [], isLoading: false })),
+}));
+
+vi.mock('@/hooks/useRoleRotation', () => ({
+  useCreateRotationRequest: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn(), isPending: false })),
+  useCalculateCompatibility: vi.fn(() => ({ mutate: vi.fn(), mutateAsync: vi.fn(), isPending: false })),
 }));
 
 describe('CreateRotationDialog', () => {
@@ -34,16 +59,20 @@ describe('CreateRotationDialog', () => {
 
   it('renders solicitar rotacion title when open', () => {
     renderComponent(true);
-    expect(screen.getByText('Solicitar Rotación de Rol')).toBeInTheDocument();
+    // The dialog title is "Nueva Solicitud de Rotación"
+    expect(screen.getByText('Nueva Solicitud de Rotación')).toBeInTheDocument();
   });
 
   it('does not render when closed', () => {
     renderComponent(false);
-    expect(screen.queryByText('Solicitar Rotación de Rol')).not.toBeInTheDocument();
+    expect(screen.queryByText('Nueva Solicitud de Rotación')).not.toBeInTheDocument();
   });
 
   it('renders selecciona con quien label', () => {
     renderComponent(true);
-    expect(screen.getByText(/Selecciona con quién/)).toBeInTheDocument();
+    // The label shown before project is selected is "Tu proyecto y rol actual"
+    // After project selection the "Intercambiar con" label appears.
+    // We check the always-visible label.
+    expect(screen.getByText('Tu proyecto y rol actual')).toBeInTheDocument();
   });
 });

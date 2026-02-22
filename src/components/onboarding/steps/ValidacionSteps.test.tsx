@@ -50,6 +50,6 @@ describe('ValidacionSteps', () => {
 
   it('StepRecursos renders recursos title', () => {
     render(<StepRecursos data={mockData} onChange={onChange} errors={errors} />);
-    expect(screen.getByText('Recursos Disponibles')).toBeInTheDocument();
+    expect(screen.getByText('Recursos y Limitaciones')).toBeInTheDocument();
   });
 });

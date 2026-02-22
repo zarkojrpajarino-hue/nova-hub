@@ -18,8 +18,12 @@ vi.mock('@/contexts/SearchContext', () => ({
   }),
 }));
 
-vi.mock('@/components/notifications/NotificationDropdown', () => ({
-  NotificationDropdown: () => <div data-testid="notification-dropdown">Notifications</div>,
+vi.mock('@/components/notifications/NotificationCenterV2', () => ({
+  NotificationCenterV2: () => <div data-testid="notification-dropdown">Notifications</div>,
+}));
+
+vi.mock('@/components/navigation/BackButton', () => ({
+  BackButton: ({ onClick }: { onClick: () => void }) => <button onClick={onClick}>Back</button>,
 }));
 
 describe('NovaHeader', () => {

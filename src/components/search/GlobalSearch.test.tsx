@@ -15,6 +15,11 @@ vi.mock('@/contexts/NavigationContext', () => ({
   useNavigation: () => ({ navigate: vi.fn() }),
 }));
 
+vi.mock('@/hooks/useNovaData', () => ({
+  useProjects: vi.fn(() => ({ data: [] })),
+  useProfiles: vi.fn(() => ({ data: [] })),
+}));
+
 describe('GlobalSearch', () => {
   let queryClient: QueryClient;
 
@@ -46,6 +51,6 @@ describe('GlobalSearch', () => {
 
   it('renders vistas section', () => {
     renderComponent(true);
-    expect(screen.getByText('Vistas')).toBeInTheDocument();
+    expect(screen.getAllByText('Vista').length).toBeGreaterThan(0);
   });
 });

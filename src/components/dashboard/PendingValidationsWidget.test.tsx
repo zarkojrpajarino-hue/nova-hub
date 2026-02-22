@@ -67,7 +67,8 @@ describe('PendingValidationsWidget', () => {
 
   it('renders CheckCircle2 icon', () => {
     const { container } = renderComponent();
-    const icon = container.querySelector('.lucide-check-circle-2');
+    // CheckCircle2 is aliased to CircleCheck in lucide-react v0.462, so the class is lucide-circle-check
+    const icon = container.querySelector('.lucide-circle-check');
     expect(icon).toBeInTheDocument();
   });
 

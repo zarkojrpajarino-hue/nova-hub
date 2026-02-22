@@ -33,6 +33,56 @@ vi.mock('@/components/ui/section-help', () => ({
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
 }));
 
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/FinancieroPreviewModal', () => ({
+  FinancieroPreviewModal: () => null,
+}));
+
+vi.mock('@/components/nova/StatCard', () => ({
+  StatCard: () => <div data-testid="stat-card">Stat</div>,
+}));
+
+vi.mock('@/components/financiero/PendingPaymentsCard', () => ({
+  PendingPaymentsCard: () => <div data-testid="pending-payments-card">Pending</div>,
+}));
+
+vi.mock('@/components/financiero/FinancialAlertsCard', () => ({
+  FinancialAlertsCard: () => <div data-testid="financial-alerts-card">Alerts</div>,
+}));
+
+vi.mock('@/components/financiero/AIForecastWidget', () => ({
+  AIForecastWidget: () => <div data-testid="ai-forecast-widget">Forecast</div>,
+}));
+
+vi.mock('@/components/export/ExportButton', () => ({
+  ExportButton: () => <div data-testid="export-button">Export</div>,
+}));
+
+vi.mock('@/hooks/useFinancieroData', () => ({
+  useFinancieroData: vi.fn(() => ({
+    isLoading: false,
+    sortedByFacturacion: [],
+    financialMetrics: [],
+    pendingPayments: [],
+    overduePayments: [],
+    upcomingPayments: [],
+    objectivesMap: { facturacion: 15000, margen: 7500 },
+    metrics: {
+      totalFacturacion: 0,
+      totalMargen: 0,
+      margenPromedio: 0,
+      totalPending: 0,
+      overdueCount: 0,
+      monthlyGrowth: 0,
+      metaAnual: 0,
+      progresoAnual: 0,
+    },
+  })),
+}));
+
 describe('FinancieroView', () => {
   let queryClient: QueryClient;
 

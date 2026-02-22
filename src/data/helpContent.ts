@@ -898,3 +898,5 @@ const helpMap: Record<string, HelpContent> = {
 export function getHelp(section: string): HelpContent | undefined {
   return helpMap[section];
 }
+
+export const HELP_CONTENT = helpMap;

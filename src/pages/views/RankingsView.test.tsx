@@ -18,6 +18,17 @@ vi.mock('@/hooks/useAuth', () => ({
   useAuth: () => ({ profile: { id: 'user1', nombre: 'Test User' } }),
 }));
 
+vi.mock('@/hooks/useDevelopment', () => ({
+  useRoleRankings: () => ({ data: [], isLoading: false }),
+  useRolePerformance: () => ({ data: [] }),
+}));
+
+vi.mock('@/hooks/useNovaData', () => ({
+  useProfiles: () => ({ data: [] }),
+  useProjects: () => ({ data: [], isLoading: false }),
+  useProjectMembers: () => ({ data: [] }),
+}));
+
 vi.mock('@/contexts/DemoModeContext', () => ({
   useDemoMode: () => ({ isDemoMode: false }),
 }));
@@ -29,6 +40,30 @@ vi.mock('@/components/nova/NovaHeader', () => ({
 vi.mock('@/components/ui/section-help', () => ({
   SectionHelp: () => <div data-testid="section-help">Help</div>,
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
+}));
+
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/rankings/RankingLeaderboard', () => ({
+  RankingLeaderboard: () => <div data-testid="ranking-leaderboard">Leaderboard Content</div>,
+}));
+
+vi.mock('@/components/rankings/RankingTrends', () => ({
+  RankingTrends: () => <div data-testid="ranking-trends">Trends</div>,
+}));
+
+vi.mock('@/components/rankings/MyRankingCard', () => ({
+  MyRankingCard: () => <div data-testid="my-ranking-card">My Ranking</div>,
+}));
+
+vi.mock('@/components/preview/RankingsPreviewModal', () => ({
+  RankingsPreviewModal: () => <div data-testid="preview-modal" />,
+}));
+
+vi.mock('@/data/mockData', () => ({
+  ROLE_CONFIG: {},
 }));
 
 describe('RankingsView', () => {
@@ -47,21 +82,21 @@ describe('RankingsView', () => {
 
   it('renders rankings title', () => {
     renderComponent();
-    expect(screen.getByText('Rankings por Rol')).toBeInTheDocument();
+    expect(screen.getByText('Rankings')).toBeInTheDocument();
   });
 
-  it('renders mi ranking section', () => {
+  it('renders leaderboard tab', () => {
     renderComponent();
-    expect(screen.getByText('Mi Ranking')).toBeInTheDocument();
-  });
-
-  it('renders clasificacion general tab', () => {
-    renderComponent();
-    expect(screen.getByText('Clasificación General')).toBeInTheDocument();
+    expect(screen.getByText('Leaderboard')).toBeInTheDocument();
   });
 
   it('renders tendencias tab', () => {
     renderComponent();
     expect(screen.getByText('Tendencias')).toBeInTheDocument();
+  });
+
+  it('renders participantes stat', () => {
+    renderComponent();
+    expect(screen.getByText('Participantes')).toBeInTheDocument();
   });
 });

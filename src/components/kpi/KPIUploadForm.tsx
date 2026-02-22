@@ -164,8 +164,9 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
           )}
 
           <div>
-            <Label>Título *</Label>
+            <Label htmlFor="kpi-titulo">Título *</Label>
             <Input
+              id="kpi-titulo"
               value={formData.titulo}
               onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
               placeholder={TYPE_PLACEHOLDERS[type].titulo}
@@ -174,8 +175,9 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
           </div>
 
           <div>
-            <Label>Descripción</Label>
+            <Label htmlFor="kpi-descripcion">Descripción</Label>
             <Textarea
+              id="kpi-descripcion"
               value={formData.descripcion}
               onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
               placeholder={TYPE_PLACEHOLDERS[type].descripcion}
@@ -186,8 +188,9 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
           {/* Campo de Book Points (solo para BP) */}
           {type === 'bp' && (
             <div>
-              <Label>Número de Book Points *</Label>
+              <Label htmlFor="kpi-bp-points">Número de Book Points *</Label>
               <Input
+                id="kpi-bp-points"
                 type="number"
                 min={1}
                 max={10}

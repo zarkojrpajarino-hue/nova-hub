@@ -1,5 +1,8 @@
-import { describe, it, expect } from 'vitest';
+import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+
+vi.unmock('@/contexts/SearchContext');
+
 import { SearchProvider, useSearch } from './SearchContext';
 
 function TestComponent() {

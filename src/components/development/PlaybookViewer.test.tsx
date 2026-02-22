@@ -14,15 +14,17 @@ vi.mock('@/hooks/useDevelopment', () => ({
       id: 'pb1',
       user_id: 'user1',
       role_name: 'comercial',
-      contenido: {
-        titulo: 'Test Playbook',
-        descripcion: 'Test description',
-        pasos: [{ titulo: 'Paso 1', contenido: 'Step content', orden: 1 }],
-        recursos: ['Resource 1'],
-        tips: ['Tip 1'],
-      },
-      is_active: true,
       version: 1,
+      contenido: {
+        sections: [
+          { title: 'Paso 1', content: 'Step content', tips: ['Tip 1'] },
+        ],
+      },
+      fortalezas: ['Fortaleza 1'],
+      areas_mejora: ['Área 1'],
+      objetivos_sugeridos: [],
+      ai_model: null,
+      is_active: true,
       generated_at: new Date().toISOString(),
       created_at: new Date().toISOString(),
     },
@@ -46,17 +48,17 @@ describe('PlaybookViewer', () => {
     </QueryClientProvider>
   );
 
-  it('renders playbook title', () => {
+  it('renders playbook role name', () => {
     renderComponent();
-    expect(screen.getByText('Test Playbook')).toBeInTheDocument();
+    expect(screen.getByText(/Playbook: comercial/)).toBeInTheDocument();
   });
 
-  it('renders playbook description', () => {
+  it('renders fortalezas section', () => {
     renderComponent();
-    expect(screen.getByText('Test description')).toBeInTheDocument();
+    expect(screen.getByText('Fortalezas')).toBeInTheDocument();
   });
 
-  it('renders playbook steps', () => {
+  it('renders playbook section title', () => {
     renderComponent();
     expect(screen.getByText('Paso 1')).toBeInTheDocument();
   });

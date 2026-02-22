@@ -7,7 +7,10 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
-        eq: vi.fn(() => Promise.resolve({ data: [], error: null })),
+        eq: vi.fn(() => ({
+          single: vi.fn(() => Promise.resolve({ data: null, error: null })),
+        })),
+        order: vi.fn(() => Promise.resolve({ data: [], error: null })),
       })),
     })),
     rpc: vi.fn(() => Promise.resolve({ data: [], error: null })),
@@ -33,6 +36,51 @@ vi.mock('@/components/development/InsightsList', () => ({
 vi.mock('@/components/ui/section-help', () => ({
   SectionHelp: () => <div data-testid="section-help">Help</div>,
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
+}));
+
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/MiDesarrolloPreviewModal', () => ({
+  MiDesarrolloPreviewModal: () => null,
+}));
+
+vi.mock('@/components/development/RolePerformanceCard', () => ({
+  RolePerformanceCard: () => <div data-testid="role-performance-card">Performance</div>,
+}));
+
+vi.mock('@/components/development/PlaybookViewer', () => ({
+  PlaybookViewer: () => <div data-testid="playbook-viewer">Playbook</div>,
+}));
+
+vi.mock('@/components/coach/MentorChat', () => ({
+  MentorChat: () => <div data-testid="mentor-chat">Mentor Chat</div>,
+}));
+
+vi.mock('@/components/learning/LearningPathList', () => ({
+  LearningPathList: () => <div data-testid="learning-path-list">Learning Paths</div>,
+}));
+
+vi.mock('@/components/learning/LearningPathViewer', () => ({
+  LearningPathViewer: () => <div data-testid="learning-path-viewer">Viewer</div>,
+}));
+
+vi.mock('@/components/learning/LearningPathGenerator', () => ({
+  LearningPathGenerator: () => <div data-testid="learning-path-generator">Generator</div>,
+}));
+
+vi.mock('@/components/exploration/BadgesList', () => ({
+  BadgesList: () => <div data-testid="badges-list">Badges</div>,
+}));
+
+vi.mock('@/hooks/useDevelopment', () => ({
+  useRolePerformance: vi.fn(() => ({ data: [], isLoading: false })),
+  useRoleRankings: vi.fn(() => ({ data: [], isLoading: false })),
+}));
+
+vi.mock('@/hooks/useNovaData', () => ({
+  useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
 describe('MiDesarrolloView', () => {

@@ -31,6 +31,42 @@ vi.mock('@/components/ui/section-help', () => ({
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
 }));
 
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/MastersPreviewModal', () => ({
+  MastersPreviewModal: () => null,
+}));
+
+vi.mock('@/components/masters/MasterCard', () => ({
+  MasterCard: () => <div data-testid="master-card">Master Card</div>,
+}));
+
+vi.mock('@/components/masters/ApplicationsList', () => ({
+  ApplicationsList: () => <div data-testid="applications-list">Applications</div>,
+}));
+
+vi.mock('@/components/masters/ChallengesList', () => ({
+  ChallengesList: () => <div data-testid="challenges-list">Challenges</div>,
+}));
+
+vi.mock('@/components/masters/ApplyForMasterDialog', () => ({
+  ApplyForMasterDialog: () => null,
+}));
+
+vi.mock('@/hooks/useMasters', () => ({
+  useTeamMasters: vi.fn(() => ({ data: [], isLoading: false })),
+  useMasterApplications: vi.fn(() => ({ data: [], isLoading: false })),
+  useMasterChallenges: vi.fn(() => ({ data: [], isLoading: false })),
+  useMyMasterApplications: vi.fn(() => ({ data: [], isLoading: false })),
+}));
+
+vi.mock('@/hooks/useNovaData', () => ({
+  useProfiles: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
+}));
+
 describe('MastersView', () => {
   let queryClient: QueryClient;
 

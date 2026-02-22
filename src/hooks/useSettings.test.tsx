@@ -12,28 +12,34 @@ vi.mock('./useAuth', () => ({
   })),
 }));
 
+// Thenable chain mock: every chainable method returns the same chain object.
+// The chain is awaitable (thenable) resolving to { data: resolveData, error: null }.
+// maybeSingle() always resolves with { data: null, error: null } so that hooks
+// that use maybeSingle() receive null and fall back to defaults.
+function createChain(resolveData: unknown[] | null = []) {
+  const chain: Record<string, unknown> = {};
+  const methods = ['select', 'eq', 'neq', 'order', 'limit', 'or', 'in', 'is', 'gte', 'lte', 'lt', 'gt', 'not', 'range', 'ilike', 'like', 'filter', 'match'];
+  methods.forEach(m => {
+    chain[m] = vi.fn(() => chain);
+  });
+  chain['single'] = vi.fn(() => Promise.resolve({ data: null, error: null }));
+  chain['maybeSingle'] = vi.fn(() => Promise.resolve({ data: null, error: null }));
+  // Make thenable so `await chain` resolves
+  chain['then'] = (resolve: (val: unknown) => unknown) => Promise.resolve({ data: resolveData, error: null }).then(resolve);
+  chain['catch'] = (reject: (val: unknown) => unknown) => Promise.resolve({ data: resolveData, error: null }).catch(reject);
+  return chain;
+}
+
 // Mock supabase
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    from: vi.fn(() => ({
-      select: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          maybeSingle: vi.fn(() => Promise.resolve({ data: null, error: null })),
-        })),
-      })),
-      update: vi.fn(() => ({
-        eq: vi.fn(() => ({
-          select: vi.fn(() => ({
-            single: vi.fn(() => Promise.resolve({ data: null, error: null })),
-          })),
-        })),
-      })),
-      insert: vi.fn(() => ({
-        select: vi.fn(() => ({
-          single: vi.fn(() => Promise.resolve({ data: null, error: null })),
-        })),
-      })),
+    from: vi.fn(() => createChain()),
+    rpc: vi.fn(() => Promise.resolve({ data: null, error: null })),
+    channel: vi.fn(() => ({
+      on: vi.fn().mockReturnThis(),
+      subscribe: vi.fn(),
     })),
+    removeChannel: vi.fn(),
     storage: {
       from: vi.fn(() => ({
         remove: vi.fn(() => Promise.resolve({ data: null, error: null })),

@@ -36,9 +36,9 @@ describe('OperacionSteps', () => {
     expect(screen.getByText('Business Model Canvas - Parte 2')).toBeInTheDocument();
   });
 
-  it('StepFinanzas renders metricas actuales', () => {
+  it('StepFinanzas renders situacion financiera', () => {
     render(<StepFinanzas data={mockData} onChange={onChange} errors={errors} />);
-    expect(screen.getByText('Métricas Actuales')).toBeInTheDocument();
+    expect(screen.getByText('Situación Financiera')).toBeInTheDocument();
   });
 
   it('StepObjetivos renders objetivos title', () => {

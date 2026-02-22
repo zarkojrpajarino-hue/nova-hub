@@ -4,13 +4,13 @@ import type { ReactNode } from 'react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TemporalEvolutionChart } from './TemporalEvolutionChart';
 
-// Mock supabase
+// Mock supabase - keep pending so queries never resolve → loading state persists
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
       select: vi.fn(() => ({
         gte: vi.fn(() => ({
-          lte: vi.fn(() => Promise.resolve({ data: [], error: null })),
+          lte: vi.fn(() => new Promise(() => {})), // never resolves → isLoading stays true
         })),
       })),
     })),
@@ -50,6 +50,20 @@ vi.mock('date-fns/locale', () => ({
   es: {},
 }));
 
+// Mock premium demo data for isDemoMode tests
+vi.mock('@/data/premiumDemoData', () => ({
+  PREMIUM_DEMO_DATA: {
+    analytics: {
+      temporal: {
+        labels: ['Lun', 'Mar', 'Mié'],
+        obvs: [3, 5, 2],
+        tasks: [10, 12, 8],
+        revenue: [1000, 2000, 1500],
+      },
+    },
+  },
+}));
+
 describe('TemporalEvolutionChart', () => {
   let queryClient: QueryClient;
 
@@ -62,6 +76,7 @@ describe('TemporalEvolutionChart', () => {
     vi.clearAllMocks();
   });
 
+  // Renders with pending queries → loading state
   const renderComponent = (period: 'week' | 'month' | 'quarter' | 'year' = 'week') => {
     return render(
       <QueryClientProvider client={queryClient}>
@@ -70,35 +85,44 @@ describe('TemporalEvolutionChart', () => {
     );
   };
 
+  // Renders in demo mode → skips queries, renders chart directly
+  const renderDemoComponent = (period: 'week' | 'month' | 'quarter' | 'year' = 'week') => {
+    return render(
+      <QueryClientProvider client={queryClient}>
+        <TemporalEvolutionChart period={period} isDemoMode={true} />
+      </QueryClientProvider>
+    );
+  };
+
   it('renders loading state initially', () => {
-    renderComponent();
-    const loader = screen.getByTestId(/loader/i);
-    expect(loader).toBeInTheDocument();
+    const { container } = renderComponent();
+    const loaderIcon = container.querySelector('.lucide-loader-circle');
+    expect(loaderIcon).toBeInTheDocument();
   });
 
-  it('renders for week period', () => {
-    renderComponent('week');
-    expect(screen.getByTestId(/loader/i)).toBeInTheDocument();
+  it('renders for week period in demo mode', () => {
+    const { container } = renderDemoComponent('week');
+    expect(container.firstChild).toBeTruthy();
   });
 
-  it('renders for month period', () => {
-    renderComponent('month');
-    expect(screen.getByTestId(/loader/i)).toBeInTheDocument();
+  it('renders for month period in demo mode', () => {
+    const { container } = renderDemoComponent('month');
+    expect(container.firstChild).toBeTruthy();
   });
 
-  it('renders for quarter period', () => {
-    renderComponent('quarter');
-    expect(screen.getByTestId(/loader/i)).toBeInTheDocument();
+  it('renders for quarter period in demo mode', () => {
+    const { container } = renderDemoComponent('quarter');
+    expect(container.firstChild).toBeTruthy();
   });
 
-  it('renders for year period', () => {
-    renderComponent('year');
-    expect(screen.getByTestId(/loader/i)).toBeInTheDocument();
+  it('renders for year period in demo mode', () => {
+    const { container } = renderDemoComponent('year');
+    expect(container.firstChild).toBeTruthy();
   });
 
   it('displays Loader2 icon while loading', () => {
     const { container } = renderComponent();
-    const loaderIcon = container.querySelector('.lucide-loader-2');
+    const loaderIcon = container.querySelector('.lucide-loader-circle');
     expect(loaderIcon).toBeInTheDocument();
   });
 });

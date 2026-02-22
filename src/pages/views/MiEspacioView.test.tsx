@@ -31,6 +31,42 @@ vi.mock('@/components/ui/section-help', () => ({
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
 }));
 
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/MiEspacioPreviewModal', () => ({
+  MiEspacioPreviewModal: () => null,
+}));
+
+vi.mock('@/components/nova/StatCard', () => ({
+  StatCard: () => <div data-testid="stat-card">Stat</div>,
+}));
+
+vi.mock('@/components/nova/ValidationCard', () => ({
+  ValidationCard: () => <div data-testid="validation-card">Validations</div>,
+}));
+
+vi.mock('@/components/tasks/AITaskRouter', () => ({
+  AITaskRouter: () => <div data-testid="ai-task-router">AI Task Router</div>,
+}));
+
+vi.mock('@/components/kpi/KPIBaseEditor', () => ({
+  KPIBaseEditor: () => <div data-testid="kpi-base-editor">KPI Editor</div>,
+}));
+
+vi.mock('@/components/tasks/TaskForm', () => ({
+  TaskForm: () => null,
+}));
+
+vi.mock('@/hooks/useNovaData', () => ({
+  useCurrentMemberStats: vi.fn(() => ({ data: null, isLoading: false })),
+  useProjects: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
+  useObjectives: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectStats: vi.fn(() => ({ data: [], isLoading: false })),
+}));
+
 describe('MiEspacioView', () => {
   let queryClient: QueryClient;
 

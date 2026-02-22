@@ -16,7 +16,7 @@ describe('EvidencePreviewModal', () => {
   });
 
   it('renders iframe with embedUrl', () => {
-    const { container } = render(
+    render(
       <EvidencePreviewModal
         open={true}
         onOpenChange={() => {}}
@@ -24,7 +24,9 @@ describe('EvidencePreviewModal', () => {
         type="sheet"
       />
     );
-    const iframe = container.querySelector('iframe');
+    // DialogContent uses a Radix UI Portal that renders into document.body,
+    // so the iframe is not inside the render container — query document.body instead
+    const iframe = document.body.querySelector('iframe');
     expect(iframe).toHaveAttribute('src', 'https://test.com/embed');
   });
 });

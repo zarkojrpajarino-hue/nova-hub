@@ -92,8 +92,9 @@ describe('EvidenceUrlInput', () => {
     const { container } = render(
       <EvidenceUrlInput value="https://example.com" onChange={vi.fn()} />
     );
-    
-    const alertIcon = container.querySelector('.lucide-alert-circle');
+
+    // AlertCircle is aliased to CircleAlert in lucide-react v0.462, so the class is lucide-circle-alert
+    const alertIcon = container.querySelector('.lucide-circle-alert');
     expect(alertIcon).toBeInTheDocument();
   });
 });

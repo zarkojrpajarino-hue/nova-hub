@@ -10,6 +10,9 @@ vi.mock('@/integrations/supabase/client', () => ({
         eq: vi.fn(() => ({
           order: vi.fn(() => Promise.resolve({ data: [], error: null })),
         })),
+        order: vi.fn(() => ({
+          limit: vi.fn(() => Promise.resolve({ data: [], error: null })),
+        })),
       })),
     })),
   },
@@ -31,9 +34,21 @@ vi.mock('@/components/nova/OBVValidationList', () => ({
   OBVValidationList: () => <div data-testid="validation-list">List</div>,
 }));
 
+vi.mock('@/components/tasks/AITaskExecutor', () => ({
+  AITaskExecutor: () => <div data-testid="ai-task-executor">AI Executor</div>,
+}));
+
 vi.mock('@/components/ui/section-help', () => ({
   SectionHelp: () => <div data-testid="section-help">Help</div>,
   HelpWidget: () => <div data-testid="help-widget">Widget</div>,
+}));
+
+vi.mock('@/components/ui/how-it-works', () => ({
+  HowItWorks: () => <div data-testid="how-it-works">How it works</div>,
+}));
+
+vi.mock('@/components/preview/OBVCenterPreviewModal', () => ({
+  OBVCenterPreviewModal: () => <div data-testid="preview-modal" />,
 }));
 
 describe('OBVCenterView', () => {
@@ -50,9 +65,9 @@ describe('OBVCenterView', () => {
     </QueryClientProvider>
   );
 
-  it('renders centro de obvs title', () => {
+  it('renders centro obvs title', () => {
     renderComponent();
-    expect(screen.getByText('Centro de OBVs')).toBeInTheDocument();
+    expect(screen.getByText('Centro OBVs')).toBeInTheDocument();
   });
 
   it('renders subir obv tab', () => {
