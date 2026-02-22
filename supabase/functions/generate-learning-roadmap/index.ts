@@ -237,7 +237,7 @@ Responde ÚNICAMENTE con un objeto JSON:
     let parsedContent;
     try {
       parsedContent = JSON.parse(content);
-    } catch (e) {
+    } catch (_e) {
       console.error('Failed to parse OpenAI response:', content);
       return new Response(JSON.stringify({
         error: 'Invalid response format from AI'

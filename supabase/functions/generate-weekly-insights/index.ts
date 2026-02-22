@@ -19,6 +19,40 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface WeeklyMetrics {
+  mrr?: number;
+  total_customers?: number;
+  churn_rate?: number;
+  runway_months?: number;
+}
+
+interface CompetitorChange {
+  changes_detected: unknown;
+}
+
+interface AIRecommendation {
+  title: string;
+}
+
+interface OKR {
+  objective: string;
+  status: string;
+}
+
+interface WeeklyContext {
+  metrics_this_week: WeeklyMetrics | null;
+  metrics_last_week: WeeklyMetrics | null;
+  competitor_changes: CompetitorChange[];
+  new_recommendations: AIRecommendation[];
+  okrs: OKR[];
+}
+
+interface ProjectRecord {
+  id: string;
+  created_by: string;
+  metadata: Record<string, unknown> | null;
+}
+
 serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -38,7 +72,7 @@ serve(async (req) => {
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
-    console.log('📧 Generating weekly insights for all projects');
+    console.log('Generating weekly insights for all projects');
 
     // Get all active projects
     const { data: projects } = await supabaseClient
@@ -48,7 +82,7 @@ serve(async (req) => {
 
     let totalGenerated = 0;
 
-    for (const project of projects || []) {
+    for (const project of (projects as ProjectRecord[]) || []) {
       try {
         // Get data from last week
         const weekStart = new Date();
@@ -82,7 +116,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`✅ Generated ${totalGenerated} weekly insights`);
+    console.log(`Generated ${totalGenerated} weekly insights`);
 
     return new Response(
       JSON.stringify({
@@ -91,20 +125,26 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
-    console.error('❌ Weekly insights cron failed:', error);
+  } catch (error) {
+    const err = error as Error;
+    console.error('Weekly insights cron failed:', err);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: err.message,
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
 });
 
-async function gatherWeeklyContext(supabaseClient: any, projectId: string, weekStart: Date, weekEnd: Date) {
+async function gatherWeeklyContext(
+  supabaseClient: ReturnType<typeof createClient>,
+  projectId: string,
+  weekStart: Date,
+  weekEnd: Date
+): Promise<WeeklyContext> {
   const [metricsThisWeek, metricsLastWeek, competitorChanges, newRecommendations, okrs] = await Promise.all([
     supabaseClient
       .from('key_metrics')
@@ -143,59 +183,57 @@ async function gatherWeeklyContext(supabaseClient: any, projectId: string, weekS
   ]);
 
   return {
-    metrics_this_week: metricsThisWeek.data,
-    metrics_last_week: metricsLastWeek.data,
-    competitor_changes: competitorChanges.data || [],
-    new_recommendations: newRecommendations.data || [],
-    okrs: okrs.data || [],
+    metrics_this_week: metricsThisWeek.data as WeeklyMetrics | null,
+    metrics_last_week: metricsLastWeek.data as WeeklyMetrics | null,
+    competitor_changes: (competitorChanges.data || []) as CompetitorChange[],
+    new_recommendations: (newRecommendations.data || []) as AIRecommendation[],
+    okrs: (okrs.data || []) as OKR[],
   };
 }
 
-async function generateInsights(anthropic: Anthropic, context: any, project: any) {
+async function generateInsights(
+  anthropic: Anthropic,
+  context: WeeklyContext,
+  project: ProjectRecord
+) {
   const thisWeek = context.metrics_this_week;
   const lastWeek = context.metrics_last_week;
 
-  const mrrGrowth = thisWeek && lastWeek ? ((thisWeek.mrr - lastWeek.mrr) / lastWeek.mrr) * 100 : 0;
+  const mrrGrowth = thisWeek && lastWeek && lastWeek.mrr
+    ? (((thisWeek.mrr ?? 0) - lastWeek.mrr) / lastWeek.mrr) * 100
+    : 0;
   const customerGrowth =
-    thisWeek && lastWeek ? ((thisWeek.total_customers - lastWeek.total_customers) / lastWeek.total_customers) * 100 : 0;
+    thisWeek && lastWeek && lastWeek.total_customers
+      ? (((thisWeek.total_customers ?? 0) - lastWeek.total_customers) / lastWeek.total_customers) * 100
+      : 0;
 
   const prompt = `Eres un business advisor. Genera un weekly insight email para este founder.
 
-PROYECTO: ${project.metadata?.business_name || 'Startup'}
+PROYECTO: ${(project.metadata as Record<string, unknown>)?.business_name || 'Startup'}
 
-MÉTRICAS ESTA SEMANA:
+METRICAS ESTA SEMANA:
 MRR: $${thisWeek?.mrr || 0} (${mrrGrowth > 0 ? '+' : ''}${mrrGrowth.toFixed(1)}% vs last week)
 Customers: ${thisWeek?.total_customers || 0} (${customerGrowth > 0 ? '+' : ''}${customerGrowth.toFixed(1)}%)
 Churn: ${thisWeek?.churn_rate || 0}%
 Runway: ${thisWeek?.runway_months || 0} months
 
 CAMBIOS DE COMPETIDORES:
-${context.competitor_changes.map((c: any) => `- ${JSON.stringify(c.changes_detected)}`).join('\n') || 'None'}
+${context.competitor_changes.map((c: CompetitorChange) => `- ${JSON.stringify(c.changes_detected)}`).join('\n') || 'None'}
 
 NUEVAS RECOMENDACIONES IA:
-${context.new_recommendations.map((r: any) => `- ${r.title}`).join('\n') || 'None'}
+${context.new_recommendations.map((r: AIRecommendation) => `- ${r.title}`).join('\n') || 'None'}
 
 OKRs:
-${context.okrs.map((o: any) => `- ${o.objective} (${o.status})`).join('\n') || 'None'}
+${context.okrs.map((o: OKR) => `- ${o.objective} (${o.status})`).join('\n') || 'None'}
 
 Genera un weekly insights JSON con:
 
 1. **summary** (1-2 frases): Resumen ejecutivo de la semana
-2. **highlights** (2-3 good news): Qué salió bien
-3. **concerns** (1-2 red flags): Qué necesita atención
+2. **highlights** (2-3 good news): Que salio bien
+3. **concerns** (1-2 red flags): Que necesita atencion
 4. **competitor_changes**: Array de {competitor, change, impact}
-5. **recommendations**: Top 3 actions para la próxima semana
+5. **recommendations**: Top 3 actions para la proxima semana
 6. **next_week_priorities**: 3-5 prioridades
-
-ESTÁNDARES:
-
-✅ GOOD:
-- "MRR grew 12% ($2,340 → $2,621) - strongest week this quarter"
-- "Churn spiked to 8% (vs 5% avg) - interview the 3 churned customers this week to identify pattern"
-
-❌ BAD:
-- "Good week"
-- "Focus on growth"
 
 Devuelve SOLO el JSON:
 {
@@ -213,7 +251,7 @@ Devuelve SOLO el JSON:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = (message.content[0] as any).text;
+  const text = (message.content[0] as { type: string; text: string }).text;
   const jsonMatch = text.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {

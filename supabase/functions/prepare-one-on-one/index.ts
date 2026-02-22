@@ -25,6 +25,62 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
+interface CompletedTask {
+  titulo?: string;
+  priority?: string;
+  completed_at?: string;
+}
+
+interface LearningPath {
+  title?: string;
+  progress_percentage?: number;
+  learning_path_steps?: unknown[];
+}
+
+interface CareerGoal {
+  title?: string;
+  progress_percentage?: number;
+}
+
+interface PeerFeedback {
+  feedback_type?: string;
+  created_at?: string;
+}
+
+interface SkillGap {
+  skill_name?: string;
+  current_level?: number;
+  target_level?: number;
+}
+
+interface AgendaItem {
+  order: number;
+  title: string;
+  duration_minutes: number;
+  topics: string[];
+}
+
+interface WinItem {
+  category: string;
+  title: string;
+  details?: string;
+}
+
+interface TalkingPoint {
+  category: string;
+  question: string;
+  context: string;
+
+}
+
+interface PrepResult {
+  agenda: AgendaItem[];
+  wins: WinItem[];
+  challenges: WinItem[];
+  talking_points: TalkingPoint[];
+  summary: string;
+}
+
 serve(async (req) => {
   try {
     // CORS
@@ -159,7 +215,7 @@ serve(async (req) => {
     console.error('Error preparing 1:1:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: (error as Error).message,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -170,17 +226,17 @@ serve(async (req) => {
 });
 
 function generateOneOnOnePrep(data: {
-  completedTasks: any[];
-  learningPaths: any[];
-  careerGoals: any[];
-  recentFeedback: any[];
-  skillGaps: any[];
+  completedTasks: CompletedTask[];
+  learningPaths: LearningPath[];
+  careerGoals: CareerGoal[];
+  recentFeedback: PeerFeedback[];
+  skillGaps: SkillGap[];
   sinceDate: string;
-}): any {
-  const agenda: any[] = [];
-  const wins: any[] = [];
-  const challenges: any[] = [];
-  const talking_points: any[] = [];
+}): PrepResult {
+  const agenda: AgendaItem[] = [];
+  const wins: WinItem[] = [];
+  const challenges: WinItem[] = [];
+  const talking_points: TalkingPoint[] = [];
 
   // 1. WINS - Logros recientes
   if (data.completedTasks.length > 0) {
@@ -214,7 +270,7 @@ function generateOneOnOnePrep(data: {
       wins.push({
         category: 'learning',
         title: `Progreso en ${pathsWithProgress.length} learning paths`,
-        details: pathsWithProgress.map((lp: any) =>
+        details: pathsWithProgress.map((lp: LearningPath) =>
           `${lp.title}: ${lp.progress_percentage}%`
         ).join(', '),
       });
@@ -224,7 +280,7 @@ function generateOneOnOnePrep(data: {
       order: 2,
       title: '📚 Learning & Development',
       duration_minutes: 10,
-      topics: data.learningPaths.map((lp: any) =>
+      topics: data.learningPaths.map((lp: LearningPath) =>
         `${lp.title} (${lp.progress_percentage}% completado)`
       ),
     });
@@ -242,12 +298,12 @@ function generateOneOnOnePrep(data: {
       order: 3,
       title: '🎯 Career Goals',
       duration_minutes: 15,
-      topics: data.careerGoals.map((cg: any) =>
+      topics: data.careerGoals.map((cg: CareerGoal) =>
         `${cg.title} (${cg.progress_percentage}% hacia objetivo)`
       ),
     });
 
-    const lowProgressGoals = data.careerGoals.filter((cg: any) => cg.progress_percentage < 30);
+    const lowProgressGoals = data.careerGoals.filter((cg: CareerGoal) => (cg.progress_percentage ?? 0) < 30);
     if (lowProgressGoals.length > 0) {
       challenges.push({
         category: 'career',
@@ -269,7 +325,7 @@ function generateOneOnOnePrep(data: {
     challenges.push({
       category: 'skills',
       title: `${data.skillGaps.length} skill gaps identificados`,
-      details: `Top 3: ${topGaps.map((sg: any) => sg.skill_name).join(', ')}`,
+      details: `Top 3: ${topGaps.map((sg: SkillGap) => sg.skill_name).join(', ')}`,
     });
 
     agenda.push({
@@ -278,7 +334,7 @@ function generateOneOnOnePrep(data: {
       duration_minutes: 10,
       topics: [
         'Skill gaps actuales',
-        ...topGaps.map((sg: any) =>
+        ...topGaps.map((sg: SkillGap) =>
           `${sg.skill_name}: nivel ${sg.current_level} → ${sg.target_level}`
         ),
       ],
@@ -355,7 +411,12 @@ function generateOneOnOnePrep(data: {
   };
 }
 
-function generateSummary(wins: any[], challenges: any[], data: any): string {
+function generateSummary(wins: WinItem[], challenges: WinItem[], data: {
+  completedTasks: CompletedTask[];
+  learningPaths: LearningPath[];
+  careerGoals: CareerGoal[];
+  recentFeedback: PeerFeedback[];
+}): string {
   let summary = '📋 **Resumen del período:**\n\n';
 
   if (wins.length > 0) {

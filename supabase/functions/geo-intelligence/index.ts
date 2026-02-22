@@ -83,9 +83,9 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
@@ -99,9 +99,6 @@ async function generateGeoIntelligence(
   industry?: string,
   businessType?: string
 ) {
-  const industryContext = industry ? `en la industria de ${industry}` : '';
-  const typeContext = businessType ? `(tipo: ${businessType})` : '';
-
   const prompt = `Eres un experto en ecosistemas de startups y análisis de mercado local.
 
 UBICACIÓN: ${city}, ${country}
@@ -224,7 +221,7 @@ Devuelve SOLO el JSON, sin explicaciones adicionales.`;
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = (message.content[0] as any).text;
+  const text = (message.content[0] as { type: string; text: string }).text;
   const jsonMatch = text.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {

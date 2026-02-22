@@ -171,7 +171,7 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
         const parsed = JSON.parse(jsonMatch[0]);
         questions = parsed.questions || [];
       }
-    } catch (parseErr) {
+    } catch (_parseErr) {
       console.error('Error parsing AI response');
       // Use fallback questions
       questions = [

@@ -72,7 +72,10 @@ export interface ProjectContext {
     fase: string;
     tipo: string;
     project_state?: 'idea' | 'validacion_temprana' | 'traccion' | 'consolidado' | null;
+    user_stage?: string | null;
+    methodology?: string | null;
   };
+  intelligence?: Record<string, unknown> | null;
   onboarding: {
     problema: string;
     cliente_objetivo: string;

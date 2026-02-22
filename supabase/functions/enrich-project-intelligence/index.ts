@@ -76,8 +76,8 @@ serve(async (req) => {
     let enrichedData;
     try {
       enrichedData = JSON.parse(cleanContent);
-    } catch (e) {
-      console.error('Parse error:', e);
+    } catch (_e) {
+      console.error('Parse error');
       console.error('Raw content:', content);
       throw new Error('Failed to parse AI response');
     }
@@ -125,7 +125,7 @@ serve(async (req) => {
     console.error('Error enriching project intelligence:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -155,7 +155,7 @@ IMPORTANTE:
 
 FORMATO DE RESPUESTA: JSON válido`;
 
-function buildEnrichmentPrompt(projectInfo: any): string {
+function buildEnrichmentPrompt(projectInfo: Record<string, unknown>): string {
   return `
 # ENRIQUECER PROJECT INTELLIGENCE
 

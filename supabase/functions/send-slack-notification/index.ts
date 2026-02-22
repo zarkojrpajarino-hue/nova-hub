@@ -10,15 +10,15 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface SlackMessage {
   text?: string;
-  blocks?: any[];
-  attachments?: any[];
+  blocks?: unknown[];
+  attachments?: unknown[];
 }
 
 interface RequestBody {
   project_id: string;
   notification_type: string;
   message: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 serve(async (req) => {
@@ -123,7 +123,7 @@ serve(async (req) => {
           errors.push(`Webhook ${webhook.id}: ${response.status} - ${errorText}`);
         }
       } catch (error) {
-        errors.push(`Webhook ${webhook.id}: ${error.message}`);
+        errors.push(`Webhook ${webhook.id}: ${error instanceof Error ? error.message : 'Unknown error'}`);
       }
     }
 
@@ -145,7 +145,7 @@ serve(async (req) => {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         headers: { 'Content-Type': 'application/json' },

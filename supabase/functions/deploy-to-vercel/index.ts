@@ -26,7 +26,7 @@ serve(async (req) => {
       });
     }
 
-    const { project_id, html_content, project_name } = await req.json();
+    const { project_id: _project_id, html_content, project_name } = await req.json();
 
     if (!html_content || !project_name) {
       throw new Error('html_content and project_name are required');
@@ -110,7 +110,7 @@ serve(async (req) => {
     console.error('Error deploying to Vercel:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         details: 'Make sure VERCEL_TOKEN is configured in Supabase secrets',
       }),
       {

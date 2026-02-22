@@ -34,7 +34,7 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, task_id, task_description, project_context } = await req.json();
+    const { user_id, task_id: _task_id, task_description, project_context: _project_context } = await req.json();
 
     if (!user_id || !task_description) {
       throw new Error('user_id and task_description are required');
@@ -149,7 +149,7 @@ serve(async (req) => {
     console.error('Error in AI Task Router:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -283,8 +283,8 @@ function classifyTask(description: string): TaskClassification {
 // PARAMETER EXTRACTION
 // ============================================================================
 
-function extractExecutionParams(description: string, classification: TaskClassification): any {
-  const params: any = {};
+function extractExecutionParams(description: string, classification: TaskClassification): Record<string, unknown> {
+  const params: Record<string, unknown> = {};
 
   // Extraer cantidad (números)
   const quantityMatch = description.match(/(\d+)\s*(cliente|lead|email|negocio|empresa)/i);

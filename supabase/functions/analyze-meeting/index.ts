@@ -18,11 +18,31 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+interface ProjectMember {
+  id: string;
+  nombre: string;
+  rol: string;
+  email?: string;
+}
+
+interface ProjectOBV {
+  id: string;
+  titulo: string;
+  descripcion?: string;
+  estado: string;
+}
+
+interface MeetingParticipant {
+  member_id: string;
+  attended?: boolean;
+  can_receive_tasks?: boolean;
+}
+
 interface MeetingContext {
-  meeting: any;
-  projectMembers: any[];
-  projectOBVs: any[];
-  strategicContext: any;
+  meeting: Record<string, unknown>;
+  projectMembers: ProjectMember[];
+  projectOBVs: ProjectOBV[];
+  strategicContext: Record<string, unknown>;
 }
 
 serve(async (req) => {
@@ -99,10 +119,10 @@ serve(async (req) => {
 
     // 6. Construir contexto para GPT-4
     const context: MeetingContext = {
-      meeting,
-      projectMembers: projectMembers || [],
-      projectOBVs: projectOBVs || [],
-      strategicContext: meeting.strategic_context || {},
+      meeting: meeting as Record<string, unknown>,
+      projectMembers: (projectMembers || []) as ProjectMember[],
+      projectOBVs: (projectOBVs || []) as ProjectOBV[],
+      strategicContext: (meeting.strategic_context as Record<string, unknown>) || {},
     };
 
     // 7. Obtener API key de OpenAI
@@ -315,7 +335,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Unexpected error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -324,7 +344,7 @@ serve(async (req) => {
 /**
  * Construye el prompt para GPT-4
  */
-function buildAnalysisPrompt(context: MeetingContext, participants: any[]): string {
+function buildAnalysisPrompt(context: MeetingContext, participants: MeetingParticipant[]): string {
   const { meeting, projectMembers, projectOBVs, strategicContext } = context;
 
   const membersContext = projectMembers.map(m =>

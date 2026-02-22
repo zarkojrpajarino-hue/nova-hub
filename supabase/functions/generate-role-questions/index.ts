@@ -166,7 +166,7 @@ Formato JSON (array):
       if (jsonMatch) {
         questions = JSON.parse(jsonMatch[0]);
       }
-    } catch (e) {
+    } catch (_e) {
       console.error('Error parsing Claude response');
     }
 

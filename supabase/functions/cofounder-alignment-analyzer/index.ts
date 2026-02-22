@@ -87,16 +87,16 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
 
-async function analyzeAlignment(anthropic: Anthropic, answersA: any, answersB: any) {
+async function analyzeAlignment(anthropic: Anthropic, answersA: unknown, answersB: unknown) {
   const prompt = `Eres un experto en co-founder dynamics y prevención de conflictos en startups.
 
 FOUNDER A - Respuestas:
@@ -230,7 +230,7 @@ Devuelve SOLO el JSON.`;
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = (message.content[0] as any).text;
+  const text = (message.content[0] as { type: string; text: string }).text;
   const jsonMatch = text.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {

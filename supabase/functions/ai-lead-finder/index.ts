@@ -26,6 +26,57 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
 
+interface BuyerPersona extends Record<string, unknown> {
+  industry?: string;
+  business_type?: string;
+  company_size?: string;
+  keywords?: string[];
+  pain_points?: string[];
+  budget_range?: { min: number; max: number };
+}
+
+interface ProjectRecord extends Record<string, unknown> {
+  nombre?: string;
+  descripcion?: string;
+  metadata?: {
+    buyer_persona?: BuyerPersona;
+    value_proposition?: string;
+  };
+}
+
+interface SearchParams extends Record<string, unknown> {
+  quantity?: number;
+  industry?: string;
+  location_override?: { country: string; city: string };
+}
+
+interface BusinessRecord extends Record<string, unknown> {
+  business_name: string;
+  industry: string;
+  category?: string;
+  location: { country: string; city: string; address: string; coordinates?: { lat: number; lng: number } };
+  phone?: string;
+  website?: string;
+  rating?: string;
+  estimated_size?: string;
+  source?: string;
+  relevance_score?: number;
+}
+
+interface SearchCriteria extends Record<string, unknown> {
+  industry: string;
+  business_type: string;
+  company_size: string;
+  keywords: string[];
+  pain_points: string[];
+  budget_range: { min: number; max: number };
+}
+
+interface LocationRecord {
+  country: string;
+  city: string;
+}
+
 serve(async (req) => {
   // CORS headers
   const corsHeaders = {
@@ -204,8 +255,8 @@ serve(async (req) => {
         // Marcar como error
         errorTracker.setEvidenceStatus('error');
         errorTracker.metadata = {
-          error_message: error.message,
-          error_stack: error.stack,
+          error_message: (error as Error).message,
+          error_stack: (error as Error).stack,
         };
 
         // Persistir
@@ -219,7 +270,7 @@ serve(async (req) => {
 
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: (error as Error).message,
       }),
       {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -233,7 +284,7 @@ serve(async (req) => {
 // FUNCIONES AUXILIARES
 // ============================================================================
 
-function extractSearchCriteria(buyerPersona: any, project: any, searchParams: any) {
+function extractSearchCriteria(buyerPersona: BuyerPersona, project: ProjectRecord, searchParams: SearchParams): SearchCriteria {
   return {
     industry: searchParams?.industry || buyerPersona.industry || inferIndustryFromProject(project),
     business_type: buyerPersona.business_type || 'local_business',
@@ -244,7 +295,7 @@ function extractSearchCriteria(buyerPersona: any, project: any, searchParams: an
   };
 }
 
-function inferIndustryFromProject(project: any) {
+function inferIndustryFromProject(project: ProjectRecord) {
   // Inferir industria del nombre/descripción del proyecto
   const text = `${project.nombre} ${project.descripcion || ''}`.toLowerCase();
 
@@ -268,7 +319,7 @@ function inferIndustryFromProject(project: any) {
   return 'general_business';
 }
 
-async function findBusinesses(criteria: any, location: any, quantity: number) {
+async function findBusinesses(criteria: SearchCriteria, location: LocationRecord, quantity: number): Promise<BusinessRecord[]> {
   // SIMULACIÓN de scraping (en producción usaríamos APIs reales)
   // APIs recomendadas:
   // - Google Places API
@@ -276,10 +327,10 @@ async function findBusinesses(criteria: any, location: any, quantity: number) {
   // - OpenStreetMap Overpass API
   // - Local business directories APIs
 
-  const businesses: any[] = [];
+  const businesses: BusinessRecord[] = [];
 
   // Ejemplo de datos simulados (en producción vendría de APIs)
-  const mockBusinessTypes: Record<string, any[]> = {
+  const mockBusinessTypes: Record<string, { name: string; category: string }[]> = {
     'retail': [
       { name: 'Tienda Local Premium', category: 'clothing_store' },
       { name: 'Comercio del Centro', category: 'general_store' },
@@ -330,7 +381,7 @@ async function findBusinesses(criteria: any, location: any, quantity: number) {
   return businesses;
 }
 
-function scoreLeads(businesses: any[], buyerPersona: any, userLocation: any) {
+function scoreLeads(businesses: BusinessRecord[], buyerPersona: BuyerPersona, userLocation: LocationRecord): BusinessRecord[] {
   return businesses.map(business => {
     let score = 0;
 
@@ -383,7 +434,7 @@ function scoreLeads(businesses: any[], buyerPersona: any, userLocation: any) {
   }).sort((a, b) => b.relevance_score - a.relevance_score);
 }
 
-async function enrichLeads(leads: any[], project: any, buyerPersona: any) {
+async function enrichLeads(leads: BusinessRecord[], project: ProjectRecord, buyerPersona: BuyerPersona) {
   const enriched = [];
 
   for (const lead of leads) {
@@ -408,7 +459,7 @@ async function enrichLeads(leads: any[], project: any, buyerPersona: any) {
   return enriched;
 }
 
-async function findEmail(business: any) {
+async function findEmail(business: BusinessRecord) {
   // En producción: usar Hunter.io API, Apollo.io, etc.
   // Por ahora generamos uno basado en el dominio
   if (business.website) {
@@ -422,7 +473,7 @@ async function findEmail(business: any) {
   return `contacto@${nameSlug}.com`;
 }
 
-function generatePitch(business: any, project: any, buyerPersona: any) {
+function generatePitch(business: BusinessRecord, project: ProjectRecord, buyerPersona: BuyerPersona) {
   const painPoints = buyerPersona.pain_points || [
     'Falta de visibilidad online',
     'Dificultad para atraer nuevos clientes',
@@ -461,7 +512,7 @@ Saludos,
   };
 }
 
-function estimateLeadValue(business: any, buyerPersona: any) {
+function estimateLeadValue(business: BusinessRecord, _buyerPersona: BuyerPersona) {
   // Estimar valor basado en tamaño y industria
   const basePricing: Record<string, number> = {
     'micro': 500,
@@ -480,7 +531,7 @@ function estimateLeadValue(business: any, buyerPersona: any) {
     'real_estate': 1.8,
   };
 
-  const baseValue = basePricing[business.estimated_size] || 1000;
+  const baseValue = (business.estimated_size ? basePricing[business.estimated_size] : undefined) || 1000;
   const multiplier = industryMultiplier[business.industry] || 1.0;
 
   return Math.round(baseValue * multiplier);

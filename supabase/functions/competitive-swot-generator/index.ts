@@ -64,7 +64,7 @@ serve(async (req) => {
       .single();
 
     // Generate SWOT with AI
-    const analysis = await generateCompetitiveSWOT(anthropic, requestData, geoData);
+    const analysis = await generateCompetitiveSWOT(anthropic, requestData, geoData as GeoDataRecord | null);
 
     // Save to database
     const { data: saved } = await supabaseClient
@@ -87,19 +87,24 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
 
+interface GeoDataRecord {
+  local_competitors?: Array<{ name: string }>;
+  market_size?: { description?: string };
+}
+
 async function generateCompetitiveSWOT(
   anthropic: Anthropic,
   request: CompetitiveAnalysisRequest,
-  geoData: any
+  geoData: GeoDataRecord | null
 ) {
   const prompt = `Eres un experto en análisis competitivo y estrategia de negocio.
 
@@ -118,7 +123,7 @@ ${
   geoData
     ? `
 CONTEXTO LOCAL:
-- Competidores locales: ${geoData.local_competitors?.slice(0, 3).map((c: any) => c.name).join(', ') || 'N/A'}
+- Competidores locales: ${geoData.local_competitors?.slice(0, 3).map((c) => c.name).join(', ') || 'N/A'}
 - Ecosistema: ${geoData.market_size?.description || 'N/A'}
 `
     : ''
@@ -273,7 +278,7 @@ Devuelve SOLO el JSON.`;
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = (message.content[0] as any).text;
+  const text = (message.content[0] as { type: string; text: string }).text;
   const jsonMatch = text.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {

@@ -256,13 +256,13 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error generating financial projections:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to generate financial projections',
+        error: error instanceof Error ? error.message : 'Failed to generate financial projections',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -276,7 +276,7 @@ async function generateInsights(
   anthropic: Anthropic,
   projections: MonthlyProjection[],
   input: ProjectionInput
-): Promise<{ analysis: any; tokensUsed: number }> {
+): Promise<{ analysis: unknown; tokensUsed: number }> {
   const year1 = projections.filter((p) => p.year === 1);
   const year2 = projections.filter((p) => p.year === 2);
   const year3 = projections.filter((p) => p.year === 3);
@@ -361,7 +361,7 @@ Devuelve SOLO un JSON con este formato exacto:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);

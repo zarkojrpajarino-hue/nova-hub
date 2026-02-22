@@ -84,7 +84,7 @@ Devuelve SOLO el testimonial (sin comillas, sin JSON, solo el texto):`;
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const testimonial = (message.content[0] as any).text.trim();
+    const testimonial = (message.content[0] as { type: string; text: string }).text.trim();
 
     // Save draft
     await supabaseClient
@@ -101,11 +101,11 @@ Devuelve SOLO el testimonial (sin comillas, sin JSON, solo el texto):`;
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );

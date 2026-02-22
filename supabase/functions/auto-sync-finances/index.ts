@@ -31,7 +31,7 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 serve(async (req) => {
   try {
@@ -45,7 +45,14 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, provider, sync_type, since_date, csv_data } = await req.json();
+    const body = await req.json() as Record<string, unknown>;
+    const { user_id, provider, sync_type, since_date, csv_data } = body as {
+      user_id: string;
+      provider?: string;
+      sync_type?: string;
+      since_date?: string;
+      csv_data?: unknown;
+    };
 
     if (!user_id) {
       throw new Error('user_id is required');
@@ -57,7 +64,7 @@ serve(async (req) => {
     );
 
     let providerToUse = provider || 'auto';
-    let activeIntegration = null;
+    let activeIntegration: Integration | null = null;
 
     // 1. Auto-detect provider si no se especifica
     if (providerToUse === 'auto') {
@@ -70,7 +77,7 @@ serve(async (req) => {
         .limit(1);
 
       if (integrations && integrations.length > 0) {
-        activeIntegration = integrations[0];
+        activeIntegration = integrations[0] as Integration;
         providerToUse = activeIntegration.provider;
       } else {
         throw new Error('No active financial integration found. Please connect a provider first.');
@@ -85,27 +92,31 @@ serve(async (req) => {
         .eq('is_active', true)
         .single();
 
-      activeIntegration = integration;
+      activeIntegration = integration as Integration | null;
     }
 
     // 2. Sync según provider
     let syncResult;
 
+    if (providerToUse !== 'csv' && !activeIntegration) {
+      throw new Error(`No active integration found for provider: ${providerToUse}`);
+    }
+
     switch (providerToUse) {
       case 'stripe':
-        syncResult = await syncStripe(supabaseClient, user_id, activeIntegration, since_date);
+        syncResult = await syncStripe(supabaseClient, user_id, activeIntegration as Integration, since_date);
         break;
       case 'holded':
-        syncResult = await syncHolded(supabaseClient, user_id, activeIntegration, since_date);
+        syncResult = await syncHolded(supabaseClient, user_id, activeIntegration as Integration, since_date);
         break;
       case 'quickbooks':
-        syncResult = await syncQuickBooks(supabaseClient, user_id, activeIntegration, since_date);
+        syncResult = await syncQuickBooks(supabaseClient, user_id, activeIntegration as Integration, since_date);
         break;
       case 'xero':
-        syncResult = await syncXero(supabaseClient, user_id, activeIntegration, since_date);
+        syncResult = await syncXero(supabaseClient, user_id, activeIntegration as Integration, since_date);
         break;
       case 'paypal':
-        syncResult = await syncPayPal(supabaseClient, user_id, activeIntegration, since_date);
+        syncResult = await syncPayPal(supabaseClient, user_id, activeIntegration as Integration, since_date);
         break;
       case 'csv':
         syncResult = await syncFromCSV(supabaseClient, user_id, csv_data);
@@ -142,7 +153,7 @@ serve(async (req) => {
     console.error('Error in auto-sync-finances:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -153,11 +164,36 @@ serve(async (req) => {
 });
 
 // ============================================================================
+// SHARED TYPES
+// ============================================================================
+
+interface Integration {
+  id: string;
+  provider: string;
+  access_token?: string;
+  is_active: boolean;
+  last_sync_at?: string;
+  [key: string]: unknown;
+}
+
+interface Transaction {
+  id: string;
+  type: 'income' | 'expense';
+  amount: number;
+  currency: string;
+  description: string;
+  created_at: string;
+  customer_email: string | null;
+  customer_name: string | null;
+  metadata: Record<string, unknown>;
+}
+
+// ============================================================================
 // PROVIDER-SPECIFIC SYNC FUNCTIONS
 // ============================================================================
 
 // 1. STRIPE
-async function syncStripe(supabase: any, userId: string, integration: any, sinceDate?: string) {
+async function syncStripe(supabase: SupabaseClient, userId: string, integration: Integration, sinceDate?: string) {
   // En producción: usar Stripe SDK real
   // const stripe = new Stripe(integration.access_token);
   // const charges = await stripe.charges.list({ created: { gte: sinceTimestamp } });
@@ -189,7 +225,7 @@ async function syncStripe(supabase: any, userId: string, integration: any, since
 }
 
 // 2. HOLDED (ERP español)
-async function syncHolded(supabase: any, userId: string, integration: any, sinceDate?: string) {
+async function syncHolded(supabase: SupabaseClient, userId: string, integration: Integration, sinceDate?: string) {
   // En producción: usar Holded API
   // const holded = new HoldedAPI(integration.access_token);
   // const invoices = await holded.invoices.list({ from: sinceDate });
@@ -226,7 +262,7 @@ async function syncHolded(supabase: any, userId: string, integration: any, since
 }
 
 // 3. QUICKBOOKS
-async function syncQuickBooks(supabase: any, userId: string, integration: any, sinceDate?: string) {
+async function syncQuickBooks(supabase: SupabaseClient, userId: string, integration: Integration, sinceDate?: string) {
   // En producción: usar QuickBooks SDK
   // const qbo = new QuickBooks(integration.access_token);
   // const invoices = await qbo.findInvoices({ modifiedSince: sinceDate });
@@ -252,7 +288,7 @@ async function syncQuickBooks(supabase: any, userId: string, integration: any, s
 }
 
 // 4. XERO
-async function syncXero(supabase: any, userId: string, integration: any, sinceDate?: string) {
+async function syncXero(supabase: SupabaseClient, userId: string, integration: Integration, sinceDate?: string) {
   // En producción: usar Xero SDK
   const mockTransactions = generateMockTransactions('xero', sinceDate);
 
@@ -275,7 +311,7 @@ async function syncXero(supabase: any, userId: string, integration: any, sinceDa
 }
 
 // 5. PAYPAL
-async function syncPayPal(supabase: any, userId: string, integration: any, sinceDate?: string) {
+async function syncPayPal(supabase: SupabaseClient, userId: string, integration: Integration, sinceDate?: string) {
   // En producción: usar PayPal SDK
   const mockTransactions = generateMockTransactions('paypal', sinceDate);
 
@@ -298,7 +334,18 @@ async function syncPayPal(supabase: any, userId: string, integration: any, since
 }
 
 // 6. CSV UPLOAD
-async function syncFromCSV(supabase: any, userId: string, csvData: any) {
+interface CsvRow {
+  type?: string;
+  amount?: number | string;
+  currency?: string;
+  description?: string;
+  date?: string;
+  customer_email?: string;
+  customer_name?: string;
+  [key: string]: unknown;
+}
+
+async function syncFromCSV(supabase: SupabaseClient, userId: string, csvData: unknown) {
   // Parse CSV y detectar columnas automáticamente
   // Esperado: date, description, amount, type (income/expense)
 
@@ -310,16 +357,19 @@ async function syncFromCSV(supabase: any, userId: string, csvData: any) {
   let totalRevenue = 0;
   let totalExpenses = 0;
 
-  for (const row of csvData) {
-    const txn = {
+  for (const rawRow of csvData) {
+    const row = rawRow as CsvRow;
+    const txn: Transaction = {
       id: `csv_${Date.now()}_${Math.random()}`,
-      type: row.type || (row.amount > 0 ? 'income' : 'expense'),
-      amount: Math.abs(parseFloat(row.amount)),
+      type: (row.type === 'income' || row.type === 'expense')
+        ? row.type
+        : (Number(row.amount) > 0 ? 'income' : 'expense'),
+      amount: Math.abs(parseFloat(String(row.amount ?? 0))),
       currency: row.currency || 'EUR',
       description: row.description || 'CSV Import',
       created_at: row.date || new Date().toISOString(),
-      customer_email: row.customer_email,
-      customer_name: row.customer_name,
+      customer_email: row.customer_email ?? null,
+      customer_name: row.customer_name ?? null,
       metadata: { source: 'csv_upload', ...row },
     };
 
@@ -341,7 +391,7 @@ async function syncFromCSV(supabase: any, userId: string, csvData: any) {
 // HELPERS
 // ============================================================================
 
-async function saveSyncedTransaction(supabase: any, userId: string, integrationId: string | null, txn: any) {
+async function saveSyncedTransaction(supabase: SupabaseClient, userId: string, integrationId: string | null, txn: Transaction) {
   return await supabase.from('synced_transactions').upsert({
     integration_id: integrationId,
     user_id: userId,
@@ -357,7 +407,7 @@ async function saveSyncedTransaction(supabase: any, userId: string, integrationI
   });
 }
 
-async function syncStripeSubscriptions(supabase: any, userId: string, integrationId: string) {
+async function syncStripeSubscriptions(supabase: SupabaseClient, userId: string, integrationId: string) {
   // Simular sync de suscripciones
   const mockSubs = [
     { id: 'sub_1', amount: 29, status: 'active' },
@@ -385,7 +435,7 @@ function generateMockTransactions(source: string, sinceDate?: string) {
   const now = Date.now();
   const count = Math.floor(Math.random() * 10) + 5;
 
-  const transactions: any[] = [];
+  const transactions: Transaction[] = [];
 
   for (let i = 0; i < count; i++) {
     const timestamp = since + Math.random() * (now - since);

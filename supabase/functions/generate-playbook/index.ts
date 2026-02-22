@@ -2,7 +2,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { PlaybookRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
-import { checkRateLimit, createRateLimitResponse, getIdentifier, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('origin');
@@ -225,7 +225,7 @@ Responde con este JSON exacto:
         .replace(/```\n?/g, '')
         .trim();
       playbookContent = JSON.parse(cleanedContent);
-    } catch (parseError) {
+    } catch (_parseError) {
       console.error('Failed to parse AI response');
       // Fallback content
       playbookContent = {

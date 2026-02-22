@@ -19,14 +19,27 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface Prediction {
   type: string;
-  date: string;
+  date?: string;
   value: number;
   confidence: number;
   trend: string;
+  metadata?: Record<string, unknown>;
+  objective_id?: string;
+  objective_name?: string;
+  probability?: number;
+  status?: string;
+  current_progress?: number;
+}
+
+interface PredictionRecommendation {
+  priority: string;
+  title: string;
+  description: string;
+  category?: string;
 }
 
 serve(async (req) => {
@@ -42,7 +55,12 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, prediction_types, forecast_months } = await req.json();
+    const body = await req.json() as Record<string, unknown>;
+    const { user_id, prediction_types, forecast_months } = body as {
+      user_id: string;
+      prediction_types?: string[];
+      forecast_months?: number;
+    };
 
     if (!user_id) {
       throw new Error('user_id is required');
@@ -57,7 +75,11 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const results: any = {
+    const results: {
+      predictions: Prediction[];
+      summary: Record<string, unknown>;
+      recommendations: Array<{ priority: string; title: string; description: string; category?: string }>;
+    } = {
       predictions: [],
       summary: {},
       recommendations: [],
@@ -126,7 +148,7 @@ serve(async (req) => {
     console.error('Error generating predictions:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -137,7 +159,7 @@ serve(async (req) => {
 });
 
 async function generateRevenuePredictions(
-  supabase: any,
+  supabase: SupabaseClient,
   userId: string,
   months: number
 ) {
@@ -163,8 +185,7 @@ async function generateRevenuePredictions(
   }
 
   // Análisis simple de tendencia
-  const revenues = historicalData.map((d: any) => d.facturacion || 0);
-  const avgRevenue = revenues.reduce((a: number, b: number) => a + b, 0) / revenues.length;
+  const revenues = historicalData.map((d: Record<string, unknown>) => (d.facturacion as number) || 0);
 
   // Calcular tasa de crecimiento
   const last3Months = revenues.slice(-3);
@@ -175,7 +196,7 @@ async function generateRevenuePredictions(
   const growthRate = prev3Avg > 0 ? ((last3Avg - prev3Avg) / prev3Avg) * 100 : 0;
 
   // Generar predicciones para próximos meses
-  const predictions: any[] = [];
+  const predictions: Prediction[] = [];
   let currentPrediction = last3Avg;
 
   for (let i = 1; i <= months; i++) {
@@ -221,7 +242,7 @@ async function generateRevenuePredictions(
     confidence: 'medium',
   };
 
-  const recommendations: any[] = [];
+  const recommendations: PredictionRecommendation[] = [];
 
   if (growthRate < -10) {
     recommendations.push({
@@ -242,7 +263,7 @@ async function generateRevenuePredictions(
   return { predictions, summary, recommendations };
 }
 
-async function generateOKRPredictions(supabase: any, userId: string) {
+async function generateOKRPredictions(supabase: SupabaseClient, userId: string) {
   // Obtener objetivos activos
   const { data: objectives } = await supabase
     .from('objectives')
@@ -258,8 +279,8 @@ async function generateOKRPredictions(supabase: any, userId: string) {
     };
   }
 
-  const predictions: any[] = [];
-  const recommendations: any[] = [];
+  const predictions: Prediction[] = [];
+  const recommendations: PredictionRecommendation[] = [];
   let atRiskCount = 0;
   let onTrackCount = 0;
 
@@ -333,7 +354,7 @@ async function generateOKRPredictions(supabase: any, userId: string) {
 }
 
 async function generateRunwayPredictions(
-  supabase: any,
+  supabase: SupabaseClient,
   userId: string,
   months: number
 ) {
@@ -355,8 +376,8 @@ async function generateRunwayPredictions(
   const burnRate = financialHealth.avg_monthly_burn || 0;
   const totalCash = financialHealth.total_cash || 0;
 
-  const predictions: any[] = [];
-  const recommendations: any[] = [];
+  const predictions: Prediction[] = [];
+  const recommendations: PredictionRecommendation[] = [];
 
   // Predecir runway para próximos meses
   for (let i = 1; i <= months; i++) {
@@ -428,7 +449,7 @@ async function generateRunwayPredictions(
 }
 
 async function generateGrowthPredictions(
-  supabase: any,
+  supabase: SupabaseClient,
   userId: string,
   months: number
 ) {
@@ -448,7 +469,7 @@ async function generateGrowthPredictions(
   }
 
   // Calcular tasa de crecimiento promedio
-  const revenues = metrics.map((m: any) => m.facturacion || 0);
+  const revenues = metrics.map((m: Record<string, unknown>) => (m.facturacion as number) || 0);
   const growthRates: number[] = [];
 
   for (let i = 1; i < revenues.length; i++) {
@@ -460,8 +481,8 @@ async function generateGrowthPredictions(
   const avgGrowthRate =
     growthRates.reduce((a, b) => a + b, 0) / (growthRates.length || 1);
 
-  const predictions: any[] = [];
-  const recommendations: any[] = [];
+  const predictions: Prediction[] = [];
+  const recommendations: PredictionRecommendation[] = [];
 
   for (let i = 1; i <= months; i++) {
     const monthDate = new Date();

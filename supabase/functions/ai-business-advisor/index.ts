@@ -9,7 +9,7 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
 const corsHeaders = {
@@ -21,6 +21,72 @@ interface AdvisorRequest {
   projectId: string;
   chatId?: string; // Resume existing chat
   message: string;
+}
+
+interface ChatMessage {
+  id: string;
+  role: string;
+  content: string;
+  created_at: string;
+  sources?: ProjectContextSource[];
+}
+
+interface ChatRecord {
+  id: string;
+  project_id: string;
+  messages: ChatMessage[];
+}
+
+interface ProjectContextSource {
+  type: string;
+  data: unknown;
+}
+
+interface MetricRecord {
+  mrr?: number;
+  total_customers?: number;
+  churn_rate?: number;
+  cash_balance?: number;
+  runway_months?: number;
+  [key: string]: unknown;
+}
+
+interface OkrRecord {
+  objective?: string;
+  status?: string;
+  [key: string]: unknown;
+}
+
+interface CompetitorRecord {
+  changes_detected?: unknown;
+  [key: string]: unknown;
+}
+
+interface RecommendationRecord {
+  title?: string;
+  category?: string;
+  priority?: string;
+  [key: string]: unknown;
+}
+
+interface ProjectRecord {
+  metadata?: {
+    business_name?: string;
+    industry?: string;
+    stage?: string;
+    [key: string]: unknown;
+  };
+  [key: string]: unknown;
+}
+
+interface ProjectContext {
+  project: ProjectRecord | null;
+  latest_metrics: MetricRecord | null;
+  metrics_history: MetricRecord[] | null;
+  financial_projections: unknown[] | null;
+  recent_competitor_changes: CompetitorRecord[] | null;
+  okrs: OkrRecord[] | null;
+  active_recommendations: RecommendationRecord[] | null;
 }
 
 serve(async (req) => {
@@ -53,7 +119,7 @@ serve(async (req) => {
     console.log(`🤖 AI Advisor: "${message}"`);
 
     // Get or create chat
-    let chat: any;
+    let chat: ChatRecord | null = null;
     if (chatId) {
       const { data } = await supabaseClient
         .from('advisor_chats')
@@ -73,6 +139,10 @@ serve(async (req) => {
         .select()
         .single();
       chat = data;
+    }
+
+    if (!chat) {
+      throw new Error('Failed to create or retrieve chat');
     }
 
     // Gather project context (RAG)
@@ -113,13 +183,13 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ AI Advisor error:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -129,7 +199,7 @@ serve(async (req) => {
 /**
  * Gather all relevant project context (RAG)
  */
-async function gatherProjectContext(supabaseClient: any, projectId: string): Promise<any> {
+async function gatherProjectContext(supabaseClient: SupabaseClient, projectId: string): Promise<ProjectContext> {
   // Fetch all relevant data in parallel
   const [project, metrics, financials, competitors, okrs, recommendations] = await Promise.all([
     supabaseClient.from('projects').select('*').eq('id', projectId).single(),
@@ -178,9 +248,9 @@ async function gatherProjectContext(supabaseClient: any, projectId: string): Pro
 async function generateAdvisorResponse(
   anthropic: Anthropic,
   userMessage: string,
-  context: any,
-  chatHistory: any[]
-): Promise<{ text: string; sources: any[] }> {
+  context: ProjectContext,
+  chatHistory: ChatMessage[]
+): Promise<{ text: string; sources: ProjectContextSource[] }> {
   // Build context string
   const contextStr = `
 PROJECT INFO:
@@ -196,13 +266,13 @@ Cash Balance: $${context.latest_metrics?.cash_balance || 0}
 Runway: ${context.latest_metrics?.runway_months || 0} months
 
 OKRS:
-${context.okrs?.map((okr: any) => `- ${okr.objective} (${okr.status})`).join('\n') || 'No OKRs set'}
+${context.okrs?.map((okr: OkrRecord) => `- ${okr.objective} (${okr.status})`).join('\n') || 'No OKRs set'}
 
 RECENT COMPETITOR CHANGES:
-${context.recent_competitor_changes?.slice(0, 3).map((c: any) => `- ${JSON.stringify(c.changes_detected)}`).join('\n') || 'None'}
+${context.recent_competitor_changes?.slice(0, 3).map((c: CompetitorRecord) => `- ${JSON.stringify(c.changes_detected)}`).join('\n') || 'None'}
 
 ACTIVE RECOMMENDATIONS:
-${context.active_recommendations?.slice(0, 5).map((r: any) => `- ${r.title} (${r.category}, priority: ${r.priority})`).join('\n') || 'None'}
+${context.active_recommendations?.slice(0, 5).map((r: RecommendationRecord) => `- ${r.title} (${r.category}, priority: ${r.priority})`).join('\n') || 'None'}
 `;
 
   // Build chat history for context
@@ -241,12 +311,12 @@ EJEMPLOS:
 "Con $${context.latest_metrics?.cash_balance || 0} cash y ${context.latest_metrics?.runway_months || 0} meses runway, necesitas levantar en los próximos 3 meses (idealmente antes de <6 meses runway). Target: $250K para llegar a 18 meses runway. Milestones antes de fundraise: hit $10K MRR (estás en $${context.latest_metrics?.mrr || 0}), reduce churn a <5% (actual: ${context.latest_metrics?.churn_rate || 0}%)."`;
 
   const messages = [
-    ...recentHistory.map((m: any) => ({
-      role: m.role,
+    ...recentHistory.map((m: ChatMessage) => ({
+      role: m.role as 'user' | 'assistant',
       content: m.content,
     })),
     {
-      role: 'user',
+      role: 'user' as const,
       content: userMessage,
     },
   ];
@@ -255,13 +325,14 @@ EJEMPLOS:
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: 1500,
     system: systemPrompt,
-    messages: messages as any,
+    messages,
   });
 
-  const text = (response.content[0] as any).text;
+  const firstContent = response.content[0];
+  const text = firstContent.type === 'text' ? firstContent.text : '';
 
   // Extract sources (what data was used)
-  const sources: any[] = [];
+  const sources: ProjectContextSource[] = [];
   if (text.includes('MRR') || text.includes('churn') || text.includes('customers')) {
     sources.push({ type: 'metric', data: context.latest_metrics });
   }

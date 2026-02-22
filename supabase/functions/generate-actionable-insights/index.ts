@@ -15,7 +15,27 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+interface Insight {
+  id: string;
+  category: string;
+  severity: string;
+  title: string;
+  message: string;
+  impact: string;
+  actionable: boolean;
+}
+
+interface SuggestedAction {
+  source_type: string;
+  source_id: string;
+  action_type: string;
+  title: string;
+  description: string;
+  priority: string;
+  action_data: Record<string, unknown>;
+}
 
 serve(async (req) => {
   try {
@@ -30,7 +50,8 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, context } = await req.json();
+    const body = await req.json() as Record<string, unknown>;
+    const { user_id, context } = body as { user_id: string; context?: string };
 
     if (!user_id) {
       throw new Error('user_id is required');
@@ -44,8 +65,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    const insights: any[] = [];
-    const suggestedActions: any[] = [];
+    const insights: Insight[] = [];
+    const suggestedActions: SuggestedAction[] = [];
 
     // 1. FINANCIAL INSIGHTS
     if (analysisContext === 'financial' || analysisContext === 'all') {
@@ -113,7 +134,7 @@ serve(async (req) => {
     console.error('Error generating actionable insights:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -123,9 +144,9 @@ serve(async (req) => {
   }
 });
 
-async function analyzeFinancial(supabase: any, userId: string) {
-  const insights: any[] = [];
-  const actions: any[] = [];
+async function analyzeFinancial(supabase: SupabaseClient, _userId: string) {
+  const insights: Insight[] = [];
+  const actions: SuggestedAction[] = [];
 
   // Obtener salud financiera
   const { data: financialHealth } = await supabase
@@ -221,9 +242,9 @@ async function analyzeFinancial(supabase: any, userId: string) {
   return { insights, actions };
 }
 
-async function analyzeOKRs(supabase: any, userId: string) {
-  const insights: any[] = [];
-  const actions: any[] = [];
+async function analyzeOKRs(supabase: SupabaseClient, _userId: string) {
+  const insights: Insight[] = [];
+  const actions: SuggestedAction[] = [];
 
   // Obtener objetivos en riesgo
   const { data: objectives } = await supabase
@@ -286,9 +307,9 @@ async function analyzeOKRs(supabase: any, userId: string) {
   return { insights, actions };
 }
 
-async function analyzeTasks(supabase: any, userId: string) {
-  const insights: any[] = [];
-  const actions: any[] = [];
+async function analyzeTasks(supabase: SupabaseClient, userId: string) {
+  const insights: Insight[] = [];
+  const actions: SuggestedAction[] = [];
 
   // Obtener tareas vencidas
   const { data: overdueTasks } = await supabase
@@ -332,9 +353,9 @@ async function analyzeTasks(supabase: any, userId: string) {
   return { insights, actions };
 }
 
-async function analyzeCRM(supabase: any, userId: string) {
-  const insights: any[] = [];
-  const actions: any[] = [];
+async function analyzeCRM(supabase: SupabaseClient, _userId: string) {
+  const insights: Insight[] = [];
+  const actions: SuggestedAction[] = [];
 
   // Obtener leads sin contacto reciente
   const { data: staleLeads } = await supabase

@@ -38,7 +38,14 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, task_id, worker_type, execution_params, project_context, approval_id } = await req.json();
+    const { user_id, task_id, worker_type, execution_params, project_context, approval_id } = await req.json() as {
+      user_id: string;
+      task_id?: string;
+      worker_type: string;
+      execution_params: Record<string, unknown>;
+      project_context: Record<string, unknown>;
+      approval_id?: string;
+    };
 
     if (!user_id || !worker_type) {
       throw new Error('user_id and worker_type are required');
@@ -80,7 +87,7 @@ serve(async (req) => {
         user_id,
         task_id,
         worker_type,
-        task_description: execution_params.description || 'AI Task Execution',
+        task_description: (execution_params.description as string) || 'AI Task Execution',
         execution_params,
         status: 'executing',
         started_at: new Date().toISOString(),
@@ -94,29 +101,31 @@ serve(async (req) => {
     }
 
     // 4. EJECUTAR según el tipo de worker
+    const workerParams = execution_params as WorkerParams;
+    const workerContext = project_context as WorkerContext;
     let result;
     try {
       switch (worker_type) {
         case 'lead_scraper':
-          result = await executeLeadScraper(execution_params, project_context);
+          result = await executeLeadScraper(workerParams, workerContext);
           break;
         case 'email_generator':
-          result = await executeEmailGenerator(execution_params, project_context);
+          result = await executeEmailGenerator(workerParams, workerContext);
           break;
         case 'email_campaign_builder':
-          result = await executeEmailCampaignBuilder(execution_params, project_context);
+          result = await executeEmailCampaignBuilder(workerParams, workerContext);
           break;
         case 'design_generator':
-          result = await executeDesignGenerator(execution_params, project_context);
+          result = await executeDesignGenerator(workerParams, workerContext);
           break;
         case 'linkedin_outreach':
-          result = await executeLinkedInOutreach(execution_params, project_context);
+          result = await executeLinkedInOutreach(workerParams, workerContext);
           break;
         case 'call_script_generator':
-          result = await executeCallScriptGenerator(execution_params, project_context);
+          result = await executeCallScriptGenerator(workerParams, workerContext);
           break;
         case 'text_writer':
-          result = await executeTextWriter(execution_params, project_context);
+          result = await executeTextWriter(workerParams, workerContext);
           break;
         default:
           throw new Error(`Worker type ${worker_type} not implemented`);
@@ -173,7 +182,7 @@ serve(async (req) => {
         .from('ai_task_executions')
         .update({
           status: 'failed',
-          error_message: executionError.message,
+          error_message: (executionError as Error).message,
         })
         .eq('id', execution.id);
 
@@ -183,7 +192,7 @@ serve(async (req) => {
     console.error('Error in AI Task Executor:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: (error as Error).message,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -197,8 +206,34 @@ serve(async (req) => {
 // WORKERS IMPLEMENTATION
 // ============================================================================
 
+interface WorkerParams extends Record<string, unknown> {
+  quantity?: number;
+  industry?: string;
+  location?: string;
+  description?: string;
+  recipient_company?: string;
+  recipient_name?: string;
+  recipient_email?: string;
+  purpose?: string;
+  message?: string;
+  num_emails?: number;
+  campaign_name?: string;
+  target_company?: string;
+  title?: string;
+  background_color?: string;
+  primary_color?: string;
+}
+
+interface WorkerContext extends Record<string, unknown> {
+  industry?: string;
+  location?: string;
+  value_proposition?: string;
+  user_name?: string;
+  project_name?: string;
+}
+
 // 1. LEAD SCRAPER
-async function executeLeadScraper(params: any, context: any) {
+async function executeLeadScraper(params: WorkerParams, context: WorkerContext) {
   const quantity = params.quantity || 5;
   const industry = params.industry || context?.industry || 'general';
   const location = params.location || context?.location || 'Madrid';
@@ -208,7 +243,7 @@ async function executeLeadScraper(params: any, context: any) {
   // SIMULACIÓN: En producción usar Apify, Bright Data, o Google Maps API
   work_done.push(`🔍 Searched ${quantity} businesses in ${industry} near ${location}`);
 
-  const leads: any[] = [];
+  const leads: Record<string, unknown>[] = [];
   for (let i = 0; i < quantity; i++) {
     const business = {
       business_name: `${industry} Business ${i + 1}`,
@@ -277,7 +312,7 @@ ${context?.user_name || 'Equipo'}`,
 }
 
 // 2. EMAIL GENERATOR
-async function executeEmailGenerator(params: any, context: any) {
+async function executeEmailGenerator(params: WorkerParams, context: WorkerContext) {
   const work_done: string[] = [];
 
   work_done.push('✍️ Analyzing recipient and context');
@@ -324,13 +359,13 @@ ${context?.user_name || 'Equipo'}`,
 }
 
 // 3. EMAIL CAMPAIGN BUILDER
-async function executeEmailCampaignBuilder(params: any, context: any) {
+async function executeEmailCampaignBuilder(params: WorkerParams, context: WorkerContext) {
   const numEmails = params.num_emails || 3;
   const work_done: string[] = [];
 
   work_done.push(`📧 Building ${numEmails}-email campaign`);
 
-  const emails: any[] = [];
+  const emails: Record<string, unknown>[] = [];
   const emailTypes = ['initial_contact', 'follow_up_1', 'follow_up_2', 'final_offer'];
 
   for (let i = 0; i < numEmails; i++) {
@@ -376,7 +411,7 @@ async function executeEmailCampaignBuilder(params: any, context: any) {
 }
 
 // 4. DESIGN GENERATOR
-async function executeDesignGenerator(params: any, context: any) {
+async function executeDesignGenerator(params: WorkerParams, context: WorkerContext) {
   const work_done: string[] = [];
 
   work_done.push('🎨 Analyzing design requirements');
@@ -428,7 +463,7 @@ async function executeDesignGenerator(params: any, context: any) {
 }
 
 // Helpers for email generation
-function getEmailSubject(type: string, params: any, context: any) {
+function getEmailSubject(type: string, params: WorkerParams, context: WorkerContext) {
   const subjects: Record<string, string> = {
     initial_contact: `${params.target_company || 'Empresa'} - Idea rápida`,
     follow_up_1: `Re: ¿Pudiste revisar mi mensaje?`,
@@ -438,9 +473,9 @@ function getEmailSubject(type: string, params: any, context: any) {
   return subjects[type] || 'Seguimiento';
 }
 
-function getEmailBody(type: string, params: any, context: any, index: number) {
+function getEmailBody(_type: string, _params: WorkerParams, context: WorkerContext, index: number) {
   // Simplificado - en producción usar GPT-4
-  return `Email ${index + 1} - ${type}
+  return `Email ${index + 1}
 
 Contenido personalizado aquí...
 
@@ -448,7 +483,7 @@ Saludos,
 ${context?.user_name || 'Equipo'}`;
 }
 
-function generateDesignHTML(params: any, context: any) {
+function generateDesignHTML(params: WorkerParams, context: WorkerContext) {
   return `<!DOCTYPE html>
 <html>
 <head>
@@ -463,7 +498,7 @@ function generateDesignHTML(params: any, context: any) {
 </html>`;
 }
 
-function generateDesignCSS(params: any, context: any) {
+function generateDesignCSS(params: WorkerParams, _context: WorkerContext) {
   return `.flyer {
   width: 800px;
   height: 600px;
@@ -479,7 +514,7 @@ h1 {
 }
 
 // Stubs para otros workers (similar implementación)
-async function executeLinkedInOutreach(params: any, context: any) {
+async function executeLinkedInOutreach(_params: WorkerParams, _context: WorkerContext) {
   return {
     output: { message: 'LinkedIn outreach generated' },
     work_done: ['Generated LinkedIn connection message'],
@@ -487,7 +522,7 @@ async function executeLinkedInOutreach(params: any, context: any) {
   };
 }
 
-async function executeCallScriptGenerator(params: any, context: any) {
+async function executeCallScriptGenerator(_params: WorkerParams, _context: WorkerContext) {
   return {
     output: { script: 'Call script with objection handling' },
     work_done: ['Generated call script'],
@@ -495,7 +530,7 @@ async function executeCallScriptGenerator(params: any, context: any) {
   };
 }
 
-async function executeTextWriter(params: any, context: any) {
+async function executeTextWriter(_params: WorkerParams, _context: WorkerContext) {
   return {
     output: { text: 'Generated content' },
     work_done: ['Generated text content'],

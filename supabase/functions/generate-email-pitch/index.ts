@@ -35,7 +35,14 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, lead_id, project_id, template_type, tone } = await req.json();
+    const body = await req.json() as Record<string, unknown>;
+    const { user_id, lead_id, project_id, template_type, tone } = body as {
+      user_id: string;
+      lead_id: string;
+      project_id?: string;
+      template_type?: string;
+      tone?: string;
+    };
 
     if (!user_id || !lead_id) {
       throw new Error('user_id and lead_id are required');
@@ -124,7 +131,7 @@ serve(async (req) => {
     console.error('Error generating email pitch:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : String(error),
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -138,11 +145,36 @@ serve(async (req) => {
 // AI PITCH GENERATOR
 // ============================================================================
 
+interface LeadRecord {
+  nombre?: string;
+  empresa?: string;
+  email?: string;
+  industria?: string;
+  pain_point?: string;
+}
+
+interface ProjectRecord {
+  nombre?: string;
+  metadata?: {
+    value_proposition?: string;
+    [key: string]: unknown;
+  };
+}
+
+interface UserProfileRecord {
+  full_name?: string;
+}
+
+interface InteractionRecord {
+  observation_type?: string;
+  [key: string]: unknown;
+}
+
 function generateAIPitch(context: {
-  lead: any;
-  project: any;
-  userProfile: any;
-  previousInteractions: any[];
+  lead: LeadRecord;
+  project: ProjectRecord | null;
+  userProfile: UserProfileRecord | null;
+  previousInteractions: InteractionRecord[];
   templateType: string;
   tone: string;
 }) {
@@ -208,7 +240,17 @@ function generateAIPitch(context: {
 // SUBJECT GENERATORS
 // ============================================================================
 
-function generateColdOutreachSubject(data: any) {
+interface PersonalizationData {
+  lead_name: string;
+  company_name: string;
+  industry: string;
+  pain_point: string;
+  project_name: string;
+  value_proposition: string;
+  user_name: string;
+}
+
+function generateColdOutreachSubject(data: PersonalizationData) {
   const subjects = [
     `${data.company_name} - Idea rápida para ${data.pain_point}`,
     `¿Cómo está ${data.company_name} manejando ${data.pain_point}?`,
@@ -218,7 +260,7 @@ function generateColdOutreachSubject(data: any) {
   return subjects[Math.floor(Math.random() * subjects.length)];
 }
 
-function generateFollowUpSubject(data: any) {
+function generateFollowUpSubject(data: PersonalizationData) {
   const subjects = [
     `Re: ${data.company_name} - Siguiente paso`,
     `${data.lead_name}, ¿pudiste revisar mi propuesta?`,
@@ -228,11 +270,11 @@ function generateFollowUpSubject(data: any) {
   return subjects[Math.floor(Math.random() * subjects.length)];
 }
 
-function generateProposalSubject(data: any) {
+function generateProposalSubject(data: PersonalizationData) {
   return `Propuesta para ${data.company_name} - ${data.project_name}`;
 }
 
-function generateMeetingRequestSubject(data: any) {
+function generateMeetingRequestSubject(data: PersonalizationData) {
   return `${data.lead_name}, ¿15 minutos esta semana?`;
 }
 
@@ -240,7 +282,7 @@ function generateMeetingRequestSubject(data: any) {
 // BODY GENERATORS
 // ============================================================================
 
-function generateColdOutreachBody(data: any, tone: string) {
+function generateColdOutreachBody(data: PersonalizationData, tone: string) {
   const greeting = tone === 'formal' ? 'Estimado/a' : 'Hola';
 
   return `${greeting} ${data.lead_name},
@@ -262,7 +304,7 @@ ${data.user_name}
 PD: Si este no es el momento adecuado, solo déjame saber y te contacto más adelante.`;
 }
 
-function generateFollowUpBody(data: any, previousInteractions: any[], tone: string) {
+function generateFollowUpBody(data: PersonalizationData, previousInteractions: InteractionRecord[], _tone: string) {
   const hasInteractions = previousInteractions.length > 0;
   const lastInteraction = hasInteractions ? previousInteractions[0] : null;
 
@@ -286,7 +328,7 @@ Saludos,
 ${data.user_name}`;
 }
 
-function generateProposalBody(data: any, tone: string) {
+function generateProposalBody(data: PersonalizationData, _tone: string) {
   return `Hola ${data.lead_name},
 
 Como prometido, aquí está la propuesta detallada para ${data.company_name}.
@@ -313,7 +355,7 @@ Saludos,
 ${data.user_name}`;
 }
 
-function generateMeetingRequestBody(data: any, tone: string) {
+function generateMeetingRequestBody(data: PersonalizationData, _tone: string) {
   return `Hola ${data.lead_name},
 
 Breve y al punto: vi que ${data.company_name} está trabajando en ${data.pain_point}.
@@ -331,7 +373,7 @@ Saludos,
 ${data.user_name}`;
 }
 
-function generateGenericBody(data: any, tone: string) {
+function generateGenericBody(data: PersonalizationData, _tone: string) {
   return `Hola ${data.lead_name},
 
 Me comunico porque creo que ${data.project_name} podría ser de gran valor para ${data.company_name}.
@@ -348,9 +390,9 @@ ${data.user_name}`;
 // UTILITIES
 // ============================================================================
 
-function convertToHTML(text: string, data: any) {
+function convertToHTML(text: string, _data: PersonalizationData) {
   // Convertir texto plano a HTML básico
-  let html = text
+  const html = text
     .replace(/\n\n/g, '</p><p>')
     .replace(/\n/g, '<br>')
     .replace(/•/g, '&bull;');
@@ -373,7 +415,7 @@ function convertToHTML(text: string, data: any) {
   `.trim();
 }
 
-function calculateBestSendTime(lead: any) {
+function calculateBestSendTime(_lead: LeadRecord) {
   // Basado en industria y comportamiento, sugerir mejor momento
   const now = new Date();
   const tomorrow = new Date(now);

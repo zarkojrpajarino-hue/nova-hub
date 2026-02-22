@@ -2,8 +2,8 @@
  * GENERATE LAUNCH CHECKLIST
  *
  * Genera checklist completo de 50-100 items pre-launch
- * Categorías: Legal, Tech, Marketing, Design, Analytics, Finance
- * Con recursos, priorización, y dependencies
+ * Categorias: Legal, Tech, Marketing, Design, Analytics, Finance
+ * Con recursos, priorizacion, y dependencies
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
@@ -22,6 +22,15 @@ interface LaunchChecklistRequest {
   geography: 'US' | 'EU' | 'LATAM' | 'global';
   hasWebsite?: boolean;
   hasLegalEntity?: boolean;
+}
+
+interface ChecklistItem {
+  title: string;
+  description: string;
+  category: string;
+  priority: string;
+  estimated_time: string;
+  resources: Array<{ title: string; url: string }>;
 }
 
 serve(async (req) => {
@@ -52,7 +61,7 @@ serve(async (req) => {
       );
     }
 
-    console.log(`📋 Generating launch checklist for ${businessType} in ${geography}`);
+    console.log(`Generating launch checklist for ${businessType} in ${geography}`);
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
@@ -93,7 +102,7 @@ serve(async (req) => {
       modelUsed: 'claude-3-5-sonnet-20241022',
     });
 
-    console.log(`✅ Launch checklist generated in ${executionTimeMs}ms`);
+    console.log(`Launch checklist generated in ${executionTimeMs}ms`);
 
     return new Response(
       JSON.stringify({
@@ -102,25 +111,26 @@ serve(async (req) => {
         summary: {
           total_items: checklist.items.length,
           by_category: {
-            legal: checklist.items.filter((i: any) => i.category === 'legal').length,
-            tech: checklist.items.filter((i: any) => i.category === 'tech').length,
-            marketing: checklist.items.filter((i: any) => i.category === 'marketing').length,
-            design: checklist.items.filter((i: any) => i.category === 'design').length,
-            analytics: checklist.items.filter((i: any) => i.category === 'analytics').length,
-            finance: checklist.items.filter((i: any) => i.category === 'finance').length,
+            legal: checklist.items.filter((i: ChecklistItem) => i.category === 'legal').length,
+            tech: checklist.items.filter((i: ChecklistItem) => i.category === 'tech').length,
+            marketing: checklist.items.filter((i: ChecklistItem) => i.category === 'marketing').length,
+            design: checklist.items.filter((i: ChecklistItem) => i.category === 'design').length,
+            analytics: checklist.items.filter((i: ChecklistItem) => i.category === 'analytics').length,
+            finance: checklist.items.filter((i: ChecklistItem) => i.category === 'finance').length,
           },
-          critical_items: checklist.items.filter((i: any) => i.priority === 'critical').length,
+          critical_items: checklist.items.filter((i: ChecklistItem) => i.priority === 'critical').length,
         },
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
-    console.error('❌ Error generating launch checklist:', error);
+  } catch (error) {
+    const err = error as Error;
+    console.error('Error generating launch checklist:', err);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to generate launch checklist',
+        error: err.message || 'Failed to generate launch checklist',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -130,17 +140,17 @@ serve(async (req) => {
 async function generateChecklist(
   anthropic: Anthropic,
   params: LaunchChecklistRequest
-): Promise<{ items: any[]; tokensUsed: number }> {
+): Promise<{ items: ChecklistItem[]; tokensUsed: number }> {
   const { businessType, geography, hasWebsite, hasLegalEntity } = params;
 
-  const prompt = `Eres un experto en product launches. Genera un checklist COMPLETO de pre-launch para un ${businessType} lanzándose en ${geography}.
+  const prompt = `Eres un experto en product launches. Genera un checklist COMPLETO de pre-launch para un ${businessType} lanzandose en ${geography}.
 
 BUSINESS TYPE: ${businessType}
 GEOGRAPHY: ${geography}
 HAS WEBSITE: ${hasWebsite ? 'Yes' : 'No'}
 HAS LEGAL ENTITY: ${hasLegalEntity ? 'Yes' : 'No'}
 
-Genera 50-80 items divididos en categorías:
+Genera 50-80 items divididos en categorias:
 
 1. **LEGAL** (10-15 items):
    - Incorporation
@@ -195,7 +205,7 @@ Para cada item include:
 - **estimated_time**: "30 min", "2 hours", "1 day", etc.
 - **resources**: Array of {title, url} with helpful links
 
-PRIORIZACIÓN:
+PRIORIZACION:
 - **critical**: Must have before launch (legal, basic tech)
 - **high**: Important for good launch
 - **medium**: Nice to have
@@ -222,7 +232,7 @@ Devuelve SOLO un JSON array:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
   const jsonMatch = responseText.match(/\[[\s\S]*\]/);
@@ -230,12 +240,12 @@ Devuelve SOLO un JSON array:
     throw new Error('Failed to parse checklist response');
   }
 
-  const items = JSON.parse(jsonMatch[0]);
+  const items: ChecklistItem[] = JSON.parse(jsonMatch[0]);
 
   return { items, tokensUsed };
 }
 
-function calculateLaunchDate(items: any[]): string {
+function calculateLaunchDate(items: ChecklistItem[]): string {
   // Estimate total days based on critical + high items
   const criticalItems = items.filter((i) => i.priority === 'critical' || i.priority === 'high');
 

@@ -5,23 +5,66 @@
  * Proporciona consejos personalizados basados en:
  * - Skills actuales del usuario
  * - Objetivos de carrera
- * - Historial de conversación
+ * - Historial de conversacion
  *
  * Input:
  * - user_id: UUID del usuario
  * - message: Mensaje del usuario
- * - session_id: ID de sesión (opcional, crea nueva si no existe)
- * - topic: Tema de la conversación (opcional)
+ * - session_id: ID de sesion (opcional, crea nueva si no existe)
+ * - topic: Tema de la conversacion (opcional)
  *
  * Output:
  * - response: Respuesta del coach
  * - insights: Insights generados
  * - action_items: Acciones sugeridas
- * - session_id: ID de la sesión
+ * - session_id: ID de la sesion
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+interface ConversationMessage {
+  role: string;
+  content: string;
+  timestamp: string;
+}
+
+interface CoachInsight {
+  type: string;
+  content: string;
+  created_at: string;
+}
+
+interface CoachActionItem {
+  title: string;
+  description: string;
+  priority: string;
+  created_at: string;
+}
+
+interface SkillGap {
+  skill_name: string;
+  gap: number;
+}
+
+interface UserStats {
+  total_skills?: number;
+  avg_skill_level?: number;
+  learning_paths_active?: number;
+  total_feedback_received?: number;
+}
+
+interface CareerGoal {
+  id: string;
+  title: string;
+  status: string;
+}
+
+interface UserContext {
+  stats?: UserStats;
+  skillGaps: SkillGap[];
+  careerGoals: CareerGoal[];
+}
 
 serve(async (req) => {
   try {
@@ -48,7 +91,7 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
     );
 
-    // 1. Obtener o crear sesión
+    // 1. Obtener o crear sesion
     let currentSession;
     if (session_id) {
       const { data } = await supabaseClient
@@ -60,7 +103,7 @@ serve(async (req) => {
     }
 
     if (!currentSession) {
-      // Crear nueva sesión
+      // Crear nueva sesion
       const { data: newSession, error: sessionError } = await supabaseClient
         .from('ai_coach_sessions')
         .insert({
@@ -98,17 +141,17 @@ serve(async (req) => {
     // 3. Generar respuesta del coach
     const coachResponse = generateCoachResponse(
       message,
-      currentSession.conversation_history || [],
+      (currentSession.conversation_history || []) as ConversationMessage[],
       {
-        stats: userStats?.[0],
-        skillGaps: skillGaps || [],
-        careerGoals: careerGoals || [],
+        stats: userStats?.[0] as UserStats | undefined,
+        skillGaps: (skillGaps || []) as SkillGap[],
+        careerGoals: (careerGoals || []) as CareerGoal[],
       }
     );
 
-    // 4. Actualizar historial de conversación
-    const updatedHistory = [
-      ...(currentSession.conversation_history || []),
+    // 4. Actualizar historial de conversacion
+    const updatedHistory: ConversationMessage[] = [
+      ...((currentSession.conversation_history || []) as ConversationMessage[]),
       {
         role: 'user',
         content: message,
@@ -121,17 +164,17 @@ serve(async (req) => {
       },
     ];
 
-    // 5. Actualizar sesión con nueva conversación e insights
+    // 5. Actualizar sesion con nueva conversacion e insights
     const { error: updateError } = await supabaseClient
       .from('ai_coach_sessions')
       .update({
         conversation_history: updatedHistory,
         insights: [
-          ...(currentSession.insights || []),
+          ...((currentSession.insights || []) as CoachInsight[]),
           ...coachResponse.insights,
         ],
         action_items: [
-          ...(currentSession.action_items || []),
+          ...((currentSession.action_items || []) as CoachActionItem[]),
           ...coachResponse.action_items,
         ],
         updated_at: new Date().toISOString(),
@@ -159,7 +202,7 @@ serve(async (req) => {
     console.error('Error in AI career coach:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: (error as Error).message,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -171,19 +214,19 @@ serve(async (req) => {
 
 function generateCoachResponse(
   message: string,
-  conversationHistory: any[],
-  userContext: any
+  conversationHistory: ConversationMessage[],
+  userContext: UserContext
 ): {
   response: string;
-  insights: any[];
-  action_items: any[];
+  insights: CoachInsight[];
+  action_items: CoachActionItem[];
 } {
   const messageLower = message.toLowerCase();
   let response = '';
-  const insights: any[] = [];
-  const action_items: any[] = [];
+  const insights: CoachInsight[] = [];
+  const action_items: CoachActionItem[] = [];
 
-  // Análisis del mensaje del usuario
+  // Analisis del mensaje del usuario
   if (messageLower.includes('carrera') || messageLower.includes('career')) {
     response = `Veo que tienes ${userContext.careerGoals?.length || 0} objetivos de carrera activos. `;
 
@@ -193,7 +236,7 @@ function generateCoachResponse(
 
       insights.push({
         type: 'skill_gap',
-        content: `Gap crítico en ${topGap.skill_name}`,
+        content: `Gap critico en ${topGap.skill_name}`,
         created_at: new Date().toISOString(),
       });
 
@@ -204,10 +247,10 @@ function generateCoachResponse(
         created_at: new Date().toISOString(),
       });
     } else {
-      response += 'Tienes una buena base de skills. Te recomendaría establecer objetivos de carrera claros para enfocarte. ';
+      response += 'Tienes una buena base de skills. Te recomendaria establecer objetivos de carrera claros para enfocarte. ';
     }
 
-    response += '¿Hay algún rol específico al que aspiras?';
+    response += 'Hay algun rol especifico al que aspiras?';
   } else if (messageLower.includes('skill') || messageLower.includes('habilidad')) {
     const stats = userContext.stats;
     response = `Actualmente tienes ${stats?.total_skills || 0} skills registradas con un nivel promedio de ${stats?.avg_skill_level?.toFixed(1) || 0}/5. `;
@@ -215,7 +258,7 @@ function generateCoachResponse(
     if (userContext.skillGaps && userContext.skillGaps.length > 0) {
       response += `Tus top 3 areas de mejora son: ${userContext.skillGaps
         .slice(0, 3)
-        .map((g: any) => g.skill_name)
+        .map((g: SkillGap) => g.skill_name)
         .join(', ')}. `;
 
       insights.push({
@@ -224,17 +267,17 @@ function generateCoachResponse(
         created_at: new Date().toISOString(),
       });
     } else {
-      response += 'Te recomendaría agregar nuevas skills a tu matriz para seguir creciendo. ';
+      response += 'Te recomendaria agregar nuevas skills a tu matriz para seguir creciendo. ';
     }
 
-    response += '¿En qué skill te gustaría enfocarte primero?';
+    response += 'En que skill te gustaria enfocarte primero?';
   } else if (messageLower.includes('aprender') || messageLower.includes('learn')) {
     response = 'Excelente actitud de aprendizaje. ';
 
-    if (userContext.stats?.learning_paths_active > 0) {
+    if (userContext.stats?.learning_paths_active && userContext.stats.learning_paths_active > 0) {
       response += `Tienes ${userContext.stats.learning_paths_active} learning paths activos. Te sugiero completar el actual antes de empezar uno nuevo. `;
     } else {
-      response += 'Te recomendaría crear un learning path estructurado. ';
+      response += 'Te recomendaria crear un learning path estructurado. ';
 
       action_items.push({
         title: 'Crear Learning Path',
@@ -244,17 +287,17 @@ function generateCoachResponse(
       });
     }
 
-    response += '¿Qué te gustaría aprender?';
+    response += 'Que te gustaria aprender?';
   } else if (messageLower.includes('feedback')) {
     const stats = userContext.stats;
     response = `Has recibido ${stats?.total_feedback_received || 0} feedback de colegas. `;
 
     if (stats?.total_feedback_received === 0) {
-      response += 'El feedback es crucial para el crecimiento. Te sugiero pedir feedback específico a tu equipo o manager. ';
+      response += 'El feedback es crucial para el crecimiento. Te sugiero pedir feedback especifico a tu equipo o manager. ';
 
       action_items.push({
         title: 'Solicitar Feedback',
-        description: 'Pedir feedback específico a 3 personas del equipo',
+        description: 'Pedir feedback especifico a 3 personas del equipo',
         priority: 'high',
         created_at: new Date().toISOString(),
       });
@@ -262,19 +305,19 @@ function generateCoachResponse(
       response += 'Sigue solicitando feedback regularmente para mejorar continuamente. ';
     }
 
-    response += '¿Hay algún área específica en la que te gustaría recibir feedback?';
+    response += 'Hay alguna area especifica en la que te gustaria recibir feedback?';
   } else if (messageLower.includes('ayuda') || messageLower.includes('help')) {
     response = `Soy tu AI Career Coach. Puedo ayudarte con:
 
-📊 Análisis de skills y gaps
-🎯 Definición de objetivos de carrera
-📚 Creación de learning paths
-💡 Consejos de desarrollo profesional
-🔄 Feedback y mejora continua
+Analisis de skills y gaps
+Definicion de objetivos de carrera
+Creacion de learning paths
+Consejos de desarrollo profesional
+Feedback y mejora continua
 
-¿En qué área te gustaría enfocarte hoy?`;
+En que area te gustaria enfocarte hoy?`;
   } else {
-    // Respuesta genérica
+    // Respuesta generica
     response = 'Entiendo tu pregunta. ';
 
     if (conversationHistory.length === 0) {
@@ -282,7 +325,7 @@ function generateCoachResponse(
     }
 
     if (userContext.stats?.total_skills === 0) {
-      response += 'Para empezar, te recomendaría agregar tus skills actuales a la matriz de desarrollo. ';
+      response += 'Para empezar, te recomendaria agregar tus skills actuales a la matriz de desarrollo. ';
 
       action_items.push({
         title: 'Completar Skills Matrix',
@@ -292,7 +335,7 @@ function generateCoachResponse(
       });
     }
 
-    response += '¿Puedes darme más detalles sobre lo que necesitas?';
+    response += 'Puedes darme mas detalles sobre lo que necesitas?';
   }
 
   return {

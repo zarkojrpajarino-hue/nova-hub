@@ -12,8 +12,8 @@ interface LogAICallParams {
   projectId: string | undefined;
   userId?: string;
   functionName: string;
-  inputData: any;
-  outputData?: any;
+  inputData: unknown;
+  outputData?: unknown;
   success: boolean;
   errorMessage?: string;
   executionTimeMs: number;
@@ -90,7 +90,7 @@ export async function logAICall(params: LogAICallParams): Promise<void> {
 export async function withAILogging<T>(
   supabaseClient: SupabaseClient,
   functionName: string,
-  inputData: any,
+  inputData: unknown,
   projectId: string | undefined,
   userId: string | undefined,
   fn: () => Promise<{ result: T; tokensUsed?: number; modelUsed?: string }>
@@ -116,7 +116,7 @@ export async function withAILogging<T>(
     });
 
     return result;
-  } catch (error: any) {
+  } catch (error) {
     const executionTimeMs = Date.now() - startTime;
 
     // Log con error
@@ -127,7 +127,7 @@ export async function withAILogging<T>(
       functionName,
       inputData,
       success: false,
-      errorMessage: error.message || 'Unknown error',
+      errorMessage: error instanceof Error ? error.message : 'Unknown error',
       executionTimeMs,
     });
 

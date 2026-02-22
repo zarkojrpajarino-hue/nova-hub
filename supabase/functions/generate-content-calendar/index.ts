@@ -149,13 +149,13 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error generating content calendar:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to generate content calendar',
+        error: error instanceof Error ? error.message : 'Failed to generate content calendar',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -243,7 +243,7 @@ Devuelve SOLO un JSON array con este formato exacto (${numIdeas} items):
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
   const jsonMatch = responseText.match(/\[[\s\S]*\]/);

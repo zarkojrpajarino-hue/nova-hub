@@ -206,7 +206,7 @@ Proporciona UN párrafo (150-200 palabras) con:
    - Justificación basada en competencia
 
 Ejemplo de insight premium:
-"El mercado cobra $25-99/mes (rango de 4x). Patrón dominante: freemium con límite agresivo en plan gratuito (ej: 3 proyectos). RECOMENDACIÓN: Posiciónate en $39/mes (52% del rango) con plan gratuito MÁS generoso (10 proyectos vs 3 competidores). Esto te da margen para crecer precios luego Y captura early adopters sensibles a precio. Añade tier Enterprise $199/mes con white-label + SSO para capturar 5-10% de usuarios que escalaron."`
+"El mercado cobra $25-99/mes (rango de 4x). Patrón dominante: freemium con límite agresivo en plan gratuito (ej: 3 proyectos). RECOMENDACIÓN: Posiciónate en $39/mes (52% del rango) con plan gratuito MÁS generoso (10 proyectos vs 3 competidores). Esto te da margen para crecer precios luego Y captura early adopters sensibles a precio. Añade tier Enterprise $199/mes con white-label + SSO para capturar 5-10% de usuarios que escalaron."
 
 FORMATO DE RESPUESTA (JSON):
 {

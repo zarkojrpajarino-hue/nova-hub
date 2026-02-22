@@ -33,7 +33,7 @@ serve(async (req) => {
       });
     }
 
-    const { user_id, interests_id } = await req.json();
+    const { user_id, interests_id: _interests_id } = await req.json();
 
     if (!user_id) {
       throw new Error('user_id is required');
@@ -60,7 +60,7 @@ serve(async (req) => {
     // 2. Generar ideas con GPT-4
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
-    const prompt = buildIdeaGenerationPrompt(interests);
+    const prompt = buildIdeaGenerationPrompt(interests as UserInterests);
 
     console.log('Generating business ideas for user:', user_id);
 
@@ -96,8 +96,8 @@ serve(async (req) => {
     let parsedIdeas;
     try {
       parsedIdeas = JSON.parse(cleanContent);
-    } catch (e) {
-      console.error('Parse error:', e);
+    } catch (_e) {
+      console.error('Parse error');
       throw new Error('Failed to parse AI response');
     }
 
@@ -159,7 +159,7 @@ serve(async (req) => {
     console.error('Error generating business ideas:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -228,7 +228,24 @@ FORMATO DE RESPUESTA (JSON válido):
   ]
 }`;
 
-function buildIdeaGenerationPrompt(interests: any): string {
+interface UserInterests {
+  hobbies?: string[];
+  professional_background?: string;
+  skills?: string[];
+  preferred_industries?: string[];
+  avoid_industries?: string[];
+  target_market_preference?: string;
+  business_model_preference?: string[];
+  available_budget?: number;
+  available_time_hours_week?: number;
+  technical_skills_level?: string;
+  has_cofounder?: boolean;
+  revenue_goal_monthly?: number;
+  lifestyle_goal?: string;
+  risk_tolerance?: string;
+}
+
+function buildIdeaGenerationPrompt(interests: UserInterests): string {
   return `
 # GENERAR IDEAS DE NEGOCIO PERSONALIZADAS
 

@@ -80,7 +80,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Error in scrape-and-extract:', error);
     return new Response(
-      JSON.stringify({ success: false, error: error.message }),
+      JSON.stringify({ success: false, error: (error as Error).message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -115,7 +115,7 @@ async function scrapeUrl(url: string): Promise<string> {
     return cleaned.substring(0, 10000);
   } catch (error) {
     console.error(`Error scraping ${url}:`, error);
-    return `Failed to scrape ${url}: ${error.message}`;
+    return `Failed to scrape ${url}: ${(error as Error).message}`;
   }
 }
 
@@ -181,7 +181,7 @@ Identify their value props, target audiences, business models, key features, and
 
 async function extractForIdea(
   business_pitch: string,
-  social_media_urls: any,
+  social_media_urls: Record<string, unknown>,
   website_url: string,
   linkedin_urls: string[],
   competitor_urls: string[]
@@ -351,7 +351,7 @@ Extract: website value prop/features/pricing, estimate metrics (MRR, customers, 
 }
 
 // Fallback mock data functions
-function fallbackToMockData(type: string, competitor_urls: any, website_url: any, linkedin_urls: any, comp_urls: any) {
+function fallbackToMockData(type: string, competitor_urls: string[], website_url: string, linkedin_urls: string[], comp_urls: string[]) {
   let data;
   if (type === 'generative') {
     data = getMockGenerativeData(competitor_urls || []);

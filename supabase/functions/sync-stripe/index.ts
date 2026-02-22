@@ -97,7 +97,6 @@ serve(async (req) => {
 
     // 4. Sincronizar suscripciones
     const mockSubscriptions = generateMockSubscriptions();
-    let subscriptionsSynced = 0;
     let mrr = 0;
 
     for (const sub of mockSubscriptions) {
@@ -163,7 +162,7 @@ serve(async (req) => {
 // ============================================================================
 
 function generateMockStripeTransactions(sinceDate: string) {
-  const transactions: any[] = [];
+  const transactions: unknown[] = [];
   const since = new Date(sinceDate).getTime();
   const now = Date.now();
 
@@ -196,7 +195,7 @@ function generateMockStripeTransactions(sinceDate: string) {
 }
 
 function generateMockSubscriptions() {
-  const subscriptions: any[] = [];
+  const subscriptions: unknown[] = [];
   const statuses = ['active', 'active', 'active', 'canceled', 'past_due'];
 
   for (let i = 0; i < 15; i++) {
@@ -213,7 +212,7 @@ function generateMockSubscriptions() {
   return subscriptions;
 }
 
-function calculateChurnRate(subscriptions: any[]) {
+function calculateChurnRate(subscriptions: unknown[]) {
   const total = subscriptions.length;
   const churned = subscriptions.filter((s) => s.status === 'canceled').length;
   return total > 0 ? (churned / total) * 100 : 0;

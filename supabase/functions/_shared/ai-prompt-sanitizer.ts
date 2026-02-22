@@ -75,7 +75,7 @@ const INJECTION_PATTERNS = [
   /system\s*:\s*/gi,
   /assistant\s*:\s*/gi,
   /\[INST\]/gi,  // Llama-style instruction markers
-  /\<\|.*?\|\>/gi,  // Special tokens
+  /<\|.*?\|>/gi,  // Special tokens
   /###\s*Human:/gi,  // Anthropic-style markers
   /###\s*Assistant:/gi,
 ];
@@ -197,10 +197,10 @@ export function sanitizePromptInput(
  * Sanitize an object's string fields recursively
  */
 export function sanitizeObject(
-  obj: Record<string, any>,
+  obj: Record<string, unknown>,
   fieldConfigs: Record<string, SanitizerConfig>
-): { sanitized: Record<string, any>; blocked: string[] } {
-  const sanitized: Record<string, any> = {};
+): { sanitized: Record<string, unknown>; blocked: string[] } {
+  const sanitized: Record<string, unknown> = {};
   const blocked: string[] = [];
 
   for (const [key, value] of Object.entries(obj)) {

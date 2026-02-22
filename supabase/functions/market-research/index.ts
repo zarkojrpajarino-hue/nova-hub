@@ -164,13 +164,14 @@ serve(async (req) => {
     return new Response(JSON.stringify({ success: true, report }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
-    console.error('❌ Error in market-research:', error);
+  } catch (error) {
+    const err = error as Error;
+    console.error('Error in market-research:', err);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to generate market research',
+        error: err.message || 'Failed to generate market research',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -231,7 +232,7 @@ Devuelve SOLO un JSON array con este formato exacto:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON from response
   const jsonMatch = responseText.match(/\[[\s\S]*\]/);
@@ -314,7 +315,7 @@ Devuelve SOLO un JSON array con este formato exacto:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON from response
   const jsonMatch = responseText.match(/\[[\s\S]*\]/);
@@ -374,7 +375,7 @@ Devuelve SOLO un JSON con este formato exacto:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON from response
   const jsonMatch = responseText.match(/\{[\s\S]*\}/);
@@ -493,7 +494,7 @@ Devuelve SOLO un JSON con este formato exacto:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
   // Extract JSON from response

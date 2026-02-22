@@ -69,10 +69,10 @@ serve(async (req) => {
     );
 
     // 1. Obtener patrones de productividad del usuario
-    const { data: productiveHours, error: hoursError } = await supabaseClient
+    const { data: productiveHours, error: _hoursError } = await supabaseClient
       .rpc('get_user_productive_hours', { p_user_id: user_id });
 
-    const { data: productiveDays, error: daysError } = await supabaseClient
+    const { data: productiveDays, error: _daysError } = await supabaseClient
       .rpc('get_user_productive_days', { p_user_id: user_id });
 
     // 2. Obtener preferencias del usuario
@@ -155,8 +155,8 @@ serve(async (req) => {
 });
 
 function analyzePatterns(
-  productiveHours: any[],
-  productiveDays: any[]
+  productiveHours: unknown[],
+  productiveDays: unknown[]
 ): ProductivityPattern {
   // Extraer top 3 horas más productivas
   const topHours = productiveHours
@@ -183,7 +183,7 @@ function analyzePatterns(
 function generateScheduleSuggestions(
   tasks: TaskData[],
   patterns: ProductivityPattern,
-  preferences: any,
+  preferences: unknown,
   dateRange?: { start_date: string; end_date: string }
 ): ScheduleSuggestion[] {
   const suggestions: ScheduleSuggestion[] = [];
@@ -202,7 +202,7 @@ function generateScheduleSuggestions(
     return bPriority - aPriority;
   });
 
-  let currentDate = new Date(startDate);
+  const currentDate = new Date(startDate);
   let taskIndex = 0;
 
   while (taskIndex < sortedTasks.length && currentDate <= endDate) {

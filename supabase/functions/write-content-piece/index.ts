@@ -84,7 +84,7 @@ serve(async (req) => {
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
     // Write content based on type
-    const content = await writeContent(anthropic, contentData);
+    const content = await writeContent(anthropic, contentData as ContentData);
 
     // Save draft to database
     if (contentPieceId) {
@@ -123,13 +123,13 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error writing content:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to write content',
+        error: error instanceof Error ? error.message : 'Failed to write content',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -139,9 +139,18 @@ serve(async (req) => {
 /**
  * Write content using AI
  */
+interface ContentData {
+  title?: string;
+  type?: string;
+  keywords?: string[];
+  outline?: string[];
+  targetCustomer?: string;
+  businessContext?: string;
+}
+
 async function writeContent(
   anthropic: Anthropic,
-  data: any
+  data: ContentData
 ): Promise<{ text: string; wordCount: number; tokensUsed: number }> {
   const { title, type, keywords, outline, targetCustomer, businessContext } = data;
 
@@ -291,7 +300,7 @@ Escribe el script COMPLETO con timecodes:`;
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = (message.content[0] as any).text;
+  const text = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
   const wordCount = text.split(/\s+/).length;
 

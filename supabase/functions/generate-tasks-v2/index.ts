@@ -88,7 +88,7 @@ Deno.serve(async (req) => {
     console.log('Generating tasks for project:', projectId);
 
     // ==================== EVIDENCE INSTRUMENTATION ====================
-    const evidenceMode = (validation.data as any).evidence_mode || 'hypothesis';
+    const evidenceMode = (validation.data as Record<string, unknown>).evidence_mode as string || 'hypothesis';
     const evidenceTracker = new EvidenceMetricsTracker(
       'task_generation',
       'tasks',
@@ -317,7 +317,7 @@ Deno.serve(async (req) => {
     let parsed;
     try {
       parsed = JSON.parse(cleanContent);
-    } catch (e) {
+    } catch (_e) {
       console.error('Parse error, content preview:', cleanContent.substring(0, 200));
       return new Response(
         JSON.stringify({ error: 'Failed to parse AI response' }),
@@ -397,7 +397,7 @@ Deno.serve(async (req) => {
       tasks_saved: savedTasks.length,
       team_size: teamWithMetrics.length,
       project_phase: project.fase,
-      user_stage: (project as any).user_stage,
+      user_stage: (project as Record<string, unknown>).user_stage,
       has_intelligence: !!intelligence,
       context_sources: sourcesFound,
       coverage_percentage: (savedTasks.length / generatedTasks.length) * 100,
@@ -510,7 +510,7 @@ function buildContext(
   obvs: OBV[],
   leads: Lead[],
   tasks: Task[],
-  intelligence: any = null
+  intelligence: Record<string, unknown> | null = null
 ): ProjectContext {
   const onboarding = project.onboarding_data || {};
 
@@ -521,8 +521,8 @@ function buildContext(
       fase: project.fase || 'validacion',
       tipo: project.tipo || 'validacion',
       project_state: project.project_state || null,
-      user_stage: (project as any).user_stage || null,
-      methodology: (project as any).methodology || null,
+      user_stage: (project as Record<string, unknown>).user_stage as string || null,
+      methodology: (project as Record<string, unknown>).methodology as string || null,
     },
     intelligence: intelligence || {
       buyer_personas: [],
@@ -825,7 +825,7 @@ Genera tareas generales de startup considerando la fase y tipo del proyecto.
 }
 
 function buildUserPrompt(context: ProjectContext): string {
-  const project = context.project as any;
+  const project = context.project;
   const projectState = project.project_state || null;
   const userStage = project.user_stage || null;
   const methodology = project.methodology || null;
@@ -836,10 +836,10 @@ function buildUserPrompt(context: ProjectContext): string {
     : getStateInstructions(projectState);
 
   // Extract intelligence context
-  const intelligence = (context as any).intelligence || {};
-  const primaryPersona = intelligence.buyer_personas?.[0];
-  const valueProp = intelligence.value_proposition;
-  const brand = intelligence.brand;
+  const intelligence = (context.intelligence as Record<string, unknown>) || {};
+  const primaryPersona = (intelligence.buyer_personas as Record<string, unknown>[])?.[0];
+  const valueProp = intelligence.value_proposition as Record<string, unknown> | undefined;
+  const brand = intelligence.brand as Record<string, unknown> | undefined;
 
   return `
 # CONTEXTO DEL PROYECTO
@@ -858,15 +858,15 @@ ${primaryPersona ? `
 ## BUYER PERSONA PRIMARY
 - Nombre: ${primaryPersona.persona_name}
 - Rol: ${primaryPersona.role || 'No definido'}
-- Pain points principales: ${primaryPersona.pain_points?.slice(0, 3).map((p: any) => p.pain || p).join(', ') || 'No definidos'}
+- Pain points principales: ${(primaryPersona.pain_points as Array<Record<string, unknown>>)?.slice(0, 3).map((p) => (p.pain as string) || String(p)).join(', ') || 'No definidos'}
 - Presupuesto: €${primaryPersona.budget_min}-${primaryPersona.budget_max} ${primaryPersona.budget_frequency || ''}
-- Canales preferidos: ${primaryPersona.preferred_channels?.map((c: any) => c.channel || c).join(', ') || 'No definidos'}
+- Canales preferidos: ${(primaryPersona.preferred_channels as Array<Record<string, unknown>>)?.map((c) => (c.channel as string) || String(c)).join(', ') || 'No definidos'}
 ` : ''}
 
 ${valueProp ? `
 ## VALUE PROPOSITION
 - Headline: ${valueProp.headline}
-- USPs clave: ${valueProp.unique_selling_points?.slice(0, 3).map((u: any) => u.usp || u).join(', ') || 'No definidos'}
+- USPs clave: ${(valueProp.unique_selling_points as Array<Record<string, unknown>>)?.slice(0, 3).map((u) => (u.usp as string) || String(u)).join(', ') || 'No definidos'}
 ` : ''}
 
 ${brand ? `

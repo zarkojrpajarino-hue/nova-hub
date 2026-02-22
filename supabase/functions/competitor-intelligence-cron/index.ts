@@ -4,7 +4,7 @@
  * Cron job que corre semanalmente para:
  * - Scrapear websites de competidores
  * - Detectar cambios en pricing/features
- * - Tomar screenshots para comparación visual
+ * - Tomar screenshots para comparacion visual
  * - Enviar alertas si hay cambios importantes
  *
  * Schedule: Every Monday at 9am UTC
@@ -19,11 +19,21 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-interface CompetitorData {
-  competitor_id: string;
+interface CompetitorEntry {
+  id?: string;
   name: string;
   website: string;
-  previous_snapshot?: any;
+}
+
+interface PrevSnapshot {
+  pricing?: Record<string, unknown>;
+  features?: string[];
+}
+
+interface ScrapedData {
+  html: string;
+  pricing: Record<string, unknown>;
+  features: string[];
 }
 
 serve(async (req) => {
@@ -45,7 +55,7 @@ serve(async (req) => {
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
-    console.log('🔍 Starting competitor intelligence cron job');
+    console.log('Starting competitor intelligence cron job');
 
     // Get all active projects with competitors
     const { data: projects, error: projectsError } = await supabaseClient
@@ -60,8 +70,8 @@ serve(async (req) => {
     let totalScanned = 0;
     let totalChanges = 0;
 
-    for (const project of projects || []) {
-      const competitors = project.metadata?.competitors || [];
+    for (const project of (projects || []) as Array<{ id: string; metadata: Record<string, unknown> | null }>) {
+      const competitors = (project.metadata?.competitors || []) as CompetitorEntry[];
 
       for (const competitor of competitors) {
         try {
@@ -81,7 +91,7 @@ serve(async (req) => {
           const currentData = await scrapeCompetitor(competitor.website);
 
           // Detect changes using AI
-          const changes = await detectChanges(anthropic, prevSnapshot, currentData, competitor);
+          const changes = await detectChanges(anthropic, prevSnapshot as PrevSnapshot | null, currentData, competitor);
 
           // Save snapshot
           const { error: snapshotError } = await supabaseClient
@@ -103,7 +113,7 @@ serve(async (req) => {
 
           // If significant changes, create alert
           if (changes.length > 0) {
-            console.log(`⚠️ ${changes.length} changes detected for ${competitor.name}`);
+            console.log(`${changes.length} changes detected for ${competitor.name}`);
             totalChanges += changes.length;
 
             // Create AI recommendation
@@ -131,7 +141,7 @@ serve(async (req) => {
       }
     }
 
-    console.log(`✅ Cron job complete: scanned ${totalScanned} competitors, detected ${totalChanges} changes`);
+    console.log(`Cron job complete: scanned ${totalScanned} competitors, detected ${totalChanges} changes`);
 
     return new Response(
       JSON.stringify({
@@ -141,13 +151,14 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
-    console.error('❌ Cron job failed:', error);
+  } catch (error) {
+    const err = error as Error;
+    console.error('Cron job failed:', err);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message,
+        error: err.message,
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -157,11 +168,7 @@ serve(async (req) => {
 /**
  * Scrape competitor website
  */
-async function scrapeCompetitor(url: string): Promise<{
-  html: string;
-  pricing: any;
-  features: string[];
-}> {
+async function scrapeCompetitor(url: string): Promise<ScrapedData> {
   try {
     const response = await fetch(url, {
       headers: {
@@ -199,9 +206,9 @@ async function scrapeCompetitor(url: string): Promise<{
  */
 async function detectChanges(
   anthropic: Anthropic,
-  prevSnapshot: any,
-  currentData: any,
-  competitor: any
+  prevSnapshot: PrevSnapshot | null,
+  currentData: ScrapedData,
+  competitor: CompetitorEntry
 ): Promise<string[]> {
   if (!prevSnapshot) {
     return []; // No previous data to compare
@@ -220,14 +227,14 @@ Pricing: ${JSON.stringify(currentData.pricing || {})}
 Features: ${currentData.features.join(', ')}
 
 Detecta cambios en:
-1. **Pricing changes**: ¿Subieron o bajaron precios?
-2. **New features**: ¿Features nuevas importantes?
-3. **Removed features**: ¿Quitaron algo?
+1. **Pricing changes**: Subieron o bajaron precios?
+2. **New features**: Features nuevas importantes?
+3. **Removed features**: Quitaron algo?
 
 IMPORTANTE:
 - SOLO reporta cambios SIGNIFICATIVOS (no typos o minor wording)
-- Sé específico con números
-- Ignore cambios cosméticos
+- Se especifico con numeros
+- Ignore cambios cosmeticos
 
 Devuelve un JSON array de strings con los cambios:
 ["Pricing increased from $29 to $39 for Pro plan", "Added AI feature to Enterprise plan"]
@@ -241,7 +248,7 @@ Si NO hay cambios significativos, devuelve [].`;
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const responseText = (message.content[0] as any).text;
+    const responseText = (message.content[0] as { type: string; text: string }).text;
     const jsonMatch = responseText.match(/\[[\s\S]*\]/);
 
     if (!jsonMatch) {
@@ -274,7 +281,7 @@ function determinePriority(changes: string[]): 'critical' | 'high' | 'medium' | 
 /**
  * Generate action items based on changes
  */
-function generateActionItems(changes: string[], competitor: any): string[] {
+function generateActionItems(changes: string[], competitor: CompetitorEntry): string[] {
   const items: string[] = [];
 
   const changeText = changes.join(' ').toLowerCase();

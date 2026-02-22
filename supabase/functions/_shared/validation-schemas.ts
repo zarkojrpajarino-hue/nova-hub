@@ -19,14 +19,14 @@ interface SanitizerConfig {
 }
 
 // Default configs
-const SHORT_CONFIG: SanitizerConfig = { maxLength: 100, allowNewlines: false, allowSpecialChars: false, strictMode: true };
+const _SHORT_CONFIG: SanitizerConfig = { maxLength: 100, allowNewlines: false, allowSpecialChars: false, strictMode: true };
 const MEDIUM_CONFIG: SanitizerConfig = { maxLength: 500, allowNewlines: true, allowSpecialChars: true, strictMode: false };
 
 /**
  * Custom Zod validator for AI-safe strings
  * Sanitizes input and blocks prompt injection attempts
  */
-function aiSafeString(config: SanitizerConfig = MEDIUM_CONFIG) {
+function _aiSafeString(config: SanitizerConfig = MEDIUM_CONFIG) {
   return z.string().transform((val, ctx) => {
     const result = sanitizePromptInput(val, config);
 

@@ -156,13 +156,13 @@ serve(async (req) => {
           status: 200,
         }
       );
-    } catch (sendError: any) {
+    } catch (sendError) {
       // Update status to failed
       await supabaseClient
         .from('sent_emails')
         .update({
           status: 'failed',
-          error_message: sendError.message,
+          error_message: sendError instanceof Error ? sendError.message : 'Unknown error',
         })
         .eq('id', sentEmailRecord.id);
 
@@ -172,7 +172,7 @@ serve(async (req) => {
     console.error('Error sending email:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
         details: 'Make sure RESEND_API_KEY is configured and sender_email is set in company_assets',
       }),
       {

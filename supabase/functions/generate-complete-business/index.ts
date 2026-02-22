@@ -51,7 +51,7 @@ serve(async (req) => {
     );
 
     // 1. Get business context
-    let businessContext: any;
+    let businessContext: Record<string, unknown>;
 
     if (idea_id) {
       // Coming from generated ideas
@@ -120,8 +120,8 @@ serve(async (req) => {
     let generated;
     try {
       generated = JSON.parse(cleanContent);
-    } catch (e) {
-      console.error('Parse error:', e);
+    } catch (_e) {
+      console.error('Parse error');
       console.error('Raw content:', content);
       throw new Error('Failed to parse AI response');
     }
@@ -209,7 +209,7 @@ serve(async (req) => {
     console.error('Error generating complete business:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -282,7 +282,7 @@ IMPORTANTE:
 - Validation: Experimentos concretos tipo Lean Startup (no vagos)
 - Website copy: Específico para ESTE negocio (no genérico)`;
 
-function buildCompleteBusinessPrompt(context: any): string {
+function buildCompleteBusinessPrompt(context: Record<string, unknown>): string {
   return `
 # GENERAR NEGOCIO COMPLETO
 

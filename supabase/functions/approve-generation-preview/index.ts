@@ -65,7 +65,7 @@ serve(async (req) => {
     }
 
     const projectId = preview.project_id;
-    const appliedTo: any = {};
+    const appliedTo: Record<string, unknown> = {};
 
     console.log('Applying generated business for project:', projectId);
 
@@ -307,7 +307,7 @@ serve(async (req) => {
     console.error('Error approving preview:', error);
     return new Response(
       JSON.stringify({
-        error: error.message,
+        error: (error as Error).message,
       }),
       {
         headers: { 'Content-Type': 'application/json' },
@@ -321,7 +321,7 @@ serve(async (req) => {
 // HTML GENERATION
 // ============================================================================
 
-function generateWebsiteHTML(data: any, branding: any): string {
+function generateWebsiteHTML(data: Record<string, unknown>, branding: Record<string, unknown>): string {
   const website = data.website_structure;
   const valueProp = data.value_proposition;
   const products = data.products;
@@ -441,7 +441,7 @@ function generateWebsiteHTML(data: any, branding: any): string {
 
   ${website.pages.home.sections
     .map(
-      (section: any) => `
+      (section: Record<string, unknown>) => `
   <section>
     <div class="container">
       <h2 class="section-title">${section.headline}</h2>
@@ -461,7 +461,7 @@ function generateWebsiteHTML(data: any, branding: any): string {
         ${products
           .slice(0, 3)
           .map(
-            (product: any) => `
+            (product: Record<string, unknown>) => `
         <div class="product-card">
           <h3>${product.product_name}</h3>
           <p>${product.tagline}</p>

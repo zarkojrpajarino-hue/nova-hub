@@ -70,7 +70,7 @@ serve(async (req) => {
       .single();
 
     // Generate business options with AI
-    const options = await generateOptions(anthropic, requestData, geoData);
+    const options = await generateOptions(anthropic, requestData, geoData as GeoDataRecord | null);
 
     // Save to database
     const { data: saved } = await supabaseClient
@@ -91,16 +91,23 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error:', error);
-    return new Response(JSON.stringify({ success: false, error: error.message }), {
+    return new Response(JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
   }
 });
 
-async function generateOptions(anthropic: Anthropic, request: GenerateOptionsRequest, geoData: any) {
+interface GeoDataRecord {
+  operational_costs?: { dev_salary_min?: number; dev_salary_max?: number };
+  cost_of_living?: number;
+  market_size?: { description?: string };
+  insights?: string[];
+}
+
+async function generateOptions(anthropic: Anthropic, request: GenerateOptionsRequest, geoData: GeoDataRecord | null) {
   const prompt = `Eres un experto en generación de ideas de negocio personalizadas.
 
 PERFIL DEL FOUNDER:
@@ -279,7 +286,7 @@ Devuelve SOLO el JSON.`;
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const text = (message.content[0] as any).text;
+  const text = (message.content[0] as { type: string; text: string }).text;
   const jsonMatch = text.match(/\{[\s\S]*\}/);
 
   if (!jsonMatch) {

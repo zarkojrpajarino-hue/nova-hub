@@ -74,7 +74,7 @@ interface Slide {
   subtitle?: string;
   content: {
     type: 'text' | 'bullets' | 'numbers' | 'visual' | 'quote';
-    data: any;
+    data: unknown;
   };
   notes: string; // Speaker notes
   visualSuggestion?: string; // What image/chart to use
@@ -166,13 +166,13 @@ serve(async (req) => {
     return new Response(JSON.stringify({ success: true, pitchDeck }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
     });
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error generating pitch deck:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to generate pitch deck',
+        error: error instanceof Error ? error.message : 'Failed to generate pitch deck',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -309,7 +309,7 @@ Devuelve SOLO un JSON array de 10 slides con este formato EXACTO:
     messages: [{ role: 'user', content: prompt }],
   });
 
-  const responseText = (message.content[0] as any).text;
+  const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON array from response
   const jsonMatch = responseText.match(/\[[\s\S]*\]/);

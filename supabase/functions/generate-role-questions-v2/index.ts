@@ -322,7 +322,7 @@ Deno.serve(async (req) => {
     let parsed;
     try {
       parsed = JSON.parse(cleanContent);
-    } catch (e) {
+    } catch (_e) {
       console.error('Parse error');
       return new Response(
         JSON.stringify({ error: 'Failed to process AI response' }),

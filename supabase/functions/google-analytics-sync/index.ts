@@ -189,13 +189,13 @@ serve(async (req) => {
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
-  } catch (error: any) {
+  } catch (error) {
     console.error('❌ Error syncing Google Analytics:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
-        error: error.message || 'Failed to sync Google Analytics',
+        error: error instanceof Error ? error.message : 'Failed to sync Google Analytics',
       }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -356,7 +356,7 @@ async function fetchGA4Metrics(
   const sourcesData = await sourcesResponse.json();
 
   const topSources =
-    sourcesData.rows?.map((r: any) => ({
+    sourcesData.rows?.map((r: Record<string, { value: string }[]>) => ({
       source: r.dimensionValues[0].value,
       users: parseInt(r.metricValues[0].value),
       conversions: parseInt(r.metricValues[1].value),
@@ -384,7 +384,7 @@ async function fetchGA4Metrics(
   const pagesData = await pagesResponse.json();
 
   const topPages =
-    pagesData.rows?.map((r: any) => ({
+    pagesData.rows?.map((r: Record<string, { value: string }[]>) => ({
       page: r.dimensionValues[0].value,
       pageviews: parseInt(r.metricValues[0].value),
       avgTimeOnPage: parseFloat(r.metricValues[1].value),
@@ -414,7 +414,7 @@ async function fetchGA4Metrics(
   const totalUsersForPercentage = parseInt(row[0]?.value || '0');
 
   const topCountries =
-    countriesData.rows?.map((r: any) => {
+    countriesData.rows?.map((r: Record<string, { value: string }[]>) => {
       const users = parseInt(r.metricValues[0].value);
       return {
         country: r.dimensionValues[0].value,

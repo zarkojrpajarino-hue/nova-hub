@@ -11,7 +11,20 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+interface MeetingRecord extends Record<string, unknown> {
+  id: string;
+  project_id: string;
+  created_by: string;
+  notas?: string;
+}
+
+interface InsightRecord extends Record<string, unknown> {
+  id: string;
+  insight_type: string;
+  content: Record<string, unknown>;
+}
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -143,9 +156,9 @@ serve(async (req) => {
             })
             .eq('id', insight.id);
         }
-      } catch (error: any) {
+      } catch (error) {
         console.error(`Error applying insight ${insight.id}:`, error);
-        results.errors.push(`${insight.insight_type}: ${error.message}`);
+        results.errors.push(`${insight.insight_type}: ${(error as Error).message}`);
       }
     }
 
@@ -177,7 +190,7 @@ serve(async (req) => {
   } catch (error) {
     console.error('Unexpected error:', error);
     return new Response(
-      JSON.stringify({ error: 'Internal server error', details: error.message }),
+      JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   }
@@ -186,8 +199,15 @@ serve(async (req) => {
 /**
  * Aplica una tarea al sistema
  */
-async function applyTask(supabase: any, meeting: any, insight: any): Promise<string | null> {
-  const content = insight.content;
+async function applyTask(supabase: SupabaseClient, meeting: MeetingRecord, insight: InsightRecord): Promise<string | null> {
+  const content = insight.content as {
+    title: string;
+    description?: string;
+    priority?: string;
+    estimated_hours?: number;
+    deadline?: string;
+    assigned_to?: string;
+  };
 
   const taskData = {
     proyecto_id: meeting.project_id,
@@ -222,8 +242,13 @@ async function applyTask(supabase: any, meeting: any, insight: any): Promise<str
 /**
  * Aplica una decisión al sistema
  */
-async function applyDecision(supabase: any, meeting: any, insight: any): Promise<string | null> {
-  const content = insight.content;
+async function applyDecision(supabase: SupabaseClient, meeting: MeetingRecord, insight: InsightRecord): Promise<string | null> {
+  const content = insight.content as {
+    impact?: string;
+    title?: string;
+    description?: string;
+    rationale?: string;
+  };
 
   // Las decisiones ya están en meeting_decisions (se crearon en Task #45)
   // Aquí solo las marcamos como "applied" si necesitamos hacer algo adicional
@@ -262,8 +287,16 @@ async function applyDecision(supabase: any, meeting: any, insight: any): Promise
 /**
  * Aplica un lead al sistema
  */
-async function applyLead(supabase: any, meeting: any, insight: any): Promise<string | null> {
-  const content = insight.content;
+async function applyLead(supabase: SupabaseClient, meeting: MeetingRecord, insight: InsightRecord): Promise<string | null> {
+  const content = insight.content as {
+    company_name?: string;
+    contact_name?: string;
+    contact_email?: string;
+    contact_phone?: string;
+    opportunity?: string;
+    estimated_value?: number;
+    stage?: string;
+  };
 
   // Verificar si existe tabla de leads
   const { data: tableExists } = await supabase
@@ -332,15 +365,21 @@ async function applyLead(supabase: any, meeting: any, insight: any): Promise<str
 /**
  * Aplica actualización de OBV
  */
-async function applyOBVUpdate(supabase: any, meeting: any, insight: any): Promise<string | null> {
-  const content = insight.content;
+async function applyOBVUpdate(supabase: SupabaseClient, meeting: MeetingRecord, insight: InsightRecord): Promise<string | null> {
+  const content = insight.content as {
+    obv_id?: string;
+    obv_title?: string;
+    description?: string;
+    update_type?: string;
+  };
 
   // Obtener el OBV
-  const { data: obv, error: obvError } = await supabase
+  const { data: obvRaw, error: obvError } = await supabase
     .from('obvs')
     .select('*')
     .eq('id', content.obv_id)
     .single();
+  const obv = obvRaw as { notas?: string } | null;
 
   if (obvError || !obv) {
     console.error('OBV not found:', content.obv_id);
@@ -367,7 +406,7 @@ async function applyOBVUpdate(supabase: any, meeting: any, insight: any): Promis
   }
 
   // Actualizar el OBV según el tipo de update
-  let updateData: any = {};
+  let updateData: Record<string, unknown> = {};
 
   switch (content.update_type) {
     case 'progreso':
@@ -419,8 +458,14 @@ async function applyOBVUpdate(supabase: any, meeting: any, insight: any): Promis
 /**
  * Aplica un blocker al sistema (crea tarea urgente)
  */
-async function applyBlocker(supabase: any, meeting: any, insight: any): Promise<string | null> {
-  const content = insight.content;
+async function applyBlocker(supabase: SupabaseClient, meeting: MeetingRecord, insight: InsightRecord): Promise<string | null> {
+  const content = insight.content as {
+    title?: string;
+    description?: string;
+    affected_areas?: string[];
+    suggested_solution?: string;
+    severity?: string;
+  };
 
   const blockerTask = {
     proyecto_id: meeting.project_id,
@@ -451,8 +496,15 @@ async function applyBlocker(supabase: any, meeting: any, insight: any): Promise<
 /**
  * Aplica una métrica al sistema
  */
-async function applyMetric(supabase: any, meeting: any, insight: any): Promise<string | null> {
-  const content = insight.content;
+async function applyMetric(supabase: SupabaseClient, meeting: MeetingRecord, insight: InsightRecord): Promise<string | null> {
+  const content = insight.content as {
+    name?: string;
+    value?: number;
+    unit?: string;
+    trend?: string;
+    context?: string;
+    action_required?: string;
+  };
 
   // Verificar si existe tabla de métricas
   const { data: tableExists } = await supabase

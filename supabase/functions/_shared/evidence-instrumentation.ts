@@ -40,7 +40,7 @@ export interface EvidenceGenerationMetrics {
   waste_flag: boolean;
 
   // Metadata extensible (JSONB)
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 /**
@@ -97,7 +97,7 @@ export class EvidenceMetricsTracker {
   public timeoutOccurred: boolean = false;
   public timedOutTiers: string[] = [];
   public tierDurations: Record<string, number> = {};
-  public metadata: Record<string, any> = {};
+  public metadata: Record<string, unknown> = {};
 
   constructor(
     feature: string,

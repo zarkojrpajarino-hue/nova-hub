@@ -61,7 +61,7 @@ serve(async (req) => {
   }
 });
 
-function generateExcelContent(exportType: string, data: any, metadata: any): string {
+function generateExcelContent(exportType: string, data: unknown, metadata: unknown): string {
   // Generate XML for Excel (simplified XLSX format)
   const rows = convertDataToRows(exportType, data);
 
@@ -115,7 +115,7 @@ function generateExcelContent(exportType: string, data: any, metadata: any): str
   return btoa(unescape(encodeURIComponent(simpleXML)));
 }
 
-function convertDataToRows(exportType: string, data: any): any[][] {
+function convertDataToRows(exportType: string, data: unknown): unknown[][] {
   if (!data) return [['No hay datos']];
 
   const dataArray = Array.isArray(data) ? data : [data];
@@ -274,7 +274,7 @@ function convertDataToRows(exportType: string, data: any): any[][] {
         ])
       ];
 
-    default:
+    default: {
       // Generic export
       if (dataArray.length === 0) return [['No hay datos']];
       const headers = Object.keys(dataArray[0]);
@@ -282,6 +282,7 @@ function convertDataToRows(exportType: string, data: any): any[][] {
         headers,
         ...dataArray.map(item => headers.map(h => item[h] ?? ''))
       ];
+    }
   }
 }
 
