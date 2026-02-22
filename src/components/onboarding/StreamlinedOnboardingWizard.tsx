@@ -47,7 +47,7 @@ export function StreamlinedOnboardingWizard({
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState<'entry' | 'complete'>('entry');
-  const [completedData, setCompletedData] = useState<any>(null);
+  const [completedData, setCompletedData] = useState<Record<string, unknown> | null>(null);
 
   // Load onboarding type from project metadata
   useEffect(() => {
@@ -74,7 +74,7 @@ export function StreamlinedOnboardingWizard({
     loadProjectType();
   }, [projectId]);
 
-  const handleComplete = async (data: any) => {
+  const handleComplete = async (data: Record<string, unknown>) => {
     setSaving(true);
     setCompletedData(data);
 
@@ -113,10 +113,10 @@ export function StreamlinedOnboardingWizard({
         onComplete();
       }, 3000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving onboarding:', error);
       toast.error('Error al guardar', {
-        description: error.message
+        description: error instanceof Error ? error.message : 'Error desconocido'
       });
       setSaving(false);
     }

@@ -174,8 +174,8 @@ export function EnhancedOnboardingWizard({ projectId, onComplete }: EnhancedOnbo
   const [teamBreakdown, setTeamBreakdown] = useState<Partial<TeamBreakdown>>({});
 
   // Auto-fill & Geo-Personalization state
-  const [autoFillData, setAutoFillData] = useState<any>({});
-  const [locationData, setLocationData] = useState<any>({});
+  const [autoFillData, setAutoFillData] = useState<Record<string, unknown>>({});
+  const [locationData, setLocationData] = useState<Record<string, unknown>>({});
 
   // Load project and check for pre-selected onboarding type
   useEffect(() => {
@@ -435,11 +435,11 @@ export function EnhancedOnboardingWizard({ projectId, onComplete }: EnhancedOnbo
       });
 
       setCurrentStep('complete');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error completing onboarding:', error);
       toast({
         title: 'Error',
-        description: error.message || 'No pudimos completar el onboarding. Intenta de nuevo.',
+        description: (error instanceof Error ? error.message : null) || 'No pudimos completar el onboarding. Intenta de nuevo.',
         variant: 'destructive',
       });
       setCurrentStep('completion_summary');
@@ -644,7 +644,7 @@ function TypeSelectionStep({
   onSelect: (type: OnboardingType) => void;
   selected: OnboardingType | null;
 }) {
-  const types: Array<{ id: OnboardingType; icon: any; title: string; description: string; example: string }> = [
+  const types: Array<{ id: OnboardingType; icon: React.ReactNode; title: string; description: string; example: string }> = [
     {
       id: 'generative',
       icon: <Sparkles className="h-8 w-8" />,

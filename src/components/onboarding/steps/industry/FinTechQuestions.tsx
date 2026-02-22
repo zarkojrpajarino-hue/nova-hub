@@ -34,7 +34,7 @@ export function FinTechQuestions({ answers, onChange }: FinTechQuestionsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.fintech_category} onValueChange={(value) => updateAnswer('fintech_category', value as any)}>
+          <RadioGroup value={answers.fintech_category} onValueChange={(value) => updateAnswer('fintech_category', value as FinTechAnswers['fintech_category'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="payments" id="payments" />
               <Label htmlFor="payments" className="cursor-pointer">Payments / Transfers</Label>
@@ -77,7 +77,7 @@ export function FinTechQuestions({ answers, onChange }: FinTechQuestionsProps) {
         <CardContent className="space-y-4">
           <div>
             <Label className="mb-2 block">¿Necesitas licencia financiera?</Label>
-            <RadioGroup value={answers.licensing_strategy} onValueChange={(value) => updateAnswer('licensing_strategy', value as any)}>
+            <RadioGroup value={answers.licensing_strategy} onValueChange={(value) => updateAnswer('licensing_strategy', value as FinTechAnswers['licensing_strategy'])}>
               <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
                 <RadioGroupItem value="partner_bank" id="partner" className="mt-1" />
                 <Label htmlFor="partner" className="flex-1 cursor-pointer">
@@ -118,10 +118,10 @@ export function FinTechQuestions({ answers, onChange }: FinTechQuestionsProps) {
               <div key={reg} className="flex items-center space-x-3">
                 <Checkbox
                   id={reg}
-                  checked={answers.regulations?.includes(reg as any)}
+                  checked={answers.regulations?.includes(reg as FinTechAnswers['regulations'][number])}
                   onCheckedChange={(c) => {
                     const current = answers.regulations || [];
-                    const updated = c ? [...current, reg as any] : current.filter(r => r !== reg);
+                    const updated = c ? [...current, reg as FinTechAnswers['regulations'][number]] : current.filter(r => r !== reg);
                     updateAnswer('regulations', updated);
                   }}
                 />
@@ -141,7 +141,7 @@ export function FinTechQuestions({ answers, onChange }: FinTechQuestionsProps) {
         </CardHeader>
         <CardContent>
           <Label className="mb-2 block">¿Cómo generas revenue?</Label>
-          <RadioGroup value={answers.revenue_model} onValueChange={(value) => updateAnswer('revenue_model', value as any)}>
+          <RadioGroup value={answers.revenue_model} onValueChange={(value) => updateAnswer('revenue_model', value as FinTechAnswers['revenue_model'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="transaction_fee" id="trans_fee" />
               <Label htmlFor="trans_fee" className="cursor-pointer">Transaction fees (% o flat fee)</Label>

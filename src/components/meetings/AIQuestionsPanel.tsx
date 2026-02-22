@@ -23,7 +23,7 @@ interface AIQuestionsPanelProps {
   meetingId: string;
   meetingType: string;
   objectives?: string;
-  strategicContext?: any;
+  strategicContext?: Record<string, unknown>;
   recordingTime: number;
   isMinimized?: boolean;
 }
@@ -76,7 +76,7 @@ export function AIQuestionsPanel({
       .order('asked_at', { ascending: true });
 
     if (!error && data) {
-      setQuestions(data as any[]);
+      setQuestions(data as unknown as AIQuestion[]);
     }
   };
 
@@ -106,7 +106,7 @@ export function AIQuestionsPanel({
       .select();
 
     if (!error && data) {
-      setQuestions(data as any[]);
+      setQuestions(data as unknown as AIQuestion[]);
     }
   };
 
@@ -302,7 +302,7 @@ export function AIQuestionsPanel({
 function getSmartQuestions(
   meetingType: string,
   objectives?: string,
-  strategicContext?: any
+  strategicContext?: Record<string, unknown>
 ): Array<{
   question: string;
   context: string;
@@ -315,7 +315,7 @@ function getSmartQuestions(
   }> = [];
 
   // Preguntas según tipo de reunión
-  const questionsByType: Record<string, any[]> = {
+  const questionsByType: Record<string, Array<{ question: string; context: string; priority: 'high' | 'medium' | 'low' }>> = {
     sprint_planning: [
       {
         question: '¿Hay dependencias técnicas que bloqueen alguna tarea del sprint?',

@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ApplicationsList } from './ApplicationsList';
+import type { MasterApplication } from '@/hooks/useMasters';
 
 // Mock hooks
 vi.mock('@/hooks/useMasters', () => ({
@@ -32,11 +33,12 @@ const mockProfiles = [
   { id: 'user1', nombre: 'Juan Pérez', avatar: null, color: '#6366F1' },
 ];
 
-const mockApplications: any[] = [
+const mockApplications: MasterApplication[] = [
   {
     id: 'app1',
     user_id: 'user1',
     role_name: 'comercial',
+    project_id: null,
     status: 'voting',
     motivation: 'Test motivation',
     achievements: [],
@@ -44,7 +46,9 @@ const mockApplications: any[] = [
     votes_against: 1,
     votes_required: 8,
     voting_deadline: new Date().toISOString(),
+    reviewed_at: null,
     created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
   },
 ];
 
@@ -59,7 +63,7 @@ describe('ApplicationsList', () => {
     });
   });
 
-  const renderComponent = (props: any = {}) => {
+  const renderComponent = (props: Partial<{ applications: MasterApplication[]; profiles: typeof mockProfiles; currentUserId: string }> = {}) => {
     return render(
       <QueryClientProvider client={queryClient}>
         <ApplicationsList

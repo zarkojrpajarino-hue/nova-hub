@@ -11,6 +11,16 @@ interface KPIListProps {
   type: 'lp' | 'bp' | 'cp';
 }
 
+interface KPIData {
+  id: string;
+  titulo: string;
+  descripcion?: string | null;
+  status?: string;
+  created_at?: string | null;
+  evidence_url?: string | null;
+  cp_points?: number | null;
+}
+
 const TYPE_LABELS = {
   lp: 'Learning Path',
   bp: 'Book Point',
@@ -57,7 +67,7 @@ const KPIItem = memo(function KPIItem({
   type,
   onOpenEvidence,
 }: {
-  kpi: any;
+  kpi: KPIData;
   type: 'lp' | 'bp' | 'cp';
   onOpenEvidence?: (url: string) => void;
 }) {

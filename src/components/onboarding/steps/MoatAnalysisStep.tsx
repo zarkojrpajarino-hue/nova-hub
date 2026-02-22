@@ -54,10 +54,10 @@ export function MoatAnalysisStep({ moat, onChange }: MoatAnalysisStepProps) {
             <div key={type.id} className="flex items-start space-x-3 p-3 border-2 rounded-lg hover:bg-blue-50">
               <Checkbox
                 id={type.id}
-                checked={selectedMoats.includes(type.id as any)}
+                checked={selectedMoats.includes(type.id as MoatAnalysis['moat_types'][number])}
                 onCheckedChange={(checked) => {
                   const updated = checked
-                    ? [...selectedMoats, type.id as any]
+                    ? [...selectedMoats, type.id as MoatAnalysis['moat_types'][number]]
                     : selectedMoats.filter(m => m !== type.id);
                   updateMoat('moat_types', updated);
                 }}
@@ -90,7 +90,7 @@ export function MoatAnalysisStep({ moat, onChange }: MoatAnalysisStepProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={moat.copyability} onValueChange={(value) => updateMoat('copyability', value as any)}>
+          <RadioGroup value={moat.copyability} onValueChange={(value) => updateMoat('copyability', value as MoatAnalysis['copyability'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="very_hard" id="very_hard" className="mt-1" />
               <Label htmlFor="very_hard" className="flex-1 cursor-pointer">
@@ -160,7 +160,7 @@ export function MoatAnalysisStep({ moat, onChange }: MoatAnalysisStepProps) {
           <CardTitle>⏱️ ¿Cuánto tardarás en tener moat defendible?</CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={moat.time_to_moat} onValueChange={(value) => updateMoat('time_to_moat', value as any)}>
+          <RadioGroup value={moat.time_to_moat} onValueChange={(value) => updateMoat('time_to_moat', value as MoatAnalysis['time_to_moat'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="immediate" id="immediate" />
               <Label htmlFor="immediate" className="cursor-pointer">Ya tengo moat (patents, exclusive contracts, etc.)</Label>

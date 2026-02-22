@@ -168,7 +168,7 @@ export function IndustrySelectionStep({ industry, onChange }: IndustrySelectionS
                         ? `${ind.bgColor} border-blue-400 shadow-lg ring-2 ring-blue-200`
                         : 'border-gray-200 hover:border-gray-300 bg-white hover:shadow-md'
                     }`}
-                    onClick={() => updateIndustry('industry_vertical', ind.id as any)}
+                    onClick={() => updateIndustry('industry_vertical', ind.id as IndustrySelection['industry_vertical'])}
                   >
                     <div className="flex items-start space-x-3">
                       <RadioGroupItem value={ind.id} id={ind.id} className="mt-1" />

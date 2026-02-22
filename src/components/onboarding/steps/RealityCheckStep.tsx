@@ -322,11 +322,11 @@ export function RealityCheckStep({ answers, onChange }: RealityCheckStepProps) {
               >
                 <Checkbox
                   id={item.id}
-                  checked={answers.competition_for_attention?.includes(item.id as any)}
+                  checked={answers.competition_for_attention?.includes(item.id as RealityCheckAnswers['competition_for_attention'][number])}
                   onCheckedChange={(checked) => {
                     const current = answers.competition_for_attention || [];
                     const updated = checked
-                      ? [...current, item.id as any]
+                      ? [...current, item.id as RealityCheckAnswers['competition_for_attention'][number]]
                       : current.filter((i) => i !== item.id);
                     updateAnswer('competition_for_attention', updated);
                   }}

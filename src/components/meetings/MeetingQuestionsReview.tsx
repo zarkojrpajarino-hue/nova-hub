@@ -76,7 +76,7 @@ export function MeetingQuestionsReview({
       .order('asked_at', { ascending: true });
 
     if (!error && data) {
-      setQuestions(data as any[]);
+      setQuestions(data as unknown as AIQuestion[]);
     }
     setLoading(false);
   };

@@ -78,7 +78,7 @@ export function TeamBreakdownStep({ team, onChange }: TeamBreakdownStepProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={team.tech_capability} onValueChange={(value) => updateTeam('tech_capability', value as any)}>
+          <RadioGroup value={team.tech_capability} onValueChange={(value) => updateTeam('tech_capability', value as TeamBreakdown['tech_capability'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="strong_inhouse" id="strong" className="mt-1" />
               <Label htmlFor="strong" className="flex-1 cursor-pointer">
@@ -119,7 +119,7 @@ export function TeamBreakdownStep({ team, onChange }: TeamBreakdownStepProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={team.business_capability} onValueChange={(value) => updateTeam('business_capability', value as any)}>
+          <RadioGroup value={team.business_capability} onValueChange={(value) => updateTeam('business_capability', value as TeamBreakdown['business_capability'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="experienced" id="exp" />
               <Label htmlFor="exp" className="cursor-pointer">Founders con experiencia en sales/marketing</Label>

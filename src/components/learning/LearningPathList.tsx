@@ -51,7 +51,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
 
       if (error) throw error;
 
-      return data.map((path: any) => ({
+      return data.map((path: Record<string, unknown> & { learning_path_steps?: Array<{ count: number }> }) => ({
         ...path,
         total_steps: path.learning_path_steps?.[0]?.count || 0,
       }));
@@ -71,9 +71,9 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
 
       toast.success('Learning Path generado exitosamente');
       refetch();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating learning path:', error);
-      toast.error('Error al generar: ' + error.message);
+      toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);
     }

@@ -19,7 +19,7 @@ export function SelectProjectPage() {
   const navigate = useNavigate();
   const { userProjects, setCurrentProject } = useCurrentProject();
 
-  const handleSelectProject = (project: any) => {
+  const handleSelectProject = (project: Record<string, unknown> & { id: string }) => {
     setCurrentProject(project);
     navigate(`/proyecto/${project.id}`);
   };
@@ -76,7 +76,7 @@ export function SelectProjectPage() {
   );
 }
 
-function ProjectCard({ project, onSelect }: { project: any; onSelect: () => void }) {
+function ProjectCard({ project, onSelect }: { project: Record<string, unknown> & { id: string; nombre: string; updated_at: string }; onSelect: () => void }) {
   const { data: subscription } = useProjectPlan(project.id);
 
   const getPlanBadge = () => {

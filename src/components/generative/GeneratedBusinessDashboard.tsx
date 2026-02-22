@@ -50,12 +50,17 @@ interface Product {
   features: string[];
 }
 
+interface PainPoint {
+  pain?: string;
+  severity?: string;
+}
+
 interface BuyerPersona {
   id: string;
   persona_name: string;
   age_range: string;
   role: string;
-  pain_points: any[];
+  pain_points: Array<PainPoint | string>;
   budget_min: number;
   budget_max: number;
 }
@@ -102,7 +107,7 @@ export function GeneratedBusinessDashboard() {
         .single();
 
       if (brand) {
-        setBrandGuidelines(brand as any);
+        setBrandGuidelines(brand as unknown as BrandGuidelines);
       }
 
       // Load products
@@ -114,7 +119,7 @@ export function GeneratedBusinessDashboard() {
         .limit(5);
 
       if (productsData) {
-        setProducts(productsData as any);
+        setProducts(productsData as unknown as Product[]);
       }
 
       // Load primary buyer persona
@@ -127,7 +132,7 @@ export function GeneratedBusinessDashboard() {
         .single();
 
       if (persona) {
-        setBuyerPersona(persona as any);
+        setBuyerPersona(persona as unknown as BuyerPersona);
       }
 
       // Load validation experiments
@@ -139,7 +144,7 @@ export function GeneratedBusinessDashboard() {
         .limit(3);
 
       if (experiments) {
-        setValidationExperiments(experiments as any);
+        setValidationExperiments(experiments as unknown as ValidationExperiment[]);
       }
 
       setLoading(false);
@@ -382,12 +387,12 @@ export function GeneratedBusinessDashboard() {
               <div>
                 <h5 className="font-semibold mb-2 text-sm">Pain points principales:</h5>
                 <div className="space-y-2">
-                  {buyerPersona.pain_points.slice(0, 3).map((pain: any, index: number) => (
+                  {buyerPersona.pain_points.slice(0, 3).map((pain: PainPoint | string, index: number) => (
                     <div key={index} className="flex items-start gap-2 text-sm">
                       <Badge variant="destructive" className="mt-0.5">
-                        {pain.severity || 'high'}
+                        {typeof pain === 'object' ? (pain.severity || 'high') : 'high'}
                       </Badge>
-                      <span>{pain.pain || pain}</span>
+                      <span>{typeof pain === 'object' ? (pain.pain || '') : pain}</span>
                     </div>
                   ))}
                 </div>

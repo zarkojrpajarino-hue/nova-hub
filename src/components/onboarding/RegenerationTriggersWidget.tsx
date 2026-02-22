@@ -28,7 +28,7 @@ interface RegenerationTriggersWidgetProps {
 }
 
 export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWidgetProps) {
-  const [triggerProgress, setTriggerProgress] = useState<any[]>([]);
+  const [triggerProgress, setTriggerProgress] = useState<Record<string, unknown>[]>([]);
   const [qualityScore, setQualityScore] = useState(0);
   const [isRegenerating, setIsRegenerating] = useState(false);
   const [loading, setLoading] = useState(true);

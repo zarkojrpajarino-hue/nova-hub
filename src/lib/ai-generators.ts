@@ -61,7 +61,7 @@ export interface AIGeneratedArtifacts {
 /**
  * Generate all artifacts with context awareness
  */
-export async function generateAllArtifacts(input: any): Promise<AIGeneratedArtifacts> {
+export async function generateAllArtifacts(input: Record<string, unknown>): Promise<AIGeneratedArtifacts> {
   // Get context quality if project exists
   let contextQuality = 0;
   if (input.project_id) {
@@ -100,7 +100,7 @@ export async function generateAllArtifacts(input: any): Promise<AIGeneratedArtif
 /**
  * Generate Business Model Canvas
  */
-function generateBusinessModelCanvas(input: any, baseConfidence: number) {
+function generateBusinessModelCanvas(input: Record<string, unknown>, baseConfidence: number) {
   const industry = input.industry || 'software';
   const description = input.business_description || 'innovative solution';
 
@@ -158,7 +158,7 @@ function generateBusinessModelCanvas(input: any, baseConfidence: number) {
 /**
  * Generate Buyer Personas
  */
-function generateBuyerPersonas(input: any, baseConfidence: number) {
+function generateBuyerPersonas(input: Record<string, unknown>, baseConfidence: number) {
   return [
     {
       name: 'Tech-Savvy Manager Maria',
@@ -200,7 +200,7 @@ function generateBuyerPersonas(input: any, baseConfidence: number) {
 /**
  * Generate Sales Playbook
  */
-function generateSalesPlaybook(input: any, baseConfidence: number) {
+function generateSalesPlaybook(input: Record<string, unknown>, baseConfidence: number) {
   return {
     sales_process: [
       '1. Qualification: BANT (Budget, Authority, Need, Timeline)',
@@ -235,7 +235,7 @@ function generateSalesPlaybook(input: any, baseConfidence: number) {
 /**
  * Generate Competitive Analysis
  */
-function generateCompetitiveAnalysis(input: any, baseConfidence: number) {
+function generateCompetitiveAnalysis(input: Record<string, unknown>, baseConfidence: number) {
   return {
     competitors: [
       'Competitor A (market leader)',
@@ -265,8 +265,8 @@ function generateCompetitiveAnalysis(input: any, baseConfidence: number) {
 /**
  * Generate Financial Projections
  */
-function generateFinancialProjections(input: any, baseConfidence: number) {
-  const mrr = parseInt(input.mrr) || 5000;
+function generateFinancialProjections(input: Record<string, unknown>, baseConfidence: number) {
+  const mrr = parseInt(String(input.mrr ?? '')) || 5000;
   const growthRate = 0.10; // 10% monthly growth
 
   const projections = [];
@@ -296,8 +296,8 @@ function generateFinancialProjections(input: any, baseConfidence: number) {
 export async function regenerateArtifact(
   projectId: string,
   artifactType: string,
-  originalInput: any
-): Promise<any> {
+  originalInput: Record<string, unknown>
+): Promise<Record<string, unknown>> {
   // Get current context
   const aggregator = new ContextAggregator(projectId);
   const context = await aggregator.getContext();

@@ -33,19 +33,19 @@ import { ExplorationDashboardPreviewModal } from '@/components/preview/Explorati
 export function ExplorationDashboard() {
   const { user } = useAuth();
   const { goBack, canGoBack } = useNavigation();
-  const [activeExplorations, setActiveExplorations] = useState<any[]>([]);
-  const [pendingFeedback, setPendingFeedback] = useState<any[]>([]);
-  const [pastExplorations, setPastExplorations] = useState<any[]>([]);
+  const [activeExplorations, setActiveExplorations] = useState<Record<string, unknown>[]>([]);
+  const [pendingFeedback, setPendingFeedback] = useState<Record<string, unknown>[]>([]);
+  const [pastExplorations, setPastExplorations] = useState<Record<string, unknown>[]>([]);
   const [isLoading, setIsLoading] = useState(true);
-  const [selectedFeedback, setSelectedFeedback] = useState<any | null>(null);
+  const [selectedFeedback, setSelectedFeedback] = useState<Record<string, unknown> | null>(null);
 
   // Path to Master
-  const [phaseProgress, setPhaseProgress] = useState<any>(null);
+  const [phaseProgress, setPhaseProgress] = useState<Record<string, unknown> | null>(null);
   const [currentRoles, setCurrentRoles] = useState<string[]>([]);
   const [allRoles] = useState<string[]>(['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy', 'customer']);
 
   // Modals
-  const [selfEvalModal, setSelfEvalModal] = useState<{ open: boolean; exploration: any; projectName: string } | null>(null);
+  const [selfEvalModal, setSelfEvalModal] = useState<{ open: boolean; exploration: Record<string, unknown>; projectName: string } | null>(null);
   const [feedbackModal, setFeedbackModal] = useState<{ open: boolean; explorationId: string; role: string } | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -226,8 +226,8 @@ export function ExplorationDashboard() {
       toast.success('🚀 Exploración iniciada!');
       loadCurrentRoles();
       loadExplorations();
-    } catch (error: any) {
-      toast.error(error.message || 'No se pudo iniciar la exploración');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'No se pudo iniciar la exploración');
     }
   };
 

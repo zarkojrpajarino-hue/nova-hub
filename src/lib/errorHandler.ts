@@ -16,7 +16,7 @@ export class AppError extends Error {
     message: string,
     public code: string,
     public statusCode: number = 500,
-    public details?: any
+    public details?: unknown
   ) {
     super(message);
     this.name = 'AppError';
@@ -42,7 +42,7 @@ export class AppError extends Error {
  * Error de validación (datos inválidos del usuario)
  */
 export class ValidationError extends AppError {
-  constructor(message: string, details?: any) {
+  constructor(message: string, details?: unknown) {
     super(message, 'VALIDATION_ERROR', 400, details);
     this.name = 'ValidationError';
   }
@@ -167,7 +167,7 @@ export class ServerError extends AppError {
 /**
  * Mapeo de códigos de error de Supabase a AppErrors
  */
-const SUPABASE_ERROR_MAP: Record<string, (error: any) => AppError> = {
+const SUPABASE_ERROR_MAP: Record<string, (error: Record<string, unknown>) => AppError> = {
   // Autenticación
   'PGRST301': () => new AuthenticationError(),
   'invalid_grant': () => new AuthenticationError('Credenciales inválidas'),
@@ -203,30 +203,31 @@ const SUPABASE_ERROR_MAP: Record<string, (error: any) => AppError> = {
 /**
  * Convertir error de Supabase a AppError
  */
-export function handleSupabaseError(error: any): AppError {
+export function handleSupabaseError(error: unknown): AppError {
   // Si ya es un AppError, devolverlo directamente
   if (error instanceof AppError) {
     return error;
   }
 
   // Buscar mapeo por código
-  const code = error.code || error.status?.toString();
+  const errObj = error as Record<string, unknown>;
+  const code = (errObj.code as string) || String(errObj.status ?? '');
   const mapper = SUPABASE_ERROR_MAP[code];
 
   if (mapper) {
-    return mapper(error);
+    return mapper(errObj);
   }
 
   // Error genérico si no hay mapeo específico
   return new ServerError(
-    error.message || 'Ocurrió un error inesperado'
+    (errObj.message as string) || 'Ocurrió un error inesperado'
   );
 }
 
 /**
  * Helper para determinar si se debe reintentar una operación
  */
-export function shouldRetry(error: any, attemptNumber: number, maxAttempts: number = 3): boolean {
+export function shouldRetry(error: unknown, attemptNumber: number, maxAttempts: number = 3): boolean {
   if (attemptNumber >= maxAttempts) return false;
 
   const appError = error instanceof AppError ? error : handleSupabaseError(error);
@@ -310,7 +311,7 @@ export function getRetryDelay(attemptNumber: number): number {
 /**
  * Logs de error para debugging
  */
-export function logError(error: any, context?: string) {
+export function logError(error: unknown, context?: string) {
   const appError = error instanceof AppError ? error : handleSupabaseError(error);
 
   console.group(`❌ Error${context ? ` in ${context}` : ''}`);

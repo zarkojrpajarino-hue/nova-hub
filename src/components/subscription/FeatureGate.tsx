@@ -189,7 +189,7 @@ export function FeatureGate({
         />
         {/* Renderizar children con prop isDemoMode=true si es posible */}
         {isValidElement(children) && typeof children.type !== 'string'
-          ? cloneElement(children as React.ReactElement<any>, { isDemoMode: true })
+          ? cloneElement(children as React.ReactElement<{ isDemoMode?: boolean }>, { isDemoMode: true })
           : children}
       </div>
     );

@@ -3,6 +3,7 @@ import { Circle, CheckCircle2, Calendar, Sparkles, BookOpen, Trash2 } from 'luci
 import { cn } from '@/lib/utils';
 import type { Task } from '@/hooks/useTaskKanban';
 import type { Json } from '@/integrations/supabase/types';
+import type { DraggableProvidedDragHandleProps, DraggableProvidedDraggableProps } from '@hello-pangea/dnd';
 
 const PRIORITY_COLORS: Record<number, string> = {
   1: '#EF4444', // Alta
@@ -26,9 +27,9 @@ interface TaskCardProps {
   onCompleteClick: (task: Task) => void;
   onPlaybookClick: (task: Task) => void;
   onDeleteClick: (task: Task) => void;
-  dragHandleProps: any;
-  draggableProps: any;
-  innerRef: any;
+  dragHandleProps: DraggableProvidedDragHandleProps | null;
+  draggableProps: DraggableProvidedDraggableProps;
+  innerRef: (element: HTMLElement | null) => void;
 }
 
 export const TaskCard = memo(function TaskCard({

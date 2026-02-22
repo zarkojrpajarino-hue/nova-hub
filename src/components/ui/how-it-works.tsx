@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { ChevronDown, ChevronUp, BookOpen, Download, Upload, ArrowRight, Play, Sparkles, Lock, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { useFeatureAccess } from '@/hooks/useSubscription';
+import { useFeatureAccess, type SubscriptionPlan } from '@/hooks/useSubscription';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { LockedFeatureOverlay } from '@/components/subscription/LockedFeatureOverlay';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
@@ -101,7 +101,7 @@ export function HowItWorks({
   const { canUseFeature, subscription } = useFeatureAccess(currentProject?.id);
 
   // Verificar si el usuario tiene acceso a la feature premium
-  const hasAccess = premiumFeature ? canUseFeature(premiumFeature as any) : true;
+  const hasAccess = premiumFeature ? canUseFeature(premiumFeature as keyof SubscriptionPlan) : true;
 
   // Obtener el nombre del plan actual
   const currentPlanName = subscription?.plan?.display_name || 'Free';

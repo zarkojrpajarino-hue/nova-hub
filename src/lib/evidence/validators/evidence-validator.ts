@@ -8,6 +8,7 @@
 
 import type {
   ClaimWithEvidence,
+  Citation,
   EvidenceContract,
   EvidenceStatus,
   EvidenceConflict,
@@ -298,7 +299,7 @@ function extractValueFromQuote(quote: string, valueType: string): string | null 
  * Attempt to resolve conflicts
  */
 function resolveConflict(
-  conflictingValues: Array<{ value: string; citations: any[] }>,
+  conflictingValues: Array<{ value: string; citations: Citation[] }>,
   valueType: string
 ): { type: 'range' | 'scenario' | 'unresolved'; value?: string } {
   // For numeric types, try to create a range

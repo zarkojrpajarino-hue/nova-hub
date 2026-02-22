@@ -61,7 +61,7 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
       </div>
 
       {/* Navigation Tabs */}
-      <Tabs value={activeView} onValueChange={(v: any) => setActiveView(v)} className="flex-1">
+      <Tabs value={activeView} onValueChange={(v) => setActiveView(v as typeof activeView)} className="flex-1">
         <div className="border-b bg-gray-50 px-6">
           <TabsList className="bg-transparent">
             <TabsTrigger value="overview" className="gap-2">

@@ -36,7 +36,7 @@ import { toast } from 'sonner';
 
 interface BusinessModelDeepSectionProps {
   projectId: string;
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 

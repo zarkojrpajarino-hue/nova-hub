@@ -55,6 +55,48 @@ interface GenerativeOnboardingWizardProps {
   selectedType?: 'sin_idea' | 'tengo_idea' | 'startup_funcionando' | null;
 }
 
+interface CompetitorEntry {
+  name: string;
+  description: string;
+  logo?: string;
+  keyFeatures?: string[];
+}
+
+interface CompetitorAnalysisResult {
+  competitors: CompetitorEntry[];
+  gaps?: string[];
+  summary?: string;
+}
+
+interface MonetizationValidationResult {
+  viable: boolean;
+  analysis: string;
+  challenges: string[];
+}
+
+interface SavedProgressData {
+  type: string;
+  step: string;
+  timestamp: number;
+  data: Record<string, unknown>;
+}
+
+interface BusinessIdeaEntry {
+  id: string;
+  idea_name: string;
+  description: string;
+  problem: string;
+  solution: string;
+  target_customer: string;
+  fit_score?: number;
+  market_size_score?: number;
+  validation_ease_score?: number;
+  estimated_timeline?: string;
+  budget_needed?: string;
+  first_steps?: string[];
+  why_viable?: string;
+}
+
 type WizardStep =
   // Onboarding 1: Sin Idea
   | 'sin-idea-situation'
@@ -132,11 +174,11 @@ export function GenerativeOnboardingWizard({
   // IA Enhancement States
   const [buyerPersonaSuggestions, setBuyerPersonaSuggestions] = useState<string[]>([]);
   const [isGeneratingSuggestions, setIsGeneratingSuggestions] = useState(false);
-  const [competitorAnalysis, setCompetitorAnalysis] = useState<any>(null);
+  const [competitorAnalysis, setCompetitorAnalysis] = useState<CompetitorAnalysisResult | null>(null);
   const [isAnalyzingCompetitors, setIsAnalyzingCompetitors] = useState(false);
-  const [monetizationValidation, setMonetizationValidation] = useState<any>(null);
+  const [monetizationValidation, setMonetizationValidation] = useState<MonetizationValidationResult | null>(null);
   const [detectedIndustry, setDetectedIndustry] = useState<string | null>(null);
-  const [savedProgress, setSavedProgress] = useState<any>(null);
+  const [savedProgress, setSavedProgress] = useState<SavedProgressData | null>(null);
   const [showRestorePrompt, setShowRestorePrompt] = useState(false);
 
   const {
@@ -318,7 +360,7 @@ export function GenerativeOnboardingWizard({
       if (data?.monetizationModel) setMonetizationModel(data.monetizationModel);
 
       toast.success('Información extraída automáticamente');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error extracting web data:', error);
       toast.error('No se pudo extraer información de la web');
     } finally {
@@ -361,7 +403,7 @@ export function GenerativeOnboardingWizard({
       }
 
       setIsAnalyzingCompetitors(false);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error extracting startup data:', error);
       toast.error('No se pudo extraer información de la startup');
       setIsExtractingWebData(false);
@@ -401,7 +443,7 @@ export function GenerativeOnboardingWizard({
         setBuyerPersonaSuggestions(data.suggestions);
         toast.success('Sugerencias generadas por IA');
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating buyer persona:', error);
       toast.error('No se pudo generar sugerencias. Inténtalo de nuevo.');
     } finally {
@@ -429,7 +471,7 @@ export function GenerativeOnboardingWizard({
       if (error) throw error;
 
       setMonetizationValidation(data);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error validating monetization:', error);
     }
   };
@@ -450,7 +492,7 @@ export function GenerativeOnboardingWizard({
 
       setCompetitorAnalysis(data);
       toast.success('Análisis de competencia completado');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error analyzing competitors:', error);
       toast.error('No se pudo analizar la competencia');
     } finally {
@@ -472,7 +514,7 @@ export function GenerativeOnboardingWizard({
 
       setCompetitorAnalysis(data);
       toast.success('Análisis visual de competidores completado');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error analyzing competitor URLs:', error);
       toast.error('No se pudo analizar competidores');
     } finally {
@@ -518,7 +560,7 @@ export function GenerativeOnboardingWizard({
     if (data.churnRate) setChurnRate(data.churnRate);
     if (data.mainChallenge) setMainChallenge(data.mainChallenge);
 
-    setStep(savedProgress.step);
+    setStep(savedProgress.step as WizardStep);
     setShowRestorePrompt(false);
     toast.success('Progreso restaurado');
   };
@@ -1517,7 +1559,7 @@ export function GenerativeOnboardingWizard({
               <div className="space-y-3">
                 <Label className="text-sm font-semibold">Análisis de Competencia:</Label>
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                  {competitorAnalysis.competitors.slice(0, 4).map((comp: any, idx: number) => (
+                  {competitorAnalysis.competitors.slice(0, 4).map((comp: CompetitorEntry, idx: number) => (
                     <Card key={idx} className="p-3">
                       <div className="flex items-start gap-3">
                         {comp.logo && (
@@ -2029,7 +2071,7 @@ export function GenerativeOnboardingWizard({
                   <Label className="text-sm font-semibold">Análisis de competencia completado automáticamente</Label>
                 </div>
                 <div className="grid grid-cols-2 gap-2 text-xs">
-                  {competitorAnalysis.competitors.slice(0, 4).map((comp: any, idx: number) => (
+                  {competitorAnalysis.competitors.slice(0, 4).map((comp: CompetitorEntry, idx: number) => (
                     <div key={idx} className="p-2 rounded bg-background/50 border">
                       <p className="font-semibold truncate">{comp.name}</p>
                       <p className="text-muted-foreground line-clamp-1">{comp.description}</p>
@@ -2099,7 +2141,7 @@ export function GenerativeOnboardingWizard({
               </div>
             ) : businessIdeas && businessIdeas.length > 0 ? (
               <div className="space-y-3 max-h-[400px] overflow-y-auto">
-                {businessIdeas.map((idea: any) => (
+                {businessIdeas.map((idea: BusinessIdeaEntry) => (
                   <Card
                     key={idea.id}
                     className={cn(

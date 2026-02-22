@@ -13,7 +13,7 @@ import { useExcelExport } from '@/hooks/useExcelExport';
 interface ExportOption {
   label: string;
   type: string;
-  data: any[];
+  data: Record<string, unknown>[];
   metadata?: {
     title?: string;
     currencyColumns?: number[];

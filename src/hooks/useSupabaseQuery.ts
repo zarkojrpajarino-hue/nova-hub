@@ -16,7 +16,7 @@ type FilterOperator = 'eq' | 'neq' | 'gt' | 'gte' | 'lt' | 'lte' | 'like' | 'ili
 interface Filter {
   column: string;
   operator: FilterOperator;
-  value: any;
+  value: string | number | boolean | null;
 }
 
 interface OrderBy {
@@ -120,7 +120,7 @@ interface UseSupabaseQueryOptions<T> {
  * });
  * ```
  */
-export function useSupabaseQuery<T = any>({
+export function useSupabaseQuery<T = unknown>({
   table,
   select = '*',
   filters = [],
@@ -154,8 +154,10 @@ export function useSupabaseQuery<T = any>({
       }
 
       // Ejecutar query
+      // The Supabase query builder type does not expose maybeSingle() directly on the
+      // chained type, so we cast to a minimal interface to call it safely.
       const { data, error } = single
-        ? await (query as any).maybeSingle()
+        ? await (query as unknown as { maybeSingle: () => Promise<{ data: unknown; error: unknown }> }).maybeSingle()
         : await query;
 
       if (error) throw error;
@@ -170,7 +172,7 @@ export function useSupabaseQuery<T = any>({
  * Hook para mutations genéricas de Supabase
  * (insert, update, delete)
  */
-export function useSupabaseMutation<T = any>() {
+export function useSupabaseMutation<T = unknown>() {
   // Implementar en el futuro si es necesario
   // Por ahora, usar useMutation de React Query directamente
   return null;

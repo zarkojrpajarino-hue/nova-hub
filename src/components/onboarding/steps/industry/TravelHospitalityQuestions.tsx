@@ -34,7 +34,7 @@ export function TravelHospitalityQuestions({ answers, onChange }: TravelHospital
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.travel_category} onValueChange={(value) => updateAnswer('travel_category', value as any)}>
+          <RadioGroup value={answers.travel_category} onValueChange={(value) => updateAnswer('travel_category', value as TravelHospitalityAnswers['travel_category'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="accommodations" id="accom" />
               <Label htmlFor="accom" className="cursor-pointer">Accommodations (hoteles, airbnbs)</Label>
@@ -67,7 +67,7 @@ export function TravelHospitalityQuestions({ answers, onChange }: TravelHospital
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.business_model} onValueChange={(value) => updateAnswer('business_model', value as any)}>
+          <RadioGroup value={answers.business_model} onValueChange={(value) => updateAnswer('business_model', value as TravelHospitalityAnswers['business_model'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="aggregator" id="aggregator" className="mt-1" />
               <Label htmlFor="aggregator" className="flex-1 cursor-pointer">
@@ -110,7 +110,7 @@ export function TravelHospitalityQuestions({ answers, onChange }: TravelHospital
         <CardContent className="space-y-4">
           <div>
             <Label className="mb-2 block">¿Cómo monetizas?</Label>
-            <RadioGroup value={answers.revenue_model} onValueChange={(value) => updateAnswer('revenue_model', value as any)}>
+            <RadioGroup value={answers.revenue_model} onValueChange={(value) => updateAnswer('revenue_model', value as TravelHospitalityAnswers['revenue_model'])}>
               <div className="flex items-center space-x-2 p-2">
                 <RadioGroupItem value="commission" id="commission" />
                 <Label htmlFor="commission" className="cursor-pointer">Commission (% de booking)</Label>

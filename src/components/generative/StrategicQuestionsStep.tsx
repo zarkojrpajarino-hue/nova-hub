@@ -22,6 +22,21 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Info, Plus, X } from 'lucide-react';
 import { StrategicQuestions, STRATEGIC_QUESTIONS_CONFIG } from '@/types/strategic-questions';
 
+interface FieldOption {
+  value: string;
+  label: string;
+}
+
+interface FieldConfig {
+  name: string;
+  label: string;
+  type: 'text' | 'textarea' | 'number' | 'select' | 'multiselect' | 'array';
+  placeholder?: string;
+  prefix?: string;
+  maxItems?: number;
+  options?: Array<string | FieldOption>;
+}
+
 interface StrategicQuestionsStepProps {
   data: Partial<StrategicQuestions>;
   onUpdate: (data: Partial<StrategicQuestions>) => void;
@@ -38,10 +53,10 @@ export function StrategicQuestionsStep({
   section,
 }: StrategicQuestionsStepProps) {
   const config = STRATEGIC_QUESTIONS_CONFIG[section];
-  const [sectionData, setSectionData] = useState<any>(data[section] || {});
+  const [sectionData, setSectionData] = useState<Record<string, unknown>>(data[section] as Record<string, unknown> || {});
   const [arrayInputs, setArrayInputs] = useState<Record<string, string>>({});
 
-  const handleFieldChange = (fieldName: string, value: any) => {
+  const handleFieldChange = (fieldName: string, value: unknown) => {
     const updated = {
       ...sectionData,
       [fieldName]: value,
@@ -59,7 +74,7 @@ export function StrategicQuestionsStep({
 
     const currentArray = sectionData[fieldName] || [];
     const field = config.fields.find((f) => f.name === fieldName);
-    const maxItems = (field as any).maxItems;
+    const maxItems = (field as FieldConfig).maxItems;
 
     if (maxItems && currentArray.length >= maxItems) {
       return;
@@ -73,7 +88,7 @@ export function StrategicQuestionsStep({
     const currentArray = sectionData[fieldName] || [];
     handleFieldChange(
       fieldName,
-      currentArray.filter((_: any, i: number) => i !== index)
+      (currentArray as unknown[]).filter((_: unknown, i: number) => i !== index)
     );
   };
 
@@ -91,7 +106,7 @@ export function StrategicQuestionsStep({
     }
   };
 
-  const renderField = (field: any) => {
+  const renderField = (field: FieldConfig) => {
     const value = sectionData[field.name];
 
     switch (field.type) {
@@ -139,7 +154,7 @@ export function StrategicQuestionsStep({
               <SelectValue placeholder="Seleccionar..." />
             </SelectTrigger>
             <SelectContent>
-              {(Array.isArray(field.options) ? field.options : []).map((option: any) => {
+              {(Array.isArray(field.options) ? field.options : []).map((option: string | FieldOption) => {
                 const optionValue = typeof option === 'string' ? option : option.value;
                 const optionLabel = typeof option === 'string' ? option : option.label;
                 return (

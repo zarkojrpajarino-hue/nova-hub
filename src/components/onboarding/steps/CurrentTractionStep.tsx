@@ -198,7 +198,7 @@ export function CurrentTractionStep({ traction, onChange }: CurrentTractionStepP
         <CardContent className="space-y-4">
           <div className="space-y-3">
             {validationActivities.map((activity) => {
-              const isSelected = selectedActivities.includes(activity.id as any);
+              const isSelected = selectedActivities.includes(activity.id);
               const isNone = activity.id === 'none';
 
               return (
@@ -223,7 +223,7 @@ export function CurrentTractionStep({ traction, onChange }: CurrentTractionStepP
                         updated = [];
                       } else if (checked) {
                         // Si selecciona algo que no es "none", quita "none" si estaba
-                        updated = [...selectedActivities.filter(id => id !== 'none'), activity.id as any];
+                        updated = [...selectedActivities.filter(id => id !== 'none'), activity.id];
                       } else {
                         // Deselecciona
                         updated = selectedActivities.filter(id => id !== activity.id);

@@ -59,7 +59,7 @@ serve(async (req) => {
   }
 });
 
-function generateExcelContent(exportType: string, data: any, metadata: any): string {
+function generateExcelContent(exportType: string, data: unknown, metadata: Record<string, unknown>): string {
   const rows = convertDataToRows(exportType, data);
 
   const simpleXML = `<?xml version="1.0" encoding="UTF-8"?>
@@ -67,7 +67,7 @@ function generateExcelContent(exportType: string, data: any, metadata: any): str
 <Workbook xmlns="urn:schemas-microsoft-com:office:spreadsheet"
   xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
   <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
-    <Title>${escapeXml(metadata?.title || exportType)}</Title>
+    <Title>${escapeXml((metadata?.title as string) || exportType)}</Title>
     <Author>Nova Hub</Author>
     <Created>${new Date().toISOString()}</Created>
   </DocumentProperties>
@@ -83,15 +83,15 @@ function generateExcelContent(exportType: string, data: any, metadata: any): str
       <NumberFormat ss:Format="0.00%"/>
     </Style>
   </Styles>
-  <Worksheet ss:Name="${escapeXml(metadata?.title || 'Datos')}">
+  <Worksheet ss:Name="${escapeXml((metadata?.title as string) || 'Datos')}">
     <Table>
       ${rows.map((row, rowIndex) => `
         <Row${rowIndex === 0 ? ' ss:Height="20"' : ''}>
           ${row.map((cell, cellIndex) => {
             const isHeader = rowIndex === 0;
             const isNumber = typeof cell === 'number';
-            const isCurrency = metadata?.currencyColumns?.includes(cellIndex);
-            const isPercentage = metadata?.percentageColumns?.includes(cellIndex);
+            const isCurrency = Array.isArray(metadata?.currencyColumns) && (metadata.currencyColumns as number[]).includes(cellIndex);
+            const isPercentage = Array.isArray(metadata?.percentageColumns) && (metadata.percentageColumns as number[]).includes(cellIndex);
 
             let styleID = '';
             if (isHeader) styleID = ' ss:StyleID="Header"';
@@ -112,10 +112,10 @@ function generateExcelContent(exportType: string, data: any, metadata: any): str
   return btoa(unescape(encodeURIComponent(simpleXML)));
 }
 
-function convertDataToRows(exportType: string, data: any): any[][] {
+function convertDataToRows(exportType: string, data: unknown): unknown[][] {
   if (!data) return [['No hay datos']];
 
-  const dataArray = Array.isArray(data) ? data : [data];
+  const dataArray: Record<string, unknown>[] = Array.isArray(data) ? data as Record<string, unknown>[] : [data as Record<string, unknown>];
 
   switch (exportType) {
     case 'obvs':

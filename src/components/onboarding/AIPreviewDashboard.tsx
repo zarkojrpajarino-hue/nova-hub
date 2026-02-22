@@ -10,7 +10,7 @@
  * - Go-to-Market Plan
  */
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -29,13 +29,43 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+interface BusinessModelCanvasData {
+  key_partners?: string[];
+  key_activities?: string[];
+  value_propositions?: string[];
+  customer_relationships?: string[];
+  customer_segments?: string[];
+  channels?: string[];
+  cost_structure?: string[];
+  revenue_streams?: string[];
+}
+
+interface BuyerPersona {
+  name: string;
+  role: string;
+  age: string | number;
+  pain_points?: string[];
+  goals?: string[];
+}
+
+interface ObjectionHandling {
+  objection: string;
+  response: string;
+}
+
+interface SalesPlaybookData {
+  sales_process?: string[];
+  key_messaging?: string[];
+  objection_handling?: ObjectionHandling[];
+}
+
 interface AIArtifact {
   id: string;
   title: string;
   description: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   status: 'generated' | 'needs_review' | 'approved';
-  data: any;
+  data: Record<string, unknown>;
   quality_score?: number; // 0-100
 }
 
@@ -261,11 +291,11 @@ export function AIPreviewDashboard({
 function ArtifactPreview({ artifact }: { artifact: AIArtifact }) {
   switch (artifact.id) {
     case 'business_model_canvas':
-      return <BusinessModelCanvasPreview data={artifact.data} />;
+      return <BusinessModelCanvasPreview data={artifact.data as BusinessModelCanvasData} />;
     case 'buyer_personas':
-      return <BuyerPersonasPreview data={artifact.data} />;
+      return <BuyerPersonasPreview data={artifact.data as unknown as BuyerPersona[]} />;
     case 'sales_playbook':
-      return <SalesPlaybookPreview data={artifact.data} />;
+      return <SalesPlaybookPreview data={artifact.data as SalesPlaybookData} />;
     default:
       return (
         <div className="bg-gray-50 rounded-lg p-4">
@@ -277,7 +307,7 @@ function ArtifactPreview({ artifact }: { artifact: AIArtifact }) {
   }
 }
 
-function BusinessModelCanvasPreview({ data }: { data: any }) {
+function BusinessModelCanvasPreview({ data }: { data: BusinessModelCanvasData }) {
   return (
     <div className="grid grid-cols-3 gap-3">
       {[
@@ -307,7 +337,7 @@ function BusinessModelCanvasPreview({ data }: { data: any }) {
   );
 }
 
-function BuyerPersonasPreview({ data }: { data: any[] }) {
+function BuyerPersonasPreview({ data }: { data: BuyerPersona[] }) {
   return (
     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {data.map((persona, idx) => (
@@ -348,7 +378,7 @@ function BuyerPersonasPreview({ data }: { data: any[] }) {
   );
 }
 
-function SalesPlaybookPreview({ data }: { data: any }) {
+function SalesPlaybookPreview({ data }: { data: SalesPlaybookData }) {
   return (
     <div className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
@@ -372,7 +402,7 @@ function SalesPlaybookPreview({ data }: { data: any }) {
       <div className="bg-purple-50 rounded-lg p-4">
         <h4 className="font-semibold text-gray-900 mb-2">Objection Handling</h4>
         <div className="space-y-2 text-sm text-gray-800">
-          {data.objection_handling?.map((obj: any, idx: number) => (
+          {data.objection_handling?.map((obj: ObjectionHandling, idx: number) => (
             <div key={idx}>
               <span className="font-semibold">"{obj.objection}"</span>
               <p className="ml-4 text-gray-700">→ {obj.response}</p>

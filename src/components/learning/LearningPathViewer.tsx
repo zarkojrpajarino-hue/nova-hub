@@ -90,7 +90,7 @@ export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) 
       queryClient.invalidateQueries({ queryKey: ['learning-path', pathId] });
       queryClient.invalidateQueries({ queryKey: ['learning-paths'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error('Error al actualizar: ' + error.message);
     },
   });

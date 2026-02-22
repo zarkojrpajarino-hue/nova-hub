@@ -15,6 +15,7 @@ import { StrictModeExitDialog } from './StrictModeExitDialog';
 import { useEvidenceGeneration } from '@/hooks/useEvidenceGeneration';
 import { Loader2, Sparkles } from 'lucide-react';
 import { type EvidenceProfileType, inferProfileFromFunction } from '@/lib/evidence/profiles';
+import type { AIOutputWithEvidence } from '@/lib/evidence/types';
 
 interface EvidenceAIGeneratorProps {
   /** Nombre de la función edge que se llamará */
@@ -33,10 +34,10 @@ interface EvidenceAIGeneratorProps {
   evidenceProfile?: EvidenceProfileType;
 
   /** Parámetros adicionales para pasar al Edge Function */
-  additionalParams?: Record<string, any>;
+  additionalParams?: Record<string, unknown>;
 
   /** Callback cuando la generación completa */
-  onGenerationComplete?: (result: any) => void;
+  onGenerationComplete?: (result: AIOutputWithEvidence) => void;
 
   /** Callback si hay un error */
   onError?: (error: Error) => void;

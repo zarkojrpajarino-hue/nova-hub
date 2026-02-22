@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { DemoModeBanner } from './DemoModeBanner';
@@ -48,7 +49,7 @@ describe('DemoModeBanner', () => {
   });
 
   it('does not render when demo mode is inactive', () => {
-    (useDemoMode as any).mockReturnValue({
+    (useDemoMode as Mock).mockReturnValue({
       isDemoMode: false,
       disableDemo: mockDisableDemo,
     });

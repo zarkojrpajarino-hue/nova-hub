@@ -21,6 +21,11 @@ import { useAuth } from '@/hooks/useAuth';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+interface AIExecutionCallbackResult {
+  error?: string;
+  content?: TaskResult;
+}
+
 interface TaskResult {
   task: string;
   output: string;
@@ -43,7 +48,7 @@ export function AITaskExecutor() {
   const [outputFormat, setOutputFormat] = useState('texto');
   const [taskResult, setTaskResult] = useState<TaskResult | null>(null);
 
-  const handleExecutionComplete = (result: any) => {
+  const handleExecutionComplete = (result: AIExecutionCallbackResult) => {
     if (result.error) {
       toast.error('Error al ejecutar tarea: ' + result.error);
       return;
@@ -97,9 +102,9 @@ export function AITaskExecutor() {
       if (error) throw error;
 
       toast.success('Resultado guardado como OBV');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving as OBV:', error);
-      toast.error('Error al guardar: ' + error.message);
+      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);
     }

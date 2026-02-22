@@ -48,11 +48,11 @@ export function ConsumerAppQuestions({ answers, onChange }: ConsumerAppQuestions
               <div key={platform} className="flex items-center space-x-3">
                 <Checkbox
                   id={platform}
-                  checked={answers.platforms?.includes(platform as any)}
+                  checked={answers.platforms?.includes(platform as ConsumerAppAnswers['platforms'][number])}
                   onCheckedChange={(checked) => {
                     const current = answers.platforms || [];
                     const updated = checked
-                      ? [...current, platform as any]
+                      ? [...current, platform as ConsumerAppAnswers['platforms'][number]]
                       : current.filter(p => p !== platform);
                     updateAnswer('platforms', updated);
                   }}

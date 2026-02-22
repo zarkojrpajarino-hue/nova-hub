@@ -16,7 +16,7 @@ interface Member {
 interface OBVStep5SaleDetailsProps {
   formData: OBVFormData;
   members: Member[];
-  projectMembersList: any[];
+  projectMembersList: Member[];
   onUpdateSaleCalculations: (updates: Partial<OBVFormData>) => void;
   onAddParticipant: (memberId: string) => void;
   onRemoveParticipant: (memberId: string) => void;

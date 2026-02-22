@@ -11,7 +11,7 @@ import { toast } from 'sonner';
 
 interface AutoSaveOptions {
   projectId: string | undefined;
-  data: any;
+  data: Record<string, unknown>;
   enabled?: boolean;
   interval?: number; // milliseconds
   onSave?: () => void;
@@ -58,9 +58,9 @@ export function useAutoSave({
         console.log('✅ Auto-save complete');
 
         if (onSave) onSave();
-      } catch (error: any) {
+      } catch (error) {
         console.error('❌ Auto-save failed:', error);
-        if (onError) onError(error);
+        if (onError) onError(error instanceof Error ? error : new Error(String(error)));
       }
     };
 
@@ -96,7 +96,7 @@ export function useAutoSave({
 
       lastSavedRef.current = JSON.stringify(data);
       toast.success('Progreso guardado');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Save failed:', error);
       toast.error('Error al guardar');
       throw error;

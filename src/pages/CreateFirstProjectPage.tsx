@@ -114,7 +114,7 @@ export function CreateFirstProjectPage() {
       // Navigate to standalone onboarding experience
       navigate(`/onboarding/${newProject.id}`);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error creating minimal project:', error);
       toast.error('Error al crear el proyecto');
       setIsCreatingProject(false);

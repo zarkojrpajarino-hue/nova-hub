@@ -174,7 +174,7 @@ describe('useToast', () => {
       const action = { altText: 'Undo' };
 
       act(() => {
-        toast({ title: 'Toast with action', action: action as any });
+        toast({ title: 'Toast with action', action: action as unknown as import('@/components/ui/toast').ToastActionElement });
       });
 
       waitFor(() => {

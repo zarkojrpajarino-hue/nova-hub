@@ -53,11 +53,11 @@ interface DataIntegrationStepProps {
       };
       competitive_analysis: {
         your_position: string;
-        swot: any;
+        swot: Record<string, unknown>;
       };
     };
   };
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value: unknown) => void;
 }
 
 export function DataIntegrationStep({ answers, onChange }: DataIntegrationStepProps) {

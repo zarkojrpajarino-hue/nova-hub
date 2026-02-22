@@ -12,7 +12,7 @@ export interface CompetitorSnapshot {
   id: string;
   competitor_id: string;
   captured_at: string;
-  pricing: any;
+  pricing: Record<string, unknown>;
   features: string[];
   screenshot_url?: string;
   changes_detected: string[];
@@ -22,9 +22,9 @@ export interface CompetitorSnapshot {
 export interface MarketIntelligence {
   id: string;
   project_id: string;
-  trends_data: any;
-  social_mentions: any;
-  market_size: any;
+  trends_data: Record<string, unknown>;
+  social_mentions: Record<string, unknown>;
+  market_size: Record<string, unknown>;
   last_updated: string;
 }
 
@@ -234,7 +234,7 @@ export interface ChatMessage {
   created_at: string;
   sources?: Array<{
     type: 'metric' | 'competitor' | 'market_research' | 'okr';
-    data: any;
+    data: Record<string, unknown>;
   }>;
 }
 
@@ -295,6 +295,6 @@ export interface DashboardConfig {
     id: string;
     type: string;
     position: { x: number; y: number; w: number; h: number };
-    config: any;
+    config: Record<string, unknown>;
   }>;
 }

@@ -50,7 +50,7 @@ interface UseRealtimeSubscriptionOptions {
   /**
    * Callback opcional cuando hay un cambio
    */
-  onEvent?: (payload: any) => void;
+  onEvent?: (payload: Record<string, unknown>) => void;
 }
 
 /**
@@ -106,7 +106,7 @@ export function useRealtimeSubscription({
     let channel = supabase.channel(channelName);
 
     // Configurar filtros si existen
-    const postgresChangesConfig: any = {
+    const postgresChangesConfig: { event: string; schema: string; table: string; filter?: string } = {
       event,
       schema: 'public',
       table,

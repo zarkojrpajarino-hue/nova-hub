@@ -35,7 +35,7 @@ interface GeneratorInput {
   onboarding_type: 'generative' | 'idea' | 'existing';
   business_description?: string;
   industry?: string;
-  extracted_data?: any;
+  extracted_data?: Record<string, unknown>;
   existing_metrics?: {
     mrr?: number;
     customers?: number;

@@ -22,7 +22,7 @@ import {
   Zap,
   ChevronRight,
 } from 'lucide-react';
-import type { GrowthPlaybook } from '@/types/ultra-onboarding';
+import type { GrowthPlaybook, ActionItem, ActionStep } from '@/types/ultra-onboarding';
 import { cn } from '@/lib/utils';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer } from 'recharts';
 
@@ -443,12 +443,12 @@ function BenchmarkRow({
   inverse = false,
 }: {
   label: string;
-  yourValue: any;
-  industryAvg: any;
-  bestInClass: any;
+  yourValue: number | string;
+  industryAvg: number | string;
+  bestInClass: number | string;
   inverse?: boolean;
 }) {
-  const parseValue = (v: any) => (typeof v === 'string' ? parseFloat(v.replace(/[^0-9.]/g, '')) : v);
+  const parseValue = (v: number | string) => (typeof v === 'string' ? parseFloat(v.replace(/[^0-9.]/g, '')) : v);
 
   const yourNum = parseValue(yourValue);
   const avgNum = parseValue(industryAvg);
@@ -489,7 +489,7 @@ function BenchmarkRow({
   );
 }
 
-function ActionCard({ action, priority }: { action: any; priority: number }) {
+function ActionCard({ action, priority }: { action: ActionItem; priority: number }) {
   const [isExpanded, setIsExpanded] = useState(false);
 
   const categoryColors = {
@@ -532,7 +532,7 @@ function ActionCard({ action, priority }: { action: any; priority: number }) {
           <div>
             <h5 className="text-sm font-semibold mb-2">Pasos específicos:</h5>
             <ol className="space-y-2">
-              {action.steps.map((step: any, idx: number) => (
+              {action.steps.map((step: ActionStep, idx: number) => (
                 <li key={idx} className="text-sm flex gap-2">
                   <span className="font-semibold">{idx + 1}.</span>
                   <div>

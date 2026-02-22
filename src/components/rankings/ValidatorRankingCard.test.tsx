@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ValidatorRankingCard } from './ValidatorRankingCard';
@@ -28,13 +29,13 @@ describe('ValidatorRankingCard', () => {
   });
 
   it('shows loading skeletons when loading', () => {
-    (useAllValidatorStats as any).mockReturnValue({ data: undefined, isLoading: true });
+    (useAllValidatorStats as Mock).mockReturnValue({ data: undefined, isLoading: true });
     renderComponent();
     expect(screen.getByText('Ranking de Validadores')).toBeInTheDocument();
   });
 
   it('shows empty message when no data', () => {
-    (useAllValidatorStats as any).mockReturnValue({ data: [], isLoading: false });
+    (useAllValidatorStats as Mock).mockReturnValue({ data: [], isLoading: false });
     renderComponent();
     expect(screen.getByText('No hay datos de validación aún')).toBeInTheDocument();
   });

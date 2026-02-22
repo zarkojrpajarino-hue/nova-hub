@@ -21,7 +21,7 @@ import { toast } from 'sonner';
 
 interface HealthDiagnosticSectionProps {
   projectId: string;
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 

@@ -42,7 +42,7 @@ type OnboardingType = 'generative' | 'idea' | 'existing';
 interface SimplifiedOnboardingEntryProps {
   projectId: string;
   onboardingType: OnboardingType;
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
 }
 
 export function SimplifiedOnboardingEntry({
@@ -51,7 +51,7 @@ export function SimplifiedOnboardingEntry({
   onComplete
 }: SimplifiedOnboardingEntryProps) {
   const [phase, setPhase] = useState<'input' | 'generating' | 'preview'>('input');
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
   const [artifacts, setArtifacts] = useState<AIGeneratedArtifacts | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
 

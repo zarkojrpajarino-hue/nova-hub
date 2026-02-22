@@ -17,6 +17,26 @@ import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+interface SpeechRecognitionEvent {
+  resultIndex: number;
+  results: Array<Array<{ transcript: string }>>;
+}
+
+interface SpeechRecognitionInstance {
+  lang: string;
+  continuous: boolean;
+  interimResults: boolean;
+  onresult: ((event: SpeechRecognitionEvent) => void) | null;
+  onend: (() => void) | null;
+  start: () => void;
+  stop: () => void;
+}
+
+interface WindowWithSpeech extends Window {
+  webkitSpeechRecognition: new () => SpeechRecognitionInstance;
+  currentRecognition?: SpeechRecognitionInstance;
+}
+
 interface AutoFillStepProps {
   answers: {
     business_pitch?: string;
@@ -61,7 +81,7 @@ interface AutoFillStepProps {
       };
     };
   };
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value: unknown) => void;
 }
 
 export function AutoFillStep({ answers, onChange }: AutoFillStepProps) {
@@ -102,12 +122,12 @@ export function AutoFillStep({ answers, onChange }: AutoFillStepProps) {
   const toggleVoiceRecording = () => {
     if (!isRecording) {
       // Start recording
-      const recognition = new (window as any).webkitSpeechRecognition();
+      const recognition = new (window as WindowWithSpeech).webkitSpeechRecognition();
       recognition.lang = 'es-ES';
       recognition.continuous = true;
       recognition.interimResults = true;
 
-      recognition.onresult = (event: any) => {
+      recognition.onresult = (event: SpeechRecognitionEvent) => {
         let transcript = '';
         for (let i = event.resultIndex; i < event.results.length; i++) {
           transcript += event.results[i][0].transcript;
@@ -123,11 +143,11 @@ export function AutoFillStep({ answers, onChange }: AutoFillStepProps) {
       setIsRecording(true);
 
       // Store recognition instance for stopping later
-      (window as any).currentRecognition = recognition;
+      (window as WindowWithSpeech).currentRecognition = recognition;
     } else {
       // Stop recording
-      if ((window as any).currentRecognition) {
-        (window as any).currentRecognition.stop();
+      if ((window as WindowWithSpeech).currentRecognition) {
+        (window as WindowWithSpeech).currentRecognition!.stop();
       }
       setIsRecording(false);
     }

@@ -54,7 +54,7 @@ export function CompetitiveLandscapeStep({ landscape, onChange }: CompetitiveLan
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={landscape.market_type} onValueChange={(value) => updateLandscape('market_type', value as any)}>
+          <RadioGroup value={landscape.market_type} onValueChange={(value) => updateLandscape('market_type', value as CompetitiveLandscape['market_type'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="blue_ocean" id="blue_ocean" className="mt-1" />
               <Label htmlFor="blue_ocean" className="flex-1 cursor-pointer">
@@ -145,7 +145,7 @@ export function CompetitiveLandscapeStep({ landscape, onChange }: CompetitiveLan
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={landscape.competitive_advantage} onValueChange={(value) => updateLandscape('competitive_advantage', value as any)}>
+          <RadioGroup value={landscape.competitive_advantage} onValueChange={(value) => updateLandscape('competitive_advantage', value as CompetitiveLandscape['competitive_advantage'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="tech_innovation" id="tech" />
               <Label htmlFor="tech" className="cursor-pointer">Tech innovation (10x mejor tecnológicamente)</Label>

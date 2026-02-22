@@ -11,7 +11,7 @@ import { es } from 'date-fns/locale';
 // CSV EXPORT
 // ============================================
 
-export function convertToCSV(data: any[], headers?: string[]): string {
+export function convertToCSV(data: Record<string, unknown>[], headers?: string[]): string {
   if (data.length === 0) return '';
 
   // Get headers from first object if not provided
@@ -55,7 +55,7 @@ export function convertToCSV(data: any[], headers?: string[]): string {
   return [csvHeaders, ...csvRows].join('\n');
 }
 
-export function downloadCSV(data: any[], filename: string, headers?: string[]): void {
+export function downloadCSV(data: Record<string, unknown>[], filename: string, headers?: string[]): void {
   const csv = convertToCSV(data, headers);
   const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' }); // UTF-8 BOM
   const link = document.createElement('a');
@@ -73,7 +73,7 @@ export function downloadCSV(data: any[], filename: string, headers?: string[]): 
 // JSON EXPORT
 // ============================================
 
-export function downloadJSON(data: any, filename: string): void {
+export function downloadJSON(data: unknown, filename: string): void {
   const json = JSON.stringify(data, null, 2);
   const blob = new Blob([json], { type: 'application/json' });
   const link = document.createElement('a');
@@ -93,7 +93,7 @@ export function downloadJSON(data: any, filename: string): void {
 
 export async function downloadPDF(
   title: string,
-  data: any[],
+  data: Record<string, unknown>[],
   columns: Array<{ header: string; key: string; width?: number }>,
   filename: string
 ): Promise<void> {
@@ -117,6 +117,7 @@ export async function downloadPDF(
   doc.setTextColor(0);
 
   // Add table
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- jsPDF plugin autoTable not typed
   (doc as any).autoTable({
     startY: 35,
     head: [columns.map((col) => col.header)],
@@ -145,10 +146,11 @@ export async function downloadPDF(
         acc[idx] = { cellWidth: col.width };
       }
       return acc;
-    }, {} as Record<number, any>),
+    }, {} as Record<number, { cellWidth: number }>),
   });
 
   // Add page numbers
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- jsPDF internal API not fully typed
   const pageCount = (doc as any).internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
@@ -170,7 +172,7 @@ export async function downloadPDF(
 // ============================================
 
 export async function downloadExcel(
-  data: any[],
+  data: Record<string, unknown>[],
   filename: string,
   sheetName: string = 'Datos'
 ): Promise<void> {

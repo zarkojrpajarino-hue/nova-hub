@@ -29,7 +29,7 @@ const queryClient = new QueryClient({
       retry: (failureCount, error) => {
         // Retry inteligente: no reintentar errores 4xx (cliente)
         if (error instanceof Error && 'statusCode' in error) {
-          const statusCode = (error as any).statusCode;
+          const statusCode = (error as Error & { statusCode: number }).statusCode;
           if (statusCode >= 400 && statusCode < 500) return false;
         }
         return failureCount < 2; // Máximo 2 reintentos para errores 5xx

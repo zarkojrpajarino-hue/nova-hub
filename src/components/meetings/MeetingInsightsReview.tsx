@@ -46,7 +46,7 @@ interface MeetingInsightsReviewProps {
 interface Insight {
   id: string;
   insight_type: string;
-  content: any;
+  content: Record<string, unknown>;
   review_status: string;
   created_at: string;
 }
@@ -68,7 +68,7 @@ export function MeetingInsightsReview({
   // State
   const [localInsights, setLocalInsights] = useState<Insight[]>([]);
   const [editingInsight, setEditingInsight] = useState<Insight | null>(null);
-  const [editedContent, setEditedContent] = useState<any>({});
+  const [editedContent, setEditedContent] = useState<Record<string, unknown>>({});
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(['task', 'decision']));
   const [isApplying, setIsApplying] = useState(false);
 
@@ -533,8 +533,8 @@ function InsightCard({ insight, type, onApprove, onReject, onEdit }: InsightCard
  */
 interface EditInsightModalProps {
   insight: Insight;
-  editedContent: any;
-  setEditedContent: (content: any) => void;
+  editedContent: Record<string, unknown>;
+  setEditedContent: (content: Record<string, unknown>) => void;
   onSave: () => void;
   onClose: () => void;
 }

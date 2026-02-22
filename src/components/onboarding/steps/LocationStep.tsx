@@ -48,7 +48,7 @@ interface LocationStepProps {
       }>;
     };
   };
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value: unknown) => void;
   onboardingType: 'generative' | 'idea' | 'existing'; // Added to personalize by type
 }
 

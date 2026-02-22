@@ -106,9 +106,9 @@ export function StartChallengeDialog({
       toast.success(result.message || '¡Desafío iniciado con éxito! 🔥');
       onSuccess?.();
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error starting challenge:', error);
-      toast.error(error.message || 'Error al iniciar el desafío');
+      toast.error(error instanceof Error ? error.message : 'Error al iniciar el desafío');
     } finally {
       setIsLoading(false);
     }

@@ -30,7 +30,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
-  const [searchResults, setSearchResults] = useState<any[]>([]);
+  const [searchResults, setSearchResults] = useState<Document[]>([]);
   const [searching, setSearching] = useState(false);
 
   // Load documents

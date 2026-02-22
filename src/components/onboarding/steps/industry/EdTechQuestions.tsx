@@ -34,7 +34,7 @@ export function EdTechQuestions({ answers, onChange }: EdTechQuestionsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.target_audience} onValueChange={(value) => updateAnswer('target_audience', value as any)}>
+          <RadioGroup value={answers.target_audience} onValueChange={(value) => updateAnswer('target_audience', value as EdTechAnswers['target_audience'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="k12_students" id="k12" />
               <Label htmlFor="k12" className="cursor-pointer">K-12 Students (niños/adolescentes)</Label>
@@ -67,7 +67,7 @@ export function EdTechQuestions({ answers, onChange }: EdTechQuestionsProps) {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.edtech_model} onValueChange={(value) => updateAnswer('edtech_model', value as any)}>
+          <RadioGroup value={answers.edtech_model} onValueChange={(value) => updateAnswer('edtech_model', value as EdTechAnswers['edtech_model'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="b2c_direct" id="b2c" className="mt-1" />
               <Label htmlFor="b2c" className="flex-1 cursor-pointer">
@@ -110,7 +110,7 @@ export function EdTechQuestions({ answers, onChange }: EdTechQuestionsProps) {
         <CardContent className="space-y-4">
           <div>
             <Label className="mb-2 block">¿De dónde viene el contenido?</Label>
-            <RadioGroup value={answers.content_source} onValueChange={(value) => updateAnswer('content_source', value as any)}>
+            <RadioGroup value={answers.content_source} onValueChange={(value) => updateAnswer('content_source', value as EdTechAnswers['content_source'])}>
               <div className="flex items-center space-x-2 p-2">
                 <RadioGroupItem value="proprietary" id="proprietary" />
                 <Label htmlFor="proprietary" className="cursor-pointer">Contenido propietario (creamos nosotros)</Label>
@@ -153,7 +153,7 @@ export function EdTechQuestions({ answers, onChange }: EdTechQuestionsProps) {
         <CardContent className="space-y-4">
           <div>
             <Label className="mb-2 block">¿Ofreces certificación?</Label>
-            <RadioGroup value={answers.certification_type} onValueChange={(value) => updateAnswer('certification_type', value as any)}>
+            <RadioGroup value={answers.certification_type} onValueChange={(value) => updateAnswer('certification_type', value as EdTechAnswers['certification_type'])}>
               <div className="flex items-center space-x-2 p-2">
                 <RadioGroupItem value="accredited" id="accredited" />
                 <Label htmlFor="accredited" className="cursor-pointer">Certificación acreditada (oficial)</Label>

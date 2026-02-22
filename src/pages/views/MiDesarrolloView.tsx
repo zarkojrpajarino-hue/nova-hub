@@ -32,7 +32,7 @@ export function MiDesarrolloView() {
 
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('rendimiento');
-  const [badges, setBadges] = useState<any>({ earned: [], all: [] });
+  const [badges, setBadges] = useState<{ earned: Record<string, unknown>[]; all: Record<string, unknown>[] }>({ earned: [], all: [] });
   const [learningPathView, setLearningPathView] = useState<'list' | 'viewer' | 'generator'>('list');
   const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
   const [showPreviewModal, setShowPreviewModal] = useState(false);

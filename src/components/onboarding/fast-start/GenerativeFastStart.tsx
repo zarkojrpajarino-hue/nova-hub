@@ -38,7 +38,7 @@ import { generateAllArtifacts } from '@/lib/ai-generators';
 
 interface GenerativeFastStartProps {
   projectId: string;
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
 }
 
 export function GenerativeFastStart({ projectId, onComplete }: GenerativeFastStartProps) {

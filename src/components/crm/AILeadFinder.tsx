@@ -37,6 +37,23 @@ interface VerificationLinks {
   twitter?: string;
 }
 
+interface RawLeadFromAPI {
+  business_name?: string;
+  industry?: string;
+  location?: { country?: string; city?: string; address?: string; coordinates?: { lat: number; lng: number } } | string;
+  source?: string;
+  sources?: DataSource[];
+  website?: string;
+  linkedin_url?: string;
+  facebook_url?: string;
+  instagram_url?: string;
+  estimated_value?: number;
+  estimated_size?: 'micro' | 'small' | 'medium' | 'large';
+  phone?: string;
+  contact_info?: { name?: string; title?: string; email?: string; phone?: string };
+  suggested_pitch?: { pain_points?: string[]; why_fit?: string; talking_points?: string[] };
+}
+
 interface GeneratedLead {
   company_name: string;
   industry: string;
@@ -136,7 +153,7 @@ export function AILeadFinder() {
       console.log('[AI Lead Finder] Raw leads:', data.suggested_leads);
 
       // Transform backend structure to frontend structure
-      const transformedLeads: GeneratedLead[] = (data.suggested_leads || []).map((lead: any) => {
+      const transformedLeads: GeneratedLead[] = (data.suggested_leads || []).map((lead: RawLeadFromAPI) => {
         // Build verification links
         const locationObj = typeof lead.location === 'object' ? lead.location : null;
         const googleMapsUrl = locationObj?.coordinates
@@ -201,9 +218,9 @@ export function AILeadFinder() {
       setTimeout(() => {
         toast.info('✅ Verifica en Supabase: SELECT COUNT(*) FROM evidence_generation_metrics');
       }, 2000);
-    } catch (error: any) {
+    } catch (error) {
       console.error('[AI Lead Finder] Error generating leads:', error);
-      toast.error('Error al generar leads: ' + error.message);
+      toast.error('Error al generar leads: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);
     }
@@ -243,9 +260,9 @@ export function AILeadFinder() {
       if (error) throw error;
 
       toast.success(`Lead "${lead.company_name}" guardado en CRM`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving lead:', error);
-      toast.error('Error al guardar: ' + error.message);
+      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);
     }
@@ -290,9 +307,9 @@ export function AILeadFinder() {
 
       toast.success(`${leadsToInsert.length} leads guardados en CRM`);
       setGeneratedLeads([]);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving leads:', error);
-      toast.error('Error al guardar: ' + error.message);
+      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);
     }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import type { ZodTypeAny } from 'zod';
 import { Rocket, ChevronLeft, ChevronRight, Loader2, Save } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -296,8 +297,8 @@ export function OnboardingWizard({
 
     try {
       // Get data and schema based on onboarding type
-      let data: any;
-      let schema: any;
+      let data: StateBasedOnboardingData | ValidacionData | OperacionData | null;
+      let schema: ZodTypeAny;
 
       if (usingStateBased) {
         data = getStateData();
@@ -355,7 +356,7 @@ export function OnboardingWizard({
       if (membersError) throw membersError;
 
       // Save onboarding data to database
-      const updateData: any = {
+      const updateData: Record<string, unknown> = {
         onboarding_completed: true,
         onboarding_data: data,
       };

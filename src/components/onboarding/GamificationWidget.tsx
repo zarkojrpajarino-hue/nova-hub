@@ -21,6 +21,14 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { GamificationSystem, ACHIEVEMENTS, BADGES } from '@/lib/gamification';
+import type { Achievement } from '@/lib/gamification';
+
+interface GamificationData {
+  points: number;
+  achievements: Achievement[];
+  badges: string[];
+  level: number;
+}
 
 interface GamificationWidgetProps {
   projectId: string;
@@ -28,7 +36,7 @@ interface GamificationWidgetProps {
 }
 
 export function GamificationWidget({ projectId, userId }: GamificationWidgetProps) {
-  const [gamData, setGamData] = useState<any>(null);
+  const [gamData, setGamData] = useState<GamificationData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -59,7 +67,7 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
 
   const unlockedAchievements = gamData.achievements || [];
   const lockedAchievements = ACHIEVEMENTS.filter(
-    a => !unlockedAchievements.some((ua: any) => ua.id === a.id)
+    a => !unlockedAchievements.some((ua: Achievement) => ua.id === a.id)
   );
 
   const userBadges = BADGES.filter(b => gamData.badges?.includes(b.id));
@@ -142,7 +150,7 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
                 </p>
               </div>
             ) : (
-              unlockedAchievements.map((achievement: any) => (
+              unlockedAchievements.map((achievement: Achievement) => (
                 <div
                   key={achievement.id}
                   className="p-3 bg-gradient-to-r from-yellow-50 to-orange-50 border-2 border-yellow-200 rounded-lg"

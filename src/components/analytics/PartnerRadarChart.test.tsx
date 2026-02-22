@@ -1,11 +1,12 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import type { ReactNode } from 'react';
 import { PartnerRadarChart } from './PartnerRadarChart';
 
 // Mock Recharts
 vi.mock('recharts', () => ({
-  ResponsiveContainer: ({ children }: any) => <div data-testid="responsive-container">{children}</div>,
-  RadarChart: ({ children }: any) => <div data-testid="radar-chart">{children}</div>,
+  ResponsiveContainer: ({ children }: { children: ReactNode }) => <div data-testid="responsive-container">{children}</div>,
+  RadarChart: ({ children }: { children: ReactNode }) => <div data-testid="radar-chart">{children}</div>,
   PolarGrid: () => <div data-testid="polar-grid" />,
   PolarAngleAxis: () => <div data-testid="polar-angle-axis" />,
   PolarRadiusAxis: () => <div data-testid="polar-radius-axis" />,

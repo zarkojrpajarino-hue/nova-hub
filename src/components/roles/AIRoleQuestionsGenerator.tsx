@@ -54,7 +54,7 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
   const [isGenerating, setIsGenerating] = useState(false);
   const [simpleQuestions, setSimpleQuestions] = useState<SimpleQuestion[]>([]);
   const [detailedQuestions, setDetailedQuestions] = useState<DetailedQuestion[]>([]);
-  const [agendaSugerida, setAgendaSugerida] = useState<any>(null);
+  const [agendaSugerida, setAgendaSugerida] = useState<{ apertura: string; desarrollo: string; cierre: string } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copiedIndex, setCopiedIndex] = useState<number | null>(null);
   const [activeTab, setActiveTab] = useState<'simple' | 'detailed'>('detailed');

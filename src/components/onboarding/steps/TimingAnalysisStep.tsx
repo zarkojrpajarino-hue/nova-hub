@@ -191,7 +191,7 @@ export function TimingAnalysisStep({ timing, onChange }: TimingAnalysisStepProps
         <CardContent className="space-y-3">
           {marketCatalysts.map((catalyst) => {
             const Icon = catalyst.icon;
-            const isSelected = selectedCatalysts.includes(catalyst.id as any);
+            const isSelected = selectedCatalysts.includes(catalyst.id as TimingAnalysis['market_catalysts'][number]);
 
             return (
               <div
@@ -205,7 +205,7 @@ export function TimingAnalysisStep({ timing, onChange }: TimingAnalysisStepProps
                   const current = selectedCatalysts;
                   const updated = isSelected
                     ? current.filter((id) => id !== catalyst.id)
-                    : [...current, catalyst.id as any];
+                    : [...current, catalyst.id as TimingAnalysis['market_catalysts'][number]];
                   updateTiming('market_catalysts', updated);
                 }}
               >
@@ -221,7 +221,7 @@ export function TimingAnalysisStep({ timing, onChange }: TimingAnalysisStepProps
                         const current = selectedCatalysts;
                         const updated = isSelected
                           ? current.filter((id) => id !== catalyst.id)
-                          : [...current, catalyst.id as any];
+                          : [...current, catalyst.id as TimingAnalysis['market_catalysts'][number]];
                         updateTiming('market_catalysts', updated);
                       }}
                     />

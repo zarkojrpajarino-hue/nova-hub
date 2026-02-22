@@ -33,7 +33,7 @@ export function RealEstatePropTechQuestions({ answers, onChange }: RealEstatePro
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.proptech_category} onValueChange={(value) => updateAnswer('proptech_category', value as any)}>
+          <RadioGroup value={answers.proptech_category} onValueChange={(value) => updateAnswer('proptech_category', value as RealEstatePropTechAnswers['proptech_category'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="marketplace" id="marketplace" />
               <Label htmlFor="marketplace" className="cursor-pointer">Marketplace (Zillow-like)</Label>
@@ -70,7 +70,7 @@ export function RealEstatePropTechQuestions({ answers, onChange }: RealEstatePro
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.target_market} onValueChange={(value) => updateAnswer('target_market', value as any)}>
+          <RadioGroup value={answers.target_market} onValueChange={(value) => updateAnswer('target_market', value as RealEstatePropTechAnswers['target_market'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="residential_buyers" id="res_buyers" className="mt-1" />
               <Label htmlFor="res_buyers" className="flex-1 cursor-pointer">
@@ -118,7 +118,7 @@ export function RealEstatePropTechQuestions({ answers, onChange }: RealEstatePro
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.revenue_model} onValueChange={(value) => updateAnswer('revenue_model', value as any)}>
+          <RadioGroup value={answers.revenue_model} onValueChange={(value) => updateAnswer('revenue_model', value as RealEstatePropTechAnswers['revenue_model'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="commission" id="commission" />
               <Label htmlFor="commission" className="cursor-pointer">Commission (% de venta/renta)</Label>

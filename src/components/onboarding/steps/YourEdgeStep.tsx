@@ -118,7 +118,7 @@ export function YourEdgeStep({ yourEdge, onChange }: YourEdgeStepProps) {
           {unfairAdvantages.map((advantage) => {
             const Icon = advantage.icon;
             const colors = getColorClasses(advantage.color);
-            const isSelected = selectedAdvantages.includes(advantage.id as any);
+            const isSelected = selectedAdvantages.includes(advantage.id as YourEdge['unfair_advantages'][number]);
 
             return (
               <div
@@ -132,7 +132,7 @@ export function YourEdgeStep({ yourEdge, onChange }: YourEdgeStepProps) {
                   const current = selectedAdvantages;
                   const updated = isSelected
                     ? current.filter((id) => id !== advantage.id)
-                    : [...current, advantage.id as any];
+                    : [...current, advantage.id as YourEdge['unfair_advantages'][number]];
                   updateEdge('unfair_advantages', updated);
                 }}
               >
@@ -148,7 +148,7 @@ export function YourEdgeStep({ yourEdge, onChange }: YourEdgeStepProps) {
                         const current = selectedAdvantages;
                         const updated = isSelected
                           ? current.filter((id) => id !== advantage.id)
-                          : [...current, advantage.id as any];
+                          : [...current, advantage.id as YourEdge['unfair_advantages'][number]];
                         updateEdge('unfair_advantages', updated);
                       }}
                     />

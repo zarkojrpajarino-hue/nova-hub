@@ -2,6 +2,7 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { MyRotationRequests } from './MyRotationRequests';
+import type { RoleRotationRequest } from '@/hooks/useRoleRotation';
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
@@ -36,7 +37,7 @@ describe('MyRotationRequests', () => {
     vi.clearAllMocks();
   });
 
-  const renderComponent = (requests: any[] = []) => render(
+  const renderComponent = (requests: RoleRotationRequest[] = []) => render(
     <QueryClientProvider client={queryClient}>
       <MyRotationRequests requests={requests} />
     </QueryClientProvider>

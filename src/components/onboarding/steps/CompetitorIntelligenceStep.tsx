@@ -39,7 +39,7 @@ interface CompetitorIntelligenceStepProps {
       }>;
     };
   };
-  onChange: (field: string, value: any) => void;
+  onChange: (field: string, value: unknown) => void;
 }
 
 export function CompetitorIntelligenceStep({ answers, onChange }: CompetitorIntelligenceStepProps) {

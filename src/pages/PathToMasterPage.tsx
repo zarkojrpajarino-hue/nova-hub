@@ -37,8 +37,8 @@ import { CaminoMasterPreviewModal } from '@/components/preview/CaminoMasterPrevi
 export function PathToMasterPage() {
   const { user } = useAuth();
   const { goBack, canGoBack } = useNavigation();
-  const [activeExploration, setActiveExploration] = useState<any>(null);
-  const [activeChallenge, setActiveChallenge] = useState<any>(null);
+  const [activeExploration, setActiveExploration] = useState<Record<string, unknown> | null>(null);
+  const [activeChallenge, setActiveChallenge] = useState<Record<string, unknown> | null>(null);
   const [currentRoles, setCurrentRoles] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedChallengeRole, setSelectedChallengeRole] = useState<string>('sales');

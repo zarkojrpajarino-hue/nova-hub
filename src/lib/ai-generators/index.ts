@@ -24,10 +24,10 @@ export interface AIGenerationInput {
 
   // From auto-fill
   extracted_data?: {
-    your_startup?: any;
-    founders?: any[];
-    competitors?: any[];
-    local_context?: any;
+    your_startup?: Record<string, unknown>;
+    founders?: Record<string, unknown>[];
+    competitors?: Record<string, unknown>[];
+    local_context?: Record<string, unknown>;
   };
 
   // From integrations (existing businesses)
@@ -52,10 +52,10 @@ export interface AIGeneratedArtifacts {
   sales_playbook: SalesPlaybook;
 
   // Existing artifacts (from current onboarding)
-  competitive_analysis?: any;
-  financial_projections?: any;
-  go_to_market_plan?: any;
-  pmf_assessment?: any;
+  competitive_analysis?: Record<string, unknown>;
+  financial_projections?: Record<string, unknown>;
+  go_to_market_plan?: Record<string, unknown>;
+  pmf_assessment?: Record<string, unknown>;
 
   // Metadata
   generation_id: string;

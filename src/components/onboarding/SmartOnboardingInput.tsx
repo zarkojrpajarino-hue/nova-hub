@@ -25,8 +25,8 @@ import { cn } from '@/lib/utils';
 
 interface SmartOnboardingInputProps {
   projectPhase: ProjectPhase;
-  onDataExtracted?: (data: any) => void;
-  currentFormData?: any;
+  onDataExtracted?: (data: Record<string, unknown>) => void;
+  currentFormData?: Record<string, unknown>;
   className?: string;
 }
 

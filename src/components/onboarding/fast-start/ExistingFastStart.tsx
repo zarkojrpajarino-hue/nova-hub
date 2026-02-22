@@ -34,7 +34,7 @@ import { generateAllArtifacts } from '@/lib/ai-generators';
 
 interface ExistingFastStartProps {
   projectId: string;
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
 }
 
 export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartProps) {

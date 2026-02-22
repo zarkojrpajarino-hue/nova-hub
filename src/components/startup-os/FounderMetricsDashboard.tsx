@@ -64,10 +64,32 @@ function MetricCard({ title, value, change, icon, trend, alert }: MetricCardProp
   );
 }
 
+interface KeyMetric {
+  id: string;
+  project_id: string;
+  date: string;
+  mrr: number;
+  total_customers: number;
+  cac?: number;
+  ltv?: number;
+  churn_rate?: number;
+  runway_months?: number;
+  [key: string]: unknown;
+}
+
+interface MetricAlert {
+  id: string;
+  project_id: string;
+  metric: string;
+  message: string;
+  severity: string;
+  acknowledged: boolean;
+}
+
 export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
-  const [metrics, setMetrics] = useState<any>(null);
-  const [history, setHistory] = useState<any[]>([]);
-  const [alerts, setAlerts] = useState<any[]>([]);
+  const [metrics, setMetrics] = useState<KeyMetric | null>(null);
+  const [history, setHistory] = useState<KeyMetric[]>([]);
+  const [alerts, setAlerts] = useState<MetricAlert[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -228,7 +250,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
               />
               <YAxis />
               <Tooltip
-                formatter={(value: any) => `$${value.toLocaleString()}`}
+                formatter={(value: number) => `$${value.toLocaleString()}`}
                 labelFormatter={(label) => new Date(label).toLocaleDateString()}
               />
               <Line type="monotone" dataKey="mrr" stroke="#2563EB" strokeWidth={2} />

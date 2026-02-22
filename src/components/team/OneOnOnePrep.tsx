@@ -64,7 +64,7 @@ export function OneOnOnePrep() {
     },
   });
 
-  const handleGenerationComplete = (result: any) => {
+  const handleGenerationComplete = (result: { error?: string; content?: { agenda?: OneOnOneAgenda } | OneOnOneAgenda }) => {
     if (result.error) {
       toast.error('Error al generar agenda: ' + result.error);
       return;

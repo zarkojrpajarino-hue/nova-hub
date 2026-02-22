@@ -42,7 +42,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [step, setStep] = useState<'fast-start' | 'complete'>('fast-start');
-  const [completedData, setCompletedData] = useState<any>(null);
+  const [completedData, setCompletedData] = useState<Record<string, unknown> | null>(null);
 
   // Load onboarding type from project metadata
   useEffect(() => {
@@ -73,7 +73,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
     loadProjectType();
   }, [projectId]);
 
-  const handleFastStartComplete = async (data: any) => {
+  const handleFastStartComplete = async (data: Record<string, unknown>) => {
     setSaving(true);
     setCompletedData(data);
 
@@ -120,10 +120,10 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
         onComplete();
       }, 3000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving Fast Start:', error);
       toast.error('Error saving progress', {
-        description: error.message
+        description: error instanceof Error ? error.message : 'Unknown error'
       });
       setSaving(false);
     }

@@ -10,7 +10,7 @@
  * - Alertas de energía del equipo
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -40,7 +40,7 @@ interface AIFacilitatorProps {
 interface Recommendation {
   id: string;
   type: 'warning' | 'info' | 'success' | 'tip';
-  icon: any;
+  icon: React.ReactNode;
   title: string;
   message: string;
   action?: string;

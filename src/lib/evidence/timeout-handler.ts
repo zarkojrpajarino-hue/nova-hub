@@ -31,7 +31,7 @@ export const DEFAULT_TIMEOUT_CONFIG: TimeoutConfig = {
 
 export interface TierRetrievalResult {
   tier: string;
-  sources: any[];
+  sources: unknown[];
   timeMs: number;
   timedOut: boolean;
   error?: string;
@@ -42,7 +42,7 @@ export interface TierRetrievalResult {
  */
 export async function retrieveWithTimeout(
   tier: string,
-  retrievalFn: (signal: AbortSignal) => Promise<any[]>,
+  retrievalFn: (signal: AbortSignal) => Promise<unknown[]>,
   timeoutMs: number
 ): Promise<TierRetrievalResult> {
   const controller = new AbortController();
@@ -62,11 +62,11 @@ export async function retrieveWithTimeout(
       timeMs,
       timedOut: false,
     };
-  } catch (error: any) {
+  } catch (error) {
     const timeMs = performance.now() - startTime;
     clearTimeout(timeoutId);
 
-    if (error.name === 'AbortError') {
+    if (error instanceof Error && error.name === 'AbortError') {
       // Timeout occurred
       console.warn(`[Timeout] ${tier} exceeded ${timeoutMs}ms`);
       return {
@@ -85,7 +85,7 @@ export async function retrieveWithTimeout(
       sources: [],
       timeMs,
       timedOut: false,
-      error: error.message,
+      error: error instanceof Error ? error.message : 'Unknown error',
     };
   }
 }
@@ -99,10 +99,10 @@ export async function retrieveWithTimeout(
  */
 export async function multiTierRetrieval(
   tiers: string[],
-  retrievalFunctions: Record<string, (signal: AbortSignal) => Promise<any[]>>,
+  retrievalFunctions: Record<string, (signal: AbortSignal) => Promise<unknown[]>>,
   config: TimeoutConfig = DEFAULT_TIMEOUT_CONFIG
 ): Promise<{
-  allSources: any[];
+  allSources: unknown[];
   tierResults: TierRetrievalResult[];
   totalTimeMs: number;
   globalTimeout: boolean;
@@ -115,7 +115,7 @@ export async function multiTierRetrieval(
 
   const startTime = performance.now();
   const tierResults: TierRetrievalResult[] = [];
-  const allSources: any[] = [];
+  const allSources: unknown[] = [];
 
   try {
     for (const tier of tiers) {
@@ -160,7 +160,7 @@ export async function multiTierRetrieval(
       totalTimeMs,
       globalTimeout: globalController.signal.aborted,
     };
-  } catch (error: any) {
+  } catch (error) {
     const totalTimeMs = performance.now() - startTime;
     clearTimeout(globalTimeoutId);
 
@@ -170,7 +170,7 @@ export async function multiTierRetrieval(
       allSources,
       tierResults,
       totalTimeMs,
-      globalTimeout: error.name === 'AbortError',
+      globalTimeout: error instanceof Error && error.name === 'AbortError',
     };
   }
 }

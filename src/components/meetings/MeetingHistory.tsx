@@ -18,7 +18,7 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useProjectMeetings, useMeeting, useMeetingInsights } from '@/hooks/useMeetings';
+import { useProjectMeetings, useMeeting, useMeetingInsights, Meeting } from '@/hooks/useMeetings';
 import {
   Search,
   Calendar,
@@ -258,8 +258,15 @@ export function MeetingHistory({
 /**
  * Card individual de reunión
  */
+interface MeetingInsightEntry {
+  id: string;
+  insight_type: string;
+  content: { title?: string; name?: string };
+  applied?: boolean;
+}
+
 interface MeetingCardProps {
-  meeting: any;
+  meeting: Meeting;
   onViewDetails: (id: string) => void;
   onReviewInsights: (id: string) => void;
 }
@@ -369,7 +376,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
   const StatusIcon = statusConfig.icon;
 
   // Agrupar insights por tipo
-  const insightsByType = insights.reduce((acc: any, insight: any) => {
+  const insightsByType = insights.reduce((acc: Record<string, MeetingInsightEntry[]>, insight: MeetingInsightEntry) => {
     if (!acc[insight.insight_type]) {
       acc[insight.insight_type] = [];
     }
@@ -458,7 +465,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
             <div>
               <h4 className="font-semibold mb-3">Insights Extraídos ({insights.length})</h4>
               <div className="space-y-3">
-                {Object.entries(insightsByType).map(([type, typeInsights]: [string, any]) => (
+                {Object.entries(insightsByType).map(([type, typeInsights]: [string, MeetingInsightEntry[]]) => (
                   <div key={type} className="border rounded-lg p-3">
                     <div className="flex items-center gap-2 mb-2">
                       {type === 'task' && <Target className="h-4 w-4 text-blue-600" />}
@@ -470,7 +477,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
                       </span>
                     </div>
                     <div className="space-y-2">
-                      {typeInsights.slice(0, 3).map((insight: any) => (
+                      {typeInsights.slice(0, 3).map((insight: MeetingInsightEntry) => (
                         <div key={insight.id} className="text-sm text-gray-700 pl-6">
                           • {insight.content.title || insight.content.name || 'Sin título'}
                           {insight.applied && (

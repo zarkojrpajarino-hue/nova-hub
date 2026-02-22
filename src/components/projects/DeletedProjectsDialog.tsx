@@ -107,9 +107,9 @@ export function DeletedProjectsDialog() {
 
       // Refresh list
       fetchDeletedProjects();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error restoring project:', error);
-      toast.error(error.message || 'Error al restaurar el proyecto');
+      toast.error(error instanceof Error ? error.message : 'Error al restaurar el proyecto');
     } finally {
       setRestoringId(null);
     }

@@ -89,7 +89,7 @@ interface GeneratorInput {
     model?: string;
     price_point?: string;
   };
-  buyer_personas?: any[]; // From buyer persona generator
+  buyer_personas?: Record<string, unknown>[]; // From buyer persona generator
 }
 
 /**

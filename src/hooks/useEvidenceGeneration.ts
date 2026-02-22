@@ -160,7 +160,7 @@ export function useEvidenceGeneration({
    */
   async function generateWithEvidence(
     config: GenerationConfig,
-    additionalData?: any
+    additionalData?: Record<string, unknown>
   ): Promise<AIOutputWithEvidence | null> {
     setIsGenerating(true);
 
@@ -276,7 +276,7 @@ export function useEvidenceGeneration({
   /**
    * Generate in hypothesis mode (no evidence)
    */
-  async function generateHypothesis(additionalData?: any): Promise<AIOutputWithEvidence> {
+  async function generateHypothesis(additionalData?: Record<string, unknown>): Promise<AIOutputWithEvidence> {
     // Call AI endpoint in hypothesis mode (no evidence required)
     const { data: { session } } = await supabase.auth.getSession();
 

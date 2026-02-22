@@ -3,7 +3,7 @@
  * Onboarding profesional, claro e intuitivo
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -32,7 +32,7 @@ type OnboardingType = 'generative' | 'idea' | 'existing';
 interface Step {
   id: string;
   label: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   description: string;
 }
 
@@ -76,7 +76,7 @@ export function SimpleOnboardingWizard({ projectId, onComplete }: Props) {
   const [saving, setSaving] = useState(false);
 
   // Datos del formulario
-  const [formData, setFormData] = useState<Record<string, any>>({});
+  const [formData, setFormData] = useState<Record<string, unknown>>({});
 
   // Cargar tipo de onboarding del proyecto
   useEffect(() => {
@@ -142,7 +142,7 @@ export function SimpleOnboardingWizard({ projectId, onComplete }: Props) {
     }
   };
 
-  const updateFormData = (key: string, value: any) => {
+  const updateFormData = (key: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [key]: value }));
   };
 
@@ -253,8 +253,8 @@ function StepContent({
 }: {
   stepId: string;
   onboardingType: OnboardingType;
-  formData: Record<string, any>;
-  updateFormData: (key: string, value: any) => void;
+  formData: Record<string, unknown>;
+  updateFormData: (key: string, value: unknown) => void;
 }) {
   // Renderizar campos específicos para cada paso
   switch (stepId) {

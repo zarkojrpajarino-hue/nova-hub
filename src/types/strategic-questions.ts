@@ -206,9 +206,11 @@ export const STRATEGIC_QUESTIONS_CONFIG = {
   techStack: {
     label: 'Tech Stack',
     description: 'Tecnologías que usas o planeas usar',
-    condition: (data: any) => {
+    condition: (data: Record<string, unknown>) => {
       // Only show for technical products
-      return data.businessType?.includes('app') || data.businessType?.includes('software');
+      const businessType = data.businessType;
+      if (typeof businessType !== 'string') return false;
+      return businessType.includes('app') || businessType.includes('software');
     },
     fields: [
       {

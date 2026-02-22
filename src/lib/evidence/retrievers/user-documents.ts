@@ -34,7 +34,7 @@ interface DocumentMetadata {
   name: string;
   file_type: string;
   raw_content: string | null;
-  structured_data: any | null;
+  structured_data: Record<string, unknown> | null;
   pages_count: number | null;
   upload_date: string;
   authority_score: number;
@@ -193,7 +193,7 @@ export async function extractCitations(
 /**
  * Extract citations from PDF documents
  */
-function extractPDFCitations(doc: any, query: string): Citation[] {
+function extractPDFCitations(doc: DocumentMetadata, query: string): Citation[] {
   const citations: Citation[] = [];
 
   if (!doc.raw_content) return citations;
@@ -233,13 +233,13 @@ function extractPDFCitations(doc: any, query: string): Citation[] {
 /**
  * Extract citations from spreadsheet documents (CSV, XLSX)
  */
-function extractSpreadsheetCitations(doc: any, query: string): Citation[] {
+function extractSpreadsheetCitations(doc: DocumentMetadata, query: string): Citation[] {
   const citations: Citation[] = [];
 
   if (!doc.structured_data) return citations;
 
-  // structured_data format: { sheets: [{ name: string, rows: any[][] }] }
-  const data = doc.structured_data;
+  // structured_data format: { sheets: [{ name: string, rows: unknown[][] }] }
+  const data = doc.structured_data as { sheets?: { name?: string; rows: unknown[][] }[] };
 
   if (data.sheets && Array.isArray(data.sheets)) {
     for (const sheet of data.sheets) {
@@ -277,7 +277,7 @@ function extractSpreadsheetCitations(doc: any, query: string): Citation[] {
 /**
  * Extract citations from plain text documents
  */
-function extractTextCitations(doc: any, query: string): Citation[] {
+function extractTextCitations(doc: DocumentMetadata, query: string): Citation[] {
   const citations: Citation[] = [];
 
   if (!doc.raw_content) return citations;
@@ -380,7 +380,7 @@ interface RowMatch {
 /**
  * Find matches in spreadsheet rows
  */
-function findRowMatches(rows: any[][], query: string): RowMatch[] {
+function findRowMatches(rows: unknown[][], query: string): RowMatch[] {
   const matches: RowMatch[] = [];
   const terms = query.toLowerCase().split(/\s+/);
 

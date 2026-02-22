@@ -40,14 +40,14 @@ export interface EvidenceGenerationMetrics {
   waste_flag: boolean;
 
   // Metadata extensible (JSONB)
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
 }
 
 export interface UserEvent {
   generation_id: string;  // UUID de la generación
   user_id: string;
   event_type: 'opened_report' | 'changed_mode' | 'regenerated' | 'clicked_search_more' | 'export_attempted' | 'export_blocked' | 'closed_modal';
-  event_data?: Record<string, any>;
+  event_data?: Record<string, unknown>;
 }
 
 /**

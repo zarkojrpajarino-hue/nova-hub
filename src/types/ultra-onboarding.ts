@@ -12,7 +12,7 @@ export interface OnboardingSession {
   onboarding_type: OnboardingType;
   phase: OnboardingPhase;
   completion_percentage: number;
-  answers: Record<string, any>;
+  answers: Record<string, unknown>;
 
   // Geo-Intelligence (Capa 1)
   location_city?: string;
@@ -23,7 +23,7 @@ export interface OnboardingSession {
   // Founder Profiling (Capa 3)
   founder_background?: string;
   founder_skills?: string[];
-  linkedin_data?: any;
+  linkedin_data?: Record<string, unknown>;
 
   // Collaborative (Capa 7)
   has_cofounder: boolean;
@@ -252,9 +252,9 @@ export interface GrowthPlaybook {
     growth_mode?: Scenario;
   };
   benchmarks_vs_industry: {
-    your_metrics: Record<string, any>;
-    industry_average: Record<string, any>;
-    best_in_class: Record<string, any>;
+    your_metrics: Record<string, unknown>;
+    industry_average: Record<string, unknown>;
+    best_in_class: Record<string, unknown>;
     your_standing: string;
   };
   key_metrics: string[];
@@ -533,6 +533,15 @@ export interface TimingAnalysis {
   timing_explanation: string;
   window_of_opportunity_years?: number;
   competitive_timing: 'too_early' | 'perfect' | 'late' | 'too_late';
+  market_timing?: 'perfect_timing' | 'good_timing' | 'early' | 'late';
+  market_catalysts?: Array<
+    'tech_breakthrough' |
+    'regulation_change' |
+    'behavior_shift' |
+    'market_gap' |
+    'cost_decrease' |
+    'demographic_shift'
+  >;
 }
 
 // 2.4 Industry-Specific Context
@@ -577,7 +586,7 @@ export type IndustrySpecificAnswers =
   | SaaSSpecificAnswers
   | MarketplaceSpecificAnswers
   | EcommerceSpecificAnswers
-  | Record<string, any>;
+  | Record<string, unknown>;
 
 // ═══════════════════════════════════════════════════════════
 // PHASE 3: ADVANCED ANALYSIS - NEW TYPES
@@ -602,6 +611,10 @@ export interface PMFAssessment {
   has_pmf: boolean;
   nps_score?: number;
   pmf_confidence_level: 'strong' | 'moderate' | 'weak' | 'none';
+  retention_signal?: 'high_retention' | 'growing' | 'stable' | 'declining';
+  organic_growth?: 'high_viral' | 'some_organic' | 'mostly_paid' | 'no_organic';
+  user_love_signal?: 'evangelists' | 'positive' | 'neutral' | 'complaints';
+  market_pull?: 'strong_pull' | 'some_pull' | 'push_needed' | 'no_pull';
 }
 
 // 3.3 Competitive Dynamics (EXISTING type)
@@ -629,9 +642,11 @@ export interface MoatAnalysis {
     'network_effects' |
     'switching_costs' |
     'proprietary_data' |
+    'data_moat' |
     'brand' |
     'regulatory' |
     'patents_ip' |
+    'ip_patents' |
     'economies_of_scale' |
     'none'
   >;
@@ -639,6 +654,10 @@ export interface MoatAnalysis {
   moat_strength_score: number; // 0-100
   defensibility_level: 'strong' | 'moderate' | 'weak' | 'none';
   moat_building_plan?: string[];
+  copyability?: 'impossible' | 'hard' | 'medium' | 'easy';
+  time_to_moat?: 'already' | '6_months' | '12_months' | '24_plus';
+  moat_building_strategy?: string;
+  biggest_vulnerability?: string;
 }
 
 // 3.5 Network Access
@@ -649,6 +668,8 @@ export interface NetworkAccess {
   knows_influencers: 'close_relationship' | 'can_activate' | 'none';
   network_score: number; // 0-100
   network_level: 'fast_track' | 'viable' | 'hard_mode';
+  has_access_to?: Array<'angel_investors' | 'industry_experts' | 'potential_customers' | 'technical_cofounders' | 'accelerators' | 'media_press' | 'strategic_partners'>;
+  network_notes?: string;
 }
 
 // 3.6 Fundraising History (EXISTING type)
@@ -675,6 +696,10 @@ export interface TeamBreakdown {
   sales_productivity: number; // deals per rep per month
   cs_productivity: number; // customers per CS rep
   team_health_score: number; // 0-100
+  tech_capability?: 'strong_inhouse' | 'some_tech' | 'outsourced' | 'no_code';
+  business_capability?: 'experienced' | 'learning' | 'hired_experts';
+  growth_capability?: string;
+  team_gaps?: string;
 }
 
 // ═══════════════════════════════════════════════════════════
@@ -729,4 +754,139 @@ export interface ExtendedOnboardingSession extends OnboardingSession {
   // Phase 4
   detected_red_flags?: DetectedRedFlag[];
   first_timer_warnings?: FirstTimerWarning[];
+}
+
+// ═══════════════════════════════════════════════════════════
+// MISSING TYPES - Added to fix TypeScript imports
+// ═══════════════════════════════════════════════════════════
+
+// YourWhy - Emotional context / motivation step
+export interface YourWhy {
+  primary_motivation: 'solve_problem' | 'financial_freedom' | 'autonomy' | 'impact' | 'challenge' | 'prove_myself' | 'other';
+  personal_story: string;
+  problem_passion: string;
+  who_benefits: string;
+  success_vision: string;
+}
+
+// YourEdge - Founder unfair advantages step
+export interface YourEdge {
+  unfair_advantages: Array<'domain_expertise' | 'network' | 'technical' | 'audience' | 'insider_knowledge' | 'unfair_access' | 'capital'>;
+  unique_insight: string;
+  why_you_specifically: string;
+  secret_weapon?: string;
+}
+
+// CurrentTraction - Validation status & early traction
+export interface CurrentTraction {
+  current_stage: 'pre_idea' | 'idea_stage' | 'validating' | 'mvp_built' | 'early_traction' | 'revenue' | 'scaling';
+  validation_completed: string[];
+  total_users?: number;
+  active_users?: number;
+  paying_customers?: number;
+  monthly_revenue?: number;
+  waitlist_size?: number;
+  growth_trend: 'flat' | 'growing' | 'declining' | 'hockey_stick';
+}
+
+// IndustrySelection - Industry vertical selection
+export interface IndustrySelection {
+  industry_vertical: 'saas_b2b' | 'ecommerce' | 'consumer_app' | 'health_wellness' | 'education_edtech' | 'fintech' | 'travel_hospitality' | 'real_estate_proptech' | 'professional_services' | 'other';
+  industry_notes?: string;
+}
+
+// SaaSB2BAnswers - SaaS B2B specific answers
+export interface SaaSB2BAnswers {
+  icp_description: string;
+  target_company_size: 'smb' | 'mid_market' | 'enterprise' | 'all';
+  annual_contract_value?: number;
+  pricing_model: 'per_seat' | 'usage_based' | 'flat_rate' | 'freemium' | 'other';
+  has_freemium: boolean;
+  growth_motion: 'product_led' | 'sales_led' | 'marketing_led' | 'hybrid';
+  sales_cycle_length: 'days' | 'weeks' | 'months' | 'quarters';
+}
+
+// EcommerceAnswers - Ecommerce specific answers
+export interface EcommerceAnswers {
+  business_model: 'b2c_owned' | 'marketplace_seller' | 'dropshipping' | 'd2c_brand' | 'subscription_box';
+  product_category: string;
+  average_order_value?: number;
+  cost_of_goods?: number;
+  shipping_cost?: number;
+  target_margin?: number;
+  fulfillment_strategy: 'self_fulfill' | 'third_party_3pl' | 'dropship' | 'print_on_demand';
+  acquisition_channel: 'paid_social' | 'seo_content' | 'influencer' | 'marketplace' | 'email' | 'referral';
+}
+
+// ConsumerAppAnswers - Consumer app specific answers
+export interface ConsumerAppAnswers {
+  platforms: Array<'ios' | 'android' | 'web' | 'all'>;
+  monetization_model: 'freemium' | 'subscription' | 'ads' | 'in_app_purchases' | 'transaction_fee' | 'free_first';
+  engagement_loop: string;
+  retention_driver: 'habit_building' | 'content' | 'social' | 'utility' | 'progress';
+  target_dau_mau?: number;
+  viral_mechanism: 'word_of_mouth' | 'invite_system' | 'content_sharing' | 'network_effects' | 'no_viral';
+  target_k_factor?: number;
+  target_cpi?: number;
+  target_arpu?: number;
+}
+
+// HealthWellnessAnswers - Health & Wellness specific answers
+export interface HealthWellnessAnswers {
+  health_category: 'mental_health' | 'fitness' | 'nutrition' | 'telemedicine' | 'sleep';
+  requires_hipaa?: boolean;
+  requires_gdpr?: boolean;
+  needs_medical_certification?: boolean;
+  distribution_channel: 'b2c_direct' | 'b2b2c_employers' | 'b2b2c_insurance' | 'healthcare_providers';
+  clinical_evidence: string;
+}
+
+// EdTechAnswers - EdTech specific answers
+export interface EdTechAnswers {
+  target_audience: 'k12_students' | 'university' | 'professionals' | 'lifelong_learners' | 'teachers';
+  edtech_model: 'b2c_direct' | 'b2b_schools' | 'b2b_corporate' | 'marketplace';
+  content_source: 'proprietary' | 'instructor_created' | 'ai_generated' | 'user_generated';
+  learning_format: string;
+  certification_type: 'accredited' | 'platform_certificate' | 'skills_only';
+  target_completion_rate?: number;
+}
+
+// FinTechAnswers - FinTech specific answers
+export interface FinTechAnswers {
+  fintech_category: 'payments' | 'banking' | 'lending' | 'investing' | 'insurance' | 'crypto' | 'accounting';
+  licensing_strategy: 'partner_bank' | 'own_license' | 'no_license';
+  regulations: Array<'PSD2' | 'KYC_AML' | 'SOC2' | 'PCI_DSS' | 'GDPR'>;
+  revenue_model: 'transaction_fee' | 'subscription' | 'interchange' | 'interest' | 'aum_fee';
+  unit_economics_explanation: string;
+}
+
+// TravelHospitalityAnswers - Travel & Hospitality specific answers
+export interface TravelHospitalityAnswers {
+  travel_category: 'accommodations' | 'flights' | 'experiences' | 'full_package' | 'travel_tech';
+  business_model: 'aggregator' | 'own_inventory' | 'marketplace' | 'saas_b2b';
+  revenue_model: 'commission' | 'booking_fee' | 'subscription' | 'markup';
+  average_commission_rate?: number;
+  average_booking_value?: number;
+  supply_strategy: string;
+}
+
+// RealEstatePropTechAnswers - Real Estate / PropTech specific answers
+export interface RealEstatePropTechAnswers {
+  proptech_category: 'marketplace' | 'property_management' | 'ibuyer' | 'rentals' | 'construction_tech' | 'agent_tools';
+  target_market: 'residential_buyers' | 'investors' | 'agents' | 'landlords' | 'developers';
+  revenue_model: 'commission' | 'subscription' | 'lead_gen' | 'transaction_fee' | 'spread';
+  competitive_advantage: string;
+  geographic_focus: string;
+}
+
+// ProfessionalServicesAnswers - Professional Services specific answers
+export interface ProfessionalServicesAnswers {
+  service_type: 'consulting' | 'agency' | 'fractional' | 'freelance_marketplace' | 'training' | 'legal_accounting';
+  target_client: 'startups' | 'smbs' | 'mid_market' | 'enterprise';
+  pricing_models: Array<'hourly' | 'project_based' | 'retainer' | 'value_based' | 'commission'>;
+  hourly_rate?: number;
+  average_project_value?: number;
+  sales_motion: 'inbound' | 'outbound' | 'referrals_only' | 'partnerships' | 'platform_marketplace';
+  scalability: 'productized' | 'custom_scaling' | 'software_enabled' | 'marketplace_model';
+  differentiation: string;
 }

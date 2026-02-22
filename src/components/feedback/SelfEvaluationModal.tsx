@@ -88,7 +88,7 @@ export function SelfEvaluationModal({
       }
 
       onClose();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving self evaluation:', error);
       toast.error('Error al guardar la auto-evaluación');
     } finally {

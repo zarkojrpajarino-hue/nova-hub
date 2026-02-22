@@ -32,10 +32,48 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+interface LocationInvestor {
+  name: string;
+  type: string;
+  stage: string;
+  focus: string;
+  website: string;
+}
+
+interface LocationAccelerator {
+  name: string;
+  duration: string;
+  investment: string;
+  website: string;
+}
+
+interface LocationGrant {
+  name: string;
+  amount: string;
+  type: string;
+  focus: string;
+}
+
+interface LocationData {
+  location: string;
+  investors: LocationInvestor[];
+  accelerators: LocationAccelerator[];
+  costs: Record<string, string>;
+  grants: LocationGrant[];
+  events: string[];
+}
+
+interface LocationCompleteData {
+  section_id: string;
+  location: string;
+  location_data: LocationData;
+  unlocked_tools: string[];
+}
+
 interface LocationIntelligenceSectionProps {
   projectId: string;
   onboardingType: 'generative' | 'idea' | 'existing';
-  onComplete: (data: any) => void;
+  onComplete: (data: LocationCompleteData) => void;
   onCancel: () => void;
 }
 
@@ -47,7 +85,7 @@ export function LocationIntelligenceSection({
 }: LocationIntelligenceSectionProps) {
   const [location, setLocation] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [locationData, setLocationData] = useState<any>(null);
+  const [locationData, setLocationData] = useState<LocationData | null>(null);
 
   const handleGenerate = async () => {
     if (!location.trim()) return;
@@ -210,7 +248,7 @@ export function LocationIntelligenceSection({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {locationData.investors.map((inv: any, idx: number) => (
+              {locationData.investors.map((inv: LocationInvestor, idx: number) => (
                 <div key={idx} className="p-3 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold text-gray-900">{inv.name}</h4>
                   <p className="text-sm text-gray-600">
@@ -231,7 +269,7 @@ export function LocationIntelligenceSection({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {locationData.accelerators.map((acc: any, idx: number) => (
+              {locationData.accelerators.map((acc: LocationAccelerator, idx: number) => (
                 <div key={idx} className="p-3 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold text-gray-900">{acc.name}</h4>
                   <p className="text-sm text-gray-600">{acc.duration}</p>
@@ -278,7 +316,7 @@ export function LocationIntelligenceSection({
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
-              {locationData.grants.map((grant: any, idx: number) => (
+              {locationData.grants.map((grant: LocationGrant, idx: number) => (
                 <div key={idx} className="p-3 bg-gray-50 rounded-lg">
                   <h4 className="font-semibold text-gray-900">{grant.name}</h4>
                   <p className="text-sm text-gray-600">

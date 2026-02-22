@@ -110,7 +110,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ['slack-webhooks'] });
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || 'Error al configurar webhook');
     },
   });
@@ -161,8 +161,8 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
       } else {
         toast.error('Error al enviar mensaje de prueba');
       }
-    } catch (error: any) {
-      toast.error(error.message || 'Error al enviar mensaje de prueba');
+    } catch (error) {
+      toast.error(error instanceof Error ? error.message : 'Error al enviar mensaje de prueba');
     }
   };
 

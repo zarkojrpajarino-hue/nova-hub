@@ -51,7 +51,7 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
       // Filtrar solo las que NO han sido validadas por el usuario actual
       return data?.filter(obv => {
         const hasUserValidation = obv.obv_validaciones?.some(
-          (v: any) => v.validator_id === profile.id
+          (v: { validator_id: string }) => v.validator_id === profile.id
         );
         return !hasUserValidation;
       }) || [];
@@ -83,7 +83,7 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
       // Filtrar solo las que NO han sido validadas por el usuario actual
       return data?.filter(kpi => {
         const hasUserValidation = kpi.kpi_validaciones?.some(
-          (v: any) => v.validator_id === profile.id
+          (v: { validator_id: string }) => v.validator_id === profile.id
         );
         return !hasUserValidation;
       }) || [];

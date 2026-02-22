@@ -97,9 +97,9 @@ export function useAIOnboarding() {
     });
   };
 
-  const applyData = (data: BusinessInfo, currentFormData: any) => {
+  const applyData = (data: BusinessInfo, currentFormData: Record<string, unknown>) => {
     // Merge AI data with current form data, keeping user's manual entries
-    const merged: any = { ...currentFormData };
+    const merged: Record<string, unknown> = { ...currentFormData };
 
     if (data.nombre_sugerido && !currentFormData.nombre) {
       merged.nombre = data.nombre_sugerido;

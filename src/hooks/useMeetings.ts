@@ -18,13 +18,13 @@ export interface Meeting {
   description?: string;
   objectives?: string;
   estimated_duration_min?: number;
-  strategic_context?: any;
+  strategic_context?: Record<string, unknown>;
   started_at?: string;
   ended_at?: string;
   duration_actual_min?: number;
   audio_url?: string;
   transcript?: string;
-  insights?: any;
+  insights?: Record<string, unknown>;
   summary?: string;
   key_points?: string[];
   ai_confidence_score?: number;
@@ -41,7 +41,7 @@ export interface CreateMeetingInput {
   description?: string;
   objectives?: string;
   estimated_duration_min?: number;
-  strategic_context?: any;
+  strategic_context?: Record<string, unknown>;
   participants: string[];
   assignable_members?: string[];
   ai_config: {
@@ -182,7 +182,7 @@ export function useCreateMeeting() {
       queryClient.invalidateQueries({ queryKey: ['meetings', meeting.project_id] });
       toast.success('Reunión creada exitosamente');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error creating meeting:', error);
       toast.error('Error al crear la reunión: ' + error.message);
     },
@@ -369,7 +369,7 @@ export function useTranscribeMeeting() {
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       toast.success('Transcripción completada correctamente');
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error transcribing meeting:', error);
       toast.error('Error al transcribir: ' + (error.message || 'Error desconocido'));
     },
@@ -409,7 +409,7 @@ export function useAnalyzeMeeting() {
       queryClient.invalidateQueries({ queryKey: ['meeting-insights', meetingId] });
       toast.success(`Análisis completado: ${data.insightsCount} insights extraídos`);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error analyzing meeting:', error);
       toast.error('Error al analizar: ' + (error.message || 'Error desconocido'));
     },
@@ -454,7 +454,7 @@ export function useApplyMeetingInsights() {
 
       toast.success(`¡Insights aplicados! ${total} elementos creados en el sistema`);
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       console.error('Error applying insights:', error);
       toast.error('Error al aplicar insights: ' + (error.message || 'Error desconocido'));
     },

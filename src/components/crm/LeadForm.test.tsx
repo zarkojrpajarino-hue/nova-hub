@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -106,7 +107,7 @@ describe('LeadForm', () => {
   it('submits form successfully', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -123,7 +124,7 @@ describe('LeadForm', () => {
   it('shows loading state during submission', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => new Promise((resolve) => setTimeout(() => resolve({ data: null, error: null }), 100)));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -138,7 +139,7 @@ describe('LeadForm', () => {
   it('invalidates queries after successful submission', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
     const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');

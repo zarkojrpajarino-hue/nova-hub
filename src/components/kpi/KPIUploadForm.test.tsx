@@ -1,4 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
+import type { Mock } from 'vitest';
 import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
@@ -20,7 +21,7 @@ vi.mock('@/hooks/useValidationSystem', () => ({
 
 // Mock EvidenceUrlInput
 vi.mock('@/components/evidence/EvidenceUrlInput', () => ({
-  EvidenceUrlInput: ({ value, onChange }: any) => (
+  EvidenceUrlInput: ({ value, onChange }: { value: string; onChange: (val: string) => void }) => (
     <input
       data-testid="evidence-input"
       value={value}
@@ -155,7 +156,7 @@ describe('KPIUploadForm', () => {
   });
 
   it('disables submit when blocked', () => {
-    (useCanUpload as any).mockReturnValue({
+    (useCanUpload as Mock).mockReturnValue({
       canUpload: false,
       isBlocked: true,
     });
@@ -167,7 +168,7 @@ describe('KPIUploadForm', () => {
   });
 
   it('shows blocked alert when user is blocked', () => {
-    (useCanUpload as any).mockReturnValue({
+    (useCanUpload as Mock).mockReturnValue({
       canUpload: false,
       isBlocked: true,
     });
@@ -177,7 +178,7 @@ describe('KPIUploadForm', () => {
   });
 
   it('does not show blocked alert for CP even when blocked', () => {
-    (useCanUpload as any).mockReturnValue({
+    (useCanUpload as Mock).mockReturnValue({
       canUpload: false,
       isBlocked: true,
     });
@@ -189,7 +190,7 @@ describe('KPIUploadForm', () => {
   it('submits LP form successfully', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -212,7 +213,7 @@ describe('KPIUploadForm', () => {
   it('submits CP form with validated status', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -236,7 +237,7 @@ describe('KPIUploadForm', () => {
   it('submits BP with correct points', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -271,7 +272,7 @@ describe('KPIUploadForm', () => {
   it('closes dialog after successful submission', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -288,7 +289,7 @@ describe('KPIUploadForm', () => {
   it('shows loading state during submission', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => new Promise((resolve) => setTimeout(() => resolve({ data: null, error: null }), 100)));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -303,7 +304,7 @@ describe('KPIUploadForm', () => {
   it('handles submission error gracefully', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: { message: 'Error' } }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 
@@ -320,7 +321,7 @@ describe('KPIUploadForm', () => {
   it('invalidates queries after successful submission', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
     const invalidateQueries = vi.spyOn(queryClient, 'invalidateQueries');
@@ -338,7 +339,7 @@ describe('KPIUploadForm', () => {
   it('resets form after successful submission', async () => {
     const user = userEvent.setup();
     const mockInsert = vi.fn(() => Promise.resolve({ data: null, error: null }));
-    (supabase.from as any).mockReturnValue({
+    (supabase.from as Mock).mockReturnValue({
       insert: mockInsert,
     });
 

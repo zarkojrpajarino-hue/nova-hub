@@ -18,7 +18,7 @@ import { toast } from 'sonner';
 
 interface FounderProfileSectionProps {
   projectId: string;
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 

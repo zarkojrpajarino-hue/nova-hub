@@ -141,15 +141,15 @@ export function LiveMeetingRecorder({
       });
 
       toast.success('Grabación iniciada');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error starting recording:', error);
 
-      if (error.name === 'NotAllowedError') {
+      if (error instanceof Error && error.name === 'NotAllowedError') {
         toast.error('Permiso de micrófono denegado. Por favor, permite el acceso al micrófono.');
-      } else if (error.name === 'NotFoundError') {
+      } else if (error instanceof Error && error.name === 'NotFoundError') {
         toast.error('No se encontró ningún micrófono. Conecta un micrófono e intenta de nuevo.');
       } else {
-        toast.error('Error al iniciar la grabación: ' + error.message);
+        toast.error('Error al iniciar la grabación: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       }
     }
   };
@@ -347,9 +347,9 @@ export function LiveMeetingRecorder({
 
       // Notificar al componente padre
       onRecordingComplete(audioUrl);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error uploading audio:', error);
-      toast.error('Error al subir el audio: ' + error.message);
+      toast.error('Error al subir el audio: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       setRecordingState('stopped');
     }
   };

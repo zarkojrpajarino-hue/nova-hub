@@ -45,7 +45,7 @@ interface BusinessIdea {
 interface BusinessIdeasSectionProps {
   projectId: string;
   initialIdeas?: BusinessIdea[];
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 

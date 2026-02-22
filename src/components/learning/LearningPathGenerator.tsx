@@ -62,9 +62,9 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
 
       toast.success('Learning Path generado exitosamente');
       onComplete(data.pathId);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating learning path:', error);
-      toast.error('Error al generar: ' + error.message);
+      toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);
     }

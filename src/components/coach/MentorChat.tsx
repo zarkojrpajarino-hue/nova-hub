@@ -64,7 +64,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
         setSessionId(data.id);
         // Load messages from session
         if (data.messages && Array.isArray(data.messages)) {
-          const loadedMessages = data.messages.map((msg: any, idx: number) => ({
+          const loadedMessages = data.messages.map((msg: { role: 'user' | 'assistant'; content: string }, idx: number) => ({
             id: `${data.id}-${idx}`,
             role: msg.role,
             content: msg.content,
@@ -124,9 +124,9 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
       if (!sessionId && data.sessionId) {
         setSessionId(data.sessionId);
       }
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error calling AI coach:', error);
-      toast.error('Error al consultar al coach: ' + error.message);
+      toast.error('Error al consultar al coach: ' + (error instanceof Error ? error.message : 'Error desconocido'));
 
       // Add error message
       const errorMessage: Message = {

@@ -26,7 +26,7 @@ interface GenericSectionProps {
   }>;
   progressValue: number;
   unlockedTools: string[];
-  onComplete: (data: any) => void;
+  onComplete: (data: Record<string, unknown>) => void;
   onCancel: () => void;
 }
 

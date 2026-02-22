@@ -309,7 +309,7 @@ export interface SearchResults {
  */
 export interface AIOutputWithEvidence {
   // Generated content
-  content: any; // The actual business model canvas, financial projections, etc.
+  content: Record<string, unknown>; // The actual business model canvas, financial projections, etc.
 
   // Evidence backing
   claims: ClaimWithEvidence[];

@@ -54,7 +54,7 @@ describe('LeadDetail', () => {
     return render(
       <QueryClientProvider client={queryClient}>
         <LeadDetail
-          lead={mockLead as any}
+          lead={mockLead as unknown as Parameters<typeof LeadDetail>[0]['lead']}
           members={mockMembers}
           open={open}
           onOpenChange={mockOnOpenChange}

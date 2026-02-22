@@ -35,7 +35,7 @@ export function ProfessionalServicesQuestions({ answers, onChange }: Professiona
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.service_type} onValueChange={(value) => updateAnswer('service_type', value as any)}>
+          <RadioGroup value={answers.service_type} onValueChange={(value) => updateAnswer('service_type', value as ProfessionalServicesAnswers['service_type'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="consulting" id="consulting" />
               <Label htmlFor="consulting" className="cursor-pointer">Consulting / Advisory</Label>
@@ -72,7 +72,7 @@ export function ProfessionalServicesQuestions({ answers, onChange }: Professiona
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.target_client} onValueChange={(value) => updateAnswer('target_client', value as any)}>
+          <RadioGroup value={answers.target_client} onValueChange={(value) => updateAnswer('target_client', value as ProfessionalServicesAnswers['target_client'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="startups" id="startups" className="mt-1" />
               <Label htmlFor="startups" className="flex-1 cursor-pointer">
@@ -120,10 +120,10 @@ export function ProfessionalServicesQuestions({ answers, onChange }: Professiona
                 <div key={model} className="flex items-center space-x-3">
                   <Checkbox
                     id={model}
-                    checked={answers.pricing_models?.includes(model as any)}
+                    checked={answers.pricing_models?.includes(model as ProfessionalServicesAnswers['pricing_models'][number])}
                     onCheckedChange={(c) => {
                       const current = answers.pricing_models || [];
-                      const updated = c ? [...current, model as any] : current.filter(m => m !== model);
+                      const updated = c ? [...current, model as ProfessionalServicesAnswers['pricing_models'][number]] : current.filter(m => m !== model);
                       updateAnswer('pricing_models', updated);
                     }}
                   />
@@ -169,7 +169,7 @@ export function ProfessionalServicesQuestions({ answers, onChange }: Professiona
         </CardHeader>
         <CardContent>
           <Label className="mb-2 block">¿Cómo consigues clientes?</Label>
-          <RadioGroup value={answers.sales_motion} onValueChange={(value) => updateAnswer('sales_motion', value as any)}>
+          <RadioGroup value={answers.sales_motion} onValueChange={(value) => updateAnswer('sales_motion', value as ProfessionalServicesAnswers['sales_motion'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="inbound" id="inbound" />
               <Label htmlFor="inbound" className="cursor-pointer">Inbound (content, SEO, referrals)</Label>
@@ -201,7 +201,7 @@ export function ProfessionalServicesQuestions({ answers, onChange }: Professiona
         <CardContent className="space-y-4">
           <div>
             <Label className="mb-2 block">¿Tu modelo es scalable o requiere más people?</Label>
-            <RadioGroup value={answers.scalability} onValueChange={(value) => updateAnswer('scalability', value as any)}>
+            <RadioGroup value={answers.scalability} onValueChange={(value) => updateAnswer('scalability', value as ProfessionalServicesAnswers['scalability'])}>
               <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
                 <RadioGroupItem value="productized" id="productized" className="mt-1" />
                 <Label htmlFor="productized" className="flex-1 cursor-pointer">

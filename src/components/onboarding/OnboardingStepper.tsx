@@ -3,12 +3,13 @@
  * Stepper horizontal profesional para el onboarding
  */
 
+import React from 'react';
 import { CheckCircle2 } from 'lucide-react';
 
 interface Step {
   id: string;
   label: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
 interface Props {

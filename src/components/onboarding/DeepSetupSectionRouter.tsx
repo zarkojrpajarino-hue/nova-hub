@@ -47,6 +47,14 @@ import {
 
 type OnboardingType = 'generative' | 'idea' | 'existing';
 
+interface DeepSetupSection {
+  id: string;
+  completed?: boolean;
+  locked?: boolean;
+  unlockRequirement?: number;
+  [key: string]: unknown;
+}
+
 interface DeepSetupSectionRouterProps {
   projectId: string;
   sectionId: string;
@@ -65,7 +73,7 @@ export function DeepSetupSectionRouter({
   const navigate = useNavigate();
   const [saving, setSaving] = useState(false);
 
-  const handleSectionComplete = async (data: any) => {
+  const handleSectionComplete = async (data: Record<string, unknown>) => {
     setSaving(true);
 
     try {
@@ -87,7 +95,7 @@ export function DeepSetupSectionRouter({
       const updatedCompletedSections = [...completedSections, sectionId];
 
       // Update deep setup sections status
-      const updatedDeepSetupSections = deepSetupSections.map((section: any) => {
+      const updatedDeepSetupSections = (deepSetupSections as DeepSetupSection[]).map((section: DeepSetupSection) => {
         if (section.id === sectionId) {
           return { ...section, completed: true, locked: false };
         }
@@ -147,10 +155,10 @@ export function DeepSetupSectionRouter({
         navigate(`/proyecto/${projectId}/deep-setup`);
       }, 2000);
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error saving section:', error);
       toast.error('Failed to save section', {
-        description: error.message
+        description: error instanceof Error ? error.message : 'Unknown error'
       });
       setSaving(false);
     }

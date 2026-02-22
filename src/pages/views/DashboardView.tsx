@@ -31,7 +31,7 @@ interface DashboardViewProps {
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const { projectId } = useParams<{ projectId: string }>();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
-  const [onboardingProgress, setOnboardingProgress] = useState<any>(null);
+  const [onboardingProgress, setOnboardingProgress] = useState<{ progress: number; fastStartCompleted: boolean; deepSetupSections: string[]; onboardingType: string } | null>(null);
   const [userId, setUserId] = useState<string>('');
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();

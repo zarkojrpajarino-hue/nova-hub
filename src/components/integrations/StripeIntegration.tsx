@@ -48,9 +48,9 @@ export function StripeIntegration() {
 
       // Hacer primera sincronización
       await handleSync();
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error conectando Stripe:', error);
-      toast.error('Error al conectar: ' + error.message);
+      toast.error('Error al conectar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsLoading(false);
     }
@@ -67,9 +67,9 @@ export function StripeIntegration() {
 
       setLastSync(new Date().toLocaleString('es-ES'));
       toast.success(`Sincronización completada: ${data?.transactionsCount || 0} transacciones`);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error sincronizando:', error);
-      toast.error('Error en sincronización: ' + error.message);
+      toast.error('Error en sincronización: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSyncing(false);
     }
@@ -87,7 +87,7 @@ export function StripeIntegration() {
 
       setIsConnected(false);
       toast.success('Stripe desconectado');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error desconectando:', error);
       toast.error('Error al desconectar');
     } finally {

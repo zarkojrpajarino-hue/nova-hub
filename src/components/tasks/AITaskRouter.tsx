@@ -20,6 +20,11 @@ import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+interface AIRoutingCallbackResult {
+  error?: string;
+  content?: TaskRoutingResult;
+}
+
 interface TaskRoutingResult {
   task: string;
   recommended_member: {
@@ -58,7 +63,7 @@ export function AITaskRouter() {
     },
   });
 
-  const handleRoutingComplete = (result: any) => {
+  const handleRoutingComplete = (result: AIRoutingCallbackResult) => {
     if (result.error) {
       toast.error('Error al rutear: ' + result.error);
       return;
@@ -91,9 +96,9 @@ export function AITaskRouter() {
       toast.success(`Tarea asignada a ${routingResult.recommended_member.name}`);
       setTaskDescription('');
       setRoutingResult(null);
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error assigning task:', error);
-      toast.error('Error al asignar: ' + error.message);
+      toast.error('Error al asignar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     }
   };
 

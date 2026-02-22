@@ -11,7 +11,7 @@ export interface OnboardingEvent {
   event_type: string;
   project_id: string;
   user_id: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -76,7 +76,7 @@ export class OnboardingAnalytics {
    */
   async trackEvent(
     eventType: string,
-    metadata?: Record<string, any>
+    metadata?: Record<string, unknown>
   ): Promise<void> {
     const event: OnboardingEvent = {
       event_type: eventType,
@@ -202,7 +202,7 @@ export class OnboardingAnalytics {
 
       // Calculate Fast Start timing
       const events = metadata?.onboarding_events || [];
-      const fastStartEvent = events.find((e: any) =>
+      const fastStartEvent = events.find((e: OnboardingEvent) =>
         e.event_type === OnboardingEvents.FAST_START_COMPLETED
       );
       if (fastStartEvent?.metadata?.duration_seconds) {

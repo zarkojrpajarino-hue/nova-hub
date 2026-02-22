@@ -286,7 +286,7 @@ export class GamificationSystem {
     const gamData = await this.getGamificationData();
 
     // Check if already unlocked
-    if (gamData.achievements.some((a: any) => a.id === achievementId)) {
+    if (gamData.achievements.some((a: Achievement) => a.id === achievementId)) {
       return false;
     }
 
@@ -389,7 +389,7 @@ export class GamificationSystem {
   /**
    * Get leaderboard (top users by points)
    */
-  async getLeaderboard(limit: number = 10): Promise<any[]> {
+  async getLeaderboard(limit: number = 10): Promise<{ rank: number; name: string; points: number; level: number; avatar: string }[]> {
     // In a real implementation, this would query across all users
     // For now, just return mock data
     return [

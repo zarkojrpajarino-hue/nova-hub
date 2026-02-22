@@ -34,7 +34,7 @@ export function GeoIntelligenceSelector({
   const [geoData, setGeoData] = useState<GeoIntelligence | null>(null);
   const [error, setError] = useState<string | null>(null);
 
-  const handleGeoIntelligenceComplete = (result: any) => {
+  const handleGeoIntelligenceComplete = (result: { error?: string; content?: { data?: Record<string, unknown> } | Record<string, unknown> }) => {
     if (result.error) {
       setError(result.error);
       setGeoData(null);

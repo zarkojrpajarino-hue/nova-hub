@@ -37,7 +37,7 @@ export interface GenerationPreview {
   id: string;
   project_id: string;
   generation_type: string;
-  generated_options: any[];
+  generated_options: Record<string, unknown>[];
   status: 'pending' | 'approved' | 'rejected';
   created_at: string;
 }

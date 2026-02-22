@@ -74,7 +74,7 @@ export default function MeetingIntelligencePage() {
   /**
    * Handler para crear reunión
    */
-  const handleStartMeeting = async (config: any) => {
+  const handleStartMeeting = async (config: Record<string, unknown> & { title: string; meeting_type: string; description?: string; objectives?: string; estimated_duration_min?: number; strategic_context?: Record<string, unknown>; participants: string[]; assignable_members?: string[]; ai_config: { enable_questions: boolean; enable_proactive_guidance: boolean; enable_context_detection: boolean; enable_time_alerts: boolean } }) => {
     if (!currentProject) {
       toast.error('Selecciona un proyecto primero');
       return;

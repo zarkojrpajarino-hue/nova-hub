@@ -105,6 +105,7 @@ export class KPIRepository {
           comentario: v.comentario,
           validator_nombre: v.validator?.nombre || 'Desconocido',
         })),
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase join result shape diverges from base KPI type
       })) as any;
   }
 

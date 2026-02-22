@@ -69,9 +69,9 @@ export function EmailPitchGenerator() {
 
       setGeneratedEmail(data.email);
       toast.success('Email generado exitosamente');
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error generating email:', error);
-      toast.error('Error al generar: ' + error.message);
+      toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);
     }

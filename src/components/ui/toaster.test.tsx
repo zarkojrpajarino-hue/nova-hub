@@ -1,4 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
+import type { Mock } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { Toaster } from './toaster';
 
@@ -11,14 +12,14 @@ import { useToast } from '@/hooks/use-toast';
 
 describe('Toaster Component', () => {
   it('renders toaster without toasts', () => {
-    (useToast as any).mockReturnValue({ toasts: [] });
+    (useToast as Mock).mockReturnValue({ toasts: [] });
 
     const { container } = render(<Toaster />);
     expect(container.firstChild).toBeInTheDocument();
   });
 
   it('renders single toast', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -34,7 +35,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders multiple toasts', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -57,7 +58,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders toast with title only', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -71,7 +72,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders toast with description only', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -86,7 +87,7 @@ describe('Toaster Component', () => {
 
   it('renders toast with action', () => {
     const action = <button>Action Button</button>;
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -103,7 +104,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders close button for each toast', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -122,14 +123,14 @@ describe('Toaster Component', () => {
   });
 
   it('renders viewport', () => {
-    (useToast as any).mockReturnValue({ toasts: [] });
+    (useToast as Mock).mockReturnValue({ toasts: [] });
 
     const { container } = render(<Toaster />);
     expect(container.querySelector('.fixed')).toBeInTheDocument();
   });
 
   it('passes props to Toast component', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -144,7 +145,7 @@ describe('Toaster Component', () => {
   });
 
   it('uses unique keys for toasts', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         { id: 'unique-1', title: 'Toast 1' },
         { id: 'unique-2', title: 'Toast 2' },
@@ -159,7 +160,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders empty when no toasts', () => {
-    (useToast as any).mockReturnValue({ toasts: [] });
+    (useToast as Mock).mockReturnValue({ toasts: [] });
 
     const { container } = render(<Toaster />);
     // Should only have viewport, no toast content
@@ -167,7 +168,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders toast without title or description', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -181,7 +182,7 @@ describe('Toaster Component', () => {
   });
 
   it('renders toast with custom variant', () => {
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: '1',
@@ -197,7 +198,7 @@ describe('Toaster Component', () => {
 
   it('handles toast with all properties', () => {
     const action = <button>Undo</button>;
-    (useToast as any).mockReturnValue({
+    (useToast as Mock).mockReturnValue({
       toasts: [
         {
           id: 'complete-toast',

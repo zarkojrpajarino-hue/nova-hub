@@ -34,7 +34,7 @@ export function HealthWellnessQuestions({ answers, onChange }: HealthWellnessQue
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.health_category} onValueChange={(value) => updateAnswer('health_category', value as any)}>
+          <RadioGroup value={answers.health_category} onValueChange={(value) => updateAnswer('health_category', value as HealthWellnessAnswers['health_category'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="mental_health" id="mental" />
               <Label htmlFor="mental" className="cursor-pointer">Mental health (therapy, meditation, mindfulness)</Label>
@@ -102,7 +102,7 @@ export function HealthWellnessQuestions({ answers, onChange }: HealthWellnessQue
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={answers.distribution_channel} onValueChange={(value) => updateAnswer('distribution_channel', value as any)}>
+          <RadioGroup value={answers.distribution_channel} onValueChange={(value) => updateAnswer('distribution_channel', value as HealthWellnessAnswers['distribution_channel'])}>
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="b2c_direct" id="b2c" className="mt-1" />
               <Label htmlFor="b2c" className="flex-1 cursor-pointer">

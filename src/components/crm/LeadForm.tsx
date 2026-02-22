@@ -91,7 +91,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
     }
   }, [open, initialStatus, profile?.id, projectId]);
 
-  const handleFieldChange = (field: string, value: any) => {
+  const handleFieldChange = (field: string, value: unknown) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

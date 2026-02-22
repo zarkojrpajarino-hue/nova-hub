@@ -35,7 +35,7 @@ export function FundraisingHistoryStep({ history, onChange }: FundraisingHistory
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <RadioGroup value={history.has_raised} onValueChange={(value) => updateHistory('has_raised', value as any)}>
+          <RadioGroup value={String(history.has_raised)} onValueChange={(value) => updateHistory('has_raised', (value === 'yes') as FundraisingHistory['has_raised'])}>
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="no" id="no" />
               <Label htmlFor="no" className="cursor-pointer">No, bootstrapped 100%</Label>

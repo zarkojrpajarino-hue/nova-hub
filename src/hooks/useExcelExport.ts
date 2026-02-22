@@ -13,7 +13,7 @@ export function useExcelExport() {
 
   const exportToExcel = async (
     exportType: string,
-    data: any[],
+    data: Record<string, unknown>[],
     metadata?: ExportMetadata
   ) => {
     setIsExporting(true);

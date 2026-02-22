@@ -51,10 +51,10 @@ export function NetworkAccessStep({ network, onChange }: NetworkAccessStepProps)
             <div key={resource.id} className="flex items-start space-x-3 p-3 border-2 rounded-lg hover:bg-blue-50">
               <Checkbox
                 id={resource.id}
-                checked={selectedResources.includes(resource.id as any)}
+                checked={selectedResources.includes(resource.id as NetworkAccess['has_access_to'][number])}
                 onCheckedChange={(checked) => {
                   const updated = checked
-                    ? [...selectedResources, resource.id as any]
+                    ? [...selectedResources, resource.id as NetworkAccess['has_access_to'][number]]
                     : selectedResources.filter(r => r !== resource.id);
                   updateNetwork('has_access_to', updated);
                 }}

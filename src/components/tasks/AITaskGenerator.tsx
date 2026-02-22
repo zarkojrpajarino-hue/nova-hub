@@ -44,6 +44,11 @@ interface ProjectContext {
   last_activity: string | null;
 }
 
+interface AITaskGenerationCallbackResult {
+  error?: string;
+  content?: { tasks?: SavedTask[] };
+}
+
 interface AITaskGeneratorProps {
   project: ProjectContext;
   onComplete?: () => void;
@@ -83,7 +88,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
 
   const canGenerateMore = pendingAITasks < 5;
 
-  const handleGenerationComplete = (result: any) => {
+  const handleGenerationComplete = (result: AITaskGenerationCallbackResult) => {
     setIsGenerating(false);
 
     if (result.error) {

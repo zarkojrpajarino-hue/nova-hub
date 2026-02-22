@@ -11,7 +11,7 @@
  * - Sections unlock advanced OPTIMUS-K tools
  */
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, Routes, Route } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -44,7 +44,7 @@ interface DeepSetupSection {
   id: string;
   name: string;
   description: string;
-  icon: any;
+  icon: React.ComponentType<{ className?: string }>;
   progressValue: number; // How much % this section adds
   locked: boolean;
   completed: boolean;
@@ -494,7 +494,7 @@ function DeepSetupList() {
 function DeepSetupSection() {
   const { projectId, sectionId } = useParams<{ projectId: string; sectionId: string }>();
   const [loading, setLoading] = useState(true);
-  const [projectData, setProjectData] = useState<any>(null);
+  const [projectData, setProjectData] = useState<{ onboardingType: string; currentProgress: number } | null>(null);
 
   useEffect(() => {
     const loadProject = async () => {

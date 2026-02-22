@@ -43,7 +43,7 @@ export function OptimalScheduleSuggester() {
   const [preferences, setPreferences] = useState('');
   const [suggestion, setSuggestion] = useState<ScheduleSuggestion | null>(null);
 
-  const handleGenerationComplete = (result: any) => {
+  const handleGenerationComplete = (result: { error?: string; content?: { suggestion?: ScheduleSuggestion } | ScheduleSuggestion }) => {
     if (result.error) {
       toast.error('Error al generar: ' + result.error);
       return;

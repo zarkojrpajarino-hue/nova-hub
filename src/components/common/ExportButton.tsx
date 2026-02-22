@@ -22,7 +22,7 @@ import { toast } from 'sonner';
 type ExportFormat = 'csv' | 'excel' | 'pdf' | 'json';
 
 interface ExportButtonProps {
-  data: any[];
+  data: Record<string, unknown>[];
   filename: string;
   formats?: ExportFormat[];
   // For PDF export

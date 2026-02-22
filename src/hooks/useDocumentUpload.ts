@@ -45,7 +45,7 @@ export function useDocumentUpload(projectId: string) {
   /**
    * Extract data from CSV
    */
-  async function extractCSVData(file: File): Promise<{ text: string; data: any[][] }> {
+  async function extractCSVData(file: File): Promise<{ text: string; data: string[][] }> {
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
 
@@ -74,7 +74,7 @@ export function useDocumentUpload(projectId: string) {
   /**
    * Extract data from XLSX (simplified - needs xlsx library)
    */
-  async function extractXLSXData(file: File): Promise<{ text: string; data: any }> {
+  async function extractXLSXData(file: File): Promise<{ text: string; data: Record<string, unknown> }> {
     // TODO: Implement XLSX parsing with xlsx library
     // For now, return placeholder
     return {
@@ -129,7 +129,7 @@ export function useDocumentUpload(projectId: string) {
 
       // Extract content based on file type
       let rawContent = '';
-      let structuredData: any = null;
+      let structuredData: Record<string, unknown> | null = null;
       let pagesCount: number | undefined;
 
       switch (fileType) {

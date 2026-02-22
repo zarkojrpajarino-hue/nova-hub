@@ -160,7 +160,7 @@ export function PMFAssessmentStep({ pmf, onChange }: PMFAssessmentStepProps) {
         <CardContent>
           <RadioGroup
             value={pmf.retention_signal}
-            onValueChange={(value) => updatePMF('retention_signal', value as any)}
+            onValueChange={(value) => updatePMF('retention_signal', value as PMFAssessment['retention_signal'])}
           >
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="high_retention" id="high_ret" className="mt-1" />
@@ -213,7 +213,7 @@ export function PMFAssessmentStep({ pmf, onChange }: PMFAssessmentStepProps) {
         <CardContent>
           <RadioGroup
             value={pmf.organic_growth}
-            onValueChange={(value) => updatePMF('organic_growth', value as any)}
+            onValueChange={(value) => updatePMF('organic_growth', value as PMFAssessment['organic_growth'])}
           >
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="high_viral" id="high_viral" className="mt-1" />
@@ -263,7 +263,7 @@ export function PMFAssessmentStep({ pmf, onChange }: PMFAssessmentStepProps) {
         <CardContent>
           <RadioGroup
             value={pmf.user_love_signal}
-            onValueChange={(value) => updatePMF('user_love_signal', value as any)}
+            onValueChange={(value) => updatePMF('user_love_signal', value as PMFAssessment['user_love_signal'])}
           >
             <div className="flex items-center space-x-2 p-2">
               <RadioGroupItem value="evangelists" id="evangelists" />
@@ -304,7 +304,7 @@ export function PMFAssessmentStep({ pmf, onChange }: PMFAssessmentStepProps) {
         <CardContent>
           <RadioGroup
             value={pmf.market_pull}
-            onValueChange={(value) => updatePMF('market_pull', value as any)}
+            onValueChange={(value) => updatePMF('market_pull', value as PMFAssessment['market_pull'])}
           >
             <div className="flex items-start space-x-2 p-3 border-2 rounded-lg">
               <RadioGroupItem value="strong_pull" id="strong_pull" className="mt-1" />
