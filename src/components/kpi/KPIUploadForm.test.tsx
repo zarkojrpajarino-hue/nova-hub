@@ -151,7 +151,7 @@ describe('KPIUploadForm', () => {
   });
 
   it('allows changing book points for BP', async () => {
-    const user = userEvent.setup();
+    const _user = userEvent.setup();
     renderComponent({ type: 'bp' });
 
     const bpInput = screen.getByLabelText(/Número de Book Points/);

@@ -167,6 +167,7 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
 // HOOK
 // =====================================================
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCurrentProject() {
   const context = useContext(CurrentProjectContext);
   if (context === undefined) {

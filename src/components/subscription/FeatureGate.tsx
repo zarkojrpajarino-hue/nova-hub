@@ -283,6 +283,7 @@ export function FeatureGate({
  *   // mostrar botón
  * }
  */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useFeatureAvailable(
   feature: GateableFeature,
   projectId: string | undefined

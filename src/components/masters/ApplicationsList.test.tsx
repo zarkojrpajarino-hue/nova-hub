@@ -37,7 +37,7 @@ const mockProfiles = [
   { id: 'user1', nombre: 'Juan Pérez', avatar: null, color: '#6366F1' },
 ];
 
-const mockApplications: MasterApplication[] = [
+const _mockApplications: MasterApplication[] = [
   {
     id: 'app1',
     user_id: 'user1',

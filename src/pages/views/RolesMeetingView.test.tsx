@@ -2,7 +2,6 @@ import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { RolesMeetingView } from './RolesMeetingView';
-
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     from: vi.fn(() => ({
@@ -40,14 +39,11 @@ vi.mock('@/components/preview/CaminoMasterPreviewModal', () => ({
   CaminoMasterPreviewModal: () => <div data-testid="preview-modal" />,
 }));
 
-vi.mock('@/data/mockData', () => {
-  const { Briefcase } = require('lucide-react');
-  return {
-    ROLE_CONFIG: {
-      sales: { icon: Briefcase, label: 'Sales', color: '#EF4444', desc: 'Prospección, cierre, relación cliente' },
-    },
-  };
-});
+vi.mock('@/data/mockData', () => ({
+  ROLE_CONFIG: {
+    sales: { icon: () => null, label: 'Sales', color: '#EF4444', desc: 'Prospección, cierre, relación cliente' },
+  },
+}));
 
 describe('RolesMeetingView', () => {
   let queryClient: QueryClient;

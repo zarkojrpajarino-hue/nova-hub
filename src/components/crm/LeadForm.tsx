@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import type { LeadStatus } from '@/types';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const PIPELINE_STAGES = [
   { id: 'frio', label: 'Frío', color: '#64748B' },
   { id: 'tibio', label: 'Tibio', color: '#F59E0B' },
