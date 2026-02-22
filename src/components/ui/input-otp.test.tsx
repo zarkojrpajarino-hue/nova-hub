@@ -1,4 +1,4 @@
-import { describe, it, expect, vi } from 'vitest';
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import {
@@ -9,6 +9,14 @@ import {
 } from './input-otp';
 
 describe('InputOTP Components', () => {
+  // input-otp schedules cleanup timers (PWM badge detection) that fire after env teardown.
+  // shouldAdvanceTime: true mirrors real time into fake timers so userEvent interactions work
+  // while still allowing us to cancel pending intervals before teardown via clearAllTimers.
+  beforeEach(() => vi.useFakeTimers({ shouldAdvanceTime: true }));
+  afterEach(() => {
+    vi.clearAllTimers();
+    vi.useRealTimers();
+  });
   describe('InputOTP', () => {
     it('renders OTP input', () => {
       const { container } = render(
@@ -324,7 +332,7 @@ describe('InputOTP Components', () => {
 
   describe('InputOTP interaction', () => {
     it('accepts numeric input', async () => {
-      const user = userEvent.setup();
+      const user = userEvent.setup({ delay: null });
       const { container } = render(
         <InputOTP maxLength={4}>
           <InputOTPGroup>
