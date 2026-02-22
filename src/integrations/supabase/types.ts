@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_log: {
+        Row: {
+          id: string
+          user_id: string | null
+          project_id: string | null
+          action: string
+          entity_type: string | null
+          entity_id: string | null
+          metadata: Json | null
+          created_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id?: string | null
+          project_id?: string | null
+          action: string
+          entity_type?: string | null
+          entity_id?: string | null
+          metadata?: Json | null
+          created_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string | null
+          project_id?: string | null
+          action?: string
+          entity_type?: string | null
+          entity_id?: string | null
+          metadata?: Json | null
+          created_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "activity_log_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "activity_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       badge_definitions: {
         Row: {
           badge_category: string
@@ -1613,6 +1661,94 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_settings: {
+        Row: {
+          id: string
+          user_id: string
+          notifications: Json | null
+          created_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          id?: string
+          user_id: string
+          notifications?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          id?: string
+          user_id?: string
+          notifications?: Json | null
+          created_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_settings_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "members"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      member_kpi_base: {
+        Row: {
+          id: string
+          member_id: string | null
+          obvs: number | null
+          obvs_exploracion: number | null
+          obvs_validacion: number | null
+          obvs_venta: number | null
+          lps: number | null
+          bps: number | null
+          cps: number | null
+          facturacion: number | null
+          margen: number | null
+          updated_at: string | null
+          updated_by: string | null
+        }
+        Insert: {
+          id?: string
+          member_id?: string | null
+          obvs?: number | null
+          obvs_exploracion?: number | null
+          obvs_validacion?: number | null
+          obvs_venta?: number | null
+          lps?: number | null
+          bps?: number | null
+          cps?: number | null
+          facturacion?: number | null
+          margen?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Update: {
+          id?: string
+          member_id?: string | null
+          obvs?: number | null
+          obvs_exploracion?: number | null
+          obvs_validacion?: number | null
+          obvs_venta?: number | null
+          lps?: number | null
+          bps?: number | null
+          cps?: number | null
+          facturacion?: number | null
+          margen?: number | null
+          updated_at?: string | null
+          updated_by?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_kpi_base_member_id_fkey"
+            columns: ["member_id"]
+            isOneToOne: true
+            referencedRelation: "members"
             referencedColumns: ["id"]
           },
         ]
