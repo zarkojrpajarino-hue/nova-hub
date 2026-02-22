@@ -25,7 +25,7 @@ export default defineConfig(({ mode }) => ({
     // ✨ OPTIMIZADO: Configuración de build mejorada
     target: 'es2020',
     minify: 'esbuild',
-    sourcemap: false, // Desactivar en producción
+    sourcemap: true, // Necesario para Sentry error tracking
 
     rollupOptions: {
       output: {

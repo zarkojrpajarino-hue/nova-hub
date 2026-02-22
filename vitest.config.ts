@@ -20,7 +20,8 @@ export default defineConfig({
         "**/mockData.ts",
         "**/demoData.ts",
         "src/integrations/",
-        "dist/"
+        "dist/",
+        "supabase/**",
       ],
     },
   },
