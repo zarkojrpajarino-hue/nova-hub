@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink, Check, Trash2 } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -9,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_NOTIFICATIONS } from '@/data/demoData';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { NotificationsPreviewModal } from '@/components/preview/NotificationsPreviewModal';
 
 interface NotificationsViewProps {
   onNewOBV?: () => void;
@@ -54,6 +57,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
   const { data: realNotifications = [], isLoading } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Transform demo notifications to match the expected format
   const demoNotificationsFormatted = DEMO_NOTIFICATIONS.map(n => ({
@@ -114,14 +118,48 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
 
   return (
     <div className="min-h-screen bg-background">
-      <NovaHeader 
-        title="Notificaciones" 
+      <NovaHeader
+        title="Notificaciones"
         subtitle={`${unreadCount} sin leer`}
-        onNewOBV={onNewOBV} 
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
 
       <div className="p-8 max-w-4xl mx-auto">
-        <SectionHelp section="notificaciones" variant="inline" />
+        {/* How It Works */}
+        <div className="mb-6">
+          <HowItWorks
+            title="Centro de Notificaciones"
+            description="Mantente informado de todo lo importante"
+            whatIsIt="Sistema de notificaciones en tiempo real que te mantiene al tanto de tareas asignadas, menciones, validaciones de OBVs, leads ganados y eventos importantes. Configura tus preferencias de notificación por email, Slack o in-app."
+            dataInputs={[
+              {
+                from: "Eventos del sistema",
+                items: [
+                  "Tareas asignadas o completadas",
+                  "Menciones en comentarios",
+                  "Validaciones de OBVs",
+                  "Leads ganados y eventos CRM"
+                ]
+              }
+            ]}
+            dataOutputs={[
+              {
+                to: "Tu bandeja de notificaciones",
+                items: [
+                  "Notificaciones in-app organizadas",
+                  "Emails según tus preferencias",
+                  "Mensajes de Slack automáticos"
+                ]
+              }
+            ]}
+            nextStep={{
+              action: "Configura tus preferencias",
+              destination: "Configuración > Notificaciones"
+            }}
+            onViewPreview={() => setShowPreviewModal(true)}
+          />
+        </div>
 
         {/* Header actions */}
         <div className="flex items-center justify-between mb-6">
@@ -226,6 +264,12 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
       </div>
 
       <HelpWidget section="notificaciones" />
+
+      {/* Preview Modal */}
+      <NotificationsPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+      />
     </div>
   );
 }

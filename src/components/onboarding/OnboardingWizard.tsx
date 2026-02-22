@@ -11,13 +11,30 @@ import { useOnboardingEdit } from '@/hooks/useOnboardingEdit';
 import {
   VALIDACION_STEPS,
   OPERACION_STEPS,
+  IDEA_STEPS,
+  VALIDACION_TEMPRANA_STEPS,
+  TRACCION_STEPS,
+  CONSOLIDADO_STEPS,
   defaultValidacionData,
   defaultOperacionData,
+  defaultIdeaData,
+  defaultValidacionTempranaData,
+  defaultTraccionData,
+  defaultConsolidadoData,
   validacionSchema,
   operacionSchema,
+  ideaSchema,
+  validacionTempranaSchema,
+  traccionSchema,
+  consolidadoSchema,
   type ValidacionData,
   type OperacionData,
   type OnboardingData,
+  type IdeaData,
+  type ValidacionTempranaData,
+  type TraccionData,
+  type ConsolidadoData,
+  type StateBasedOnboardingData,
 } from './types';
 import {
   StepProblema,
@@ -36,6 +53,33 @@ import {
 } from './steps/OperacionSteps';
 import { CoreaEspanaStep } from './steps/CoreaEspanaStep';
 import { StepEquipo } from './steps/StepEquipo';
+import { StepStateSelection } from './steps/StepStateSelection';
+import {
+  StepProblemDiscovery,
+  StepSolutionHypothesis,
+  StepHypothesesToValidate,
+  StepValidationPlan,
+} from './steps/IdeaSteps';
+import {
+  StepCurrentStatus,
+  StepFeedbackLearning,
+  StepPMFValidation,
+  StepNextSteps,
+} from './steps/ValidationTempranaSteps';
+import {
+  StepKeyMetrics,
+  StepGrowthEngine,
+  StepOperationsTeam,
+  StepGrowthPlan,
+} from './steps/TraccionSteps';
+import {
+  StepBusinessMetrics,
+  StepTeamOrganization,
+  StepGTMProduct,
+  StepStrategicObjectives,
+} from './steps/ConsolidadoSteps';
+
+type ProjectState = 'idea' | 'validacion_temprana' | 'traccion' | 'consolidado';
 
 interface OnboardingWizardProps {
   project: {
@@ -45,16 +89,51 @@ interface OnboardingWizardProps {
     color: string;
     icon: string;
     onboarding_data?: OnboardingData | null;
+    project_state?: ProjectState | null;
   };
   onComplete?: () => void;
   onCancel?: () => void;
-  editMode?: boolean; // NEW: Enable edit mode
+  editMode?: boolean;
+  useStateBased?: boolean; // Enable state-based onboarding for new projects
 }
 
-export function OnboardingWizard({ project, onComplete, onCancel, editMode = false }: OnboardingWizardProps) {
+export function OnboardingWizard({
+  project,
+  onComplete,
+  onCancel,
+  editMode = false,
+  useStateBased = true, // Enable by default for new projects
+}: OnboardingWizardProps) {
   const queryClient = useQueryClient();
+
+  // Determine if using state-based onboarding (for new projects or if explicitly enabled)
+  const usingStateBased = useStateBased && !project.onboarding_data;
   const isValidacion = project.tipo === 'validacion';
-  const steps = isValidacion ? VALIDACION_STEPS : OPERACION_STEPS;
+
+  // State for state-based onboarding
+  const [projectState, setProjectState] = useState<ProjectState | null>(
+    project.project_state || null
+  );
+
+  // Helper: Get steps based on approach
+  const getStepsForState = (state: ProjectState | null) => {
+    if (!state) return IDEA_STEPS; // Default to IDEA steps if no state selected
+    switch (state) {
+      case 'idea': return IDEA_STEPS;
+      case 'validacion_temprana': return VALIDACION_TEMPRANA_STEPS;
+      case 'traccion': return TRACCION_STEPS;
+      case 'consolidado': return CONSOLIDADO_STEPS;
+      default: return IDEA_STEPS;
+    }
+  };
+
+  // Determine steps based on approach
+  const steps = usingStateBased
+    ? getStepsForState(projectState)
+    : isValidacion
+    ? VALIDACION_STEPS
+    : OPERACION_STEPS;
+
   const { saveOnboardingData, isSaving: isSavingEdit } = useOnboardingEdit({
     projectId: project.id,
     onSuccess: onComplete,
@@ -82,7 +161,7 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     }
   }, [editMode, project.id]);
 
-  // Initialize data from existing onboarding_data or defaults
+  // Legacy onboarding data (validacion/operacion)
   const [validacionData, setValidacionData] = useState<ValidacionData>(() => {
     if (project.onboarding_data && 'tipo' in project.onboarding_data && project.onboarding_data.tipo === 'validacion') {
       return project.onboarding_data as ValidacionData;
@@ -97,11 +176,58 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     return defaultOperacionData;
   });
 
+  // State-based onboarding data
+  const [ideaData, setIdeaData] = useState<IdeaData>(defaultIdeaData);
+  const [validacionTempranaData, setValidacionTempranaData] = useState<ValidacionTempranaData>(
+    defaultValidacionTempranaData
+  );
+  const [traccionData, setTraccionData] = useState<TraccionData>(defaultTraccionData);
+  const [consolidadoData, setConsolidadoData] = useState<ConsolidadoData>(defaultConsolidadoData);
+
+  // Helper: Get current state data
+  const getStateData = (): StateBasedOnboardingData | null => {
+    switch (projectState) {
+      case 'idea': return ideaData;
+      case 'validacion_temprana': return validacionTempranaData;
+      case 'traccion': return traccionData;
+      case 'consolidado': return consolidadoData;
+      default: return null;
+    }
+  };
+
+  // Helper: Get state schema
+  const getStateSchema = () => {
+    switch (projectState) {
+      case 'idea': return ideaSchema;
+      case 'validacion_temprana': return validacionTempranaSchema;
+      case 'traccion': return traccionSchema;
+      case 'consolidado': return consolidadoSchema;
+      default: return null;
+    }
+  };
+
   // Auto-save draft to localStorage
   useEffect(() => {
-    const data = isValidacion ? validacionData : operacionData;
-    localStorage.setItem(`onboarding-draft-${project.id}`, JSON.stringify(data));
-  }, [validacionData, operacionData, project.id, isValidacion]);
+    if (usingStateBased) {
+      const stateData = getStateData();
+      if (stateData) {
+        localStorage.setItem(`onboarding-draft-${project.id}`, JSON.stringify(stateData));
+      }
+    } else {
+      const data = isValidacion ? validacionData : operacionData;
+      localStorage.setItem(`onboarding-draft-${project.id}`, JSON.stringify(data));
+    }
+  }, [
+    validacionData,
+    operacionData,
+    ideaData,
+    validacionTempranaData,
+    traccionData,
+    consolidadoData,
+    project.id,
+    isValidacion,
+    usingStateBased,
+  ]);
 
   // Load draft on mount
   useEffect(() => {
@@ -109,24 +235,42 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     if (draft && !project.onboarding_data) {
       try {
         const parsed = JSON.parse(draft);
-        if (parsed.tipo === 'validacion') {
-          setValidacionData(parsed);
-        } else {
-          setOperacionData(parsed);
+        if (usingStateBased && 'state' in parsed) {
+          // State-based draft
+          switch (parsed.state) {
+            case 'idea': setIdeaData(parsed); break;
+            case 'validacion_temprana': setValidacionTempranaData(parsed); break;
+            case 'traccion': setTraccionData(parsed); break;
+            case 'consolidado': setConsolidadoData(parsed); break;
+          }
+        } else if ('tipo' in parsed) {
+          // Legacy draft
+          if (parsed.tipo === 'validacion') {
+            setValidacionData(parsed);
+          } else {
+            setOperacionData(parsed);
+          }
         }
       } catch (e) {
         // Ignore invalid drafts
       }
     }
-  }, [project.id, project.onboarding_data]);
+  }, [project.id, project.onboarding_data, usingStateBased]);
 
   const handleNext = async () => {
-    // Validate team selection on step 0
-    if (currentStep === 0 && selectedMembers.length < 2) {
+    // For state-based onboarding, validate state selection on step 0
+    if (usingStateBased && currentStep === 0 && !projectState) {
+      toast.error('Selecciona el estado de tu proyecto');
+      return;
+    }
+
+    // Validate team selection on step 1 (or step 0 for legacy)
+    const teamStepIndex = usingStateBased ? 1 : 0;
+    if (currentStep === teamStepIndex && selectedMembers.length < 2) {
       toast.error('Selecciona al menos 2 miembros para el equipo');
       return;
     }
-    
+
     if (currentStep < steps.length - 1) {
       setCurrentStep(prev => prev + 1);
       setErrors({});
@@ -151,8 +295,23 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     setErrors({});
 
     try {
-      const data = isValidacion ? validacionData : operacionData;
-      const schema = isValidacion ? validacionSchema : operacionSchema;
+      // Get data and schema based on onboarding type
+      let data: any;
+      let schema: any;
+
+      if (usingStateBased) {
+        data = getStateData();
+        schema = getStateSchema();
+
+        if (!data || !schema) {
+          toast.error('Error: Estado del proyecto no válido');
+          setIsSubmitting(false);
+          return;
+        }
+      } else {
+        data = isValidacion ? validacionData : operacionData;
+        schema = isValidacion ? validacionSchema : operacionSchema;
+      }
 
       // Validate with zod
       const result = schema.safeParse(data);
@@ -196,12 +355,19 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
       if (membersError) throw membersError;
 
       // Save onboarding data to database
+      const updateData: any = {
+        onboarding_completed: true,
+        onboarding_data: data,
+      };
+
+      // Save project_state for state-based onboarding
+      if (usingStateBased && projectState) {
+        updateData.project_state = projectState;
+      }
+
       const { error } = await supabase
         .from('projects')
-        .update({
-          onboarding_completed: true,
-          onboarding_data: data,
-        })
+        .update(updateData)
         .eq('id', project.id);
 
       if (error) throw error;
@@ -221,11 +387,127 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     }
   };
 
+  // ============================================
+  // RENDER FUNCTIONS - STATE-BASED
+  // ============================================
+
+  const renderStateBasedStep = (): React.ReactNode => {
+    // Step 0: State selection
+    if (currentStep === 0) {
+      return (
+        <StepStateSelection
+          selectedState={projectState}
+          onChange={setProjectState}
+        />
+      );
+    }
+
+    // Step 1: Team selection (same for all states)
+    if (currentStep === 1) {
+      return (
+        <StepEquipo
+          projectId={project.id}
+          selectedMembers={selectedMembers}
+          onChange={setSelectedMembers}
+          minMembers={2}
+          maxMembers={6}
+        />
+      );
+    }
+
+    // Steps 2+: State-specific
+    if (!projectState) return null;
+
+    switch (projectState) {
+      case 'idea':
+        return renderIdeaSteps();
+      case 'validacion_temprana':
+        return renderValidacionTempranaSteps();
+      case 'traccion':
+        return renderTraccionSteps();
+      case 'consolidado':
+        return renderConsolidadoSteps();
+      default:
+        return null;
+    }
+  };
+
+  const renderIdeaSteps = () => {
+    const props = {
+      data: ideaData,
+      onChange: (partial: Partial<IdeaData>) => setIdeaData(prev => ({ ...prev, ...partial })),
+      errors,
+    };
+
+    switch (currentStep) {
+      case 2: return <StepProblemDiscovery {...props} />;
+      case 3: return <StepSolutionHypothesis {...props} />;
+      case 4: return <StepHypothesesToValidate {...props} />;
+      case 5: return <StepValidationPlan {...props} />;
+      default: return null;
+    }
+  };
+
+  const renderValidacionTempranaSteps = () => {
+    const props = {
+      data: validacionTempranaData,
+      onChange: (partial: Partial<ValidacionTempranaData>) =>
+        setValidacionTempranaData(prev => ({ ...prev, ...partial })),
+      errors,
+    };
+
+    switch (currentStep) {
+      case 2: return <StepCurrentStatus {...props} />;
+      case 3: return <StepFeedbackLearning {...props} />;
+      case 4: return <StepPMFValidation {...props} />;
+      case 5: return <StepNextSteps {...props} />;
+      default: return null;
+    }
+  };
+
+  const renderTraccionSteps = () => {
+    const props = {
+      data: traccionData,
+      onChange: (partial: Partial<TraccionData>) =>
+        setTraccionData(prev => ({ ...prev, ...partial })),
+      errors,
+    };
+
+    switch (currentStep) {
+      case 2: return <StepKeyMetrics {...props} />;
+      case 3: return <StepGrowthEngine {...props} />;
+      case 4: return <StepOperationsTeam {...props} />;
+      case 5: return <StepGrowthPlan {...props} />;
+      default: return null;
+    }
+  };
+
+  const renderConsolidadoSteps = () => {
+    const props = {
+      data: consolidadoData,
+      onChange: (partial: Partial<ConsolidadoData>) =>
+        setConsolidadoData(prev => ({ ...prev, ...partial })),
+      errors,
+    };
+
+    switch (currentStep) {
+      case 2: return <StepBusinessMetrics {...props} />;
+      case 3: return <StepTeamOrganization {...props} />;
+      case 4: return <StepGTMProduct {...props} />;
+      case 5: return <StepStrategicObjectives {...props} />;
+      default: return null;
+    }
+  };
+
+  // ============================================
+  // RENDER FUNCTIONS - LEGACY (VALIDACION/OPERACION)
+  // ============================================
+
   const renderValidacionStep = () => {
     // Step 0 is always team selection
     if (currentStep === 0) {
       return (
-        <StepEquipo 
+        <StepEquipo
           projectId={project.id}
           selectedMembers={selectedMembers}
           onChange={setSelectedMembers}
@@ -237,7 +519,7 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
 
     const props = {
       data: validacionData,
-      onChange: (partial: Partial<ValidacionData>) => 
+      onChange: (partial: Partial<ValidacionData>) =>
         setValidacionData(prev => ({ ...prev, ...partial })),
       errors,
     };
@@ -258,7 +540,7 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     // Step 0 is always team selection
     if (currentStep === 0) {
       return (
-        <StepEquipo 
+        <StepEquipo
           projectId={project.id}
           selectedMembers={selectedMembers}
           onChange={setSelectedMembers}
@@ -270,7 +552,7 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
 
     const props = {
       data: operacionData,
-      onChange: (partial: Partial<OperacionData>) => 
+      onChange: (partial: Partial<OperacionData>) =>
         setOperacionData(prev => ({ ...prev, ...partial })),
       errors,
     };
@@ -285,16 +567,56 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
     }
   };
 
+  // ============================================
+  // MAIN RENDER
+  // ============================================
+
+  // Helper: Get state label for header
+  const getStateLabel = () => {
+    if (!usingStateBased) {
+      return isValidacion ? '🧪 Lean Startup' : '🚀 Negocio Validado';
+    }
+
+    if (!projectState) return '🎯 Estado del Proyecto';
+
+    switch (projectState) {
+      case 'idea': return '💡 Idea / Exploración';
+      case 'validacion_temprana': return '🌱 Validación Temprana';
+      case 'traccion': return '📈 Proyecto con Tracción';
+      case 'consolidado': return '🏢 Negocio Consolidado';
+      default: return '🎯 Estado del Proyecto';
+    }
+  };
+
+  // Helper: Get badge color
+  const getBadgeClasses = () => {
+    if (!usingStateBased) {
+      return isValidacion
+        ? 'bg-amber-500/15 text-amber-600'
+        : 'bg-green-500/15 text-green-600';
+    }
+
+    if (!projectState) return 'bg-gray-500/15 text-gray-600';
+
+    switch (projectState) {
+      case 'idea': return 'bg-amber-500/15 text-amber-600';
+      case 'validacion_temprana': return 'bg-green-500/15 text-green-600';
+      case 'traccion': return 'bg-blue-500/15 text-blue-600';
+      case 'consolidado': return 'bg-purple-500/15 text-purple-600';
+      default: return 'bg-gray-500/15 text-gray-600';
+    }
+  };
+
   return (
     <Card className="overflow-hidden">
       {/* Header */}
-      <CardHeader 
+      <CardHeader
         className="border-b"
         style={{ background: `linear-gradient(135deg, ${project.color}10 0%, transparent 100%)` }}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
-            <div 
+            <div
               className="w-10 h-10 rounded-xl flex items-center justify-center text-xl"
               style={{ background: `${project.color}25` }}
             >
@@ -303,24 +625,24 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
             <div>
               <CardTitle>{project.nombre}</CardTitle>
               <p className="text-sm text-muted-foreground">
-                Onboarding - {isValidacion ? 'Modo Validación' : 'Modo Operación'}
+                {usingStateBased ? 'Onboarding Adaptativo' : `Onboarding - ${isValidacion ? 'Modo Validación' : 'Modo Operación'}`}
               </p>
             </div>
           </div>
-          <span className={cn(
-            "text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full",
-            isValidacion 
-              ? "bg-amber-500/15 text-amber-600" 
-              : "bg-green-500/15 text-green-600"
-          )}>
-            {isValidacion ? '🧪 Lean Startup' : '🚀 Negocio Validado'}
+          <span
+            className={cn(
+              'text-xs font-semibold uppercase tracking-wide px-3 py-1.5 rounded-full',
+              getBadgeClasses()
+            )}
+          >
+            {getStateLabel()}
           </span>
         </div>
       </CardHeader>
 
       {/* Progress */}
       <div className="px-6 py-4 bg-muted/30 border-b overflow-x-auto">
-        <OnboardingProgress 
+        <OnboardingProgress
           steps={steps}
           currentStep={currentStep}
           onStepClick={setCurrentStep}
@@ -329,7 +651,11 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
 
       {/* Content */}
       <CardContent className="p-6 min-h-[350px]">
-        {isValidacion ? renderValidacionStep() : renderOperacionStep()}
+        {usingStateBased
+          ? renderStateBasedStep()
+          : isValidacion
+          ? renderValidacionStep()
+          : renderOperacionStep()}
       </CardContent>
 
       {/* Footer */}
@@ -349,7 +675,7 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
               Anterior
             </Button>
           )}
-          
+
           {currentStep < steps.length - 1 ? (
             <Button onClick={handleNext}>
               Siguiente
@@ -359,7 +685,7 @@ export function OnboardingWizard({ project, onComplete, onCancel, editMode = fal
             <Button
               onClick={validateAndSubmit}
               disabled={isSubmitting || isSavingEdit}
-              className={editMode ? "" : "bg-green-600 hover:bg-green-700"}
+              className={editMode ? '' : 'bg-green-600 hover:bg-green-700'}
             >
               {isSubmitting || isSavingEdit ? (
                 <>

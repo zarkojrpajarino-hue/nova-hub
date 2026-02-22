@@ -279,22 +279,23 @@ Deno.serve(async (req) => {
     const roleInfo = ROLE_INFO[roleName] || ROLE_INFO.operations;
 
     // Call AI
-    const LOVABLE_API_KEY = requireEnv('LOVABLE_API_KEY');
+    const ANTHROPIC_API_KEY = requireEnv('ANTHROPIC_API_KEY');
 
-    const response = await fetch('https://ai.lovable.dev/v1/chat/completions', {
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 6144,
+        system: SYSTEM_PROMPT,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildPrompt(roleInfo, membersWithContext, sanitizedMeetingType, sanitizedDuration) },
+          { role: 'user', content: buildPrompt(roleInfo, membersWithContext, sanitizedMeetingType, sanitizedDuration) }
         ],
         temperature: 0.7,
-        max_tokens: 6000,
       }),
     });
 
@@ -307,7 +308,7 @@ Deno.serve(async (req) => {
     }
 
     const aiData = await response.json();
-    const content = aiData.choices?.[0]?.message?.content;
+    const content = aiData.content?.[0]?.text;
 
     if (!content) {
       return new Response(

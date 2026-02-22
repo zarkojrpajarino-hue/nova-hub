@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { TrendingUp, Wallet, PieChart, BarChart3 } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
 
@@ -106,3 +107,6 @@ export function ProjectFinancialTab({ stats }: ProjectFinancialTabProps) {
     </div>
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectFinancialTab = memo(ProjectFinancialTabComponent);

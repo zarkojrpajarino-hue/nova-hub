@@ -59,7 +59,7 @@ export function MyTasksList() {
         .eq('assignee_id', profile.id)
         .neq('status', 'done')
         .order('prioridad', { ascending: true })
-        .order('fecha_limite', { ascending: true });
+        .order('fecha_limite', { ascending: true, nullsFirst: false });
       
       if (error) throw error;
       return data;

@@ -6,8 +6,13 @@ import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Loader2 } from 'lucide-react';
+import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
-export function ActivityHeatmap() {
+interface ActivityHeatmapProps {
+  isDemoMode?: boolean;
+}
+
+export function ActivityHeatmap({ isDemoMode = false }: ActivityHeatmapProps = {}) {
   const dateRange = useMemo(() => {
     const end = new Date();
     const start = subMonths(end, 6);
@@ -17,15 +22,10 @@ export function ActivityHeatmap() {
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['activity-heatmap', dateRange],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('activity_log')
-        .select('created_at')
-        .gte('created_at', dateRange.start.toISOString())
-        .lte('created_at', dateRange.end.toISOString());
-      
-      if (error) throw error;
-      return data || [];
+      // DISABLED: tabla activity_log no existe
+      return [];
     },
+    enabled: !isDemoMode,
   });
 
   const { data: obvs = [] } = useQuery({
@@ -36,23 +36,44 @@ export function ActivityHeatmap() {
         .select('created_at')
         .gte('created_at', dateRange.start.toISOString())
         .lte('created_at', dateRange.end.toISOString());
-      
+
       if (error) throw error;
       return (data || []) as Array<{ created_at: string | null }>;
     },
+    enabled: !isDemoMode,
   });
 
   const heatmapData = useMemo(() => {
     const days = eachDayOfInterval({ start: dateRange.start, end: dateRange.end });
-    
-    // Count activities per day
+
+    // 🎯 Si está en modo demo, generar datos sintéticos perfectos
+    if (isDemoMode) {
+      return days.map((day, idx) => {
+        // Generar patrón realista: más actividad entre semana, menos en fin de semana
+        const dayOfWeek = getDay(day);
+        const isWeekend = dayOfWeek === 0 || dayOfWeek === 6;
+        const baseActivity = isWeekend ? 5 : 18;
+        const variation = Math.sin(idx / 7) * 8; // Variación semanal
+        const randomFactor = (Math.sin(idx * 13) + 1) * 3; // Variación aleatoria consistente
+        const count = Math.max(0, Math.round(baseActivity + variation + randomFactor));
+
+        return {
+          date: day,
+          dateStr: format(day, 'yyyy-MM-dd'),
+          count,
+          level: Math.min(4, Math.ceil(count / 8)), // 0-4 levels
+        };
+      });
+    }
+
+    // Count activities per day (datos reales)
     const activityCounts: Record<string, number> = {};
-    
+
     activities.forEach(a => {
       const date = format(new Date(a.created_at || ''), 'yyyy-MM-dd');
       activityCounts[date] = (activityCounts[date] || 0) + 1;
     });
-    
+
     obvs.forEach(o => {
       const date = format(new Date(o.created_at || ''), 'yyyy-MM-dd');
       activityCounts[date] = (activityCounts[date] || 0) + 1;
@@ -67,7 +88,7 @@ export function ActivityHeatmap() {
       count: activityCounts[format(day, 'yyyy-MM-dd')] || 0,
       level: Math.ceil((activityCounts[format(day, 'yyyy-MM-dd')] || 0) / maxCount * 4),
     }));
-  }, [activities, obvs, dateRange]);
+  }, [activities, obvs, dateRange, isDemoMode]);
 
   // Group by weeks
   const weeks = useMemo(() => {

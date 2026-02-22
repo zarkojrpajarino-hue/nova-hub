@@ -14,98 +14,37 @@ import { ChallengesList } from '@/components/masters/ChallengesList';
 import { ApplyForMasterDialog } from '@/components/masters/ApplyForMasterDialog';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_MASTERS, DEMO_MASTER_APPLICATIONS, DEMO_MASTER_CHALLENGES, DEMO_MEMBERS, DEMO_PROJECT_MEMBERS } from '@/data/demoData';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { MastersPreviewModal } from '@/components/preview/MastersPreviewModal';
 import type { Master, MasterApplication, MasterChallenge, Profile, ProjectMember, EnrichedMaster, MastersByRole } from '@/types/masters';
 
 export function MastersView() {
-  const { isDemoMode } = useDemoMode();
   const { profile } = useAuth();
-  const { data: realMasters = [], isLoading: loadingMasters } = useTeamMasters();
-  const { data: realApplications = [] } = useMasterApplications('voting');
-  const { data: realChallenges = [] } = useMasterChallenges();
+
+  // Only real data - no demo mode
+  const { data: masters = [], isLoading: loadingMasters } = useTeamMasters();
+  const { data: applications = [] } = useMasterApplications('voting');
+  const { data: challenges = [] } = useMasterChallenges();
   const { data: myApplications = [] } = useMyMasterApplications(profile?.id);
-  const { data: realProfiles = [] } = useProfiles();
-  const { data: realProjectMembers = [] } = useProjectMembers();
-  
+  const { data: profiles = [] } = useProfiles();
+  const { data: projectMembers = [] } = useProjectMembers();
+
   const [showApplyDialog, setShowApplyDialog] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  // Use demo data when in demo mode
-  const masters: Master[] = isDemoMode ? DEMO_MASTERS.map(m => ({
-    id: m.id,
-    user_id: m.user_id,
-    role_name: m.role_name,
-    level: m.nivel,
-    title: m.title,
-    is_active: m.is_active,
-    appointed_at: m.appointed_at,
-    successful_defenses: m.successful_defenses,
-    total_mentees: m.total_mentees,
-    expires_at: null,
-    created_at: m.appointed_at,
-  })) : realMasters;
-
-  const applications: MasterApplication[] = isDemoMode ? DEMO_MASTER_APPLICATIONS.map(a => ({
-    id: a.id,
-    user_id: a.user_id,
-    role_name: a.role_name,
-    motivation: a.motivation,
-    status: a.status,
-    votes_for: a.votes_for,
-    votes_against: a.votes_against,
-    votes_required: a.votes_required,
-    voting_deadline: a.voting_deadline,
-    created_at: a.created_at,
-    project_id: null,
-    achievements: null,
-    reviewed_at: null,
-    updated_at: a.created_at,
-  })) : realApplications;
-
-  const challenges: MasterChallenge[] = isDemoMode ? DEMO_MASTER_CHALLENGES.map(c => ({
-    id: c.id,
-    master_id: c.master_id,
-    challenger_id: c.challenger_id,
-    role_name: c.role_name,
-    status: c.status,
-    description: c.description,
-    deadline: c.deadline,
-    created_at: c.created_at,
-    challenge_type: 'performance',
-    criteria: null,
-    result: null,
-    result_notes: null,
-    completed_at: null,
-  })) : realChallenges;
-
-  const profiles: Profile[] = isDemoMode ? DEMO_MEMBERS.map(m => ({
-    id: m.id,
-    nombre: m.nombre,
-    email: m.email,
-    avatar: m.avatar,
-    color: m.color,
-    auth_id: m.id,
-    created_at: null,
-    updated_at: null,
-    especialization: null,
-  })) : realProfiles;
-
-  const projectMembers: ProjectMember[] = isDemoMode ? DEMO_PROJECT_MEMBERS : realProjectMembers;
-
-  // Get user's roles for applying - in demo mode, show Zarko's roles
-  const demoUserId = isDemoMode ? '1' : profile?.id;
+  // Get user's roles for applying
   const userRoles = useMemo<string[]>(() => {
-    if (!demoUserId) return [];
+    if (!profile?.id) return [];
     const roles = projectMembers
-      .filter((pm: ProjectMember) => pm.member_id === demoUserId)
+      .filter((pm: ProjectMember) => pm.member_id === profile.id)
       .map((pm: ProjectMember) => pm.role);
     return [...new Set(roles)];
-  }, [projectMembers, demoUserId]);
+  }, [projectMembers, profile?.id]);
 
   // Check if user is already a master
   const isUserMaster = useMemo<boolean>(() => {
-    return masters.some((m: Master) => m.user_id === demoUserId);
-  }, [masters, demoUserId]);
+    return masters.some((m: Master) => m.user_id === profile?.id);
+  }, [masters, profile?.id]);
 
   // Enrich masters with profile data
   const enrichedMasters = useMemo<EnrichedMaster[]>(() => {
@@ -149,13 +88,68 @@ export function MastersView() {
 
   return (
     <>
-      <NovaHeader 
-        title="Masters de NOVA" 
-        subtitle="Líderes de conocimiento y mentores del equipo" 
+      <NovaHeader
+        title="Masters de NOVA"
+        subtitle="Hall of Fame de quienes dominan cada rol y mentorea al equipo"
+        showBackButton={true}
       />
-      
+
       <div className="p-8">
-        <SectionHelp section="masters" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Galería de Masters actuales y sistema de aplicación/desafío"
+          whatIsIt="Hall of Fame público de quienes han ganado el título de MASTER en cada rol (CEO, CTO, CMO, etc.) tras cumplir requisitos objetivos y ganar desafíos. Los Masters tienen badge especial, aparecen en rankings, y pueden mentorear a otros. Cualquiera puede aplicar para ser Master (votación del equipo) o desafiar al Master actual si cumple requisitos de Camino a Master."
+          dataInputs={[
+            {
+              from: 'Camino a Master',
+              items: [
+                'Masters actuales por rol (quién es el #1)',
+                'Requisitos cumplidos para poder desafiar',
+                'Historial de desafíos ganados/perdidos',
+              ],
+            },
+            {
+              from: 'Rankings',
+              items: [
+                'Top 3 por rol califican para desafiar',
+                'Performance Score vs Master actual',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Masters actuales',
+              items: [
+                'Lista de todos los Masters activos por rol',
+                'Nivel: Junior Master, Senior Master, Grand Master',
+                'Desafíos defendidos exitosamente',
+                'Número de mentees (personas que mentorean)',
+              ],
+            },
+            {
+              to: 'Aplicaciones en votación',
+              items: [
+                'Aplicaciones nuevas pendientes de votación del equipo',
+                'Votos a favor/en contra',
+                'Deadline de votación',
+              ],
+            },
+            {
+              to: 'Desafíos activos',
+              items: [
+                'Challenges en progreso (Master vs Retador)',
+                'Tipo de desafío: Performance Battle, Project Showdown, Peer Vote',
+                'Deadline y progreso',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Revisa Masters actuales → Cumple requisitos → Aplica o Desafía',
+            destination: 'Ve a Camino a Master para explorar roles y cumplir requisitos',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Stats */}
         <div className="grid grid-cols-4 gap-4 mb-8">
@@ -329,6 +323,12 @@ export function MastersView() {
         onOpenChange={setShowApplyDialog}
         userRoles={userRoles}
         userId={profile?.id}
+      />
+
+      {/* Preview Modal */}
+      <MastersPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
       />
 
       <HelpWidget section="masters" />

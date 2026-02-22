@@ -17,12 +17,12 @@ export function useFinancieroData() {
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_financial_metrics_secure');
       if (error) throw error;
-      return data || [];
+      return Array.isArray(data) ? data : [];
     },
     enabled: !isDemoMode,
   });
 
-  const financialMetrics = isDemoMode ? DEMO_FINANCIAL_METRICS : realFinancialMetrics;
+  const financialMetrics = isDemoMode ? DEMO_FINANCIAL_METRICS : (Array.isArray(realFinancialMetrics) ? realFinancialMetrics : []);
 
   const { data: realPendingPayments = [] } = useQuery({
     queryKey: ['pending_payments'],
@@ -77,8 +77,8 @@ export function useFinancieroData() {
 
   const monthlyGrowth = useMemo(() => {
     if (isDemoMode) return DEMO_FINANCIAL.crecimiento_mensual;
-    if (financialMetrics.length < 2) return 0;
-    const sorted = [...financialMetrics].sort((a, b) => 
+    if (!Array.isArray(financialMetrics) || financialMetrics.length < 2) return 0;
+    const sorted = [...financialMetrics].sort((a, b) =>
       new Date(b.month).getTime() - new Date(a.month).getTime()
     );
     const currentMonth = sorted[0]?.facturacion || 0;

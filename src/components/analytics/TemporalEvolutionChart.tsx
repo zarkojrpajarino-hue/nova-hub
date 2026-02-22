@@ -5,12 +5,14 @@ import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, Tooltip, Legend, Ca
 import { format, subDays, subWeeks, subMonths, eachDayOfInterval, eachWeekOfInterval, eachMonthOfInterval } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { Loader2 } from 'lucide-react';
+import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
 interface TemporalEvolutionChartProps {
   period: 'week' | 'month' | 'quarter' | 'year';
+  isDemoMode?: boolean;
 }
 
-export function TemporalEvolutionChart({ period }: TemporalEvolutionChartProps) {
+export function TemporalEvolutionChart({ period, isDemoMode = false }: TemporalEvolutionChartProps) {
   const dateRange = useMemo(() => {
     const now = new Date();
     switch (period) {
@@ -29,31 +31,46 @@ export function TemporalEvolutionChart({ period }: TemporalEvolutionChartProps) 
         .select('fecha, tipo')
         .gte('fecha', format(dateRange.start, 'yyyy-MM-dd'))
         .lte('fecha', format(dateRange.end, 'yyyy-MM-dd'));
-      
+
       if (error) throw error;
       return (data || []) as Array<{ fecha: string | null; tipo: string }>;
     },
+    enabled: !isDemoMode,
   });
 
   const { data: kpis = [], isLoading: loadingKPIs } = useQuery({
     queryKey: ['kpis-temporal', dateRange],
     queryFn: async () => {
-      const { data, error } = await supabase
+      const { data, error} = await supabase
         .from('kpis')
         .select('created_at, type')
         .gte('created_at', dateRange.start.toISOString())
         .lte('created_at', dateRange.end.toISOString());
-      
+
       if (error) throw error;
       return data || [];
     },
+    enabled: !isDemoMode,
   });
 
   const chartData = useMemo(() => {
+    // 🎯 Si está en modo demo, usar datos perfectos predefinidos
+    if (isDemoMode) {
+      const demoData = PREMIUM_DEMO_DATA.analytics.temporal;
+      return demoData.labels.map((label, idx) => ({
+        date: label,
+        obvs: demoData.obvs[idx] || 0,
+        lps: Math.floor((demoData.tasks[idx] || 0) * 0.3), // Simular LPs
+        bps: Math.floor((demoData.tasks[idx] || 0) * 0.4), // Simular BPs
+        cps: Math.floor((demoData.tasks[idx] || 0) * 0.3), // Simular CPs
+        revenue: demoData.revenue[idx] || 0,
+      }));
+    }
+
     // Determine intervals based on period
     let intervals: Date[];
     let formatStr: string;
-    
+
     switch (period) {
       case 'week':
         intervals = eachDayOfInterval({ start: dateRange.start, end: dateRange.end });
@@ -72,7 +89,7 @@ export function TemporalEvolutionChart({ period }: TemporalEvolutionChartProps) 
 
     return intervals.map(date => {
       let nextDate: Date;
-      
+
       switch (period) {
         case 'week':
           nextDate = subDays(date, -1);
@@ -104,7 +121,7 @@ export function TemporalEvolutionChart({ period }: TemporalEvolutionChartProps) 
         cps: periodKPIs.filter(k => k.type === 'CP').length,
       };
     });
-  }, [obvs, kpis, period, dateRange]);
+  }, [obvs, kpis, period, dateRange, isDemoMode]);
 
   if (loadingOBVs || loadingKPIs) {
     return (

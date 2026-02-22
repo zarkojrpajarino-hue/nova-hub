@@ -135,28 +135,15 @@ Deno.serve(async (req) => {
       })),
     };
 
-    // Call Lovable AI Gateway
-    const lovableApiKey = requireEnv('LOVABLE_API_KEY');
-    
-    const aiResponse = await fetch('https://ai.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${lovableApiKey}`,
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          {
-            role: 'system',
-            content: `Eres un coach de desarrollo profesional para startups. Genera playbooks personalizados en español.
-            
+    // Call Claude API
+    const anthropicApiKey = requireEnv('ANTHROPIC_API_KEY');
+
+    const systemPrompt = `Eres un coach de desarrollo profesional para startups. Genera playbooks personalizados en español.
+
 El playbook debe ser práctico, accionable y específico para el rol indicado.
-Responde SOLO con JSON válido, sin markdown ni texto adicional.`
-          },
-          {
-            role: 'user',
-            content: `Genera un playbook personalizado para ${context.userName} en el rol de "${context.roleName}".
+Responde SOLO con JSON válido, sin markdown ni texto adicional.`;
+
+    const userPrompt = `Genera un playbook personalizado para ${context.userName} en el rol de "${context.roleName}".
 
 Datos de rendimiento:
 - Tasa de completitud de tareas: ${context.performance.task_completion_rate}%
@@ -176,7 +163,7 @@ Responde con este JSON exacto:
       "tips": ["Tip 1", "Tip 2"]
     },
     {
-      "title": "Mejores Prácticas", 
+      "title": "Mejores Prácticas",
       "content": "Prácticas recomendadas basadas en el rendimiento actual",
       "tips": ["Práctica 1", "Práctica 2"]
     },
@@ -195,11 +182,26 @@ Responde con este JSON exacto:
       "metricas": ["Métrica 1", "Métrica 2"]
     }
   ]
-}`
+}`;
+
+    const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': anthropicApiKey,
+        'anthropic-version': '2023-06-01',
+      },
+      body: JSON.stringify({
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 4096,
+        system: systemPrompt,
+        messages: [
+          {
+            role: 'user',
+            content: userPrompt
           }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
       }),
     });
 
@@ -212,7 +214,7 @@ Responde con este JSON exacto:
     }
 
     const aiData = await aiResponse.json();
-    const aiContent = aiData.choices[0]?.message?.content;
+    const aiContent = aiData.content?.[0]?.text;
     
     // Parse AI response
     let playbookContent;
@@ -276,7 +278,7 @@ Responde con este JSON exacto:
         fortalezas: playbookContent.fortalezas || [],
         areas_mejora: playbookContent.areas_mejora || [],
         objetivos_sugeridos: playbookContent.objetivos_sugeridos || [],
-        ai_model: 'google/gemini-2.5-flash',
+        ai_model: 'claude-3-5-sonnet-20241022',
         is_active: true,
       })
       .select()

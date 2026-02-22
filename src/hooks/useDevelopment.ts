@@ -263,7 +263,7 @@ export function useGeneratePlaybook() {
     mutationFn: async ({ userId, roleName }: { userId: string; roleName: string }) => {
       // Get user data for context
       const { data: profile } = await supabase
-        .from('members_public')
+        .from('members')
         .select('nombre, especialization')
         .eq('id', userId)
         .single();

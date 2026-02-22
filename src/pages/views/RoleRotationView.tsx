@@ -11,56 +11,20 @@ import { CreateRotationDialog } from '@/components/rotation/CreateRotationDialog
 import { MyRotationRequests } from '@/components/rotation/MyRotationRequests';
 import { AIRotationSuggestions } from '@/components/rotation/AIRotationSuggestions';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_ROTATION_REQUESTS, DEMO_ROLE_HISTORY } from '@/data/demoData';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { useNavigation } from '@/contexts/NavigationContext';
+import { BackButton } from '@/components/navigation/BackButton';
+import { RoleRotationPreviewModal } from '@/components/preview/RoleRotationPreviewModal';
 
 export default function RoleRotationView() {
-  const { isDemoMode } = useDemoMode();
+  const { goBack, canGoBack } = useNavigation();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
-  
-  const { data: realRequests = [] } = useRotationRequests();
-  const { data: realMyRequests = [] } = useMyRotationRequests();
-  const { data: realHistory = [] } = useRoleHistory();
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  // Use demo data when in demo mode
-  const allRequests: RoleRotationRequest[] = isDemoMode ? DEMO_ROTATION_REQUESTS.map(r => ({
-    id: r.id,
-    requester_id: r.requester_id,
-    requester_current_role: r.requester_current_role,
-    target_user_id: r.target_user_id,
-    target_role: r.target_role,
-    requester_project_id: r.requester_project_id,
-    target_project_id: r.target_project_id,
-    status: r.status,
-    reason: r.reason,
-    created_at: r.created_at,
-    requester_name: r.requester_name,
-    target_user_name: r.target_user_name,
-    request_type: 'swap' as const,
-    compatibility_score: 85,
-    compatibility_analysis: {},
-    requester_accepted: true,
-    target_accepted: r.status === 'approved' || r.status === 'completed',
-    admin_approved: r.status === 'approved' || r.status === 'completed',
-    approved_by: null,
-    completed_at: r.status === 'completed' ? r.created_at : null,
-    updated_at: r.created_at,
-  })) : realRequests;
-
-  const myRequests: RoleRotationRequest[] = isDemoMode ? [] : realMyRequests;
-
-  const history: RoleHistory[] = isDemoMode ? DEMO_ROLE_HISTORY.map(h => ({
-    id: h.id,
-    user_id: h.user_id,
-    project_id: h.project_id,
-    old_role: h.old_role,
-    new_role: h.new_role,
-    change_type: h.change_type,
-    created_at: h.created_at,
-    notes: h.notes,
-    rotation_request_id: null,
-    previous_performance_score: null,
-  })) : realHistory;
+  // Only real data - no demo mode
+  const { data: allRequests = [] } = useRotationRequests();
+  const { data: myRequests = [] } = useMyRotationRequests();
+  const { data: history = [] } = useRoleHistory();
 
   const pendingRequests = allRequests.filter(r => r.status === 'pending');
   const completedRotations = allRequests.filter(r => r.status === 'completed');
@@ -69,12 +33,17 @@ export default function RoleRotationView() {
   return (
     <>
     <div className="space-y-6 p-8">
+      {/* Back Button */}
+      {canGoBack && (
+        <BackButton onClick={goBack} />
+      )}
+
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">Rotación de Roles</h1>
           <p className="text-muted-foreground">
-            Intercambia roles con otros miembros para desarrollar nuevas habilidades
+            Sistema de intercambio de roles para desarrollar habilidades cross-funcionales
           </p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)}>
@@ -83,7 +52,59 @@ export default function RoleRotationView() {
         </Button>
       </div>
 
-      <SectionHelp section="rotacion" variant="inline" />
+      {/* How it works */}
+      <HowItWorks
+        title="Cómo funciona"
+        description="Programa voluntario para rotar roles temporalmente y aprender nuevas skills"
+        whatIsIt="Sistema de intercambio de roles donde puedes solicitar rotar temporalmente (2-4 semanas) con otro miembro del equipo. Ejemplo: si eres CMO, puedes rotar con el CTO para aprender tech, y viceversa. IA analiza compatibilidad antes de aprobar. Rotación es 100% voluntaria y requiere aprobación de ambas partes + admin. Ideal para romper silos y construir empatía entre roles."
+        dataInputs={[
+          {
+            from: 'Exploración de Roles',
+            items: [
+              'Tu Fit Score en el rol que quieres explorar',
+              'Performance histórica en roles similares',
+            ],
+          },
+          {
+            from: 'Equipo',
+            items: [
+              'Disponibilidad de otros miembros para rotar',
+              'Compatibilidad: ¿tu skill set encaja con el rol target?',
+            ],
+          },
+        ]}
+        dataOutputs={[
+          {
+            to: 'Nueva experiencia',
+            items: [
+              'Trabajas 2-4 semanas en el rol rotado',
+              'Aprendes skills cross-funcionales',
+              'Generas empatía con otros roles',
+            ],
+          },
+          {
+            to: 'Mi Desarrollo',
+            items: [
+              'Nuevo Fit Score calculado en el rol rotado',
+              'Si te gusta, puedes pedir cambio permanente',
+              'Playbooks del nuevo rol disponibles',
+            ],
+          },
+          {
+            to: 'Insights',
+            items: [
+              'Qué aprendiste del nuevo rol',
+              'Recomendación IA: ¿deberías quedarte?',
+              'Impacto en tu perfil de habilidades',
+            ],
+          },
+        ]}
+        nextStep={{
+          action: 'Solicita rotación → Espera aprobación → Rota 2-4 semanas → Decide si cambias permanentemente',
+          destination: 'IA sugiere rotaciones inteligentes basadas en tu fit score y necesidades del equipo',
+        }}
+        onViewPreview={() => setShowPreviewModal(true)}
+      />
 
       {/* Stats Cards */}
       <div className="grid gap-4 md:grid-cols-4">
@@ -177,9 +198,15 @@ export default function RoleRotationView() {
       </Tabs>
 
       {/* Create Dialog */}
-      <CreateRotationDialog 
-        open={createDialogOpen} 
-        onOpenChange={setCreateDialogOpen} 
+      <CreateRotationDialog
+        open={createDialogOpen}
+        onOpenChange={setCreateDialogOpen}
+      />
+
+      {/* Preview Modal */}
+      <RoleRotationPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
       />
     </div>
 

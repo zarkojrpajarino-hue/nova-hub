@@ -15,50 +15,22 @@ import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';
 import { RankingTrends } from '@/components/rankings/RankingTrends';
 import { MyRankingCard } from '@/components/rankings/MyRankingCard';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_ROLE_RANKINGS, DEMO_MEMBERS, DEMO_PROJECTS, DEMO_PROJECT_MEMBERS } from '@/data/demoData';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { RankingsPreviewModal } from '@/components/preview/RankingsPreviewModal';
 
 export function RankingsView() {
-  const { isDemoMode } = useDemoMode();
   const { profile } = useAuth();
-  const { data: realRankings = [], isLoading: loadingRankings } = useRoleRankings();
+
+  // Only real data - no demo mode
+  const { data: rankings = [], isLoading: loadingRankings } = useRoleRankings();
   const { data: performances = [] } = useRolePerformance();
-  const { data: realProfiles = [] } = useProfiles();
-  const { data: realProjects = [] } = useProjects();
-  const { data: realProjectMembers = [] } = useProjectMembers();
-  
+  const { data: profiles = [] } = useProfiles();
+  const { data: projects = [] } = useProjects();
+  const { data: projectMembers = [] } = useProjectMembers();
+
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
-
-  // Use demo data when in demo mode
-  const rankings: RoleRanking[] = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
-    id: r.id,
-    user_id: r.user_id,
-    role_name: r.role_name,
-    project_id: r.project_id,
-    ranking_position: r.ranking_position,
-    previous_position: r.previous_position,
-    score: r.score,
-    period_start: '2026-01-01',
-    period_end: '2026-01-31',
-    calculated_at: '2026-01-21',
-    metrics: null,
-  })) : realRankings;
-
-  const profiles: Profile[] = isDemoMode ? DEMO_MEMBERS.map(m => ({
-    id: m.id,
-    nombre: m.nombre,
-    email: m.email,
-    avatar: m.avatar,
-    color: m.color,
-    auth_id: m.id,
-    created_at: null,
-    updated_at: null,
-    especialization: null,
-  })) : realProfiles;
-
-  const projects: Project[] = isDemoMode ? DEMO_PROJECTS : realProjects;
-  const projectMembers: ProjectMember[] = isDemoMode ? DEMO_PROJECT_MEMBERS : realProjectMembers;
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Get all unique roles
   const allRoles = useMemo(() => {
@@ -66,11 +38,10 @@ export function RankingsView() {
     return roles.filter(role => ROLE_CONFIG[role]);
   }, [projectMembers]);
 
-  // Get user's rankings - in demo mode, show Zarko's rankings
-  const demoUserId = isDemoMode ? '1' : profile?.id;
+  // Get user's rankings
   const myRankings = useMemo(() => {
-    return rankings.filter(r => r.user_id === demoUserId);
-  }, [rankings, demoUserId]);
+    return rankings.filter(r => r.user_id === profile?.id);
+  }, [rankings, profile?.id]);
 
   // Enrich rankings with profile data
   const enrichedRankings = useMemo(() => {
@@ -125,13 +96,81 @@ export function RankingsView() {
 
   return (
     <>
-      <NovaHeader 
-        title="Rankings" 
-        subtitle="Clasificación global por roles y proyectos" 
+      <NovaHeader
+        title="Rankings"
+        subtitle="Leaderboards en tiempo real de performance por rol en cada proyecto"
+        showBackButton={true}
       />
-      
+
       <div className="p-8">
-        <SectionHelp section="rankings" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Sistema de clasificación transparente basado en performance objetiva"
+          whatIsIt="Leaderboards públicos que rankean a cada persona por su performance en cada rol (CEO, CTO, CMO, etc.) dentro de cada proyecto. El ranking se calcula automáticamente cada semana basado en métricas objetivas: Fit Score promedio, tareas completadas a tiempo (%), peer feedback recibido, OBVs validadas, y resultados financieros. Top 3 en cada rol pueden desafiar al Master en Camino a Master."
+          dataInputs={[
+            {
+              from: 'Exploración de Roles',
+              items: [
+                'Tu Fit Score en cada rol explorado',
+                'Performance Score calculado por IA',
+                'Ranking position actual y anterior (para ver tendencias)',
+              ],
+            },
+            {
+              from: 'Proyectos',
+              items: [
+                'Tareas completadas vs asignadas (% de cumplimiento)',
+                'Tareas completadas a tiempo (puntualidad)',
+                'Resultados financieros generados (revenue, leads)',
+              ],
+            },
+            {
+              from: 'Centro OBVs',
+              items: [
+                'OBVs validadas por el equipo',
+                'Quality score de tus OBVs',
+              ],
+            },
+            {
+              from: 'Equipo (Peer Feedback)',
+              items: [
+                'Feedback positivos vs negativos',
+                'Rating promedio del equipo',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Mi posición actual',
+              items: [
+                'Ranking position (#1, #2, #3, etc.) en cada rol',
+                'Score numérico (0-100%) que te compara con otros',
+                'Tendencia: ↑ subiste, ↓ bajaste, - igual',
+              ],
+            },
+            {
+              to: 'Camino a Master',
+              items: [
+                'Si estás Top 3 en un rol, calificas para desafiar al Master',
+                'Requisitos claros para challenge',
+              ],
+            },
+            {
+              to: 'Insights',
+              items: [
+                'Qué necesitas mejorar para subir posiciones',
+                'Comparativa con el #1 del rol',
+                'Brecha de performance vs top performer',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Revisa tu ranking → Identifica áreas de mejora → Trabaja en subir score',
+            destination: 'Si llegas Top 3, ve a Camino a Master para desafiar al Master actual',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Stats Overview */}
         <div className="grid grid-cols-4 gap-4 mb-8">
@@ -267,6 +306,12 @@ export function RankingsView() {
           </TabsContent>
         </Tabs>
       </div>
+
+      {/* Preview Modal */}
+      <RankingsPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+      />
 
       <HelpWidget section="rankings" />
     </>

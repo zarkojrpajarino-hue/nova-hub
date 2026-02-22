@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Loader2, FileCheck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -157,3 +158,6 @@ export function ProjectOBVsTab({ projectId }: ProjectOBVsTabProps) {
     </div>
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectOBVsTab = memo(ProjectOBVsTabComponent);

@@ -1,7 +1,16 @@
-import { useMemo } from 'react';
+/**
+ * DASHBOARD VIEW - Enterprise Edition
+ *
+ * Vista principal que consolida métricas de toda la organización.
+ * SIN datos demo - Solo datos reales.
+ */
+
+import { useMemo, useState, useEffect } from 'react';
 import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2 } from 'lucide-react';
+import { useParams } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
+import { HowItWorks } from '@/components/ui/how-it-works';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { WeeklyEvolutionChart } from '@/components/dashboard/WeeklyEvolutionChart';
 import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
@@ -9,20 +18,53 @@ import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_MEMBERS, DEMO_KPIS } from '@/data/demoData';
+import { DashboardPreviewModal } from '@/components/preview/DashboardPreviewModal';
+import { OnboardingProgressBanner } from '@/components/onboarding/OnboardingProgressBanner';
+import { RegenerationTriggersWidget } from '@/components/onboarding/RegenerationTriggersWidget';
+import { GamificationWidget } from '@/components/onboarding/GamificationWidget';
+import { supabase } from '@/integrations/supabase/client';
 
 interface DashboardViewProps {
   onNewOBV?: () => void;
 }
 
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
-  const { isDemoMode } = useDemoMode();
-  const { data: realMembers = [], isLoading: loadingMembers } = useMemberStats();
+  const { projectId } = useParams<{ projectId: string }>();
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [onboardingProgress, setOnboardingProgress] = useState<any>(null);
+  const [userId, setUserId] = useState<string>('');
+  const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
 
-  // Use demo data when in demo mode
-  const members = isDemoMode ? DEMO_MEMBERS : realMembers;
+  // Load onboarding progress and user ID
+  useEffect(() => {
+    const loadOnboardingProgress = async () => {
+      if (!projectId) return;
+
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      if (user) {
+        setUserId(user.id);
+      }
+
+      const { data: project } = await supabase
+        .from('projects')
+        .select('metadata')
+        .eq('id', projectId)
+        .single();
+
+      if (project?.metadata?.fast_start_completed) {
+        setOnboardingProgress({
+          progress: project.metadata.onboarding_progress || 25,
+          fastStartCompleted: project.metadata.fast_start_completed || false,
+          deepSetupSections: project.metadata.deep_setup_sections || [],
+          onboardingType: project.metadata.onboarding_type || 'idea',
+        });
+      }
+    };
+
+    loadOnboardingProgress();
+  }, [projectId]);
 
   // Map objectives to easily accessible format
   const objectivesMap = useMemo(() => {
@@ -51,32 +93,15 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     }), { obvs: 0, lps: 0, bps: 0, cps: 0, facturacion: 0, margen: 0 });
   }, [members]);
 
-  // Team objectives (9 members) - use demo KPIs if in demo mode
-  const teamObjectives = isDemoMode ? {
-    obvs: DEMO_KPIS.obvs.objetivo,
-    lps: DEMO_KPIS.lps.objetivo,
-    bps: DEMO_KPIS.bps.objetivo,
-    cps: DEMO_KPIS.cps.objetivo,
-    facturacion: DEMO_KPIS.facturacion.objetivo,
-    margen: DEMO_KPIS.margen.objetivo,
-  } : {
-    obvs: objectivesMap.obvs * 9,
-    lps: objectivesMap.lps * 9,
-    bps: objectivesMap.bps * 9,
-    cps: objectivesMap.cps * 9,
-    facturacion: objectivesMap.facturacion * 9,
-    margen: objectivesMap.margen * 9,
+  // Team objectives (calculated from individual targets)
+  const teamObjectives = {
+    obvs: objectivesMap.obvs * Math.max(members.length, 1),
+    lps: objectivesMap.lps * Math.max(members.length, 1),
+    bps: objectivesMap.bps * Math.max(members.length, 1),
+    cps: objectivesMap.cps * Math.max(members.length, 1),
+    facturacion: objectivesMap.facturacion * Math.max(members.length, 1),
+    margen: objectivesMap.margen * Math.max(members.length, 1),
   };
-
-  // Override totals with demo data if in demo mode
-  const displayTotals = isDemoMode ? {
-    obvs: DEMO_KPIS.obvs.actual,
-    lps: DEMO_KPIS.lps.actual,
-    bps: DEMO_KPIS.bps.actual,
-    cps: DEMO_KPIS.cps.actual,
-    facturacion: DEMO_KPIS.facturacion.actual,
-    margen: DEMO_KPIS.margen.actual,
-  } : totals;
 
   // Transform members for widgets
   const membersForRanking = members.map(m => ({
@@ -91,7 +116,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     facturacion: Number(m.facturacion) || 0,
   }));
 
-  if (loadingMembers && !isDemoMode) {
+  if (loadingMembers) {
     return (
       <div className="flex items-center justify-center h-screen">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
@@ -101,68 +126,109 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Dashboard" 
-        subtitle="Vista general del equipo NOVA" 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="Dashboard"
+        subtitle="Consolida métricas de proyectos, equipo y finanzas en un solo lugar"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
+
       <div className="p-8 space-y-6">
-        {/* Section Help */}
-        <SectionHelp section="dashboard" variant="inline" />
+        {/* Onboarding Progress Banner */}
+        {projectId && onboardingProgress && onboardingProgress.progress < 100 && (
+          <OnboardingProgressBanner
+            projectId={projectId}
+            progress={onboardingProgress.progress}
+            fastStartCompleted={onboardingProgress.fastStartCompleted}
+            deepSetupSections={onboardingProgress.deepSetupSections}
+            onboardingType={onboardingProgress.onboardingType}
+          />
+        )}
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Vista general consolidada de toda tu organización"
+          whatIsIt="Dashboard principal que agrega automáticamente métricas de todos tus proyectos, OBVs ejecutadas, deals cerrados en CRM, revenue en Financiero, y progreso del equipo. Te da una foto completa de la salud de tu startup en tiempo real."
+          onViewPreview={() => setShowPreviewModal(true)}
+          dataInputs={[
+            {
+              from: 'Todas las secciones',
+              items: [
+                'Centro OBVs → Total de OBVs completadas',
+                'CRM → Pipeline value y deals cerrados',
+                'Financiero → Revenue y márgenes',
+                'Equipo → Fit Scores y progreso en roles',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Tú (decisiones)',
+              items: [
+                'Vista 360° de la startup',
+                'Alertas de problemas críticos',
+                'Qué priorizar hoy',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Identifica problemas o cuellos de botella',
+            destination: 'Navega a la sección específica para profundizar (Proyectos, CRM, etc.)',
+          }}
+        />
 
         {/* KPIs Grid */}
         <div className="grid grid-cols-6 gap-4">
-          <StatCard 
-            icon={FileCheck} 
-            value={displayTotals.obvs} 
-            label="OBVs Totales" 
-            progress={(displayTotals.obvs / teamObjectives.obvs) * 100}
+          <StatCard
+            icon={FileCheck}
+            value={totals.obvs}
+            label="OBVs Totales"
+            progress={(totals.obvs / teamObjectives.obvs) * 100}
             target={teamObjectives.obvs}
             color="#6366F1"
             delay={1}
           />
-          <StatCard 
-            icon={BookOpen} 
-            value={displayTotals.lps} 
-            label="Learning Paths" 
-            progress={(displayTotals.lps / teamObjectives.lps) * 100}
+          <StatCard
+            icon={BookOpen}
+            value={totals.lps}
+            label="Learning Paths"
+            progress={(totals.lps / teamObjectives.lps) * 100}
             target={teamObjectives.lps}
             color="#F59E0B"
             delay={2}
           />
-          <StatCard 
-            icon={Trophy} 
-            value={displayTotals.bps} 
-            label="Book Points" 
-            progress={(displayTotals.bps / teamObjectives.bps) * 100}
+          <StatCard
+            icon={Trophy}
+            value={totals.bps}
+            label="Book Points"
+            progress={(totals.bps / teamObjectives.bps) * 100}
             target={teamObjectives.bps}
             color="#22C55E"
             delay={3}
           />
-          <StatCard 
-            icon={Users} 
-            value={displayTotals.cps} 
-            label="Community Points" 
-            progress={(displayTotals.cps / teamObjectives.cps) * 100}
+          <StatCard
+            icon={Users}
+            value={totals.cps}
+            label="Community Points"
+            progress={(totals.cps / teamObjectives.cps) * 100}
             target={teamObjectives.cps}
             color="#EC4899"
             delay={4}
           />
-          <StatCard 
-            icon={TrendingUp} 
-            value={`€${(displayTotals.facturacion/1000).toFixed(1)}K`} 
-            label="Facturación" 
-            progress={(displayTotals.facturacion / teamObjectives.facturacion) * 100}
+          <StatCard
+            icon={TrendingUp}
+            value={`€${(totals.facturacion/1000).toFixed(1)}K`}
+            label="Facturación"
+            progress={(totals.facturacion / teamObjectives.facturacion) * 100}
             target={`€${teamObjectives.facturacion/1000}K`}
             color="#3B82F6"
             delay={5}
           />
-          <StatCard 
-            icon={Wallet} 
-            value={`€${(displayTotals.margen/1000).toFixed(1)}K`} 
-            label="Margen Bruto" 
-            progress={(displayTotals.margen / teamObjectives.margen) * 100}
+          <StatCard
+            icon={Wallet}
+            value={`€${(totals.margen/1000).toFixed(1)}K`}
+            label="Margen Bruto"
+            progress={(totals.margen / teamObjectives.margen) * 100}
             target={`€${teamObjectives.margen/1000}K`}
             color="#22C55E"
             delay={6}
@@ -179,6 +245,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         </div>
 
+        {/* Onboarding Widgets - Only show if Fast Start completed */}
+        {projectId && userId && onboardingProgress && onboardingProgress.fastStartCompleted && (
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <GamificationWidget projectId={projectId} userId={userId} />
+            <RegenerationTriggersWidget projectId={projectId} />
+          </div>
+        )}
+
         {/* Top 3 Rankings */}
         <TopRankingsWidget members={membersForRanking} />
 
@@ -191,6 +265,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
 
       {/* Floating Help Widget */}
       <HelpWidget section="dashboard" />
+
+      {/* Dashboard Preview Modal */}
+      <DashboardPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
 }

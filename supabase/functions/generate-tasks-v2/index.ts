@@ -4,6 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';
 import { TasksGenerationRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
 
 
 // Role labels for display
@@ -86,10 +87,49 @@ Deno.serve(async (req) => {
 
     console.log('Generating tasks for project:', projectId);
 
-    // 1. Get project data
+    // ==================== EVIDENCE INSTRUMENTATION ====================
+    const evidenceMode = (validation.data as any).evidence_mode || 'hypothesis';
+    const evidenceTracker = new EvidenceMetricsTracker(
+      'task_generation',
+      'tasks',
+      evidenceMode,
+      authUserId,
+      projectId
+    );
+    // ==================================================================
+
+    // 1. CHECK GLOBAL LIMITS before generating
+    const { data: canCreate, error: limitError } = await supabase.rpc('can_execute_task', {
+      p_user_id: authUserId,
+      p_is_ai_execution: false,
+    });
+
+    if (limitError || !canCreate) {
+      return new Response(
+        JSON.stringify({ error: 'Failed to check limits' }),
+        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    if (!canCreate.can_execute) {
+      return new Response(
+        JSON.stringify({
+          error: canCreate.reason,
+          limits: canCreate.limits,
+          message: 'Límite de tareas alcanzado. Vuelve mañana o espera hasta la próxima semana.',
+        }),
+        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      );
+    }
+
+    // ==================== EVIDENCE: START RETRIEVAL ====================
+    evidenceTracker.startRetrieval();
+    // ==================================================================
+
+    // 2. Get project data (including user_stage for adaptive task generation)
     const { data: project, error: projectError } = await supabase
       .from('projects')
-      .select('*')
+      .select('id, nombre, descripcion, fase, tipo, onboarding_data, project_state, user_stage, methodology')
       .eq('id', projectId)
       .single();
 
@@ -201,28 +241,54 @@ Deno.serve(async (req) => {
       .select('titulo, status, assignee_id, completed_at')
       .eq('project_id', projectId);
 
-    // 5. Build context
-    const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || []);
+    // 5. Get Project Intelligence for rich context
+    const { data: intelligence, error: intelligenceError } = await supabase.rpc('get_project_intelligence', {
+      p_project_id: projectId,
+    });
 
-    // 6. Call AI
-    const LOVABLE_API_KEY = requireEnv('LOVABLE_API_KEY');
+    if (intelligenceError) {
+      console.warn('Failed to get project intelligence:', intelligenceError);
+    }
 
-    console.log('Calling AI with context for', teamWithMetrics.length, 'members');
+    // 6. Build context (now with intelligence)
+    const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || [], intelligence);
 
-    const response = await fetch('https://ai.lovable.dev/v1/chat/completions', {
+    // ==================== EVIDENCE: END RETRIEVAL, START GENERATION ====================
+    const sourcesFound = [
+      project ? 1 : 0,
+      teamWithMetrics.length,
+      obvs?.length || 0,
+      leads?.length || 0,
+      tasks?.length || 0,
+      intelligence ? 1 : 0
+    ].reduce((a, b) => a + b, 0);
+
+    const retrievalTime = evidenceTracker.endRetrieval(sourcesFound);
+    evidenceTracker.recordTierDuration('internal_data', retrievalTime);
+
+    evidenceTracker.startGeneration();
+    // ==================================================================
+
+    // 7. Call AI
+    const ANTHROPIC_API_KEY = requireEnv('ANTHROPIC_API_KEY');
+
+    console.log('Calling Claude API with context for', teamWithMetrics.length, 'members');
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
+        model: 'claude-3-5-sonnet-20241022',
+        max_tokens: 8192,
+        system: SYSTEM_PROMPT,
         messages: [
-          { role: 'system', content: SYSTEM_PROMPT },
-          { role: 'user', content: buildUserPrompt(context) },
+          { role: 'user', content: buildUserPrompt(context) }
         ],
         temperature: 0.7,
-        max_tokens: 8000,
       }),
     });
 
@@ -235,7 +301,7 @@ Deno.serve(async (req) => {
     }
 
     const aiData = await response.json();
-    const content = aiData.choices?.[0]?.message?.content;
+    const content = aiData.content?.[0]?.text;
 
     if (!content) {
       return new Response(
@@ -246,7 +312,7 @@ Deno.serve(async (req) => {
 
     console.log('AI response received, parsing...');
 
-    // 7. Parse response
+    // 8. Parse response
     const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     let parsed;
     try {
@@ -262,7 +328,7 @@ Deno.serve(async (req) => {
     const generatedTasks = parsed.tasks || [];
     console.log('Parsed', generatedTasks.length, 'tasks');
 
-    // 8. Save tasks to database
+    // 9. Save tasks to database
     const savedTasks = [];
     for (const task of generatedTasks) {
       const member = teamWithMetrics.find(m => 
@@ -313,12 +379,41 @@ Deno.serve(async (req) => {
 
     console.log('Saved', savedTasks.length, 'tasks');
 
+    // ==================== EVIDENCE: END GENERATION & LOG METRICS ====================
+    evidenceTracker.endGeneration(0); // No sources cited in task generation
+
+    // Determine evidence status based on context quality
+    if (sourcesFound >= 5 && intelligence) {
+      evidenceTracker.setEvidenceStatus('verified');
+    } else if (sourcesFound >= 3) {
+      evidenceTracker.setEvidenceStatus('partial');
+    } else {
+      evidenceTracker.setEvidenceStatus('no_evidence');
+    }
+
+    // Metadata
+    evidenceTracker.metadata = {
+      tasks_generated: generatedTasks.length,
+      tasks_saved: savedTasks.length,
+      team_size: teamWithMetrics.length,
+      project_phase: project.fase,
+      user_stage: (project as any).user_stage,
+      has_intelligence: !!intelligence,
+      context_sources: sourcesFound,
+      coverage_percentage: (savedTasks.length / generatedTasks.length) * 100,
+    };
+
+    const generationId = await evidenceTracker.finish(supabase);
+    console.log(`[Evidence] Logged generation: ${generationId}`);
+    // ==================================================================
+
     return new Response(
-      JSON.stringify({ 
-        success: true, 
+      JSON.stringify({
+        success: true,
         tasks: savedTasks,
         generated: generatedTasks.length,
         saved: savedTasks.length,
+        generation_id: generationId,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
@@ -414,7 +509,8 @@ function buildContext(
   team: EnrichedTeamMember[],
   obvs: OBV[],
   leads: Lead[],
-  tasks: Task[]
+  tasks: Task[],
+  intelligence: any = null
 ): ProjectContext {
   const onboarding = project.onboarding_data || {};
 
@@ -424,6 +520,16 @@ function buildContext(
       descripcion: String(project.descripcion || '').slice(0, 500),
       fase: project.fase || 'validacion',
       tipo: project.tipo || 'validacion',
+      project_state: project.project_state || null,
+      user_stage: (project as any).user_stage || null,
+      methodology: (project as any).methodology || null,
+    },
+    intelligence: intelligence || {
+      buyer_personas: [],
+      value_proposition: null,
+      brand: null,
+      competitors: [],
+      knowledge: null,
     },
     onboarding: {
       problema: String(onboarding.problema || onboarding.problema_resuelve || 'No definido').slice(0, 500),
@@ -453,7 +559,288 @@ function buildContext(
   };
 }
 
+// Helper: Get user stage-specific instructions (NEW - aligned with entrepreneur journey)
+function getUserStageInstructions(stage: string, methodology: string | null): string {
+  switch (stage) {
+    case 'sin_idea':
+      return `
+📍 **USUARIO SIN IDEA** - Quiere emprender pero no sabe QUÉ
+
+**ENFOQUE**: Exploración de intereses, problemas y oportunidades.
+
+**TAREAS IDEALES**:
+- Identificar hobbies y skills únicos del usuario
+- Analizar problemas en su entorno y red
+- Entrevistas informales con personas de su industria
+- Investigar tendencias y oportunidades emergentes
+- Generar ideas de negocio (llamar a generate-business-ideas si no se ha hecho)
+- Validar interés personal en cada idea
+
+**NO SUGERIR**:
+- ❌ Tareas de producto, ventas o desarrollo
+- ❌ Análisis de mercado profundo (aún no tiene idea)
+- ❌ Definir buyer persona o value prop (no hay idea)
+- ❌ Construir MVP o landing pages
+
+**PRIORIDAD**: Encontrar una idea que le APASIONE y resuelva un problema REAL.
+`;
+
+    case 'idea_generada':
+    case 'idea_propia':
+      return `
+📍 **USUARIO CON IDEA** (${stage === 'idea_generada' ? 'IA generó la idea' : 'Usuario trajo su propia idea'})
+${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
+
+**ENFOQUE**: Validación de problema y solution antes de construir.
+
+**TAREAS IDEALES**:
+- Entrevistas con clientes potenciales (mínimo 20-30 personas)
+- Landing page para captar emails y medir interés
+- Encuestas de validación (willingness to pay, frecuencia del problema)
+- Análisis de competencia y alternativas actuales
+- Prototipos de baja fidelidad (sketches, Figma mockups)
+- Tests de precio (qué pagarían, cuánto, cuándo)
+- Validation experiments (ejecutar experimentos de la tabla)
+- Definir MVP mínimo viable
+
+**NO SUGERIR**:
+- ❌ Contratar equipo o escalar operaciones
+- ❌ Campañas de marketing con presupuesto >€500
+- ❌ Desarrollo técnico complejo (aún no validado)
+- ❌ Procesos de venta B2B largos
+- ❌ Features avanzadas
+
+**PRIORIDAD**: Validar PROBLEMA antes que solución. Evidencia de "dolor real" > idea bonita.
+`;
+
+    case 'validando':
+      return `
+📍 **VALIDANDO IDEA** - Primeros clientes (1-10 clientes, €0-1k/mes)
+${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
+
+**ENFOQUE**: Product-Market Fit, retención early adopters, feedback loops.
+
+**TAREAS IDEALES**:
+- Mejorar onboarding (reducir time-to-value)
+- Entrevistas deep-dive con usuarios actuales
+- Implementar métricas básicas (engagement, retención, NPS)
+- Optimizar core value proposition basado en feedback
+- Identificar y eliminar puntos de fricción
+- Documentar casos de éxito tempranos (testimonios)
+- Analizar por qué cancelan usuarios (exit interviews)
+- Iterar features más usadas (doblar down en lo que funciona)
+- Preparar próximos validation experiments
+
+**NO SUGERIR**:
+- ❌ Escalar adquisición sin PMF claro
+- ❌ Contratar equipo grande (máximo 1-2 personas)
+- ❌ Expansión a nuevos segmentos/mercados
+- ❌ Complicar producto con features "nice to have"
+- ❌ Volver a validar problema (ya está validado con clientes reales)
+
+**PRIORIDAD**: RETENER a los clientes actuales. PMF > Growth. Calidad > Cantidad.
+`;
+
+    case 'mvp':
+    case 'traccion':
+      return `
+📍 **TRACCIÓN** (10-100 clientes, €1-10k/mes)
+${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP → Transition to Growth**' : ''}
+
+**ENFOQUE**: Escalar operaciones, optimizar unit economics, growth loops.
+
+**TAREAS IDEALES**:
+- Optimizar CAC (reducir coste de adquisición)
+- Mejorar LTV mediante upsell, cross-sell, retención
+- Automatizar procesos repetitivos (emails, onboarding, cobros)
+- Implementar canales de adquisición escalables (SEO, content, ads)
+- Mejorar tasa de conversión (funnel optimization)
+- Documentar procesos (SOPs para escalar sin depender de founders)
+- Contratar roles críticos si burn rate lo permite
+- Analizar cohorts y métricas de retención por segmento
+- Preparar pitch deck y materiales de fundraising
+- Implementar referral program
+
+**NO SUGERIR**:
+- ❌ Validación básica de problema/solución (hace tiempo validado)
+- ❌ Features sin impacto en métricas clave (north star metric)
+- ❌ Expansión prematura sin unit economics saludables
+- ❌ Procesos manuales que no escalan
+
+**PRIORIDAD**: Unit economics saludables (LTV:CAC > 3:1). Crecer de forma sostenible.
+`;
+
+    case 'escalando':
+    case 'consolidado':
+      return `
+📍 **CONSOLIDADO** (100+ clientes, €10k+/mes)
+${methodology === 'scaling_up' ? '**Metodología: SCALING UP**' : ''}
+
+**ENFOQUE**: Expansión estratégica, optimización de margen, team building senior.
+
+**TAREAS IDEALES**:
+- Expansión a nuevos mercados/verticales/geografías
+- Optimizar Net Revenue Retention (target >110%)
+- Partnerships estratégicos y canales indirectos (resellers, integraciones)
+- Contratar liderazgo senior (VP Sales, VP Eng, VP Marketing)
+- Preparar fundraising (Serie A/B) si aplica
+- Análisis de M&A o buy-build-partner decisions
+- Lanzar nuevo pricing tier o producto complementario
+- Implementar OKRs y procesos de gobernanza
+- Explorar economías de escala (reducir COGS)
+- Defender contra competencia (moats, patents, network effects)
+
+**NO SUGERIR**:
+- ❌ Validación de problema/solución (hace años validado)
+- ❌ MVPs o experimentos de bajo presupuesto
+- ❌ Tareas tácticas que debería hacer un junior/mid
+- ❌ Procesos manuales (todo debe estar automatizado o delegado)
+- ❌ Análisis básico de métricas (debe ser avanzado: cohorts, LTV by segment, etc.)
+
+**PRIORIDAD**: Escala y expansión. Defenderse de competencia. Margen y eficiencia operativa.
+`;
+
+    default:
+      return `
+📍 **STAGE NO DEFINIDO**
+
+Genera tareas generales de startup considerando la fase y tipo del proyecto.
+`;
+  }
+}
+
+// Helper: Get state-specific instructions for task generation (LEGACY - fallback)
+function getStateInstructions(state: string | null): string {
+  switch (state) {
+    case 'idea':
+      return `
+📍 **ESTADO DEL PROYECTO: IDEA/EXPLORACIÓN** (Sin clientes, sin ingresos)
+
+**ENFOQUE**: Validación de problema y solución con experimentos de bajo costo.
+
+**TAREAS IDEALES**:
+- Entrevistas con clientes potenciales (mínimo 10-20)
+- Landing pages para validar interés y capturar emails
+- Prototipos de baja fidelidad (Figma, mockups, sketches)
+- Encuestas y formularios de validación
+- Análisis de competencia y alternativas actuales
+- Tests de precio (willingness to pay)
+- Definición de MVP mínimo viable
+
+**NO SUGERIR**:
+- ❌ Contratar equipo o escalar operaciones
+- ❌ Campañas de marketing con presupuesto grande
+- ❌ Métricas avanzadas (CAC, LTV, churn)
+- ❌ Procesos de venta complejos
+- ❌ Infraestructura técnica escalable
+
+**PRIORIDAD**: Validar PROBLEMA antes que solución. Buscar evidencia de "dolor real".
+`;
+
+    case 'validacion_temprana':
+      return `
+📍 **ESTADO DEL PROYECTO: VALIDACIÓN TEMPRANA** (1-10 clientes, €0-1k/mes)
+
+**ENFOQUE**: Product-Market Fit, retención y feedback loops.
+
+**TAREAS IDEALES**:
+- Mejoras de onboarding user (reducir time-to-value)
+- Entrevistas de feedback con usuarios actuales
+- Implementar métricas básicas (engagement, retención semanal)
+- Optimizar core value proposition basado en feedback
+- Identificar y reducir puntos de fricción
+- Documentar casos de éxito tempranos
+- Análisis de por qué cancelan los usuarios
+- Iterar funcionalidades más usadas
+
+**NO SUGERIR**:
+- ❌ Escalar adquisición sin PMF claro
+- ❌ Contratar equipo grande
+- ❌ Expansión a nuevos segmentos/mercados
+- ❌ Complicar el producto con features avanzadas
+- ❌ Validación de problema (ya está validado)
+
+**PRIORIDAD**: RETENER a los clientes actuales. PMF > Growth.
+`;
+
+    case 'traccion':
+      return `
+📍 **ESTADO DEL PROYECTO: TRACCIÓN** (10-100 clientes, €1-10k/mes)
+
+**ENFOQUE**: Escalar operaciones, optimizar unit economics y crecimiento.
+
+**TAREAS IDEALES**:
+- Optimización de CAC (reducir coste de adquisición)
+- Mejorar LTV mediante upsell/cross-sell
+- Automatización de procesos repetitivos
+- Implementar canales de adquisición escalables
+- Mejora de tasa de conversión (funnel optimization)
+- Documentar procesos (SOPs para escalar)
+- Contratar roles críticos (si burn rate lo permite)
+- Analizar cohorts y métricas de retención
+- Preparar pitch deck y materiales de fundraising
+
+**NO SUGERIR**:
+- ❌ Validación básica de problema/solución (ya validado)
+- ❌ Features sin impacto en métricas clave
+- ❌ Expansión prematura sin unit economics saludables
+- ❌ Procesos manuales que no escalan
+
+**PRIORIDAD**: Unit economics saludables (LTV:CAC > 3:1). Crecer de forma sostenible.
+`;
+
+    case 'consolidado':
+      return `
+📍 **ESTADO DEL PROYECTO: CONSOLIDADO** (100+ clientes, €10k+/mes)
+
+**ENFOQUE**: Expansión estratégica, optimización de margen y team building.
+
+**TAREAS IDEALES**:
+- Expansión a nuevos mercados/verticales
+- Optimización de Net Revenue Retention (target >110%)
+- Partnerships estratégicos y canales indirectos
+- Contratar liderazgo senior (VP Sales, VP Eng, etc.)
+- Preparar fundraising (Serie A/B) si aplica
+- Análisis de M&A o buy-build-partner
+- Lanzar nuevo pricing tier o producto
+- Implementar OKRs y procesos de gobernanza
+- Explorar economías de escala
+
+**NO SUGERIR**:
+- ❌ Validación de problema/solución (hace años que está validado)
+- ❌ MVPs o experimentos de bajo presupuesto
+- ❌ Tareas tácticas que debería hacer un junior
+- ❌ Procesos manuales (todo debe estar automatizado)
+
+**PRIORIDAD**: Escala y expansión. Defenderse de competencia. Margen y eficiencia.
+`;
+
+    default:
+      return `
+📍 **ESTADO DEL PROYECTO: NO DEFINIDO**
+
+Genera tareas generales de startup considerando la fase y tipo del proyecto.
+`;
+  }
+}
+
 function buildUserPrompt(context: ProjectContext): string {
+  const project = context.project as any;
+  const projectState = project.project_state || null;
+  const userStage = project.user_stage || null;
+  const methodology = project.methodology || null;
+
+  // Use user_stage if available, otherwise fall back to project_state
+  const stateInstructions = userStage
+    ? getUserStageInstructions(userStage, methodology)
+    : getStateInstructions(projectState);
+
+  // Extract intelligence context
+  const intelligence = (context as any).intelligence || {};
+  const primaryPersona = intelligence.buyer_personas?.[0];
+  const valueProp = intelligence.value_proposition;
+  const brand = intelligence.brand;
+
   return `
 # CONTEXTO DEL PROYECTO
 
@@ -461,6 +848,32 @@ function buildUserPrompt(context: ProjectContext): string {
 - Descripción: ${context.project.descripcion}
 - Fase: ${context.project.fase}
 - Tipo: ${context.project.tipo}
+${projectState ? `- Estado del Negocio: ${projectState}` : ''}
+${userStage ? `- **Stage del Usuario: ${userStage}**` : ''}
+${methodology ? `- Metodología: ${methodology}` : ''}
+
+${stateInstructions}
+
+${primaryPersona ? `
+## BUYER PERSONA PRIMARY
+- Nombre: ${primaryPersona.persona_name}
+- Rol: ${primaryPersona.role || 'No definido'}
+- Pain points principales: ${primaryPersona.pain_points?.slice(0, 3).map((p: any) => p.pain || p).join(', ') || 'No definidos'}
+- Presupuesto: €${primaryPersona.budget_min}-${primaryPersona.budget_max} ${primaryPersona.budget_frequency || ''}
+- Canales preferidos: ${primaryPersona.preferred_channels?.map((c: any) => c.channel || c).join(', ') || 'No definidos'}
+` : ''}
+
+${valueProp ? `
+## VALUE PROPOSITION
+- Headline: ${valueProp.headline}
+- USPs clave: ${valueProp.unique_selling_points?.slice(0, 3).map((u: any) => u.usp || u).join(', ') || 'No definidos'}
+` : ''}
+
+${brand ? `
+## BRAND TONE
+- Atributos de tono: ${brand.tone_attributes?.join(', ') || 'No definidos'}
+- Palabras preferidas: ${brand.preferred_words?.slice(0, 5).join(', ') || 'No definidas'}
+` : ''}
 
 ## MODELO DE NEGOCIO
 - Problema: ${context.onboarding.problema}

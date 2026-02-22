@@ -1,5 +1,5 @@
-import { useState, lazy, Suspense } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useState, lazy, Suspense, useEffect } from 'react';
+import { useNavigate, useParams, Routes, Route } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
 import { NovaSidebar } from '@/components/nova/NovaSidebar';
 import { NavigationProvider } from '@/contexts/NavigationContext';
@@ -10,8 +10,12 @@ import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useOnboarding } from '@/hooks/useOnboarding';
+import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useNavigationHistory } from '@/hooks/useNavigationHistory';
+import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
 // Lazy load views for better code splitting
 const DashboardView = lazy(() => import('./views/DashboardView').then(m => ({ default: m.DashboardView })));
@@ -29,17 +33,40 @@ const RolesMeetingView = lazy(() => import('./views/RolesMeetingView').then(m =>
 const AnalyticsView = lazy(() => import('./views/AnalyticsView').then(m => ({ default: m.AnalyticsView })));
 const SettingsView = lazy(() => import('./views/SettingsView').then(m => ({ default: m.SettingsView })));
 const NotificationsView = lazy(() => import('./views/NotificationsView').then(m => ({ default: m.NotificationsView })));
+const ValidacionesView = lazy(() => import('./views/ValidacionesView').then(m => ({ default: m.ValidacionesView })));
+const IntegrationsView = lazy(() => import('./IntegrationsView'));
+const ExplorationDashboard = lazy(() => import('./views/ExplorationDashboard').then(m => ({ default: m.ExplorationDashboard })));
+const TeamPerformanceDashboard = lazy(() => import('./views/TeamPerformanceDashboard').then(m => ({ default: m.TeamPerformanceDashboard })));
+const PathToMasterPage = lazy(() => import('./PathToMasterPage').then(m => ({ default: m.PathToMasterPage })));
+const GenerativeOnboardingView = lazy(() => import('./views/GenerativeOnboardingView').then(m => ({ default: m.GenerativeOnboardingView })));
+const UltraOnboardingView = lazy(() => import('./views/UltraOnboardingView').then(m => ({ default: m.UltraOnboardingView })));
+const MeetingIntelligencePage = lazy(() => import('./MeetingIntelligencePage'));
+const StartupOSView = lazy(() => import('./views/StartupOSView').then(m => ({ default: m.StartupOSView })));
 
 function IndexContent() {
-  const [currentView, setCurrentView] = useState('dashboard');
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const { profile, signOut } = useAuth();
   const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
   const isMobile = useIsMobile();
   const { isOpen: searchOpen, open: openSearch, close: closeSearch } = useSearch();
+  const { hasCompletedOnboarding, completeOnboarding, isLoading: isLoadingOnboarding } = useOnboarding();
+  const { navigateTo, goBack, canGoBack, currentView: navCurrentView } = useNavigationHistory();
+  const { currentProject, setCurrentProject } = useCurrentProject();
+
+  const currentView = navCurrentView.view;
+
+  // Sincronizar el proyecto actual con el projectId de la URL
+  useEffect(() => {
+    if (projectId && currentProject?.id !== projectId) {
+      // Aquí podrías cargar el proyecto desde la BD si no está en currentProject
+      // Por ahora, solo verificamos que coincida
+      console.log('Project ID from URL:', projectId);
+    }
+  }, [projectId, currentProject]);
 
   const handleNewOBV = () => {
-    setCurrentView('obvs');
+    navigateTo('obvs');
     setSidebarOpen(false);
   };
 
@@ -49,8 +76,15 @@ function IndexContent() {
   };
 
   const handleNavigate = (view: string) => {
-    setCurrentView(view);
+    navigateTo(view);
     setSidebarOpen(false);
+  };
+
+  const handleGoBack = () => {
+    const previousView = goBack();
+    if (!previousView) {
+      navigateTo('dashboard');
+    }
   };
 
   // Keyboard shortcuts
@@ -63,61 +97,71 @@ function IndexContent() {
     },
   });
 
+  // ✨ OPTIMIZADO: Preloading inteligente de vistas frecuentes
+  useEffect(() => {
+    // Precargar vistas más usadas después de 2 segundos de la carga inicial
+    const preloadTimer = setTimeout(() => {
+      // Preload top 5 vistas más frecuentes
+      import('./views/ProjectsView');
+      import('./views/CRMView');
+      import('./views/OBVCenterView');
+      import('./views/ValidacionesView');
+      import('./views/AnalyticsView');
+    }, 2000);
+
+    return () => clearTimeout(preloadTimer);
+  }, []);
+
+  // ✨ OPTIMIZADO: Preload en hover del sidebar (predictivo)
+  const handleMenuHover = (view: string) => {
+    switch (view) {
+      case 'proyectos':
+        import('./views/ProjectsView');
+        break;
+      case 'startup-os':
+        import('./views/StartupOSView');
+        break;
+      case 'crm':
+        import('./views/CRMView');
+        break;
+      case 'obvs':
+        import('./views/OBVCenterView');
+        break;
+      case 'validaciones':
+        import('./views/ValidacionesView');
+        break;
+      case 'analytics':
+        import('./views/AnalyticsView');
+        break;
+      case 'kpis':
+        import('./views/KPIsView');
+        break;
+      case 'financiero':
+        import('./views/FinancieroView');
+        break;
+      case 'masters':
+        import('./views/MastersView');
+        break;
+      case 'rotacion':
+        import('./views/RoleRotationView');
+        break;
+    }
+  };
+
   const LoadingFallback = () => (
     <div className="flex items-center justify-center h-screen">
       <Loader2 className="w-8 h-8 animate-spin text-primary" />
     </div>
   );
 
-  const renderView = () => {
-    const view = (() => {
-      switch (currentView) {
-        case 'dashboard':
-          return <DashboardView onNewOBV={handleNewOBV} />;
-        case 'mi-espacio':
-          return <MiEspacioView onNewOBV={handleNewOBV} />;
-        case 'mi-desarrollo':
-          return <MiDesarrolloView />;
-        case 'rankings':
-          return <RankingsView />;
-        case 'masters':
-          return <MastersView />;
-        case 'rotacion':
-          return <RoleRotationView />;
-        case 'proyectos':
-          return <ProjectsView onNewOBV={handleNewOBV} />;
-        case 'obvs':
-          return <OBVCenterView onNewOBV={handleNewOBV} />;
-        case 'crm':
-          return <CRMView onNewOBV={handleNewOBV} />;
-        case 'financiero':
-          return <FinancieroView onNewOBV={handleNewOBV} />;
-        case 'kpis':
-          return <KPIsView onNewOBV={handleNewOBV} />;
-        case 'analytics':
-          return <AnalyticsView onNewOBV={handleNewOBV} />;
-        case 'roles':
-          return <RolesMeetingView onNewOBV={handleNewOBV} />;
-        case 'settings':
-          return <SettingsView onNewOBV={handleNewOBV} />;
-        case 'notificaciones':
-          return <NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />;
-        default:
-          return <DashboardView onNewOBV={handleNewOBV} />;
-      }
-    })();
-
-    return (
-      <Suspense fallback={<LoadingFallback />}>
-        {view}
-      </Suspense>
-    );
-  };
-
   const { isDemoMode } = useDemoMode();
 
   return (
-    <NavigationProvider onNavigate={handleNavigate}>
+    <NavigationProvider
+      onNavigate={handleNavigate}
+      onGoBack={handleGoBack}
+      canGoBack={canGoBack}
+    >
       <div className="flex min-h-screen bg-background">
         {/* Demo Mode Banner */}
         <DemoModeBanner />
@@ -150,11 +194,13 @@ function IndexContent() {
           isMobile && !sidebarOpen && "-translate-x-full",
           isDemoMode && "pt-12"
         )}>
-          <NovaSidebar 
-            currentView={currentView} 
-            setCurrentView={handleNavigate} 
+          <NovaSidebar
+            currentView={currentView}
+            setCurrentView={handleNavigate}
             currentUser={profile}
             onSignOut={handleSignOut}
+            onMenuHover={handleMenuHover}
+            projectId={currentProject?.id}
           />
         </div>
 
@@ -164,11 +210,46 @@ function IndexContent() {
           !isMobile && "ml-64",
           isDemoMode && "pt-12"
         )}>
-          {renderView()}
+          <Suspense fallback={<LoadingFallback />}>
+            <Routes>
+              {/* Rutas relativas al proyecto */}
+              <Route index element={<DashboardView onNewOBV={handleNewOBV} />} />
+              <Route path="mi-espacio" element={<MiEspacioView onNewOBV={handleNewOBV} />} />
+              <Route path="mi-desarrollo" element={<MiDesarrolloView />} />
+              <Route path="proyectos" element={<ProjectsView onNewOBV={handleNewOBV} />} />
+              <Route path="generative-onboarding" element={<GenerativeOnboardingView />} />
+              <Route path="ultra-onboarding" element={<UltraOnboardingView />} />
+              <Route path="validaciones" element={<ValidacionesView onNewOBV={handleNewOBV} />} />
+              <Route path="obvs" element={<OBVCenterView onNewOBV={handleNewOBV} />} />
+              <Route path="crm" element={<CRMView onNewOBV={handleNewOBV} />} />
+              <Route path="financiero" element={<FinancieroView onNewOBV={handleNewOBV} />} />
+              <Route path="meetings" element={<MeetingIntelligencePage />} />
+              <Route path="startup-os" element={<StartupOSView />} />
+              <Route path="exploration" element={<ExplorationDashboard />} />
+              <Route path="path-to-master" element={<PathToMasterPage />} />
+              <Route path="rankings" element={<RankingsView />} />
+              <Route path="masters" element={<MastersView />} />
+              <Route path="rotacion" element={<RoleRotationView />} />
+              <Route path="kpis" element={<KPIsView onNewOBV={handleNewOBV} />} />
+              <Route path="analytics" element={<AnalyticsView onNewOBV={handleNewOBV} />} />
+              <Route path="team-performance" element={<TeamPerformanceDashboard />} />
+              <Route path="settings" element={<SettingsView onNewOBV={handleNewOBV} />} />
+              <Route path="integrations" element={<IntegrationsView />} />
+              <Route path="notificaciones" element={<NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />} />
+            </Routes>
+          </Suspense>
         </main>
 
         {/* Global Search */}
         <GlobalSearch open={searchOpen} onOpenChange={(open) => open ? openSearch() : closeSearch()} />
+
+        {/* Welcome Modal - Onboarding */}
+        {!isLoadingOnboarding && (
+          <WelcomeModal
+            open={!hasCompletedOnboarding}
+            onComplete={completeOnboarding}
+          />
+        )}
       </div>
     </NavigationProvider>
   );

@@ -1,8 +1,18 @@
+/**
+ * CENTRO OBVs VIEW - Enterprise Edition
+ *
+ * Centro de gestión de OBVs (Objective-Based Validations).
+ * Recibe OBVs de Validaciones y genera tareas para el equipo.
+ */
+
 import { useState } from 'react';
 import { Loader2, FileCheck, CheckCircle, Clock, XCircle } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { OBVForm } from '@/components/nova/OBVForm';
 import { OBVValidationList } from '@/components/nova/OBVValidationList';
+import { AITaskExecutor } from '@/components/tasks/AITaskExecutor';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { OBVCenterPreviewModal } from '@/components/preview/OBVCenterPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -12,6 +22,7 @@ import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 const TABS = [
   { id: 'subir', label: '📤 Subir OBV' },
   { id: 'validar', label: '✅ Validar' },
+  { id: 'ai-executor', label: '✨ AI Executor' },
   { id: 'mis-obvs', label: '📋 Mis OBVs' },
   { id: 'todas', label: '📊 Todas' },
 ];
@@ -23,6 +34,7 @@ interface OBVCenterViewProps {
 export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const [activeTab, setActiveTab] = useState('subir');
   const [showForm, setShowForm] = useState(true);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const { profile } = useAuth();
 
   // Fetch user's OBVs
@@ -30,7 +42,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
     queryKey: ['my_obvs', profile?.id],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs_public')
+        .from('obvs')
         .select(`
           id, titulo, descripcion, tipo, fecha, status,
           es_venta, producto, evidence_url, project_id
@@ -60,7 +72,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
     queryKey: ['all_obvs'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('obvs_public')
+        .from('obvs')
         .select(`
           id, titulo, tipo, fecha, status, owner_id,
           es_venta
@@ -72,7 +84,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
       // Get profiles
       const { data: profiles } = await supabase
-        .from('members_public')
+        .from('members')
         .select('id, nombre, color');
 
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -108,15 +120,61 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Centro de OBVs" 
-        subtitle="Gestiona tus OBVs y validaciones" 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="Centro OBVs"
+        subtitle="Ejecuta objetivos validados y genera tareas para el equipo"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
-      <div className="p-8">
-        {/* Section Help */}
-        <SectionHelp section="obvs" variant="inline" />
+
+      <div className="p-8 space-y-6">
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Convierte objetivos validados en tareas ejecutables"
+          whatIsIt="Centro de ejecución donde creas OBVs (Objective-Based Validations) basadas en experimentos aprobados. Cada OBV se convierte en tareas asignadas al equipo. Sistema peer-to-peer: el equipo valida tus OBVs antes de ejecutarlas."
+          dataInputs={[
+            {
+              from: 'Validaciones',
+              items: [
+                'Experimentos aprobados por el equipo',
+                'Objetivos específicos (Ej: "100 leads en 2 semanas")',
+                'Criterios de éxito definidos',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Tareas',
+              items: [
+                'Tareas específicas por rol',
+                'Asignaciones automáticas según expertise',
+                'Deadlines basados en objetivos',
+              ],
+            },
+            {
+              to: 'CRM',
+              items: [
+                'Leads a contactar (si OBV es de ventas)',
+                'Scripts de prospección',
+                'Seguimiento de conversiones',
+              ],
+            },
+            {
+              to: 'KPIs',
+              items: [
+                'Métricas a trackear en tiempo real',
+                'Progress hacia objetivo',
+                'Alertas si vas retrasado',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Crea OBV → El equipo la valida → Se generan tareas automáticamente',
+            destination: 'Ejecuta tareas asignadas y trackea progreso en KPIs',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Tabs */}
         <div className="flex gap-1 bg-background p-1 rounded-xl mb-6 w-fit">
@@ -147,6 +205,11 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
         {/* Validar */}
         {activeTab === 'validar' && (
           <OBVValidationList />
+        )}
+
+        {/* AI Task Executor */}
+        {activeTab === 'ai-executor' && (
+          <AITaskExecutor />
         )}
 
         {/* Mis OBVs */}
@@ -280,6 +343,11 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
       </div>
 
       <HelpWidget section="obvs" />
+
+      <OBVCenterPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+      />
     </>
   );
 }

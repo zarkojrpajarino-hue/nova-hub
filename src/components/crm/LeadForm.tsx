@@ -1,16 +1,17 @@
-import { useState } from 'react';
-import { Loader2, Building2, Phone, Mail, Calendar, FileText, User } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Separator } from '@/components/ui/separator';
+import { PipelineStageForm } from './PipelineStageForm';
 import { leadService } from '@/services/LeadService';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
+import type { LeadStatus } from '@/types';
 
 export const PIPELINE_STAGES = [
   { id: 'frio', label: 'Frío', color: '#64748B' },
@@ -35,23 +36,72 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [currentStage, setCurrentStage] = useState<LeadStatus>(initialStatus as LeadStatus);
   const [formData, setFormData] = useState({
-    nombre: '',
+    // Project and responsable (not part of PipelineStageForm)
+    responsable_id: profile?.id || '',
+    project_id: projectId || '',
+    // Fields from PipelineStageForm
+    nombre_contacto: '',
     empresa: '',
-    email: '',
-    telefono: '',
-    status: initialStatus,
+    email_contacto: '',
+    telefono_contacto: '',
     valor_potencial: '',
     notas: '',
     proxima_accion: '',
     proxima_accion_fecha: '',
-    responsable_id: profile?.id || '',
-    project_id: projectId || '',
+    producto: '',
+    cantidad: '',
+    precio_unitario: '',
+    costes_estimados: '',
+    facturacion: '',
+    costes: '',
+    margen: '',
+    forma_pago: '',
+    numero_factura: '',
+    cobro_fecha_esperada: '',
   });
 
+  // Reset form when dialog opens
+  useEffect(() => {
+    if (open) {
+      setCurrentStage(initialStatus as LeadStatus);
+      setFormData({
+        responsable_id: profile?.id || '',
+        project_id: projectId || '',
+        nombre_contacto: '',
+        empresa: '',
+        email_contacto: '',
+        telefono_contacto: '',
+        valor_potencial: '',
+        notas: '',
+        proxima_accion: '',
+        proxima_accion_fecha: '',
+        producto: '',
+        cantidad: '',
+        precio_unitario: '',
+        costes_estimados: '',
+        facturacion: '',
+        costes: '',
+        margen: '',
+        forma_pago: '',
+        numero_factura: '',
+        cobro_fecha_esperada: '',
+      });
+    }
+  }, [open, initialStatus, profile?.id, projectId]);
+
+  const handleFieldChange = (field: string, value: any) => {
+    setFormData(prev => ({ ...prev, [field]: value }));
+  };
+
   const handleSubmit = async () => {
-    if (!formData.nombre.trim()) {
-      toast.error('El nombre es obligatorio');
+    if (!formData.nombre_contacto?.trim()) {
+      toast.error('El nombre del contacto es obligatorio');
+      return;
+    }
+    if (!formData.empresa?.trim()) {
+      toast.error('La empresa es obligatoria');
       return;
     }
     if (!formData.project_id) {
@@ -63,11 +113,11 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
 
     try {
       await leadService.create({
-        nombre: formData.nombre,
+        nombre: formData.nombre_contacto,
         empresa: formData.empresa || null,
-        email: formData.email || null,
-        telefono: formData.telefono || null,
-        status: formData.status as Database["public"]["Enums"]["lead_status"],
+        email: formData.email_contacto || null,
+        telefono: formData.telefono_contacto || null,
+        status: currentStage as Database["public"]["Enums"]["lead_status"],
         valor_potencial: formData.valor_potencial ? parseFloat(formData.valor_potencial) : null,
         notas: formData.notas || null,
         proxima_accion: formData.proxima_accion || null,
@@ -79,20 +129,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
       toast.success('Lead creado correctamente');
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
       queryClient.invalidateQueries({ queryKey: ['project_leads'] });
-      
-      setFormData({
-        nombre: '',
-        empresa: '',
-        email: '',
-        telefono: '',
-        status: 'frio',
-        valor_potencial: '',
-        notas: '',
-        proxima_accion: '',
-        proxima_accion_fecha: '',
-        responsable_id: profile?.id || '',
-        project_id: projectId || '',
-      });
+
       onOpenChange(false);
     } catch (error) {
       console.error('Error creating lead:', error);
@@ -104,188 +141,76 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Nuevo Lead</DialogTitle>
         </DialogHeader>
 
-        <div className="space-y-4 mt-4">
-          {/* Proyecto */}
-          {!projectId && (
+        <div className="space-y-6 mt-4">
+          {/* Metadata: Proyecto y Responsable */}
+          <div className="grid grid-cols-2 gap-4">
+            {/* Proyecto */}
+            {!projectId && (
+              <div>
+                <Label>Proyecto *</Label>
+                <Select
+                  value={formData.project_id}
+                  onValueChange={(v) => handleFieldChange('project_id', v)}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleccionar proyecto" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {projects.map((p) => (
+                      <SelectItem key={p.id} value={p.id}>
+                        {p.icon} {p.nombre}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            )}
+
+            {/* Responsable */}
             <div>
-              <Label>Proyecto *</Label>
-              <Select 
-                value={formData.project_id} 
-                onValueChange={(v) => setFormData({ ...formData, project_id: v })}
+              <Label>Responsable</Label>
+              <Select
+                value={formData.responsable_id}
+                onValueChange={(v) => handleFieldChange('responsable_id', v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar proyecto" />
+                  <SelectValue placeholder="Seleccionar responsable" />
                 </SelectTrigger>
                 <SelectContent>
-                  {projects.map((p) => (
-                    <SelectItem key={p.id} value={p.id}>
-                      {p.icon} {p.nombre}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-            </div>
-          )}
-
-          {/* Nombre y Empresa */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <User className="w-3.5 h-3.5" />
-                Nombre *
-              </Label>
-              <Input
-                value={formData.nombre}
-                onChange={(e) => setFormData({ ...formData, nombre: e.target.value })}
-                placeholder="Juan García"
-              />
-            </div>
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <Building2 className="w-3.5 h-3.5" />
-                Empresa
-              </Label>
-              <Input
-                value={formData.empresa}
-                onChange={(e) => setFormData({ ...formData, empresa: e.target.value })}
-                placeholder="Empresa S.L."
-              />
-            </div>
-          </div>
-
-          {/* Email y Teléfono */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <Mail className="w-3.5 h-3.5" />
-                Email
-              </Label>
-              <Input
-                type="email"
-                value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                placeholder="juan@empresa.com"
-              />
-            </div>
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <Phone className="w-3.5 h-3.5" />
-                Teléfono
-              </Label>
-              <Input
-                value={formData.telefono}
-                onChange={(e) => setFormData({ ...formData, telefono: e.target.value })}
-                placeholder="+34 600 000 000"
-              />
-            </div>
-          </div>
-
-          {/* Estado y Valor */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label>Estado</Label>
-              <Select 
-                value={formData.status} 
-                onValueChange={(v) => setFormData({ ...formData, status: v })}
-              >
-                <SelectTrigger>
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {PIPELINE_STAGES.map((s) => (
-                    <SelectItem key={s.id} value={s.id}>
+                  {members.map((m) => (
+                    <SelectItem key={m.id} value={m.id}>
                       <div className="flex items-center gap-2">
-                        <div 
-                          className="w-2 h-2 rounded-full"
-                          style={{ backgroundColor: s.color }}
+                        <div
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: m.color }}
                         />
-                        {s.label}
+                        {m.nombre}
                       </div>
                     </SelectItem>
                   ))}
                 </SelectContent>
               </Select>
             </div>
-            <div>
-              <Label>Valor Potencial (€)</Label>
-              <Input
-                type="number"
-                value={formData.valor_potencial}
-                onChange={(e) => setFormData({ ...formData, valor_potencial: e.target.value })}
-                placeholder="5000"
-              />
-            </div>
           </div>
 
-          {/* Responsable */}
-          <div>
-            <Label>Responsable</Label>
-            <Select 
-              value={formData.responsable_id} 
-              onValueChange={(v) => setFormData({ ...formData, responsable_id: v })}
-            >
-              <SelectTrigger>
-                <SelectValue placeholder="Seleccionar responsable" />
-              </SelectTrigger>
-              <SelectContent>
-                {members.map((m) => (
-                  <SelectItem key={m.id} value={m.id}>
-                    <div className="flex items-center gap-2">
-                      <div 
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: m.color }}
-                      />
-                      {m.nombre}
-                    </div>
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
+          <Separator />
 
-          {/* Próxima acción */}
-          <div className="grid grid-cols-2 gap-4">
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <FileText className="w-3.5 h-3.5" />
-                Próxima acción
-              </Label>
-              <Input
-                value={formData.proxima_accion}
-                onChange={(e) => setFormData({ ...formData, proxima_accion: e.target.value })}
-                placeholder="Llamar para seguimiento"
-              />
-            </div>
-            <div>
-              <Label className="flex items-center gap-1.5">
-                <Calendar className="w-3.5 h-3.5" />
-                Fecha
-              </Label>
-              <Input
-                type="date"
-                value={formData.proxima_accion_fecha}
-                onChange={(e) => setFormData({ ...formData, proxima_accion_fecha: e.target.value })}
-              />
-            </div>
-          </div>
+          {/* Dynamic Pipeline Form */}
+          <PipelineStageForm
+            currentStage={currentStage}
+            onStageChange={setCurrentStage}
+            formData={formData}
+            onChange={handleFieldChange}
+            showStageSelector={true}
+          />
 
-          {/* Notas */}
-          <div>
-            <Label>Notas</Label>
-            <Textarea
-              value={formData.notas}
-              onChange={(e) => setFormData({ ...formData, notas: e.target.value })}
-              placeholder="Notas adicionales sobre el lead..."
-              rows={3}
-            />
-          </div>
-
-          <div className="flex gap-3 pt-4">
+          {/* Action Buttons */}
+          <div className="flex gap-3 pt-4 border-t">
             <Button
               variant="outline"
               className="flex-1"

@@ -9,6 +9,8 @@ import { ValidationOrderCard } from '@/components/validation/ValidationOrderCard
 import { BlockedBanner } from '@/components/validation/BlockedBanner';
 import { ValidatorRankingCard } from '@/components/rankings/ValidatorRankingCard';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { KPIsPreviewModal } from '@/components/preview/KPIsPreviewModal';
 
 interface KPIsViewProps {
   onNewOBV?: () => void;
@@ -18,6 +20,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
   const { data: members = [], isLoading } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
   const [activeTab, setActiveTab] = useState('lp');
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Map objectives
   const objectivesMap = useMemo(() => {
@@ -69,15 +72,69 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Otros KPIs" 
-        subtitle="Learning Paths, Book Points y Community Points" 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="Otros KPIs"
+        subtitle="Trackea aprendizaje, lectura y participación del equipo en tiempo real"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
+
       <div className="p-8">
-        {/* Section Help */}
-        <SectionHelp section="kpis" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Sistema de métricas que trackea el crecimiento del equipo"
+          whatIsIt="Dashboard de KPIs de desarrollo personal y equipo que mide Learning Paths (cursos completados), Book Points (libros leídos), y Community Points (participación en eventos). Se actualiza automáticamente cuando el equipo completa OBVs de tipo aprendizaje o participación."
+          dataInputs={[
+            {
+              from: 'Centro OBVs',
+              items: [
+                'OBVs de tipo \"validación\" generan Learning Paths',
+                'OBVs con evidencia de lectura generan Book Points',
+                'OBVs de eventos/networking generan Community Points',
+              ],
+            },
+            {
+              from: 'Mi Desarrollo',
+              items: [
+                'Cursos completados (Learning Paths)',
+                'Libros leídos (Book Points)',
+                'Eventos asistidos (Community Points)',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Dashboard',
+              items: [
+                'KPIs consolidados del equipo',
+                'Progreso hacia objetivos mensuales',
+                'Vista general de desarrollo',
+              ],
+            },
+            {
+              to: 'Analytics',
+              items: [
+                'Tendencias de aprendizaje por persona',
+                'Correlación entre aprendizaje y performance',
+                'ROI de formación',
+              ],
+            },
+            {
+              to: 'Equipo',
+              items: [
+                'Rankings de desarrollo',
+                'Identificar top learners',
+                'Gaps de conocimiento del equipo',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Monitorea progreso del equipo → Identifica necesidades de formación',
+            destination: 'Usa Analytics para correlaciones, Equipo para ver perfiles individuales',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Blocked Banner */}
         <BlockedBanner />
@@ -219,6 +276,8 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
       </div>
 
       <HelpWidget section="kpis" />
+
+      <KPIsPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
 }

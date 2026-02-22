@@ -1,14 +1,17 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle, Sparkles } from 'lucide-react';
 import { useObjectives } from '@/hooks/useNovaData';
 import type { MemberStats } from '@/hooks/useNovaData';
 import { differenceInDays } from 'date-fns';
+import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
 interface PredictionsWidgetProps {
   members: MemberStats[];
   period: 'week' | 'month' | 'quarter' | 'year';
+  isDemoMode?: boolean;
 }
 
 interface Prediction {
@@ -22,8 +25,8 @@ interface Prediction {
   message: string;
 }
 
-export function PredictionsWidget({ members }: PredictionsWidgetProps) {
-  const { data: objectives = [] } = useObjectives();
+export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWidgetProps) {
+  const { data: objectives = [] } = useObjectives({ enabled: !isDemoMode });
 
   const predictions = useMemo((): Prediction[] => {
     // Calculate current totals
@@ -132,6 +135,92 @@ export function PredictionsWidget({ members }: PredictionsWidgetProps) {
   };
 
   // getProgressColor removed - not currently used
+
+  // 🎯 Si está en modo demo, mostrar predicciones perfectas
+  if (isDemoMode) {
+    const demoPred = PREMIUM_DEMO_DATA.analytics.predictions;
+
+    return (
+      <div className="space-y-6">
+        {/* Revenue Prediction Card */}
+        <Card className="border-2 border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5 text-primary" />
+              Predicción de Revenue IA
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <p className="text-sm text-muted-foreground">Proyección próximo mes</p>
+                <p className="text-3xl font-bold text-primary">
+                  ${(demoPred.next_month_revenue / 1000).toFixed(1)}K
+                </p>
+              </div>
+              <div className="text-right">
+                <p className="text-sm text-muted-foreground">Confianza</p>
+                <div className="flex items-center gap-2">
+                  <Progress value={demoPred.confidence} className="h-2 w-20" />
+                  <span className="text-lg font-semibold text-green-600">{demoPred.confidence}%</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">
+              <TrendingUp className="w-5 h-5 text-green-600" />
+              <span className="text-sm font-medium">Growth rate: +{demoPred.growth_rate}% vs last month</span>
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* AI Recommendations */}
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Sparkles className="w-5 h-5" />
+              Recomendaciones IA
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <p className="text-sm text-muted-foreground mb-4">
+              Basado en análisis predictivo de datos históricos y tendencias actuales
+            </p>
+
+            <div className="space-y-3">
+              {demoPred.recommendations.map((rec, idx) => (
+                <div
+                  key={idx}
+                  className="p-4 border rounded-lg hover-lift transition-all"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div className="flex items-start gap-3 flex-1">
+                      <span className="text-2xl">{rec.icon}</span>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-1">
+                          <h4 className="font-semibold">{rec.title}</h4>
+                          <Badge
+                            variant={rec.priority === 'high' ? 'destructive' : 'secondary'}
+                            className="text-xs"
+                          >
+                            {rec.priority === 'high' ? 'Alta prioridad' : 'Media prioridad'}
+                          </Badge>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
+                        <p className="text-xs font-medium text-primary">
+                          Impacto estimado: {rec.impact}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">

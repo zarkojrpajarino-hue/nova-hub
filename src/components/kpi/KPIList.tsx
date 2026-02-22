@@ -135,14 +135,7 @@ export function KPIList({ type }: KPIListProps) {
     window.open(url, '_blank');
   }, []);
 
-  if (isLoading) {
-    return (
-      <div className="flex items-center justify-center py-8">
-        <Loader2 className="w-6 h-6 animate-spin text-primary" />
-      </div>
-    );
-  }
-
+  // IMPORTANT: All hooks must be called before any conditional returns
   const parentRef = useRef<HTMLDivElement>(null);
 
   const virtualizer = useVirtualizer({

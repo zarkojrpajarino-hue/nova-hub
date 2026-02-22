@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2, Edit2 } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, FolderKanban, CheckCircle2, Plus, Loader2, Edit2, Sparkles } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
@@ -9,9 +9,12 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { MyTasksList } from '@/components/tasks/MyTasksList';
 import { TaskForm } from '@/components/tasks/TaskForm';
+import { AITaskRouter } from '@/components/tasks/AITaskRouter';
 import { useNavigate } from 'react-router-dom';
 import { KPIBaseEditor } from '@/components/kpi/KPIBaseEditor';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { MiEspacioPreviewModal } from '@/components/preview/MiEspacioPreviewModal';
 
 interface MiEspacioViewProps {
   onNewOBV?: () => void;
@@ -26,6 +29,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
   const { data: objectives = [] } = useObjectives();
   const { data: projectStats = [] } = useProjectStats();
   const [showTaskForm, setShowTaskForm] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Map objectives
   const objectivesMap = useMemo(() => {
@@ -76,14 +80,67 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Mi Espacio" 
-        subtitle={`Bienvenido, ${profile?.nombre || 'Usuario'}`} 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="Mi Espacio"
+        subtitle="Tu dashboard personal con KPIs, proyectos, tareas y validaciones pendientes"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
+
       <div className="p-8">
-        <SectionHelp section="mi-espacio" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Tu vista personal consolidada de todo lo que haces en Nova Hub"
+          whatIsIt="Dashboard individual que muestra TUS KPIs personales (OBVs completadas, Learning Paths, facturación generada, etc.), proyectos en los que participas con tu rol, tareas asignadas, y validaciones pendientes de revisar. Todo lo que necesitas ver para tu día a día."
+          dataInputs={[
+            {
+              from: 'Centro OBVs',
+              items: [
+                'TUS OBVs completadas (por tipo: exploración, validación, venta)',
+                'OBVs que necesitan tu validación',
+              ],
+            },
+            {
+              from: 'Proyectos',
+              items: [
+                'Proyectos en los que estás asignado',
+                'Tu rol en cada proyecto',
+                'Tareas pendientes por proyecto',
+              ],
+            },
+            {
+              from: 'KPIs',
+              items: [
+                'TUS Learning Paths completados',
+                'TUS Book Points acumulados',
+                'TUS Community Points',
+              ],
+            },
+            {
+              from: 'Financiero',
+              items: [
+                'Facturación generada por TI',
+                'Margen generado por TI',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Tu productividad',
+              items: [
+                'Qué tan cerca estás de tus objetivos mensuales',
+                'Qué tareas tienes pendientes hoy',
+                'Qué validaciones necesitan tu review',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Revisa tus KPIs → Completa tareas pendientes → Valida OBVs del equipo',
+            destination: 'Ve a Centro OBVs para subir nuevas OBVs, o a Proyectos para ver detalles',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Personal Stats */}
         <div className="flex items-center justify-between mb-4">
@@ -237,6 +294,17 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           </div>
         </div>
 
+        {/* AI Task Router */}
+        <div className="bg-card border border-border rounded-2xl overflow-hidden mb-6 animate-fade-in delay-3" style={{ opacity: 0 }}>
+          <div className="p-5 border-b border-border flex items-center gap-2.5">
+            <Sparkles size={18} className="text-primary" />
+            <h3 className="font-semibold">Rutear Tareas con IA</h3>
+          </div>
+          <div className="p-6">
+            <AITaskRouter />
+          </div>
+        </div>
+
         {/* Tasks & Validations */}
         <div className="grid grid-cols-2 gap-6">
           <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in delay-3" style={{ opacity: 0 }}>
@@ -273,6 +341,8 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           onOpenChange={setShowTaskForm}
         />
       )}
+
+      <MiEspacioPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
 
       <HelpWidget section="mi-espacio" />
     </>

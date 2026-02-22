@@ -671,13 +671,55 @@ export const HELP_PROYECTO_FINANCIERO: HelpContent = {
 
 export const HELP_PROYECTO_ONBOARDING: HelpContent = {
   title: 'Onboarding del Proyecto',
-  description: 'Proceso guiado para configurar completamente un nuevo proyecto: equipo, roles, objetivos y plan.',
-  howItWorks: 'Wizard de varios pasos que recopila toda la información necesaria para lanzar el proyecto correctamente.',
-  dataSource: 'Campo "onboarding_data" en tabla "projects" almacena respuestas. "onboarding_completed" indica si finalizó.',
+  description: 'Proceso guiado adaptativo según el estado de tu proyecto (Idea, Validación Temprana, Tracción o Consolidado). Cada fase tiene preguntas específicas para configurar el proyecto correctamente.',
+  howItWorks: 'Wizard de varios pasos que se adapta al estado de madurez del proyecto. En fase Idea te pregunta sobre el problema y validaciones. En fase Consolidado te pregunta sobre ARR y estructura organizativa.',
+  dataSource: 'Campo "onboarding_data" en tabla "projects" almacena respuestas. "project_state" determina qué flujo mostrar. "onboarding_completed" indica si finalizó.',
+  validation: 'Cada estado tiene validaciones específicas: Idea valida problema y equipo, Validación Temprana valida métricas de engagement, Tracción valida CAC y LTV, Consolidado valida ARR >€120k.',
   tips: [
-    'Completa todos los pasos para desbloquear el dashboard',
-    'Puedes editar las respuestas después',
-    'El onboarding define roles y responsabilidades iniciales',
+    'Selecciona el estado correcto - esto personaliza todo el proyecto',
+    'Las preguntas están diseñadas para cada fase del negocio',
+    'Puedes editar el onboarding después desde el menú del proyecto',
+    'La IA generará tareas específicas para tu estado',
+  ],
+};
+
+// ============================================
+// PROYECTO - SUBSECCIONES DETALLADAS
+// ============================================
+
+export const HELP_PROYECTO_DASHBOARD_OVERVIEW: HelpContent = {
+  title: 'Resumen del Proyecto - Dashboard',
+  description: 'Vista ejecutiva del proyecto con KPIs principales: progreso del equipo, OBVs generados, leads en pipeline, facturación y margen.',
+  howItWorks: 'Agrega automáticamente datos de todas las tablas relacionadas con este proyecto: métricas del equipo, OBVs validados, leads activos y transacciones financieras.',
+  dataSource: 'Vista "project_stats" que hace JOIN de projects + project_members + obvs + leads + transactions. Todo filtrado por project_id.',
+  tips: [
+    'Los números se actualizan en tiempo real cuando el equipo trabaja',
+    'Compara estas métricas con otros proyectos para identificar patrones',
+    'Las tarjetas son clicables para ver el detalle completo',
+  ],
+};
+
+export const HELP_PROYECTO_PIPELINE_VISUAL: HelpContent = {
+  title: 'Pipeline Visual del Proyecto',
+  description: 'Visualización del embudo de ventas específico de este proyecto: cuántos leads hay en cada etapa (Frío, Tibio, Caliente, Negociación, Cerrado).',
+  howItWorks: 'Cuenta los leads de la tabla "leads" agrupados por status. Muestra valor potencial total en cada etapa y tasa de conversión.',
+  dataSource: 'Tabla "leads" WHERE project_id = este proyecto. Cálculo: COUNT por status, SUM(valor_potencial) por etapa.',
+  tips: [
+    'Un embudo sano tiene distribución equilibrada en etapas tempranas',
+    'Si hay muchos en Negociación pero pocos en Caliente, el pipeline está débil',
+    'La tasa de conversión ideal es >20% de Frío a Cerrado',
+  ],
+};
+
+export const HELP_PROYECTO_TEAM_PERFORMANCE: HelpContent = {
+  title: 'Rendimiento del Equipo',
+  description: 'Métricas de performance de cada miembro del proyecto: OBVs generados, leads gestionados, tareas completadas y score de rendimiento.',
+  howItWorks: 'Cruza "project_members" con stats individuales de cada socio en este proyecto. El performance_score se calcula automáticamente por la función calculate_role_performance_score().',
+  dataSource: 'JOIN de project_members + member_stats + obvs (por owner) + leads (por responsable) + tasks (por assignee), todo filtrado por este project_id.',
+  tips: [
+    'El performance score considera múltiples factores según el rol',
+    'Comerciales se evalúan por leads y ventas cerradas',
+    'Técnicos se evalúan por tareas completadas a tiempo y OBVs de entrega',
   ],
 };
 
@@ -835,6 +877,9 @@ const helpMap: Record<string, HelpContent> = {
   'masters.aplicar': HELP_APLICAR_MASTER,
   'proyecto': HELP_PROYECTO,
   'proyecto.dashboard': HELP_PROYECTO_DASHBOARD,
+  'proyecto.dashboard.overview': HELP_PROYECTO_DASHBOARD_OVERVIEW,
+  'proyecto.dashboard.pipeline': HELP_PROYECTO_PIPELINE_VISUAL,
+  'proyecto.dashboard.team': HELP_PROYECTO_TEAM_PERFORMANCE,
   'proyecto.obvs': HELP_PROYECTO_OBV,
   'proyecto.equipo': HELP_PROYECTO_EQUIPO,
   'proyecto.tareas': HELP_PROYECTO_TAREAS,

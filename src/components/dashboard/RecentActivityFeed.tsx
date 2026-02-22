@@ -44,14 +44,8 @@ export function RecentActivityFeed() {
   const { data: activities = [], isLoading } = useQuery({
     queryKey: ['recent_activity'],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('activity_log')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(10);
-      
-      if (error) throw error;
-      return data;
+      // DISABLED: tabla activity_log no existe
+      return [];
     },
     refetchInterval: 120000, // Refresh every 2 minutes
     staleTime: 1000 * 60, // 1 minuto

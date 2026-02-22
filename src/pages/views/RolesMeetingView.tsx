@@ -6,6 +6,8 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { AIRoleQuestionsGenerator } from '@/components/roles/AIRoleQuestionsGenerator';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { CaminoMasterPreviewModal } from '@/components/preview/CaminoMasterPreviewModal';
 
 interface RolesMeetingViewProps {
   onNewOBV?: () => void;
@@ -23,6 +25,7 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
   const { data: projects = [] } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
   const [selectedRole, setSelectedRole] = useState<RoleContext | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const roles = Object.entries(ROLE_CONFIG);
 
@@ -64,14 +67,75 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Reuniones de Rol" 
-        subtitle="Descubre tu propósito profesional" 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="Reuniones de Rol"
+        subtitle="Sesiones cross-proyecto donde personas con el mismo rol comparten aprendizajes"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
+
       <div className="p-8">
-        <SectionHelp section="roles-meeting" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Reuniones periódicas por rol para compartir conocimiento entre proyectos"
+          whatIsIt="Sistema de reuniones mensuales donde todas las personas con el mismo rol (ej: todos los CMOs, todos los CTOs) de DIFERENTES proyectos se juntan para compartir aprendizajes, mejores prácticas, y resolver problemas comunes. Rompe silos entre proyectos y acelera aprendizaje cross-funcional. IA genera preguntas personalizadas para cada rol basadas en performance actual."
+          dataInputs={[
+            {
+              from: 'Proyectos',
+              items: [
+                'Quién tiene qué rol en cada proyecto',
+                'Contexto de cada proyecto (industria, fase, desafíos)',
+              ],
+            },
+            {
+              from: 'Mi Desarrollo',
+              items: [
+                'Tu Fit Score en tu rol actual',
+                'Áreas donde necesitas mejorar',
+                'Performance reciente (tareas, OBVs)',
+              ],
+            },
+            {
+              from: 'Rankings',
+              items: [
+                'Quién es top performer en cada rol',
+                'Métricas de performance por rol',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Aprendizaje acelerado',
+              items: [
+                'Mejores prácticas compartidas entre proyectos',
+                'Soluciones a problemas comunes del rol',
+                'Mentoría de top performers a novatos',
+              ],
+            },
+            {
+              to: 'Preguntas IA personalizadas',
+              items: [
+                'IA genera agenda para cada reunión basada en performance',
+                'Preguntas específicas según desafíos de cada miembro',
+                'Temas prioritarios por resolver',
+              ],
+            },
+            {
+              to: 'Red profesional',
+              items: [
+                'Conexiones con otros en tu rol',
+                'Potencial para colaboraciones cross-proyecto',
+                'Apoyo peer-to-peer',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Revisa próxima reunión de tu rol → Usa IA para generar preguntas → Asiste y comparte',
+            destination: 'Aprendizajes se reflejan en Mi Desarrollo, mejoras en Rankings',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Banner */}
         <div className="nova-gradient-subtle nova-border rounded-2xl p-6 mb-8 flex items-center gap-5 animate-fade-in">
@@ -158,6 +222,12 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
       <AIRoleQuestionsGenerator
         role={selectedRole}
         onClose={() => setSelectedRole(null)}
+      />
+
+      {/* Preview Modal */}
+      <CaminoMasterPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
       />
 
       <HelpWidget section="roles-meeting" />

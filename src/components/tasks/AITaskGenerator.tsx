@@ -9,6 +9,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { EvidenceAIGenerator } from '@/components/evidence';
+import { useAuth } from '@/hooks/useAuth';
 
 interface GeneratedTask {
   assignee: string;
@@ -55,6 +57,8 @@ const PRIORITY_CONFIG: Record<number, { label: string; color: string }> = {
 
 export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
+
   const [isOpen, setIsOpen] = useState(false);
   const [isGenerating, setIsGenerating] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -79,82 +83,50 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
 
   const canGenerateMore = pendingAITasks < 5;
 
-  const handleGenerate = async () => {
-    setIsGenerating(true);
-    setError(null);
-    setGeneratedTasks([]);
+  const handleGenerationComplete = (result: any) => {
+    setIsGenerating(false);
 
-    try {
-      // Use generate-tasks-v2 which includes playbooks
-      const { data, error: funcError } = await supabase.functions.invoke('generate-tasks-v2', {
-        body: {
-          projectId: project.id
-        }
-      });
+    if (result.error) {
+      setError(result.error);
+      return;
+    }
 
-      if (funcError) {
-        const errorMessage = funcError.message || '';
-        if (errorMessage.includes('429') || funcError.context?.status === 429) {
-          setError('Has excedido el límite de solicitudes. Por favor espera unos minutos antes de intentar de nuevo.');
-          return;
-        }
-        if (errorMessage.includes('402') || funcError.context?.status === 402) {
-          setError('Créditos de IA agotados. Contacta al administrador para recargar.');
-          return;
-        }
-        throw funcError;
-      }
+    const savedTasks = result.content?.tasks || [];
 
-      if (data?.error) {
-        if (data.error.includes('429') || data.error.includes('límite')) {
-          setError('Has excedido el límite de solicitudes. Por favor espera unos minutos.');
-        } else if (data.error.includes('402') || data.error.includes('Créditos')) {
-          setError('Créditos de IA agotados. Contacta al administrador.');
-        } else {
-          setError(data.error);
-        }
-        return;
-      }
+    if (savedTasks.length === 0) {
+      setError('No se pudieron generar tareas. Asegúrate de que el proyecto tenga miembros asignados.');
+      return;
+    }
 
-      // generate-tasks-v2 saves tasks directly, so we just show success
-      const savedTasks = data?.tasks || [];
-      
-      if (savedTasks.length === 0) {
-        setError('No se pudieron generar tareas. Asegúrate de que el proyecto tenga miembros asignados.');
-        return;
-      }
+    // Transform saved tasks to display format
+    const displayTasks = savedTasks.map((t: SavedTask) => ({
+      assignee: t.assignee_id ? (project.team.find(m => m.id === t.assignee_id)?.nombre || 'Sin asignar') : 'Sin asignar',
+      titulo: t.titulo,
+      descripcion: t.descripcion || '',
+      prioridad: t.prioridad || 2,
+      fecha_limite: t.fecha_limite || new Date().toISOString().split('T')[0],
+      hasPlaybook: !!t.playbook,
+      selected: true,
+      saved: true,
+    }));
 
-      // Transform saved tasks to display format
-      const displayTasks = savedTasks.map((t: SavedTask) => ({
-        assignee: t.assignee_id ? (project.team.find(m => m.id === t.assignee_id)?.nombre || 'Sin asignar') : 'Sin asignar',
-        titulo: t.titulo,
-        descripcion: t.descripcion || '',
-        prioridad: t.prioridad || 2,
-        fecha_limite: t.fecha_limite || new Date().toISOString().split('T')[0],
-        hasPlaybook: !!t.playbook,
-        selected: true,
-        saved: true, // Already saved by v2
-      }));
+    setGeneratedTasks(displayTasks);
 
-      setGeneratedTasks(displayTasks);
-      
-      toast.success(`${savedTasks.length} tareas creadas con IA (con Playbook)`);
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', project.id] });
-      queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
-      queryClient.invalidateQueries({ queryKey: ['pending_ai_tasks', project.id] });
+    toast.success(`${savedTasks.length} tareas creadas con IA (con Playbook)`);
+    queryClient.invalidateQueries({ queryKey: ['project_tasks', project.id] });
+    queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
+    queryClient.invalidateQueries({ queryKey: ['pending_ai_tasks', project.id] });
+  };
 
-    } catch (err) {
-      console.error('Error generating tasks:', err);
-      const error = err as { status?: number; message?: string };
-      if (error.status === 429) {
-        setError('Has excedido el límite de solicitudes. Espera unos minutos.');
-      } else if (error.status === 402) {
-        setError('Créditos de IA agotados. Contacta al administrador.');
-      } else {
-        setError('Error al conectar con el servicio de IA. Por favor, inténtalo de nuevo.');
-      }
-    } finally {
-      setIsGenerating(false);
+  const handleGenerationError = (error: Error) => {
+    setIsGenerating(false);
+    const errorMessage = error.message || '';
+    if (errorMessage.includes('429')) {
+      setError('Has excedido el límite de solicitudes. Espera unos minutos.');
+    } else if (errorMessage.includes('402')) {
+      setError('Créditos de IA agotados. Contacta al administrador.');
+    } else {
+      setError('Error al conectar con el servicio de IA. Por favor, inténtalo de nuevo.');
     }
   };
 
@@ -176,31 +148,36 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
 
   return (
     <>
-      <Button 
-        variant="outline" 
-        onClick={() => {
-          if (!canGenerateMore) {
-            toast.error('Completa las tareas pendientes antes de generar más');
-            return;
-          }
-          setIsOpen(true);
-          handleGenerate();
-        }}
-        className={cn("gap-2", !canGenerateMore && "opacity-70")}
-        disabled={!canGenerateMore}
-      >
-        {!canGenerateMore ? (
+      {!canGenerateMore ? (
+        <Button
+          variant="outline"
+          onClick={() => toast.error('Completa las tareas pendientes antes de generar más')}
+          className="gap-2 opacity-70"
+          disabled={true}
+        >
           <Lock className="w-4 h-4" />
-        ) : (
-          <Bot className="w-4 h-4" />
-        )}
-        <span className="hidden sm:inline">
-          {canGenerateMore ? 'Generar tareas con IA' : `${pendingAITasks}/5 pendientes`}
-        </span>
-        <span className="sm:hidden">
-          {canGenerateMore ? 'IA' : `${pendingAITasks}/5`}
-        </span>
-      </Button>
+          <span className="hidden sm:inline">{pendingAITasks}/5 pendientes</span>
+          <span className="sm:hidden">{pendingAITasks}/5</span>
+        </Button>
+      ) : (
+        <EvidenceAIGenerator
+          functionName="generate-tasks-v2"
+          evidenceProfile="tasks"
+          projectId={project.id}
+          userId={user?.id || ''}
+          buttonLabel="Generar tareas con IA"
+          buttonVariant="outline"
+          buttonClassName="gap-2"
+          additionalParams={{
+            projectId: project.id,
+          }}
+          onGenerationComplete={(result) => {
+            setIsOpen(true);
+            handleGenerationComplete(result);
+          }}
+          onError={handleGenerationError}
+        />
+      )}
 
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="max-w-2xl max-h-[85vh] overflow-hidden flex flex-col">

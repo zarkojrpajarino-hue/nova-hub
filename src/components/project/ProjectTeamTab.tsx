@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Users, Crown } from 'lucide-react';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
@@ -19,7 +20,7 @@ interface ProjectTeamTabProps {
   teamMembers: TeamMemberDisplay[];
 }
 
-export function ProjectTeamTab({ project, teamMembers }: ProjectTeamTabProps) {
+function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) {
   // Group by role
   const membersByRole = teamMembers.reduce((acc: Record<string, TeamMemberDisplay[]>, member: TeamMemberDisplay) => {
     if (!acc[member.role]) acc[member.role] = [];
@@ -125,3 +126,6 @@ export function ProjectTeamTab({ project, teamMembers }: ProjectTeamTabProps) {
     </div>
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectTeamTab = memo(ProjectTeamTabComponent);

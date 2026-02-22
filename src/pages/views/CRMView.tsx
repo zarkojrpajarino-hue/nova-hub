@@ -1,43 +1,38 @@
+/**
+ * CRM VIEW - Enterprise Edition
+ *
+ * Sistema de gestión de leads y ventas.
+ * Recibe buyer personas de Proyectos y genera pipeline de ventas.
+ * SIN datos demo - Solo datos reales.
+ */
+
 import { useState, useMemo } from 'react';
-import { Loader2, LayoutDashboard, Kanban, List, Users, TrendingUp, Target, DollarSign } from 'lucide-react';
+import { Loader2, LayoutDashboard, Kanban, List, Users, TrendingUp, Target, DollarSign, Brain, Sparkles, Mail } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { usePipelineGlobal, useProjects, useProfiles } from '@/hooks/useNovaData';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
 import { CRMFilters } from '@/components/crm/CRMFilters';
+import { AILeadScoring } from '@/components/crm/AILeadScoring';
+import { AILeadFinder } from '@/components/crm/AILeadFinder';
+import { EmailPitchGenerator } from '@/components/crm/EmailPitchGenerator';
+import { HowItWorks } from '@/components/ui/how-it-works';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_LEADS, DEMO_PROJECTS, DEMO_MEMBERS } from '@/data/demoData';
 import { ExportButton } from '@/components/export/ExportButton';
+import { CRMPreviewModal } from '@/components/preview/CRMPreviewModal';
 
 interface CRMViewProps {
   onNewOBV?: () => void;
 }
 
 export function CRMView({ onNewOBV }: CRMViewProps) {
-  const { isDemoMode } = useDemoMode();
-  const { data: realLeads = [], isLoading: loadingLeads } = usePipelineGlobal();
-  const { data: realProjects = [], isLoading: loadingProjects } = useProjects();
-  const { data: realProfiles = [], isLoading: loadingProfiles } = useProfiles();
+  const { data: leads = [], isLoading: loadingLeads } = usePipelineGlobal();
+  const { data: projects = [], isLoading: loadingProjects } = useProjects();
+  const { data: profiles = [], isLoading: loadingProfiles } = useProfiles();
 
-  // Use demo data when in demo mode
-  const leads = isDemoMode ? DEMO_LEADS.map(l => ({
-    id: l.id,
-    nombre: l.nombre,
-    empresa: l.empresa,
-    status: l.status,
-    valor_potencial: l.valor,
-    project_id: DEMO_PROJECTS.find(p => p.nombre === l.proyecto)?.id || 'p1',
-    responsable_id: DEMO_MEMBERS.find(m => m.nombre === l.responsable)?.id || '1',
-    proxima_accion: l.proxima_accion,
-  })) : realLeads;
-
-  const projects = isDemoMode ? DEMO_PROJECTS : realProjects;
-  const profiles = isDemoMode ? DEMO_MEMBERS : realProfiles;
-
-  const [viewMode, setViewMode] = useState<'overview' | 'pipeline' | 'lista'>('overview');
+  const [viewMode, setViewMode] = useState<'overview' | 'pipeline' | 'lista' | 'insights' | 'ai-finder' | 'email-pitch'>('overview');
   const [filters, setFilters] = useState({
     project: 'all',
     responsable: 'all',
@@ -45,8 +40,9 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
     minValue: '',
     maxValue: '',
   });
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  const isLoading = (loadingLeads || loadingProjects || loadingProfiles) && !isDemoMode;
+  const isLoading = loadingLeads || loadingProjects || loadingProfiles;
 
   // Apply filters
   const filteredLeads = leads.filter(lead => {
@@ -98,14 +94,61 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="CRM Global" 
-        subtitle="Pipeline de todos los proyectos" 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="CRM Global"
+        subtitle="Gestiona leads usando buyer personas y value props generados por IA"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
+
       <div className="p-8 space-y-6">
-        <SectionHelp section="crm" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="CRM inteligente que usa datos de tu proyecto para cerrar ventas"
+          whatIsIt="Sistema de gestión de leads que usa buyer personas y value propositions generadas por IA en Proyectos. Cada lead se compara automáticamente con tu cliente ideal y recibe el mensaje de valor correcto. IA sugiere próximos pasos y prioriza leads con mayor probabilidad de conversión."
+          dataInputs={[
+            {
+              from: 'Proyectos',
+              items: [
+                'Buyer Personas (cliente ideal con pain points)',
+                'Value Propositions (por qué comprar tu producto)',
+                'Battle Cards (cómo competir vs competidores)',
+              ],
+            },
+            {
+              from: 'Centro OBVs',
+              items: [
+                'OBVs de tipo "venta" generan leads automáticamente',
+                'Objetivos de ventas (Ej: "10 demos cerradas")',
+                'Scripts de prospección',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Financiero',
+              items: [
+                'Revenue proyectado (pipeline value)',
+                'Deals cerrados (revenue real)',
+                'Forecast mensual',
+              ],
+            },
+            {
+              to: 'KPIs',
+              items: [
+                'Tasa de conversión por etapa',
+                'Tiempo promedio de cierre',
+                'Valor promedio de deal',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Gestiona pipeline → Cierra deals',
+            destination: 'Revenue aparece en FINANCIERO, métricas en KPIs',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
           <TabsList className="mb-6">
@@ -120,6 +163,18 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             <TabsTrigger value="lista" className="flex items-center gap-2">
               <List size={16} />
               Lista Detallada
+            </TabsTrigger>
+            <TabsTrigger value="ai-finder" className="flex items-center gap-2">
+              <Sparkles size={16} />
+              AI Lead Finder
+            </TabsTrigger>
+            <TabsTrigger value="email-pitch" className="flex items-center gap-2">
+              <Mail size={16} />
+              Email Pitch IA
+            </TabsTrigger>
+            <TabsTrigger value="insights" className="flex items-center gap-2">
+              <Brain size={16} />
+              Insights IA
             </TabsTrigger>
           </TabsList>
 
@@ -341,10 +396,23 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
               />
             </div>
           </TabsContent>
+
+          <TabsContent value="ai-finder">
+            <AILeadFinder />
+          </TabsContent>
+
+          <TabsContent value="email-pitch">
+            <EmailPitchGenerator />
+          </TabsContent>
+
+          <TabsContent value="insights">
+            <AILeadScoring leads={filteredLeads} />
+          </TabsContent>
         </Tabs>
       </div>
 
       <HelpWidget section="crm" />
+      <CRMPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
 }

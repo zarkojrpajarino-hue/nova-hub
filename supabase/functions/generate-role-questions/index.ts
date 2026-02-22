@@ -54,7 +54,7 @@ Deno.serve(async (req) => {
       return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
 
-    const LOVABLE_API_KEY = requireEnv("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = requireEnv("ANTHROPIC_API_KEY");
 
     // Parse and validate request body
     const body = await req.json();
@@ -110,50 +110,23 @@ Formato JSON (array):
   {"pregunta": "texto de la pregunta", "objetivo": "qué busca explorar esta pregunta"}
 ]`;
 
-    console.log('Calling AI gateway...');
+    console.log('Calling Claude API...');
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "google/gemini-3-flash-preview",
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 2048,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: "user", content: userPrompt }
         ],
         temperature: 0.8,
-        tools: [
-          {
-            type: "function",
-            function: {
-              name: "generate_questions",
-              description: "Generate discussion questions for a role meeting",
-              parameters: {
-                type: "object",
-                properties: {
-                  questions: {
-                    type: "array",
-                    items: {
-                      type: "object",
-                      properties: {
-                        pregunta: { type: "string", description: "The discussion question in Spanish" },
-                        objetivo: { type: "string", description: "What this question aims to explore" }
-                      },
-                      required: ["pregunta", "objetivo"],
-                      additionalProperties: false
-                    }
-                  }
-                },
-                required: ["questions"],
-                additionalProperties: false
-              }
-            }
-          }
-        ],
-        tool_choice: { type: "function", function: { name: "generate_questions" } }
       }),
     });
 
@@ -180,32 +153,21 @@ Formato JSON (array):
     }
 
     const aiResponse = await response.json();
-    console.log('AI response received');
+    console.log('Claude response received');
 
-    // Extract questions from tool call
+    // Extract questions from Claude response
     let questions: Array<{ pregunta: string; objetivo: string }> = [];
-    
-    const toolCall = aiResponse.choices?.[0]?.message?.tool_calls?.[0];
-    if (toolCall?.function?.arguments) {
-      try {
-        const parsed = JSON.parse(toolCall.function.arguments);
-        questions = parsed.questions || [];
-      } catch (e) {
-        console.error('Error parsing tool call arguments');
-      }
-    }
 
-    // Fallback: try to parse from content if tool call failed
-    if (questions.length === 0 && aiResponse.choices?.[0]?.message?.content) {
-      try {
-        const content = aiResponse.choices[0].message.content;
-        const jsonMatch = content.match(/\[[\s\S]*\]/);
-        if (jsonMatch) {
-          questions = JSON.parse(jsonMatch[0]);
-        }
-      } catch (e) {
-        console.error('Error parsing content fallback');
+    const content = aiResponse.content?.[0]?.text || '';
+
+    // Parse JSON from Claude response
+    try {
+      const jsonMatch = content.match(/\[[\s\S]*\]/);
+      if (jsonMatch) {
+        questions = JSON.parse(jsonMatch[0]);
       }
+    } catch (e) {
+      console.error('Error parsing Claude response');
     }
 
     console.log('Generated questions:', questions.length);

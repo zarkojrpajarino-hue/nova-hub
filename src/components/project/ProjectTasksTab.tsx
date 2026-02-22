@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -16,7 +17,7 @@ interface ProjectTasksTabProps {
   };
 }
 
-export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
+function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) {
   const { data: profiles = [] } = useProfiles();
 
   // Get project members with roles
@@ -118,3 +119,6 @@ export function ProjectTasksTab({ projectId, project }: ProjectTasksTabProps) {
     </div>
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectTasksTab = memo(ProjectTasksTabComponent);

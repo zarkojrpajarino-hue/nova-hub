@@ -14,39 +14,27 @@ import { ActivityHeatmap } from '@/components/analytics/ActivityHeatmap';
 import { PredictionsWidget } from '@/components/analytics/PredictionsWidget';
 import { AnalyticsFilters } from '@/components/analytics/AnalyticsFilters';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_MEMBERS, DEMO_PROJECTS } from '@/data/demoData';
+import { HowItWorks } from '@/components/ui/how-it-works';
 import { ExportButton } from '@/components/export/ExportButton';
+import { AnalyticsPreviewModal } from '@/components/preview/AnalyticsPreviewModal';
 
 interface AnalyticsViewProps {
   onNewOBV?: () => void;
+  isDemoMode?: boolean; // Viene de FeatureGate cuando está bloqueado
 }
 
-export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
-  const { isDemoMode } = useDemoMode();
+// Componente interno que renderiza el contenido
+function AnalyticsContent({ onNewOBV, isDemoMode = false }: AnalyticsViewProps) {
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
   const [showFilters, setShowFilters] = useState(false);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
-  const { data: realMembers = [] } = useMemberStats();
-  const { data: realProjects = [] } = useProjects();
-  const { data: realProjectStats = [] } = useProjectStats();
-
-  // Use demo data when in demo mode
-  const members = isDemoMode ? DEMO_MEMBERS : realMembers;
-  const projects = isDemoMode ? DEMO_PROJECTS : realProjects;
-  const projectStats = isDemoMode ? DEMO_PROJECTS.map(p => ({
-    id: p.id,
-    nombre: p.nombre,
-    color: p.color,
-    num_members: p.num_members || 0,
-    total_obvs: p.total_obvs || 0,
-    total_leads: p.total_leads || 0,
-    leads_ganados: p.leads_ganados || 0,
-    margen: p.margen || 0,
-    facturacion: p.facturacion || 0,
-  })) : realProjectStats;
+  // Real data hooks
+  const { data: members = [] } = useMemberStats();
+  const { data: projects = [] } = useProjects();
+  const { data: projectStats = [] } = useProjectStats();
 
   const handleExportCSV = (data: unknown[], filename: string) => {
     if (!data.length) return;
@@ -81,14 +69,65 @@ export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Analytics" 
-        subtitle="Análisis avanzado y comparativas" 
-        onNewOBV={onNewOBV} 
-      />
-      
-      <div className="p-8 space-y-6">
-        <SectionHelp section="analytics" variant="inline" />
+      <NovaHeader
+          title="Analytics"
+          subtitle="Deep dives en métricas con comparativas, correlaciones y predicciones IA"
+          onNewOBV={onNewOBV}
+          showBackButton={true}
+        />
+
+        <div className="p-8 space-y-6">
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Dashboards detallados con métricas avanzadas, reportes personalizados y exportación de datos"
+          whatIsIt="Herramienta de business intelligence que cruza datos de todas las secciones para encontrar patrones, correlaciones y tendencias. Compara socios, proyectos, analiza evolución temporal, y usa IA para predecir revenue futuro, riesgos, y recomendar acciones."
+          onViewPreview={() => setShowPreviewModal(true)}
+          premiumFeature="advanced_analytics"
+          requiredPlan="advanced"
+          dataInputs={[
+            {
+              from: 'Todas las secciones',
+              items: [
+                'Dashboard → KPIs consolidados de toda la organización',
+                'Centro OBVs → Actividad y productivity del equipo',
+                'CRM → Pipeline, conversiones, y revenue',
+                'Financiero → MRR, growth rate, márgenes',
+                'KPIs → Learning Paths, Book Points, Community Points',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Decisiones estratégicas',
+              items: [
+                'Qué socio tiene mejor performance (y por qué)',
+                'Qué proyecto es más rentable',
+                'Correlaciones: ¿Más learning = más revenue?',
+              ],
+            },
+            {
+              to: 'Predicciones IA',
+              items: [
+                'Revenue proyectado próximos 3 meses',
+                'Riesgo de incumplimiento de objetivos',
+                'Recomendaciones de acciones a tomar',
+              ],
+            },
+            {
+              to: 'Reportes',
+              items: [
+                'Exportar comparativas a Excel/PDF',
+                'Dashboards personalizados por período',
+                'Visualizaciones para investors',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Explora comparativas → Identifica patrones → Toma decisiones data-driven',
+            destination: 'Aplica insights en Proyectos, Equipo, o Financiero según hallazgos',
+          }}
+        />
 
         {/* Global Filters Bar */}
         <Card>
@@ -305,9 +344,18 @@ export function AnalyticsView({ onNewOBV }: AnalyticsViewProps) {
             <PredictionsWidget members={members} period={period} />
           </TabsContent>
         </Tabs>
-      </div>
+        </div>
 
-      <HelpWidget section="analytics" />
+        <HelpWidget section="analytics" />
+
+        {/* Analytics Preview Modal */}
+        <AnalyticsPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
+}
+
+// Componente principal exportado SIN FeatureGate
+// Analytics es accesible para todos, solo muestra datos si los hay
+export function AnalyticsView(props: AnalyticsViewProps) {
+  return <AnalyticsContent {...props} />;
 }

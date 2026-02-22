@@ -61,7 +61,7 @@ export function useValidationOrder() {
       
       // Enrich with profile data
       const { data: profiles } = await supabase
-        .from('members_public')
+        .from('members')
         .select('id, nombre, color, avatar');
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);
@@ -92,7 +92,7 @@ export function useMyValidators(userId?: string) {
       if (validatorIds.length === 0) return [];
       
       const { data: profiles } = await supabase
-        .from('members_public')
+        .from('members')
         .select('id, nombre, color, avatar')
         .in('id', validatorIds);
       
@@ -174,7 +174,7 @@ export function useMyPendingValidations() {
         
         // Get owner info
         const { data: owner } = await supabase
-          .from('members_public')
+          .from('members')
           .select('nombre, color')
           .eq('id', pv.owner_id)
           .single();
@@ -194,7 +194,7 @@ export function useMyPendingValidations() {
           item.titulo = kpi?.titulo;
         } else if (pv.obv_id) {
           const { data: obv } = await supabase
-            .from('obvs_public')
+            .from('obvs')
             .select('titulo')
             .eq('id', pv.obv_id)
             .single();
@@ -224,7 +224,7 @@ export function useAllValidatorStats() {
       
       // Enrich with profile data
       const { data: profiles } = await supabase
-        .from('members_public')
+        .from('members')
         .select('id, nombre, color, avatar');
       
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);

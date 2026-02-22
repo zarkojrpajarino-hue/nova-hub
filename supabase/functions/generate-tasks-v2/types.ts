@@ -7,6 +7,7 @@ export interface Project {
   fase: string;
   tipo: string;
   onboarding_data: OnboardingData | null;
+  project_state?: 'idea' | 'validacion_temprana' | 'traccion' | 'consolidado' | null;
 }
 
 export interface OnboardingData {
@@ -70,6 +71,7 @@ export interface ProjectContext {
     descripcion: string;
     fase: string;
     tipo: string;
+    project_state?: 'idea' | 'validacion_temprana' | 'traccion' | 'consolidado' | null;
   };
   onboarding: {
     problema: string;

@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { Loader2 } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -29,7 +30,7 @@ export interface Lead {
   updated_at: string | null;
 }
 
-export function ProjectCRMTab({ projectId, projectName }: ProjectCRMTabProps) {
+function ProjectCRMTabComponent({ projectId, projectName }: ProjectCRMTabProps) {
   const { data: profiles = [] } = useProfiles();
 
   // Fetch project leads
@@ -93,3 +94,6 @@ export function ProjectCRMTab({ projectId, projectName }: ProjectCRMTabProps) {
     />
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectCRMTab = memo(ProjectCRMTabComponent);

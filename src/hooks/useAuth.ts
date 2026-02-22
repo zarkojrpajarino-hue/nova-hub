@@ -23,31 +23,38 @@ export function useAuth() {
     let sessionChecked = false;
 
     const fetchProfile = async (authId: string) => {
-      const timeoutPromise = new Promise<never>((_, reject) =>
-        setTimeout(() => reject(new Error('Profile fetch timeout')), 10000)
-      );
-
       try {
-        const { data, error } = await Promise.race([
-          supabase
-            .from('members_public')
-            .select('*')
-            .eq('auth_id', authId)
-            .single(),
-          timeoutPromise
-        ]);
+        console.log('🔍 [1] Starting fetchProfile for auth_id:', authId);
+
+        // Test: Can we connect to Supabase at all?
+        console.log('🔍 [1.5] Testing basic Supabase connection...');
+        const { data: testSession } = await supabase.auth.getSession();
+        console.log('🔍 [1.6] Auth session check:', testSession ? 'SUCCESS' : 'FAILED');
+
+        console.log('🔍 [2] Building query...');
+
+        const query = supabase
+          .from('members')
+          .select('*')
+          .eq('auth_id', authId)
+          .single();
+
+        console.log('🔍 [3] Query built, executing...');
+        const { data, error } = await query;
+        console.log('🔍 [4] Query completed. Data:', data, 'Error:', error);
 
         if (error) {
-          console.error('Error fetching profile:', error);
+          console.error('❌ Error fetching profile:', error);
           if (isMounted) setProfile(null);
           return;
         }
 
+        console.log('✅ Profile loaded successfully:', data);
         if (isMounted && data) {
           setProfile(data as Profile);
         }
       } catch (error) {
-        console.error('Error fetching profile:', error);
+        console.error('❌ Exception in fetchProfile:', error);
         if (isMounted) setProfile(null);
       }
     };

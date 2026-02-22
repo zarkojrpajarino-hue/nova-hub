@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { OnboardingWizard } from '@/components/onboarding/OnboardingWizard';
 import { OnboardingSummary } from '@/components/onboarding/OnboardingSummary';
 import type { OnboardingData } from '@/components/onboarding/types';
@@ -16,7 +16,7 @@ interface ProjectOnboardingTabProps {
   isCompleted: boolean;
 }
 
-export function ProjectOnboardingTab({ project, isCompleted }: ProjectOnboardingTabProps) {
+function ProjectOnboardingTabComponent({ project, isCompleted }: ProjectOnboardingTabProps) {
   const [isEditing, setIsEditing] = useState(false);
 
   // If completed and not editing, show summary
@@ -44,3 +44,6 @@ export function ProjectOnboardingTab({ project, isCompleted }: ProjectOnboarding
     </div>
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectOnboardingTab = memo(ProjectOnboardingTabComponent);

@@ -1,18 +1,28 @@
+/**
+ * FINANCIERO VIEW - Enterprise Edition
+ *
+ * Control de revenue, costos y rentabilidad.
+ * Recibe datos de CRM (deals cerrados) y Productos (pricing).
+ */
+
 import { useState } from 'react';
 import { TrendingUp, Wallet, PieChart as PieChartIcon, BarChart3, Loader2, Clock, Receipt, Target } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
+import { HowItWorks } from '@/components/ui/how-it-works';
 import { cn } from '@/lib/utils';
 import { RevenueEvolutionChart } from '@/components/financiero/RevenueEvolutionChart';
 import { ProjectBreakdownChart } from '@/components/financiero/ProjectBreakdownChart';
 import { PendingPaymentsCard } from '@/components/financiero/PendingPaymentsCard';
 import { FinancialAlertsCard } from '@/components/financiero/FinancialAlertsCard';
+import { AIForecastWidget } from '@/components/financiero/AIForecastWidget';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
-import { SectionHelp } from '@/components/ui/section-help';
+import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { useFinancieroData } from '@/hooks/useFinancieroData';
 import { ExportButton } from '@/components/export/ExportButton';
+import { FinancieroPreviewModal } from '@/components/preview/FinancieroPreviewModal';
 
 interface FinancieroViewProps {
   onNewOBV?: () => void;
@@ -20,6 +30,7 @@ interface FinancieroViewProps {
 
 export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   const [viewMode, setViewMode] = useState<'dashboard' | 'cobros' | 'proyecciones'>('dashboard');
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   const {
     isLoading,
@@ -51,14 +62,69 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
 
   return (
     <>
-      <NovaHeader 
-        title="Financiero" 
-        subtitle="Control de facturación y márgenes" 
-        onNewOBV={onNewOBV} 
+      <NovaHeader
+        title="Financiero"
+        subtitle="Revenue, costos y rentabilidad consolidada de todos los proyectos"
+        onNewOBV={onNewOBV}
+        showBackButton={true}
       />
-      
+
       <div className="p-8 space-y-6">
-        <SectionHelp section="financiero" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Centro financiero que consolida revenue de todos tus proyectos"
+          whatIsIt="Dashboard financiero que agrega automáticamente revenue de deals cerrados en CRM, multiplica por pricing de productos, y calcula márgenes. IA proyecta revenue futuro basado en pipeline actual y tendencias históricas."
+          dataInputs={[
+            {
+              from: 'CRM Global',
+              items: [
+                'Deals cerrados (revenue real)',
+                'Pipeline value (revenue proyectado)',
+                'Forecast mensual',
+              ],
+            },
+            {
+              from: 'Proyectos',
+              items: [
+                'Productos con pricing',
+                'Modelo de monetización',
+                'Cost structure estimada',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'KPIs',
+              items: [
+                'MRR (Monthly Recurring Revenue)',
+                'Growth rate mensual',
+                'Burn rate y runway',
+              ],
+            },
+            {
+              to: 'Analytics',
+              items: [
+                'Rentabilidad por proyecto',
+                'Revenue breakdown por producto',
+                'Cohort analysis',
+              ],
+            },
+            {
+              to: 'Decisiones',
+              items: [
+                'Cuánto dinero queda (runway)',
+                'Proyectos más rentables',
+                '¿Necesitas fundraising?',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Monitorea cashflow y proyecciones',
+            destination: 'Usa KPIs para trackear crecimiento, Analytics para deep dives',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
           <TabsList className="mb-6">
@@ -280,6 +346,9 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
           </TabsContent>
 
           <TabsContent value="proyecciones" className="space-y-6">
+            {/* AI Forecast Widget */}
+            <AIForecastWidget />
+
             {/* Proyección anual */}
             <Card>
               <CardHeader>
@@ -341,6 +410,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
       </div>
 
       <HelpWidget section="financiero" />
+      <FinancieroPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
 }

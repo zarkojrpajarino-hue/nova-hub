@@ -2,11 +2,19 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, LayoutDashboard, Users, Kanban, FileCheck,
-  TrendingUp, Rocket, Target, Loader2, Settings
+  TrendingUp, Rocket, Target, Loader2, Settings, MoreVertical, Trash2, Sparkles
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { DeleteProjectDialog } from '@/components/projects/DeleteProjectDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { useProjects, useProjectMembers, useMemberStats, useProjectStats, usePipelineGlobal, type ProjectStat } from '@/hooks/useNovaData';
+import { useProjects, useProjectTeamMembers, useProjectStats, useProjectLeads } from '@/hooks/useNovaDataOptimized';
 import { useAuth } from '@/hooks/useAuth';
 import { ProjectDashboardTab } from '@/components/project/ProjectDashboardTab';
 import { ProjectTeamTab } from '@/components/project/ProjectTeamTab';
@@ -16,6 +24,9 @@ import { ProjectOBVsTab } from '@/components/project/ProjectOBVsTab';
 import { ProjectFinancialTab } from '@/components/project/ProjectFinancialTab';
 import { ProjectOnboardingTab } from '@/components/project/ProjectOnboardingTab';
 import { OnboardingGate } from '@/components/project/OnboardingGate';
+import { ProjectHelpMenu } from '@/components/project/ProjectHelpMenu';
+import { HelpWidget } from '@/components/ui/section-help';
+import { GeneratedBusinessDashboard } from '@/components/generative/GeneratedBusinessDashboard';
 // RoleAcceptanceGate eliminado - los roles se auto-aceptan tras onboarding
 
 const TABS = [
@@ -25,6 +36,7 @@ const TABS = [
   { id: 'tareas', label: 'Tareas', icon: Kanban },
   { id: 'obvs', label: 'OBVs', icon: FileCheck },
   { id: 'financiero', label: 'Financiero', icon: TrendingUp },
+  { id: 'negocio-ia', label: 'Negocio IA', icon: Sparkles },
   { id: 'onboarding', label: 'Onboarding', icon: Rocket },
 ];
 
@@ -35,34 +47,26 @@ export default function ProjectPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
 
   const { data: projects = [], isLoading: loadingProject } = useProjects();
-  const { data: projectMembers = [] } = useProjectMembers();
-  const { data: members = [] } = useMemberStats();
-  const { data: projectStats = [] } = useProjectStats();
-  const { data: allLeads = [] } = usePipelineGlobal();
+
+  // ✨ OPTIMIZADO: Usar hooks específicos por proyecto en lugar de globales
+  const { data: teamMembersData = [] } = useProjectTeamMembers(projectId);
+  const { data: stats } = useProjectStats(projectId);
+  const { data: projectLeads = [] } = useProjectLeads(projectId);
 
   const project = projects.find(p => p.id === projectId);
-  const stats = projectStats.find((s: ProjectStat) => s.id === projectId);
-  
-  // Get project members with their info
-  const teamMembers = useMemo(() => {
-    return projectMembers
-      .filter(pm => pm.project_id === projectId)
-      .map(pm => {
-        const member = members.find(m => m.id === pm.member_id);
-        return member ? {
-          ...member,
-          member_id: pm.member_id,
-          role: pm.role,
-          isLead: pm.is_lead,
-          role_accepted: pm.role_accepted,
-          role_responsibilities: pm.role_responsibilities,
-        } : null;
-      })
-      .filter(Boolean);
-  }, [projectMembers, members, projectId]);
 
-  // Get project leads
-  const projectLeads = allLeads.filter(l => l.project_id === projectId);
+  // ✨ OPTIMIZADO: Ya no necesitamos useMemo porque los datos ya vienen unidos
+  // teamMembersData ya incluye member info gracias al JOIN en la query
+  const teamMembers = useMemo(() => {
+    return teamMembersData.map(tm => ({
+      ...tm.member,
+      member_id: tm.member_id,
+      role: tm.role,
+      isLead: tm.is_lead,
+      role_accepted: tm.role_accepted,
+      role_responsibilities: tm.role_responsibilities,
+    }));
+  }, [teamMembersData]);
 
   // Check if current user is a member
   const isProjectMember = teamMembers.some(m => m?.id === profile?.id);
@@ -93,27 +97,29 @@ export default function ProjectPage() {
   }
 
   // GATE 1: Onboarding not complete → show onboarding wizard
+  // TEMPORALMENTE DESHABILITADO PARA TESTING
+  /*
   if (!isOnboardingComplete) {
     return (
       <div className="min-h-screen bg-background">
         <header className="sticky top-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border">
           <div className="max-w-7xl mx-auto px-6 py-4">
             <div className="flex items-center gap-4">
-              <Button 
-                variant="ghost" 
+              <Button
+                variant="ghost"
                 size="icon"
                 onClick={() => navigate('/')}
               >
                 <ArrowLeft size={20} />
               </Button>
-              
-              <div 
+
+              <div
                 className="w-12 h-12 rounded-xl flex items-center justify-center text-2xl"
                 style={{ background: `${project.color}20` }}
               >
                 {project.icon}
               </div>
-              
+
               <div className="flex-1">
                 <h1 className="text-xl font-bold">{project.nombre}</h1>
                 <p className="text-sm text-muted-foreground">
@@ -127,6 +133,7 @@ export default function ProjectPage() {
       </div>
     );
   }
+  */
 
   // GATE 2: Eliminado - los roles se auto-aceptan tras completar onboarding
 
@@ -175,10 +182,40 @@ export default function ProjectPage() {
               </div>
             </div>
 
+            {/* Help Menu */}
+            <ProjectHelpMenu />
+
             {isProjectMember && (
-              <Button variant="outline" size="icon">
-                <Settings size={18} />
-              </Button>
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="outline" size="icon">
+                    <MoreVertical size={18} />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-56">
+                  <DropdownMenuItem
+                    onClick={() => setActiveTab('onboarding')}
+                    className="cursor-pointer"
+                  >
+                    <Rocket size={16} className="mr-2" />
+                    Editar Onboarding
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
+                  <DeleteProjectDialog
+                    projectId={project.id}
+                    projectName={project.nombre}
+                    trigger={
+                      <DropdownMenuItem
+                        className="cursor-pointer text-destructive focus:text-destructive"
+                        onSelect={(e) => e.preventDefault()}
+                      >
+                        <Trash2 size={16} className="mr-2" />
+                        Eliminar Proyecto
+                      </DropdownMenuItem>
+                    }
+                  />
+                </DropdownMenuContent>
+              </DropdownMenu>
             )}
           </div>
         </div>
@@ -187,7 +224,7 @@ export default function ProjectPage() {
       {/* Content */}
       <main className="max-w-7xl mx-auto px-6 py-6">
         <Tabs value={activeTab} onValueChange={setActiveTab}>
-          <TabsList className="grid grid-cols-7 mb-6">
+          <TabsList className="grid grid-cols-8 mb-6">
             {TABS.map(tab => (
               <TabsTrigger 
                 key={tab.id} 
@@ -232,20 +269,26 @@ export default function ProjectPage() {
           </TabsContent>
 
           <TabsContent value="financiero">
-            <ProjectFinancialTab 
+            <ProjectFinancialTab
               project={project}
               stats={stats}
             />
           </TabsContent>
 
+          <TabsContent value="negocio-ia">
+            <GeneratedBusinessDashboard />
+          </TabsContent>
+
           <TabsContent value="onboarding">
-            <ProjectOnboardingTab 
+            <ProjectOnboardingTab
               project={project}
               isCompleted={project.onboarding_completed}
             />
           </TabsContent>
         </Tabs>
       </main>
+
+      <HelpWidget section="project" />
     </div>
   );
 }

@@ -1,11 +1,20 @@
+/**
+ * VALIDACIONES VIEW - Enterprise Edition
+ *
+ * Sistema de validación peer-to-peer para OBVs y KPIs.
+ * Recibe experimentos de Proyectos y genera OBVs validadas.
+ */
+
 import { useState } from 'react';
-import { CheckCircle, Shield, History, AlertCircle, Loader2 } from 'lucide-react';
+import { CheckCircle, Shield, History, AlertCircle, Loader2, X } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { OBVValidationList } from '@/components/nova/OBVValidationList';
 import { KPIValidationList } from '@/components/kpi/KPIValidationList';
+import { HowItWorks } from '@/components/ui/how-it-works';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
 import { BlockedBanner } from '@/components/validation/BlockedBanner';
+import { ValidacionesPreviewModal } from '@/components/preview/ValidacionesPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,6 +26,7 @@ interface ValidacionesViewProps {
 export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('obvs');
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Contar validaciones pendientes de OBVs
   const { data: pendingOBVs = [] } = useQuery({
@@ -147,13 +157,59 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
     <>
       <NovaHeader
         title="Validaciones"
-        subtitle="Valida OBVs y KPIs de tus compañeros"
+        subtitle="Valida tu idea con experimentos Lean Startup antes de gastar dinero"
         onNewOBV={onNewOBV}
+        showBackButton={true}
       />
 
-      <div className="p-8">
-        {/* Section Help */}
-        <SectionHelp section="validaciones" variant="inline" />
+      <div className="p-8 space-y-6">
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Valida tu startup con experimentos antes de invertir mucho"
+          whatIsIt="Sistema de validación peer-to-peer donde el equipo revisa y aprueba OBVs (Objectives-Based Validations) y KPIs. Basado en metodología Lean Startup: testea hipótesis con clientes reales antes de construir el producto completo."
+          dataInputs={[
+            {
+              from: 'Proyectos',
+              items: [
+                'Experimentos de validación sugeridos por IA',
+                'Hipótesis a testear (Ej: "Clientes pagarían $X")',
+                'Criterios de éxito predefinidos',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Centro OBVs',
+              items: [
+                'OBVs validadas y aprobadas por el equipo',
+                'Objetivos concretos (Ej: "100 leads en 2 semanas")',
+                'Tareas específicas para ejecutar',
+              ],
+            },
+            {
+              to: 'KPIs',
+              items: [
+                'Métricas a trackear',
+                'Criterios de éxito/fallo',
+                'Dashboard de progreso',
+              ],
+            },
+            {
+              to: 'Decisiones',
+              items: [
+                'Datos para decidir: ¿Pivotar o Perseverar?',
+                'Aprendizajes validados',
+                'Próximos experimentos',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Crea OBVs basadas en experimentos sugeridos',
+            destination: 'Ve a CENTRO OBVs para ejecutar y trackear progreso',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Blocked Banner */}
         <BlockedBanner />
@@ -327,6 +383,11 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
       </div>
 
       <HelpWidget section="validaciones" />
+
+      <ValidacionesPreviewModal
+        open={showPreviewModal}
+        onOpenChange={setShowPreviewModal}
+      />
     </>
   );
 }

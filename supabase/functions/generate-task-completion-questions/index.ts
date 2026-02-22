@@ -60,7 +60,7 @@ Deno.serve(async (req) => {
       return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
 
-    const LOVABLE_API_KEY = requireEnv("LOVABLE_API_KEY");
+    const ANTHROPIC_API_KEY = requireEnv("ANTHROPIC_API_KEY");
 
     // Parse and validate request body
     const body = await req.json();
@@ -118,17 +118,19 @@ ${Object.keys(metadata).length > 0 ? `Contexto adicional:
 
 Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
 
-    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+    const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
-        Authorization: `Bearer ${LOVABLE_API_KEY}`,
         "Content-Type": "application/json",
+        "x-api-key": ANTHROPIC_API_KEY,
+        "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "google/gemini-2.5-flash",
+        model: "claude-3-5-sonnet-20241022",
+        max_tokens: 1024,
+        system: systemPrompt,
         messages: [
-          { role: "system", content: systemPrompt },
-          { role: "user", content: userPrompt },
+          { role: "user", content: userPrompt }
         ],
         temperature: 0.7,
       }),
@@ -158,7 +160,7 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
     }
 
     const aiResponse = await response.json();
-    const content = aiResponse.choices?.[0]?.message?.content || '';
+    const content = aiResponse.content?.[0]?.text || '';
 
     // Parse the response
     let questions: Question[] = [];

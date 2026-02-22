@@ -2,6 +2,7 @@ import { CheckCircle2, FileCheck, Users, Target, ArrowUp, ArrowDown, Minus } fro
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
+import { InfoTooltip, METRIC_TOOLTIPS } from '@/components/ui/info-tooltip';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { RolePerformance } from '@/hooks/useDevelopment';
 
@@ -76,7 +77,10 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <CheckCircle2 size={18} className="mx-auto mb-1 text-success" />
             <p className="text-lg font-bold">{performance.task_completion_rate}%</p>
-            <p className="text-[10px] text-muted-foreground uppercase">Tareas</p>
+            <div className="flex items-center justify-center gap-1">
+              <p className="text-[10px] text-muted-foreground uppercase">Tareas</p>
+              <InfoTooltip {...METRIC_TOOLTIPS.tasksOnTime} iconSize={12} />
+            </div>
             <p className="text-xs text-muted-foreground">
               {performance.completed_tasks}/{performance.total_tasks}
             </p>
@@ -85,7 +89,10 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <FileCheck size={18} className="mx-auto mb-1 text-primary" />
             <p className="text-lg font-bold">{performance.validated_obvs}</p>
-            <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+            <div className="flex items-center justify-center gap-1">
+              <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+              <InfoTooltip {...METRIC_TOOLTIPS.obvs} iconSize={12} />
+            </div>
             <p className="text-xs text-muted-foreground">
               €{performance.total_facturacion.toFixed(0)}
             </p>
@@ -94,7 +101,10 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
           <div className="bg-muted/50 rounded-lg p-3 text-center">
             <Users size={18} className="mx-auto mb-1 text-amber-500" />
             <p className="text-lg font-bold">{performance.lead_conversion_rate}%</p>
-            <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
+            <div className="flex items-center justify-center gap-1">
+              <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
+              <InfoTooltip {...METRIC_TOOLTIPS.leadConversion} iconSize={12} />
+            </div>
             <p className="text-xs text-muted-foreground">
               {performance.leads_ganados}/{performance.total_leads}
             </p>

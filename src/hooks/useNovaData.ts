@@ -83,10 +83,10 @@ export function useProfiles() {
     queryKey: ['profiles'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('members_public')
+        .from('members')
         .select('*')
         .order('nombre');
-      
+
       if (error) throw error;
       return data as Profile[];
     },

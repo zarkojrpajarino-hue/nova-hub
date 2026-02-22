@@ -36,7 +36,7 @@ export default function Auth() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
@@ -74,12 +74,12 @@ export default function Auth() {
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
             <div className="w-12 h-12 nova-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse-glow">
-              N
+              O
             </div>
-            <span className="text-3xl font-bold tracking-tight">NOVA</span>
+            <span className="text-3xl font-bold tracking-tight">OPTIMUS-K</span>
           </div>
           <p className="text-muted-foreground">
-            Plataforma de gestión para emprendedores LEINN
+            Plataforma de gestión estratégica para emprendedores
           </p>
         </div>
 
@@ -143,7 +143,7 @@ export default function Auth() {
           </form>
 
           <p className="mt-6 text-center text-xs text-muted-foreground">
-            Acceso exclusivo para miembros del equipo NOVA
+            Acceso para emprendedores estratégicos
           </p>
         </div>
 

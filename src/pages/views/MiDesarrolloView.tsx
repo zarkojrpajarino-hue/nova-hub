@@ -1,5 +1,7 @@
-import { useState, useMemo } from 'react';
-import { Loader2, TrendingUp, Lightbulb, BookOpen, Trophy, Target } from 'lucide-react';
+import { useState, useMemo, useEffect } from 'react';
+import { Loader2, TrendingUp, Lightbulb, BookOpen, Trophy, Target, Sparkles, GraduationCap } from 'lucide-react';
+import { BadgesList } from '@/components/exploration/BadgesList';
+import { supabase } from '@/integrations/supabase/client';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,73 +13,42 @@ import { useProjectMembers, type ProjectMember } from '@/hooks/useNovaData';
 import { RolePerformanceCard } from '@/components/development/RolePerformanceCard';
 import { InsightsList } from '@/components/development/InsightsList';
 import { PlaybookViewer } from '@/components/development/PlaybookViewer';
+import { MentorChat } from '@/components/coach/MentorChat';
+import { LearningPathList } from '@/components/learning/LearningPathList';
+import { LearningPathViewer } from '@/components/learning/LearningPathViewer';
+import { LearningPathGenerator } from '@/components/learning/LearningPathGenerator';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { SectionHelp, HelpWidget } from '@/components/ui/section-help';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { DEMO_PERFORMANCES, DEMO_PROJECT_MEMBERS, DEMO_ROLE_RANKINGS } from '@/data/demoData';
+import { HowItWorks } from '@/components/ui/how-it-works';
+import { MiDesarrolloPreviewModal } from '@/components/preview/MiDesarrolloPreviewModal';
 
 export function MiDesarrolloView() {
-  const { isDemoMode } = useDemoMode();
   const { profile } = useAuth();
-  const { data: realPerformances = [], isLoading: loadingPerformance } = useRolePerformance(profile?.id);
-  const { data: realProjectMembers = [] } = useProjectMembers();
-  const { data: realRankings = [] } = useRoleRankings();
-  
+
+  // Only real data - no demo mode
+  const { data: performances = [], isLoading: loadingPerformance } = useRolePerformance(profile?.id);
+  const { data: projectMembers = [] } = useProjectMembers();
+  const { data: rankings = [] } = useRoleRankings();
+
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [activeTab, setActiveTab] = useState('rendimiento');
-
-  // Use demo data when in demo mode - show Zarko's data
-  const demoUserId = isDemoMode ? '1' : profile?.id;
-  const performances: RolePerformance[] = isDemoMode ? DEMO_PERFORMANCES.filter(p => p.user_id === '1').map(p => ({
-    user_id: p.user_id,
-    project_id: p.project_id,
-    role_name: p.role_name,
-    performance_score: p.performance_score,
-    task_completion_rate: p.task_completion_rate,
-    total_tasks: p.total_tasks,
-    completed_tasks: p.completed_tasks,
-    total_obvs: p.total_obvs,
-    validated_obvs: p.validated_obvs,
-    total_facturacion: p.total_facturacion,
-    total_leads: p.total_leads,
-    leads_ganados: p.leads_ganados,
-    project_name: p.project_name,
-    user_name: p.user_name,
-    is_lead: true,
-    role_accepted: true,
-    role_accepted_at: '2025-09-01',
-    role_responsibilities: null,
-    lead_conversion_rate: p.lead_conversion_rate || 0,
-    joined_at: p.joined_at || '2025-09-01',
-  })) : realPerformances;
-
-  const projectMembers: ProjectMember[] = isDemoMode ? DEMO_PROJECT_MEMBERS : realProjectMembers;
-  const rankings: RoleRanking[] = isDemoMode ? DEMO_ROLE_RANKINGS.map(r => ({
-    id: r.id,
-    user_id: r.user_id,
-    role_name: r.role_name,
-    project_id: r.project_id,
-    ranking_position: r.ranking_position,
-    previous_position: r.previous_position,
-    score: r.score,
-    period_start: '2026-01-01',
-    period_end: '2026-01-31',
-    calculated_at: '2026-01-21',
-    metrics: null,
-  })) : realRankings;
+  const [badges, setBadges] = useState<any>({ earned: [], all: [] });
+  const [learningPathView, setLearningPathView] = useState<'list' | 'viewer' | 'generator'>('list');
+  const [selectedPathId, setSelectedPathId] = useState<string | null>(null);
+  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Get user's roles
   const userRoles = useMemo(() => {
     const roles = projectMembers
-      .filter((pm: ProjectMember) => pm.member_id === demoUserId)
+      .filter((pm: ProjectMember) => pm.member_id === profile?.id)
       .map((pm: ProjectMember) => pm.role);
     return [...new Set(roles)] as string[];
-  }, [projectMembers, demoUserId]);
+  }, [projectMembers, profile?.id]);
 
   // Get rankings for current user
   const userRankings = useMemo(() => {
     return rankings.reduce((acc: Record<string, { position: number; previousPosition: number | null }>, r: RoleRanking) => {
-      if (r.user_id === demoUserId) {
+      if (r.user_id === profile?.id) {
         acc[`${r.role_name}-${r.project_id}`] = {
           position: r.ranking_position,
           previousPosition: r.previous_position,
@@ -85,7 +56,7 @@ export function MiDesarrolloView() {
       }
       return acc;
     }, {} as Record<string, { position: number; previousPosition: number | null }>);
-  }, [rankings, demoUserId]);
+  }, [rankings, profile?.id]);
 
   // Calculate overall stats
   const overallStats = useMemo(() => {
@@ -99,6 +70,62 @@ export function MiDesarrolloView() {
     return { avgTaskRate, totalOBVs, totalFacturacion, avgScore };
   }, [performances]);
 
+  useEffect(() => {
+    if (profile?.id) {
+      loadBadges();
+    }
+  }, [profile]);
+
+  const loadBadges = async () => {
+    try {
+      const { data: member } = await supabase
+        .from('members')
+        .select('id')
+        .eq('auth_id', profile!.id)
+        .single();
+
+      if (!member) return;
+
+      const { data: earned } = await supabase
+        .from('member_badges')
+        .select('*')
+        .eq('member_id', member.id);
+
+      const { data: all } = await supabase
+        .from('badge_definitions')
+        .select('*')
+        .order('badge_category, points_value', { ascending: false });
+
+      setBadges({ earned: earned || [], all: all || [] });
+    } catch (error) {
+      console.error('Error loading badges:', error);
+    }
+  };
+
+  // Learning Path handlers
+  const handleSelectPath = (pathId: string) => {
+    setSelectedPathId(pathId);
+    setLearningPathView('viewer');
+  };
+
+  const handleGenerateNew = () => {
+    setLearningPathView('generator');
+  };
+
+  const handleBackToList = () => {
+    setLearningPathView('list');
+    setSelectedPathId(null);
+  };
+
+  const handlePathGenerated = (pathId: string) => {
+    setSelectedPathId(pathId);
+    setLearningPathView('viewer');
+  };
+
+  // Get current role for coach context
+  const currentRole = userRoles.length > 0 ? userRoles[0] : undefined;
+  const currentFitScore = performances.length > 0 ? performances[0].performance_score : undefined;
+
   if (loadingPerformance) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -109,13 +136,76 @@ export function MiDesarrolloView() {
 
   return (
     <>
-      <NovaHeader 
-        title="Mi Desarrollo" 
-        subtitle="Rendimiento, aprendizajes y crecimiento profesional" 
+      <NovaHeader
+        title="Mi Desarrollo"
+        subtitle="Trackea tu performance por rol, recibe insights IA, y accede a playbooks personalizados"
+        showBackButton={true}
       />
-      
+
       <div className="p-8">
-        <SectionHelp section="mi-desarrollo" variant="inline" />
+        {/* How it works */}
+        <HowItWorks
+          title="Cómo funciona"
+          description="Sistema de desarrollo profesional que mide tu performance por rol"
+          whatIsIt="Plataforma de growth personal que analiza tu rendimiento en CADA rol que desempeñas (CEO, CTO, CMO, etc.). Calcula tu Fit Score basado en tareas completadas, OBVs validadas, y resultados financieros. IA compara tu performance con el top 10% y sugiere acciones para mejorar. Playbooks personalizados por rol con best practices."
+          dataInputs={[
+            {
+              from: 'Proyectos',
+              items: [
+                'Roles asignados en cada proyecto',
+                'Tareas completadas por rol',
+                'Resultados financieros por proyecto',
+              ],
+            },
+            {
+              from: 'Centro OBVs',
+              items: [
+                'OBVs completadas por ti',
+                'OBVs validadas (quality score)',
+                'Objetivos cumplidos',
+              ],
+            },
+            {
+              from: 'KPIs',
+              items: [
+                'Learning Paths completados',
+                'Book Points acumulados',
+                'Community Points',
+              ],
+            },
+          ]}
+          dataOutputs={[
+            {
+              to: 'Fit Score por rol',
+              items: [
+                'Puntuación 0-100% de tu performance en cada rol',
+                'Comparativa con top performers',
+                'Ranking dentro del proyecto',
+              ],
+            },
+            {
+              to: 'Insights IA',
+              items: [
+                'Qué estás haciendo bien (fortalezas)',
+                'Áreas de mejora específicas',
+                'Acciones recomendadas para subir tu Fit Score',
+              ],
+            },
+            {
+              to: 'Playbooks personalizados',
+              items: [
+                'Best practices para tu rol (ej: cómo hacer growth hacking si eres CMO)',
+                'Templates y frameworks específicos',
+                'Recursos de aprendizaje curados',
+              ],
+            },
+          ]}
+          nextStep={{
+            action: 'Revisa tu Fit Score → Lee insights → Aplica playbook → Mejora performance',
+            destination: 'Usa KPIs para trackear progreso, Mi Espacio para ver tareas',
+          }}
+          onViewPreview={() => setShowPreviewModal(true)}
+        />
 
         {/* Overall Stats */}
         {overallStats && (
@@ -185,6 +275,18 @@ export function MiDesarrolloView() {
               <TabsTrigger value="playbook" className="gap-2">
                 <BookOpen size={16} />
                 Playbook
+              </TabsTrigger>
+              <TabsTrigger value="coach" className="gap-2">
+                <Sparkles size={16} />
+                Coach IA
+              </TabsTrigger>
+              <TabsTrigger value="learning-paths" className="gap-2">
+                <GraduationCap size={16} />
+                Learning Paths
+              </TabsTrigger>
+              <TabsTrigger value="logros" className="gap-2">
+                <Trophy size={16} />
+                Logros
               </TabsTrigger>
             </TabsList>
 
@@ -290,10 +392,43 @@ export function MiDesarrolloView() {
               </div>
             )}
           </TabsContent>
+
+          {/* Coach IA Tab */}
+          <TabsContent value="coach">
+            <MentorChat currentRole={currentRole} fitScore={currentFitScore} />
+          </TabsContent>
+
+          {/* Learning Paths Tab */}
+          <TabsContent value="learning-paths">
+            {learningPathView === 'list' && (
+              <LearningPathList
+                onSelectPath={handleSelectPath}
+                onGenerateNew={handleGenerateNew}
+              />
+            )}
+            {learningPathView === 'viewer' && selectedPathId && (
+              <LearningPathViewer
+                pathId={selectedPathId}
+                onBack={handleBackToList}
+              />
+            )}
+            {learningPathView === 'generator' && (
+              <LearningPathGenerator
+                onComplete={handlePathGenerated}
+                onCancel={handleBackToList}
+              />
+            )}
+          </TabsContent>
+
+          {/* Logros */}
+          <TabsContent value="logros">
+            <BadgesList earnedBadges={badges.earned} allBadges={badges.all} />
+          </TabsContent>
         </Tabs>
       </div>
 
       <HelpWidget section="mi-desarrollo" />
+      <MiDesarrolloPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
 }

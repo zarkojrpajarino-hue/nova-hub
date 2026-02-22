@@ -1,28 +1,39 @@
+/**
+ * 🤖 GENERATE PROJECT ROLES (v2)
+ *
+ * Edge Function que genera roles personalizados con OpenAI
+ * basados en el proyecto, industria, idea de negocio y work mode
+ *
+ * NUEVA LÓGICA:
+ * - NO usa roles predefinidos
+ * - Genera roles 100% personalizados con IA
+ * - Guarda en tabla project_roles
+ * - Respeta límites del plan de suscripción
+ */
+
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { ProjectRolesRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
-// Available roles
-const AVAILABLE_ROLES = ['sales', 'finance', 'ai_tech', 'marketing', 'operations', 'strategy'] as const
+const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
-interface ProjectNested {
-  nombre: string;
-}
-
-interface RoleAssignment {
-  member_id: string;
-  role: string;
+interface GenerateRolesRequest {
   project_id: string;
-  projects: ProjectNested;
+  project_name: string;
+  industry: string;
+  business_idea: string;
+  work_mode: 'individual' | 'team_small' | 'team_established' | 'no_roles';
 }
 
-interface MemberRoleHistory {
-  member_id: string
-  email: string
-  nombre: string
-  current_roles: { project_id: string; project_name: string; role: string }[]
+interface GeneratedRole {
+  role_name: string;
+  description: string;
+  responsibilities: string[];
+  required_skills: string[];
+  experience_level: 'entry' | 'mid' | 'senior' | 'expert';
+  department: string;
+  is_critical: boolean;
 }
 
 Deno.serve(async (req) => {
@@ -45,7 +56,7 @@ Deno.serve(async (req) => {
 
     const supabaseUrl = requireEnv('SUPABASE_URL');
     const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    
+
     const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
       global: { headers: { Authorization: authHeader } }
     });
@@ -53,7 +64,7 @@ Deno.serve(async (req) => {
     // Verify the user token
     const token = authHeader.replace('Bearer ', '');
     const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    
+
     if (claimsError || !claims?.claims) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
@@ -74,18 +85,17 @@ Deno.serve(async (req) => {
       return createRateLimitResponse(rateLimitResult, corsHeaders);
     }
 
-    // Parse and validate request body
-    const body = await req.json();
-    const validation = await validateRequestSafe(ProjectRolesRequestSchema, body);
+    // Parse request body
+    const body: GenerateRolesRequest = await req.json();
+    const { project_id, project_name, industry, business_idea, work_mode } = body;
 
-    if (!validation.success) {
-      return new Response(
-        JSON.stringify({ error: validation.error }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Validate required fields
+    if (!project_id || !project_name || !industry || !business_idea || !work_mode) {
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
+        status: 400,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
-
-    const { project_id, onboarding_data } = validation.data;
 
     // Use service role for data operations
     const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
@@ -93,282 +103,253 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
-    // Get the project
-    const { data: project, error: projectError } = await supabaseAdmin
-      .from('projects')
-      .select('id, nombre, tipo, onboarding_data')
-      .eq('id', project_id)
-      .single()
+    // No generar roles si work_mode es 'no_roles'
+    if (work_mode === 'no_roles') {
+      await supabaseAdmin
+        .from('projects')
+        .update({
+          ai_roles_generated: true,
+          onboarding_completed: true,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', project_id);
 
-    if (projectError || !project) {
-      return new Response(
-        JSON.stringify({ error: 'Project not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+      return new Response(JSON.stringify({
+        success: true,
+        roles: [],
+        message: 'No roles generated for no_roles work mode'
+      }), {
+        status: 200,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Authorization: Verify user is a member of this project
-    // First get the member_id from the authenticated user's auth_id
-    const { data: userProfile, error: profileError } = await supabaseAdmin
+    // Verificar que el proyecto puede usar AI generation
+    const { data: subscription } = await supabaseAdmin
+      .from('project_subscriptions')
+      .select(`
+        *,
+        plan:subscription_plans(*)
+      `)
+      .eq('project_id', project_id)
+      .single();
+
+    if (!subscription?.plan?.ai_role_generation) {
+      return new Response(JSON.stringify({
+        error: 'AI role generation not available in current plan'
+      }), {
+        status: 403,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Verificar que el usuario es miembro del proyecto
+    const { data: userProfile } = await supabaseAdmin
       .from('profiles')
       .select('id')
       .eq('auth_id', authUserId)
       .single();
 
-    if (profileError || !userProfile) {
+    if (!userProfile) {
       return new Response(
         JSON.stringify({ error: 'User profile not found' }),
         { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    const memberId = userProfile.id;
-
-    // Now verify user is a member of this project
-    const { data: userMembership, error: membershipError } = await supabaseAdmin
+    const { data: userMembership } = await supabaseAdmin
       .from('project_members')
       .select('id')
       .eq('project_id', project_id)
-      .eq('member_id', memberId)
+      .eq('member_id', userProfile.id)
       .single();
 
-    if (membershipError || !userMembership) {
+    if (!userMembership) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized: You are not a member of this project' }),
         { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
       );
     }
 
-    // Get project members (just member_ids, not roles yet)
-    const { data: projectMembers, error: membersError } = await supabaseAdmin
-      .from('project_members')
-      .select('id, member_id')
-      .eq('project_id', project_id)
+    // Determinar cantidad de roles según work mode
+    const roleCount = work_mode === 'individual' ? 5 : work_mode === 'team_small' ? 8 : 12;
 
-    if (membersError) {
-      console.error('Error fetching members');
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch project members' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Prompt para OpenAI
+    const systemPrompt = `Eres un experto en estructura organizacional y recursos humanos para startups y negocios digitales.
+Tu tarea es generar roles personalizados y estratégicos para un proyecto empresarial.
+
+Los roles deben ser:
+- Realistas y adaptados a la industria específica
+- Claramente definidos con responsabilidades concretas
+- Escalables según el tamaño del equipo
+- Estratégicos para el éxito del proyecto
+- ÚNICOS y personalizados (NO uses nombres genéricos como "CEO", "CTO", etc.)
+
+Genera EXACTAMENTE ${roleCount} roles en formato JSON.`;
+
+    const userPrompt = `Genera ${roleCount} roles personalizados para este proyecto:
+
+**Proyecto:** ${project_name}
+**Industria:** ${industry}
+**Idea de Negocio:** ${business_idea}
+**Tamaño del equipo:** ${work_mode === 'individual' ? 'Individual (1-2 personas con roles múltiples)' : work_mode === 'team_small' ? 'Equipo pequeño (3-10 personas)' : 'Equipo establecido (10+ personas)'}
+
+Para cada rol, proporciona:
+- role_name: Nombre del rol ESPECÍFICO al proyecto (ej: "Especialista en Marketing de Productos SaaS B2B", NO solo "Marketing Manager")
+- description: Descripción breve (2-3 frases) explicando por qué este rol es clave para ESTE proyecto específico
+- responsibilities: Array de 4-6 responsabilidades concretas y accionables
+- required_skills: Array de 4-6 habilidades técnicas y soft skills necesarias
+- experience_level: "entry" | "mid" | "senior" | "expert"
+- department: Departamento (ej: "Ventas", "Marketing", "Producto", "Tecnología", "Operaciones", "Customer Success")
+- is_critical: true si es un rol crítico para el lanzamiento del MVP, false si es importante pero puede incorporarse después
+
+IMPORTANTE: Los roles deben ser ÚNICOS al proyecto. No uses nombres genéricos. Personaliza según la industria y el negocio.
+
+Responde ÚNICAMENTE con un objeto JSON con esta estructura:
+{
+  "roles": [
+    {
+      "role_name": "...",
+      "description": "...",
+      "responsibilities": ["...", "..."],
+      "required_skills": ["...", "..."],
+      "experience_level": "...",
+      "department": "...",
+      "is_critical": true/false
+    }
+  ]
+}`;
+
+    // Llamar a OpenAI
+    if (!OPENAI_API_KEY) {
+      return new Response(JSON.stringify({
+        error: 'OpenAI API key not configured'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    if (!projectMembers || projectMembers.length === 0) {
-      return new Response(
-        JSON.stringify({ error: 'No members in project' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      )
+    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${OPENAI_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'gpt-4o-mini',
+        messages: [
+          { role: 'system', content: systemPrompt },
+          { role: 'user', content: userPrompt }
+        ],
+        temperature: 0.8,
+        response_format: { type: 'json_object' },
+      }),
+    });
+
+    if (!openAIResponse.ok) {
+      const errorData = await openAIResponse.text();
+      console.error('OpenAI Error:', errorData);
+      return new Response(JSON.stringify({
+        error: 'Failed to generate roles with AI',
+        details: errorData
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Get profiles for these members
-    const memberIds = projectMembers.map(pm => pm.member_id)
-    const { data: profiles, error: profilesError } = await supabaseAdmin
-      .from('profiles')
-      .select('id, email, nombre')
-      .in('id', memberIds)
+    const openAIData = await openAIResponse.json();
+    const content = openAIData.choices[0].message.content;
 
-    if (profilesError) {
-      console.error('Error fetching profiles');
-      return new Response(
-        JSON.stringify({ error: 'Failed to fetch profiles' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-      );
+    // Parse respuesta
+    let parsedContent;
+    try {
+      parsedContent = JSON.parse(content);
+    } catch (e) {
+      console.error('Failed to parse OpenAI response:', content);
+      return new Response(JSON.stringify({
+        error: 'Invalid response format from AI'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Get all current role assignments for these members (across all projects)
-    const { data: allRoleAssignments, error: rolesError } = await supabaseAdmin
-      .from('project_members')
-      .select(`
-        member_id,
-        role,
-        project_id,
-        projects!inner(nombre)
-      `)
-      .in('member_id', memberIds)
-      .neq('project_id', project_id) as { data: RoleAssignment[] | null; error: unknown } // Exclude current project
+    // Extraer array de roles
+    const generatedRoles: GeneratedRole[] = parsedContent.roles || [];
 
-    if (rolesError) {
-      console.error('Error fetching role assignments');
+    if (generatedRoles.length === 0) {
+      return new Response(JSON.stringify({
+        error: 'No roles generated by AI'
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
-    // Build member history
-    const memberHistory: MemberRoleHistory[] = profiles?.map(profile => ({
-      member_id: profile.id,
-      email: profile.email,
-      nombre: profile.nombre,
-      current_roles: (allRoleAssignments || [])
-        .filter((ra: RoleAssignment) => ra.member_id === profile.id)
-        .map((ra: RoleAssignment) => ({
-          project_id: ra.project_id,
-          project_name: ra.projects?.nombre || 'Unknown',
-          role: ra.role,
-        })),
-    })) || []
+    // Insertar roles en la base de datos
+    const rolesToInsert = generatedRoles.map((role, index) => ({
+      project_id: project_id,
+      role_name: role.role_name,
+      description: role.description,
+      responsibilities: role.responsibilities,
+      required_skills: role.required_skills,
+      experience_level: role.experience_level,
+      department: role.department,
+      is_critical: role.is_critical ?? false,
+      display_order: index + 1,
+      created_by: userProfile.id,
+    }));
 
-    // Check for Zarko - always gets ai_tech role
-    const zarkoMember = memberHistory.find(m => 
-      m.email.toLowerCase().includes('zarko') || 
-      m.nombre.toLowerCase().includes('zarko')
-    )
+    const { data: insertedRoles, error: insertError } = await supabaseAdmin
+      .from('project_roles')
+      .insert(rolesToInsert)
+      .select();
 
-    // Generate optimal role assignments
-    const assignments = generateOptimalAssignments(memberHistory, project.nombre, zarkoMember?.member_id)
+    if (insertError) {
+      console.error('Failed to insert roles:', insertError);
+      return new Response(JSON.stringify({
+        error: 'Failed to save roles to database',
+        details: insertError.message
+      }), {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
 
-    // Update project_members with assigned roles
-    const updatePromises = assignments.map(async (assignment) => {
-      const pm = projectMembers.find(p => p.member_id === assignment.member_id)
-      if (!pm) return null
-
-      const { error } = await supabaseAdmin
-        .from('project_members')
-        .update({ 
-          role: assignment.role,
-          role_accepted: false,
-          role_responsibilities: assignment.responsibilities,
-        })
-        .eq('id', pm.id)
-
-      return { member_id: assignment.member_id, role: assignment.role, error: error?.message }
-    })
-
-    const results = await Promise.all(updatePromises)
-
-    // Update project status to indicate roles are pending
+    // Actualizar project con roles generados
     await supabaseAdmin
       .from('projects')
-      .update({ 
+      .update({
+        ai_roles_generated: true,
         onboarding_completed: true,
-        onboarding_data: onboarding_data || project.onboarding_data,
+        updated_at: new Date().toISOString()
       })
-      .eq('id', project_id)
+      .eq('id', project_id);
 
-    return new Response(
-      JSON.stringify({ 
-        success: true, 
-        assignments: results.filter(Boolean),
-        message: 'Roles assigned. Waiting for member acceptance.',
-      }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    return new Response(JSON.stringify({
+      success: true,
+      roles: insertedRoles,
+      count: insertedRoles.length,
+      message: `✨ ${insertedRoles.length} roles personalizados generados con IA`
+    }), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+        ...corsHeaders,
+      },
+    });
+
   } catch (error: unknown) {
-    console.error('Generate roles error:', error)
-    return new Response(
-      JSON.stringify({ error: 'Failed to generate roles' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
-    )
+    console.error('Function error:', error);
+    const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+    return new Response(JSON.stringify({
+      error: 'Internal server error',
+      message: errorMessage
+    }), {
+      status: 500,
+      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
   }
-})
-
-function generateOptimalAssignments(
-  members: MemberRoleHistory[],
-  projectName: string,
-  zarkoId?: string
-): { member_id: string; role: string; responsibilities: string[] }[] {
-  const assignments: { member_id: string; role: string; responsibilities: string[] }[] = []
-  const usedRoles = new Set<string>()
-
-  // If Zarko is in the project, he always gets ai_tech
-  if (zarkoId) {
-    const zarko = members.find(m => m.member_id === zarkoId)
-    if (zarko) {
-      assignments.push({
-        member_id: zarkoId,
-        role: 'ai_tech',
-        responsibilities: [
-          'Implementar herramientas de IA para el proyecto',
-          'Automatizar procesos repetitivos',
-          'Desarrollar soluciones técnicas',
-          'Integrar tecnología en la propuesta de valor',
-        ],
-      })
-      usedRoles.add('ai_tech')
-    }
-  }
-
-  // For remaining members, assign roles they haven't done before
-  const remainingMembers = members.filter(m => m.member_id !== zarkoId)
-  
-  for (const member of remainingMembers) {
-    // Get roles this member already has in other projects
-    const memberExistingRoles = new Set(member.current_roles.map(r => r.role))
-    
-    // Find a role they haven't done yet
-    let assignedRole: string | null = null
-    
-    // First try: roles they've never done
-    for (const role of AVAILABLE_ROLES) {
-      if (!usedRoles.has(role) && !memberExistingRoles.has(role)) {
-        assignedRole = role
-        break
-      }
-    }
-    
-    // Second try: any available role
-    if (!assignedRole) {
-      for (const role of AVAILABLE_ROLES) {
-        if (!usedRoles.has(role)) {
-          assignedRole = role
-          break
-        }
-      }
-    }
-    
-    // Fallback: cycle through roles
-    if (!assignedRole) {
-      assignedRole = AVAILABLE_ROLES[assignments.length % AVAILABLE_ROLES.length]
-    }
-
-    usedRoles.add(assignedRole)
-    
-    assignments.push({
-      member_id: member.member_id,
-      role: assignedRole,
-      responsibilities: getRoleResponsibilities(assignedRole, projectName),
-    })
-  }
-
-  return assignments
-}
-
-function getRoleResponsibilities(role: string, projectName: string): string[] {
-  const baseResponsibilities: Record<string, string[]> = {
-    sales: [
-      `Identificar y contactar clientes potenciales para ${projectName}`,
-      'Gestionar el pipeline de ventas',
-      'Cerrar deals y negociar contratos',
-      'Mantener relación con clientes actuales',
-    ],
-    finance: [
-      `Controlar presupuesto y gastos de ${projectName}`,
-      'Definir pricing y estrategia de precios',
-      'Analizar márgenes y rentabilidad',
-      'Gestionar facturación y cobros',
-    ],
-    ai_tech: [
-      `Implementar soluciones tecnológicas para ${projectName}`,
-      'Automatizar procesos con IA',
-      'Desarrollar y mantener herramientas digitales',
-      'Investigar nuevas tecnologías aplicables',
-    ],
-    marketing: [
-      `Crear contenido y gestionar redes de ${projectName}`,
-      'Diseñar campañas de marketing',
-      'Construir y posicionar la marca',
-      'Analizar métricas de engagement',
-    ],
-    operations: [
-      `Gestionar la ejecución diaria de ${projectName}`,
-      'Optimizar procesos y flujos de trabajo',
-      'Coordinar entregas y calidad',
-      'Gestionar proveedores y recursos',
-    ],
-    strategy: [
-      `Definir visión y roadmap de ${projectName}`,
-      'Tomar decisiones estratégicas clave',
-      'Analizar mercado y competencia',
-      'Liderar sesiones de planificación',
-    ],
-  }
-
-  return baseResponsibilities[role] || ['Contribuir al éxito del proyecto']
-}
+});

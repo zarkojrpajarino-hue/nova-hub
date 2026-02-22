@@ -1,7 +1,10 @@
+import { memo } from 'react';
 import { FileCheck, TrendingUp, Target, Users, Wallet } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
+import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
+import { PlanLimitsIndicator } from '@/components/subscription/PlanLimitsIndicator';
 
 interface ProjectStats {
   facturacion?: number;
@@ -25,15 +28,22 @@ interface ProjectDashboardTabProps {
   leadsCount: number;
 }
 
-export function ProjectDashboardTab({ project, stats, teamMembers, leadsCount }: ProjectDashboardTabProps) {
+function ProjectDashboardTabComponent({ project, stats, teamMembers, leadsCount }: ProjectDashboardTabProps) {
   const facturacion = Number(stats?.facturacion) || 0;
   const margen = Number(stats?.margen) || 0;
   const totalOBVs = Number(stats?.total_obvs) || 0;
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Stats Grid */}
-      <div className="grid grid-cols-5 gap-4">
+      {/* Trial Countdown Banner */}
+      <TrialCountdownBanner projectId={project.id} />
+
+      {/* Layout: Sidebar + Main Content */}
+      <div className="grid grid-cols-12 gap-6">
+        {/* Main Content */}
+        <div className="col-span-9 space-y-6">
+          {/* Stats Grid */}
+          <div className="grid grid-cols-5 gap-4">
         <StatCard
           icon={FileCheck}
           value={totalOBVs}
@@ -146,6 +156,16 @@ export function ProjectDashboardTab({ project, stats, teamMembers, leadsCount }:
           </div>
         </div>
       </div>
+        </div>
+
+        {/* Sidebar with Plan Limits */}
+        <div className="col-span-3">
+          <PlanLimitsIndicator projectId={project.id} />
+        </div>
+      </div>
     </div>
   );
 }
+
+// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
+export const ProjectDashboardTab = memo(ProjectDashboardTabComponent);

@@ -12,7 +12,7 @@ export class OBVRepository {
    */
   async findById(id: string): Promise<OBV | null> {
     const { data, error } = await supabase
-      .from('obvs_public')
+      .from('obvs')
       .select('*')
       .eq('id', id)
       .single();
@@ -26,7 +26,7 @@ export class OBVRepository {
    */
   async findByProject(projectId: string): Promise<OBV[]> {
     const { data, error } = await supabase
-      .from('obvs_public')
+      .from('obvs')
       .select('*')
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
@@ -40,7 +40,7 @@ export class OBVRepository {
    */
   async findByCreator(userId: string): Promise<OBV[]> {
     const { data, error } = await supabase
-      .from('obvs_public')
+      .from('obvs')
       .select('*')
       .eq('created_by', userId)
       .order('created_at', { ascending: false });

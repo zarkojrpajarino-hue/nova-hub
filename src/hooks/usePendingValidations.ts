@@ -30,7 +30,7 @@ export function usePendingValidations(limit = 10) {
 
       // Fetch pending OBVs with validations in a single query using nested selects
       const { data: obvs, error: obvError } = await supabase
-        .from('obvs_public')
+        .from('obvs')
         .select(`
           id,
           titulo,
