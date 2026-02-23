@@ -41,6 +41,16 @@ serve(async (req) => {
     return new Response(null, { headers: corsHeaders });
   }
 
+  // Verify cron secret to prevent unauthorized invocations
+  const authHeader = req.headers.get('Authorization');
+  const cronSecret = Deno.env.get('CRON_SECRET');
+  if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+    return new Response(JSON.stringify({ error: 'Unauthorized' }), {
+      status: 401,
+      headers: { 'Content-Type': 'application/json' },
+    });
+  }
+
   try {
     const supabaseClient = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',

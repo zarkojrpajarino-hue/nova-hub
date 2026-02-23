@@ -26,6 +26,15 @@ serve(async (req) => {
       });
     }
 
+    const adminSecret = Deno.env.get('ADMIN_SECRET');
+    const authHeader = req.headers.get('Authorization');
+    if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
+      return new Response(JSON.stringify({ error: 'Admin access required' }), {
+        status: 401,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     const { project_id: _project_id, html_content, project_name } = await req.json();
 
     if (!html_content || !project_name) {
