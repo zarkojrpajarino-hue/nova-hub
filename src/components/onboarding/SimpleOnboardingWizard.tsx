@@ -124,8 +124,7 @@ export function SimpleOnboardingWizard({ projectId, onComplete }: Props) {
 
         toast.success('¡Onboarding completado!');
         onComplete();
-      } catch (error) {
-        console.error('Error saving:', error);
+      } catch (_error) {
         toast.error('Error al guardar');
       } finally {
         setSaving(false);

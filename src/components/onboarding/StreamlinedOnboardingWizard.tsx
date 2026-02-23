@@ -59,7 +59,6 @@ export function StreamlinedOnboardingWizard({
         .single();
 
       if (error) {
-        console.error('Error loading project type:', error);
       }
 
       if (project?.metadata?.onboarding_type) {
@@ -113,8 +112,7 @@ export function StreamlinedOnboardingWizard({
         onComplete();
       }, 3000);
 
-    } catch (error) {
-      console.error('Error saving onboarding:', error);
+    } catch (_error) {
       toast.error('Error al guardar', {
         description: error instanceof Error ? error.message : 'Error desconocido'
       });

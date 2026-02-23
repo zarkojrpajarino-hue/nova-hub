@@ -290,7 +290,6 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
         }}
         onSelectPlan={(planId, billingCycle) => {
           // TODO: Implementar upgrade en Fase 7
-          console.log('Upgrade to:', planId, billingCycle);
           setShowUpgradeModal(false);
           setSelectedLockedFeature(null);
         }}

@@ -142,11 +142,9 @@ export function DataIntegrationStep({ answers, onChange }: DataIntegrationStepPr
       if (data.success && data.data) {
         onChange('extracted_data', data.data);
       } else {
-        console.warn('Edge Function returned no data, using fallback');
         onChange('extracted_data', generateMockData());
       }
-    } catch (error) {
-      console.error('Error integrating data:', error);
+    } catch (_error) {
       // Fallback: Mock data
       onChange('extracted_data', generateMockData());
     }

@@ -61,7 +61,6 @@ function IndexContent() {
     if (projectId && currentProject?.id !== projectId) {
       // Aquí podrías cargar el proyecto desde la BD si no está en currentProject
       // Por ahora, solo verificamos que coincida
-      console.log('Project ID from URL:', projectId);
     }
   }, [projectId, currentProject]);
 

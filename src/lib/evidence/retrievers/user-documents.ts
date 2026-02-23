@@ -40,7 +40,6 @@ interface DocumentMetadata {
   authority_score: number;
 }
 
-
 // =====================================================
 // SEARCH USER DOCUMENTS
 // =====================================================
@@ -70,7 +69,6 @@ export async function searchUserDocuments(
       });
 
     if (searchError) {
-      console.error('Error searching user documents:', searchError);
       return [];
     }
 
@@ -87,7 +85,6 @@ export async function searchUserDocuments(
       .in('id', documentIds);
 
     if (docError || !documents) {
-      console.error('Error fetching document metadata:', docError);
       return [];
     }
 
@@ -128,12 +125,10 @@ export async function searchUserDocuments(
     }
 
     return sources;
-  } catch (error) {
-    console.error('Unexpected error in searchUserDocuments:', error);
+  } catch (_error) {
     return [];
   }
 }
-
 
 // =====================================================
 // EXTRACT CITATIONS
@@ -183,12 +178,10 @@ export async function extractCitations(
       default:
         return citations;
     }
-  } catch (error) {
-    console.error('Error extracting citations:', error);
+  } catch (_error) {
     return citations;
   }
 }
-
 
 /**
  * Extract citations from PDF documents
@@ -228,7 +221,6 @@ function extractPDFCitations(doc: DocumentMetadata, query: string): Citation[] {
 
   return citations;
 }
-
 
 /**
  * Extract citations from spreadsheet documents (CSV, XLSX)
@@ -273,7 +265,6 @@ function extractSpreadsheetCitations(doc: DocumentMetadata, query: string): Cita
   return citations;
 }
 
-
 /**
  * Extract citations from plain text documents
  */
@@ -310,7 +301,6 @@ function extractTextCitations(doc: DocumentMetadata, query: string): Citation[] 
 
   return citations;
 }
-
 
 // =====================================================
 // HELPER FUNCTIONS
@@ -369,7 +359,6 @@ function findTextMatches(content: string, query: string): TextMatch[] {
   return matches.sort((a, b) => b.relevance - a.relevance);
 }
 
-
 interface RowMatch {
   text: string;
   rowIndex: number;
@@ -412,7 +401,6 @@ function findRowMatches(rows: unknown[][], query: string): RowMatch[] {
   return matches.sort((a, b) => b.relevance - a.relevance);
 }
 
-
 /**
  * Estimate page number from character position
  */
@@ -420,7 +408,6 @@ function estimatePageNumber(position: number, content: string, totalPages: numbe
   const ratio = position / content.length;
   return Math.max(1, Math.min(totalPages, Math.ceil(ratio * totalPages)));
 }
-
 
 /**
  * Estimate paragraph number from character position
@@ -431,7 +418,6 @@ function estimateParagraphNumber(position: number, content: string): number {
   return paragraphs.length;
 }
 
-
 /**
  * Estimate line number from character position
  */
@@ -440,7 +426,6 @@ function estimateLineNumber(position: number, content: string): number {
   const lines = beforeText.split(/\n/);
   return lines.length;
 }
-
 
 /**
  * Convert column index to Excel-style letter (0 = A, 25 = Z, 26 = AA)
@@ -456,7 +441,6 @@ function getColumnLetter(index: number): string {
 
   return letter;
 }
-
 
 /**
  * Extract clean quote from PostgreSQL ts_headline output

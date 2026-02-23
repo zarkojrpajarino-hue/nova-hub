@@ -42,8 +42,6 @@ export function useAutoSave({
           return;
         }
 
-        console.log('🔄 Auto-saving onboarding progress...');
-
         const { error } = await supabase
           .from('projects')
           .update({
@@ -55,11 +53,9 @@ export function useAutoSave({
         if (error) throw error;
 
         lastSavedRef.current = dataString;
-        console.log('✅ Auto-save complete');
 
         if (onSave) onSave();
-      } catch (error) {
-        console.error('❌ Auto-save failed:', error);
+      } catch (_error) {
         if (onError) onError(error instanceof Error ? error : new Error(String(error)));
       }
     };
@@ -96,8 +92,7 @@ export function useAutoSave({
 
       lastSavedRef.current = JSON.stringify(data);
       toast.success('Progreso guardado');
-    } catch (error) {
-      console.error('Save failed:', error);
+    } catch (_error) {
       toast.error('Error al guardar');
       throw error;
     }

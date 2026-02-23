@@ -73,8 +73,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
           setMessages(loadedMessages);
         }
       }
-    } catch (error) {
-      console.log('No previous session found or error loading:', error);
+    } catch (_error) {
     }
   };
 
@@ -124,8 +123,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
       if (!sessionId && data.sessionId) {
         setSessionId(data.sessionId);
       }
-    } catch (error) {
-      console.error('Error calling AI coach:', error);
+    } catch (_error) {
       toast.error('Error al consultar al coach: ' + (error instanceof Error ? error.message : 'Error desconocido'));
 
       // Add error message

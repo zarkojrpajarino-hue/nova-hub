@@ -202,8 +202,7 @@ export function useDocumentUpload(projectId: string) {
         pages_count: document.pages_count,
       };
 
-    } catch (error) {
-      console.error('Upload error:', error);
+    } catch (_error) {
 
       setUploads(prev => new Map(prev).set(fileId, {
         fileName: file.name,

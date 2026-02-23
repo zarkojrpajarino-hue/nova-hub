@@ -88,10 +88,9 @@ export function useTaskKanban(projectId: string) {
       );
 
       toast.success(`Tarea movida a ${TASK_COLUMNS.find(c => c.id === newStatus)?.label}`);
-    } catch (error) {
+    } catch (_error) {
       // Rollback on failure
       queryClient.setQueryData(['project_tasks', projectId], previousTasks);
-      console.error('Error updating task:', error);
       toast.error('Error al mover la tarea. Se ha revertido el cambio.');
     }
   }, [tasks, projectId, queryClient]);
@@ -115,8 +114,7 @@ export function useTaskKanban(projectId: string) {
         newStatus as Database["public"]["Enums"]["task_status"]
       );
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
-    } catch (error) {
-      console.error('Error toggling task:', error);
+    } catch (_error) {
       toast.error('Error al actualizar tarea');
     }
   };
@@ -139,8 +137,7 @@ export function useTaskKanban(projectId: string) {
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
       setTaskToComplete(null);
-    } catch (error) {
-      console.error('Error completing task:', error);
+    } catch (_error) {
       throw error;
     }
   }, [profile, projectId, taskToComplete, queryClient]);
@@ -156,8 +153,7 @@ export function useTaskKanban(projectId: string) {
       toast.success('Tarea eliminada');
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
-    } catch (error) {
-      console.error('Error deleting task:', error);
+    } catch (_error) {
       toast.error('Error al eliminar la tarea');
     } finally {
       setIsDeleting(false);

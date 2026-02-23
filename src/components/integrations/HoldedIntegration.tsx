@@ -48,8 +48,7 @@ export function HoldedIntegration() {
 
       // Hacer primera sincronización
       await handleSync();
-    } catch (error) {
-      console.error('Error conectando Holded:', error);
+    } catch (_error) {
       toast.error('Error al conectar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsLoading(false);
@@ -70,8 +69,7 @@ export function HoldedIntegration() {
 
       setLastSync(new Date().toLocaleString('es-ES'));
       toast.success(`Sincronización completada: ${data?.invoicesCount || 0} facturas`);
-    } catch (error) {
-      console.error('Error sincronizando:', error);
+    } catch (_error) {
       toast.error('Error en sincronización: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSyncing(false);
@@ -90,8 +88,7 @@ export function HoldedIntegration() {
 
       setIsConnected(false);
       toast.success('Holded desconectado');
-    } catch (error) {
-      console.error('Error desconectando:', error);
+    } catch (_error) {
       toast.error('Error al desconectar');
     } finally {
       setIsLoading(false);

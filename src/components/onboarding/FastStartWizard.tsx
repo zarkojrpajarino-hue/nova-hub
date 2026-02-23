@@ -54,7 +54,6 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
         .single();
 
       if (error) {
-        console.error('Error loading project type:', error);
         toast.error('Error loading project', {
           description: 'Please try again or contact support'
         });
@@ -64,7 +63,6 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
         setOnboardingType(project.metadata.onboarding_type);
       } else {
         // Fallback to 'idea' if no type saved
-        console.warn('No onboarding_type found, defaulting to idea');
         setOnboardingType('idea');
       }
       setLoading(false);
@@ -120,8 +118,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
         onComplete();
       }, 3000);
 
-    } catch (error) {
-      console.error('Error saving Fast Start:', error);
+    } catch (_error) {
       toast.error('Error saving progress', {
         description: error instanceof Error ? error.message : 'Unknown error'
       });

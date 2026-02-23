@@ -75,7 +75,6 @@ export function OneOnOnePrep() {
   };
 
   const handleGenerationError = (error: Error) => {
-    console.error('Error generating agenda:', error);
     toast.error('Error al generar agenda: ' + error.message);
   };
 

@@ -55,8 +55,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
       await queryClient.invalidateQueries({ queryKey: ['member_stats'] });
       await queryClient.refetchQueries({ queryKey: ['member_stats'] });
       setOpen(false);
-    } catch (error) {
-      console.error('Error:', error);
+    } catch (_error) {
       toast.error('Error al actualizar KPIs');
     } finally {
       setSaving(false);

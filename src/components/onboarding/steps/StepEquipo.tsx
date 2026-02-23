@@ -68,8 +68,7 @@ export function StepEquipo({
         if (existingIds.length > 0 && selectedMembers.length === 0) {
           onChange(existingIds);
         }
-      } catch (error) {
-        console.error('Error fetching profiles:', error);
+      } catch (_error) {
       } finally {
         setLoading(false);
       }

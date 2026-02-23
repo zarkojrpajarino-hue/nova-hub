@@ -61,8 +61,7 @@ export function DeletedProjectsDialog() {
 
       if (error) throw error;
       setDeletedProjects(data || []);
-    } catch (error) {
-      console.error('Error fetching deleted projects:', error);
+    } catch (_error) {
       toast.error('Error al cargar proyectos eliminados');
     } finally {
       setIsLoading(false);
@@ -107,8 +106,7 @@ export function DeletedProjectsDialog() {
 
       // Refresh list
       fetchDeletedProjects();
-    } catch (error) {
-      console.error('Error restoring project:', error);
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'Error al restaurar el proyecto');
     } finally {
       setRestoringId(null);

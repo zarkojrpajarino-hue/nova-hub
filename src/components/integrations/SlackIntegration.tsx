@@ -160,7 +160,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
       } else {
         toast.error('Error al enviar mensaje de prueba');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'Error al enviar mensaje de prueba');
     }
   };

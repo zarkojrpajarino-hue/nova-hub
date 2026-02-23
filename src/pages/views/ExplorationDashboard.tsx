@@ -94,8 +94,7 @@ export function ExplorationDashboard() {
 
       setActiveExplorations(active || []);
       setPastExplorations(past || []);
-    } catch (error) {
-      console.error('Error loading explorations:', error);
+    } catch (_error) {
       toast.error('Error al cargar las exploraciones');
     } finally {
       setIsLoading(false);
@@ -148,8 +147,7 @@ export function ExplorationDashboard() {
       const pending = explorations.filter((exp) => !givenIds.has(exp.id));
 
       setPendingFeedback(pending);
-    } catch (error) {
-      console.error('Error loading pending feedback:', error);
+    } catch (_error) {
     }
   };
 
@@ -176,8 +174,7 @@ export function ExplorationDashboard() {
         .single();
 
       setPhaseProgress(progress);
-    } catch (error) {
-      console.error('Error loading phase progress:', error);
+    } catch (_error) {
     }
   };
 
@@ -201,8 +198,7 @@ export function ExplorationDashboard() {
         const roles = [progress.star_role, progress.secondary_role].filter(Boolean);
         setCurrentRoles(roles);
       }
-    } catch (error) {
-      console.error('Error loading current roles:', error);
+    } catch (_error) {
     }
   };
 
@@ -227,7 +223,7 @@ export function ExplorationDashboard() {
       toast.success('🚀 Exploración iniciada!');
       loadCurrentRoles();
       loadExplorations();
-    } catch (error) {
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'No se pudo iniciar la exploración');
     }
   };

@@ -114,8 +114,7 @@ export function BusinessIdeasSection({
       toast.success('Business idea analyzed!', {
         description: 'SWOT Matrix and Market Research tools unlocked'
       });
-    } catch (error) {
-      console.error('Error analyzing idea:', error);
+    } catch (_error) {
       toast.error('Analysis failed', {
         description: 'Please try again'
       });

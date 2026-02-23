@@ -70,7 +70,6 @@ export interface AIGeneratedArtifacts {
 export async function generateAllArtifacts(
   input: AIGenerationInput
 ): Promise<AIGeneratedArtifacts> {
-  console.log('🤖 Starting AI generation for:', input.project_id);
 
   const startTime = Date.now();
 
@@ -104,8 +103,6 @@ export async function generateAllArtifacts(
 
   const endTime = Date.now();
   const duration = (endTime - startTime) / 1000;
-
-  console.log(`✅ AI generation complete in ${duration}s`);
 
   // Calculate overall confidence
   const avgConfidence = Math.round(

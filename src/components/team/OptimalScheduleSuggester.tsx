@@ -54,7 +54,6 @@ export function OptimalScheduleSuggester() {
   };
 
   const handleGenerationError = (error: Error) => {
-    console.error('Error generating schedule:', error);
     toast.error('Error al generar: ' + error.message);
   };
 

@@ -97,8 +97,7 @@ export default function MeetingIntelligencePage() {
       setShowModal(false);
       setCurrentMeeting(meeting);
       toast.success('¡Reunión creada! Ahora puedes grabar o subir el audio');
-    } catch (error) {
-      console.error('Error creating meeting:', error);
+    } catch (_error) {
     }
   };
 
@@ -106,7 +105,6 @@ export default function MeetingIntelligencePage() {
    * Handler para completar grabación
    */
   const handleRecordingComplete = (audioUrl: string) => {
-    console.log('🎙️ Audio uploaded:', audioUrl);
     // Transición a revisión de preguntas primero
     if (currentMeeting) {
       setQuestionsReviewMeeting(currentMeeting.id);

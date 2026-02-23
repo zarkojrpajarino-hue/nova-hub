@@ -141,8 +141,7 @@ export function LiveMeetingRecorder({
       });
 
       toast.success('Grabación iniciada');
-    } catch (error) {
-      console.error('Error starting recording:', error);
+    } catch (_error) {
 
       if (error instanceof Error && error.name === 'NotAllowedError') {
         toast.error('Permiso de micrófono denegado. Por favor, permite el acceso al micrófono.');
@@ -203,8 +202,7 @@ export function LiveMeetingRecorder({
 
       // Upload a Supabase Storage
       await uploadAudioToStorage(audioBlob, 'recording.webm');
-    } catch (error) {
-      console.error('Error handling recording stopped:', error);
+    } catch (_error) {
       toast.error('Error al procesar la grabación');
     }
   };
@@ -254,8 +252,7 @@ export function LiveMeetingRecorder({
 
     try {
       await uploadAudioToStorage(selectedFile, selectedFile.name);
-    } catch (error) {
-      console.error('Error uploading file:', error);
+    } catch (_error) {
       toast.error('Error al subir el archivo');
       setRecordingState('idle');
     }
@@ -341,14 +338,12 @@ export function LiveMeetingRecorder({
         await analyzeMeeting.mutateAsync(meetingId);
         // El toast de éxito lo muestra el hook useAnalyzeMeeting
       } catch (transcriptionError) {
-        console.error('Transcription/Analysis failed:', transcriptionError);
         // El toast de error lo muestran los hooks
       }
 
       // Notificar al componente padre
       onRecordingComplete(audioUrl);
-    } catch (error) {
-      console.error('Error uploading audio:', error);
+    } catch (_error) {
       toast.error('Error al subir el audio: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       setRecordingState('stopped');
     }

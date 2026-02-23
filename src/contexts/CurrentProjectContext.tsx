@@ -68,8 +68,6 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
     queryFn: async () => {
       if (!user || !profile) return [];
 
-      console.log('📦 Fetching projects for:', { authId: user.id, memberId: profile.id });
-
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -78,11 +76,9 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
         .order('created_at', { ascending: false });
 
       if (error) {
-        console.error('❌ Error fetching projects:', error);
         throw error;
       }
 
-      console.log('✅ Projects loaded:', data?.length || 0, 'projects');
       return data;
     },
     enabled: !!user && !!profile,

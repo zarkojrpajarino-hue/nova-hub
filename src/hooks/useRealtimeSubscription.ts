@@ -121,7 +121,6 @@ export function useRealtimeSubscription({
       'postgres_changes',
       postgresChangesConfig,
       (payload) => {
-        console.log(`[Realtime] ${table} change:`, payload.eventType);
 
         // Ejecutar callback si existe
         if (onEvent) {
@@ -147,9 +146,7 @@ export function useRealtimeSubscription({
     // Suscribirse al canal
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
-        console.log(`[Realtime] Subscribed to ${channelName}`);
       } else if (status === 'CHANNEL_ERROR') {
-        console.error(`[Realtime] Error subscribing to ${channelName}`);
       }
     });
 
@@ -158,7 +155,6 @@ export function useRealtimeSubscription({
     // ✨ Cleanup automático al desmontar
     return () => {
       if (channelRef.current) {
-        console.log(`[Realtime] Unsubscribing from ${channelName}`);
         channelRef.current.unsubscribe();
         channelRef.current = null;
       }

@@ -83,13 +83,11 @@ export function SelfEvaluationModal({
           body: { exploration_period_id: exploration.id },
         });
       } catch (err) {
-        console.error('Error calculating fit score:', err);
         // No bloqueamos el submit si falla el cálculo
       }
 
       onClose();
-    } catch (error) {
-      console.error('Error saving self evaluation:', error);
+    } catch (_error) {
       toast.error('Error al guardar la auto-evaluación');
     } finally {
       setIsSubmitting(false);

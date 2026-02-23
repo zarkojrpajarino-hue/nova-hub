@@ -114,8 +114,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
       
       setFormData({ titulo: '', descripcion: '', evidenceUrl: '', bpPoints: 1 });
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error creating KPI:', error);
+    } catch (_error) {
       toast.error('Error al crear el KPI');
     } finally {
       setIsSubmitting(false);

@@ -83,8 +83,7 @@ export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartPr
       toast.success('Business analyzed!', {
         description: 'Your growth diagnostic is ready'
       });
-    } catch (error) {
-      console.error('Error analyzing business:', error);
+    } catch (_error) {
       toast.error('Failed to analyze business', {
         description: 'Please try again or contact support'
       });

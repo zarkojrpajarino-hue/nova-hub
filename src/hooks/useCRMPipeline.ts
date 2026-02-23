@@ -113,8 +113,7 @@ export function useCRMPipeline(
 
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
       queryClient.invalidateQueries({ queryKey: ['project_leads'] });
-    } catch (error) {
-      console.error('Error updating lead:', error);
+    } catch (_error) {
       toast.error('Error al mover el lead');
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
     }

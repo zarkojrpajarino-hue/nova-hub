@@ -69,14 +69,12 @@ export async function logEvidenceGeneration(metrics: EvidenceGenerationMetrics):
       .single();
 
     if (error) {
-      console.error('Failed to log evidence metrics:', error);
       return null;
     }
 
     // Retornar generation_id para vincular eventos UI
     return data?.id || null;
   } catch (err) {
-    console.error('Error in logEvidenceGeneration:', err);
     return null;
   }
 }
@@ -92,10 +90,8 @@ export async function logUserEvent(event: UserEvent) {
       .insert(event);
 
     if (error) {
-      console.error('Failed to log user event:', error);
     }
   } catch (err) {
-    console.error('Error in logUserEvent:', err);
   }
 }
 

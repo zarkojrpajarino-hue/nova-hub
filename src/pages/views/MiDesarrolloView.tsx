@@ -98,8 +98,7 @@ export function MiDesarrolloView() {
         .order('badge_category, points_value', { ascending: false });
 
       setBadges({ earned: earned || [], all: all || [] });
-    } catch (error) {
-      console.error('Error loading badges:', error);
+    } catch (_error) {
     }
   };
 

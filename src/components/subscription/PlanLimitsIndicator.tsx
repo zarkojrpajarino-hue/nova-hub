@@ -32,8 +32,6 @@ export function PlanLimitsIndicator({
   const availablePlans = useAvailablePlans();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
-  console.log('📊 PlanLimitsIndicator:', { projectId, plan, isTrial });
-
   // 🎯 FEATURE FLAG: Don't show limits indicator if payments are disabled
   if (!isPaymentsEnabled()) return null;
 
@@ -52,7 +50,6 @@ export function PlanLimitsIndicator({
 
   const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
-    console.log('Upgrade to:', planId, billingCycle);
     setShowUpgradeModal(false);
   };
 

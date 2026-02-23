@@ -65,8 +65,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
 
       if (error) throw error;
       setUnreadCount(count || 0);
-    } catch (error) {
-      console.error('Error loading unread count:', error);
+    } catch (_error) {
     }
   };
 

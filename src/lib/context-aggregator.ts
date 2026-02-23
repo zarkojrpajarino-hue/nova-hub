@@ -117,7 +117,6 @@ export class ContextAggregator {
       .single();
 
     if (error || !data) {
-      console.error('Error loading context:', error);
       return null;
     }
 
@@ -257,7 +256,6 @@ export class ContextAggregator {
         .eq('id', this.projectId);
 
       // Could also create a notification in notifications table here
-      console.log('Triggers ready:', newTriggers);
     }
   }
 

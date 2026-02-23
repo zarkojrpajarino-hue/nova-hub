@@ -317,7 +317,6 @@ export async function regenerateArtifact(
   await new Promise(resolve => setTimeout(resolve, 2000));
 
   // Return regenerated artifact with higher quality
-  console.log(`Regenerated ${artifactType} with ${contextQuality}% context quality`);
 
   return {
     ...generateBusinessModelCanvas(enrichedInput, enhancedConfidence),

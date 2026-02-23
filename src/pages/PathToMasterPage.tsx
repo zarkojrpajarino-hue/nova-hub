@@ -101,8 +101,7 @@ export function PathToMasterPage() {
         const roles = [progress.star_role, progress.secondary_role].filter(Boolean);
         setCurrentRoles(roles);
       }
-    } catch (error) {
-      console.error('Error loading data:', error);
+    } catch (_error) {
     } finally {
       setLoading(false);
     }

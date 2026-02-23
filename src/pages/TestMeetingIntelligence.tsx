@@ -74,8 +74,6 @@ export default function TestMeetingIntelligence() {
       return;
     }
 
-    console.log('📋 Configuración de reunión:', config);
-
     try {
       const meeting = await createMeeting.mutateAsync({
         project_id: currentProject.id,
@@ -93,13 +91,11 @@ export default function TestMeetingIntelligence() {
       setShowModal(false);
       setCurrentMeeting(meeting);
       toast.success('¡Reunión creada! Ahora puedes grabar o subir el audio');
-    } catch (error) {
-      console.error('Error creating meeting:', error);
+    } catch (_error) {
     }
   };
 
   const handleRecordingComplete = (audioUrl: string) => {
-    console.log('🎙️ Audio uploaded:', audioUrl);
     // Transición a revisión de insights
     if (currentMeeting) {
       setReviewingMeeting(currentMeeting);

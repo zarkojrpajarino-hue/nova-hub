@@ -103,8 +103,7 @@ export function ExportButton({
           toast.success('JSON descargado correctamente');
           break;
       }
-    } catch (error) {
-      console.error('Error exporting data:', error);
+    } catch (_error) {
       toast.error('Error al exportar los datos');
     } finally {
       setIsExporting(false);

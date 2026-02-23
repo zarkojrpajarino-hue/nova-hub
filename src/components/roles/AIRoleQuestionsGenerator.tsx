@@ -107,7 +107,6 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
         setError('No se pudieron generar preguntas. Inténtalo de nuevo.');
       }
     } catch (err) {
-      console.error('Error generating questions:', err);
       setError('Error al conectar con el servicio de IA. Inténtalo de nuevo.');
     } finally {
       setIsGenerating(false);

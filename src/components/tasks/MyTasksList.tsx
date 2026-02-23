@@ -107,8 +107,7 @@ export function MyTasksList() {
       
       toast.success('¡Tarea completada!');
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
-    } catch (error) {
-      console.error('Error completing task:', error);
+    } catch (_error) {
       toast.error('Error al completar tarea');
     }
   };

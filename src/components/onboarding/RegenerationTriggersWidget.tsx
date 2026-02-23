@@ -72,8 +72,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
 
       // Reload data
       await loadTriggerData();
-    } catch (error) {
-      console.error('Error regenerating:', error);
+    } catch (_error) {
       toast.error('Regeneration failed', {
         description: 'Please try again'
       });

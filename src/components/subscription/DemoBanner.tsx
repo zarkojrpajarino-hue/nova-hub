@@ -51,7 +51,6 @@ export function DemoBanner({
 
   const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
-    console.log('Upgrade to:', planId, billingCycle);
     setShowUpgradeModal(false);
   };
 

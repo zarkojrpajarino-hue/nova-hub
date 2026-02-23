@@ -132,8 +132,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
       queryClient.invalidateQueries({ queryKey: ['project_leads'] });
 
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error creating lead:', error);
+    } catch (_error) {
       toast.error('Error al crear el lead');
     } finally {
       setIsSubmitting(false);

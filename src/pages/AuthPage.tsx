@@ -117,7 +117,7 @@ export default function AuthPage() {
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
-    } catch (error) {
+    } catch (_error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
         return;
@@ -154,7 +154,7 @@ export default function AuthPage() {
       nameSchema.parse(nombre);
       emailSchema.parse(email);
       passwordSchema.parse(password);
-    } catch (error) {
+    } catch (_error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
         return;
@@ -204,7 +204,7 @@ export default function AuthPage() {
 
     try {
       emailSchema.parse(email);
-    } catch (error) {
+    } catch (_error) {
       if (error instanceof z.ZodError) {
         toast.error(error.errors[0].message);
         return;

@@ -94,8 +94,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
 
       if (error) throw error;
       setNotifications(data || []);
-    } catch (error) {
-      console.error('Error loading notifications:', error);
+    } catch (_error) {
       toast.error('Error al cargar las notificaciones');
     } finally {
       setIsLoading(false);
@@ -116,8 +115,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
       );
 
       onNotificationRead?.();
-    } catch (error) {
-      console.error('Error marking as read:', error);
+    } catch (_error) {
     }
   };
 
@@ -140,8 +138,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
       await loadNotifications();
       onNotificationRead?.();
       toast.success('Todas las notificaciones marcadas como leídas');
-    } catch (error) {
-      console.error('Error marking all as read:', error);
+    } catch (_error) {
       toast.error('Error al marcar como leídas');
     }
   };
@@ -154,8 +151,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
       toast.success('Notificación eliminada');
-    } catch (error) {
-      console.error('Error deleting notification:', error);
+    } catch (_error) {
       toast.error('Error al eliminar');
     }
   };

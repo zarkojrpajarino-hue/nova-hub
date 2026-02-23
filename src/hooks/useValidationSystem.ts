@@ -134,7 +134,6 @@ export function useIsBlocked() {
         .rpc('is_user_blocked', { p_user_id: profile.id });
       
       if (error) {
-        console.error('Error checking blocked status:', error);
         return false;
       }
       

@@ -251,8 +251,7 @@ export function useOBVFormLogic(onSuccess: () => void) {
 
       toast.success('OBV creada correctamente');
       onSuccess();
-    } catch (error) {
-      console.error('Error creating OBV:', error);
+    } catch (_error) {
       toast.error('Error al crear la OBV');
     } finally {
       setIsSubmitting(false);

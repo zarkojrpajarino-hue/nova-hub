@@ -74,13 +74,10 @@ export function CreateFirstProjectPage() {
         .single();
 
       if (memberError || !memberData) {
-        console.error('Error getting member:', memberError);
         toast.error('No se pudo encontrar tu perfil de miembro');
         setIsCreatingProject(false);
         return;
       }
-
-      console.log('✅ Member found:', memberData.id);
 
       // Create minimal project with creator, owner, and onboarding type
       const onboardingType = typeMapping[typeParam] || 'generative';
@@ -100,22 +97,13 @@ export function CreateFirstProjectPage() {
         .single();
 
       if (error) {
-        console.error('❌ Supabase error:', {
-          message: error.message,
-          details: error.details,
-          hint: error.hint,
-          code: error.code
-        });
         throw error;
       }
-
-      console.log('✅ Minimal project created:', newProject.id);
 
       // Navigate to standalone onboarding experience
       navigate(`/onboarding/${newProject.id}`);
 
-    } catch (error) {
-      console.error('Error creating minimal project:', error);
+    } catch (_error) {
       toast.error('Error al crear el proyecto');
       setIsCreatingProject(false);
     }

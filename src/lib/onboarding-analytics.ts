@@ -107,7 +107,6 @@ export class OnboardingAnalytics {
       .eq('id', this.projectId);
 
     // Also log to console for debugging
-    console.log(`[Analytics] ${eventType}`, metadata);
   }
 
   /**

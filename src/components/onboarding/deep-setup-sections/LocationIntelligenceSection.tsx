@@ -168,8 +168,7 @@ export function LocationIntelligenceSection({
       toast.success('Location intelligence generated!', {
         description: 'Investor Map and Grant Finder unlocked'
       });
-    } catch (error) {
-      console.error('Error generating location data:', error);
+    } catch (_error) {
       toast.error('Generation failed', {
         description: 'Please try again'
       });

@@ -58,7 +58,6 @@ export function AITaskExecutor() {
   };
 
   const handleExecutionError = (error: Error) => {
-    console.error('Error executing task:', error);
     toast.error('Error al ejecutar tarea: ' + error.message);
   };
 
@@ -101,8 +100,7 @@ export function AITaskExecutor() {
       if (error) throw error;
 
       toast.success('Resultado guardado como OBV');
-    } catch (error) {
-      console.error('Error saving as OBV:', error);
+    } catch (_error) {
       toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);

@@ -127,8 +127,7 @@ export function CreateProjectDialog() {
 
       // Navigate to project page (will show onboarding wizard)
       navigate(`/proyecto/${newProject.id}`);
-    } catch (error) {
-      console.error('Error creating project:', error);
+    } catch (_error) {
       toast.error('Error al crear el proyecto');
     } finally {
       setIsCreating(false);

@@ -359,7 +359,7 @@ export function GenerativeOnboardingWizard({
       if (data?.monetizationModel) setMonetizationModel(data.monetizationModel);
 
       toast.success('Información extraída automáticamente');
-    } catch (error) {
+    } catch (_error) {
       toast.error('No se pudo extraer información de la web');
     } finally {
       setIsExtractingWebData(false);
@@ -401,7 +401,7 @@ export function GenerativeOnboardingWizard({
       }
 
       setIsAnalyzingCompetitors(false);
-    } catch (error) {
+    } catch (_error) {
       toast.error('No se pudo extraer información de la startup');
       setIsExtractingWebData(false);
       setIsAnalyzingCompetitors(false);
@@ -440,7 +440,7 @@ export function GenerativeOnboardingWizard({
         setBuyerPersonaSuggestions(data.suggestions);
         toast.success('Sugerencias generadas por IA');
       }
-    } catch (error) {
+    } catch (_error) {
       toast.error('No se pudo generar sugerencias. Inténtalo de nuevo.');
     } finally {
       setIsGeneratingSuggestions(false);
@@ -488,7 +488,7 @@ export function GenerativeOnboardingWizard({
 
       setCompetitorAnalysis(data);
       toast.success('Análisis de competencia completado');
-    } catch (error) {
+    } catch (_error) {
       toast.error('No se pudo analizar la competencia');
     } finally {
       setIsAnalyzingCompetitors(false);
@@ -509,7 +509,7 @@ export function GenerativeOnboardingWizard({
 
       setCompetitorAnalysis(data);
       toast.success('Análisis visual de competidores completado');
-    } catch (error) {
+    } catch (_error) {
       toast.error('No se pudo analizar competidores');
     } finally {
       setIsAnalyzingCompetitors(false);

@@ -71,8 +71,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
 
       toast.success('Learning Path generado exitosamente');
       refetch();
-    } catch (error) {
-      console.error('Error generating learning path:', error);
+    } catch (_error) {
       toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);

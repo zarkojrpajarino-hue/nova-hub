@@ -167,8 +167,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
       queryClient.invalidateQueries({ queryKey: ['project_leads'] });
       setIsEditing(false);
-    } catch (error) {
-      console.error('Error updating lead:', error);
+    } catch (_error) {
       toast.error('Error al actualizar el lead');
     } finally {
       setIsSaving(false);

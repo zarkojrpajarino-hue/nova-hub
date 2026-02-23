@@ -278,8 +278,7 @@ export function OBVValidationList() {
       setComentario('');
       setConfirmReject(null);
       queryClient.invalidateQueries({ queryKey: ['pending_obvs_for_validation'] });
-    } catch (error) {
-      console.error('Error voting:', error);
+    } catch (_error) {
       toast.error('Error al votar. Inténtalo de nuevo.');
     } finally {
       setIsSubmitting(false);

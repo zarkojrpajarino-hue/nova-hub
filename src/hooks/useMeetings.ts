@@ -75,7 +75,7 @@ export function useProjectMeetings(projectId: string | undefined) {
         }
 
         return data as Meeting[];
-      } catch (error) {
+      } catch (_error) {
         // swallow error, return empty list
         return [];
       }

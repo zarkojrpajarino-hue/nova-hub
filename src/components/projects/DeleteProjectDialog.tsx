@@ -94,8 +94,7 @@ export function DeleteProjectDialog({
 
       // Navigate to projects view
       navigate('/proyectos');
-    } catch (error) {
-      console.error('Error deleting project:', error);
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'Error al eliminar el proyecto');
     } finally {
       setIsDeleting(false);

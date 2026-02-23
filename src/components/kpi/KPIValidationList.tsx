@@ -283,8 +283,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
 
       setVotingId(null);
       setComment('');
-    } catch (error) {
-      console.error('Error voting:', error);
+    } catch (_error) {
       toast.error('Error al registrar el voto');
     } finally {
       setIsSubmitting(false);

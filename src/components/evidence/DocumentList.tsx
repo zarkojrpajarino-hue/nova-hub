@@ -49,8 +49,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
 
       if (error) throw error;
       setDocuments(data || []);
-    } catch (error) {
-      console.error('Failed to load documents:', error);
+    } catch (_error) {
       toast.error('Failed to load documents');
     } finally {
       setLoading(false);
@@ -74,8 +73,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
 
       if (error) throw error;
       setSearchResults(data || []);
-    } catch (error) {
-      console.error('Search failed:', error);
+    } catch (_error) {
       toast.error('Search failed');
     } finally {
       setSearching(false);
@@ -97,8 +95,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
       toast.success('Document deleted');
       loadDocuments();
       setSearchResults([]);
-    } catch (error) {
-      console.error('Delete failed:', error);
+    } catch (_error) {
       toast.error('Failed to delete document');
     }
   }

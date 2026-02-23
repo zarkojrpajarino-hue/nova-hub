@@ -74,7 +74,6 @@ export function AITaskRouter() {
   };
 
   const handleRoutingError = (error: Error) => {
-    console.error('Error routing task:', error);
     toast.error('Error al rutear: ' + error.message);
   };
 
@@ -96,8 +95,7 @@ export function AITaskRouter() {
       toast.success(`Tarea asignada a ${routingResult.recommended_member.name}`);
       setTaskDescription('');
       setRoutingResult(null);
-    } catch (error) {
-      console.error('Error assigning task:', error);
+    } catch (_error) {
       toast.error('Error al asignar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     }
   };

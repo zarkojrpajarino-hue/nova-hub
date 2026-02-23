@@ -209,7 +209,7 @@ export function AILeadFinder() {
       setTimeout(() => {
         toast.info('✅ Verifica en Supabase: SELECT COUNT(*) FROM evidence_generation_metrics');
       }, 2000);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al generar leads: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);
@@ -250,7 +250,7 @@ export function AILeadFinder() {
       if (error) throw error;
 
       toast.success(`Lead "${lead.company_name}" guardado en CRM`);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);
@@ -296,7 +296,7 @@ export function AILeadFinder() {
 
       toast.success(`${leadsToInsert.length} leads guardados en CRM`);
       setGeneratedLeads([]);
-    } catch (error) {
+    } catch (_error) {
       toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);

@@ -49,7 +49,6 @@ export function ProfileSettings() {
       await updateProfile.mutateAsync({ avatar: publicUrl });
       toast.success('Avatar actualizado');
     } catch (_error) {
-      console.error('Error uploading avatar:', _error);
       toast.error('Error al subir el avatar');
       setAvatarPreview(profile?.avatar || null);
     }

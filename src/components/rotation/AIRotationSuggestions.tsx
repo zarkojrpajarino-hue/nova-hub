@@ -67,7 +67,6 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
               });
               
               if (rpcError) {
-                console.warn('Error calculating compatibility:', rpcError);
                 continue;
               }
               
@@ -91,7 +90,6 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
                 });
               }
             } catch (e) {
-              console.warn('Error calculating pair compatibility:', e);
             }
           }
         }
@@ -101,7 +99,6 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
       newSuggestions.sort((a, b) => b.score - a.score);
       setSuggestions(newSuggestions.slice(0, 5));
     } catch (e) {
-      console.error('Error generating suggestions:', e);
       setError('Error al generar sugerencias');
     } finally {
       setLoading(false);

@@ -69,8 +69,7 @@ export function useExcelExport() {
       URL.revokeObjectURL(url);
 
       toast.success('Archivo Excel descargado correctamente');
-    } catch (error) {
-      console.error('Error exporting to Excel:', error);
+    } catch (_error) {
       toast.error(
         error instanceof Error
           ? error.message

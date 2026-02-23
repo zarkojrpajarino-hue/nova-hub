@@ -97,8 +97,7 @@ export function EvidenceAIGenerator({
         setShowReport(true);
         onGenerationComplete?.(result);
       }
-    } catch (error) {
-      console.error('[EvidenceAIGenerator] Error:', error);
+    } catch (_error) {
       onError?.(error as Error);
     }
   }

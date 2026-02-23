@@ -83,7 +83,7 @@ export function LearningRoadmapPage() {
 
       setHasRoadmap(true);
       toast.success('¡Roadmap generado exitosamente!');
-    } catch (error) {
+    } catch (_error) {
       toast.error(error instanceof Error ? error.message : 'Error al generar roadmap');
     }
   };

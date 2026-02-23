@@ -34,8 +34,7 @@ export function OnboardingGate({ project }: OnboardingGateProps) {
       toast.success('¡Roles asignados! Esperando aceptación del equipo.');
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project_members'] });
-    } catch (error) {
-      console.error('Error generating roles:', error);
+    } catch (_error) {
       toast.error('Error al generar roles');
     } finally {
       setIsGeneratingRoles(false);
@@ -129,7 +128,6 @@ export function OnboardingGate({ project }: OnboardingGateProps) {
               para asignar los roles óptimos al equipo.
             </p>
           </div>
-
 
           <div className="space-y-2 text-sm">
             <h4 className="font-medium">¿Qué sucederá?</h4>

@@ -76,8 +76,7 @@ export function useOnboardingEdit({ projectId, onSuccess }: UseOnboardingEditPro
       queryClient.invalidateQueries({ queryKey: ['project', projectId] });
 
       onSuccess?.();
-    } catch (error) {
-      console.error('Error saving onboarding changes:', error);
+    } catch (_error) {
       toast.error('Error al guardar los cambios');
       throw error;
     } finally {

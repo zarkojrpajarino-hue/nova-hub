@@ -84,8 +84,7 @@ export function GenerativeFastStart({ projectId, onComplete }: GenerativeFastSta
       toast.success('Business ideas generated!', {
         description: '3 personalized business options ready'
       });
-    } catch (error) {
-      console.error('Error generating ideas:', error);
+    } catch (_error) {
       toast.error('Failed to generate ideas', {
         description: 'Please try again or contact support'
       });

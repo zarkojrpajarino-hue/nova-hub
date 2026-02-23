@@ -153,13 +153,10 @@ export function useProjectPlan(projectId: string | undefined) {
     queryFn: async () => {
       // 🎯 FEATURE FLAG: If payments disabled, don't query subscriptions
       if (!isPaymentsEnabled()) {
-        console.log('💰 useProjectPlan: Payments disabled, returning null (full access)');
         return null;
       }
 
       if (!projectId) return null;
-
-      console.log('🔍 useProjectPlan: Fetching subscription for project:', projectId);
 
       const { data, error } = await supabase
         .from('project_subscriptions')
@@ -167,18 +164,13 @@ export function useProjectPlan(projectId: string | undefined) {
         .eq('project_id', projectId)
         .single();
 
-      console.log('🔍 useProjectPlan: Result:', { data, error });
-
       if (error) {
         if (error.code === 'PGRST116') {
-          console.warn('⚠️ useProjectPlan: No subscription found for project');
           return null; // Not found
         }
-        console.error('❌ useProjectPlan: Error:', error);
         throw error;
       }
 
-      console.log('✅ useProjectPlan: Subscription loaded:', data);
       return data as ProjectSubscription;
     },
     enabled: !!projectId && isPaymentsEnabled(), // Only query if payments are enabled

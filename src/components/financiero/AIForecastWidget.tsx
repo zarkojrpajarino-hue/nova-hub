@@ -33,7 +33,6 @@ export function AIForecastWidget() {
         .single();
 
       if (error) {
-        console.error('Error fetching forecast:', error);
         // Return default values if view doesn't exist or has no data
         return {
           proyeccion_hot: 0,

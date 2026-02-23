@@ -134,8 +134,7 @@ export function PendingValidationsWidget() {
       queryClient.invalidateQueries({ queryKey: ['pending_validations_dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['pending_obvs_for_validation'] });
       queryClient.invalidateQueries({ queryKey: ['pending_kpis'] });
-    } catch (error) {
-      console.error('Error validating:', error);
+    } catch (_error) {
       toast.error('Error al validar');
     }
   };

@@ -58,7 +58,6 @@ export function InviteButton({
 
   const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
-    console.log('Upgrade to:', planId, billingCycle);
     setShowUpgradeModal(false);
     toast.success('¡Plan actualizado! Ya puedes invitar más miembros.');
   };

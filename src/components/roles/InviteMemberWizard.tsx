@@ -97,13 +97,6 @@ export function InviteMemberWizard({
       // 2. Enviar email con link de invitación
       // 3. Al aceptar, crear el member con el role asignado
 
-      console.log('Inviting member:', {
-        email,
-        nombre,
-        roleId: selectedRoleId,
-        projectId,
-      });
-
       // Simulación de delay
       await new Promise((resolve) => setTimeout(resolve, 1000));
 
@@ -111,7 +104,6 @@ export function InviteMemberWizard({
       onSuccess?.();
       handleClose();
     } catch (err) {
-      console.error('Error inviting member:', err);
       setError('Error al enviar la invitación. Por favor intenta de nuevo.');
     } finally {
       setIsSubmitting(false);

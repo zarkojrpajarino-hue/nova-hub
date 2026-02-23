@@ -212,11 +212,9 @@ export function AutoFillStep({ answers, onChange }: AutoFillStepProps) {
       if (result.success && result.data) {
         onChange('extracted_data', result.data);
       } else {
-        console.warn('Edge Function returned no data, using fallback');
         onChange('extracted_data', generateMockData());
       }
-    } catch (error) {
-      console.error('Error calling Edge Function:', error);
+    } catch (_error) {
       // Fallback to mock data if Edge Function fails
       onChange('extracted_data', generateMockData());
     }

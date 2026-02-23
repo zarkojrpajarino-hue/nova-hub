@@ -47,7 +47,6 @@ export function GeoIntelligenceSelector({
   };
 
   const handleGeoIntelligenceError = (error: Error) => {
-    console.error('Error fetching geo intelligence:', error);
     setError(error.message);
     setGeoData(null);
     onLocationSelect(city, country, null);

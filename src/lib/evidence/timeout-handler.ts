@@ -62,7 +62,7 @@ export async function retrieveWithTimeout(
       timeMs,
       timedOut: false,
     };
-  } catch (error) {
+  } catch (_error) {
     const timeMs = performance.now() - startTime;
     clearTimeout(timeoutId);
 
@@ -149,7 +149,7 @@ export async function multiTierRetrieval(
       totalTimeMs,
       globalTimeout: globalController.signal.aborted,
     };
-  } catch (error) {
+  } catch (_error) {
     const totalTimeMs = performance.now() - startTime;
     clearTimeout(globalTimeoutId);
 

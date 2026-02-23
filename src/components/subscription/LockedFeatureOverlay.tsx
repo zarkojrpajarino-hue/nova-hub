@@ -128,7 +128,6 @@ export function LockedFeatureOverlay({
 
   const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade de plan en Fase 7 (Stripe)
-    console.log('Upgrade to:', planId, billingCycle);
     setShowUpgradeModal(false);
   };
 

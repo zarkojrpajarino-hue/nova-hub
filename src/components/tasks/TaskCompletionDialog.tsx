@@ -75,7 +75,6 @@ export function TaskCompletionDialog({
         setAiQuestions(data.questions);
       }
     } catch (err) {
-      console.error('Error generating questions:', err);
       // Use fallback questions if AI fails
       setAiQuestions([]);
     } finally {
@@ -120,7 +119,6 @@ export function TaskCompletionDialog({
       
       onOpenChange(false);
     } catch (err) {
-      console.error('Error completing task:', err);
       toast.error('Error al completar la tarea');
     } finally {
       setIsSubmitting(false);

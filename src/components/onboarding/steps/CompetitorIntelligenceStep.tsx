@@ -116,8 +116,7 @@ export function CompetitorIntelligenceStep({ answers, onChange }: CompetitorInte
         // Fallback: Mock data for demo
         onChange('extracted_data', generateMockData(validUrls));
       }
-    } catch (error) {
-      console.error('Error analyzing competitors:', error);
+    } catch (_error) {
       // Fallback: Mock data
       onChange('extracted_data', generateMockData(validUrls));
     }

@@ -382,8 +382,7 @@ export function OnboardingWizard({
       queryClient.invalidateQueries({ queryKey: ['projects'] });
       queryClient.invalidateQueries({ queryKey: ['project_members'] });
       onComplete?.();
-    } catch (error) {
-      console.error('Error saving onboarding:', error);
+    } catch (_error) {
       toast.error('Error al guardar el onboarding');
     } finally {
       setIsSubmitting(false);

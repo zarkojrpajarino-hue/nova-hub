@@ -25,8 +25,6 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
 
-  console.log('🔔 TrialCountdownBanner:', { projectId, isTrial, daysLeft, isExpiringSoon });
-
   // 🎯 FEATURE FLAG: Don't show trial banner if payments are disabled
   if (!isPaymentsEnabled()) return null;
 
@@ -38,7 +36,6 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
 
   const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
-    console.log('Upgrade to:', planId, billingCycle);
     setShowUpgradeModal(false);
   };
 

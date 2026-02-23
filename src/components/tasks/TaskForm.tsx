@@ -79,8 +79,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
 
       setFormData({ titulo: '', descripcion: '', assigneeId: '', prioridad: '2', fechaLimite: '' });
       onOpenChange(false);
-    } catch (error) {
-      console.error('Error creating task:', error);
+    } catch (_error) {
       toast.error('Error al crear la tarea');
     } finally {
       setIsSubmitting(false);

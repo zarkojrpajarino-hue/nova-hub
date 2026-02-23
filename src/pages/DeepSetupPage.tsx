@@ -72,7 +72,6 @@ function DeepSetupList() {
         .single();
 
       if (error) {
-        console.error('Error loading project:', error);
         toast.error('Error loading project');
         return;
       }

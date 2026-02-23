@@ -71,8 +71,7 @@ export function FeedbackReceivedModal({
       if (error) throw error;
 
       setFeedback(data || []);
-    } catch (error) {
-      console.error('Error loading feedback:', error);
+    } catch (_error) {
       toast.error('Error al cargar el feedback');
     } finally {
       setIsLoading(false);

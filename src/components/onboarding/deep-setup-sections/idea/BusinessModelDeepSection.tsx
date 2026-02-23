@@ -158,8 +158,7 @@ export function BusinessModelDeepSection({
       toast.success('Business Model completed!', {
         description: 'BMC Editor and Value Prop Designer unlocked'
       });
-    } catch (error) {
-      console.error('Error completing BMC:', error);
+    } catch (_error) {
       toast.error('Failed to save', {
         description: 'Please try again'
       });

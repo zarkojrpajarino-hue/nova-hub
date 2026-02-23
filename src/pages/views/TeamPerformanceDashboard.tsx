@@ -81,8 +81,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
         setSelectedProject(projects[0].id);
         await loadProjectData(projects[0].id);
       }
-    } catch (error) {
-      console.error('Error loading data:', error);
+    } catch (_error) {
       toast.error('Error al cargar los datos');
     } finally {
       setIsLoading(false);
@@ -111,8 +110,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
         .eq('project_id', projectId);
 
       setCompetitions(comp || []);
-    } catch (error) {
-      console.error('Error loading project data:', error);
+    } catch (_error) {
     }
   };
 
@@ -130,8 +128,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
         .order('created_at', { ascending: false });
 
       setRoleInsights(data || []);
-    } catch (error) {
-      console.error('Error loading insights:', error);
+    } catch (_error) {
     }
   };
 

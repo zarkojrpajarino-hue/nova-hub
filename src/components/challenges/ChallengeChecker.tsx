@@ -169,8 +169,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
           });
         }
       }
-    } catch (error) {
-      console.error('Error loading requirements:', error);
+    } catch (_error) {
       toast.error('Error al verificar los requisitos');
     } finally {
       setIsLoading(false);

@@ -118,16 +118,8 @@ export function useEvidenceGeneration({
 
       setSearchResults(results);
 
-      console.log('[Evidence] Search complete:', {
-        sourcesFound: results.sources_found.length,
-        tier1: results.tier_1_count,
-        tier2: results.tier_2_count,
-        avgReliability: results.avg_reliability_score,
-      });
-
       return true;
-    } catch (error) {
-      console.error('[Evidence] Search failed:', error);
+    } catch (_error) {
       toast.error('Failed to search for evidence');
       return false;
     } finally {
@@ -146,7 +138,6 @@ export function useEvidenceGeneration({
     const validation = validateEvidenceContract(claims, sources, contract);
 
     if (!validation.passes) {
-      console.log('[Evidence] Validation failed:', validation.reason);
       setStrictModeBlocked(true);
       setExitOptions(validation.exitOptions || null);
       return false;
@@ -264,8 +255,7 @@ export function useEvidenceGeneration({
 
       setGenerationResult(result);
       return result;
-    } catch (error) {
-      console.error('[Evidence] Generation failed:', error);
+    } catch (_error) {
       toast.error('Generation failed');
       return null;
     } finally {
@@ -353,8 +343,7 @@ export function useEvidenceGeneration({
         generation_duration_ms: result.generation_duration_ms,
         generated_content: result.content,
       });
-    } catch (error) {
-      console.error('[Evidence] Failed to log generation:', error);
+    } catch (_error) {
     }
   }
 

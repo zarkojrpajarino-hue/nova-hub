@@ -87,8 +87,7 @@ export function SimplifiedOnboardingEntry({
       toast.success('Business ecosystem generated successfully', {
         description: 'Review and approve the strategic documents'
       });
-    } catch (error) {
-      console.error('Error generating artifacts:', error);
+    } catch (_error) {
       toast.error('Failed to generate documents', {
         description: 'Please try again or contact support'
       });
@@ -109,12 +108,10 @@ export function SimplifiedOnboardingEntry({
   };
 
   const handleEditArtifact = (artifactId: string) => {
-    console.log('Edit artifact:', artifactId);
     toast.info('Edit functionality coming soon');
   };
 
   const handleApproveArtifact = (artifactId: string) => {
-    console.log('Approve artifact:', artifactId);
     toast.success('Artifact approved');
   };
 

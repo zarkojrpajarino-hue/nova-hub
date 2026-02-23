@@ -105,8 +105,7 @@ export function MeetingInsightsReview({
       );
 
       toast.success('Insight aprobado');
-    } catch (error) {
-      console.error('Error approving insight:', error);
+    } catch (_error) {
       toast.error('Error al aprobar');
     }
   };
@@ -128,8 +127,7 @@ export function MeetingInsightsReview({
       );
 
       toast.success('Insight rechazado');
-    } catch (error) {
-      console.error('Error rejecting insight:', error);
+    } catch (_error) {
       toast.error('Error al rechazar');
     }
   };
@@ -162,8 +160,7 @@ export function MeetingInsightsReview({
 
       toast.success('Insight actualizado');
       setEditingInsight(null);
-    } catch (error) {
-      console.error('Error updating insight:', error);
+    } catch (_error) {
       toast.error('Error al actualizar');
     }
   };
@@ -199,8 +196,7 @@ export function MeetingInsightsReview({
       await applyInsights.mutateAsync(meetingId);
       // Después de aplicar con éxito, notificar al padre
       onApplyInsights();
-    } catch (error) {
-      console.error('Error applying insights:', error);
+    } catch (_error) {
       // El error ya se muestra por el hook
     } finally {
       setIsApplying(false);

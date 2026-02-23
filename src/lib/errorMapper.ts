@@ -157,5 +157,4 @@ export function mapAuthError(error: unknown): string {
  */
 export function logError(context: string, error: unknown): void {
   // In production, you might want to send this to an error tracking service
-  console.error(`[${context}]`, error);
 }

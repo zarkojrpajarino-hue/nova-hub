@@ -276,7 +276,6 @@ export class GamificationSystem {
       })
       .eq('id', this.projectId);
 
-    console.log(`Awarded ${points} points for: ${reason}`);
   }
 
   /**
@@ -320,7 +319,6 @@ export class GamificationSystem {
       })
       .eq('id', this.projectId);
 
-    console.log(`Achievement unlocked: ${achievement.name} (+${achievement.points} points)`);
     return true;
   }
 
@@ -354,7 +352,6 @@ export class GamificationSystem {
       })
       .eq('id', this.projectId);
 
-    console.log(`Badge awarded: ${badgeId}`);
     return true;
   }
 

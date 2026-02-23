@@ -133,7 +133,6 @@ export default function EvidenceTestPage() {
                 userId={userId}
                 buttonLabel="🚀 Test Evidence Generation"
                 onGenerationComplete={(result) => {
-                  console.log('✅ Generation complete:', result);
                   alert('Generation complete! Check console (F12) for full result');
                 }}
               />

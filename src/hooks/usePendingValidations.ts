@@ -47,7 +47,6 @@ export function usePendingValidations(limit = 10) {
         .limit(20);
 
       if (obvError) {
-        console.error('Error fetching OBVs:', obvError);
       }
 
       // Fetch pending KPIs with validations in a single query
@@ -68,7 +67,6 @@ export function usePendingValidations(limit = 10) {
         .limit(20);
 
       if (kpiError) {
-        console.error('Error fetching KPIs:', kpiError);
       }
 
       // Process validations directly from nested data
@@ -190,7 +188,6 @@ export function useValidate() {
       queryClient.invalidateQueries({ queryKey: ['kpis'] });
     },
     onError: (error) => {
-      console.error('Validation error:', error);
       toast.error('Error al validar');
     },
   });

@@ -134,8 +134,7 @@ export function PeerFeedbackForm({
       );
 
       if (onSuccess) onSuccess();
-    } catch (error) {
-      console.error('Error enviando feedback:', error);
+    } catch (_error) {
 
       if (error instanceof Error && 'code' in error && (error as { code: string }).code === '23505') {
         toast.error('Ya enviaste feedback a esta persona en este período');

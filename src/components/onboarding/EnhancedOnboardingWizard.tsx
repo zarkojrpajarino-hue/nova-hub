@@ -182,14 +182,12 @@ export function EnhancedOnboardingWizard({ projectId, onComplete }: EnhancedOnbo
         .single();
 
       if (error) {
-        console.error('Error loading project:', error);
         return;
       }
 
       // If project has a pre-selected onboarding type, use it and skip type selection
       if (project?.metadata?.onboarding_type) {
         const savedType = project.metadata.onboarding_type as OnboardingType;
-        console.log('✅ Pre-selected onboarding type found:', savedType);
         setOnboardingType(savedType);
         // Skip type_selection and go to next step
         setCurrentStep('auto_fill');
@@ -430,8 +428,7 @@ export function EnhancedOnboardingWizard({ projectId, onComplete }: EnhancedOnbo
       });
 
       setCurrentStep('complete');
-    } catch (error) {
-      console.error('Error completing onboarding:', error);
+    } catch (_error) {
       toast({
         title: 'Error',
         description: (error instanceof Error ? error.message : null) || 'No pudimos completar el onboarding. Intenta de nuevo.',

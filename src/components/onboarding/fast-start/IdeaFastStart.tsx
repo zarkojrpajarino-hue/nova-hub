@@ -78,8 +78,7 @@ export function IdeaFastStart({ projectId, onComplete }: IdeaFastStartProps) {
       toast.success('Idea validated!', {
         description: 'Your business strategy is ready'
       });
-    } catch (error) {
-      console.error('Error validating idea:', error);
+    } catch (_error) {
       toast.error('Failed to validate idea', {
         description: 'Please try again or contact support'
       });
