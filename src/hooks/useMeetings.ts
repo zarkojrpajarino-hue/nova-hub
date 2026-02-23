@@ -60,7 +60,6 @@ export function useProjectMeetings(projectId: string | undefined) {
     queryKey: ['meetings', projectId],
     queryFn: async () => {
       if (!projectId) {
-        console.log('⚠️ useProjectMeetings: No project ID provided');
         return [];
       }
 
@@ -72,13 +71,12 @@ export function useProjectMeetings(projectId: string | undefined) {
           .order('created_at', { ascending: false });
 
         if (error) {
-          console.error('Error fetching meetings:', error);
           throw error;
         }
 
         return data as Meeting[];
       } catch (error) {
-        console.error('Error in useProjectMeetings:', error);
+        // swallow error, return empty list
         return [];
       }
     },
@@ -154,7 +152,7 @@ export function useCreateMeeting() {
           .insert(participantsData);
 
         if (participantsError) {
-          console.error('Error adding participants:', participantsError);
+          // non-fatal: meeting was created, participants partial failure
         }
       }
 
@@ -172,7 +170,7 @@ export function useCreateMeeting() {
           .insert(assignableData);
 
         if (assignableError) {
-          console.error('Error adding assignable members:', assignableError);
+          // non-fatal: meeting was created, assignable members partial failure
         }
       }
 
@@ -183,7 +181,6 @@ export function useCreateMeeting() {
       toast.success('Reunión creada exitosamente');
     },
     onError: (error: Error) => {
-      console.error('Error creating meeting:', error);
       toast.error('Error al crear la reunión: ' + error.message);
     },
   });
@@ -345,15 +342,12 @@ export function useTranscribeMeeting() {
 
   return useMutation({
     mutationFn: async (meetingId: string) => {
-      console.log('🎙️ Starting transcription for meeting:', meetingId);
-
       // Llamar a la Edge Function
       const { data, error } = await supabase.functions.invoke('transcribe-meeting', {
         body: { meetingId },
       });
 
       if (error) {
-        console.error('Error calling transcribe function:', error);
         throw error;
       }
 
@@ -363,14 +357,12 @@ export function useTranscribeMeeting() {
 
       return data;
     },
-    onSuccess: (data, meetingId) => {
-      console.log('✅ Transcription completed:', data);
+    onSuccess: (_data, meetingId) => {
       queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       toast.success('Transcripción completada correctamente');
     },
     onError: (error: Error) => {
-      console.error('Error transcribing meeting:', error);
       toast.error('Error al transcribir: ' + (error.message || 'Error desconocido'));
     },
   });
@@ -384,15 +376,12 @@ export function useAnalyzeMeeting() {
 
   return useMutation({
     mutationFn: async (meetingId: string) => {
-      console.log('🤖 Starting analysis for meeting:', meetingId);
-
       // Llamar a la Edge Function
       const { data, error } = await supabase.functions.invoke('analyze-meeting', {
         body: { meetingId },
       });
 
       if (error) {
-        console.error('Error calling analyze function:', error);
         throw error;
       }
 
@@ -403,14 +392,12 @@ export function useAnalyzeMeeting() {
       return data;
     },
     onSuccess: (data, meetingId) => {
-      console.log('✅ Analysis completed:', data);
       queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       queryClient.invalidateQueries({ queryKey: ['meeting-insights', meetingId] });
       toast.success(`Análisis completado: ${data.insightsCount} insights extraídos`);
     },
     onError: (error: Error) => {
-      console.error('Error analyzing meeting:', error);
       toast.error('Error al analizar: ' + (error.message || 'Error desconocido'));
     },
   });
@@ -424,15 +411,12 @@ export function useApplyMeetingInsights() {
 
   return useMutation({
     mutationFn: async (meetingId: string) => {
-      console.log('🎯 Applying insights for meeting:', meetingId);
-
       // Llamar a la Edge Function
       const { data, error } = await supabase.functions.invoke('apply-meeting-insights', {
         body: { meetingId },
       });
 
       if (error) {
-        console.error('Error calling apply function:', error);
         throw error;
       }
 
@@ -443,7 +427,6 @@ export function useApplyMeetingInsights() {
       return data;
     },
     onSuccess: (data, meetingId) => {
-      console.log('✅ Insights applied:', data);
       queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       queryClient.invalidateQueries({ queryKey: ['meeting-insights', meetingId] });
@@ -455,7 +438,6 @@ export function useApplyMeetingInsights() {
       toast.success(`¡Insights aplicados! ${total} elementos creados en el sistema`);
     },
     onError: (error: Error) => {
-      console.error('Error applying insights:', error);
       toast.error('Error al aplicar insights: ' + (error.message || 'Error desconocido'));
     },
   });

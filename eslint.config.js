@@ -27,4 +27,12 @@ export default tseslint.config(
       }],
     },
   },
+  // Disable no-console in test files
+  {
+    files: ["src/**/*.{ts,tsx}"],
+    ignores: ["src/**/*.test.{ts,tsx}", "src/**/*.spec.{ts,tsx}"],
+    rules: {
+      "no-console": "warn",
+    },
+  },
 );

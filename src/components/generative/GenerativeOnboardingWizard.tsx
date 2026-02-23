@@ -253,8 +253,8 @@ export function GenerativeOnboardingWizard({
           setSavedProgress(parsed);
           setShowRestorePrompt(true);
         }
-      } catch (error) {
-        console.error('Error loading saved progress:', error);
+      } catch (_error) {
+        // ignore malformed saved progress
       }
     }
   }, [open, selectedType]);
@@ -360,7 +360,6 @@ export function GenerativeOnboardingWizard({
 
       toast.success('Información extraída automáticamente');
     } catch (error) {
-      console.error('Error extracting web data:', error);
       toast.error('No se pudo extraer información de la web');
     } finally {
       setIsExtractingWebData(false);
@@ -403,7 +402,6 @@ export function GenerativeOnboardingWizard({
 
       setIsAnalyzingCompetitors(false);
     } catch (error) {
-      console.error('Error extracting startup data:', error);
       toast.error('No se pudo extraer información de la startup');
       setIsExtractingWebData(false);
       setIsAnalyzingCompetitors(false);
@@ -443,7 +441,6 @@ export function GenerativeOnboardingWizard({
         toast.success('Sugerencias generadas por IA');
       }
     } catch (error) {
-      console.error('Error generating buyer persona:', error);
       toast.error('No se pudo generar sugerencias. Inténtalo de nuevo.');
     } finally {
       setIsGeneratingSuggestions(false);
@@ -470,8 +467,8 @@ export function GenerativeOnboardingWizard({
       if (error) throw error;
 
       setMonetizationValidation(data);
-    } catch (error) {
-      console.error('Error validating monetization:', error);
+    } catch (_error) {
+      // validation is non-critical, skip silently
     }
   };
 
@@ -492,7 +489,6 @@ export function GenerativeOnboardingWizard({
       setCompetitorAnalysis(data);
       toast.success('Análisis de competencia completado');
     } catch (error) {
-      console.error('Error analyzing competitors:', error);
       toast.error('No se pudo analizar la competencia');
     } finally {
       setIsAnalyzingCompetitors(false);
@@ -514,7 +510,6 @@ export function GenerativeOnboardingWizard({
       setCompetitorAnalysis(data);
       toast.success('Análisis visual de competidores completado');
     } catch (error) {
-      console.error('Error analyzing competitor URLs:', error);
       toast.error('No se pudo analizar competidores');
     } finally {
       setIsAnalyzingCompetitors(false);

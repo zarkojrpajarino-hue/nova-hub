@@ -24,37 +24,21 @@ export function useAuth() {
 
     const fetchProfile = async (authId: string) => {
       try {
-        console.log('🔍 [1] Starting fetchProfile for auth_id:', authId);
-
-        // Test: Can we connect to Supabase at all?
-        console.log('🔍 [1.5] Testing basic Supabase connection...');
-        const { data: testSession } = await supabase.auth.getSession();
-        console.log('🔍 [1.6] Auth session check:', testSession ? 'SUCCESS' : 'FAILED');
-
-        console.log('🔍 [2] Building query...');
-
-        const query = supabase
+        const { data, error } = await supabase
           .from('members')
           .select('*')
           .eq('auth_id', authId)
           .single();
 
-        console.log('🔍 [3] Query built, executing...');
-        const { data, error } = await query;
-        console.log('🔍 [4] Query completed. Data:', data, 'Error:', error);
-
         if (error) {
-          console.error('❌ Error fetching profile:', error);
           if (isMounted) setProfile(null);
           return;
         }
 
-        console.log('✅ Profile loaded successfully:', data);
         if (isMounted && data) {
           setProfile(data as Profile);
         }
-      } catch (error) {
-        console.error('❌ Exception in fetchProfile:', error);
+      } catch (_error) {
         if (isMounted) setProfile(null);
       }
     };

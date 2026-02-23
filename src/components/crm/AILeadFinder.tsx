@@ -108,8 +108,6 @@ export function AILeadFinder() {
 
     setIsGenerating(true);
     try {
-      console.log('[AI Lead Finder] Calling edge function with Evidence System...');
-
       // Usar fetch directamente para evitar problemas de CORS del cliente Supabase
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/ai-lead-finder`,
@@ -146,10 +144,6 @@ export function AILeadFinder() {
       }
 
       const data = await response.json();
-
-      console.log('[AI Lead Finder] Success! Generation ID:', data.generation_id);
-      console.log('[AI Lead Finder] Leads found:', data.suggested_leads?.length || 0);
-      console.log('[AI Lead Finder] Raw leads:', data.suggested_leads);
 
       // Transform backend structure to frontend structure
       const transformedLeads: GeneratedLead[] = (data.suggested_leads || []).map((lead: RawLeadFromAPI) => {
@@ -208,8 +202,6 @@ export function AILeadFinder() {
         };
       });
 
-      console.log('[AI Lead Finder] Transformed leads:', transformedLeads);
-
       setGeneratedLeads(transformedLeads);
       toast.success(`${transformedLeads.length} leads generados exitosamente`);
 
@@ -218,7 +210,6 @@ export function AILeadFinder() {
         toast.info('✅ Verifica en Supabase: SELECT COUNT(*) FROM evidence_generation_metrics');
       }, 2000);
     } catch (error) {
-      console.error('[AI Lead Finder] Error generating leads:', error);
       toast.error('Error al generar leads: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsGenerating(false);
@@ -260,7 +251,6 @@ export function AILeadFinder() {
 
       toast.success(`Lead "${lead.company_name}" guardado en CRM`);
     } catch (error) {
-      console.error('Error saving lead:', error);
       toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);
@@ -307,7 +297,6 @@ export function AILeadFinder() {
       toast.success(`${leadsToInsert.length} leads guardados en CRM`);
       setGeneratedLeads([]);
     } catch (error) {
-      console.error('Error saving leads:', error);
       toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
     } finally {
       setIsSaving(false);

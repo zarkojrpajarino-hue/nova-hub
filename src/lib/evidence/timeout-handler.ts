@@ -68,7 +68,6 @@ export async function retrieveWithTimeout(
 
     if (error instanceof Error && error.name === 'AbortError') {
       // Timeout occurred
-      console.warn(`[Timeout] ${tier} exceeded ${timeoutMs}ms`);
       return {
         tier,
         sources: [],
@@ -79,7 +78,6 @@ export async function retrieveWithTimeout(
     }
 
     // Other error
-    console.error(`[Error] ${tier} retrieval failed:`, error);
     return {
       tier,
       sources: [],
@@ -121,13 +119,11 @@ export async function multiTierRetrieval(
     for (const tier of tiers) {
       // Check global timeout
       if (globalController.signal.aborted) {
-        console.warn('[Global Timeout] Stopping retrieval');
         break;
       }
 
       const retrievalFn = retrievalFunctions[tier];
       if (!retrievalFn) {
-        console.warn(`[Missing] No retrieval function for tier: ${tier}`);
         continue;
       }
 
@@ -141,14 +137,7 @@ export async function multiTierRetrieval(
         allSources.push(...result.sources);
       }
 
-      // Log what happened
-      if (result.timedOut) {
-        console.warn(`[Timeout] ${tier} took ${result.timeMs}ms (limit: ${timeoutMs}ms)`);
-      } else if (result.error) {
-        console.error(`[Error] ${tier} failed: ${result.error}`);
-      } else {
-        console.log(`[Success] ${tier} found ${result.sources.length} sources in ${result.timeMs}ms`);
-      }
+      // timedOut and error states are surfaced via TierRetrievalResult fields
     }
 
     const totalTimeMs = performance.now() - startTime;
@@ -163,8 +152,6 @@ export async function multiTierRetrieval(
   } catch (error) {
     const totalTimeMs = performance.now() - startTime;
     clearTimeout(globalTimeoutId);
-
-    console.error('[Fatal Error] Multi-tier retrieval failed:', error);
 
     return {
       allSources,

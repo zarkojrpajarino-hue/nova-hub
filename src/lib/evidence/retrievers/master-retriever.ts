@@ -53,7 +53,6 @@ export async function searchEvidenceSources(
 
   // Tier 1: User Documents (highest priority)
   if (policy.tier_1_enabled) {
-    console.log('[Evidence] Searching Tier 1: User Documents...');
     const tier1Sources = await searchUserDocuments(
       query,
       context.userId,
@@ -65,7 +64,6 @@ export async function searchEvidenceSources(
 
   // Tier 2: Official APIs
   if (policy.tier_2_enabled) {
-    console.log('[Evidence] Searching Tier 2: Official Sources...');
     const tier2Sources = await searchOfficialSources(
       query,
       context.country || 'US',
@@ -76,13 +74,11 @@ export async function searchEvidenceSources(
 
   // Tier 3: Business Data (TODO)
   if (policy.tier_3_enabled) {
-    console.log('[Evidence] Tier 3: Business Data (not implemented yet)');
     // TODO: Implement Crunchbase, PitchBook searches
   }
 
   // Tier 4: News (TODO)
   if (policy.tier_4_enabled) {
-    console.log('[Evidence] Tier 4: News (not implemented yet)');
     // TODO: Implement news API searches
   }
 
@@ -241,13 +237,11 @@ export async function getProjectSourcePolicy(
     });
 
     if (error) {
-      console.error('Error getting source policy:', error);
       return null;
     }
 
     return data as SourcePolicy;
-  } catch (error) {
-    console.error('Unexpected error getting source policy:', error);
+  } catch (_error) {
     return null;
   }
 }
@@ -267,13 +261,11 @@ export async function updateProjectSourcePolicy(
       .eq('project_id', projectId);
 
     if (error) {
-      console.error('Error updating source policy:', error);
       return false;
     }
 
     return true;
-  } catch (error) {
-    console.error('Unexpected error updating source policy:', error);
+  } catch (_error) {
     return false;
   }
 }

@@ -64,7 +64,6 @@ export async function searchSEC(
     });
 
     if (!response.ok) {
-      console.error('SEC API error:', response.status, response.statusText);
       return [];
     }
 
@@ -103,8 +102,7 @@ export async function searchSEC(
     }
 
     return sources;
-  } catch (error) {
-    console.error('Error searching SEC:', error);
+  } catch (_error) {
     return [];
   }
 }
@@ -169,8 +167,7 @@ export async function searchCensus(
     ];
 
     return sources;
-  } catch (error) {
-    console.error('Error searching Census:', error);
+  } catch (_error) {
     return [];
   }
 }
@@ -225,7 +222,6 @@ export async function searchWorldBank(
     const response = await fetch(url);
 
     if (!response.ok) {
-      console.error('World Bank API error:', response.status);
       return [];
     }
 
@@ -262,8 +258,7 @@ export async function searchWorldBank(
       }));
 
     return sources;
-  } catch (error) {
-    console.error('Error searching World Bank:', error);
+  } catch (_error) {
     return [];
   }
 }
@@ -312,8 +307,7 @@ export async function searchBLS(seriesId: string, _apiKey?: string): Promise<Rea
     ];
 
     return sources;
-  } catch (error) {
-    console.error('Error searching BLS:', error);
+  } catch (_error) {
     return [];
   }
 }

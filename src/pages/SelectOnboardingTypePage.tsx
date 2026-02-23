@@ -24,24 +24,14 @@ export function SelectOnboardingTypePage() {
 
   // CRITICAL: Redirect to /select-project if user already has projects
   useEffect(() => {
-    console.log('🔍 SelectOnboardingType: Checking if should be here...', {
-      projectsLoading,
-      hasProfile: !!profile,
-      projectsCount: userProjects.length
-    });
-
     // Wait for everything to load
     if (projectsLoading || !profile) {
-      console.log('⏳ SelectOnboardingType: Still loading...');
       return;
     }
 
     // If user has projects, they shouldn't be here - redirect to select-project
     if (userProjects.length > 0) {
-      console.log('➡️ SelectOnboardingType: User has projects, redirecting to /select-project');
       navigate('/select-project', { replace: true });
-    } else {
-      console.log('✅ SelectOnboardingType: User has no projects, staying here');
     }
   }, [profile, userProjects, projectsLoading, navigate]);
 
@@ -114,7 +104,6 @@ export function SelectOnboardingTypePage() {
         .single();
 
       if (memberError || !memberData) {
-        console.error('Error getting member:', memberError);
         toast.error('No se pudo encontrar tu perfil de miembro');
         setIsCreating(false);
         return;
@@ -136,15 +125,13 @@ export function SelectOnboardingTypePage() {
         .single();
 
       if (error) {
-        console.error('Error creating project:', error);
         throw error;
       }
 
       // Navigate directly to onboarding
       navigate(`/onboarding/${newProject.id}`);
 
-    } catch (error) {
-      console.error('Error creating project:', error);
+    } catch (_error) {
       toast.error('Error al crear el proyecto');
       setIsCreating(false);
       setSelectedType(null);

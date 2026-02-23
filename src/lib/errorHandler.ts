@@ -311,20 +311,10 @@ export function getRetryDelay(attemptNumber: number): number {
 /**
  * Logs de error para debugging
  */
-export function logError(error: unknown, context?: string) {
-  const appError = error instanceof AppError ? error : handleSupabaseError(error);
+export function logError(error: unknown, _context?: string) {
+  // TODO: send to Sentry or equivalent error tracking service
+  const _appError = error instanceof AppError ? error : handleSupabaseError(error);
 
-  console.group(`❌ Error${context ? ` in ${context}` : ''}`);
-  console.error('Message:', appError.message);
-  console.error('Code:', appError.code);
-  console.error('Status:', appError.statusCode);
-  if (appError.details) {
-    console.error('Details:', appError.details);
-  }
-  console.error('Stack:', appError.stack);
-  console.groupEnd();
-
-  // En producción, enviar a servicio de logging (Sentry, etc.)
   if (import.meta.env.PROD) {
     // Implementar envío a Sentry/similar
   }
