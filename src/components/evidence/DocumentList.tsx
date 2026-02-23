@@ -165,10 +165,9 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
                   className="p-3 border rounded-lg space-y-1"
                 >
                   <p className="text-sm font-medium">{result.document_name}</p>
-                  <p
-                    className="text-xs text-muted-foreground"
-                    dangerouslySetInnerHTML={{ __html: result.matched_content }}
-                  />
+                  <p className="text-xs text-muted-foreground">
+                    {result.matched_content}
+                  </p>
                   <p className="text-xs text-muted-foreground">
                     Relevance: {(result.relevance_rank * 100).toFixed(0)}%
                   </p>
