@@ -20,21 +20,18 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 
 serve(async (req) => {
-  try {
-    // CORS
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+  const origin = req.headers.get('Origin');
 
+  // CORS preflight
+  if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
+
+  try {
     const body = await req.json() as Record<string, unknown>;
     const { user_id, lead_id, project_id, template_type, tone } = body as {
       user_id: string;
@@ -45,13 +42,14 @@ serve(async (req) => {
     };
 
     if (!user_id || !lead_id) {
-      throw new Error('user_id and lead_id are required');
+      return new Response(
+        JSON.stringify({ error: 'user_id and lead_id are required' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      );
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+    // Auth: verifica token JWT y que user_id coincide con el usuario autenticado
+    const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     // 1. Obtener datos del lead
     const { data: lead } = await supabaseClient
@@ -123,18 +121,20 @@ serve(async (req) => {
         success: true,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
+    // Auth errors thrown as Response (401/403)
+    if (error instanceof Response) return error;
     console.error('Error generating email pitch:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : String(error),
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

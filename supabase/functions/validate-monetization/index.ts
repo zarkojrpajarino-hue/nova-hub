@@ -18,6 +18,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 
 interface RequestBody {
   model: string;
@@ -34,18 +36,14 @@ interface ValidationResult {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS headers
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
+    await validateAuth(req);
     const { model, idea, targetCustomer }: RequestBody = await req.json();
 
     if (!model || !idea) {
@@ -181,7 +179,8 @@ Devuelve SOLO el JSON, sin markdown.`;
       }
 
     } catch (e) {
-      console.error('Parse error:', e);
+          if (error instanceof Response) return error;
+console.error('Parse error:', e);
       console.error('Raw content:', content);
 
       // Fallback response
@@ -200,13 +199,14 @@ Devuelve SOLO el JSON, sin markdown.`;
         validation,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
 
   } catch (error) {
-    console.error('Error validating monetization:', error);
+        if (error instanceof Response) return error;
+console.error('Error validating monetization:', error);
 
     return new Response(
       JSON.stringify({
@@ -214,7 +214,7 @@ Devuelve SOLO el JSON, sin markdown.`;
         error: error.message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

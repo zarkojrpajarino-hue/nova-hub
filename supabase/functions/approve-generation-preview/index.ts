@@ -16,19 +16,16 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const {
       preview_id,
@@ -41,10 +38,7 @@ serve(async (req) => {
       throw new Error('preview_id and selected_branding_option are required');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuth(req);
 
     // 1. Get generation preview
     const { data: preview, error: previewError } = await supabaseClient
@@ -260,7 +254,8 @@ serve(async (req) => {
             .eq('project_id', projectId);
         }
       } catch (error) {
-        console.error('Deployment error:', error);
+            if (error instanceof Response) return error;
+console.error('Deployment error:', error);
         // Continue even if deployment fails
       }
     }
@@ -299,18 +294,19 @@ serve(async (req) => {
         ],
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error approving preview:', error);
+        if (error instanceof Response) return error;
+console.error('Error approving preview:', error);
     return new Response(
       JSON.stringify({
         error: (error as Error).message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

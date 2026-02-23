@@ -10,15 +10,20 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
+    await validateAuth(req);
+
     const { city, country, onboarding_type } = await req.json();
 
     if (!city || !country) {
       return new Response(
         JSON.stringify({ success: false, error: 'City and country required' }),
-        { status: 400, headers: { 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -34,13 +39,14 @@ serve(async (req) => {
         success: true,
         data: localContext,
       }),
-      { headers: { 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   } catch (error) {
-    console.error('Error generating local context:', error);
+        if (error instanceof Response) return error;
+console.error('Error generating local context:', error);
     return new Response(
       JSON.stringify({ success: false, error: error.message }),
-      { status: 500, headers: { 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

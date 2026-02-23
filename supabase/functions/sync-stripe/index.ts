@@ -21,20 +21,17 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const { user_id, integration_id, sync_type, since_date } = await req.json();
 
@@ -42,10 +39,7 @@ serve(async (req) => {
       throw new Error('user_id and integration_id are required');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     // 1. Obtener credenciales de Stripe
     const { data: integration } = await supabaseClient
@@ -139,18 +133,19 @@ serve(async (req) => {
         success: true,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error syncing Stripe:', error);
+        if (error instanceof Response) return error;
+console.error('Error syncing Stripe:', error);
     return new Response(
       JSON.stringify({
         error: error.message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

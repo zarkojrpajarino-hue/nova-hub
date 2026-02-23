@@ -10,13 +10,11 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 interface GrowthPlaybookRequest {
   project_id: string;
@@ -45,17 +43,15 @@ interface GrowthPlaybookRequest {
 }
 
 serve(async (req) => {
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+  const origin = req.headers.get('Origin');
+    if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
   }
 
   try {
     const requestData: GrowthPlaybookRequest = await req.json();
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuth(req);
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
@@ -89,13 +85,14 @@ serve(async (req) => {
         success: true,
         data: saved,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   } catch (error) {
-    console.error('❌ Error:', error);
+        if (error instanceof Response) return error;
+console.error('❌ Error:', error);
     return new Response(JSON.stringify({ success: false, error: error instanceof Error ? error.message : 'Unknown error' }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
     });
   }
 });

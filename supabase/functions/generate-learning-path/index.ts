@@ -18,6 +18,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface LearningPathStep {
@@ -51,17 +53,12 @@ interface RoleTemplate {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const { user_id, target_role, focus_areas } = await req.json();
 
@@ -70,10 +67,7 @@ serve(async (req) => {
     }
 
     // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     // 1. Obtener skill gaps del usuario
     const { data: skillGaps } = await supabaseClient.rpc('get_skill_gaps', {
@@ -145,18 +139,19 @@ serve(async (req) => {
         success: true,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error generating learning path:', error);
+        if (error instanceof Response) return error;
+console.error('Error generating learning path:', error);
     return new Response(
       JSON.stringify({
         error: (error as Error).message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

@@ -24,19 +24,16 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const { user_id, task_id, worker_type, execution_params, project_context, approval_id } = await req.json() as {
       user_id: string;
@@ -51,10 +48,7 @@ serve(async (req) => {
       throw new Error('user_id and worker_type are required');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     // 1. Verificar aprobación si es necesaria
     if (approval_id) {
@@ -172,12 +166,13 @@ serve(async (req) => {
           success: true,
         }),
         {
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
           status: 200,
         }
       );
     } catch (executionError) {
-      // Error en la ejecución
+          if (error instanceof Response) return error;
+// Error en la ejecución
       await supabaseClient
         .from('ai_task_executions')
         .update({
@@ -189,13 +184,14 @@ serve(async (req) => {
       throw executionError;
     }
   } catch (error) {
-    console.error('Error in AI Task Executor:', error);
+        if (error instanceof Response) return error;
+console.error('Error in AI Task Executor:', error);
     return new Response(
       JSON.stringify({
         error: (error as Error).message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

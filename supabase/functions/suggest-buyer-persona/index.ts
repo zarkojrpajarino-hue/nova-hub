@@ -13,6 +13,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 
 interface RequestBody {
   idea: string;
@@ -21,18 +23,14 @@ interface RequestBody {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS headers
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
+    await validateAuth(req);
     const { idea, industry, problemStatement }: RequestBody = await req.json();
 
     if (!idea || idea.trim().length < 10) {
@@ -135,7 +133,8 @@ Devuelve SOLO el JSON, sin markdown.`;
       }
 
     } catch (e) {
-      console.error('Parse error:', e);
+          if (error instanceof Response) return error;
+console.error('Parse error:', e);
       console.error('Raw content:', content);
 
       // Fallback: extract suggestions from text
@@ -151,13 +150,14 @@ Devuelve SOLO el JSON, sin markdown.`;
         ...result,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
 
   } catch (error) {
-    console.error('Error generating buyer persona suggestions:', error);
+        if (error instanceof Response) return error;
+console.error('Error generating buyer persona suggestions:', error);
 
     return new Response(
       JSON.stringify({
@@ -165,7 +165,7 @@ Devuelve SOLO el JSON, sin markdown.`;
         error: error.message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

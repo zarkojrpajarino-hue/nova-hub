@@ -15,20 +15,17 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { Resend } from 'https://esm.sh/resend@2.0.0';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const {
       project_id,
@@ -45,10 +42,7 @@ serve(async (req) => {
       throw new Error('project_id, to_email, subject, and body_html are required');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuth(req);
 
     // 1. Get sender email from company_assets
     const { data: assets } = await supabaseClient
@@ -152,12 +146,13 @@ serve(async (req) => {
           status: 'sent',
         }),
         {
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
           status: 200,
         }
       );
     } catch (sendError) {
-      // Update status to failed
+          if (error instanceof Response) return error;
+// Update status to failed
       await supabaseClient
         .from('sent_emails')
         .update({
@@ -169,14 +164,15 @@ serve(async (req) => {
       throw sendError;
     }
   } catch (error) {
-    console.error('Error sending email:', error);
+        if (error instanceof Response) return error;
+console.error('Error sending email:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',
         details: 'Make sure RESEND_API_KEY is configured and sender_email is set in company_assets',
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

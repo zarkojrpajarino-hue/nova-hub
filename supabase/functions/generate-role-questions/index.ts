@@ -1,17 +1,18 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 Deno.serve(async (req) => {
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
+  const origin = req.headers.get('Origin');
 
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
   }
+    const { serviceClient: supabaseClient } = await validateAuth(req);
 
   try {
     // Verify authentication
@@ -19,25 +20,19 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Verify the user token
+    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');// Verify the user token
     const token = authHeader.replace('Bearer ', '');
     const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
     
     if (claimsError || !claims?.claims) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -51,7 +46,7 @@ Deno.serve(async (req) => {
     );
 
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     const ANTHROPIC_API_KEY = requireEnv("ANTHROPIC_API_KEY");
@@ -63,7 +58,7 @@ Deno.serve(async (req) => {
     if (!validation.success) {
       return new Response(
         JSON.stringify({ error: validation.error }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -135,20 +130,20 @@ Formato JSON (array):
         console.error("Rate limit exceeded");
         return new Response(
           JSON.stringify({ error: "Too many requests. Please try again later." }),
-          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 429, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
         );
       }
       if (response.status === 402) {
         console.error("Payment required");
         return new Response(
           JSON.stringify({ error: "Unable to generate questions at this time." }),
-          { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+          { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
         );
       }
       console.error("AI gateway error:", response.status);
       return new Response(
         JSON.stringify({ error: "Unable to generate questions at this time." }),
-        { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -167,21 +162,23 @@ Formato JSON (array):
         questions = JSON.parse(jsonMatch[0]);
       }
     } catch (_e) {
-      console.error('Error parsing Claude response');
+          if (error instanceof Response) return error;
+console.error('Error parsing Claude response');
     }
 
     console.log('Generated questions:', questions.length);
 
     return new Response(
       JSON.stringify({ questions }),
-      { headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
 
   } catch (error) {
-    console.error("Error generating questions:", error);
+        if (error instanceof Response) return error;
+console.error("Error generating questions:", error);
     return new Response(
       JSON.stringify({ error: "Unable to generate questions at this time." }),
-      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

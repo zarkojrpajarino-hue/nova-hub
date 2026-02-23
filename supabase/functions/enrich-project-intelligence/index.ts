@@ -12,19 +12,16 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const { project_id, user_id, project_info } = await req.json();
 
@@ -32,10 +29,7 @@ serve(async (req) => {
       throw new Error('project_id, user_id, and project_info are required');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     console.log('Enriching project intelligence for:', project_id);
 
@@ -77,7 +71,8 @@ serve(async (req) => {
     try {
       enrichedData = JSON.parse(cleanContent);
     } catch (_e) {
-      console.error('Parse error');
+          if (error instanceof Response) return error;
+console.error('Parse error');
       console.error('Raw content:', content);
       throw new Error('Failed to parse AI response');
     }
@@ -117,18 +112,19 @@ serve(async (req) => {
         next_step: 'Review and approve via frontend',
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error enriching project intelligence:', error);
+        if (error instanceof Response) return error;
+console.error('Error enriching project intelligence:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

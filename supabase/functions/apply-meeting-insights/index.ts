@@ -11,6 +11,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface MeetingRecord extends Record<string, unknown> {
@@ -26,15 +28,12 @@ interface InsightRecord extends Record<string, unknown> {
   content: Record<string, unknown>;
 }
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
   }
 
   try {
@@ -44,7 +43,7 @@ serve(async (req) => {
     if (!meetingId) {
       return new Response(
         JSON.stringify({ error: 'meetingId is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -52,8 +51,7 @@ serve(async (req) => {
 
     // 2. Inicializar Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        const { serviceClient: supabase } = await validateAuth(req);
 
     // 3. Obtener reunión
     const { data: meeting, error: meetingError } = await supabase
@@ -66,7 +64,7 @@ serve(async (req) => {
       console.error('Error fetching meeting:', meetingError);
       return new Response(
         JSON.stringify({ error: 'Meeting not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -82,14 +80,14 @@ serve(async (req) => {
       console.error('Error fetching insights:', insightsError);
       return new Response(
         JSON.stringify({ error: 'Failed to fetch insights' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     if (!insights || insights.length === 0) {
       return new Response(
         JSON.stringify({ error: 'No approved insights to apply' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -157,7 +155,8 @@ serve(async (req) => {
             .eq('id', insight.id);
         }
       } catch (error) {
-        console.error(`Error applying insight ${insight.id}:`, error);
+            if (error instanceof Response) return error;
+console.error(`Error applying insight ${insight.id}:`, error);
         results.errors.push(`${insight.insight_type}: ${(error as Error).message}`);
       }
     }
@@ -185,13 +184,14 @@ serve(async (req) => {
         results,
         message: 'Insights applied successfully',
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   } catch (error) {
-    console.error('Unexpected error:', error);
+        if (error instanceof Response) return error;
+console.error('Unexpected error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

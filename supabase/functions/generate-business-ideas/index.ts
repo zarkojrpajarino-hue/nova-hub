@@ -19,19 +19,16 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const { user_id, interests_id: _interests_id } = await req.json();
 
@@ -39,10 +36,7 @@ serve(async (req) => {
       throw new Error('user_id is required');
     }
 
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     // 1. Obtener interests del usuario
     const { data: interests } = await supabaseClient
@@ -97,7 +91,8 @@ serve(async (req) => {
     try {
       parsedIdeas = JSON.parse(cleanContent);
     } catch (_e) {
-      console.error('Parse error');
+          if (error instanceof Response) return error;
+console.error('Parse error');
       throw new Error('Failed to parse AI response');
     }
 
@@ -151,18 +146,19 @@ serve(async (req) => {
         success: true,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error generating business ideas:', error);
+        if (error instanceof Response) return error;
+console.error('Error generating business ideas:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : 'Unknown error',
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

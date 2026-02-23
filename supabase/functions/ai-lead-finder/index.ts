@@ -23,6 +23,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
 
@@ -78,16 +80,12 @@ interface LocationRecord {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   // CORS headers
-  const corsHeaders = {
-    'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
-    'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type, x-supabase-platform-allowed',
-  };
-
+  
   // CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
   }
 
   // Parse request body ONCE (before try-catch)
@@ -102,10 +100,7 @@ serve(async (req) => {
     const quantity = search_params?.quantity || 5;
 
     // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     // ==================== EVIDENCE INSTRUMENTATION ====================
     const evidenceTracker = new EvidenceMetricsTracker(
@@ -226,12 +221,13 @@ serve(async (req) => {
         generation_id: generationId, // Para vincular eventos UI
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error in AI Lead Finder:', error);
+        if (error instanceof Response) return error;
+console.error('Error in AI Lead Finder:', error);
 
     // ==================== EVIDENCE INSTRUMENTATION (ERROR) ====================
     // Log error metrics - Importante para debugging y análisis
@@ -264,7 +260,8 @@ serve(async (req) => {
         console.log(`[Evidence] Logged error generation: ${errorGenerationId}`);
       }
     } catch (loggingError) {
-      console.error('[Evidence] Failed to log error metrics:', loggingError);
+          if (error instanceof Response) return error;
+console.error('[Evidence] Failed to log error metrics:', loggingError);
     }
     // ==================================================================
 
@@ -273,7 +270,7 @@ serve(async (req) => {
         error: (error as Error).message,
       }),
       {
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

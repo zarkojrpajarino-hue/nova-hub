@@ -19,6 +19,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface Prediction {
@@ -43,17 +45,12 @@ interface PredictionRecommendation {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
     const body = await req.json() as Record<string, unknown>;
     const { user_id, prediction_types, forecast_months } = body as {
@@ -70,10 +67,7 @@ serve(async (req) => {
     const months = forecast_months || 3;
 
     // Initialize Supabase client
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? ''
-    );
+        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
     const results: {
       predictions: Prediction[];
@@ -140,18 +134,19 @@ serve(async (req) => {
         success: true,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
   } catch (error) {
-    console.error('Error generating predictions:', error);
+        if (error instanceof Response) return error;
+console.error('Error generating predictions:', error);
     return new Response(
       JSON.stringify({
         error: error instanceof Error ? error.message : String(error),
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

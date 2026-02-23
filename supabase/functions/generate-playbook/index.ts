@@ -1,12 +1,12 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { PlaybookRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 Deno.serve(async (req) => {
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
+  const origin = req.headers.get('Origin');
 
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
@@ -18,7 +18,7 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -36,7 +36,7 @@ Deno.serve(async (req) => {
     if (claimsError || !claims?.claims) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -50,7 +50,7 @@ Deno.serve(async (req) => {
     );
 
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     // Parse and validate request body
@@ -60,15 +60,13 @@ Deno.serve(async (req) => {
     if (!validation.success) {
       return new Response(
         JSON.stringify({ error: validation.error }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     const { userId, roleName } = validation.data;
 
     // Use service role for data operations
-    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     // Verify the requesting user matches the target user or is authorized
     const { data: requestingProfile } = await supabase
@@ -87,7 +85,7 @@ Deno.serve(async (req) => {
       if (!isAdmin) {
         return new Response(
           JSON.stringify({ error: 'Unauthorized to generate playbook for this user' }),
-          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
         );
       }
     }
@@ -209,7 +207,7 @@ Responde con este JSON exacto:
       console.error('AI API error:', aiResponse.status);
       return new Response(
         JSON.stringify({ error: 'Unable to generate playbook at this time' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -226,7 +224,8 @@ Responde con este JSON exacto:
         .trim();
       playbookContent = JSON.parse(cleanedContent);
     } catch (_parseError) {
-      console.error('Failed to parse AI response');
+          if (error instanceof Response) return error;
+console.error('Failed to parse AI response');
       // Fallback content
       playbookContent = {
         sections: [
@@ -288,20 +287,21 @@ Responde con este JSON exacto:
       console.error('Error inserting playbook');
       return new Response(
         JSON.stringify({ error: 'Failed to save playbook' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true, playbook: newPlaybook }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
 
   } catch (error: unknown) {
-    console.error('Error in generate-playbook:', error);
+        if (error instanceof Response) return error;
+console.error('Error in generate-playbook:', error);
     return new Response(
       JSON.stringify({ error: 'Unable to generate playbook at this time' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

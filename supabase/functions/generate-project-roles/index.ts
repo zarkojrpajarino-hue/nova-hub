@@ -13,6 +13,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
@@ -37,12 +38,12 @@ interface GeneratedRole {
 }
 
 Deno.serve(async (req) => {
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
+  const origin = req.headers.get('Origin');
 
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
   }
+    const { serviceClient: supabaseClient } = await validateAuth(req);
 
   try {
     // Verify authentication
@@ -50,7 +51,7 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -68,7 +69,7 @@ Deno.serve(async (req) => {
     if (claimsError || !claims?.claims) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -82,7 +83,7 @@ Deno.serve(async (req) => {
     );
 
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     // Parse request body
@@ -93,7 +94,7 @@ Deno.serve(async (req) => {
     if (!project_id || !project_name || !industry || !business_idea || !work_mode) {
       return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -120,7 +121,7 @@ Deno.serve(async (req) => {
         message: 'No roles generated for no_roles work mode'
       }), {
         status: 200,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -139,7 +140,7 @@ Deno.serve(async (req) => {
         error: 'AI role generation not available in current plan'
       }), {
         status: 403,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -153,7 +154,7 @@ Deno.serve(async (req) => {
     if (!userProfile) {
       return new Response(
         JSON.stringify({ error: 'User profile not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -167,7 +168,7 @@ Deno.serve(async (req) => {
     if (!userMembership) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized: You are not a member of this project' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -226,7 +227,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
         error: 'OpenAI API key not configured'
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -255,7 +256,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
         details: errorData
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -267,12 +268,13 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
     try {
       parsedContent = JSON.parse(content);
     } catch (_e) {
-      console.error('Failed to parse OpenAI response:', content);
+          if (error instanceof Response) return error;
+console.error('Failed to parse OpenAI response:', content);
       return new Response(JSON.stringify({
         error: 'Invalid response format from AI'
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -284,7 +286,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
         error: 'No roles generated by AI'
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -314,7 +316,7 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
         details: insertError.message
       }), {
         status: 500,
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -335,21 +337,19 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
       message: `✨ ${insertedRoles.length} roles personalizados generados con IA`
     }), {
       status: 200,
-      headers: {
-        'Content-Type': 'application/json',
-        ...corsHeaders,
-      },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
     });
 
   } catch (error: unknown) {
-    console.error('Function error:', error);
+        if (error instanceof Response) return error;
+console.error('Function error:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(JSON.stringify({
       error: 'Internal server error',
       message: errorMessage
     }), {
       status: 500,
-      headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
     });
   }
 });

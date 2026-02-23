@@ -10,20 +10,20 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { callClaude } from '../_shared/anthropic-client.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
   }
 
+    await validateAuth(req);
   try {
     const {
       type, // 'generative' | 'idea' | 'existing'
@@ -69,19 +69,20 @@ serve(async (req) => {
     } else {
       return new Response(
         JSON.stringify({ success: false, error: 'Invalid type' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     return new Response(
       JSON.stringify({ success: true, data }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   } catch (error) {
-    console.error('Error in scrape-and-extract:', error);
+        if (error instanceof Response) return error;
+console.error('Error in scrape-and-extract:', error);
     return new Response(
       JSON.stringify({ success: false, error: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });
@@ -114,7 +115,8 @@ async function scrapeUrl(url: string): Promise<string> {
     // Limit to first 10000 characters to avoid token limits
     return cleaned.substring(0, 10000);
   } catch (error) {
-    console.error(`Error scraping ${url}:`, error);
+        if (error instanceof Response) return error;
+console.error(`Error scraping ${url}:`, error);
     return `Failed to scrape ${url}: ${(error as Error).message}`;
   }
 }
@@ -174,7 +176,8 @@ Identify their value props, target audiences, business models, key features, and
     const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     return JSON.parse(cleaned);
   } catch (error) {
-    console.error('Error generating from competitors:', error);
+        if (error instanceof Response) return error;
+console.error('Error generating from competitors:', error);
     return getMockGenerativeData(urls);
   }
 }
@@ -258,7 +261,8 @@ Extract: value prop, target audience, features, pricing, founder backgrounds (in
     const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     return JSON.parse(cleaned);
   } catch (error) {
-    console.error('Error extracting for idea:', error);
+        if (error instanceof Response) return error;
+console.error('Error extracting for idea:', error);
     return getMockIdeaData(website_url, linkedin_urls, competitor_urls);
   }
 }
@@ -345,7 +349,8 @@ Extract: website value prop/features/pricing, estimate metrics (MRR, customers, 
     const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
     return JSON.parse(cleaned);
   } catch (error) {
-    console.error('Error extracting for existing:', error);
+        if (error instanceof Response) return error;
+console.error('Error extracting for existing:', error);
     return getMockExistingData();
   }
 }
@@ -362,7 +367,7 @@ function fallbackToMockData(type: string, competitor_urls: string[], website_url
   }
   return new Response(
     JSON.stringify({ success: true, data }),
-    { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
   );
 }
 

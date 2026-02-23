@@ -1,4 +1,5 @@
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';
@@ -20,8 +21,7 @@ const ROLE_LABELS: Record<string, string> = {
 };
 
 Deno.serve(async (req) => {
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
+  const origin = req.headers.get('Origin');
 
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
@@ -33,7 +33,7 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -51,7 +51,7 @@ Deno.serve(async (req) => {
     if (claimsError || !claims?.claims) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -65,7 +65,7 @@ Deno.serve(async (req) => {
     );
 
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     // Parse and validate request body
@@ -75,15 +75,13 @@ Deno.serve(async (req) => {
     if (!validation.success) {
       return new Response(
         JSON.stringify({ error: validation.error }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     const { projectId } = validation.data;
 
     // Use service role for data operations
-    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('Generating tasks for project:', projectId);
 
@@ -107,7 +105,7 @@ Deno.serve(async (req) => {
     if (limitError || !canCreate) {
       return new Response(
         JSON.stringify({ error: 'Failed to check limits' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -118,7 +116,7 @@ Deno.serve(async (req) => {
           limits: canCreate.limits,
           message: 'Límite de tareas alcanzado. Vuelve mañana o espera hasta la próxima semana.',
         }),
-        { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 429, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -136,7 +134,7 @@ Deno.serve(async (req) => {
     if (projectError || !project) {
       return new Response(
         JSON.stringify({ error: 'Project not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -151,7 +149,7 @@ Deno.serve(async (req) => {
     if (profileError || !userProfile) {
       return new Response(
         JSON.stringify({ error: 'User profile not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -168,7 +166,7 @@ Deno.serve(async (req) => {
     if (membershipError || !userMembership) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized: You are not a member of this project' }),
-        { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -186,7 +184,7 @@ Deno.serve(async (req) => {
     if (teamError || !teamMembers || teamMembers.length === 0) {
       return new Response(
         JSON.stringify({ error: 'No team members found' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -296,7 +294,7 @@ Deno.serve(async (req) => {
       console.error('AI API error:', response.status);
       return new Response(
         JSON.stringify({ error: 'Unable to generate tasks at this time' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -306,7 +304,7 @@ Deno.serve(async (req) => {
     if (!content) {
       return new Response(
         JSON.stringify({ error: 'No response from AI' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -318,10 +316,11 @@ Deno.serve(async (req) => {
     try {
       parsed = JSON.parse(cleanContent);
     } catch (_e) {
-      console.error('Parse error, content preview:', cleanContent.substring(0, 200));
+          if (error instanceof Response) return error;
+console.error('Parse error, content preview:', cleanContent.substring(0, 200));
       return new Response(
         JSON.stringify({ error: 'Failed to parse AI response' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -415,14 +414,15 @@ Deno.serve(async (req) => {
         saved: savedTasks.length,
         generation_id: generationId,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
 
   } catch (error: unknown) {
-    console.error('Error in generate-tasks-v2:', error);
+        if (error instanceof Response) return error;
+console.error('Error in generate-tasks-v2:', error);
     return new Response(
       JSON.stringify({ error: 'Unable to generate tasks at this time' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

@@ -14,6 +14,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 
 interface RequestBody {
   startupUrl: string;
@@ -38,18 +40,14 @@ interface AnalysisResult {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS headers
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
+    await validateAuth(req);
     const { startupUrl, industry }: RequestBody = await req.json();
 
     if (!startupUrl) {
@@ -95,7 +93,8 @@ H1: ${h1}
 `;
       }
     } catch (error) {
-      console.warn('Could not fetch startup URL:', error);
+          if (error instanceof Response) return error;
+console.warn('Could not fetch startup URL:', error);
       userStartupContext = `Website: ${startupUrl} (no se pudo acceder)`;
     }
 
@@ -202,7 +201,8 @@ Devuelve SOLO el JSON, sin markdown.`;
     try {
       analysis = JSON.parse(cleanContent);
     } catch (e) {
-      console.error('Parse error:', e);
+          if (error instanceof Response) return error;
+console.error('Parse error:', e);
       console.error('Raw content:', content);
       throw new Error('Failed to parse AI response as JSON');
     }
@@ -213,13 +213,14 @@ Devuelve SOLO el JSON, sin markdown.`;
         ...analysis,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
 
   } catch (error) {
-    console.error('Error analyzing competitors:', error);
+        if (error instanceof Response) return error;
+console.error('Error analyzing competitors:', error);
 
     return new Response(
       JSON.stringify({
@@ -227,7 +228,7 @@ Devuelve SOLO el JSON, sin markdown.`;
         error: error.message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

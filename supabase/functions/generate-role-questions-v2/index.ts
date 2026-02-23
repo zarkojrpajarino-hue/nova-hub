@@ -1,5 +1,6 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsV2RequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
@@ -102,8 +103,7 @@ function sanitizeText(input: unknown, maxLength: number): string {
 }
 
 Deno.serve(async (req) => {
-  const origin = req.headers.get('origin');
-  const corsHeaders = getCorsHeaders(origin);
+  const origin = req.headers.get('Origin');
 
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
@@ -115,7 +115,7 @@ Deno.serve(async (req) => {
     if (!authHeader?.startsWith('Bearer ')) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -133,7 +133,7 @@ Deno.serve(async (req) => {
     if (claimsError || !claims?.claims) {
       return new Response(
         JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -147,7 +147,7 @@ Deno.serve(async (req) => {
     );
 
     if (!rateLimitResult.allowed) {
-      return createRateLimitResponse(rateLimitResult, corsHeaders);
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     // Parse and validate request body
@@ -157,7 +157,7 @@ Deno.serve(async (req) => {
     if (!validation.success) {
       return new Response(
         JSON.stringify({ error: validation.error }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -168,7 +168,7 @@ Deno.serve(async (req) => {
     if (!VALID_ROLES.includes(roleName)) {
       return new Response(
         JSON.stringify({ error: 'Invalid role specified' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -176,8 +176,6 @@ Deno.serve(async (req) => {
     const sanitizedDuration = duracionMinutos ?? 60;
 
     // Use service role for data queries
-    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-    const supabase = createClient(supabaseUrl, supabaseKey);
 
     console.log('Generating questions for role:', roleName);
 
@@ -197,14 +195,14 @@ Deno.serve(async (req) => {
       console.error('Error fetching members');
       return new Response(
         JSON.stringify({ error: 'Unable to fetch role members' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     if (!members || members.length === 0) {
       return new Response(
         JSON.stringify({ questions: [], message: 'No members with this role' }),
-        { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -303,7 +301,7 @@ Deno.serve(async (req) => {
       console.error('AI API error:', response.status);
       return new Response(
         JSON.stringify({ error: 'Unable to generate questions at this time' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -313,7 +311,7 @@ Deno.serve(async (req) => {
     if (!content) {
       return new Response(
         JSON.stringify({ error: 'No response from AI' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -323,10 +321,11 @@ Deno.serve(async (req) => {
     try {
       parsed = JSON.parse(cleanContent);
     } catch (_e) {
-      console.error('Parse error');
+          if (error instanceof Response) return error;
+console.error('Parse error');
       return new Response(
         JSON.stringify({ error: 'Failed to process AI response' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -338,14 +337,15 @@ Deno.serve(async (req) => {
         role: roleInfo.label,
         members_count: membersWithContext.length,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
 
   } catch (error: unknown) {
-    console.error('Error in generate-role-questions-v2:', error);
+        if (error instanceof Response) return error;
+console.error('Error in generate-role-questions-v2:', error);
     return new Response(
       JSON.stringify({ error: 'Unable to generate questions at this time' }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

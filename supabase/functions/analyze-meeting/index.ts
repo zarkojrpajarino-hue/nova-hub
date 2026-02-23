@@ -11,12 +11,10 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 interface ProjectMember {
   id: string;
@@ -46,9 +44,10 @@ interface MeetingContext {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: corsHeaders });
+    if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
   }
 
   try {
@@ -58,7 +57,7 @@ serve(async (req) => {
     if (!meetingId) {
       return new Response(
         JSON.stringify({ error: 'meetingId is required' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -66,8 +65,7 @@ serve(async (req) => {
 
     // 2. Inicializar Supabase client
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+        const { serviceClient: supabase } = await validateAuth(req);
 
     // 3. Obtener datos de la reunión
     const { data: meeting, error: meetingError } = await supabase
@@ -80,14 +78,14 @@ serve(async (req) => {
       console.error('Error fetching meeting:', meetingError);
       return new Response(
         JSON.stringify({ error: 'Meeting not found' }),
-        { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
     if (!meeting.transcript) {
       return new Response(
         JSON.stringify({ error: 'Meeting has no transcript' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -131,7 +129,7 @@ serve(async (req) => {
       console.error('OPENAI_API_KEY not configured');
       return new Response(
         JSON.stringify({ error: 'OpenAI API key not configured' }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -169,7 +167,7 @@ serve(async (req) => {
       console.error('GPT-4 API error:', errorText);
       return new Response(
         JSON.stringify({ error: 'GPT-4 API failed', details: errorText }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -182,10 +180,11 @@ serve(async (req) => {
     try {
       insights = JSON.parse(analysisText);
     } catch (parseError) {
-      console.error('Error parsing GPT-4 response:', parseError);
+          if (error instanceof Response) return error;
+console.error('Error parsing GPT-4 response:', parseError);
       return new Response(
         JSON.stringify({ error: 'Failed to parse GPT-4 response', details: analysisText }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -283,7 +282,7 @@ serve(async (req) => {
         console.error('Error inserting insights:', insertError);
         return new Response(
           JSON.stringify({ error: 'Failed to save insights', details: insertError }),
-          { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
         );
       }
     }
@@ -307,7 +306,7 @@ serve(async (req) => {
       console.error('Error updating meeting:', updateError);
       return new Response(
         JSON.stringify({ error: 'Failed to update meeting', details: updateError }),
-        { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -330,13 +329,14 @@ serve(async (req) => {
         status: 'ready_for_review',
         message: 'Analysis completed successfully',
       }),
-      { status: 200, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 200, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   } catch (error) {
-    console.error('Unexpected error:', error);
+        if (error instanceof Response) return error;
+console.error('Unexpected error:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error', details: (error as Error).message }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });

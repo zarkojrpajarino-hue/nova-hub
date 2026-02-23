@@ -6,6 +6,8 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 
 interface RequestBody {
   url: string;
@@ -30,18 +32,14 @@ interface BusinessInfo {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     // CORS headers
-    if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
-    }
+      if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
+  }
 
+    await validateAuth(req);
     const { url, project_phase, context_type }: RequestBody = await req.json();
 
     if (!url) {
@@ -107,7 +105,7 @@ serve(async (req) => {
           ai_used: false,
         }),
         {
-          headers: { 'Content-Type': 'application/json' },
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
           status: 200,
         }
       );
@@ -169,13 +167,14 @@ serve(async (req) => {
         source_url: url,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
 
   } catch (error) {
-    console.error('Error extracting business info:', error);
+        if (error instanceof Response) return error;
+console.error('Error extracting business info:', error);
 
     return new Response(
       JSON.stringify({
@@ -183,7 +182,7 @@ serve(async (req) => {
         error: error.message,
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

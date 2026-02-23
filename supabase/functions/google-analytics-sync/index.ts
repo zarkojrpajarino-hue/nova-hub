@@ -11,13 +11,11 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { validateAuth } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { logAICall } from '../_shared/aiLogger.ts';
 
-const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
 
 interface GAMetrics {
   // Traffic
@@ -82,23 +80,16 @@ interface GARequest {
 }
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: corsHeaders });
+    if (req.method === 'OPTIONS') {
+    return handleCorsPreflightRequest(origin);
   }
 
   const startTime = Date.now();
 
   try {
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      {
-        global: {
-          headers: { Authorization: req.headers.get('Authorization')! },
-        },
-      }
-    );
+        const { serviceClient: supabaseClient } = await validateAuth(req);
 
     const body: GARequest = await req.json();
     const { projectId, accessToken, authCode, propertyId, startDate, endDate } = body;
@@ -106,7 +97,7 @@ serve(async (req) => {
     if (!projectId) {
       return new Response(
         JSON.stringify({ error: 'Missing projectId' }),
-        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -126,7 +117,7 @@ serve(async (req) => {
           error: 'No access token or auth code provided',
           authUrl: getGoogleOAuthUrl(),
         }),
-        { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -140,7 +131,7 @@ serve(async (req) => {
             success: false,
             error: 'No GA4 properties found. Make sure you have Google Analytics 4 set up.',
           }),
-          { status: 404, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+          { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
         );
       }
       // Use first property by default (or let user choose)
@@ -187,17 +178,18 @@ serve(async (req) => {
         metrics,
         propertyId: gaPropertyId,
       }),
-      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   } catch (error) {
-    console.error('❌ Error syncing Google Analytics:', error);
+        if (error instanceof Response) return error;
+console.error('❌ Error syncing Google Analytics:', error);
 
     return new Response(
       JSON.stringify({
         success: false,
         error: error instanceof Error ? error.message : 'Failed to sync Google Analytics',
       }),
-      { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 });
