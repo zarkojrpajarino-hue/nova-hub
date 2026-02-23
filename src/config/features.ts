@@ -36,7 +36,7 @@ export const ENABLE_PAYMENTS = false;
  * - true: Muestra datos demo pre-generados (útil para presentaciones)
  * - false: Usa datos reales del usuario
  */
-export const DEMO_MODE = true;
+export const DEMO_MODE = false;
 
 /**
  * SHOW_UPGRADE_HINTS: Muestra hints sutiles de upgrade sin bloquear

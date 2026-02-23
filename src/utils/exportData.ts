@@ -67,6 +67,7 @@ export function downloadCSV(data: Record<string, unknown>[], filename: string, h
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 // ============================================
@@ -85,6 +86,7 @@ export function downloadJSON(data: unknown, filename: string): void {
   document.body.appendChild(link);
   link.click();
   document.body.removeChild(link);
+  URL.revokeObjectURL(url);
 }
 
 // ============================================

@@ -79,6 +79,9 @@ export default defineConfig(({ mode }) => ({
     reportCompressedSize: true,
   },
 
+  // Strip all console.* and debugger calls in production builds
+  esbuild: mode === 'production' ? { drop: ['console', 'debugger'] } : {},
+
   // ✨ OPTIMIZADO: Optimización de dependencias
   optimizeDeps: {
     include: [
