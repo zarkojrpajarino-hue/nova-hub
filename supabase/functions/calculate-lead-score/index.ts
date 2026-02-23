@@ -14,6 +14,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 interface LeadData {
   id: string;
@@ -57,7 +58,12 @@ serve(async (req) => {
     }
 
     // Initialize Supabase client
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    const rateLimitResult = await checkRateLimit(user.id, 'calculate-lead-score', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // Obtener datos del lead
     const { data: lead, error: leadError } = await supabaseClient

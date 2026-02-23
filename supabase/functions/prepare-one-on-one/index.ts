@@ -25,6 +25,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 interface CompletedTask {
   titulo?: string;
@@ -98,6 +99,11 @@ serve(async (req) => {
 
     // Initialize Supabase client
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    const rateLimitResult = await checkRateLimit(user_id, 'prepare-one-on-one', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // 1. Obtener último 1:1 para comparar progreso
     const { data: lastMeeting } = await supabaseClient

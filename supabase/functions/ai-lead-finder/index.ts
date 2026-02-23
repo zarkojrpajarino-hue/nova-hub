@@ -25,6 +25,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
 
@@ -101,6 +102,11 @@ serve(async (req) => {
 
     // Initialize Supabase client
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    const rateLimitResult = await checkRateLimit(user_id, 'ai-lead-finder', { maxRequests: 5, windowMs: 60000 });
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // ==================== EVIDENCE INSTRUMENTATION ====================
     const evidenceTracker = new EvidenceMetricsTracker(

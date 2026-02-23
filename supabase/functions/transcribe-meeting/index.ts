@@ -8,6 +8,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 
 
 serve(async (req) => {
@@ -31,7 +32,12 @@ serve(async (req) => {
     console.log('🎙️ Starting transcription for meeting:', meetingId);
 
     // 2. Inicializar Supabase client
-        const { serviceClient: supabase } = await validateAuth(req);
+        const { user, serviceClient: supabase } = await validateAuth(req);
+
+    const rateLimitResult = await checkRateLimit(user.id, 'transcribe-meeting', { maxRequests: 3, windowMs: 60000 });
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // 3. Obtener datos de la reunión
     const { data: meeting, error: meetingError } = await supabase

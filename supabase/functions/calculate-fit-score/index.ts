@@ -15,6 +15,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 
 interface FitScoreRequest {
@@ -57,7 +58,12 @@ serve(async (req) => {
   }
 
   try {
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    const rateLimitResult = await checkRateLimit(user.id, 'calculate-fit-score', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     const { exploration_period_id } = await req.json() as FitScoreRequest;
 

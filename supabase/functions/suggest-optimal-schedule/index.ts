@@ -18,6 +18,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 interface TaskData {
   id: string;
@@ -60,6 +61,11 @@ serve(async (req) => {
 
     // Initialize Supabase client
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    const rateLimitResult = await checkRateLimit(user_id, 'suggest-optimal-schedule', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // 1. Obtener patrones de productividad del usuario
     const { data: productiveHours, error: _hoursError } = await supabaseClient

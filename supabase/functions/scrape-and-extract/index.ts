@@ -12,6 +12,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import { callClaude } from '../_shared/anthropic-client.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
@@ -23,8 +24,12 @@ serve(async (req) => {
     return handleCorsPreflightRequest(origin);
   }
 
-    await validateAuth(req);
+    const { user } = await validateAuth(req);
   try {
+    const rateLimitResult = await checkRateLimit(user.id, 'scrape-and-extract', { maxRequests: 5, windowMs: 60000 });
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
     const {
       type, // 'generative' | 'idea' | 'existing'
       // Generative

@@ -11,6 +11,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
@@ -96,7 +97,12 @@ serve(async (req) => {
   const startTime = Date.now();
 
   try {
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    const rateLimitResult = await checkRateLimit(user.id, 'ai-business-advisor', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     const { projectId, chatId, message }: AdvisorRequest = await req.json();
 

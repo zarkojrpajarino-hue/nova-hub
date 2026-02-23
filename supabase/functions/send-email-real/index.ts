@@ -17,6 +17,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import { Resend } from 'https://esm.sh/resend@2.0.0';
 
 serve(async (req) => {
@@ -41,7 +42,12 @@ serve(async (req) => {
       throw new Error('project_id, to_email, subject, and body_html are required');
     }
 
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    const rateLimitResult = await checkRateLimit(user.id, 'send-email-real', { maxRequests: 5, windowMs: 60000 });
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // 1. Get sender email from company_assets
     const { data: assets } = await supabaseClient

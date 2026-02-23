@@ -16,6 +16,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 interface RequestBody {
   startupUrl: string;
@@ -47,7 +48,11 @@ serve(async (req) => {
     return handleCorsPreflightRequest(origin);
   }
 
-    await validateAuth(req);
+    const { user } = await validateAuth(req);
+    const rateLimitResult = await checkRateLimit(user.id, 'analyze-competitors', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
     const { startupUrl, industry }: RequestBody = await req.json();
 
     if (!startupUrl) {

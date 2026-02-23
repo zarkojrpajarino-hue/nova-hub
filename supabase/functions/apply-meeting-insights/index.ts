@@ -13,6 +13,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface MeetingRecord extends Record<string, unknown> {
@@ -50,7 +51,12 @@ serve(async (req) => {
     console.log('🎯 Applying insights for meeting:', meetingId);
 
     // 2. Inicializar Supabase client
-        const { serviceClient: supabase } = await validateAuth(req);
+        const { user, serviceClient: supabase } = await validateAuth(req);
+
+    const rateLimitResult = await checkRateLimit(user.id, 'apply-meeting-insights', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     // 3. Obtener reunión
     const { data: meeting, error: meetingError } = await supabase
