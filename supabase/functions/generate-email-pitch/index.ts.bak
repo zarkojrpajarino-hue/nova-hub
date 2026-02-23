@@ -5,14 +5,8 @@
  * Usa contexto del lead, proyecto, y buyer persona para crear mensajes ultra-personalizados
  *
  * Input:
- * - user_id: UUID del usuario (requerido)
- * - lead_id: UUID del lead (opcional - si se omite, usar campos libres)
- * - recipient_name: nombre del destinatario (usado si no hay lead_id)
- * - recipient_company: empresa del destinatario (usado si no hay lead_id)
- * - recipient_role: rol del destinatario (usado si no hay lead_id)
- * - your_product: nombre del producto/servicio (usado si no hay lead_id)
- * - pain_points: dolor/problema del destinatario (usado si no hay lead_id)
- * - call_to_action: CTA del email (usado si no hay lead_id)
+ * - user_id: UUID del usuario
+ * - lead_id: UUID del lead
  * - project_id: UUID del proyecto (opcional)
  * - template_type: 'cold_outreach' | 'follow_up' | 'proposal' | 'meeting_request'
  * - tone: 'professional' | 'casual' | 'friendly' | 'formal'
@@ -39,36 +33,17 @@ serve(async (req) => {
 
   try {
     const body = await req.json() as Record<string, unknown>;
-    const {
-      user_id,
-      lead_id,
-      project_id,
-      template_type,
-      tone,
-      recipient_name,
-      recipient_company,
-      recipient_role,
-      your_product,
-      pain_points,
-      call_to_action,
-    } = body as {
+    const { user_id, lead_id, project_id, template_type, tone } = body as {
       user_id: string;
-      lead_id?: string;
+      lead_id: string;
       project_id?: string;
       template_type?: string;
       tone?: string;
-      recipient_name?: string;
-      recipient_company?: string;
-      recipient_role?: string;
-      your_product?: string;
-      pain_points?: string;
-      call_to_action?: string;
     };
 
-    // Only user_id is required; lead_id is optional
-    if (!user_id) {
+    if (!user_id || !lead_id) {
       return new Response(
-        JSON.stringify({ error: 'user_id is required' }),
+        JSON.stringify({ error: 'user_id and lead_id are required' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
@@ -76,44 +51,18 @@ serve(async (req) => {
     // Auth: verifica token JWT y que user_id coincide con el usuario autenticado
     const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
 
-    let lead: LeadRecord | null = null;
-    let previousInteractions: InteractionRecord[] = [];
+    // 1. Obtener datos del lead
+    const { data: lead } = await supabaseClient
+      .from('leads')
+      .select('*')
+      .eq('id', lead_id)
+      .single();
 
-    if (lead_id) {
-      // --- Path A: lead_id provided, fetch from DB ---
-      const { data: leadData } = await supabaseClient
-        .from('leads')
-        .select('*')
-        .eq('id', lead_id)
-        .single();
-
-      if (!leadData) {
-        throw new Error('Lead not found');
-      }
-
-      lead = leadData;
-
-      const { data: interactions } = await supabaseClient
-        .from('sales_observations')
-        .select('*')
-        .eq('lead_id', lead_id)
-        .order('created_at', { ascending: false })
-        .limit(3);
-
-      previousInteractions = interactions || [];
-    } else {
-      // --- Path B: no lead_id, build from free-form fields ---
-      lead = {
-        nombre: recipient_name || '',
-        empresa: recipient_company || '',
-        industria: recipient_role || '',
-        pain_point: pain_points || '',
-        product_override: your_product || '',
-        call_to_action_override: call_to_action || '',
-      };
+    if (!lead) {
+      throw new Error('Lead not found');
     }
 
-    // Obtener datos del proyecto (si se especifica)
+    // 2. Obtener datos del proyecto (si se especifica)
     let project = null;
     if (project_id) {
       const { data } = await supabaseClient
@@ -131,28 +80,34 @@ serve(async (req) => {
       .eq('id', user_id)
       .single();
 
-    // Generar pitch con IA
+    // 4. Obtener interacciones previas con el lead
+    const { data: previousInteractions } = await supabaseClient
+      .from('sales_observations')
+      .select('*')
+      .eq('lead_id', lead_id)
+      .order('created_at', { ascending: false })
+      .limit(3);
+
+    // 5. Generar pitch con IA
     const pitch = generateAIPitch({
       lead,
       project,
       userProfile,
-      previousInteractions,
+      previousInteractions: previousInteractions || [],
       templateType: template_type || 'cold_outreach',
       tone: tone || 'professional',
     });
 
-    // Guardar en email_templates solo si hay lead_id
-    if (lead_id) {
-      await supabaseClient.from('email_templates').insert({
+    // 6. Guardar en email_templates si es útil
+    await supabaseClient.from('email_templates').insert({
       user_id,
       name: `AI Generated - ${lead.empresa || lead.nombre} - ${new Date().toISOString().split('T')[0]}`,
       subject: pitch.subject,
       body_html: pitch.body_html,
       body_text: pitch.body_text,
       category: template_type || 'cold_outreach',
-        variables: pitch.personalization_data,
-      });
-    }
+      variables: pitch.personalization_data,
+    });
 
     return new Response(
       JSON.stringify({
@@ -196,8 +151,6 @@ interface LeadRecord {
   email?: string;
   industria?: string;
   pain_point?: string;
-  product_override?: string;
-  call_to_action_override?: string;
 }
 
 interface ProjectRecord {
@@ -233,10 +186,9 @@ function generateAIPitch(context: {
     company_name: lead.empresa || 'su empresa',
     industry: lead.industria || 'su industria',
     pain_point: lead.pain_point || 'mejorar sus procesos',
-    project_name: lead.product_override || project?.nombre || 'nuestra solución',
-    value_proposition: project?.metadata?.value_proposition || lead.product_override || 'optimizar su negocio',
+    project_name: project?.nombre || 'nuestra solución',
+    value_proposition: project?.metadata?.value_proposition || 'optimizar su negocio',
     user_name: userProfile?.full_name || 'Equipo',
-    call_to_action: lead.call_to_action_override || '',
   };
 
   let subject = '';
@@ -296,7 +248,6 @@ interface PersonalizationData {
   project_name: string;
   value_proposition: string;
   user_name: string;
-  call_to_action: string;
 }
 
 function generateColdOutreachSubject(data: PersonalizationData) {
