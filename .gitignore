@@ -28,3 +28,9 @@ dist-ssr
 *.sln
 *.sw?
 coverage/
+
+# Development automation scripts (not needed in production)
+scripts/
+
+# Supabase temporary state files
+supabase/.temp/
