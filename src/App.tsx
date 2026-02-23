@@ -1,3 +1,4 @@
+import { lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -7,16 +8,18 @@ import { useAuth } from "@/hooks/useAuth";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { CurrentProjectProvider } from "@/contexts/CurrentProjectContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
-import { RootRedirect } from "./pages/RootRedirect";
-import AuthPage from "./pages/AuthPage";
-import Index from "./pages/Index"; // Este será el layout del proyecto
-import NotFound from "./pages/NotFound";
-import { CreateFirstProjectPage } from "./pages/CreateFirstProjectPage";
-import { SelectProjectPage } from "./pages/SelectProjectPage";
-import { SelectOnboardingTypePage } from "./pages/SelectOnboardingTypePage";
-import { OnboardingPage } from "./pages/OnboardingPage";
-import { DeepSetupPage } from "./pages/DeepSetupPage";
-import EvidenceTestPage from "./pages/EvidenceTestPage";
+
+// Page-level lazy imports for route-based code splitting
+const RootRedirect = lazy(() => import("./pages/RootRedirect").then(m => ({ default: m.RootRedirect })));
+const AuthPage = lazy(() => import("./pages/AuthPage"));
+const Index = lazy(() => import("./pages/Index"));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const CreateFirstProjectPage = lazy(() => import("./pages/CreateFirstProjectPage").then(m => ({ default: m.CreateFirstProjectPage })));
+const SelectProjectPage = lazy(() => import("./pages/SelectProjectPage").then(m => ({ default: m.SelectProjectPage })));
+const SelectOnboardingTypePage = lazy(() => import("./pages/SelectOnboardingTypePage").then(m => ({ default: m.SelectOnboardingTypePage })));
+const OnboardingPage = lazy(() => import("./pages/OnboardingPage").then(m => ({ default: m.OnboardingPage })));
+const DeepSetupPage = lazy(() => import("./pages/DeepSetupPage").then(m => ({ default: m.DeepSetupPage })));
+const EvidenceTestPage = lazy(() => import("./pages/EvidenceTestPage"));
 
 // ✨ OPTIMIZADO: Configuración de React Query mejorada
 const queryClient = new QueryClient({
@@ -73,82 +76,88 @@ const App = () => (
             <Toaster />
             <Sonner />
             <BrowserRouter>
-              <Routes>
-                {/* Rutas públicas */}
-                <Route path="/auth" element={<AuthPage />} />
+              <Suspense fallback={
+                <div className="flex items-center justify-center min-h-screen">
+                  <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary" />
+                </div>
+              }>
+                <Routes>
+                  {/* Rutas públicas */}
+                  <Route path="/auth" element={<AuthPage />} />
 
-                {/* Root redirect - maneja lógica de redirección inicial */}
-                <Route path="/" element={<RootRedirect />} />
+                  {/* Root redirect - maneja lógica de redirección inicial */}
+                  <Route path="/" element={<RootRedirect />} />
 
-                {/* Rutas de selección de proyecto (protegidas) */}
-                <Route
-                  path="/select-onboarding-type"
-                  element={
-                    <ProtectedRoute>
-                      <SelectOnboardingTypePage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/select-project"
-                  element={
-                    <ProtectedRoute>
-                      <SelectProjectPage />
-                    </ProtectedRoute>
-                  }
-                />
-                <Route
-                  path="/create-first-project"
-                  element={
-                    <ProtectedRoute>
-                      <CreateFirstProjectPage />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/* Rutas de selección de proyecto (protegidas) */}
+                  <Route
+                    path="/select-onboarding-type"
+                    element={
+                      <ProtectedRoute>
+                        <SelectOnboardingTypePage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/select-project"
+                    element={
+                      <ProtectedRoute>
+                        <SelectProjectPage />
+                      </ProtectedRoute>
+                    }
+                  />
+                  <Route
+                    path="/create-first-project"
+                    element={
+                      <ProtectedRoute>
+                        <CreateFirstProjectPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Onboarding standalone - Experiencia separada del dashboard */}
-                <Route
-                  path="/onboarding/:projectId"
-                  element={
-                    <ProtectedRoute>
-                      <OnboardingPage />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/* Onboarding standalone - Experiencia separada del dashboard */}
+                  <Route
+                    path="/onboarding/:projectId"
+                    element={
+                      <ProtectedRoute>
+                        <OnboardingPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Deep Setup standalone - Optional advanced onboarding */}
-                <Route
-                  path="/proyecto/:projectId/deep-setup/*"
-                  element={
-                    <ProtectedRoute>
-                      <DeepSetupPage />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/* Deep Setup standalone - Optional advanced onboarding */}
+                  <Route
+                    path="/proyecto/:projectId/deep-setup/*"
+                    element={
+                      <ProtectedRoute>
+                        <DeepSetupPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Rutas del proyecto - TODAS las vistas van aquí */}
-                <Route
-                  path="/proyecto/:projectId/*"
-                  element={
-                    <ProtectedRoute>
-                      <Index />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/* Rutas del proyecto - TODAS las vistas van aquí */}
+                  <Route
+                    path="/proyecto/:projectId/*"
+                    element={
+                      <ProtectedRoute>
+                        <Index />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* Evidence System Test Page */}
-                <Route
-                  path="/evidence-test"
-                  element={
-                    <ProtectedRoute>
-                      <EvidenceTestPage />
-                    </ProtectedRoute>
-                  }
-                />
+                  {/* Evidence System Test Page */}
+                  <Route
+                    path="/evidence-test"
+                    element={
+                      <ProtectedRoute>
+                        <EvidenceTestPage />
+                      </ProtectedRoute>
+                    }
+                  />
 
-                {/* 404 */}
-                <Route path="*" element={<NotFound />} />
-              </Routes>
+                  {/* 404 */}
+                  <Route path="*" element={<NotFound />} />
+                </Routes>
+              </Suspense>
             </BrowserRouter>
         </TooltipProvider>
       </CurrentProjectProvider>
