@@ -153,7 +153,6 @@ export function AITaskExecutor() {
               placeholder="Ej: Analizar las 5 principales tendencias en IA generativa y explicar cómo pueden aplicarse a mi startup SaaS..."
               value={taskInput}
               onChange={(e) => setTaskInput(e.target.value)}
-              disabled={isExecuting}
               rows={6}
             />
             <p className="text-xs text-muted-foreground">
@@ -187,7 +186,6 @@ export function AITaskExecutor() {
               <Select
                 value={detailLevel}
                 onValueChange={setDetailLevel}
-                disabled={isExecuting}
               >
                 <SelectTrigger id="detailLevel">
                   <SelectValue />
@@ -205,7 +203,6 @@ export function AITaskExecutor() {
               <Select
                 value={outputFormat}
                 onValueChange={setOutputFormat}
-                disabled={isExecuting}
               >
                 <SelectTrigger id="outputFormat">
                   <SelectValue />

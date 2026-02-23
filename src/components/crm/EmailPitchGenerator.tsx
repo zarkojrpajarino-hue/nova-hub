@@ -15,7 +15,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Mail, Copy, Download, CheckCircle2 } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
@@ -33,7 +32,6 @@ export function EmailPitchGenerator() {
   const { user } = useAuth();
   const { currentProject } = useCurrentProject();
 
-  const [isGenerating, setIsGenerating] = useState(false);
   const [generatedEmail, setGeneratedEmail] = useState<GeneratedEmail | null>(null);
 
   // Form state
@@ -44,38 +42,6 @@ export function EmailPitchGenerator() {
   const [painPoints, setPainPoints] = useState('');
   const [tone, setTone] = useState('professional');
   const [callToAction, setCallToAction] = useState('');
-
-  const _handleGenerate = async () => {
-    if (!recipientName || !yourProduct) {
-      toast.error('Por favor completa al menos el nombre del destinatario y tu producto');
-      return;
-    }
-
-    setIsGenerating(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('generate-email-pitch', {
-        body: {
-          recipientName,
-          recipientCompany,
-          recipientRole,
-          yourProduct,
-          painPoints,
-          tone,
-          callToAction,
-        },
-      });
-
-      if (error) throw error;
-
-      setGeneratedEmail(data.email);
-      toast.success('Email generado exitosamente');
-    } catch (error) {
-      console.error('Error generating email:', error);
-      toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
-    } finally {
-      setIsGenerating(false);
-    }
-  };
 
   const handleCopy = () => {
     if (!generatedEmail) return;
@@ -132,7 +98,6 @@ export function EmailPitchGenerator() {
                 placeholder="Ej: María García"
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
-                disabled={isGenerating}
               />
             </div>
 
@@ -143,7 +108,6 @@ export function EmailPitchGenerator() {
                 placeholder="Ej: Head of Marketing"
                 value={recipientRole}
                 onChange={(e) => setRecipientRole(e.target.value)}
-                disabled={isGenerating}
               />
             </div>
           </div>
@@ -155,7 +119,6 @@ export function EmailPitchGenerator() {
               placeholder="Ej: Acme Corp"
               value={recipientCompany}
               onChange={(e) => setRecipientCompany(e.target.value)}
-              disabled={isGenerating}
             />
           </div>
 
@@ -168,7 +131,6 @@ export function EmailPitchGenerator() {
               placeholder="Ej: Plataforma de automatización de marketing que permite..."
               value={yourProduct}
               onChange={(e) => setYourProduct(e.target.value)}
-              disabled={isGenerating}
               rows={3}
             />
           </div>
@@ -180,7 +142,6 @@ export function EmailPitchGenerator() {
               placeholder="Ej: Reduce tiempo manual en campañas de email, aumenta conversion rate..."
               value={painPoints}
               onChange={(e) => setPainPoints(e.target.value)}
-              disabled={isGenerating}
               rows={2}
             />
           </div>
@@ -188,7 +149,7 @@ export function EmailPitchGenerator() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="tone">Tono del email</Label>
-              <Select value={tone} onValueChange={setTone} disabled={isGenerating}>
+              <Select value={tone} onValueChange={setTone}>
                 <SelectTrigger id="tone">
                   <SelectValue />
                 </SelectTrigger>
@@ -203,7 +164,7 @@ export function EmailPitchGenerator() {
 
             <div className="space-y-2">
               <Label htmlFor="callToAction">Call to Action</Label>
-              <Select value={callToAction} onValueChange={setCallToAction} disabled={isGenerating}>
+              <Select value={callToAction} onValueChange={setCallToAction}>
                 <SelectTrigger id="callToAction">
                   <SelectValue placeholder="Selecciona CTA" />
                 </SelectTrigger>
