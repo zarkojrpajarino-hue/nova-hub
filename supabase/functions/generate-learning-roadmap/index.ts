@@ -7,7 +7,6 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
@@ -38,7 +37,6 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
   }
-    const { serviceClient: supabaseClient } = await validateAuth(req);
 
   try {
     // Verify authentication

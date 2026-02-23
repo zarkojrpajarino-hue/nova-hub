@@ -63,7 +63,6 @@ serve(async (req) => {
     console.log('🤖 Starting analysis for meeting:', meetingId);
 
     // 2. Inicializar Supabase client
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
         const { serviceClient: supabase } = await validateAuth(req);
 
     // 3. Obtener datos de la reunión

@@ -1,5 +1,4 @@
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectContext } from './types.ts';

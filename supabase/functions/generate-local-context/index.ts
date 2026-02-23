@@ -10,7 +10,7 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
+import { getCorsHeaders } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 
 serve(async (req) => {

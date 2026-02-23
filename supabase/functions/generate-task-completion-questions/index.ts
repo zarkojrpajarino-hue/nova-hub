@@ -1,5 +1,4 @@
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { TaskCompletionQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
@@ -17,7 +16,6 @@ Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return handleCorsPreflightRequest(origin);
   }
-    const { serviceClient: supabaseClient } = await validateAuth(req);
 
   try {
     // Verify authentication
@@ -29,8 +27,7 @@ Deno.serve(async (req) => {
       );
     }
 
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');// Verify the user token
+    // Verify the user token
     const token = authHeader.replace('Bearer ', '');
     const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
     
