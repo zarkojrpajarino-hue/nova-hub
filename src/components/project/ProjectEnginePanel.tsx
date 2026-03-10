@@ -122,7 +122,7 @@ function getRecommendation(engineData: ProjectEngineData | null | undefined): st
   const phase      = engineData.phaseState?.current_phase ?? 1;
   const riskStatus = engineData.risk?.risk_status          ?? 'insufficient_data';
   const riskLevel  = engineData.risk?.risk_level           ?? 'low';
-  const probStatus = engineData.probability?.probability_status ?? 'inactive';
+  const probStatus = engineData.probability?.probability_status ?? 'inactive'; // 'inactive' ≠ healthy, solo no dispara recomendación
   const coverage   = engineData.coverage ?? [];
 
   const coverageLevel = (type: string) =>
