@@ -103,6 +103,56 @@ function riskMessage(
 }
 
 // =============================================================================
+// Recomendación (v1 conservadora)
+//
+// Solo visible cuando hay señal clara y acción obvia.
+// Sin señal → null → no se renderiza nada.
+//
+// Prioridad:
+//   1. Risk active + high/critical  → siempre primero, bloquea avance
+//   2. Fase 1 + demand débil        → validar problema
+//   3. Fase 2 + demand débil        → validar canal de adquisición
+//   4. Fase 3 + delivery/cash nulos → reforzar operación
+//   5. Resto                        → null
+// =============================================================================
+
+function getRecommendation(engineData: ProjectEngineData | null | undefined): string | null {
+  if (!engineData) return null;
+
+  const phase      = engineData.phaseState?.current_phase ?? 1;
+  const riskStatus = engineData.risk?.risk_status ?? 'insufficient_data';
+  const riskLevel  = engineData.risk?.risk_level  ?? 'low';
+  const coverage   = engineData.coverage ?? [];
+
+  const coverageLevel = (type: string) =>
+    coverage.find(c => c.function_type === type)?.coverage_level ?? 'none';
+
+  const demand   = coverageLevel('demand');
+  const delivery = coverageLevel('delivery');
+  const cash     = coverageLevel('cash');
+
+  // 1. Risk override — máxima prioridad independiente de fase
+  if (riskStatus === 'active' && (riskLevel === 'high' || riskLevel === 'critical')) {
+    return 'Reduce el riesgo principal antes de avanzar';
+  }
+
+  // 2. Reglas por fase
+  if (phase === 1 && (demand === 'none' || demand === 'basic')) {
+    return 'Valida el problema con más señales reales';
+  }
+
+  if (phase === 2 && (demand === 'none' || demand === 'basic')) {
+    return 'Define y valida un canal de adquisición';
+  }
+
+  if (phase === 3 && (delivery === 'none' || cash === 'none')) {
+    return 'Refuerza la operación antes de escalar';
+  }
+
+  return null;
+}
+
+// =============================================================================
 // Coverage
 // =============================================================================
 
@@ -158,6 +208,9 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
   const riskComp     = risk?.data_completeness_score ?? 0;
   const riskCfg      = riskCardConfig(riskStatus, riskLevel);
   const riskBadge    = riskMessage(riskStatus, riskLevel, riskComp);
+
+  // Recommendation
+  const recommendation = getRecommendation(engineData);
 
   // Coverage
   const sortedCoverage = COVERAGE_ORDER.map(
@@ -271,6 +324,16 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
           ))}
         </div>
       </div>
+
+      {/* Recomendación — solo si hay señal clara */}
+      {recommendation && (
+        <div className="border-t border-border pt-3">
+          <p className="text-xs text-muted-foreground leading-snug">
+            <span className="font-medium text-foreground">Siguiente paso recomendado:</span>{' '}
+            {recommendation}
+          </p>
+        </div>
+      )}
 
     </div>
   );
