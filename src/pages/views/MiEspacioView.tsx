@@ -4,7 +4,9 @@ import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
 import { useAuth } from '@/hooks/useAuth';
-import { useCurrentMemberStats, useProjects, useProjectMembers, useObjectives, useProjectStats } from '@/hooks/useNovaData';
+import { useCurrentMemberStats, useProjectMembers, useObjectives, useProjectStats } from '@/hooks/useNovaData';
+import { useProjects } from '@/hooks/useNovaDataOptimized';
+import { PHASE_LABELS } from '@/lib/engine';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { MyTasksList } from '@/components/tasks/MyTasksList';
@@ -262,7 +264,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
                       
                       <h4 className="font-bold text-base mb-1">{project.nombre}</h4>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Fase: {project.fase.replace('_', ' ')} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                        Fase {project.phase_state?.current_phase ?? 1} — {PHASE_LABELS[project.phase_state?.current_phase ?? 1]} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
                       </p>
                       
                       <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
