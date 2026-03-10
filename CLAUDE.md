@@ -7,6 +7,7 @@
 - **Detectar agujeros** técnicos y señalarlos antes de proceder.
 - **No validar por defecto.** Verificar primero.
 - Leer archivos antes de modificarlos. Verificar nombres de columnas, enums y escalas en migraciones antes de escribir código.
+- **Nunca simplificar una spec en silencio.** Si el usuario especifica N condiciones y se implementan menos de N, hay que señalarlo explícitamente antes de escribir código — no después. Toda omisión o simplificación debe ser una decisión explícita acordada, no una decisión interna.
 
 ## Contexto del proyecto
 
