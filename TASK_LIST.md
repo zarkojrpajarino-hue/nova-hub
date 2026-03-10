@@ -92,18 +92,18 @@
 > Requiere Fase 1 (matemática) + Fase 2 (DB) completadas.
 
 ### Phase Engine
-- [ ] **E4.1** Crear edge function `compute-phase-score` (Fase 1 y 2 primero)
-- [ ] **E4.2** Implementar calculador Fase 1 (Descubrimiento) con thresholds
-- [ ] **E4.3** Implementar calculador Fase 2 (Validación) con thresholds
-- [ ] **E4.4** Implementar calculador Fase 3 (Operación) con thresholds
-- [ ] **E4.5** Implementar calculador Fase 4 (Escala) con thresholds
-- [ ] **E4.6** Implementar lógica de avance de fase (score ≥75% + hard signal → propuesta)
-- [ ] **E4.7** Implementar lógica de regresión de fase (6 semanas < 50% → fase -1)
+- [x] **E4.1** Crear edge function `compute-phase-score` — implementado como función SQL `run_phase_engine` (migrations 00004/00022)
+- [x] **E4.2** Implementar calculador Fase 1 (Descubrimiento) con thresholds
+- [x] **E4.3** Implementar calculador Fase 2 (Validación) con thresholds
+- [x] **E4.4** Implementar calculador Fase 3 (Operación) con thresholds
+- [x] **E4.5** Implementar calculador Fase 4 (Escala) con thresholds
+- [x] **E4.6** Implementar lógica de avance de fase (score ≥75% + hard signal → propuesta)
+- [x] **E4.7** Implementar lógica de regresión de fase (6 semanas < 50% → fase -1) — migration 00022
 
 ### Probability Engine
-- [ ] **E4.8** Crear edge function `compute-probability-score` (5 inputs, pesos)
-- [ ] **E4.9** Conectar CRM pipeline → revenue_momentum (leads en stage tardío)
-- [ ] **E4.10** Conectar peer validation de KPIs → validation_strength
+- [x] **E4.8** Crear edge function `compute-probability-score` (5 inputs, pesos) — migration 00007
+- [x] **E4.9** Conectar CRM pipeline → revenue_momentum (leads en stage tardío) — migration 00023
+- [x] **E4.10** Conectar peer validation de KPIs → validation_strength — CERRADO: implementado en migration 00003 (OBV-based, compute_validation_strength)
 
 ### Viability Engine (v1 — solo recomendaciones, sin bloqueos)
 - [ ] **E4.11** Crear edge function `evaluate-viability` (3 estados)
@@ -121,14 +121,14 @@
 - [ ] **E4.19** Implementar detección de incoherencia del modelo (4 casos)
 
 ### Risk Score
-- [ ] **E4.20** Implementar cálculo de `RiskScore` (5 inputs, 4 niveles)
+- [x] **E4.20** Implementar cálculo de `RiskScore` (5 inputs, 4 niveles) — migration 00008
 
 ### Conexiones entre engines
-- [ ] **E4.21** Conectar role_performance → Phase Score (execution_health 20%)
+- [x] **E4.21** Conectar role_performance → Phase Score (execution_health 20%) — migration 00006/00007
 - [ ] **E4.22** Crear edge function `suggest-bottleneck-challenge`
 
 ### Cron jobs
-- [ ] **E4.23** Configurar cron semanal (domingo 23:00): Org → Phase → Probability → Viability → Notifications
+- [x] **E4.23** Configurar cron semanal (domingo 23:00): Phase(00:00) → Probability(00:30) → Risk(01:00) → Viability(01:30) — migrations 00004/00007/00008/00021
 - [ ] **E4.24** Configurar triggers on-demand (OBV validado, tarea completada, lead won)
 
 ---
