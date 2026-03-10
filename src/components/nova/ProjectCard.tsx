@@ -2,6 +2,7 @@ import { memo, useCallback, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { cn } from '@/lib/utils';
 import { ROLE_CONFIG } from '@/data/mockData';
+import { PHASE_LABELS } from '@/lib/engine';
 
 interface Project {
   id: string;
@@ -28,12 +29,13 @@ interface ProjectRole {
 
 interface ProjectCardProps {
   project: Project;
+  currentPhase: number;
   members: Member[];
   roles: ProjectRole[];
   showRoles?: boolean;
 }
 
-function ProjectCardComponent({ project, members, roles, showRoles = false }: ProjectCardProps) {
+function ProjectCardComponent({ project, currentPhase, members, roles, showRoles = false }: ProjectCardProps) {
   const navigate = useNavigate();
 
   // Only show members/roles if onboarding is completed
@@ -85,7 +87,7 @@ function ProjectCardComponent({ project, members, roles, showRoles = false }: Pr
       {/* Title */}
       <h3 className="font-bold text-lg mb-1">{project.nombre}</h3>
       <p className="text-sm text-muted-foreground mb-5">
-        Fase: {project.fase.replace('_', ' ')}
+        Fase {currentPhase} — {PHASE_LABELS[currentPhase]}
       </p>
 
       {/* Team Avatars or Onboarding Badge */}

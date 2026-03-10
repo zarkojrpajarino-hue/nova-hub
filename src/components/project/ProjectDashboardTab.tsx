@@ -5,6 +5,10 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 import { PlanLimitsIndicator } from '@/components/subscription/PlanLimitsIndicator';
+import { AcquisitionChannelEditor } from './AcquisitionChannelEditor';
+import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { ProjectEnginePanel } from './ProjectEnginePanel';
+import { PHASE_LABELS } from '@/lib/engine';
 
 interface ProjectStats {
   facturacion?: number;
@@ -23,15 +27,18 @@ interface TeamMemberDisplay {
 
 interface ProjectDashboardTabProps {
   project: Project;
+  currentPhase: number;
   stats: ProjectStats;
   teamMembers: TeamMemberDisplay[];
   leadsCount: number;
 }
 
-function ProjectDashboardTabComponent({ project, stats, teamMembers, leadsCount }: ProjectDashboardTabProps) {
+function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMembers, leadsCount }: ProjectDashboardTabProps) {
   const facturacion = Number(stats?.facturacion) || 0;
   const margen = Number(stats?.margen) || 0;
   const totalOBVs = Number(stats?.total_obvs) || 0;
+
+  const { data: engineData, isLoading: engineLoading } = useProjectEngineData(project.id);
 
   return (
     <div className="space-y-6 animate-fade-in">
@@ -133,7 +140,7 @@ function ProjectDashboardTabComponent({ project, stats, teamMembers, leadsCount 
             <div className="p-4 bg-background rounded-xl">
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Fase</span>
-                <span className="font-medium capitalize">{project.fase}</span>
+                <span className="font-medium">{currentPhase} — {PHASE_LABELS[currentPhase]}</span>
               </div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-sm text-muted-foreground">Tipo</span>
@@ -156,10 +163,14 @@ function ProjectDashboardTabComponent({ project, stats, teamMembers, leadsCount 
           </div>
         </div>
       </div>
+
+          {/* Acquisition Channels (O2.3) */}
+          <AcquisitionChannelEditor projectId={project.id} />
         </div>
 
-        {/* Sidebar with Plan Limits */}
-        <div className="col-span-3">
+        {/* Sidebar */}
+        <div className="col-span-3 space-y-4">
+          <ProjectEnginePanel engineData={engineData} isLoading={engineLoading} />
           <PlanLimitsIndicator projectId={project.id} />
         </div>
       </div>

@@ -122,18 +122,31 @@ export function useProfiles() {
 /**
  * Hook para obtener todos los proyectos
  * USO: Lista de proyectos en ProjectsView
+ *
+ * Incluye phase_state (LEFT JOIN project_phase_state) para exponer
+ * current_phase, phase_score, phase_status y hard_signal_met del engine.
+ * Source of truth para la fase: project.phase_state.current_phase
+ * project.fase = legacy ENUM (no usado por engines — ver ENGINE_SPEC_V1.md)
  */
 export function useProjects() {
   return useQuery({
-    queryKey: ['projects'],
+    queryKey: ['projects', 'with-phase-state'],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select('*')
+        .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at)')
         .order('nombre');
 
       if (error) throw error;
-      return data as Project[];
+      return data as (Project & {
+        phase_state: {
+          current_phase: number;
+          phase_score: number;
+          phase_status: string;
+          hard_signal_met: boolean;
+          last_calculated_at: string;
+        } | null;
+      })[];
     },
   });
 }
@@ -477,6 +490,86 @@ export function useProjectStatsGlobal() {
       if (error) throw error;
       return data;
     },
+  });
+}
+
+// ============================================================================
+// ENGINE DATA HOOK
+// ============================================================================
+
+export interface ProjectEngineData {
+  phaseState: {
+    current_phase: number;
+    phase_score: number;
+    phase_status: string;
+    hard_signal_met: boolean;
+    last_calculated_at: string;
+  } | null;
+  probability: {
+    probability_score: number | null;
+    probability_status: string;
+    data_completeness_score: number;
+  } | null;
+  risk: {
+    risk_score: number | null;
+    risk_level: string;
+    risk_status: string;
+    data_completeness_score: number;
+  } | null;
+  coverage: {
+    function_type: string;
+    coverage_score: number;
+    coverage_level: string;
+  }[];
+}
+
+/**
+ * Hook para datos del engine de un proyecto específico.
+ * Agrega en paralelo: phase_state, probability, risk_score, function_coverage.
+ * Todas las tablas se inicializan al crear el proyecto (fn_initialize_project_data,
+ * migration 00002) — no depende de cron para el primer proyecto.
+ */
+export function useProjectEngineData(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-engine', projectId],
+    queryFn: async (): Promise<ProjectEngineData | null> => {
+      if (!projectId) return null;
+
+      const [phaseResult, probabilityResult, riskResult, coverageResult] = await Promise.all([
+        supabase
+          .from('project_phase_state')
+          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at')
+          .eq('project_id', projectId)
+          .maybeSingle(),
+        supabase
+          .from('project_probability')
+          .select('probability_score, probability_status, data_completeness_score')
+          .eq('project_id', projectId)
+          .maybeSingle(),
+        supabase
+          .from('project_risk_score')
+          .select('risk_score, risk_level, risk_status, data_completeness_score')
+          .eq('project_id', projectId)
+          .maybeSingle(),
+        supabase
+          .from('project_function_coverage')
+          .select('function_type, coverage_score, coverage_level')
+          .eq('project_id', projectId),
+      ]);
+
+      if (phaseResult.error) throw phaseResult.error;
+      if (probabilityResult.error) throw probabilityResult.error;
+      if (riskResult.error) throw riskResult.error;
+      if (coverageResult.error) throw coverageResult.error;
+
+      return {
+        phaseState: phaseResult.data,
+        probability: probabilityResult.data,
+        risk: riskResult.data,
+        coverage: coverageResult.data || [],
+      };
+    },
+    enabled: !!projectId,
   });
 }
 

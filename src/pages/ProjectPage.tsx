@@ -15,6 +15,7 @@ import {
 import { DeleteProjectDialog } from '@/components/projects/DeleteProjectDialog';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useProjects, useProjectTeamMembers, useProjectStats, useProjectLeads } from '@/hooks/useNovaDataOptimized';
+import { useProjectRealtimeSync } from '@/hooks/useRealtimeSubscription';
 import { useAuth } from '@/hooks/useAuth';
 import { ProjectDashboardTab } from '@/components/project/ProjectDashboardTab';
 import { ProjectTeamTab } from '@/components/project/ProjectTeamTab';
@@ -52,6 +53,11 @@ export default function ProjectPage() {
   const { data: teamMembersData = [] } = useProjectTeamMembers(projectId);
   const { data: stats } = useProjectStats(projectId);
   const { data: projectLeads = [] } = useProjectLeads(projectId);
+
+  // Realtime: sincroniza datos del proyecto y tablas del engine en tiempo real.
+  // Las tablas engine (project_phase_state, project_probability, etc.) requieren
+  // migration 00020 para estar en la publication de Supabase Realtime.
+  useProjectRealtimeSync(projectId);
 
   const project = projects.find(p => p.id === projectId);
 
@@ -162,7 +168,7 @@ export default function ProjectPage() {
             <div className="flex-1">
               <h1 className="text-xl font-bold">{project.nombre}</h1>
               <p className="text-sm text-muted-foreground">
-                {project.fase} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                Fase {project.phase_state?.current_phase ?? 1} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
               </p>
             </div>
 
@@ -238,8 +244,9 @@ export default function ProjectPage() {
           </TabsList>
 
           <TabsContent value="dashboard">
-            <ProjectDashboardTab 
-              project={project} 
+            <ProjectDashboardTab
+              project={project}
+              currentPhase={project.phase_state!.current_phase}
               stats={stats}
               teamMembers={teamMembers}
               leadsCount={projectLeads.length}
@@ -270,8 +277,8 @@ export default function ProjectPage() {
 
           <TabsContent value="financiero">
             <ProjectFinancialTab
-              project={project}
               stats={stats}
+              projectId={projectId!}
             />
           </TabsContent>
 

@@ -14,7 +14,7 @@ import { useNavigate } from 'react-router-dom';
 import { Loader2, FolderKanban, Sparkles, Plus, Rocket } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { ProjectCard } from '@/components/nova/ProjectCard';
-import { useProjects, useProjectMembers, useMemberStats } from '@/hooks/useNovaData';
+import { useProjects, useProjectMembers, useMemberStats } from '@/hooks/useNovaDataOptimized';
 import { CreateProjectDialog } from '@/components/projects/CreateProjectDialog';
 import { DeletedProjectsDialog } from '@/components/projects/DeletedProjectsDialog';
 import { GenerativeOnboardingView } from './GenerativeOnboardingView';
@@ -190,6 +190,7 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
                   >
                     <ProjectCard
                       project={project}
+                      currentPhase={project.phase_state!.current_phase}
                       members={membersForCard}
                       roles={projectRoles}
                       showRoles

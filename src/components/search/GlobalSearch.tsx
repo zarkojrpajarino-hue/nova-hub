@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Search } from 'lucide-react';
 import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
-import { useProjects, useProfiles } from '@/hooks/useNovaData';
+import { useProjects, useProfiles } from '@/hooks/useNovaDataOptimized';
+import { PHASE_LABELS } from '@/lib/engine';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 
@@ -78,7 +79,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           id: `project-${project.id}`,
           type: 'project',
           title: project.nombre,
-          subtitle: project.fase,
+          subtitle: `Fase ${project.phase_state?.current_phase ?? 1} — ${PHASE_LABELS[project.phase_state?.current_phase ?? 1]}`,
           icon: <span className="text-lg">{project.icon}</span>,
           action: () => {
             navigate('proyectos');

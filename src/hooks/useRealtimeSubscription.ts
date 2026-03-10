@@ -221,6 +221,42 @@ export function useProjectRealtimeSync(projectId: string | undefined) {
     queryKey: ['project-obvs', projectId!],
     enabled: !!projectId,
   });
+
+  // Engine tables — actualizadas por trigger functions (run_phase_engine,
+  // run_probability_engine, run_risk_engine, coverage engine).
+  // Requiere migration 00020 (ALTER PUBLICATION supabase_realtime ADD TABLE ...).
+  // Todos invalidan el mismo queryKey para que useProjectEngineData refetch de una vez.
+  useRealtimeSubscription({
+    table: 'project_phase_state',
+    filter: projectId ? { column: 'project_id', value: projectId } : undefined,
+    queryKey: ['project-engine', projectId!],
+    enabled: !!projectId,
+    event: 'UPDATE',
+  });
+
+  useRealtimeSubscription({
+    table: 'project_probability',
+    filter: projectId ? { column: 'project_id', value: projectId } : undefined,
+    queryKey: ['project-engine', projectId!],
+    enabled: !!projectId,
+    event: 'UPDATE',
+  });
+
+  useRealtimeSubscription({
+    table: 'project_risk_score',
+    filter: projectId ? { column: 'project_id', value: projectId } : undefined,
+    queryKey: ['project-engine', projectId!],
+    enabled: !!projectId,
+    event: 'UPDATE',
+  });
+
+  useRealtimeSubscription({
+    table: 'project_function_coverage',
+    filter: projectId ? { column: 'project_id', value: projectId } : undefined,
+    queryKey: ['project-engine', projectId!],
+    enabled: !!projectId,
+    event: 'UPDATE',
+  });
 }
 
 /**
