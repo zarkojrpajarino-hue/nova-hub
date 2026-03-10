@@ -120,8 +120,9 @@ function getRecommendation(engineData: ProjectEngineData | null | undefined): st
   if (!engineData) return null;
 
   const phase      = engineData.phaseState?.current_phase ?? 1;
-  const riskStatus = engineData.risk?.risk_status ?? 'insufficient_data';
-  const riskLevel  = engineData.risk?.risk_level  ?? 'low';
+  const riskStatus = engineData.risk?.risk_status          ?? 'insufficient_data';
+  const riskLevel  = engineData.risk?.risk_level           ?? 'low';
+  const probStatus = engineData.probability?.probability_status ?? 'inactive';
   const coverage   = engineData.coverage ?? [];
 
   const coverageLevel = (type: string) =>
@@ -141,8 +142,19 @@ function getRecommendation(engineData: ProjectEngineData | null | undefined): st
     return 'Valida el problema con más señales reales';
   }
 
-  if (phase === 2 && (demand === 'none' || demand === 'basic')) {
-    return 'Define y valida un canal de adquisición';
+  if (phase === 2) {
+    const demandWeak = demand === 'none' || demand === 'basic';
+    const probWeak   = probStatus === 'low_confidence';
+
+    if (demandWeak && probWeak) {
+      return 'Valida la demanda con más evidencia antes de escalar adquisición';
+    }
+    if (demandWeak) {
+      return 'Define y valida un canal de adquisición';
+    }
+    if (probWeak) {
+      return 'Necesitas más evidencia antes de tomar esta señal como sólida';
+    }
   }
 
   if (phase === 3 && (delivery === 'none' || cash === 'none')) {
