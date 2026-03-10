@@ -116,9 +116,9 @@
 - [ ] **E4.16** Implementar detección de rol crítico vacío por fase
 
 ### Economic Profile
-- [ ] **E4.17** Crear edge function `detect-economic-profile`
-- [ ] **E4.18** Implementar detección de cambio de perfil (6-8 semanas de señales)
-- [ ] **E4.19** Implementar detección de incoherencia del modelo (4 casos)
+- [x] **E4.17** Crear edge function `detect-economic-profile` — migration 00024 (compute conservador: avg_ticket, gross_margin_target, revenue_type + confidence_score)
+- [x] **E4.18** Implementar detección de cambio de perfil — migration 00024 (historial por cambios materiales en 7 campos)
+- [x] **E4.19** Implementar detección de incoherencia del modelo (4 casos) — migration 00024 (saas_transactional, subscription_no_mrr, high_ticket_no_pipeline, concentrated_scalable)
 
 ### Risk Score
 - [x] **E4.20** Implementar cálculo de `RiskScore` (5 inputs, 4 niveles) — migration 00008
