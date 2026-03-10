@@ -34,3 +34,4 @@ scripts/
 
 # Supabase temporary state files
 supabase/.temp/
+.vercel

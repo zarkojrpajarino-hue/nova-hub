@@ -29,6 +29,7 @@ interface KanbanColumnProps {
   column: Column;
   tasks: Task[];
   getAssignee: (id: string | null) => Member | undefined;
+  getLeader: (id: string | null) => Member | undefined;
   canDeleteTask: (task: Task) => boolean;
   hasPlaybook: (task: Task) => boolean;
   onCompleteClick: (task: Task) => void;
@@ -40,6 +41,7 @@ export const KanbanColumn = memo(function KanbanColumn({
   column,
   tasks,
   getAssignee,
+  getLeader,
   canDeleteTask,
   hasPlaybook,
   onCompleteClick,
@@ -80,6 +82,7 @@ export const KanbanColumn = memo(function KanbanColumn({
           >
             {tasks.map((task, index) => {
               const assignee = getAssignee(task.assignee_id);
+              const leader   = getLeader(task.leader_id);
 
               return (
                 <Draggable key={task.id} draggableId={task.id} index={index}>
@@ -88,6 +91,7 @@ export const KanbanColumn = memo(function KanbanColumn({
                       task={task}
                       index={index}
                       assignee={assignee}
+                      leader={leader}
                       isDragging={snapshot.isDragging}
                       canDelete={canDeleteTask(task)}
                       hasPlaybook={hasPlaybook(task)}

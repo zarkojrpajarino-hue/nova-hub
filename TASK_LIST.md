@@ -9,20 +9,21 @@
 > Completar antes de tocar cualquier código. Si cambias fórmulas después de crear tablas, migras todo.
 
 ### Fórmulas y definiciones
-- [ ] **F1.1** Cerrar la fórmula definitiva de Iteration Velocity (ventana, inputs, normalización)
-- [ ] **F1.2** Definir evidence_quality_score (escala, tipos de evidencia, pesos)
-- [ ] **F1.3** Resolver capacidad del solo founder (baseline 120 unidades o umbrales diferentes)
-- [ ] **F1.4** Decidir estrategia Day 1 Probability (opción A/B/C/D — cuál se implementa)
-- [ ] **F1.5** Definir thresholds de Fase 1 (igual nivel de detalle que Fase 2 — ya está en plan)
-- [ ] **F1.6** Definir thresholds de Fase 3 (igual nivel de detalle que Fase 2)
-- [ ] **F1.7** Definir thresholds de Fase 4 (igual nivel de detalle que Fase 2)
-- [ ] **F1.8** Confirmar OBV types necesarios en schema (customer_discovery, revenue_validation, etc.)
-- [ ] **F1.9** Decidir fuente de Benchmarks v1 (Opción A curado / B interno / C híbrido)
+- [x] **F1.1** Cerrar la fórmula definitiva de Iteration Velocity (ventana, inputs, normalización)
+- [x] **F1.2** Definir evidence_quality_score (escala, tipos de evidencia, pesos)
+- [x] **F1.3** Resolver capacidad del solo founder (baseline 120 unidades o umbrales diferentes)
+- [x] **F1.4** Decidir estrategia Day 1 Probability (opción A/B/C/D — cuál se implementa)
+- [x] **F1.5** Definir thresholds de Fase 1 (igual nivel de detalle que Fase 2 — ya está en plan)
+- [x] **F1.6** Definir thresholds de Fase 3 (igual nivel de detalle que Fase 2)
+- [x] **F1.7** Definir thresholds de Fase 4 (igual nivel de detalle que Fase 2)
+- [x] **F1.8** Confirmar OBV types necesarios en schema (customer_discovery, revenue_validation, etc.)
+- [x] **F1.9** Decidir fuente de Benchmarks v1 (Opción A curado / B interno / C híbrido)
 
 ### Ajustes al plan (recomendación ChatGPT)
-- [ ] **F1.10** Suavizar Viability Engine: en v1 NO bloquear tareas — solo recomendar y registrar
-- [ ] **F1.11** Simplificar Function Coverage v1: cobertura manual + penalización simple (sin role emergence automático)
-- [ ] **F1.12** Añadir campo `engine_version TEXT` a las tablas de motores (para trackear cambios de fórmula)
+- [x] **F1.10** Suavizar Viability Engine: en v1 NO bloquear tareas — solo recomendar y registrar
+- [x] **F1.11** Simplificar Function Coverage v1: cobertura manual + penalización simple (sin role emergence automático)
+- [x] **F1.12** Añadir campo `engine_version TEXT` a las tablas de motores (para trackear cambios de fórmula)
+- [x] **F1.13** Definir data_completeness_score (5 dimensiones, umbrales, efecto en sistema)
 
 ---
 
@@ -30,29 +31,48 @@
 > Solo cuando Fase 1 está cerrada y congelada.
 
 ### Nuevas tablas
-- [ ] **D2.1** Crear tabla `project_phase_state` (+ campo engine_version)
-- [ ] **D2.2** Crear tabla `project_probability` (+ campo engine_version)
-- [ ] **D2.3** Crear tabla `project_probability_history`
-- [ ] **D2.4** Crear tabla `project_viability_state` (+ campo engine_version)
-- [ ] **D2.5** Crear tabla `project_economic_profile`
-- [ ] **D2.6** Crear tabla `project_economic_profile_history`
-- [ ] **D2.7** Crear tabla `project_risk_score`
-- [ ] **D2.8** Crear tabla `project_function_coverage`
-- [ ] **D2.9** Crear tabla `decision_events`
-- [ ] **D2.10** Crear tabla `strategic_blocks`
-- [ ] **D2.11** Crear tabla `project_protocols`
-- [ ] **D2.12** Crear tabla `strategic_cycles`
-- [ ] **D2.13** Crear tabla `benchmarks`
+- [x] **D2.1** Crear tabla `project_phase_state` (+ campo engine_version) + `project_phase_history`
+- [x] **D2.2** Crear tabla `project_probability` (+ campo engine_version)
+- [x] **D2.3** Crear tabla `project_probability_history`
+- [x] **D2.4** Crear tabla `project_viability_state` (+ campo engine_version)
+- [x] **D2.5** Crear tabla `project_economic_profile`
+- [x] **D2.6** Crear tabla `project_economic_profile_history`
+- [x] **D2.7** Crear tabla `project_risk_score` (+ project_risk_score_history)
+- [x] **D2.8** Crear tabla `project_function_coverage`
+- [x] **D2.9** Crear tabla `decision_events`
+- [x] **D2.10** Crear tabla `strategic_blocks`
+- [x] **D2.11** Crear tabla `project_protocols`
+- [x] **D2.12** Crear tabla `strategic_cycles`
+- [x] **D2.13** Crear tabla `benchmarks`
+
+### Nuevas tablas adicionales (añadidas en Fase 1)
+- [x] **D2.20** Crear tabla `strategic_model_versions` (pivot tracking computable)
+  - Campos: project_id, version_number, segment_text, problem_text, value_prop_text, changed_fields JSONB, created_at, created_by
+  - Un pivot_event = nuevo record con changed_fields incluyendo segment/problem/value_prop
 
 ### Modificaciones a tablas existentes
-- [ ] **D2.14** `ALTER TABLE tasks ADD COLUMN leader_id UUID`
-- [ ] **D2.15** `ALTER TABLE projects ADD COLUMN country, market_scope, cluster`
-- [ ] **D2.16** `ALTER TABLE project_members ADD COLUMN performance_score_v2`
-- [ ] **D2.17** Auditar y añadir OBV types necesarios al ENUM `obv_type`
-- [ ] **D2.18** `ALTER TABLE project_roles ADD COLUMN maps_to_specialization`
+- [x] **D2.14** `ALTER TABLE tasks ADD COLUMN leader_id UUID`
+- [x] **D2.15** `ALTER TABLE projects ADD COLUMN country, market_scope, cluster`
+- [x] **D2.16** `ALTER TABLE project_members ADD COLUMN performance_score_v2`
+- [x] **D2.17** Auditar y añadir OBV types necesarios al ENUM `obv_type` + campos auto-tipo F1.8
+- [x] **D2.18** `ALTER TABLE project_roles ADD COLUMN maps_to_specialization`
+
+### Tablas de Fase 1 no incluidas anteriormente
+- [x] **D2.21** Crear tabla `engine_versions` (FK desde tablas históricas — F1.12)
+- [x] **D2.22** Crear tabla `project_strategy_current` (fuente de segment/problem/value_prop — F1.13)
+- [x] **D2.23** Crear tabla `project_functions` (3 funciones fijas por proyecto — F1.11) + trigger trg_create_project_functions
+- [x] **D2.24** Crear tabla `process_artifacts` (procesos documentados por función — F1.11)
+- [x] **D2.25** Crear tabla `viability_events` (triggers del Viability Engine + FK opcional a decision_events — F1.10)
+
+### Matemática Risk Score (mini Fase R1 — debe cerrarse antes de implementar D2.7)
+- [x] **R1.1** Definir RunwayFactor (cálculo, mínimo 2 meses, mapping a escala 0–100)
+- [x] **R1.2** Definir ExecutionDrop (ventana + baseline)
+- [x] **R1.3** Definir ValidationWeakness (mapping desde validation_strength a riesgo)
+- [x] **R1.4** Definir RevenueConcentration (fuente de datos, cálculo)
+- [x] **R1.5** Definir BottleneckSeverity (agregación desde critical_blocks)
 
 ### RLS policies
-- [ ] **D2.19** Añadir RLS policies a todas las tablas nuevas
+- [x] **D2.19** Añadir RLS policies a todas las tablas nuevas (4 patrones + 3 helper functions)
 
 ---
 

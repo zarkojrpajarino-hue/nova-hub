@@ -21,10 +21,12 @@ export interface Task {
   prioridad: number | null;
   fecha_limite: string | null;
   assignee_id: string | null;
+  leader_id: string | null;
   ai_generated: boolean | null;
   created_at: string;
   playbook: Json | null;
   metadata: Json | null;
+  function_type: string | null;
 }
 
 export interface TaskFeedback {

@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Loader2, FileCheck, CheckCircle, Clock, XCircle } from 'lucide-react';
+import { Loader2, FileCheck, CheckCircle, Clock, XCircle, MinusCircle, CheckCircle2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { OBVForm } from '@/components/nova/OBVForm';
 import { OBVValidationList } from '@/components/nova/OBVValidationList';
@@ -14,10 +14,11 @@ import { AITaskExecutor } from '@/components/tasks/AITaskExecutor';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { OBVCenterPreviewModal } from '@/components/preview/OBVCenterPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { HelpWidget } from '@/components/ui/section-help';
+import { toast } from 'sonner';
 
 const TABS = [
   { id: 'subir', label: '📤 Subir OBV' },
@@ -31,11 +32,19 @@ interface OBVCenterViewProps {
   onNewOBV?: () => void;
 }
 
+const OUTCOME_OPTIONS = [
+  { value: 'success', label: 'Éxito',    icon: CheckCircle2, color: 'text-success',     bg: 'bg-success/10 border-success/40' },
+  { value: 'partial', label: 'Parcial',  icon: MinusCircle,  color: 'text-warning',     bg: 'bg-warning/10 border-warning/40' },
+  { value: 'fail',    label: 'No validó', icon: XCircle,     color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/40' },
+] as const;
+
 export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const [activeTab, setActiveTab] = useState('subir');
   const [showForm, setShowForm] = useState(true);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [editingOutcomeId, setEditingOutcomeId] = useState<string | null>(null);
   const { profile } = useAuth();
+  const queryClient = useQueryClient();
 
   // Fetch user's OBVs
   const { data: myOBVs = [], isLoading: loadingMyOBVs } = useQuery({
@@ -45,11 +54,12 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
         .from('obvs')
         .select(`
           id, titulo, descripcion, tipo, fecha, status,
-          es_venta, producto, evidence_url, project_id
+          es_venta, facturacion, margen, producto, evidence_url,
+          obv_outcome, project_id
         `)
         .eq('owner_id', profile?.id)
         .order('created_at', { ascending: false });
-      
+
       if (error) throw error;
 
       // Get projects
@@ -66,6 +76,20 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
     },
     enabled: !!profile?.id && activeTab === 'mis-obvs',
   });
+
+  const handleSetOutcome = async (obvId: string, outcome: string) => {
+    const { error } = await supabase
+      .from('obvs')
+      .update({ obv_outcome: outcome || null })
+      .eq('id', obvId);
+    if (error) {
+      toast.error('Error al actualizar el resultado');
+    } else {
+      toast.success('Resultado registrado');
+      queryClient.invalidateQueries({ queryKey: ['my_obvs', profile?.id] });
+    }
+    setEditingOutcomeId(null);
+  };
 
   // Fetch all OBVs
   const { data: allOBVs = [], isLoading: loadingAllOBVs } = useQuery({
@@ -230,48 +254,106 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
               </div>
             ) : (
               <div className="divide-y divide-border">
-                {myOBVs.map(obv => (
-                  <div key={obv.id} className="p-4 hover:bg-muted/30 transition-colors">
-                    <div className="flex items-center gap-4">
-                      {/* Type icon */}
-                      <div className={cn(
-                        "w-10 h-10 rounded-xl flex items-center justify-center text-xl",
-                        obv.tipo === 'exploracion' && "bg-info/20",
-                        obv.tipo === 'validacion' && "bg-warning/20",
-                        obv.tipo === 'venta' && "bg-success/20",
-                      )}>
-                        {obv.tipo === 'exploracion' ? '🔍' : obv.tipo === 'validacion' ? '✅' : '💰'}
+                {myOBVs.map(obv => {
+                  const outcomeOpt = OUTCOME_OPTIONS.find(o => o.value === obv.obv_outcome);
+                  const isEditingThis = editingOutcomeId === obv.id;
+                  return (
+                    <div key={obv.id} className="p-4 hover:bg-muted/30 transition-colors">
+                      <div className="flex items-center gap-4">
+                        {/* Type icon */}
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center text-xl",
+                          obv.tipo === 'exploracion' && "bg-info/20",
+                          obv.tipo === 'validacion' && "bg-warning/20",
+                          obv.tipo === 'venta' && "bg-success/20",
+                        )}>
+                          {obv.tipo === 'exploracion' ? '🔍' : obv.tipo === 'validacion' ? '✅' : '💰'}
+                        </div>
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-semibold truncate">{obv.titulo}</p>
+                          <p className="text-sm text-muted-foreground">
+                            {obv.project?.icon} {obv.project?.nombre || 'Sin proyecto'} • {obv.fecha}
+                          </p>
+                        </div>
+
+                        {/* Sale amount */}
+                        {obv.es_venta && (
+                          <div className="text-right">
+                            <p className="font-bold text-success">€{obv.facturacion}</p>
+                            <p className="text-xs text-muted-foreground">+€{obv.margen} margen</p>
+                          </div>
+                        )}
+
+                        {/* Outcome badge / editor */}
+                        <div>
+                          {outcomeOpt ? (
+                            <button
+                              onClick={() => setEditingOutcomeId(isEditingThis ? null : obv.id)}
+                              className={cn(
+                                'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border',
+                                outcomeOpt.bg, outcomeOpt.color
+                              )}
+                              title="Cambiar resultado"
+                            >
+                              <outcomeOpt.icon size={12} />
+                              {outcomeOpt.label}
+                            </button>
+                          ) : (
+                            <button
+                              onClick={() => setEditingOutcomeId(isEditingThis ? null : obv.id)}
+                              className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border border-dashed border-muted-foreground/40 text-muted-foreground hover:border-primary hover:text-primary transition-colors"
+                            >
+                              + Resultado
+                            </button>
+                          )}
+                        </div>
+
+                        {/* Validation status */}
+                        <div className={cn(
+                          "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
+                          obv.status === 'validated' && "bg-success/20 text-success",
+                          obv.status === 'rejected' && "bg-destructive/20 text-destructive",
+                          obv.status === 'pending' && "bg-warning/20 text-warning",
+                        )}>
+                          {getStatusIcon(obv.status)}
+                          {getStatusLabel(obv.status)}
+                        </div>
                       </div>
 
-                      {/* Info */}
-                      <div className="flex-1 min-w-0">
-                        <p className="font-semibold truncate">{obv.titulo}</p>
-                        <p className="text-sm text-muted-foreground">
-                          {obv.project?.icon} {obv.project?.nombre || 'Sin proyecto'} • {obv.fecha}
-                        </p>
-                      </div>
-
-                      {/* Sale amount */}
-                      {obv.es_venta && (
-                        <div className="text-right">
-                          <p className="font-bold text-success">€{obv.facturacion}</p>
-                          <p className="text-xs text-muted-foreground">+€{obv.margen} margen</p>
+                      {/* Inline outcome picker */}
+                      {isEditingThis && (
+                        <div className="mt-3 flex items-center gap-2 flex-wrap">
+                          <span className="text-xs text-muted-foreground">¿Cuál fue el resultado?</span>
+                          {OUTCOME_OPTIONS.map((opt) => (
+                            <button
+                              key={opt.value}
+                              onClick={() => handleSetOutcome(obv.id, opt.value)}
+                              className={cn(
+                                'flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium border transition-all',
+                                obv.obv_outcome === opt.value
+                                  ? opt.bg + ' ' + opt.color
+                                  : 'border-border hover:border-muted-foreground/40'
+                              )}
+                            >
+                              <opt.icon size={11} className={obv.obv_outcome === opt.value ? opt.color : ''} />
+                              {opt.label}
+                            </button>
+                          ))}
+                          {obv.obv_outcome && (
+                            <button
+                              onClick={() => handleSetOutcome(obv.id, '')}
+                              className="text-xs text-muted-foreground hover:text-destructive transition-colors"
+                            >
+                              Quitar
+                            </button>
+                          )}
                         </div>
                       )}
-
-                      {/* Status */}
-                      <div className={cn(
-                        "flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium",
-                        obv.status === 'validated' && "bg-success/20 text-success",
-                        obv.status === 'rejected' && "bg-destructive/20 text-destructive",
-                        obv.status === 'pending' && "bg-warning/20 text-warning",
-                      )}>
-                        {getStatusIcon(obv.status)}
-                        {getStatusLabel(obv.status)}
-                      </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

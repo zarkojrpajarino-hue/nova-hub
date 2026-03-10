@@ -1,5 +1,5 @@
 import { memo } from 'react';
-import { Circle, CheckCircle2, Calendar, Sparkles, BookOpen, Trash2 } from 'lucide-react';
+import { Circle, CheckCircle2, Calendar, Sparkles, BookOpen, Trash2, Shield } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { Task } from '@/hooks/useTaskKanban';
 import type { DraggableProvidedDragHandleProps, DraggableProvidedDraggableProps } from '@hello-pangea/dnd';
@@ -8,6 +8,13 @@ const PRIORITY_COLORS: Record<number, string> = {
   1: '#EF4444', // Alta
   2: '#F59E0B', // Media
   3: '#22C55E', // Baja
+};
+
+const FUNCTION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
+  demand:   { label: 'Demanda',  color: '#F59E0B' },
+  delivery: { label: 'Delivery', color: '#3B82F6' },
+  cash:     { label: 'Cash',     color: '#22C55E' },
+  support:  { label: 'Soporte',  color: '#A855F7' },
 };
 
 interface Member {
@@ -20,6 +27,7 @@ interface TaskCardProps {
   task: Task;
   index: number;
   assignee: Member | undefined;
+  leader: Member | undefined;
   isDragging: boolean;
   canDelete: boolean;
   hasPlaybook: boolean;
@@ -34,6 +42,7 @@ interface TaskCardProps {
 export const TaskCard = memo(function TaskCard({
   task,
   assignee,
+  leader,
   isDragging,
   canDelete,
   hasPlaybook,
@@ -105,6 +114,21 @@ export const TaskCard = memo(function TaskCard({
       {/* Footer */}
       <div className="flex items-center justify-between pl-6">
         <div className="flex items-center gap-2">
+          {task.function_type && FUNCTION_TYPE_LABELS[task.function_type] && (
+            <div
+              className="flex items-center gap-1 text-xs font-medium px-1.5 py-0.5 rounded-full"
+              style={{
+                backgroundColor: FUNCTION_TYPE_LABELS[task.function_type].color + '20',
+                color: FUNCTION_TYPE_LABELS[task.function_type].color,
+              }}
+            >
+              <div
+                className="w-1.5 h-1.5 rounded-full"
+                style={{ backgroundColor: FUNCTION_TYPE_LABELS[task.function_type].color }}
+              />
+              {FUNCTION_TYPE_LABELS[task.function_type].label}
+            </div>
+          )}
           {task.fecha_limite && (
             <div className={cn(
               "flex items-center gap-1 text-xs",
@@ -147,11 +171,27 @@ export const TaskCard = memo(function TaskCard({
               <Trash2 size={14} />
             </button>
           )}
+          {/* Leader avatar — only shown when leader exists and differs from assignee.
+              NULL leader_id = "sin dato", not "founder-led" (E4.5 rule). */}
+          {leader && leader.id !== task.assignee_id && (
+            <div className="relative" title={`Responsable: ${leader.nombre}`}>
+              <div
+                className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white ring-2 ring-background"
+                style={{ backgroundColor: leader.color, opacity: 0.85 }}
+              >
+                {leader.nombre.charAt(0)}
+              </div>
+              <Shield
+                size={8}
+                className="absolute -bottom-0.5 -right-0.5 text-amber-500 bg-background rounded-full"
+              />
+            </div>
+          )}
           {assignee && (
             <div
               className="w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold text-white"
               style={{ backgroundColor: assignee.color }}
-              title={assignee.nombre}
+              title={`Ejecutor: ${assignee.nombre}`}
             >
               {assignee.nombre.charAt(0)}
             </div>

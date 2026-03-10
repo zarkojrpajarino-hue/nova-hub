@@ -26,15 +26,19 @@ import {
   AlertCircle,
   Calendar,
   DollarSign,
+  Database,
 } from 'lucide-react';
 import { FounderMetricsDashboard } from './FounderMetricsDashboard';
+import { StrategyEditor } from '@/components/engine-inputs/StrategyEditor';
+import { EconomicProfileForm } from '@/components/engine-inputs/EconomicProfileForm';
+import { ProcessArtifactEditor } from '@/components/engine-inputs/ProcessArtifactEditor';
 
 interface StartupOSDashboardProps {
   projectId: string;
 }
 
 export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
-  const [activeView, setActiveView] = useState<'overview' | 'strategy' | 'execution' | 'metrics' | 'intelligence'>(
+  const [activeView, setActiveView] = useState<'overview' | 'strategy' | 'execution' | 'metrics' | 'intelligence' | 'inputs'>(
     'overview'
   );
 
@@ -82,6 +86,10 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
             <TabsTrigger value="intelligence" className="gap-2">
               <Sparkles className="h-4 w-4" />
               Intelligence
+            </TabsTrigger>
+            <TabsTrigger value="inputs" className="gap-2">
+              <Database className="h-4 w-4" />
+              Inputs
             </TabsTrigger>
           </TabsList>
         </div>
@@ -225,6 +233,21 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
         {/* Metrics Tab */}
         <TabsContent value="metrics" className="p-6">
           <FounderMetricsDashboard projectId={projectId} />
+        </TabsContent>
+
+        {/* Inputs Tab — engine data pipeline */}
+        <TabsContent value="inputs" className="p-6">
+          <div className="space-y-6 max-w-4xl">
+            <div>
+              <h2 className="text-lg font-semibold">Datos para los motores</h2>
+              <p className="text-sm text-gray-600 mt-1">
+                Estrategia, perfil económico y procesos documentados. Alimentan los motores de probabilidad, riesgo y viabilidad.
+              </p>
+            </div>
+            <StrategyEditor projectId={projectId} />
+            <EconomicProfileForm projectId={projectId} />
+            <ProcessArtifactEditor projectId={projectId} />
+          </div>
         </TabsContent>
 
         {/* Intelligence Tab */}

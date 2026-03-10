@@ -1,6 +1,7 @@
 import { memo } from 'react';
 import { TrendingUp, Wallet, PieChart, BarChart3 } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
+import { KeyMetricsEditor } from './KeyMetricsEditor';
 
 interface ProjectFinancialStats {
   facturacion?: number;
@@ -12,9 +13,10 @@ interface ProjectFinancialStats {
 
 interface ProjectFinancialTabProps {
   stats: ProjectFinancialStats;
+  projectId: string;
 }
 
-export function ProjectFinancialTab({ stats }: ProjectFinancialTabProps) {
+function ProjectFinancialTabComponent({ stats, projectId }: ProjectFinancialTabProps) {
   const facturacion = Number(stats?.facturacion) || 0;
   const margen = Number(stats?.margen) || 0;
   const margenPercent = facturacion > 0 ? (margen / facturacion) * 100 : 0;
@@ -94,19 +96,10 @@ export function ProjectFinancialTab({ stats }: ProjectFinancialTabProps) {
         </div>
       </div>
 
-      {/* Placeholder for future charts */}
-      <div className="bg-card border border-border rounded-2xl p-6 text-center">
-        <div className="w-16 h-16 rounded-2xl bg-muted flex items-center justify-center mx-auto mb-4">
-          <BarChart3 size={28} className="text-muted-foreground" />
-        </div>
-        <h4 className="font-semibold mb-2">Gráficos de Evolución</h4>
-        <p className="text-sm text-muted-foreground">
-          Los gráficos de evolución mensual estarán disponibles próximamente
-        </p>
-      </div>
+      {/* Key Metrics Editor — MRR mensual para Phase 3 Engine */}
+      <KeyMetricsEditor projectId={projectId} />
     </div>
   );
 }
 
-// ✨ OPTIMIZADO: Memoizar para evitar re-renders innecesarios
 export const ProjectFinancialTab = memo(ProjectFinancialTabComponent);

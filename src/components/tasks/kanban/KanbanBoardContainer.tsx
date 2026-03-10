@@ -61,6 +61,9 @@ export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardC
   const getAssignee = (assigneeId: string | null) =>
     projectMembers.find(m => m.id === assigneeId);
 
+  const getLeader = (leaderId: string | null) =>
+    projectMembers.find(m => m.id === leaderId);
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
@@ -129,6 +132,7 @@ export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardC
                 column={column}
                 tasks={columnTasks}
                 getAssignee={getAssignee}
+                getLeader={getLeader}
                 canDeleteTask={canDeleteTask}
                 hasPlaybook={hasPlaybook}
                 onCompleteClick={handleCompleteClick}
@@ -181,6 +185,7 @@ export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardC
             descripcion: taskToComplete.descripcion,
             playbook: taskToComplete.playbook as Json,
             metadata: taskToComplete.metadata as Json,
+            function_type: taskToComplete.function_type,
           }}
           onComplete={handleTaskComplete}
         />

@@ -1,5 +1,11 @@
 import { memo } from 'react';
+import { CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
 import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
+import { Label } from '@/components/ui/label';
+import {
+  Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
+} from '@/components/ui/select';
+import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
 interface Project {
@@ -15,6 +21,42 @@ interface OBVStep6EvidenceProps {
   onUpdate: (updates: Partial<OBVFormData>) => void;
 }
 
+const EVIDENCE_TYPE_LABELS: Record<string, string> = {
+  payment:             'Comprobante de pago',
+  interview_recording: 'Grabación de entrevista',
+  public_url:          'URL pública (web, social)',
+  screenshot:          'Captura de pantalla',
+  doc:                 'Documento',
+  other:               'Otro',
+};
+
+const OUTCOME_OPTIONS = [
+  {
+    value: 'success',
+    label: 'Éxito',
+    description: 'Hipótesis confirmada',
+    icon: CheckCircle2,
+    color: 'text-success',
+    bg: 'bg-success/10 border-success/40',
+  },
+  {
+    value: 'partial',
+    label: 'Parcial',
+    description: 'Señal mixta, no confirmado del todo',
+    icon: MinusCircle,
+    color: 'text-warning',
+    bg: 'bg-warning/10 border-warning/40',
+  },
+  {
+    value: 'fail',
+    label: 'No validó',
+    description: 'Hipótesis refutada',
+    icon: XCircle,
+    color: 'text-destructive',
+    bg: 'bg-destructive/10 border-destructive/40',
+  },
+] as const;
+
 export const OBVStep6Evidence = memo(function OBVStep6Evidence({
   step,
   formData,
@@ -25,13 +67,73 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
   return (
     <>
       <h4 className="text-lg font-semibold text-center mb-6">
-        Paso {step}: Evidencia
+        Paso {step}: Resultado y evidencia
       </h4>
-      <div className="max-w-lg mx-auto space-y-4 mb-8">
+      <div className="max-w-lg mx-auto space-y-5 mb-8">
+
+        {/* obv_outcome — resultado del OBV (drives velocity + scoring) */}
+        <div>
+          <Label className="mb-2 block">
+            ¿Cuál fue el resultado? <span className="text-muted-foreground font-normal">(recomendado)</span>
+          </Label>
+          <div className="grid grid-cols-3 gap-2">
+            {OUTCOME_OPTIONS.map((opt) => {
+              const Icon = opt.icon;
+              const selected = formData.obvOutcome === opt.value;
+              return (
+                <button
+                  key={opt.value}
+                  type="button"
+                  onClick={() => onUpdate({ obvOutcome: selected ? '' : opt.value })}
+                  className={cn(
+                    'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all',
+                    selected ? opt.bg + ' border-2' : 'border-border hover:border-muted-foreground/40'
+                  )}
+                >
+                  <Icon size={20} className={selected ? opt.color : 'text-muted-foreground'} />
+                  <span className={cn('text-sm font-medium', selected ? opt.color : '')}>{opt.label}</span>
+                  <span className="text-xs text-muted-foreground leading-tight">{opt.description}</span>
+                </button>
+              );
+            })}
+          </div>
+          {!formData.obvOutcome && (
+            <p className="text-xs text-muted-foreground mt-1.5">
+              Sin resultado declarado esta OBV no contará como iteración para el motor.
+            </p>
+          )}
+        </div>
+
+        {/* evidence_type */}
+        <div>
+          <Label className="mb-2 block">
+            Tipo de evidencia <span className="text-muted-foreground font-normal">(opcional)</span>
+          </Label>
+          <Select
+            value={formData.evidenceType}
+            onValueChange={(v) => onUpdate({ evidenceType: v })}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Selecciona tipo de evidencia..." />
+            </SelectTrigger>
+            <SelectContent>
+              {Object.entries(EVIDENCE_TYPE_LABELS).map(([value, label]) => (
+                <SelectItem key={value} value={value}>{label}</SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+          {formData.evidenceType === 'payment' && (
+            <p className="text-xs text-success mt-1.5">
+              Comprobante de pago verificado — activa la señal de validación del motor.
+            </p>
+          )}
+        </div>
+
+        {/* evidence_url */}
         <EvidenceUrlInput
           value={formData.evidenceUrl}
           onChange={(value) => onUpdate({ evidenceUrl: value })}
-          label="Evidencia (URL Google Drive)"
+          label="Enlace a la evidencia (Google Drive, etc.)"
         />
 
         {/* Summary */}
@@ -48,6 +150,14 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
               <>
                 <span className="text-muted-foreground">Facturación:</span>
                 <span className="font-medium text-success">€{formData.facturacion}</span>
+              </>
+            )}
+            {formData.obvOutcome && (
+              <>
+                <span className="text-muted-foreground">Resultado:</span>
+                <span className="font-medium capitalize">
+                  {OUTCOME_OPTIONS.find(o => o.value === formData.obvOutcome)?.label ?? formData.obvOutcome}
+                </span>
               </>
             )}
           </div>

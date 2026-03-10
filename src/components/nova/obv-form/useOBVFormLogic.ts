@@ -30,6 +30,8 @@ export interface OBVFormData {
   margen: number;
   participants: Participant[];
   evidenceUrl: string;
+  evidenceType: string;
+  obvOutcome: string;
 }
 
 const initialFormData: OBVFormData = {
@@ -52,6 +54,8 @@ const initialFormData: OBVFormData = {
   margen: 0,
   participants: [],
   evidenceUrl: '',
+  evidenceType: '',
+  obvOutcome: '',
 };
 
 /**
@@ -222,6 +226,8 @@ export function useOBVFormLogic(onSuccess: () => void) {
           costes: isVenta ? formData.costes : null,
           margen: isVenta ? formData.margen : null,
           evidence_url: formData.evidenceUrl || null,
+          evidence_type: formData.evidenceType || null,
+          obv_outcome: formData.obvOutcome || null,
         })
         .select('id')
         .single();

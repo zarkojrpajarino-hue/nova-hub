@@ -31,65 +31,218 @@
 > **Bloquea todo lo demás.** Sin estas definiciones, ningún motor puede implementarse.
 > **Tipo:** Diseño + base de datos + lógica pura
 
-### 0.1 — Iteration Velocity — definición encontrada en chattt.txt ✅
+### 0.1 — Iteration Velocity — CERRADA ✅ (2026-02-24)
 
-**Origen:** chattt.txt (documento fundacional) — ya definida, solo falta implementar.
-
-**Definición:**
+**Definición final:**
 ```
-iteration_velocity = número de experimentos reales ejecutados por mes
-                     (OBV tipo exploración/validación creado + resultado registrado)
+iteration_velocity = número de OBVs con resultado documentado
+                     en los últimos 28 días (rolling window)
 
-Saludable:  ≥ 2 iteraciones/mes
-Fricción:   1 iteración/mes
-Crítico:    0 iteraciones en 4 semanas
+Cuenta: OBVs con resultado registrado (positivo O negativo)
+No cuenta: KPIs, tareas, reuniones, documentos, trabajo interno
+No cuenta: OBVs sin resultado, OBVs cancelados, OBVs editados (no generan nueva iteración)
+No cuenta: OBVs duplicados salvo que el resultado sea distinto
+Especial: Proyecto pausado → velocity se congela, no baja
 ```
 
-**Normalización a 0–100 para usar en motores:**
+**Clasificación:**
+```
+0   → Crítico
+1   → Fricción
+2   → Saludable mínimo
+3   → Alto rendimiento
+4+  → Excelente
+```
+
+**Normalización a 0–100:**
 ```
 velocity_score = MIN(100, iteration_velocity × 25)
-// 0 iteraciones = 0, 2 = 50, 4+ = 100
+// 0=0, 1=25, 2=50, 3=75, 4+=100
 ```
 
-**Ventana:** 4 semanas rolling. Solo OBVs con resultado documentado cuentan (no tareas sueltas).
+**Integración en Phase Engine:**
+```
+Velocity actúa como condición estructural mínima, NO como gate de puntuación.
+Para avanzar de fase se requiere:
+  - Phase Score ≥ 75%
+  - Hard Signal cumplido
+  - iteration_velocity > 0 en los últimos 28 días
 
-**Impacto:** Probability Engine (como sub-input de execution_rate) + Viability Engine (patrón de inactividad) + Weekly Digest ("Tu velocidad de iteración subió/bajó X% vs ciclo anterior").
+Si velocity = 0  → no puede avanzar (inactividad total)
+Si velocity ≥ 1  → puede avanzar si lo demás es fuerte
+NO se exige velocity ≥ 2 como gate duro (evita bloqueos artificiales)
+```
+
+**Integración en Probability Engine:**
+```
+Velocity NO entra como variable independiente.
+Vive dentro de execution_rate:
+
+execution_rate =
+  (velocity_score       × wV)
++ (task_completion_rate × wT)
++ (role_execution_health× wR)
+= MIN(100, resultado)
+
+Pesos por fase (siempre suman 1.00):
+         wV     wT     wR
+  Fase 1: 0.60  0.25  0.15  → aprendizaje domina
+  Fase 2: 0.55  0.30  0.15  → más "hacer", menos iterar
+  Fase 3: 0.45  0.35  0.20  → ejecución consistente
+  Fase 4: 0.35  0.45  0.20  → escala = tareas > velocidad
+
+Fórmula de probability:
+  probability =
+    (phase_score        × 0.35)
+  + (execution_rate     × 0.20)
+  + (validation_strength× 0.15)
+  + (revenue_momentum   × 0.15)
+  + (capacity_health    × 0.15)
+  = 1.00
+```
+
+**Integración en Risk Score:**
+```
+velocity = 0 durante 4 semanas → RiskScore.ExecutionDrop = alto → warning
+velocity = 0 durante 8 semanas → estado ESTANCAMIENTO (escala progresivamente, no bloquea)
+```
+
+**Integración en Viability Engine:**
+```
+Se activa revisión estructural si concurren los 3:
+  - velocity = 0
+  - phase_score estancado
+  - probability < 50
+  durante 8 semanas consecutivas
+Nunca por velocity sola.
+```
+
+**Solo founder:**
+```
+No se modifica la fórmula de velocity.
+Se ajusta capacity_health, no velocity.
+Un founder puede tener velocity alta aunque esté sobrecargado — son dimensiones distintas.
+```
 
 ---
 
-### 0.2 — Definir evidence_quality_score
+### 0.2 — evidence_quality_score — CERRADA ✅ (2026-02-24)
 
-**Problema:** La fórmula de `validation_strength` incluye `evidence_quality_score × 15` pero **nunca se define** qué es ni cómo se calcula.
-
-**Tarea:** Especificar:
+**Fórmula final por OBV:**
 ```
-evidence_quality_score = f(
-  tipo_de_evidencia,      // ¿screenshot < entrevista < pago?
-  fuente_externa,         // ¿link verificable?
-  antigüedad,             // ¿relevancia temporal?
-  peer_confirmation       // ¿alguien más lo validó?
+final_evidence_score = MIN(100,
+  evidence_base_score × verification_multiplier × decay_factor
 )
 ```
-Definir la escala (0–10? 0–100?), los pesos, y qué tipo de evidencia da qué puntuación.
+
+**Paso 1 — evidence_base_score (tipo más fuerte del OBV):**
+```
+Pago real verificable (factura, Stripe con metadata)  → 90
+Contrato / LOI firmado                                → 80
+Entrevista grabada (audio/video)                      → 75
+Test landing con métricas verificables                → 70
+Screenshot conversación cliente real                  → 65
+Encuesta estructurada con respuestas reales           → 55
+Texto auto-declarado sin adjuntos                     → 30
+Sin evidencia                                         →  0
+```
+
+**Paso 2 — verification_multiplier (solo el más alto, nunca acumulan):**
+```
+Peer validated (confirmado por otro usuario)  → ×1.15
+URL externa verificable                       → ×1.10
+Auto-declarado sin validación                 → ×1.00
+Marcado como inconsistente                    → ×0.70
+```
+
+**Paso 3 — decay_factor (relevancia temporal):**
+```
+Semanas 0–8  → 1.00
+Semana 9     → 0.90
+Semana 10    → 0.80
+Semana 11    → 0.70
+Semana 12    → 0.60
+Semana 13+   → 0.50 (suelo mínimo)
+
+decay_factor = MAX(0.50, 1 - ((semanas_desde_creación - 8) × 0.10))
+Solo aplica si semanas_desde_creación > 8
+```
+
+**Cómo se convierte en validation_strength:**
+```
+Paso 1 — validation_raw (promedio ponderado por tipo de OBV, últimas 8 semanas):
+  revenue_validation   → peso ×1.3
+  customer_discovery   → peso ×1.0
+  operational_system   → peso ×0.8
+
+  validation_raw = Σ(final_evidence_score × type_weight) / Σ(type_weight)
+
+Paso 2 — consistency_factor (volumen de OBVs):
+  consistency_factor = MIN(1.2, 1 + (n_OBVs_válidos / 10))
+  // 1 OBV=×1.1 · 3 OBVs=×1.3 · 5+ OBVs=×1.2 (cap)
+
+Paso 3:
+  validation_strength = MIN(100, validation_raw × consistency_factor)
+```
+
+**Edge cases:**
+```
+OBV sin evidencia adjunta            → base_score = 0
+OBV solo texto                       → base_score = 30
+OBV con pago real + URL              → 90 × 1.10 × decay (casi 100)
+OBV >13 semanas                      → decay_factor = 0.50 (sigue contando)
+Proyecto nuevo sin OBVs              → validation_strength = 0
+  (protegido por Day 1 Probability warm strategy)
+```
+
+**Qué NO mide:** cantidad (eso es velocity), actividad, opinión del founder.
+**Qué SÍ mide:** profundidad, verificabilidad, consistencia, tipo de validación.
 
 ---
 
-### 0.3 — Resolver el math del solo founder
+### 0.3 — Capacidad del solo founder — CERRADA ✅ (2026-02-24)
 
-**Problema:** La capacidad base es 100 unidades/semana. Una semana normal de solo founder:
-- 3 OBVs activos: -30 unidades
-- 8 tareas: -24 unidades
-- 2 reuniones: -20 unidades
-- **Total consumido: 74/100 → ya al 74% de carga → casi en warning**
+**Principio:** El error no era el baseline, era modelar igual equipo e individuo.
+El verdadero coste en equipo no es solo trabajo — es coordinación y fricción.
 
-Con el ajuste `× 0.85`, la capacidad efectiva = 85 unidades. 74 consumidas = **87% de carga → CRITICAL por definición.**
+**Baseline: 100 unidades para todos (no se diferencia)**
 
-**Tarea:** Revisar los umbrales para solo:
-- ¿El solo founder debe tener un baseline diferente? (¿120 unidades?)
-- ¿O los umbrales de warning/crítico cambian para solo? (80% → 90% en solo)
-- ¿O el cálculo de OBVs/tareas/reuniones se pondera diferente para uno solo?
+**Coste por actividad según modo:**
 
-Documentar la decisión y actualizar ENGINE_DESIGN.md §5 y §10.
+```
+                    EQUIPO    SOLO FOUNDER
+OBV activo          10        7   (sin coordinación ni sincronización)
+Tarea activa         3        2   (más foco, menos fricción)
+Reunión             10        6   (solo externas; sin reuniones internas)
+```
+
+**Verificación con ejemplo estándar:**
+```
+SOLO FOUNDER:                    EQUIPO:
+3 OBVs  × 7  = 21               3 OBVs  × 10 = 30
+8 tareas × 2 = 16               8 tareas × 3  = 24
+2 reun.  × 6 = 12               2 reun.  × 10 = 20
+Total = 49% → Normal ✅          Total = 74% → Cerca de warning ✅
+```
+
+**Umbrales de capacidad:**
+```
+              WARNING    CRÍTICO
+Equipo        ≥ 75%      ≥ 85%
+Solo founder  ≥ 80%      ≥ 92%
+```
+
+**Por qué estos umbrales:**
+- Solo founder puede sostener más carga sin fricción de coordinación
+- Pero sigue teniendo límite humano real
+- Umbral crítico en 92% detecta burnout sin falsos positivos
+
+**Qué NO se hizo:**
+- ❌ Baseline distinto (120 unidades) → rompería comparación entre proyectos
+- ❌ Umbrales muy bajos → nunca detectaría burnout real
+
+**Nota implementación:** `capacity_health` entra en Probability con peso 15%.
+Formula: `capacity_health = MAX(0, 100 - capacity_used_percent)`
 
 ---
 
@@ -103,28 +256,524 @@ probability = (0 × 0.35) + (50 default × 0.20) + (0 × 0.15) + (30 neutral × 
 ```
 Un usuario nuevo ve inmediatamente que su probabilidad es "crítica". Esto **mata la motivación.**
 
-**Opciones a decidir:**
-- A) Bloquear el score hasta semana 3 (mostrar "Recopilando datos...")
-- B) Warm start: primeros 30 días tienen valores base elevados que se ajustan progresivamente
-- C) Solo mostrar el score una vez que hay al menos 2 inputs con datos reales
-- D) El score inicial es "N/A" con un mensaje: "Tu probabilidad se activa cuando completes tu primera validación"
+**Decisión: D como base + C como condición técnica — CERRADA ✅ (2026-02-24)**
+
+**Estado inicial:**
+```
+probability_status  = "INACTIVE"
+probability_display = "N/A"
+
+Mensaje UX: "Tu probabilidad se activa cuando tengamos señales reales de ejecución."
+```
+
+**Condición de activación (≥2 de 5 inputs con datos reales ≠ default):**
+```
+1. phase_score > 0
+2. execution_rate > 0
+3. validation_strength > 0
+4. revenue_momentum con datos reales
+5. capacity_health calculado con actividad real
+
+Con que 2 estén activos → se calcula y muestra
+```
+
+**UX Día 1:**
+```
+FASE 1 · 12%
+Probabilidad: —
+Riesgo: —
+Tooltip: "La probabilidad se calcula cuando haya suficiente evidencia de ejecución."
+```
+
+**UX tras activación:**
+```
+Probabilidad: 48
+Microcopy: "Tu probabilidad ya se está calculando en base a tus primeras acciones."
+(No dramatizar si es baja — es normal en arranque)
+```
+
+**capacity_health — condición de señal real:**
+```
+Solo cuenta como input real si hay actividad mínima en la ventana:
+  ≥1 tarea creada o completada, O
+  ≥1 OBV activo/creado, O
+  ≥1 reunión registrada
+
+Sin actividad → capacity_health_status = "NO_SIGNAL"
+               → no cuenta para la regla de activación (≥2 inputs reales)
+
+Razón: capacity_used=0 → capacity_health=100 sin actividad.
+       Eso no es señal real, es ausencia de datos.
+```
+
+**Mientras INACTIVE — bloqueado:**
+```
+- No se disparan notificaciones de probabilidad
+- No se activa Viability Engine
+- No hay color rojo
+- El sistema está en modo "arranque"
+```
+
+**Por qué NO B (warm start):** infla el score artificialmente → luego cae con datos reales → sensación de "empeoré" — peor que empezar en N/A.
+**Por qué NO A (bloqueo temporal):** el tiempo no es la señal relevante, la ejecución sí. Un usuario puede generar datos en 5 días.
+
+**Principio:** La probabilidad no existe hasta que existe.
 
 ---
 
-### 0.5 — Definir los OBV types que existen en schema
+### 0.5 — Thresholds Fase 1 (Descubrimiento) — CERRADA ✅ (2026-02-24)
 
-**Problema:** La fase 1 tiene como hard signal:
-> "At least 1 OBV with type=`customer_discovery` in status=`validated`"
+**Objetivo de Fase 1:** Demostrar que existe un problema real, frecuente y doloroso en un segmento definido.
 
-Pero **no sabemos si `customer_discovery` existe como type válido en el schema actual** de OBVs.
+**Hard Signal (las 3 condiciones simultáneas para avanzar a Fase 2):**
+```
+1. ≥10 entrevistas reales documentadas
+2. ≥30% de entrevistados confirman el problema como frecuente y relevante
+3. Problema + segmento definidos explícitamente en el sistema
+Si no se cumplen las 3 → no avanza aunque phase_score ≥ 75%
+```
 
-**Tarea:** Auditar la tabla `obvs` (o `validaciones`):
-- ¿Qué tipos de OBV existen actualmente?
-- ¿Existe `type` o `category` como campo?
-- Añadir los tipos necesarios para cada hard signal:
-  - Fase 1: `customer_discovery`
-  - Fase 2: `revenue_validation`
-  - Fase 3: `operational_system`
+**Outcomes medibles:**
+```
+O1.1 — Volumen de entrevistas (peso 0.40)
+  score = MIN(100, (n_entrevistas / 10) × 100)
+  Saludable: ≥10 entrevistas en ≤6 semanas
+  Fricción:  5–9 entrevistas en 6 semanas
+  Crítico:   <5 entrevistas tras 8 semanas
+
+O1.2 — Claridad y recurrencia del problema (peso 0.40)
+  base = MIN(100, (porcentaje_dolor / 30) × 100)
+  if n_entrevistas < 5 → O1.2_score = base × 0.5  (penalty por muestra pequeña)
+  if n_entrevistas ≥ 5 → O1.2_score = base
+  Razón: 2 entrevistas con 1 sí = 50% → sin penalty daría 100. Estadísticamente incoherente.
+  Saludable: ≥30% expresan dolor claro y repetido + patrón consistente documentado
+  Fricción:  10–29% muestran interés o dolor moderado, patrón ambiguo
+  Crítico:   <10% muestran dolor relevante, hipótesis cambia constantemente
+
+O1.3 — Foco en segmento definido (peso 0.20)
+  Segmento preciso + ≤1 pivot en 4 semanas          → 100
+  Segmento definido pero amplio + ≤2 pivots          →  75
+  Segmento amplio + 2–3 pivots                       →  50
+  Indefinido o ≥4 pivots                             →   0
+  (escala 4 niveles para evitar saltos bruscos entre 50 y 100)
+
+  DEFINICIÓN COMPUTABLE DE PIVOT:
+  pivot_event = cambio guardado en cualquiera de {segment, problem, value_prop}
+  Solo cuenta si se crea nuevo record en strategic_model_versions (no edición de texto)
+  pivot_count = número de records en strategic_model_versions en últimas 4 semanas
+```
+
+**Phase 1 Score:**
+```
+phase1_score = (O1.1 × 0.40) + (O1.2 × 0.40) + (O1.3 × 0.20)
+
+≥ 75% → Saludable
+50–74% → Fricción
+< 50% → Crítico
+```
+
+**Alertas temporales:**
+```
+4 semanas sin ≥1 entrevista       → warning
+6 semanas sin ≥5 entrevistas      → fricción
+8 semanas sin ≥5 entrevistas      → crítico
+Solo founder: +2 semanas en todos los umbrales temporales
+```
+
+**Requisitos numéricos (solo founder NO tiene tolerancia aquí):**
+```
+Las 10 entrevistas y el 30% son iguales para todos.
+Solo el tiempo tiene tolerancia +2 semanas para solo founder.
+```
+
+**Condiciones que bloquean avance:**
+```
+- 10 entrevistas pero dolor < 30%
+- Dolor fuerte pero < 10 entrevistas
+- Cambia de hipótesis cada semana
+- iteration_velocity = 0 en últimas 4 semanas
+```
+
+**Qué mide Fase 1:** exposición real al mercado, claridad del problema, disciplina estratégica.
+**Qué NO mide:** entusiasmo, idea brillante, prototipo bonito.
+
+---
+
+### 0.6 — Thresholds Fase 3 (Operación) — CERRADA ✅ (2026-02-24)
+
+**Objetivo de Fase 3:** El sistema genera ingresos repetibles sin depender del caos ni del founder al límite.
+
+**Hard Signal (las 3 condiciones simultáneas para avanzar a Fase 4):**
+```
+1. ≥3 meses estables dentro de ventana de 4 meses (ver definición abajo)
+2. Cash flow positivo o neutro (confidence: HIGH) durante esos meses
+3. ≥1 función crítica no depende exclusivamente del founder
+   (Solo founder: sustituir por procesos documentados en Demand + Delivery)
+```
+
+**Definición de "mes estable":**
+```
+Mes 1:  stability_check = PASS (sin baseline)
+Mes 2:  ingresos_mes2 ≥ 0.75 × ingresos_mes1
+Mes 3+: ingresos_mesN ≥ 0.75 × AVG(ingresos_mes-1, ingresos_mes-2)
+        AND cash_flow ≥ 0
+
+Reglas adicionales del hard signal:
+  - No puede haber 2 meses negativos consecutivos
+  - Un mes negativo no puede ser < -20% del promedio previo
+```
+
+**Cash flow confidence:**
+```
+HIGH: costes reales registrados en ≥2 de los 3 meses evaluados → puede avanzar a F4
+LOW:  se usa margen estimado por model_type → puede operar, NO puede avanzar a F4
+
+Margen estimado por model_type (cuando no hay costes reales):
+  SaaS / Software    → 75%
+  Servicio           → 50%
+  Producto físico    → 35%
+  Marketplace        → 60%
+  Agencia híbrida    → 55%
+  Sin definir        → 50% (conservative default)
+
+estimated_cash_flow = ingresos_mes × margen_estimado
+```
+
+**Outcomes medibles:**
+```
+O3.1 — Consistencia de ingresos (peso 0.40)
+  score = MIN(100, (meses_estables_en_ventana_4 / 3) × 100)
+  3 meses → 100 · 2 meses → 66 · 1 mes → 33 · 0 → 0
+
+O3.2 — Salud operativa (peso 0.35)
+  O3.2_score =
+    (capacity_health × 0.50)
+  + (execution_rate  × 0.30)
+  + (bloqueo_penalty × 0.20)
+
+  bloqueo_penalty = MAX(0, 100 - (friction_count × 15) - (critical_count × 40))
+  Ejemplos: 0 bloq=100 · 1fric=85 · 2fric=70 · 1crit=60 · 1crit+1fric=45 · 2crit=20
+
+  Condición estructural adicional (no se suma, cap):
+    si iteration_velocity = 0 durante ≥4 semanas → O3.2_score = MIN(O3.2_score, 40)
+
+O3.3 — Descentralización mínima (peso 0.25)
+  ≥1 función crítica cubierta por otro miembro        → 100
+  Founder cubre todo con procesos documentados         →  60
+  Founder central en todo sin sistema                  →  20
+
+  Solo founder: sustituir por escala de documentación:
+    Procesos documentados en ≥2 funciones críticas     →  60 (máximo alcanzable)
+    → cap natural: Phase3_score_max_solo = 40+35+15 = 90
+```
+
+**Phase 3 Score:**
+```
+phase3_score = (O3.1 × 0.40) + (O3.2 × 0.35) + (O3.3 × 0.25)
+≥75% → Saludable · 50–74% → Fricción · <50% → Crítico
+Hard signal debe cumplirse para avanzar (independiente del score)
+```
+
+**Duración esperada y alertas:**
+```
+Normal: 8–16 semanas
+8 sem sin 2 meses consecutivos estables  → Warning
+12 sem sin estabilidad                   → Fricción
+20 sem sin estabilidad                   → Crítico estructural
+Solo founder: +2 semanas en todos los umbrales temporales
+```
+
+**Qué mide Fase 3:** estabilidad, repetibilidad, no fragilidad.
+**Qué NO mide:** crecimiento explosivo, tracción nueva, innovación.
+
+---
+
+### 0.7 — Thresholds Fase 4 (Escala) — CERRADA ✅ (2026-02-24)
+
+**Qué mide Fase 4:** crecimiento consistente, márgenes estables, equipo que no depende del founder.
+**Qué NO mide:** tamaño absoluto, velocidad de expansión, innovación de producto.
+
+#### Hard Signal (todos obligatorios — 6 condiciones)
+```
+1. ≥3 meses con crecimiento ≥10% dentro de ventana de 4 meses
+2. Sin 2 meses negativos consecutivos
+3. Sin ningún mes por debajo de -10%
+4. Promedio de los 4 meses ≥10%
+5. Margen bruto estable: variance_margen ≤ 0.15
+6. Sin critical_block activo durante el período
+```
+*(capacity_health se evalúa como variable continua en O4.2, no como gate duro)*
+
+**Tolerancia ventana:** se evalúan los últimos 4 meses disponibles (rolling, no calendario).
+Hard signal se cumple si ≥3 de esos 4 meses cumplen las condiciones individuales.
+
+#### O4.1 — Crecimiento sostenido (peso: 0.40)
+```
+O4.1 = MAX(0, MIN(100, (avg_growth_4m / 0.15) × 100))
+
+Ejemplos:
+  avg_growth =  5%  → 33
+  avg_growth = 10%  → 67
+  avg_growth = 15%  → 100
+  avg_growth = 20%  → 100 (cap)
+  avg_growth = -5%  → 0   (floor, no negativo)
+```
+`avg_growth_4m` = promedio de tasas de crecimiento mensual de los 4 meses de la ventana.
+
+#### O4.2 — Execution & margin health (peso: 0.35)
+```
+variance_margen = (max_margen_4m - min_margen_4m) / promedio_margen_4m
+  (rango relativo sobre el promedio; unidad: decimal, ej. 0.12 = 12%)
+
+margin_stability_score = MAX(0, MIN(100, (1 - variance_margen) × 100))
+
+O4.2 = (capacity_health       × 0.40)
+     + (execution_rate        × 0.30)
+     + (margin_stability_score × 0.30)
+```
+Suma de pesos: 0.40 + 0.30 + 0.30 = 1.00 ✅
+
+Ejemplo: márgenes 65%/80%/70%/72% → max=80, min=65, avg=71.75 → variance=0.209 → margin_stability_score=79.1
+
+#### O4.3 — Independencia del founder (peso: 0.25)
+```
+≥3 funciones críticas en manos de miembros distintos → 100
+≥2 funciones críticas delegadas                      → 70
+Founder central, sin sistema                         → 30
+
+Solo founder:
+  Max O4.3 = 70 (sin automatización estructural)
+  Si ≥2 funciones con automation_score ≥70 Y coverage_level = strong → max 100
+
+Cap natural solo (sin automatización):
+  100×0.40 + 100×0.35 + 70×0.25 = 92.5
+```
+
+#### Definición: automation_score (para solo founder O4.3)
+```
+automation_score =
+    (sistema_automatizado_real    ? 40 : 0)
+  + (proceso_con_checklist_activo ? 35 : 0)
+  + (metricas_auto_generadas      ? 25 : 0)
+
+sistema_automatizado_real = TRUE si cumple al menos UNA categoría:
+  A) Integración externa vía API/webhook (persistent, sin intervención manual)
+  B) Pipeline de datos automatizado (event/scheduler, sin intervención manual)
+  C) Sistema de notificaciones auto-disparadas (rule-based, sin intervención manual)
+  D) Proceso recurrente con scheduler (cron/trigger, sin intervención manual)
+
+NO califica: dashboards manuales, docs en Notion, plantillas, scripts ejecutados manualmente
+REQUISITO ADICIONAL: conectado al proyecto + ejecutado ≥1 vez en últimos 30 días
+
+Umbral: automation_score ≥70 requiere sistema_automatizado_real (40) + al menos uno más:
+  sistema + proceso = 75 ✅
+  sistema + métricas = 65 ✗
+  proceso + métricas = 60 ✗
+  → sistema_automatizado_real es obligatorio para llegar a 70
+```
+
+#### Definición: coverage_level (para O4.3 solo founder)
+```
+coverage_score =
+    (owner_assigned              ? 30 : 0)
+  + (≥3 tareas completadas 4w   ? 30 : 0)
+  + (sin critical_block activo  ? 20 : 0)
+  + (documented_process_exists  ? 20 : 0)
+
+≥70 → strong | 40–69 → basic | <40 → none
+
+DEPENDENCIA: task.function_id debe existir en schema (F1.11 / Fase 2)
+```
+
+#### Definición: critical_block
+```
+duration_points = MIN(40, duration_weeks × 10)
+
+execution_penalty:
+  0  si execution_rate ≥ 70
+  10 si 50 ≤ execution_rate < 70
+  20 si execution_rate < 50
+  (v1: usar execution_rate global del proyecto como proxy de causalidad)
+
+impact_weight =
+    (funcion_critica ? 40 : 20)
+  + duration_points
+  + execution_penalty
+
+impact_weight ≥ 70  → critical_block
+40–69               → friction_block
+<40                 → minor_signal
+
+funcion_critica = TRUE si function.type ∈ {demand, delivery, cash}
+  Sub-funciones (marketing, ventas, etc.) mapeadas internamente a una de las 3 macro-funciones.
+  No editable por el founder (evita gaming y mantiene comparabilidad entre proyectos).
+```
+
+#### Fórmula Phase 4 Score
+```
+phase4_score = (O4.1 × 0.40) + (O4.2 × 0.35) + (O4.3 × 0.25)
+
+≥80%   → Healthy scale
+60–79% → Fragile scale
+<60%   → Unstructured growth
+```
+
+#### Alertas temporales
+```
+4 sem sin crecimiento ≥10%   → Warning
+8 sem sin hard signal        → Fricción
+16 sem sin graduación        → Crítico estructural
+Solo founder: +2 semanas en todos los umbrales temporales
+```
+
+#### Duración esperada
+```
+12–24 semanas
+```
+
+---
+
+### 0.8 — OBV Types en schema — CERRADA ✅ (2026-02-24)
+
+#### 4 tipos formales
+```
+customer_discovery   → peso ×1.0  (entrevistas, descubrimiento de problema)
+product_validation   → peso ×1.1  (validación de que la solución funciona)
+revenue_validation   → peso ×1.3  (alguien paga — señal estructural superior)
+operational_system   → peso ×0.8  (validación de proceso interno)
+```
+
+#### Relevancia por fase (orientativa, no restrictiva)
+```
+Fase 1 → customer_discovery (principal)
+Fase 2 → product_validation + revenue_validation
+Fase 3 → revenue_validation + operational_system
+Fase 4 → operational_system (principal)
+```
+Los tipos están disponibles en todas las fases. El Phase Engine usa relevancia contextual, no bloqueo por tipo.
+
+#### Regla: un OBV = un tipo primario
+Determinado por la hipótesis central que se está testeando:
+- "¿El problema existe?" → `customer_discovery`
+- "¿La solución funciona?" → `product_validation`
+- "¿Alguien paga?" → `revenue_validation`
+- "¿El proceso funciona?" → `operational_system`
+
+#### Forzado automático por pago verificado
+```
+si evidence_type = payment_verified
+AND evidence_status = active
+→ obv.type = revenue_validation (automático, no editable mientras evidencia activa)
+
+Genera event_log:
+  type_auto_updated = TRUE
+  reason = "verified_payment_detected"
+
+Notificación founder:
+  "Hemos actualizado este OBV a revenue_validation porque se detectó un pago verificado."
+```
+
+#### Reversión automática del tipo
+El tipo revierte al valor anterior declarado si ocurre cualquiera de:
+```
+- evidence deleted
+- evidence_status = invalid
+- evidence_status = test_mode  (Stripe test mode excluido explícitamente)
+- evidence_status = refund
+- founder activa dispute_flag = TRUE → fuerza re-evaluación
+```
+Toda reclasificación genera event_log. No hay cambios silenciosos.
+
+#### Señal de aceleración de fase
+```
+si current_phase = 1
+AND existe OBV con type = revenue_validation AND evidence_status = active
+→ phase_acceleration_signal = TRUE
+→ Phase Engine recalcula inmediatamente
+→ Notificación: "Has registrado un ingreso. Recalculando tu fase según tus señales actuales."
+```
+El Phase Score decide si se puede avanzar. No hay condiciones adicionales paralelas.
+No fuerza avance. No modifica RiskScore ni otros motores.
+
+#### Definición de `payment_high_confidence` (unificada con F1.2)
+
+**Fuente única de verdad: `verification_multiplier` de F1.2. No existe `payment_confidence` como campo separado.**
+
+```
+payment_high_confidence = TRUE
+si verification_multiplier ∈ {1.10, 1.15}
+
+→ activa: auto-type revenue_validation, phase_acceleration_signal,
+          cuenta para hard signals F2/F3/F4
+
+payment_high_confidence = FALSE
+si verification_multiplier ∈ {1.00, 0.70}
+
+→ OBV se registra como revenue_validation con confidence baja.
+  No dispara aceleración ni hard signals.
+  Sigue contando como evidencia con su peso reducido.
+```
+
+Opcional v1: guardar `verification_reason ENUM(url, peer, structured_fields, self, inconsistent)`
+para legibilidad en UI. La lógica siempre se decide por el multiplier.
+
+#### 3 rutas para `verification_multiplier = 1.10 / 1.15`
+
+**Ruta A — URL verificable** → multiplier = 1.10
+```
+Enlace a recibo/factura con ID, fecha e importe visibles
+(Stripe invoice, Paddle receipt, Shopify order, etc.)
+verification_reason = 'url'
+```
+
+**Ruta B — Peer validation** → multiplier = 1.15
+```
+Peer = usuario que cumple TODAS:
+  - No es el founder principal del proyecto
+  - Pertenece al mismo proyecto (miembro/colaborador invitado)
+  - Rol ≠ 'viewer'
+  - Cuenta con ≥7 días de antigüedad
+  - ≥1 acción real en cualquier proyecto (tarea completada o OBV validado)
+
+Solo founders sin colaboradores no pueden usar esta ruta.
+verification_reason = 'peer'
+```
+
+**Ruta C — Campos estructurados + adjunto** → multiplier = 1.10
+```
+Formulario obligatorio:
+  provider          TEXT     (Stripe, Paddle, Shopify, etc.)
+  transaction_id    TEXT     (length ≥ 8)
+  amount            NUMERIC  (> 0)
+  currency          TEXT
+  date              DATE     (no futura; within last 90 days)
+  customer_identifier TEXT   (email/domain — hashed en DB)
+  attachment        FILE     (screenshot/receipt obligatorio)
+
+Validaciones mínimas del sistema:
+  transaction_id.length ≥ 8
+  amount > 0
+  date ≤ today AND date ≥ today - 90 days
+
+Si pago más antiguo de 90 días:
+  → se registra normalmente como LOW confidence (multiplier = 1.00)
+  → no dispara aceleración ni hard signals
+  → sigue siendo evidencia válida con peso reducido
+
+verification_reason = 'structured_fields'
+```
+
+#### Dependencias de schema (Fase 2)
+```
+evidence.status:              { active, deleted, invalid, test_mode, refund }
+evidence.verification_reason: ENUM(url, peer, structured_fields, self, inconsistent)
+evidence.payment_fields:      JSONB NULL  -- campos estructurados de Ruta C
+obv.dispute_flag:             BOOLEAN
+obv.type_auto_updated:        BOOLEAN
+obv.type_auto_update_reason:  TEXT
+obv.type_declared_original:   obv_type
+event_log:                    tabla de cambios de tipo con timestamp y reason
+```
 
 ---
 
@@ -243,32 +892,1421 @@ location = {
 
 ---
 
-### 0.7 — Benchmarks v1 — Fuente y contenido
+### 0.7 — Benchmarks v1 — CERRADA ✅ (2026-02-24)
 
-**Originado en:** chatttt2.txt + análisis previo.
+#### Estrategia
+```
+v1 = Curados (Opción A)
+Arquitectura = preparada para Híbrido (Opción C) desde el día 1
+v2+ = transición a datos internos cuando n_proyectos_validos ≥ 30 por segmento
+```
 
-El sistema compara al usuario con su industria/fase/región. Pero **los benchmarks no existen.**
-
-**Tarea:** Decidir la estrategia:
-- **Opción A: Benchmarks curados (manual v1)** — Define tú mismo los valores mínimos/medios/buenos por fase + tipo de negocio. Fuentes: Carta.com (SaaS), First Round reports, Lean Startup data, LATAM startup studies.
-- **Opción B: Benchmarks internos (generados de usuarios reales)** — Primeras 500 empresas alimentan los benchmarks automáticamente. Requiere masa crítica.
-- **Opción C: Híbrido** — v1 con valores curados, v2 con datos reales del producto.
-
-Crear tabla `benchmarks`:
+#### Tabla `benchmarks` (schema definitivo)
 ```sql
-CREATE TABLE benchmarks (
-  phase INTEGER,
-  metric TEXT,
-  market_scope TEXT,
-  cluster TEXT,
-  economic_profile TEXT,
-  p25 NUMERIC,  -- percentil 25 (bajo)
-  p50 NUMERIC,  -- mediano
-  p75 NUMERIC,  -- bueno
-  p90 NUMERIC,  -- excelente
-  source TEXT,
-  updated_at TIMESTAMPTZ
-);
+benchmarks
+-----------
+id               UUID
+industry         TEXT
+model_type       TEXT          -- SaaS, Service, Physical, Marketplace, Agency, Unknown
+region_cluster   TEXT
+metric_name      TEXT
+p25              NUMERIC
+p50              NUMERIC
+p75              NUMERIC
+source_type      TEXT          -- 'curated' | 'internal'
+confidence_score INTEGER       -- 0–100 (ver tabla abajo)
+updated_at       TIMESTAMPTZ
+```
+- Rangos, no números únicos
+- `source_type` diferencia curado de interno
+- Reemplazable progresivamente sin reescribir motor
+
+#### Métricas v1 y su uso en motores
+```
+Métrica               Uso en motor           Tipo
+──────────────────────────────────────────────────────
+margen_estimado       F3/F4 Phase Engine     estructural (ya definido por model_type)
+crecimiento_p50       Probability Engine     estructural (revenue_momentum_score)
+conversión_media      Dashboard              informativo
+ciclo_venta_medio     Dashboard              informativo (alerta si > p75)
+ticket_medio          Dashboard              informativo
+CAC_estimado          Dashboard              informativo
+```
+
+#### revenue_momentum_score (Probability Engine — peso 15%)
+```
+Caso normal (crecimiento_p50_benchmark > 0):
+  growth_vs_benchmark = crecimiento_real / crecimiento_p50_benchmark
+  revenue_momentum_score = MAX(0, MIN(100, (growth_vs_benchmark / 1.5) × 100))
+
+Caso fallback (crecimiento_p50_benchmark ≤ 0):
+  growth_vs_benchmark = crecimiento_real / 0.05   (referencia neutral: 5% mensual)
+  revenue_momentum_score = MAX(0, MIN(100, (growth_vs_benchmark / 1.5) × 100))
+  UI muestra: "Benchmark sectorial no positivo; usando referencia absoluta (5%/mes)."
+
+Interpretación (ambos casos):
+  Ratio 1.0× referencia →  ~67
+  Ratio 1.5× referencia → 100
+  Ratio 0              →   0
+  Ratio negativo       →   0
+```
+
+Diseño: p50 exacto no da score perfecto (100 requiere 1.5× el benchmark).
+
+#### confidence_score — tabla definitiva
+```
+source_type = curated:
+  default                           → 60
+  con fuente externa validada       → 70
+
+source_type = internal:
+  n_proyectos_validos < 30          → 50
+  30–99                             → 80
+  100–299                           → 90
+  ≥300                              → 95
+
+Cap absoluto: 95 (nunca 100)
+```
+
+#### Cómo se muestra al founder
+```
+0–49   → "Confianza: Baja"
+50–69  → "Confianza: Media"
+70–84  → "Confianza: Alta"
+85–95  → "Confianza: Muy alta"
+
+Texto contextual: "Benchmark basado en datos sectoriales estimados (confianza media)"
+```
+
+#### Transición a Híbrido (v2)
+```
+si n_proyectos_validos ≥ 30 por segmento:
+  → source_type cambia a 'internal'
+  → confidence_score se actualiza por tabla
+
+Motor siempre usa el benchmark del segmento más específico disponible.
+Fallback: industria → model_type → global si no hay datos suficientes.
+```
+
+#### Lo que NO hace en v1
+```
+❌ No mezcla curado e interno sin source_type explícito
+❌ No usa número único (siempre rangos p25/p50/p75)
+❌ No oculta fuente al founder
+❌ No alimenta directamente Phase Score ni Execution Rate
+```
+
+---
+
+### 0.9 — Viability Engine v1 — CERRADA ✅ (2026-02-24)
+
+#### Filosofía v1
+```
+❌ No bloquea acciones
+❌ No cambia fase
+❌ No fuerza protocolos
+❌ No activa Rescue Mode
+❌ No altera Probability ni Phase Score
+
+✔ Detecta patrones estructurales peligrosos
+✔ Emite recomendación contextual
+✔ Registra decisión del founder
+```
+Es un motor de advertencia estratégica, no de control. En v2 puede volverse más firme.
+
+#### Evaluación
+```
+Método: cron job semanal (cada lunes)
+Alcance: todos los proyectos activos
+No tiempo real en v1
+```
+
+#### 4 Triggers v1
+
+**Trigger 1 — Estancamiento prolongado**
+```
+iteration_velocity = 0
+durante ≥4 semanas (4 evaluaciones consecutivas)
+AND phase_score < 75
+
+→ "Tu proyecto no está generando aprendizaje activo."
+```
+
+**Trigger 2 — Ingresos sin margen**
+```
+ingresos > 0
+AND cash_flow < 0
+durante ≥2 meses
+AND cash_flow_confidence = HIGH   ← solo con datos reales
+
+→ "Estás creciendo ingresos sin sostenibilidad financiera."
+
+Si cash_flow_confidence = LOW:
+  No se emite viability_event.
+  Solo banner suave: "Para evaluar sostenibilidad financiera, registra tus costes reales."
+```
+
+**Trigger 3 — Crecimiento con sobrecarga**
+```
+crecimiento_real ≥ crecimiento_p50_benchmark
+AND capacity_health < 55
+durante ≥4 semanas
+
+Fallback si benchmark ≤ 0 o no existe:
+  crecimiento_real ≥ 0.05 (5% mensual — referencia absoluta)
+  (nunca queda silencioso por tabla vacía)
+
+→ "El crecimiento está tensionando tu sistema."
+```
+
+**Trigger 4 — Validación débil persistente**
+```
+validation_strength < 40
+AND ≥6 semanas en misma fase
+
+→ "Las señales de validación siguen siendo débiles."
+```
+
+#### Registro por evento
+```
+viability_event {
+  project_id         UUID
+  trigger_type       TEXT        -- stagnation | margin_risk | overload | weak_validation
+  metrics_snapshot   JSONB       -- valores al momento del trigger
+  timestamp          TIMESTAMPTZ
+  recommendation_text TEXT
+  founder_response   TEXT        -- accept | ignore | postpone
+  postpone_until     DATE        -- nullable; solo si response = postpone
+  resolved_at        TIMESTAMPTZ -- nullable
+}
+```
+
+#### Respuestas del founder y comportamiento
+```
+Acción    Silencia    Registro    Efecto
+accept    Oculta      Sí          Ejecuta acción sugerida (si aplica)
+ignore    1 semana    Sí          Oculta hasta próxima evaluación semanal
+postpone  2 semanas   Sí          postpone_until = current_week + 2
+
+Si mismo trigger se activa 2 evaluaciones consecutivas sin accept:
+  → añade nota: "Esta es la segunda vez que detectamos este patrón."
+  Sin castigo. Sin cambio de estado.
+```
+
+#### Formato UX
+```
+⚠ Observación estratégica
+Detectamos [condición].
+Recomendación: [acción sugerida].
+[Aceptar recomendación]  [Revisar más tarde]  [Ignorar]
+
+Nunca: rojo, "crítico", "fallando", lenguaje de riesgo extremo.
+```
+
+#### Lo que NO hace en v1
+```
+❌ No activa Rescue Mode
+❌ No altera Probability Engine
+❌ No altera Phase Score
+❌ No bloquea avance de fase
+❌ No penaliza métricas
+```
+
+---
+
+### 0.11 — engine_version — CERRADA ✅ (2026-02-24)
+
+#### Decisión
+```
+engine_version se gestiona via tabla FK, no string libre ni regex.
+Razón: CHECK(regex) solo valida formato — no evita versiones inexistentes,
+       colisiones entre motores, ni despliegues sin registro formal.
+```
+
+#### Schema: `engine_versions`
+```sql
+engine_versions
+- id          TEXT PRIMARY KEY     -- "phase_v1.0", "probability_v1.0", etc.
+- motor       TEXT NOT NULL        -- 'phase' | 'probability' | 'viability' | 'execution'
+- deployed_at TIMESTAMPTZ NOT NULL
+- notes       TEXT
+- is_active   BOOLEAN DEFAULT TRUE
+```
+
+#### Tablas que llevan `engine_version`
+```sql
+-- En cada tabla de outputs calculados:
+engine_version TEXT NOT NULL REFERENCES engine_versions(id)
+
+Tablas afectadas:
+  phase_history        → engine_version → "phase_v1.0"
+  probability_history  → engine_version → "probability_v1.0"
+  viability_events     → engine_version → "viability_v1.0"
+  execution_history    → engine_version → "execution_v1.0"  (si se persiste)
+
+Tablas NO afectadas:
+  tasks, obvs, benchmarks, project_functions,
+  process_artifacts, config tables
+```
+
+#### Control en código (constante centralizada por motor)
+```typescript
+const PHASE_ENGINE_VERSION       = "phase_v1.0"
+const PROBABILITY_ENGINE_VERSION = "probability_v1.0"
+const VIABILITY_ENGINE_VERSION   = "viability_v1.0"
+const EXECUTION_ENGINE_VERSION   = "execution_v1.0"
+```
+Si el valor no existe en `engine_versions` → FK falla inmediatamente.
+Error ruidoso > error silencioso.
+
+#### Protocolo de despliegue de nueva versión
+```
+1. INSERT en engine_versions con nueva id, motor, deployed_at, notes
+2. Actualizar constante en código de la edge function
+3. Desplegar función
+4. Opcionalmente: is_active = FALSE en versión anterior (sin borrar)
+```
+
+#### Poplar inicial (v1 seed data)
+```sql
+INSERT INTO engine_versions (id, motor, deployed_at, notes) VALUES
+  ('phase_v1.0',       'phase',       NOW(), 'Fórmula inicial F1.5/F1.6/F1.7'),
+  ('probability_v1.0', 'probability', NOW(), 'Fórmula inicial F1.4'),
+  ('viability_v1.0',   'viability',   NOW(), 'Triggers iniciales F1.10'),
+  ('execution_v1.0',   'execution',   NOW(), 'Fórmula inicial F1.1');
+```
+
+---
+
+### 0.12 — data_completeness_score — CERRADA ✅ (2026-02-24)
+
+#### Propósito
+Mide densidad y verificabilidad de datos registrados — no calidad ni éxito.
+Evita que el sistema produzca outputs matemáticamente correctos pero epistemológicamente vacíos.
+
+#### 5 dimensiones (v1)
+
+**D1 — Activity Coverage (máx 20 pts)**
+```
+≥1 OBV en últimas 4 semanas                                          → 10 pts
+≥3 tareas completed en 4 semanas
+  con function_type ∈ {demand, delivery, cash} AND status='completed' → 10 pts
+```
+Tareas con function_type = NULL o 'support' no cuentan.
+
+**D2 — Financial Data (máx 25 pts)**
+```
+costes registrados en los últimos 3 meses  → 15 pts
+ingresos registrados en los últimos 3 meses → 10 pts
+
+Si usa solo margen estimado → 0 pts (datos obsoletos o ausentes → 0 pts)
+```
+Confianza financiera es temporal: datos >3 meses = no confiables.
+
+**D3 — Evidence Quality (máx 20 pts)**
+```
+≥1 OBV con verification_multiplier ≥ 1.10  → 20 pts
+≥1 OBV con verification_multiplier = 1.00  → 10 pts
+else                                        →  0 pts
+
+Explícito: verification_multiplier = 0.70 → 0 pts
+(evidencia inconsistente no suma completeness)
+Nota UX si hay evidencia inconsistente: "tienes evidencia marcada como inconsistente"
+```
+No acumulativo — se aplica la rama más alta que se cumpla.
+
+**D4 — Function Structure (máx 20 pts)**
+```
+≥1 función strong                                 → 20 pts
+≥2 funciones basic (sin ninguna strong)           → 15 pts
+≥1 función basic  (sin ninguna strong)            → 10 pts
+else (todas none)                                 →  0 pts
+
+strong domina — no suma con basic.
+```
+Incentiva cobertura amplia sin inflar: 3 basic sin strong → 15 (no 30).
+
+**D5 — Strategic Definition (máx 15 pts)**
+```
+segment definido  → 5 pts
+problem definido  → 5 pts
+value_prop def.   → 5 pts
+
+Válido si: campo NOT NULL AND length ≥ 10 chars
+Fuente: project_strategy_current (inicializada con NULLs al crear proyecto)
+```
+
+#### Fórmula
+```
+data_completeness_score = D1 + D2 + D3 + D4 + D5
+Cap natural: 100
+```
+
+#### Umbrales de confianza
+```
+< 50   → LOW CONFIDENCE  (probability_status = "LOW CONFIDENCE")
+50–69  → Medium confidence (UI badge)
+≥ 70   → High confidence
+```
+
+#### Efecto en el sistema
+```
+NO altera fórmulas de ningún motor
+NO bloquea acciones
+NO cambia Phase
+
+Solo:
+  < 50 → banner: "Tus métricas se calculan con datos incompletos."
+  probability_status = "LOW CONFIDENCE"
+  Viability Engine no dispara Trigger 2 si D2 = 0 (ya definido en F1.10)
+```
+
+#### Display en UI
+```
+Header:  Probability: 62  |  Confidence: Medium (58/100)
+Tooltip: breakdown D1–D5 con puntos obtenidos y qué falta
+```
+
+#### Schema: `project_strategy_current`
+```sql
+project_strategy_current
+- project_id   UUID PRIMARY KEY
+- segment      TEXT NULL
+- problem      TEXT NULL
+- value_prop   TEXT NULL
+- updated_at   TIMESTAMPTZ
+
+-- Inicializar al crear proyecto:
+INSERT INTO project_strategy_current(project_id, segment, problem, value_prop)
+VALUES (new_project_id, NULL, NULL, NULL)
+
+-- strategic_model_versions trackea cambios históricos.
+-- project_strategy_current es la fuente actual para D5.
+```
+
+---
+
+### R1.1 — RunwayFactor (RiskScore input) — CERRADA ✅ (2026-02-24)
+
+**Peso en RiskScore:** 0.25
+**Qué mide:** cuántos meses de vida le quedan al proyecto con el burn rate actual. A más runway, mayor riesgo el motor marca como menor (escala invertida: 0 = sin riesgo, 100 = máximo riesgo).
+
+#### Instrumentación requerida
+```
+cash_on_hand NUMERIC(14,2) NULL       → campo añadido a project_economic_profile
+cash_on_hand_updated_at TIMESTAMPTZ   → campo añadido a project_economic_profile
+field_sources JSONB incluye "cash_on_hand": "declared"
+```
+
+#### Condiciones para que RunwayFactor sea calculable
+```
+1. cash_flow_confidence = HIGH  (costes reales registrados)
+2. cash_on_hand IS NOT NULL
+3. n_meses_con_costes ≥ 2 dentro de los últimos 3 meses
+
+Si alguna condición no se cumple → RunwayFactor = NULL (no contribuye al RiskScore)
+```
+
+#### Cálculo
+```
+n = COUNT(meses con costes reales registrados dentro de los últimos 3 meses)
+
+Si n < 2         → RunwayFactor = NULL
+Si n >= 2:
+  net_burn_month = MAX(0, AVG(costes_mes - ingresos_mes) sobre esos n meses)
+
+  Si net_burn_month = 0  → runway = ∞ → RunwayFactor = 0 (sin riesgo)
+  Si net_burn_month > 0  → runway_months = cash_on_hand / net_burn_month
+```
+
+#### Mapping runway_months → RunwayFactor (0 = sin riesgo, 100 = máximo)
+```
+runway ≥ 12 meses  → RunwayFactor = 0
+9–12 meses         → RunwayFactor = 20
+6–9 meses          → RunwayFactor = 40
+3–6 meses          → RunwayFactor = 70
+1–3 meses          → RunwayFactor = 90
+<1 mes             → RunwayFactor = 100
+```
+
+#### Con LOW confidence o sin datos
+```
+RunwayFactor = NULL
+→ RiskScore tendrá risk_status = 'low_confidence' si no hay suficientes inputs reales
+```
+
+---
+
+### R1.4 — RevenueConcentration (RiskScore input) — CERRADA ✅ (2026-02-24)
+
+**Peso en RiskScore:** 0.20
+**Qué mide:** riesgo de depender de muy pocos clientes para la mayoría de los ingresos.
+
+#### Input v1 (declarado)
+```
+Campo: top_client_revenue_percent NUMERIC(5,2) NULL
+Tabla: project_economic_profile (campo añadido)
+field_sources JSONB: {"top_client_revenue_percent": "declared"}
+
+Si NULL → RevenueConcentration = NULL (no contribuye al RiskScore)
+```
+En v2: reemplazable por `computed` cuando existan invoices/CRM desglosados por cliente.
+
+#### Mapping top_client_revenue_percent → riesgo (0–100)
+```
+≤20%         → 0
+>20% – ≤40%  → 25
+>40% – ≤60%  → 50
+>60% – ≤80%  → 75
+>80%         → 95
+
+Cap: 100
+```
+
+#### Notas de implementación
+```
+Datos declarados → risk_status puede ser 'low_confidence' si data_completeness < 50
+En v2: campo pasa de 'declared' a 'computed' automáticamente cuando
+       hay datos de ingresos por cliente disponibles (HHI o top-3 opcional)
+```
+
+---
+
+### R1.5 — BottleneckSeverity (RiskScore input) — CERRADA ✅ (2026-02-24)
+
+**Peso en RiskScore:** 0.15
+**Qué mide:** severidad del bloqueo estructural activo más grave + acumulación de bloqueos activos.
+
+#### Fuente de datos
+```
+Tabla: strategic_blocks (D2.10)
+Filtro activos: resolved_at IS NULL AND status IN ('active', 'monitoring')
+Origen: 'manual' (founder declara) | 'engine' (motor detecta patrón estructural)
+En v1: manual es la fuente principal; engine solo para 1–2 casos simples de detección automática.
+```
+
+#### Fórmula de agregación
+```
+Sea B = lista de bloques activos ordenados por impact_weight DESC
+
+Si |B| = 0:
+  BottleneckSeverity = 0   ← No NULL. Dato disponible = sin riesgo.
+
+Si |B| ≥ 1:
+  top3 = primeros MIN(3, |B|) bloques por impact_weight
+  BottleneckSeverity = MIN(100,
+    MAX(B.impact_weight) × 0.70
+    + AVG(top3.impact_weight) × 0.30
+  )
+```
+
+**Lógica:**
+- `MAX × 0.70` → el bloqueo más severo domina
+- `AVG(top3) × 0.30` → captura acumulación sin necesitar factor de normalización mágico
+- Si hay 1 bloque: MAX = AVG → fórmula collapsa a `impact_weight × 1.0` (correcto)
+- Si hay 3+ bloques mediocres: el AVG sube y penaliza, pero no tanto como 1 bloque catastrófico
+
+#### impact_weight (de F1.7)
+```
+impact_weight = (funcion_critica ? 40 : 20)
+              + MIN(40, weeks_active × 10)
+              + execution_penalty
+
+funcion_critica = TRUE si function.type ∈ {demand, delivery, cash}
+execution_penalty: definido en F1.7 (penalización por execution rate bajo)
+```
+
+#### Ciclo de vida de un bloque
+```
+Estado activo:  resolved_at IS NULL, status IN ('active', 'monitoring')
+Estado resuelto: resolved_at IS NOT NULL, status = 'resolved'
+
+Se resuelve cuando:
+  → Founder lo marca como resuelto (manual)
+  → La tarea asociada pasa a status = 'completed'
+  → El engine detecta que la condición desapareció (solo origin = 'engine')
+
+Re-apertura:
+  Si el mismo bloque vuelve a activarse:
+    → Pasaron >7 días desde resolved_at → nuevo bloque (nuevo id)
+    → Pasaron ≤7 días desde resolved_at → se reabre (resolved_at = NULL, reopen_count + 1)
+```
+
+#### NULL guard
+```
+NULL solo si el motor está desactivado (no aplica en v1).
+0 bloques activos → BottleneckSeverity = 0 (contribuye al RiskScore con valor bajo)
+```
+
+#### Dependencias de schema
+```
+Requiere D2.10 strategic_blocks (schema definitivo):
+  - id, project_id, origin ('manual'|'engine')
+  - function_id FK → project_functions (nullable)
+  - task_id FK → tasks (nullable)
+  - impact_weight NUMERIC(5,2) — computado y almacenado en cada evaluación
+  - status TEXT ('active'|'monitoring'|'resolved')
+  - first_detected_at, last_updated_at, resolved_at
+  - reopen_count INTEGER DEFAULT 0
+  - engine_version FK → engine_versions (solo cuando origin = 'engine')
+  - created_by UUID FK → auth.users (solo cuando origin = 'manual')
+  - description TEXT (descripción del bloqueo)
+```
+
+---
+
+### D2.10 — strategic_blocks — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Fuente única de verdad de bloqueos activos por proyecto. Alimenta BottleneckSeverity (R1.5). Una tarea está bloqueada si existe un registro activo con `block_type = 'task_blocked'` para ese `task_id`. No existe `tasks.is_blocked`.
+
+#### block_type ENUM (fijo v1)
+```
+'task_blocked'       — tarea específica bloqueada (declarado por founder)
+'function_no_owner'  — función crítica sin owner asignado (engine detecta)
+'execution_drop'     — caída de execution rate detectada por engine
+'cash_bottleneck'    — bloqueo de flujo de caja (engine o manual)
+'other'              — escape hatch controlado (no usar si encaja en los anteriores)
+```
+
+#### origin
+```
+'manual'  — founder declara el bloqueo desde UI
+'engine'  — motor detecta patrón estructural automáticamente (v1: 1-2 casos)
+```
+
+#### Campos principales
+```
+id                  UUID PK
+project_id          UUID FK → projects (cascade)
+block_type          TEXT NOT NULL (ENUM arriba)
+origin              TEXT NOT NULL ('manual'|'engine')
+function_id         UUID NULL FK → project_functions (para 'function_no_owner')
+task_id             UUID NULL FK → tasks (para 'task_blocked')
+description         TEXT (legible, para UI y auditoría)
+```
+
+#### Severidad (persistida, actualizada semanalmente)
+```
+impact_weight       NUMERIC(5,2) DEFAULT 0 — fórmula F1.7
+weeks_active        INTEGER DEFAULT 0       — actualizado por cron
+last_evaluated_at   TIMESTAMPTZ
+engine_version      TEXT NULL FK → engine_versions
+  → NULL hasta primera evaluación por cron
+  → se rellena incluso en bloques manuales (auditoría del cálculo de severidad)
+```
+
+#### Ciclo de vida
+```
+status: 'active' | 'monitoring' | 'resolved'
+
+first_detected_at   TIMESTAMPTZ NOT NULL DEFAULT NOW()
+last_updated_at     TIMESTAMPTZ NOT NULL DEFAULT NOW()
+resolved_at         TIMESTAMPTZ NULL
+reopen_count        INTEGER DEFAULT 0
+
+Resolución:
+  → Founder marca resuelto (manual)
+  → task_id pasa a status='completed'
+  → Engine detecta que condición desapareció (solo origin='engine')
+
+Re-apertura:
+  → >7 días desde resolved_at  → nuevo bloque (nuevo id)
+  → ≤7 días desde resolved_at  → se reabre (resolved_at=NULL, reopen_count+1)
+
+created_by          UUID NULL FK → auth.users (relevante para origin='manual')
+```
+
+#### Índices
+```sql
+-- Para BottleneckSeverity: bloques activos por proyecto ordenados por severidad
+CREATE INDEX idx_strategic_blocks_project_active
+  ON strategic_blocks (project_id, status, impact_weight DESC)
+  WHERE resolved_at IS NULL;
+
+-- Para badge en task view sin full scan
+CREATE INDEX idx_strategic_blocks_task
+  ON strategic_blocks (task_id)
+  WHERE task_id IS NOT NULL AND resolved_at IS NULL;
+```
+
+---
+
+### D2.7 — project_risk_score + project_risk_score_history — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Estado actual del Risk Score por proyecto (una fila). Versión history para series temporales y calibración.
+
+#### Fórmula del score final
+```
+RiskScore =
+  (RunwayFactor       × w1)   -- w original 0.25
++ (RevenueConcentration × w2) -- w original 0.20
++ (ExecutionDrop      × w3)   -- w original 0.20
++ (ValidationWeakness × w4)   -- w original 0.20
++ (BottleneckSeverity × w5)   -- w original 0.15
+
+Si un input es NULL → se excluye y los pesos de los disponibles
+  se redistribuyen proporcionalmente (mantienen ratio entre sí):
+    w_i_efectivo = w_i_original / SUM(w_j para j disponibles)
+
+Si inputs_available < 3 → risk_score = NULL, risk_status = 'insufficient_data'
+Si inputs_available ≥ 3 → calcular con redistribución proporcional
+```
+
+#### Umbrales risk_level (v1 — recalibrar en v2)
+```
+< 30          → low
+30 – 54.99    → medium
+55 – 79.99    → high
+≥ 80          → critical
+```
+
+#### risk_status (dos campos separados)
+```
+risk_level:  low | medium | high | critical  (derivado del score)
+risk_status: active | low_confidence | insufficient_data
+
+active:             ≥3 inputs disponibles, score calculado
+low_confidence:     ≥3 inputs pero data_completeness_score < 50
+insufficient_data:  <3 inputs con valor, risk_score = NULL
+
+UI: muestra risk_level + badge 'low confidence' si aplica
+```
+
+#### 5 inputs snapshot (guardados en tabla)
+```
+runway_factor_input           NULL si cash_on_hand no declarado o sin ≥2m datos costes
+revenue_concentration_input   NULL si top_client_revenue_percent no declarado
+execution_drop_input          NULL si <6 semanas de historial execution_rate
+validation_weakness_input     NULL si validation_strength no disponible
+bottleneck_severity_input     0 si no hay bloques activos (nunca NULL en v1)
+
+inputs_available              SMALLINT (0–5) — cuántos tenían valor
+data_completeness_score       NUMERIC(5,2) — de F1.13
+```
+
+#### Historial (project_risk_score_history)
+```
+Política: misma que phase_history y probability_history
+Inserta en:
+  → weekly_job:  recálculo estándar semanal
+  → block_event: cuando un strategic_block con impacto alto aparece o se resuelve
+
+trigger_source CHECK: ('weekly_job', 'block_event')
+```
+
+#### engine_version
+```
+Motor: 'risk' (nuevo tipo añadido a engine_versions)
+Seed:  'risk_v1.0' → 'Fórmula inicial — R1.1–R1.5'
+```
+
+---
+
+### D2.19 — RLS Policies — CERRADAS ✅ (2026-02-24)
+
+#### Modelo de acceso v1
+```
+'owner'      → SELECT + escritura completa (configuración + datos)
+'member'     → SELECT todo + escribir tareas, OBVs, blocks manuales, decisiones propias
+'viewer'     → solo SELECT en todo
+service_role → bypass RLS implícito (Supabase) — usa edge functions / cron
+```
+
+#### Helper functions (SECURITY DEFINER)
+```sql
+auth_is_project_member(project_id)  → cualquier rol activo en project_members
+auth_is_project_owner(project_id)   → role = 'owner'
+auth_is_project_writer(project_id)  → role IN ('owner', 'member')
+```
+
+#### Patrón 1 — Públicas/semi-públicas (sin project_id)
+```
+engine_versions  → authenticated read (true)
+benchmarks       → authenticated read (true)
+```
+
+#### Patrón 2 — Engine read-only (escritura solo service_role)
+```
+project_phase_state, project_phase_history
+project_probability, project_probability_history
+project_viability_state
+project_risk_score, project_risk_score_history
+project_function_coverage
+viability_events
+project_economic_profile_history
+
+Policy: SELECT USING auth_is_project_member(project_id)
+Write:  service_role únicamente (bypass RLS)
+```
+
+#### Patrón 3 — Configuración (owner escribe, todos leen)
+```
+project_functions         → owner: ALL | member+viewer: SELECT
+project_protocols         → owner: ALL | member+viewer: SELECT
+process_artifacts         → owner: ALL | member+viewer: SELECT
+project_strategy_current  → owner: ALL | member+viewer: SELECT
+project_economic_profile  → owner: ALL | member+viewer: SELECT
+strategic_model_versions  → owner: INSERT | member+viewer: SELECT
+strategic_cycles          → owner: ALL | member+viewer: SELECT
+```
+
+#### Patrón 4 — Operativas (owner + member escriben)
+```
+strategic_blocks:
+  SELECT: all members
+  INSERT: auth_is_project_writer AND origin = 'manual'
+           (origin='engine' → service_role bypass)
+  UPDATE: auth_is_project_writer
+
+decision_events:
+  SELECT: all members
+  INSERT: auth_is_project_writer
+  UPDATE: auth_is_project_owner OR decided_by = auth.uid()
+```
+
+---
+
+### D2.11 — project_protocols — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Reglas y rituales transversales de proyecto. Diferente de `process_artifacts` (ejecución operativa por función).
+
+```
+process_artifacts  = cómo se EJECUTA Demand/Delivery/Cash (checklist operativo)
+project_protocols  = cómo se DECIDE / cómo funciona el sistema (cadencias, acuerdos)
+```
+
+#### protocol_type ENUM
+```
+'weekly_review'      → cadencia de revisión semanal
+'prioritization'     → regla de prioridades (ICE, RICE, etc.)
+'decision_rule'      → cómo se aprueban cambios de scope / decisiones
+'incident_response'  → protocolo de critical blocks / incidentes
+'other'              → escape hatch controlado
+```
+
+#### Campos
+```
+id, project_id, protocol_type, title, description, link_or_doc_id, is_active
+Sin score / sin historial / sin engine_version en v1.
+```
+
+---
+
+### D2.12 — strategic_cycles — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Contenedor temporal de 4 semanas por proyecto. Guarda snapshot de motores al cierre. `ritual_responses` NULL en v1.
+
+#### Ciclo
+```
+start_date: lunes (ISO week) — calculado por app layer
+end_date:   start_date + 27 días (28 días inclusive = 4 semanas completas)
+cycle_index: secuencial (1, 2, 3...) — UNIQUE (project_id, cycle_index)
+```
+
+#### Campos clave
+```
+cycle_index         INTEGER ≥ 1
+start_date          DATE    — lunes ISO
+end_date            DATE    — start + 27d
+closed_at           TIMESTAMPTZ NULL
+close_reason        TEXT NULL ('manual'|'scheduled')
+engine_snapshot     JSONB DEFAULT '{}'  — estado engines al cierre
+ritual_responses    JSONB NULL          — siempre NULL en v1 (v2: 5 preguntas Optimus)
+decision_event_id   UUID NULL FK → decision_events
+```
+
+#### engine_snapshot estructura esperada
+```json
+{
+  "phase":        {"current_phase": 1, "phase_score": 67.5, "phase_status": "healthy"},
+  "probability":  {"probability_score": 42.0, "probability_status": "active"},
+  "risk":         {"risk_score": 35.0, "risk_level": "medium", "risk_status": "active"},
+  "viability":    {"viability_status": "monitoring"},
+  "completeness": {"data_completeness_score": 68.0}
+}
+```
+
+---
+
+### D2.14–D2.18 — ALTERs a tablas existentes — CERRADAS ✅ (2026-02-24)
+
+#### D2.14 — tasks.leader_id
+```sql
+ALTER TABLE tasks ADD COLUMN leader_id UUID REFERENCES profiles(id) ON DELETE SET NULL;
+```
+Leader = responsable del resultado. Distinto de assignee_id (ejecutor).
+Validación leader ≠ executor en app layer. NULL en modo solo founder.
+
+#### D2.15 — projects: Location Layer
+```sql
+ALTER TABLE projects
+  ADD COLUMN country      TEXT,                            -- ISO 3166-1 alpha-2
+  ADD COLUMN market_scope TEXT CHECK ('local'|'global'),
+  ADD COLUMN cluster      TEXT CHECK ('EU'|'US'|'LATAM'|'APAC'|'Other');
+```
+Requerido en onboarding Fase A (preguntas 8-9).
+Cluster se usa para benchmark lookup en `benchmarks.region_cluster`.
+
+#### D2.16 — project_members.performance_score_v2
+```sql
+ALTER TABLE project_members ADD COLUMN performance_score_v2 NUMERIC(5,2) CHECK (0–100);
+```
+NULL hasta que engine implemente 6 fórmulas por rol (C3.4).
+`performance_score` (v1) se mantiene sin tocar.
+
+#### D2.17 — obvs: tipos ENUM + campos auto-tipo (F1.8)
+```sql
+-- Nuevos tipos (F1.8): product_validation (×1.1), operational_system (×0.8)
+ALTER TYPE obv_type ADD VALUE IF NOT EXISTS 'product_validation';
+ALTER TYPE obv_type ADD VALUE IF NOT EXISTS 'operational_system';
+
+-- Campos de gestión de tipo automático
+ALTER TABLE obvs
+  ADD COLUMN type_auto_updated        BOOLEAN   DEFAULT FALSE,
+  ADD COLUMN type_auto_update_reason  TEXT,
+  ADD COLUMN type_declared_original   obv_type,
+  ADD COLUMN dispute_flag             BOOLEAN   DEFAULT FALSE;
+```
+`dispute_flag = TRUE` → engine revierte a `type_declared_original`.
+
+#### D2.18 — project_roles.maps_to_specialization
+```sql
+ALTER TABLE project_roles ADD COLUMN maps_to_specialization TEXT;
+```
+TEXT en v1 (sin ENUM). Se formaliza en v2 con lista estable de especializaciones.
+
+---
+
+### D2.13 — benchmarks — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Valores de referencia sectoriales para los motores. Arquitectura híbrida: `source_type='curated'` en v1, transición a `'internal'` en v2 cuando `n_proyectos_validos ≥ 30` por segmento.
+
+#### Clasificadores (definen qué segmento aplica)
+```
+industry        TEXT          — sector/industria
+model_type      TEXT CHECK (saas|service|physical|marketplace|agency|unknown)
+region_cluster  TEXT          — cluster geográfico/de mercado
+metric_name     TEXT CHECK (6 métricas abajo)
+source_type     TEXT CHECK ('curated'|'internal')
+UNIQUE (industry, model_type, region_cluster, metric_name, source_type)
+```
+
+#### 6 métricas v1
+```
+margen_estimado    → F3/F4 Phase Engine — estructural
+crecimiento_p50    → Probability Engine — revenue_momentum_score (peso 15%)
+conversion_media   → Dashboard — informativo
+ciclo_venta_medio  → Dashboard — alerta si > p75
+ticket_medio       → Dashboard — informativo
+cac_estimado       → Dashboard — informativo
+```
+
+#### confidence_score (tabla F1.9)
+```
+curated:  default → 60 | con fuente externa validada → 70
+internal: n<30 → 50 | 30–99 → 80 | 100–299 → 90 | ≥300 → 95
+Cap absoluto: 95
+```
+
+#### Campos adicionales
+```
+p25 / p50 / p75       NUMERIC NULL — percentiles (rangos, no valores únicos)
+n_proyectos_validos   INTEGER NULL — solo internal, determina confidence_score
+source_notes          TEXT NULL    — trazabilidad en curated
+updated_at            TIMESTAMPTZ
+```
+
+---
+
+### D2.20 — strategic_model_versions — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Log append-only de pivots y cambios en la hipótesis estratégica. Alimenta `pivot_count` para O1.3 del Phase Engine (Fase 1). Solo INSERT, nunca UPDATE.
+
+#### Semántica
+```
+pivot_event  = nuevo record en esta tabla
+pivot_count  = COUNT de filas en últimas 4 semanas (rolling 28d)
+              Usado en O1.3 para calcular el score de foco de segmento.
+
+Trigger de inserción: cuando cambia cualquier campo en
+  {segment_text, problem_text, value_prop_text} de project_strategy_current.
+  No cuenta ediciones menores — solo cambios sustantivos (app layer decide).
+```
+
+#### Campos
+```
+id              UUID PK
+project_id      UUID FK → projects (cascade)
+version_number  INTEGER — coincide con project_strategy_current.version_number
+segment_text    TEXT    — snapshot completo en esta versión
+problem_text    TEXT
+value_prop_text TEXT
+changed_fields  JSONB DEFAULT '{}' — {"campo": {"old": "...", "new": "..."}}
+created_at      TIMESTAMPTZ DEFAULT NOW()
+created_by      UUID FK → auth.users NULL
+```
+
+---
+
+### D2.25 — viability_events — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Una fila por trigger activo por proyecto (modelo de estado). `consecutive_count` persiste la consecutividad sin queries. `hidden_until` persiste el cooldown. Respuesta vive en `decision_events`.
+
+#### PK y modelo de estado
+```
+PRIMARY KEY (project_id, trigger_type)
+Una fila por trigger activo → se actualiza en cron, no se inserta cada semana.
+
+Ciclo:
+  Trigger se activa → INSERT (si no existe) o resolverlo y resetear
+  Cron: trigger sigue activo → consecutive_count++, last_evaluated_at = NOW()
+  Trigger desaparece → resolved_at = NOW()
+  Re-activación: resolved_at = NULL, consecutive_count = 1, decision_event_id = NULL
+```
+
+#### trigger_type (4 triggers de F1.10)
+```
+'stagnation'     → T1: proyecto estancado
+'margin_risk'    → T2: riesgo flujo de caja (solo con confidence_level='high')
+'overload'       → T3: sobrecarga operativa
+'weak_validation'→ T4: validación externa débil
+```
+
+#### Campos clave
+```
+consecutive_count  INTEGER DEFAULT 1    — evaluaciones semanales consecutivas activo
+confidence_level   TEXT ('low'|'medium'|'high') — crítico para T2
+first_triggered_at TIMESTAMPTZ
+last_evaluated_at  TIMESTAMPTZ          — actualizado en cada cron
+resolved_at        TIMESTAMPTZ NULL     — NULL = activo | NOT NULL = resuelto
+hidden_until       TIMESTAMPTZ NULL     — cooldown: ignore+7d | postpone+14d | accept→NULL
+decision_event_id  UUID NULL FK → decision_events — FK opcional cuando founder responde
+engine_version     TEXT FK → engine_versions ('viability_v1.0')
+```
+
+#### Filtro del cron
+```sql
+WHERE resolved_at IS NULL
+  AND (hidden_until IS NULL OR hidden_until < NOW())
+```
+
+---
+
+### D2.9 — decision_events — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Registro central de decisiones estratégicas y respuestas a recomendaciones del sistema. Sin `engine_version` — log humano, no output de motor. Debe existir antes de `viability_events` (D2.25) que tiene FK opcional a esta.
+
+#### decision_category
+```
+'system_recommendation' → founder responde a algo que el motor sugirió
+'strategic_change'      → pivot de segmento, modelo, propuesta de valor
+'structural_change'     → cambio en equipo, roles, funciones críticas
+'manual_acknowledgment' → founder documenta decisión sin prompt del sistema
+```
+
+#### origin
+```
+'system'  → motor recomendó, founder responde
+'founder' → iniciativa propia del founder
+```
+
+#### Campos clave
+```
+id                  UUID PK
+project_id          UUID FK → projects
+decision_category   TEXT NOT NULL (ENUM arriba)
+origin              TEXT NOT NULL ('system'|'founder')
+title               TEXT NOT NULL
+description         TEXT NULL
+related_entity_type TEXT NULL   — referencia polimórfica ('viability_trigger', 'strategic_block', etc.)
+related_entity_id   UUID NULL   — ID de la entidad relacionada (sin FK dura — polimórfico)
+metadata            JSONB DEFAULT '{}'  — contexto extensible sin migrar schema
+outcome_status      TEXT NULL   — SIEMPRE NULL en v1 (preparado para Decision Accuracy Index P8.12)
+decided_at          TIMESTAMPTZ DEFAULT NOW()
+decided_by          UUID FK → auth.users NULL
+```
+
+#### outcome_status
+```
+Valores: 'positive' | 'negative' | 'neutral' | 'unknown'
+v1: siempre NULL — campo preservado para evitar migración futura cuando se
+    implemente Decision Accuracy Index (P8.12).
+```
+
+#### Relación con viability_events (D2.25)
+```
+viability_events.decision_event_id → decision_events.id (FK opcional)
+Se crea el link cuando el founder responde al trigger (accept/ignore/postpone).
+Si no responde → decision_event_id = NULL.
+```
+
+---
+
+### D2.8 — project_function_coverage — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Estado actual de cobertura por función crítica. PK compuesta `(project_id, function_type)`. Sin historial en v1. Patrón consistente con los otros engines.
+
+#### 4 componentes del coverage_score (F1.11)
+```
+owner_assigned_score    0 | 30  — tiene owner asignado en project_functions
+tasks_execution_score   0 | 30  — ≥3 tasks completed en últimos 28d con function_type crítico
+block_health_score      0 | 20  — sin bloqueo activo en strategic_blocks para esta función
+process_score           0 | 20  — process_artifact activo (checklist ≥5 + last_used_at en ventana)
+
+coverage_score = suma (0–100)
+```
+
+#### coverage_level
+```
+0          → 'none'   (sin ningún criterio)
+1 – 69     → 'basic'  (tiene algo pero sin cobertura mínima operativa)
+≥ 70       → 'strong' (cobertura mínima operativa cumplida — F1.11)
+```
+
+#### Eventos que disparan recálculo (edge function, no DB trigger)
+```
+cron semanal                          — base de seguridad
+owner asignado/removido en project_functions
+task → status='completed' con function_type crítico
+bloque activo creado o resuelto en strategic_blocks
+process_artifact actualizado (checklist_items_count o last_used_at)
+```
+
+#### Nota de diseño
+```
+Sin tabla de historial en v1.
+Sin index adicional — (project_id, function_type) como PK lo cubre.
+engine_version: usa 'phase_v1.0' (coverage alimenta Phase Score).
+```
+
+---
+
+### D2.22 — project_strategy_current — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Fuente de verdad de la hipótesis estratégica actual. Alimenta la dimensión D5 de `data_completeness_score` (F1.13). No tiene `engine_version` — es dato del founder, no output de motor.
+
+#### Campos
+```
+project_id        UUID PK FK → projects
+segment_text      TEXT NULL  — segmento objetivo (≥10 chars para contar en D5)
+problem_text      TEXT NULL  — problema que resuelve (≥10 chars para contar en D5)
+value_prop_text   TEXT NULL  — propuesta de valor (≥10 chars para contar en D5)
+version_number    INTEGER DEFAULT 1  — se incrementa en cada pivot sustantivo (v2)
+last_updated_at   TIMESTAMPTZ
+updated_by        UUID FK → auth.users
+```
+
+#### Regla D5
+```
+Los 3 campos cuentan en data_completeness_score D5 solo si tienen ≥10 caracteres.
+version_number permite trackear cuántos pivotes ha hecho el proyecto (analytics v2).
+```
+
+---
+
+### D2.23 — project_functions — CERRADA ✅ (2026-02-24)
+
+**Propósito:** 3 funciones críticas fijas por proyecto (demand, delivery, cash). Fuente de verdad para Function Coverage (F1.11) y `block_type='function_no_owner'` en strategic_blocks (D2.10).
+
+#### Inicialización — trigger comprensivo
+```
+Trigger: trg_initialize_project_data
+  → AFTER INSERT ON projects, FOR EACH ROW
+  → Inicializa TODAS las state tables (no solo project_functions)
+  → Garantiza que UI nunca rompe en Day 1 antes del primer cron
+
+Función: fn_initialize_project_data() LANGUAGE plpgsql
+  Tablas inicializadas por el trigger:
+    project_functions       (demand, delivery, cash)
+    project_phase_state     (phase=1, score=0, status='friction')
+    project_probability     (status='inactive', score=NULL)
+    project_viability_state (status='healthy', triggers=0)
+    project_risk_score      (status='insufficient_data', score=NULL)
+    project_strategy_current(todos los campos NULL)
+    project_economic_profile(model_type='unknown', confidence='low')
+    project_function_coverage (3 filas, score=0, level='none')
+    strategic_cycles        (cycle_index=1, lunes ISO week)
+
+  engine_version: se resuelve con SELECT id FROM engine_versions
+                  WHERE motor='X' AND is_active=TRUE LIMIT 1
+                  Fallback al id convencional (defensa de red).
+
+Nota: engines siempre hacen UPSERT como defensa adicional.
+Todos los INSERTs con ON CONFLICT DO NOTHING → trigger idempotente.
+```
+
+#### Unicidad de versión activa en engine_versions
+```sql
+CREATE UNIQUE INDEX idx_engine_versions_one_active_per_motor
+  ON engine_versions (motor)
+  WHERE is_active = TRUE;
+-- Garantía: solo 1 versión activa por motor en todo momento.
+-- Al deployar v2 → SET is_active=FALSE en la anterior primero.
+```
+
+#### Campos
+```
+id                    UUID PK
+project_id            UUID FK → projects (cascade)
+function_type         TEXT NOT NULL CHECK ('demand'|'delivery'|'cash')
+owner_user_id         UUID NULL FK → auth.users (NULL = bloqueo)
+documented_process_id UUID NULL FK → process_artifacts(id) ON DELETE SET NULL
+UNIQUE (project_id, function_type)
+created_at / updated_at TIMESTAMPTZ
+```
+
+#### Dependencia circular resuelta
+```
+project_functions.documented_process_id → process_artifacts
+process_artifacts.function_type          → (ENUM, no FK inversa)
+
+Solución: CREATE TABLE project_functions sin FK a process_artifacts.
+           Luego CREATE TABLE process_artifacts.
+           Luego ALTER TABLE project_functions ADD CONSTRAINT fk_...
+```
+
+---
+
+### D2.24 — process_artifacts — CERRADA ✅ (2026-02-24)
+
+**Propósito:** Procesos documentados por función crítica. Fuente para `documented_process_exists` (F1.11).
+
+#### Regla documented_process_exists
+```
+TRUE si:
+  checklist_items_count ≥ 5
+  AND last_used_at within ventana:
+    phase ≤ 2 → 60 días
+    phase > 2 → 30 días
+
+"Used" = ≥1 item del checklist marcado en ejecución real (no solo creación del doc)
+```
+
+#### Campos
+```
+id                    UUID PK
+project_id            UUID FK → projects (cascade)
+function_type         TEXT NOT NULL CHECK ('demand'|'delivery'|'cash')
+title                 TEXT NOT NULL
+checklist_items_count INTEGER DEFAULT 0 (mínimo 5 para contar)
+last_used_at          TIMESTAMPTZ NULL (NULL = nunca usado en real)
+link_or_doc_id        TEXT NULL
+created_at / updated_at TIMESTAMPTZ
+```
+
+#### Índice
+```sql
+CREATE INDEX idx_process_artifacts_project_function
+  ON process_artifacts (project_id, function_type);
+```
+
+---
+
+### R1.3 — ValidationWeakness (RiskScore input) — CERRADA ✅ (2026-02-24)
+
+**Peso en RiskScore:** 0.20
+**Qué mide:** riesgo derivado de validación externa débil, combinando nivel actual y tendencia de mejora.
+
+#### Fórmula
+```
+base_risk = 100 - validation_strength_current
+
+stagnation_penalty:
+  improved_last_4w = TRUE  → 0
+  improved_last_4w = FALSE → 15
+
+ValidationWeakness = MIN(100, base_risk + stagnation_penalty)
+```
+
+#### Definición de "mejora"
+```
+improved_last_4w = TRUE
+si validation_strength_actual - validation_strength_hace_4_semanas ≥ +5 puntos
+
+Fuente: validation_strength_input de project_probability_history
+Comparación: semana actual vs semana -4 (delta simple — v1)
+```
+
+#### Casos especiales
+```
+Si <4 semanas de histórico → stagnation_penalty = 0 (no penalizar falta de datos)
+Si validation_strength_input no disponible → ValidationWeakness = NULL
+```
+
+#### Ejemplos
+```
+validation_strength = 30, mejorando  → 70 + 0  = 70
+validation_strength = 30, estancado  → 70 + 15 = 85
+validation_strength = 80, mejorando  → 20 + 0  = 20
+validation_strength = 80, estancado  → 20 + 15 = 35
+validation_strength = 95, mejorando  →  5 + 0  =  5
+```
+
+---
+
+### R1.2 — ExecutionDrop (RiskScore input) — CERRADA ✅ (2026-02-24)
+
+**Peso en RiskScore:** 0.20
+**Qué mide:** caída en la ejecución del proyecto respecto a su propio baseline histórico, combinando riesgo relativo y riesgo absoluto.
+
+#### Ventanas temporales (sin solapamiento)
+```
+Current  = promedio execution_rate semanas -1 y -2
+Baseline = promedio execution_rate semanas -3 a -8 (6 semanas)
+
+Requiere mínimo 6 semanas totales de histórico.
+Si <6 semanas → ExecutionDrop = NULL
+```
+
+#### Casos especiales
+```
+Si execution_rate no existe          → NULL
+Si baseline = 0                      → ExecutionDrop = 100
+Si baseline < 40                     → omitir cálculo relativo; usar solo riesgo_absoluto
+Si drop_ratio ≤ 0 (current ≥ baseline) → riesgo_relativo = 0
+```
+
+#### Cálculo
+```
+drop_ratio = (baseline - current) / baseline   (solo si baseline ≥ 40)
+```
+
+**A) Riesgo relativo (por caída respecto al baseline)**
+```
+drop_ratio ≤ 10%   → riesgo_relativo = 10
+10–20%             → riesgo_relativo = 30
+20–35%             → riesgo_relativo = 60
+>35%               → riesgo_relativo = 85
+```
+
+**B) Riesgo absoluto (floor si current es objetivamente bajo)**
+```
+current ≥ 60       → riesgo_absoluto = 0
+50–60              → riesgo_absoluto = 20
+40–50              → riesgo_absoluto = 40
+<40                → riesgo_absoluto = 70
+```
+
+#### ExecutionDrop final
+```
+ExecutionDrop = MAX(riesgo_relativo, riesgo_absoluto)
+Cap: 0–100
+```
+
+#### Fuente de datos
+```
+execution_rate_input de project_probability_history
+(campo guardado como snapshot en cada recálculo semanal)
+```
+
+---
+
+### 0.10 — Function Coverage v1 — CERRADA ✅ (2026-02-24)
+
+#### 3 funciones críticas fijas (no configurables)
+```
+demand   → captar demanda
+delivery → entregar valor
+cash     → cobrar + controlar caja
+
+Instanciadas automáticamente al crear proyecto.
+El founder no puede crear nuevas funciones críticas en v1.
+```
+
+#### Schema: `project_functions`
+```sql
+project_functions
+- id                    UUID
+- project_id            UUID
+- function_type         ENUM(demand, delivery, cash)
+- owner_user_id         UUID NULL
+- documented_process_id UUID NULL    -- FK a process_artifacts (principal)
+- created_at            TIMESTAMPTZ
+- updated_at            TIMESTAMPTZ
+```
+
+#### Schema: `tasks` (campo añadido)
+```sql
+tasks.function_type  ENUM(demand, delivery, cash, support)  NULL  DEFAULT NULL
+
+NULL     = sin clasificar (no cuenta para coverage_score)
+support  = tarea no crítica (no cuenta para coverage_score)
+Selector obligatorio en UI al crear tarea, pero motor no asume default.
+```
+
+#### Schema: `process_artifacts`
+```sql
+process_artifacts
+- id                   UUID
+- project_id           UUID
+- function_type        ENUM(demand, delivery, cash)
+- title                TEXT
+- checklist_items_count INT
+- last_used_at         TIMESTAMPTZ   -- fecha del último item marcado en ejecución real
+- link_or_doc_id       TEXT NULL
+- created_at           TIMESTAMPTZ
+```
+
+"Used" = al menos 1 item del checklist marcado en ejecución real (no solo creado el doc).
+
+#### Regla: `documented_process_exists`
+```
+process_recent_window =
+  current_phase ≤ 2 ? 60 días : 30 días
+
+documented_process_exists = TRUE si existe process_artifact donde:
+  function_type = [la función evaluada]
+  AND checklist_items_count ≥ 5
+  AND last_used_at within process_recent_window
+```
+
+#### Regla: `tasks_done_4w`
+```
+tasks_done_4w =
+  COUNT(tasks)
+  WHERE task.status = 'completed'
+    AND completed_at within last 4 weeks (28 días)
+    AND function_type ∈ {demand, delivery, cash}
+
+No cuentan: in_progress, validated, review, cancelled, NULL, support
+```
+
+#### `coverage_score` por función (confirmado)
+```
+coverage_score =
+  (owner_user_id IS NOT NULL    ? 30 : 0)
++ (tasks_done_4w ≥ 3           ? 30 : 0)
++ (no critical_block activo    ? 20 : 0)
++ (documented_process_exists   ? 20 : 0)
+
+≥70 → strong | 40–69 → basic | <40 → none
+
+critical_block evaluado por function_type (usa funcion_critica={demand,delivery,cash}).
+```
+
+#### Support functions (opcionales, sin impacto en motores)
+```
+Solo dashboard informativo.
+Sin scores. Sin fases. Sin coverage.
+Ejemplos: legal, hiring, finance-ops, partnerships.
+No se mezclan con las 3 críticas en v1.
+```
+
+#### Expectativas por fase
+```
+Proyecto sano F3: ≥1 función con coverage = strong
+Proyecto sano F4: 2–3 funciones con coverage = strong
+```
+
+#### UX mínimo
+```
+Pantalla "Coverage": 3 cards (Demand / Delivery / Cash)
+  Cada card: estado (none/basic/strong) + 2 CTAs
+    → "Asignar owner"
+    → "Adjuntar proceso"
+
+Al crear tarea: selector "¿Esto es Demand, Delivery, Cash o Support?"
+  No se puede guardar sin elegir (UI obliga).
 ```
 
 ---

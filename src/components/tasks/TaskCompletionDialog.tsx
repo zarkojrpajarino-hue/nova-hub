@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Loader2, Sparkles, CheckCircle2, Lightbulb, TrendingUp, AlertTriangle, Send } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2, Sparkles, CheckCircle2, Lightbulb, TrendingUp, AlertTriangle, Send, Layers } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -8,6 +8,13 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+
+const FUNCTION_TYPE_OPTIONS = [
+  { value: 'demand',   label: 'Demanda',  color: '#F59E0B', description: 'Generación de leads, ventas, marketing' },
+  { value: 'delivery', label: 'Delivery', color: '#3B82F6', description: 'Producto, desarrollo, entrega al cliente' },
+  { value: 'cash',     label: 'Cash',     color: '#22C55E', description: 'Facturación, cobros, gestión financiera' },
+  { value: 'support',  label: 'Soporte',  color: '#A855F7', description: 'Operaciones, atención al cliente, admin' },
+] as const;
 
 interface TaskCompletionDialogProps {
   open: boolean;
@@ -18,6 +25,7 @@ interface TaskCompletionDialogProps {
     descripcion: string | null;
     playbook?: unknown;
     metadata?: unknown;
+    function_type?: string | null;
   };
   onComplete: (taskId: string, feedback: TaskFeedback) => void;
 }
@@ -47,7 +55,20 @@ export function TaskCompletionDialog({
   const [aiQuestions, setAiQuestions] = useState<AIQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
-  
+
+  // Classify step (shown when task.function_type is null)
+  const [step, setStep] = useState<'classify' | 'feedback'>(
+    task.function_type ? 'feedback' : 'classify'
+  );
+  const [isSavingFunctionType, setIsSavingFunctionType] = useState(false);
+
+  // Reset step when dialog opens/closes
+  useEffect(() => {
+    if (open) {
+      setStep(task.function_type ? 'feedback' : 'classify');
+    }
+  }, [open, task.function_type]);
+
   // Basic feedback fields
   const [resultado, setResultado] = useState<'exito' | 'parcial' | 'fallido'>('exito');
   const [insights, setInsights] = useState('');
@@ -82,12 +103,30 @@ export function TaskCompletionDialog({
     }
   };
 
-  // Generate questions when dialog opens
-  useState(() => {
-    if (open && aiQuestions.length === 0) {
+  const handleFunctionTypeSelect = async (ft: string) => {
+    setIsSavingFunctionType(true);
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ function_type: ft })
+        .eq('id', task.id);
+      if (error) throw error;
+      setStep('feedback');
+    } catch {
+      toast.error('Error al guardar la función. Intenta de nuevo.');
+    } finally {
+      setIsSavingFunctionType(false);
+    }
+  };
+
+  // Generate questions when dialog opens (or reopens for a different task)
+  useEffect(() => {
+    if (open) {
+      setAiQuestions([]);
       generateAIQuestions();
     }
-  });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [open, task.id]);
 
   const handleSubmit = async () => {
     if (!insights.trim() || !aprendizaje.trim()) {
@@ -146,6 +185,47 @@ export function TaskCompletionDialog({
           </DialogDescription>
         </DialogHeader>
 
+        {/* Step: classify — function_type was null */}
+        {step === 'classify' && (
+          <div className="space-y-4 py-4">
+            <div className="flex items-center gap-2 text-sm text-muted-foreground">
+              <Layers className="w-4 h-4 text-primary" />
+              <span>Antes de completar, asigna la función de esta tarea en el negocio</span>
+            </div>
+            <div className="grid grid-cols-2 gap-3">
+              {FUNCTION_TYPE_OPTIONS.map((opt) => (
+                <button
+                  key={opt.value}
+                  type="button"
+                  disabled={isSavingFunctionType}
+                  onClick={() => handleFunctionTypeSelect(opt.value)}
+                  className="p-4 rounded-xl border-2 border-border hover:border-primary/60 transition-all text-left disabled:opacity-50"
+                >
+                  <div className="flex items-center gap-2 mb-1">
+                    <div
+                      className="w-3 h-3 rounded-full"
+                      style={{ backgroundColor: opt.color }}
+                    />
+                    <span className="font-medium text-sm">{opt.label}</span>
+                    {isSavingFunctionType && (
+                      <Loader2 className="w-3 h-3 animate-spin ml-auto" />
+                    )}
+                  </div>
+                  <p className="text-xs text-muted-foreground leading-snug">{opt.description}</p>
+                </button>
+              ))}
+            </div>
+            <div className="flex gap-3 pt-2 border-t">
+              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
+                Cancelar
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {/* Step: feedback */}
+        {step === 'feedback' && (
+        <>
         <div className="flex-1 overflow-y-auto space-y-6 py-4">
           {/* Resultado */}
           <div className="space-y-3">
@@ -286,8 +366,8 @@ export function TaskCompletionDialog({
           <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
             Cancelar
           </Button>
-          <Button 
-            className="flex-1" 
+          <Button
+            className="flex-1"
             onClick={handleSubmit}
             disabled={isSubmitting || !insights.trim() || !aprendizaje.trim()}
           >
@@ -299,6 +379,8 @@ export function TaskCompletionDialog({
             Completar tarea
           </Button>
         </div>
+        </>
+        )}
       </DialogContent>
     </Dialog>
   );
