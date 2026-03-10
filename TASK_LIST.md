@@ -106,9 +106,9 @@
 - [x] **E4.10** Conectar peer validation de KPIs → validation_strength — CERRADO: implementado en migration 00003 (OBV-based, compute_validation_strength)
 
 ### Viability Engine (v1 — solo recomendaciones, sin bloqueos)
-- [ ] **E4.11** Crear edge function `evaluate-viability` (3 estados)
-- [ ] **E4.12** Implementar cooldown de 30 días post-decisión
-- [ ] **E4.13** Implementar las 3 Paths (pivot segmento / pivot valor / pausar)
+- [x] **E4.11** Crear edge function `evaluate-viability` (3 estados) — CERRADO: run_viability_engine en migration 00009 (T1–T4 + state machine)
+- [x] **E4.12** Implementar cooldown de 30 días post-decisión — migration 00025 (apply_viability_decision: 30d/14d/7d por tipo)
+- [x] **E4.13** Implementar las 3 Paths (pivot segmento / pivot valor / pausar) — migration 00025 (pivot_segment, pivot_value, pause + ignore + postpone)
 
 ### Organizational Engine
 - [ ] **E4.14** Crear edge function `compute-org-capacity`
