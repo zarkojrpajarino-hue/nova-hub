@@ -1,5 +1,7 @@
 import { memo, useEffect, useRef } from 'react';
-import { Activity, TrendingUp, Shield, Layers, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
+import { Activity, TrendingUp, Shield, Layers, CheckCircle2, ArrowRight, Zap, AlertTriangle, BarChart2, Radio, ChevronRight } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
@@ -9,6 +11,7 @@ import { CostOfIgnoring } from './CostOfIgnoring';
 import { UnlockModeCard } from './UnlockModeCard';
 import { trackEngineViewed, trackNextActionClicked } from '@/lib/analytics';
 import { useAgentContext } from '@/hooks/useAgentContext';
+import { EvidenceBadge } from '@/components/evidence/EvidenceBadge';
 
 // =============================================================================
 // Phase status
@@ -153,10 +156,13 @@ function riskMessage(
 // =============================================================================
 
 const AGENT_DRIVER_LABELS: Record<string, string> = {
-  cash_flow_signal:      'flujo de caja',
-  revenue_concentration: 'concentración de ingresos',
-  task_completion_rate:  'tasa de ejecución baja',
-  overdue_ratio:         'tareas vencidas',
+  cash_flow_signal:         'flujo de caja',
+  revenue_concentration:    'concentración de ingresos',
+  task_completion_rate:     'tasa de ejecución baja',
+  overdue_ratio:            'tareas vencidas',
+  pipeline_conversion_rate: 'conversión de ventas baja',
+  meeting_load:             'sobrecarga de reuniones',
+  meeting_density:          'densidad de agenda alta',
 }
 
 // =============================================================================
@@ -193,6 +199,22 @@ interface ProjectEnginePanelProps {
 
 function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onAction, viabilityStatus, functionOwners, fastStartCompleted, onNavigateToOnboarding }: ProjectEnginePanelProps) {
   const { data: agentCtx } = useAgentContext(projectId);
+
+  // F19.B.4 — overdue tasks badge en panel
+  const { data: overdueCount = 0 } = useQuery({
+    queryKey:  ['overdue_tasks', projectId],
+    enabled:   !!projectId,
+    staleTime: 2 * 60_000,
+    queryFn:   async () => {
+      const { count } = await supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('project_id', projectId!)
+        .neq('status', 'done')
+        .lt('fecha_limite', new Date().toISOString())
+      return count ?? 0
+    },
+  });
   const agentInsights  = agentCtx?.insights     ?? [];
   const agentRiskDelta = agentCtx?.riskModifier ?? null;
 
@@ -328,6 +350,12 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
         </p>
       </div>
 
+      {/* T17.23 — Estado real */}
+      <div className="flex items-center gap-1.5">
+        <BarChart2 size={11} className="text-muted-foreground" />
+        <span className="text-xs text-muted-foreground font-medium">Estado real</span>
+      </div>
+
       {/* Probability + Risk */}
       <div className="flex gap-2">
 
@@ -443,8 +471,12 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
         onCTA={onAction}
       />
 
-      {/* Next Action */}
+      {/* T17.23 — Next Action */}
       <div className="border-t border-border pt-3 space-y-2">
+        <div className="flex items-center gap-1.5">
+          <ChevronRight size={11} className="text-muted-foreground" />
+          <span className="text-xs text-muted-foreground font-medium">Next Action</span>
+        </div>
         {nextAction ? (
           <>
             <p className="text-xs font-medium text-foreground">{nextAction.title}</p>
@@ -472,9 +504,13 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
           </p>
         )}
 
-        {/* Agent signals — I15.89 (complemento, no sustitución de getNextAction) */}
+        {/* T17.23 — Señales / T17.22 — fiabilidad + evidencia */}
         {agentInsights.length > 0 && (
           <div className="pt-1 space-y-1">
+            <div className="flex items-center gap-1.5 pb-0.5">
+              <Radio size={10} className="text-muted-foreground" />
+              <span className="text-xs text-muted-foreground font-medium">Señales</span>
+            </div>
             {agentInsights.map((insight) => (
               <div
                 key={insight.id}
@@ -486,10 +522,28 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
                       : 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
                 }`}
               >
-                <Zap size={10} className="mt-0.5 shrink-0" />
-                <span className="leading-snug">{insight.content.summary}</span>
+                {/* T17.22 — icono según fiabilidad */}
+                {insight.reliability_score !== undefined && insight.reliability_score < 0.5
+                  ? <AlertTriangle size={10} className="mt-0.5 shrink-0" />
+                  : insight.reliability_score !== undefined && insight.reliability_score >= 0.8
+                    ? <CheckCircle2 size={10} className="mt-0.5 shrink-0" />
+                    : <Zap size={10} className="mt-0.5 shrink-0" />
+                }
+                <span className="leading-snug flex-1">{insight.content.summary}</span>
+                {/* T17.22 — badge de tipo de evidencia */}
+                {insight.evidence_type && (
+                  <EvidenceBadge type={insight.evidence_type} compact />
+                )}
               </div>
             ))}
+          </div>
+        )}
+
+        {/* F19.B.4 — overdue tasks pill (solo si ≥2 tareas vencidas) */}
+        {overdueCount >= 2 && (
+          <div className="flex items-center gap-1 text-xs text-red-600 dark:text-red-400 pt-1">
+            <AlertTriangle size={10} className="shrink-0" />
+            <span>{overdueCount} vencidas</span>
           </div>
         )}
       </div>

@@ -1,213 +1,357 @@
 /**
- * SYNC STRIPE - Edge Function
+ * sync-stripe — Edge Function
  *
- * Sincroniza transacciones de Stripe con Nova Hub
- * - Descarga últimas transacciones
- * - Las guarda en synced_transactions
- * - Auto-actualiza financial_metrics via trigger
- * - Sincroniza suscripciones y calcula MRR/ARR
+ * Orquestador puro: descarga suscripciones de Stripe, normaliza via ContractEntity,
+ * almacena en integration_entities, ejecuta Finance Agent (suma MRR en centavos),
+ * escribe en key_metrics vía write_integration_to_engine_table(), captura snapshots.
  *
- * Input:
- * - user_id: UUID del usuario
- * - integration_id: UUID de la integración de Stripe
- * - sync_type: 'manual' | 'scheduled' (default: manual)
- * - since_date: Fecha desde la cual sincronizar (opcional)
+ * Convención monetaria: MRR en CENTAVOS en toda la tubería. UI divide por 100.
  *
- * Output:
- * - synced_count: Número de transacciones sincronizadas
- * - total_revenue: Total de ingresos sincronizados
- * - subscriptions_synced: Número de suscripciones sincronizadas
- * - mrr: MRR calculado
+ * Input:  { project_id: string, connection_id: string }
+ * Output: { ok, pre_engine_snapshot, post_engine_snapshot, mrr, entities_synced, log_id, write_status }
+ *         mrr en CENTAVOS (el frontend divide por 100 para mostrar en euros)
  */
 
-import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
-import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuthWithUserId } from '../_shared/auth.ts';
+import Stripe from 'https://esm.sh/stripe@14'
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import md5 from 'https://esm.sh/md5'
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
+import { validateAuth } from '../_shared/auth.ts'
+import { withRetry } from '../_shared/retry.ts'
+import { normalizeStripeSubscription } from '../_shared/normalizers/stripe-financial.ts'
+import type { ContractEntity } from '../_shared/normalizers/stripe-financial.ts'
 
-serve(async (req) => {
-  const origin = req.headers.get('Origin');
-  try {
-    // CORS
-      if (req.method === 'OPTIONS') {
-    return handleCorsPreflightRequest(origin);
+const ADAPTER_VERSION  = '1.0'
+const CONTRACT_VERSION = '1.0'
+
+// ──────────────────────────────────────────────────────────────────────────────
+// canonicalJson — replica de src/lib/canonical-hash.ts (sin import Node crypto)
+// ──────────────────────────────────────────────────────────────────────────────
+
+function canonicalJson(value: unknown): string {
+  if (value === null || value === undefined) return 'null'
+  if (typeof value === 'boolean') return value ? 'true' : 'false'
+  if (typeof value === 'number') return String(value)
+  if (typeof value === 'string') return JSON.stringify(value)
+  if (Array.isArray(value)) return '[' + value.map(canonicalJson).join(',') + ']'
+  if (typeof value === 'object') {
+    const sorted = Object.keys(value as Record<string, unknown>)
+      .sort()
+      .map((k) => `${JSON.stringify(k)}:${canonicalJson((value as Record<string, unknown>)[k])}`)
+      .join(',')
+    return '{' + sorted + '}'
   }
+  return JSON.stringify(value)
+}
 
-    const { user_id, integration_id, sync_type, since_date } = await req.json();
+// ──────────────────────────────────────────────────────────────────────────────
 
-    if (!user_id || !integration_id) {
-      throw new Error('user_id and integration_id are required');
+Deno.serve(async (req) => {
+  const origin = req.headers.get('Origin')
+  if (req.method === 'OPTIONS') return handleCorsPreflightRequest(origin)
+
+  const supabaseUrl    = Deno.env.get('SUPABASE_URL')!
+  const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
+  const appSecret      = Deno.env.get('APP_ENCRYPTION_SECRET')!
+  const serviceClient  = createClient(supabaseUrl, serviceRoleKey)
+  let sync_run_id: string | null = null
+
+  try {
+    await validateAuth(req)
+    const { project_id, connection_id } = await req.json()
+
+    if (!project_id || !connection_id) {
+      return new Response(
+        JSON.stringify({ ok: false, reason: 'missing_params' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      )
     }
 
-        const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 1: Descifrar API key
+    // ──────────────────────────────────────────────────────────────────────────
+    const { data: apiKeyData, error: decryptError } = await serviceClient.rpc(
+      'decrypt_integration_credential',
+      { p_connection_id: connection_id, p_credential_key: 'api_key', p_app_secret: appSecret }
+    )
 
-    // 1. Obtener credenciales de Stripe
-    const { data: integration } = await supabaseClient
-      .from('financial_integrations')
-      .select('*')
-      .eq('id', integration_id)
-      .eq('provider', 'stripe')
-      .single();
-
-    if (!integration) {
-      throw new Error('Stripe integration not found');
+    if (decryptError || !apiKeyData) {
+      console.error('Error decrypting credential:', decryptError)
+      return new Response(
+        JSON.stringify({ ok: false, reason: 'credential_not_found' }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      )
     }
 
-    // 2. Simular descarga de transacciones de Stripe
-    // En producción: usar Stripe API real
-    // const stripe = new Stripe(integration.access_token);
-    // const charges = await stripe.charges.list({ created: { gte: sinceTimestamp } });
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 2: Crear sync_run status='running'
+    // ──────────────────────────────────────────────────────────────────────────
+    const { data: syncRun, error: syncRunError } = await serviceClient
+      .from('integration_sync_runs')
+      .insert({
+        connection_id,
+        project_id,
+        provider:        'stripe',
+        trigger_type:    'manual',
+        status:          'running',
+        adapter_version: ADAPTER_VERSION,
+      })
+      .select('id')
+      .single()
 
-    const mockTransactions = generateMockStripeTransactions(
-      since_date || new Date(Date.now() - 30 * 24 * 60 * 60 * 1000).toISOString()
-    );
+    if (syncRunError || !syncRun) {
+      console.error('Error creating sync_run:', syncRunError)
+      return new Response(
+        JSON.stringify({ ok: false, reason: 'sync_run_error' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      )
+    }
 
-    let syncedCount = 0;
-    let totalRevenue = 0;
+    sync_run_id = syncRun.id
 
-    // 3. Guardar transacciones
-    for (const transaction of mockTransactions) {
-      const { error } = await supabaseClient.from('synced_transactions').upsert({
-        integration_id,
-        user_id,
-        external_transaction_id: transaction.id,
-        transaction_type: transaction.type,
-        amount: transaction.amount,
-        currency: transaction.currency,
-        description: transaction.description,
-        transaction_date: transaction.created_at,
-        customer_email: transaction.customer_email,
-        customer_name: transaction.customer_name,
-        metadata: transaction.metadata,
-      });
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 3: Pre-engine snapshot
+    // ──────────────────────────────────────────────────────────────────────────
+    const { data: preSnapshot } = await serviceClient.rpc('get_engine_snapshot', {
+      p_project_id: project_id,
+    })
 
-      if (!error) {
-        syncedCount++;
-        if (transaction.type === 'income') {
-          totalRevenue += transaction.amount;
+    await serviceClient
+      .from('integration_sync_runs')
+      .update({ pre_engine_snapshot: preSnapshot ?? null })
+      .eq('id', sync_run_id)
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 4: Descargar suscripciones activas de Stripe (con retry/backoff)
+    // ──────────────────────────────────────────────────────────────────────────
+    const stripe = new Stripe(apiKeyData as string, { apiVersion: '2023-10-16' })
+
+    const { result: subscriptionList, attempts: stripeAttempts } = await withRetry(
+      () => stripe.subscriptions.list({ status: 'active', limit: 100, expand: ['data.items'] })
+    )
+
+    const rawSubscriptions = subscriptionList.data
+    const retryCount = stripeAttempts - 1
+    const now = new Date().toISOString()
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 5: Normalizar + almacenar en integration_entities (ContractEntity)
+    // ──────────────────────────────────────────────────────────────────────────
+    const ctx = { connection_id, sync_run_id, project_id, source_timestamp: now }
+    const entityIds: string[] = []
+    const acceptedEntities: ContractEntity[] = []
+    let entitiesRejected = 0
+
+    for (const raw of rawSubscriptions) {
+      // Normalización pura — Stripe payload → ContractEntity
+      // deno-lint-ignore no-explicit-any
+      const entity = normalizeStripeSubscription(raw as any, ctx)
+
+      if (!entity) {
+        // normalizeStripeSubscription devolvió null: schema_score < 0.5 o external_id ausente
+        entitiesRejected++
+        continue
+      }
+
+      acceptedEntities.push(entity)
+
+      const { data: inserted, error: entityError } = await serviceClient
+        .from('integration_entities')
+        .upsert(
+          {
+            connection_id:    entity.connection_id,
+            sync_run_id:      entity.sync_run_id,
+            project_id:       entity.project_id,
+            provider:         entity.provider,
+            entity_type:      entity.entity_type,
+            external_id:      entity.external_id,
+            occurred_at:      entity.occurred_at,
+            source_timestamp: entity.source_timestamp,
+            confidence:       entity.confidence,
+            payload:          entity.payload,
+            status:           'pending',
+            contract_version: CONTRACT_VERSION,
+          },
+          { onConflict: 'connection_id,provider,entity_type,external_id' }
+        )
+        .select('id')
+        .single()
+
+      if (!entityError && inserted) {
+        entityIds.push(inserted.id)
+      }
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 6: Finance Agent — sumar mrr_contribution (CENTAVOS/mes)
+    //
+    // Usa acceptedEntities ya normalizadas en Paso 5 — sin doble cómputo.
+    // Cierra I15.DEBT.1.
+    // ──────────────────────────────────────────────────────────────────────────
+    const totalMrrCents = acceptedEntities.reduce(
+      (sum, entity) => sum + entity.payload.mrr_contribution,
+      0
+    )
+
+    const payload = { mrr: totalMrrCents }
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 7: canonicalJson + md5 → payload_hash
+    // ──────────────────────────────────────────────────────────────────────────
+    const payload_hash = md5(canonicalJson(payload))
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 8: write_integration_to_engine_table (MRR en centavos → key_metrics)
+    // ──────────────────────────────────────────────────────────────────────────
+    const { data: writeResult, error: writeError } = await serviceClient.rpc(
+      'write_integration_to_engine_table',
+      {
+        p_project_id:       project_id,
+        p_sync_run_id:      sync_run_id,
+        p_insight_id:       null,
+        p_agent_type:       'finance',
+        p_target:           'key_metrics',
+        p_operation:        'upsert',
+        p_payload:          payload,
+        p_logical_period:   now,
+        p_payload_hash:     payload_hash,
+        p_entity_ids:       entityIds,
+        p_confidence:       1.0,
+        p_source_timestamp: now,
+      }
+    )
+
+    if (writeError) console.error('Error writing to engine table:', writeError)
+
+    const log_id      = writeResult?.log_id ?? null
+    const write_status = writeResult?.ok === true ? 'written' : (writeResult?.reason ?? 'error')
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 8b: Finance Agent — revenue_concentration → project_economic_profile
+    //          I15.DEBT.5: motor write del agente hecho aquí (server-side, sync_run
+    //          todavía 'running') en lugar de cliente (que no tiene acceso service_role).
+    // ──────────────────────────────────────────────────────────────────────────
+    // Filtrar suscripciones activas con customer_id (min 3 para que la concentración tenga sentido)
+    const activeWithCustomer = acceptedEntities.filter(
+      (e) => (e.payload.status === 'active' || e.payload.status === 'trialing') && e.payload.customer_id
+    )
+
+    if (activeWithCustomer.length >= 3) {
+      const byCustomer = new Map<string, number>()
+      for (const e of activeWithCustomer) {
+        const cid = e.payload.customer_id!
+        byCustomer.set(cid, (byCustomer.get(cid) ?? 0) + e.payload.mrr_contribution)
+      }
+
+      const totalRevenueCents = Array.from(byCustomer.values()).reduce((s, v) => s + v, 0)
+      if (totalRevenueCents > 0) {
+        const topRevenueCents = Math.max(...byCustomer.values())
+        const concentrationPct = Math.round((topRevenueCents / totalRevenueCents) * 100)
+
+        const avgConf = activeWithCustomer.reduce((s, e) => s + e.confidence, 0) / activeWithCustomer.length
+        const completeness = Math.min(1.0, activeWithCustomer.length / 3)
+        const writeConf = avgConf * completeness
+
+        if (writeConf >= 0.8) {
+          const profilePayload = { top_client_revenue_percent: concentrationPct }
+          const profileHash = md5(canonicalJson(profilePayload))
+
+          const { error: profileWriteError } = await serviceClient.rpc(
+            'write_integration_to_engine_table',
+            {
+              p_project_id:       project_id,
+              p_sync_run_id:      sync_run_id,
+              p_insight_id:       null,
+              p_agent_type:       'finance',
+              p_target:           'project_economic_profile',
+              p_operation:        'upsert',
+              p_payload:          profilePayload,
+              p_logical_period:   null,
+              p_payload_hash:     profileHash,
+              p_entity_ids:       entityIds,
+              p_confidence:       writeConf,
+              p_source_timestamp: now,
+            }
+          )
+
+          if (profileWriteError) {
+            console.error('Error writing revenue_concentration to economic_profile:', profileWriteError)
+          }
         }
       }
     }
 
-    // 4. Sincronizar suscripciones
-    const mockSubscriptions = generateMockSubscriptions();
-    let mrr = 0;
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 9: run_probability_engine
+    // ──────────────────────────────────────────────────────────────────────────
+    await serviceClient.rpc('run_probability_engine', {
+      p_project_id:    project_id,
+      p_trigger_source: 'integration',
+    })
 
-    for (const sub of mockSubscriptions) {
-      if (sub.status === 'active') {
-        mrr += sub.amount;
-      }
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 10: Post-engine snapshot
+    // ──────────────────────────────────────────────────────────────────────────
+    const { data: postSnapshot } = await serviceClient.rpc('get_engine_snapshot', {
+      p_project_id: project_id,
+    })
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 11: Actualizar sync_run con resultado final
+    // ──────────────────────────────────────────────────────────────────────────
+    await serviceClient
+      .from('integration_sync_runs')
+      .update({
+        status:             'completed',
+        entities_processed: rawSubscriptions.length,
+        entities_written:   write_status === 'written'          ? 1 : 0,
+        entities_skipped:   write_status === 'duplicate_skipped' ? 1 : 0,
+        entities_rejected:  entitiesRejected,
+        retry_count:        retryCount,
+        post_engine_snapshot: postSnapshot ?? null,
+        completed_at:       new Date().toISOString(),
+      })
+      .eq('id', sync_run_id)
+
+    await serviceClient
+      .from('integration_connections')
+      .update({ last_sync_at: new Date().toISOString() })
+      .eq('id', connection_id)
+
+    // ──────────────────────────────────────────────────────────────────────────
+    // Paso 12: Respuesta — mrr en CENTAVOS. Frontend divide por 100 para display.
+    // ──────────────────────────────────────────────────────────────────────────
+    return new Response(
+      JSON.stringify({
+        ok: true,
+        pre_engine_snapshot:  preSnapshot ?? null,
+        post_engine_snapshot: postSnapshot ?? null,
+        mrr:                  totalMrrCents,   // CENTAVOS — frontend divide por 100
+        entities_synced:      rawSubscriptions.length,
+        log_id,
+        write_status,
+      }),
+      { status: 200, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+    )
+
+  } catch (err) {
+    if (err instanceof Response) return err
+    console.error('sync-stripe error:', err)
+
+    if (sync_run_id) {
+      await serviceClient
+        .from('integration_sync_runs')
+        .update({
+          status:        'failed',
+          error_message: String(err),
+          completed_at:  new Date().toISOString(),
+        })
+        .eq('id', sync_run_id)
     }
 
-    // Guardar métricas de suscripción
-    await supabaseClient.from('subscription_metrics').upsert({
-      user_id,
-      integration_id,
-      metric_date: new Date().toISOString().split('T')[0],
-      mrr,
-      arr: mrr * 12,
-      active_subscriptions: mockSubscriptions.filter((s) => s.status === 'active').length,
-      new_subscriptions: mockSubscriptions.filter((s) => s.is_new).length,
-      churned_subscriptions: mockSubscriptions.filter((s) => s.status === 'canceled').length,
-      churn_rate: calculateChurnRate(mockSubscriptions),
-    });
-
-    // 5. Actualizar última sincronización
-    await supabaseClient
-      .from('financial_integrations')
-      .update({
-        last_sync_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
-      })
-      .eq('id', integration_id);
-
     return new Response(
-      JSON.stringify({
-        synced_count: syncedCount,
-        total_revenue: totalRevenue,
-        subscriptions_synced: mockSubscriptions.length,
-        mrr,
-        arr: mrr * 12,
-        sync_type: sync_type || 'manual',
-        synced_at: new Date().toISOString(),
-        success: true,
-      }),
-      {
-        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-        status: 200,
-      }
-    );
-  } catch (error) {
-        if (error instanceof Response) return error;
-console.error('Error syncing Stripe:', error);
-    return new Response(
-      JSON.stringify({
-        error: error.message,
-      }),
-      {
-        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
-        status: 500,
-      }
-    );
+      JSON.stringify({ ok: false, reason: String(err) }),
+      { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+    )
   }
-});
-
-// ============================================================================
-// MOCK DATA GENERATORS (En producción usar Stripe API real)
-// ============================================================================
-
-function generateMockStripeTransactions(sinceDate: string) {
-  const transactions: unknown[] = [];
-  const since = new Date(sinceDate).getTime();
-  const now = Date.now();
-
-  // Generar 10-20 transacciones aleatorias
-  const count = Math.floor(Math.random() * 10) + 10;
-
-  for (let i = 0; i < count; i++) {
-    const timestamp = since + Math.random() * (now - since);
-    const isIncome = Math.random() > 0.3; // 70% ingresos, 30% reembolsos
-
-    transactions.push({
-      id: `ch_${Math.random().toString(36).substring(7)}`,
-      type: isIncome ? 'income' : 'refund',
-      amount: Math.round((Math.random() * 500 + 50) * 100) / 100,
-      currency: 'EUR',
-      description: isIncome
-        ? `Payment from customer #${Math.floor(Math.random() * 1000)}`
-        : `Refund for order #${Math.floor(Math.random() * 1000)}`,
-      created_at: new Date(timestamp).toISOString(),
-      customer_email: `customer${Math.floor(Math.random() * 100)}@example.com`,
-      customer_name: `Customer ${Math.floor(Math.random() * 100)}`,
-      metadata: {
-        source: 'stripe',
-        payment_method: ['card', 'sepa_debit', 'paypal'][Math.floor(Math.random() * 3)],
-      },
-    });
-  }
-
-  return transactions;
-}
-
-function generateMockSubscriptions() {
-  const subscriptions: unknown[] = [];
-  const statuses = ['active', 'active', 'active', 'canceled', 'past_due'];
-
-  for (let i = 0; i < 15; i++) {
-    const status = statuses[Math.floor(Math.random() * statuses.length)];
-    subscriptions.push({
-      id: `sub_${Math.random().toString(36).substring(7)}`,
-      status,
-      amount: [9.99, 19.99, 49.99, 99.99][Math.floor(Math.random() * 4)],
-      is_new: Math.random() > 0.8,
-      customer_email: `customer${i}@example.com`,
-    });
-  }
-
-  return subscriptions;
-}
-
-function calculateChurnRate(subscriptions: unknown[]) {
-  const total = subscriptions.length;
-  const churned = subscriptions.filter((s) => s.status === 'canceled').length;
-  return total > 0 ? (churned / total) * 100 : 0;
-}
+})

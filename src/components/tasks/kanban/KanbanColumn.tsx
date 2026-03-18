@@ -1,9 +1,10 @@
-import { memo } from 'react';
+import { memo, useMemo } from 'react';
 import { Circle, Clock, CheckCircle2, AlertCircle } from 'lucide-react';
 import { Droppable, Draggable } from '@hello-pangea/dnd';
 import { cn } from '@/lib/utils';
 import { TaskCard } from './TaskCard';
 import type { Task } from '@/hooks/useTaskKanban';
+import { getPhaseRelevanceScore } from '@/lib/phase-features';
 
 const COLUMN_ICONS = {
   todo: Circle,
@@ -35,6 +36,7 @@ interface KanbanColumnProps {
   onCompleteClick: (task: Task) => void;
   onPlaybookClick: (task: Task) => void;
   onDeleteClick: (task: Task) => void;
+  currentPhase?: number  // F19.B.5: para ordenar 'todo' por relevancia de fase
 }
 
 export const KanbanColumn = memo(function KanbanColumn({
@@ -47,8 +49,19 @@ export const KanbanColumn = memo(function KanbanColumn({
   onCompleteClick,
   onPlaybookClick,
   onDeleteClick,
+  currentPhase = 1,
 }: KanbanColumnProps) {
   const IconComponent = COLUMN_ICONS[column.id as keyof typeof COLUMN_ICONS] || Circle;
+
+  // F19.B.5: ordenar columna 'todo' por relevancia de fase × prioridad
+  const sortedTasks = useMemo(() => {
+    if (column.id !== 'todo') return tasks
+    return [...tasks].sort((a, b) => {
+      const scoreA = getPhaseRelevanceScore(a.function_type, currentPhase) * (4 - (a.prioridad ?? 3))
+      const scoreB = getPhaseRelevanceScore(b.function_type, currentPhase) * (4 - (b.prioridad ?? 3))
+      return scoreB - scoreA
+    })
+  }, [tasks, column.id, currentPhase]);
 
   return (
     <div>
@@ -80,9 +93,12 @@ export const KanbanColumn = memo(function KanbanColumn({
               snapshot.isDraggingOver && "bg-primary/5 ring-2 ring-primary/20"
             )}
           >
-            {tasks.map((task, index) => {
+            {sortedTasks.map((task, index) => {
               const assignee = getAssignee(task.assignee_id);
               const leader   = getLeader(task.leader_id);
+              const isHighRelevance =
+                column.id === 'todo' &&
+                getPhaseRelevanceScore(task.function_type, currentPhase) === 3;
 
               return (
                 <Draggable key={task.id} draggableId={task.id} index={index}>
@@ -101,6 +117,7 @@ export const KanbanColumn = memo(function KanbanColumn({
                       dragHandleProps={provided.dragHandleProps}
                       draggableProps={provided.draggableProps}
                       innerRef={provided.innerRef}
+                      isHighRelevance={isHighRelevance}
                     />
                   )}
                 </Draggable>

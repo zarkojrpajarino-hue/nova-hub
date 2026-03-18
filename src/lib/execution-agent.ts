@@ -19,6 +19,8 @@
  *          execution_health al Phase Engine en v2, AGENTS_CONTRACT.md §3)
  */
 
+import type { EvidenceType, SourceUsed, SourceDiscarded } from '@/lib/evidence'
+
 export type ExecutionInsightType = 'task_completion_rate' | 'overdue_ratio'
 
 export interface TaskEntityRow {
@@ -56,6 +58,10 @@ export interface ExecutionInsightData {
   include_in_context: boolean
   /** En horas — el servicio calcula expires_at = generated_at + expires_hours */
   expires_hours:      number
+  /** T17.15 — metadata de evidencia */
+  evidence_type:     EvidenceType
+  sources_used:      SourceUsed[]
+  sources_discarded: SourceDiscarded[]
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -114,6 +120,9 @@ export function computeTaskCompletionRate(
     entity_ids:         entities.map((e) => e.id),
     include_in_context: completionPct < 60,  // solo relevante si hay problema
     expires_hours:      48,
+    evidence_type:     'observed',
+    sources_used:      [{ source: 'asana', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: entities.length }],
+    sources_discarded: [],
   }
 }
 
@@ -186,6 +195,9 @@ export function computeOverdueRatio(
     entity_ids:         overdue.map((e) => e.id),
     include_in_context: overdueRatio > 20,
     expires_hours:      24,
+    evidence_type:     'observed',
+    sources_used:      [{ source: 'asana', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: openWithDue.length }],
+    sources_discarded: [],
   }
 }
 
@@ -196,5 +208,8 @@ export function runExecutionAgentLocal(
   return [
     computeTaskCompletionRate(entities),
     computeOverdueRatio(entities),
-  ].filter((x): x is ExecutionInsightData => x !== null)
+  ]
+    .filter((x): x is ExecutionInsightData => x !== null)
+    // T17.29 — §12 política de silencio: dato estimado con baja confianza y sin entidades → no emitir
+    .filter(x => !(x.confidence < 0.5 && x.entity_ids.length === 0))
 }

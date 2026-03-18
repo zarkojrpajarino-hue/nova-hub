@@ -4,11 +4,12 @@
  * Lee integration_entities, ejecuta el Finance Agent puro, aplica anti-spam,
  * escribe integration_insights y devuelve resumen.
  *
- * Sin motor writes en v1 — I15.DEBT.5:
- *   write_integration_to_engine_table() requiere sync_run.status='running'.
- *   El Finance Agent corre post-sync (status='completed'). Incompatible.
- *   En v2: crear sync_run de tipo 'agent_analysis' o modificar el guard
- *   para aceptar el sync_run del agente (diferente al del proveedor).
+ * Motor writes (I15.DEBT.5 cerrado):
+ *   - revenue_concentration → project_economic_profile.top_client_revenue_percent
+ *     Escrito en sync-stripe (server-side, sync_run='running'), no aquí.
+ *     Razón: write_integration_to_engine_table es SECURITY DEFINER GRANT TO service_role —
+ *     el cliente (JWT de usuario) no puede llamarla. Motor writes van en edge functions.
+ *   El campo motor_write en integration_insights documenta el target para auditabilidad.
  */
 
 import { supabase } from '@/integrations/supabase/client'
@@ -128,7 +129,11 @@ export async function runFinanceAgent(
       payload: {
         signal:       insight.signal,
         content:      insight.content,
-        motor_write:  null,  // I15.DEBT.5 — no motor writes en v1
+        // I15.DEBT.5: motor write para revenue_concentration se ejecuta en sync-stripe (server-side).
+        // Este campo documenta el target para auditabilidad en integration_insights.
+        motor_write: insight.insight_type === 'revenue_concentration'
+          ? { target: 'project_economic_profile', field: 'top_client_revenue_percent', executed_in: 'sync-stripe' }
+          : null,
       },
       confidence:         insight.confidence,
       source_timestamp:   generatedAt.toISOString(),
@@ -136,6 +141,11 @@ export async function runFinanceAgent(
       expires_at:         expiresAt.toISOString(),
       include_in_context: insight.include_in_context,
       status:             'pending',
+      // T17.13 — metadata de evidencia
+      evidence_type:        insight.evidence_type,
+      sources_used:         insight.sources_used,
+      sources_discarded:    insight.sources_discarded,
+      low_evidence_quality: insight.confidence < 0.5 && insight.entity_ids.length === 0,
     }
   })
 
@@ -157,7 +167,7 @@ export async function getActiveFinanceInsights(projectId: string) {
   const now = new Date().toISOString()
   const { data, error } = await supabase
     .from('integration_insights')
-    .select('id, insight_type, payload, confidence, generated_at, expires_at')
+    .select('id, insight_type, payload, confidence, generated_at, expires_at, evidence_type, sources_used, sources_discarded')
     .eq('project_id', projectId)
     .eq('agent_type', 'finance')
     .gt('expires_at', now)

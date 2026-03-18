@@ -8,8 +8,14 @@
 import { generateBusinessModelCanvas, type BusinessModelCanvas } from './businessModelCanvas';
 import { generateBuyerPersonas, type BuyerPersona } from './buyerPersonas';
 import { generateSalesPlaybook, type SalesPlaybook } from './salesPlaybook';
+import {
+  generateBusinessIdeas,
+  type BusinessIdea,
+  type GenerateBusinessIdeasInput,
+} from './businessIdeas';
 
-export type { BusinessModelCanvas, BuyerPersona, SalesPlaybook };
+export type { BusinessModelCanvas, BuyerPersona, SalesPlaybook, BusinessIdea, GenerateBusinessIdeasInput };
+export { generateBusinessIdeas };
 
 export interface AIGenerationInput {
   // Required

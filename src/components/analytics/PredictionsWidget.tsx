@@ -21,7 +21,8 @@ interface Prediction {
   projected: number;
   percentageOfTarget: number;
   trend: 'up' | 'down' | 'stable';
-  status: 'on_track' | 'at_risk' | 'behind';
+  // Neutral labels — no collision with Engine's risk_level / viability_status
+  status: 'on_track' | 'below_pace' | 'off_track';
   message: string;
 }
 
@@ -39,14 +40,15 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
       margen: acc.margen + (Number(m.margen) || 0),
     }), { obvs: 0, lps: 0, bps: 0, cps: 0, facturacion: 0, margen: 0 });
 
-    // Team objectives (9 members * semester objectives)
+    // Team objectives (per-member semester objectives × team size)
+    const teamSize = Math.max(members.length, 1);
     const objectivesMap: Record<string, number> = {
-      obvs: 150 * 9,
-      lps: 18 * 9,
-      bps: 66 * 9,
-      cps: 40 * 9,
-      facturacion: 15000 * 9,
-      margen: 7500 * 9,
+      obvs: 150 * teamSize,
+      lps: 18 * teamSize,
+      bps: 66 * teamSize,
+      cps: 40 * teamSize,
+      facturacion: 15000 * teamSize,
+      margen: 7500 * teamSize,
     };
     
     objectives.forEach(obj => {
@@ -85,31 +87,31 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
       const progressDiff = current - expectedProgress;
       
       let trend: 'up' | 'down' | 'stable';
-      let status: 'on_track' | 'at_risk' | 'behind';
+      let status: 'on_track' | 'below_pace' | 'off_track';
       let message: string;
 
       if (progressDiff >= 0) {
         trend = 'up';
         if (percentageOfTarget >= 100) {
           status = 'on_track';
-          message = `🎯 Proyección: ${percentageOfTarget}% del objetivo`;
+          message = `Proyección: ${percentageOfTarget}% del objetivo`;
         } else if (percentageOfTarget >= 80) {
           status = 'on_track';
-          message = `✅ Ritmo bueno: llegaréis al ${percentageOfTarget}%`;
+          message = `Ritmo suficiente: llegaréis al ${percentageOfTarget}%`;
         } else {
-          status = 'at_risk';
-          message = `⚠️ Por encima del ritmo pero llegaréis al ${percentageOfTarget}%`;
+          status = 'below_pace';
+          message = `Por encima del ritmo, proyección ${percentageOfTarget}%`;
         }
       } else {
-        const daysBelow = Math.abs(progressDiff) / dailyRate;
+        const daysBelow = Math.abs(progressDiff) / Math.max(dailyRate, 0.001);
         if (daysBelow <= 7) {
           trend = 'stable';
-          status = 'at_risk';
-          message = `⚠️ Ligeramente por debajo: proyección ${percentageOfTarget}%`;
+          status = 'below_pace';
+          message = `Ligeramente por debajo: proyección ${percentageOfTarget}%`;
         } else {
           trend = 'down';
-          status = 'behind';
-          message = `🔴 En riesgo: solo ${percentageOfTarget}% si mantenéis ritmo`;
+          status = 'off_track';
+          message = `Fuera de ritmo: solo ${percentageOfTarget}% si mantenéis el paso`;
         }
       }
 
@@ -128,9 +130,9 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
 
   const getStatusIcon = (status: Prediction['status']) => {
     switch (status) {
-      case 'on_track': return <CheckCircle className="w-5 h-5 text-green-500" />;
-      case 'at_risk': return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
-      case 'behind': return <AlertTriangle className="w-5 h-5 text-red-500" />;
+      case 'on_track':   return <CheckCircle className="w-5 h-5 text-green-500" />;
+      case 'below_pace': return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
+      case 'off_track':  return <AlertTriangle className="w-5 h-5 text-red-500" />;
     }
   };
 
@@ -289,19 +291,19 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
               <div className="text-2xl font-bold text-green-600">
                 {predictions.filter(p => p.status === 'on_track').length}
               </div>
-              <div className="text-sm text-muted-foreground">En buen camino</div>
+              <div className="text-sm text-muted-foreground">En ritmo</div>
             </div>
             <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
               <div className="text-2xl font-bold text-yellow-600">
-                {predictions.filter(p => p.status === 'at_risk').length}
+                {predictions.filter(p => p.status === 'below_pace').length}
               </div>
-              <div className="text-sm text-muted-foreground">En riesgo</div>
+              <div className="text-sm text-muted-foreground">Por debajo</div>
             </div>
             <div className="text-center p-4 bg-red-500/10 rounded-lg">
               <div className="text-2xl font-bold text-red-600">
-                {predictions.filter(p => p.status === 'behind').length}
+                {predictions.filter(p => p.status === 'off_track').length}
               </div>
-              <div className="text-sm text-muted-foreground">Por detrás</div>
+              <div className="text-sm text-muted-foreground">Fuera de ritmo</div>
             </div>
           </div>
         </CardContent>

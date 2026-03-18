@@ -116,9 +116,9 @@ export function TemporalEvolutionChart({ period, isDemoMode = false }: TemporalE
       return {
         date: format(date, formatStr, { locale: es }),
         obvs: periodOBVs.length,
-        lps: periodKPIs.filter(k => k.type === 'LP').length,
-        bps: periodKPIs.filter(k => k.type === 'BP').length,
-        cps: periodKPIs.filter(k => k.type === 'CP').length,
+        lps: periodKPIs.filter(k => k.type === 'lp').length,
+        bps: periodKPIs.filter(k => k.type === 'bp').length,
+        cps: periodKPIs.filter(k => k.type === 'cp').length,
       };
     });
   }, [obvs, kpis, period, dateRange, isDemoMode]);

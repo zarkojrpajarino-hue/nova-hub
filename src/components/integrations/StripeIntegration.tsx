@@ -1,99 +1,236 @@
 /**
  * STRIPE INTEGRATION
  *
- * Componente para configurar integración con Stripe
- * Conecta con edge function: sync-stripe
+ * Conecta Stripe, importa suscripciones activas y escribe MRR via write_integration_to_engine_table().
+ * Edge functions: connect-stripe, sync-stripe
  */
 
-import { useState } from 'react';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { Badge } from '@/components/ui/badge';
-import { Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
+import { useState, useEffect } from 'react'
+import { useQueryClient } from '@tanstack/react-query'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Badge } from '@/components/ui/badge'
+import { Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react'
+import { supabase } from '@/integrations/supabase/client'
+import { useAuth } from '@/hooks/useAuth'
+import { toast } from 'sonner'
 
-export function StripeIntegration() {
-  const [apiKey, setApiKey] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
-  const [isConnected, setIsConnected] = useState(false);
-  const [lastSync, setLastSync] = useState<string | null>(null);
+const FUNCTIONS_URL = 'https://zzxngvqwmnouchbulvlo.supabase.co/functions/v1'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6eG5ndnF3bW5vdWNoYnVsdmxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyNDEsImV4cCI6MjA4NzQ4NTI0MX0.u0bzjhkbHrijmuvKecdRsdxYN4qn43g1fhayP7SiOvs'
+import { SyncBanner } from './SyncBanner'
+import { SyncHealthCard } from './SyncHealthCard'
+import { ApiKeyGuide } from './ApiKeyGuide'
+import { FinanceInsightsCard } from './FinanceInsightsCard'
+import type { EngineSnapshot } from '@/lib/engine-delta'
+import { runFinanceAgent } from '@/services/financeAgentService'
+import type { Session } from '@supabase/supabase-js'
+
+// Obtiene el token más fresco posible.
+// Intenta getSession() (siempre devuelve el token actual) con un timeout de 2s.
+// Si tarda más de 2s (lock retenido por fetchProfile), cae al session del contexto.
+async function getFreshSession(fallback: Session | null): Promise<Session | null> {
+  return new Promise((resolve) => {
+    const timer = setTimeout(() => resolve(fallback), 2000)
+    supabase.auth.getSession().then(({ data }) => {
+      clearTimeout(timer)
+      resolve(data.session)
+    }).catch(() => {
+      clearTimeout(timer)
+      resolve(fallback)
+    })
+  })
+}
+
+interface StripeIntegrationProps {
+  projectId: string | undefined
+}
+
+interface SyncResult {
+  pre_engine_snapshot: EngineSnapshot | null
+  post_engine_snapshot: EngineSnapshot
+  mrr: number
+  entities_synced: number
+  log_id: string | null
+  write_status: string
+}
+
+export function StripeIntegration({ projectId }: StripeIntegrationProps) {
+  const { session } = useAuth()
+  const queryClient = useQueryClient()
+  const [apiKey, setApiKey] = useState('')
+  const [isLoading, setIsLoading] = useState(false)
+  const [isSyncing, setIsSyncing] = useState(false)
+  const [isConnected, setIsConnected] = useState(false)
+  const [connectionId, setConnectionId] = useState<string | null>(null)
+  const [lastSync, setLastSync] = useState<string | null>(null)
+  const [syncResult, setSyncResult] = useState<SyncResult | null>(null)
+  const [connectionError, setConnectionError] = useState<string | null>(null)  // I15.66
+  const [hasPriorSync, setHasPriorSync] = useState(false)                     // I15.65: tutorial no reaparece si ya hubo sync
+
+  // Carga conexión existente desde DB al montar (I15.66: detecta 'error'; I15.65: lee last_sync_at)
+  useEffect(() => {
+    if (!projectId) return
+    supabase
+      .from('integration_connections')
+      .select('id, status, error_message, last_sync_at')
+      .eq('project_id', projectId)
+      .eq('provider', 'stripe')
+      .in('status', ['active', 'error'])
+      .order('created_at', { ascending: false })
+      .limit(1)
+      .maybeSingle()
+      .then(({ data }) => {
+        if (!data) return
+        if (data.status === 'active') {
+          setIsConnected(true)
+          setConnectionId(data.id)
+          // I15.65: si last_sync_at existe → ya hubo al menos un sync → no mostrar tutorial post-conexión
+          if (data.last_sync_at) setHasPriorSync(true)
+        } else if (data.status === 'error') {
+          setConnectionError(data.error_message ?? 'La conexión anterior falló. Vuelve a conectar.')
+        }
+      })
+  }, [projectId])
 
   const handleConnect = async () => {
+    if (!projectId) {
+      toast.error('No hay proyecto activo')
+      return
+    }
     if (!apiKey.startsWith('sk_')) {
-      toast.error('API Key debe empezar con "sk_"');
-      return;
+      toast.error('La API Key debe empezar con "sk_"')
+      return
     }
 
-    setIsLoading(true);
+    setIsLoading(true)
     try {
-      // Guardar en tabla financial_integrations
-      const { error } = await supabase
-        .from('financial_integrations')
-        .upsert({
-          provider: 'stripe',
-          api_key: apiKey,
-          is_active: true,
-        });
+      const freshSession = await getFreshSession(session)
+      if (!freshSession) {
+        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        return
+      }
 
-      if (error) throw error;
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 30_000)
+      let res: Response
+      try {
+        res = await fetch(`${FUNCTIONS_URL}/connect-stripe`, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${freshSession.access_token}`,
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ project_id: projectId, api_key: apiKey }),
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
+      const data = await res.json()
 
-      setIsConnected(true);
-      toast.success('¡Stripe conectado exitosamente!');
-      setApiKey(''); // Limpiar por seguridad
+      if (!res.ok) throw new Error(data?.message ?? `HTTP ${res.status}`)
+      if (!data?.ok) {
+        const msg = data?.reason === 'invalid_key'
+          ? 'API Key inválida — verifica que sea correcta en Stripe Dashboard'
+          : `Error al conectar: ${data?.reason ?? 'desconocido'}`
+        toast.error(msg)
+        return
+      }
 
-      // Hacer primera sincronización
-      await handleSync();
-    } catch (_error) {
-      toast.error('Error al conectar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      setConnectionId(data.connection_id)
+      setIsConnected(true)
+      setApiKey('')
+      toast.success('Stripe conectado — haz clic en "Sincronizar Ahora" para importar tus datos')
+    } catch (err) {
+      toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
-      setIsLoading(false);
+      setIsLoading(false)
     }
-  };
+  }
 
-  const handleSync = async () => {
-    setIsSyncing(true);
+  const handleSync = async (overrideConnectionId?: string) => {
+    const connId = overrideConnectionId ?? connectionId
+    if (!projectId || !connId) {
+      toast.error('Conexión no disponible')
+      return
+    }
+
+    setIsSyncing(true)
+    setSyncResult(null)
     try {
-      const { data, error } = await supabase.functions.invoke('sync-stripe', {
-        body: { manual: true },
-      });
+      const freshSession = await getFreshSession(session)
+      if (!freshSession) {
+        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        return
+      }
 
-      if (error) throw error;
+      const controller = new AbortController()
+      const timeout = setTimeout(() => controller.abort(), 30_000)
+      let res: Response
+      try {
+        res = await fetch(`${FUNCTIONS_URL}/sync-stripe`, {
+          method: 'POST',
+          signal: controller.signal,
+          headers: {
+            'Authorization': `Bearer ${freshSession.access_token}`,
+            'apikey': SUPABASE_ANON_KEY,
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ project_id: projectId, connection_id: connId }),
+        })
+      } finally {
+        clearTimeout(timeout)
+      }
+      const data = await res.json()
 
-      setLastSync(new Date().toLocaleString('es-ES'));
-      toast.success(`Sincronización completada: ${data?.transactionsCount || 0} transacciones`);
-    } catch (_error) {
-      toast.error('Error en sincronización: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      if (!res.ok) throw new Error(data?.reason ?? data?.message ?? `HTTP ${res.status}`)
+      if (!data?.ok) {
+        toast.error(`Error en sync: ${data?.reason ?? 'desconocido'}`)
+        return
+      }
+
+      setLastSync(new Date().toLocaleString('es-ES'))
+      setSyncResult(data as SyncResult)
+      setHasPriorSync(true)  // I15.65: oculta el tutorial post-conexión tras primer sync exitoso
+      // Invalidar query de sync_runs para que SyncHealthCard muestre el run recién completado
+      void queryClient.invalidateQueries({ queryKey: ['sync_runs', connectionId] })
+      // mrr viene en CENTAVOS — dividir por 100 para mostrar en euros
+      const mrrEuros = data.mrr != null ? (data.mrr / 100).toFixed(2) : '0.00'
+      toast.success(`Sync completado — ${data.entities_synced} suscripciones, MRR €${mrrEuros}`)
+      // I15.78 — Finance Agent: analizar entidades post-sync y emitir insights
+      if (projectId && connId) {
+        void runFinanceAgent(projectId, connId).then((result) => {
+          if (result.insights_emitted > 0) {
+            // Invalidar para que FinanceInsightsCard recargue
+            void queryClient.invalidateQueries({ queryKey: ['finance_insights', projectId] })
+          }
+        }).catch((err) => {
+          // El Finance Agent falla silenciosamente — no interrumpe el flujo de sync
+          console.warn('Finance Agent error (non-blocking):', err)
+        })
+      }
+    } catch (err) {
+      toast.error('Error en sincronización: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
-      setIsSyncing(false);
+      setIsSyncing(false)
     }
-  };
-
-  const handleDisconnect = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('financial_integrations')
-        .update({ is_active: false })
-        .eq('provider', 'stripe');
-
-      if (error) throw error;
-
-      setIsConnected(false);
-      toast.success('Stripe desconectado');
-    } catch (_error) {
-      toast.error('Error al desconectar');
-    } finally {
-      setIsLoading(false);
-    }
-  };
+  }
 
   return (
     <div className="space-y-6">
+      {/* SyncBanner — visible tras sync exitoso */}
+      {syncResult?.post_engine_snapshot && (
+        <SyncBanner
+          pre={syncResult.pre_engine_snapshot}
+          post={syncResult.post_engine_snapshot}
+          onDismiss={() => setSyncResult(null)}
+        />
+      )}
+
       {/* Connection Status */}
       <Card>
         <CardHeader>
@@ -101,12 +238,16 @@ export function StripeIntegration() {
             <div>
               <CardTitle className="flex items-center gap-2">
                 <svg className="w-6 h-6" viewBox="0 0 24 24" fill="none">
-                  <path d="M2 10h20M2 10v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9M2 10V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5" stroke="#635BFF" strokeWidth="2"/>
+                  <path
+                    d="M2 10h20M2 10v9a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-9M2 10V5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5"
+                    stroke="#635BFF"
+                    strokeWidth="2"
+                  />
                 </svg>
                 Stripe
               </CardTitle>
               <CardDescription>
-                Sincroniza automáticamente tus transacciones de Stripe
+                Importa suscripciones activas para calcular MRR automáticamente
               </CardDescription>
             </div>
             {isConnected ? (
@@ -125,6 +266,15 @@ export function StripeIntegration() {
         <CardContent className="space-y-4">
           {!isConnected ? (
             <>
+              {/* I15.66 — Reconexión: alerta cuando hay conexión previa en estado error */}
+              {connectionError && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>
+                    <strong>Conexión interrumpida.</strong> {connectionError}
+                  </AlertDescription>
+                </Alert>
+              )}
               <Alert>
                 <AlertDescription>
                   <strong>Nota:</strong> Necesitas una API Key de Stripe. La encuentras en{' '}
@@ -141,7 +291,10 @@ export function StripeIntegration() {
               </Alert>
 
               <div className="space-y-2">
-                <Label htmlFor="stripe-key">Secret Key (sk_...)</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="stripe-key">Secret Key (sk_...)</Label>
+                  <ApiKeyGuide provider="stripe" />
+                </div>
                 <Input
                   id="stripe-key"
                   type="password"
@@ -151,13 +304,13 @@ export function StripeIntegration() {
                   disabled={isLoading}
                 />
                 <p className="text-xs text-muted-foreground">
-                  Tu API Key se guarda encriptada y nunca se comparte.
+                  Tu API Key se cifra con AES-256 y nunca se expone al cliente.
                 </p>
               </div>
 
               <Button
                 onClick={handleConnect}
-                disabled={isLoading || !apiKey}
+                disabled={isLoading || !apiKey || !projectId}
                 className="w-full"
               >
                 {isLoading ? (
@@ -165,6 +318,8 @@ export function StripeIntegration() {
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     Conectando...
                   </>
+                ) : connectionError ? (
+                  'Reconectar Stripe'
                 ) : (
                   'Conectar Stripe'
                 )}
@@ -174,10 +329,10 @@ export function StripeIntegration() {
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                 <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-                  ✓ Integración activa
+                  Integración activa
                 </p>
                 <p className="text-xs text-muted-foreground">
-                  Las transacciones se sincronizan automáticamente cada hora.
+                  Las suscripciones se sincronizan manualmente o al actualizar la página.
                 </p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
@@ -186,85 +341,146 @@ export function StripeIntegration() {
                 )}
               </div>
 
-              <div className="flex gap-2">
-                <Button
-                  onClick={handleSync}
-                  disabled={isSyncing}
-                  variant="outline"
-                  className="flex-1"
-                >
-                  {isSyncing ? (
-                    <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sincronizando...
-                    </>
-                  ) : (
-                    <>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Sincronizar Ahora
-                    </>
-                  )}
-                </Button>
-
-                <Button
-                  onClick={handleDisconnect}
-                  disabled={isLoading}
-                  variant="destructive"
-                >
-                  Desconectar
-                </Button>
-              </div>
+              <Button
+                onClick={() => handleSync()}
+                disabled={isSyncing}
+                variant="outline"
+                className="w-full"
+              >
+                {isSyncing ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Sincronizando...
+                  </>
+                ) : (
+                  <>
+                    <RefreshCw className="mr-2 h-4 w-4" />
+                    Sincronizar Ahora
+                  </>
+                )}
+              </Button>
             </div>
           )}
         </CardContent>
       </Card>
 
-      {/* What gets synced */}
+      {/* I15.65 — Tutorial post-conexión: solo si nunca ha habido sync (sesión ni DB) */}
+      {isConnected && !lastSync && !syncResult && !hasPriorSync && (
+        <Card className="border-indigo-500/20 bg-indigo-500/5">
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <CheckCircle2 size={15} className="text-green-500" />
+              Stripe conectado — qué pasará a continuación
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ol className="space-y-2.5 text-sm">
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
+                <div>
+                  <p className="font-medium">Pulsa "Sincronizar Ahora"</p>
+                  <p className="text-xs text-muted-foreground">Optimus pedirá a Stripe la lista de suscripciones con <span className="font-mono">status=active</span>.</p>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
+                <div>
+                  <p className="font-medium">MRR se escribe en <span className="font-mono text-xs">key_metrics</span></p>
+                  <p className="text-xs text-muted-foreground">El total de suscripciones activas (en centavos) se agrega y se guarda. Verás el número actualizado en tu Dashboard financiero.</p>
+                </div>
+              </li>
+              <li className="flex gap-3">
+                <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
+                <div>
+                  <p className="font-medium">Financial Engine recalcula</p>
+                  <p className="text-xs text-muted-foreground">Probability, fase y riesgo se recalculan con el MRR real. Si el MRR era 0 antes, verás la evaluación cambiar en el banner de resultados.</p>
+                </div>
+              </li>
+            </ol>
+            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/40">
+              Si no tienes suscripciones activas en Stripe, el MRR quedará en 0 — es el dato correcto, no un error.
+            </p>
+          </CardContent>
+        </Card>
+      )}
+
+      {/* Sync Health — I15.63 */}
+      {isConnected && (
+        <SyncHealthCard connectionId={connectionId} provider="stripe" />
+      )}
+
+      {/* Finance Agent insights — I15.78 */}
+      {isConnected && (
+        <FinanceInsightsCard projectId={projectId} />
+      )}
+
+      {/* I15.64 — Qué dato entra, qué módulo hidrata, qué cambia en Optimus */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">¿Qué se sincroniza?</CardTitle>
+          <CardTitle className="text-base">Qué entra · Dónde va · Qué cambia</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
+          <div className="space-y-0 divide-y divide-border/50">
+            {/* Fila 1 */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="font-medium text-sm">Pagos exitosos</p>
-                <p className="text-xs text-muted-foreground">
-                  Todos los charges con estado "succeeded"
-                </p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
+                <p className="font-medium">Suscripciones activas</p>
+                <p className="text-muted-foreground">status=active en Stripe</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Módulo en Optimus</p>
+                <p className="font-medium font-mono">key_metrics.mrr</p>
+                <p className="text-muted-foreground">suma de precios en centavos</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Efecto</p>
+                <p className="font-medium">Financial Engine</p>
+                <p className="text-muted-foreground">peso 15% en probability</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
+            {/* Fila 2 */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="font-medium text-sm">Suscripciones</p>
-                <p className="text-xs text-muted-foreground">
-                  Revenue recurrente de subscriptions activas
-                </p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
+                <p className="font-medium">Precio × 12</p>
+                <p className="text-muted-foreground">calculado al escribir</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Módulo en Optimus</p>
+                <p className="font-medium font-mono">key_metrics.arr</p>
+                <p className="text-muted-foreground">mrr × 12, automático</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Efecto</p>
+                <p className="font-medium">Dashboard financiero</p>
+                <p className="text-muted-foreground">ARR actualizado</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
+            {/* Fila 3 */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="font-medium text-sm">Metadatos de cliente</p>
-                <p className="text-xs text-muted-foreground">
-                  Email, nombre, país del cliente
-                </p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
+                <p className="font-medium">Núm. suscripciones</p>
+                <p className="text-muted-foreground">count de aceptadas</p>
               </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Fees de Stripe</p>
-                <p className="text-xs text-muted-foreground">
-                  Se calcula automáticamente el margen neto
-                </p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Módulo en Optimus</p>
+                <p className="font-medium font-mono">key_metrics.total_customers</p>
+                <p className="text-muted-foreground">clientes activos</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Efecto</p>
+                <p className="font-medium">Rankings · Team</p>
+                <p className="text-muted-foreground">base de clientes real</p>
               </div>
             </div>
           </div>
+          <p className="text-xs text-muted-foreground pt-2 border-t border-border/50">
+            No se sincronizan: historial de pagos, facturas sueltas, métodos de pago, clientes sin suscripción activa.
+          </p>
         </CardContent>
       </Card>
     </div>
-  );
+  )
 }

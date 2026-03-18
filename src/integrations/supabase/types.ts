@@ -2308,14 +2308,14 @@ export type Database = {
           archived: boolean | null
           created_at: string | null
           id: string
-          leida: boolean | null
           link: string | null
-          mensaje: string | null
+          message: string | null
           metadata: Json | null
           priority: string | null
+          read: boolean | null
           snoozed_until: string | null
-          tipo: string | null
-          titulo: string | null
+          title: string | null
+          type: string | null
           user_id: string
         }
         Insert: {
@@ -2324,14 +2324,14 @@ export type Database = {
           archived?: boolean | null
           created_at?: string | null
           id?: string
-          leida?: boolean | null
           link?: string | null
-          mensaje?: string | null
+          message?: string | null
           metadata?: Json | null
           priority?: string | null
+          read?: boolean | null
           snoozed_until?: string | null
-          tipo?: string | null
-          titulo?: string | null
+          title?: string | null
+          type?: string | null
           user_id: string
         }
         Update: {
@@ -2340,14 +2340,14 @@ export type Database = {
           archived?: boolean | null
           created_at?: string | null
           id?: string
-          leida?: boolean | null
           link?: string | null
-          mensaje?: string | null
+          message?: string | null
           metadata?: Json | null
           priority?: string | null
+          read?: boolean | null
           snoozed_until?: string | null
-          tipo?: string | null
-          titulo?: string | null
+          title?: string | null
+          type?: string | null
           user_id?: string
         }
         Relationships: [

@@ -156,8 +156,8 @@ export class OnboardingAnalytics {
   async getMetrics(): Promise<OnboardingMetrics> {
     const { data: projects } = await supabase
       .from('projects')
-      .select('metadata')
-      .not('metadata', 'is', null);
+      .select('onboarding_data')
+      .not('onboarding_data', 'is', null);
 
     if (!projects || projects.length === 0) {
       return {
@@ -182,7 +182,7 @@ export class OnboardingAnalytics {
     const sectionCompletions: Record<string, number> = {};
 
     projects.forEach(project => {
-      const metadata = project.metadata;
+      const metadata = project.onboarding_data as Record<string, unknown> | null;
 
       // Count starts
       if (metadata?.onboarding_type) {

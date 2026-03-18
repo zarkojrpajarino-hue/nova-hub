@@ -7,6 +7,7 @@
 
 const ALLOWED_ORIGINS = Deno.env.get('ALLOWED_ORIGINS')?.split(',') || [
   'http://localhost:5173',
+  'http://localhost:8080',
   'http://localhost:3000',
   'https://localhost:5173',
 ];
@@ -17,12 +18,14 @@ const ALLOWED_ORIGINS = Deno.env.get('ALLOWED_ORIGINS')?.split(',') || [
  * @returns HeadersInit with appropriate CORS headers
  */
 export function getCorsHeaders(origin: string | null): HeadersInit {
-  const isAllowed = origin && ALLOWED_ORIGINS.some(allowed =>
+  // Allow any localhost origin in development (any port)
+  const isLocalhost = origin ? /^https?:\/\/localhost(:\d+)?$/.test(origin) : false;
+  const isAllowed = isLocalhost || (origin != null && ALLOWED_ORIGINS.some(allowed =>
     origin === allowed || origin.endsWith(allowed.replace(/^https?:\/\//, ''))
-  );
+  ));
 
   return {
-    'Access-Control-Allow-Origin': isAllowed ? origin : ALLOWED_ORIGINS[0],
+    'Access-Control-Allow-Origin': isAllowed ? origin! : ALLOWED_ORIGINS[0],
     'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
     'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
     'Access-Control-Allow-Credentials': 'true',

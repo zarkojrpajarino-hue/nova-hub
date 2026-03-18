@@ -24,6 +24,7 @@ export interface Project {
   icon: string;
   color: string;
   created_at: string;
+  created_by: string | null;
 }
 
 export interface ProjectMember {
@@ -82,8 +83,11 @@ export function useProfiles() {
   return useQuery({
     queryKey: ['profiles'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return [] as Profile[];
+
       const { data, error } = await supabase
-        .from('members')
+        .from('profiles')
         .select('*')
         .order('nombre');
 
@@ -97,11 +101,14 @@ export function useProjects() {
   return useQuery({
     queryKey: ['projects'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return [] as Project[];
+
       const { data, error } = await supabase
         .from('projects')
         .select('*')
         .order('nombre');
-      
+
       if (error) throw error;
       return data as Project[];
     },

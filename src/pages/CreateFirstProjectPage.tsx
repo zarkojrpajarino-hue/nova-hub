@@ -13,6 +13,7 @@ import { Sparkles, Rocket, Building2, Loader2 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { trackProjectCreated } from '@/lib/analytics';
 
 export function CreateFirstProjectPage() {
   const navigate = useNavigate();
@@ -57,29 +58,7 @@ export function CreateFirstProjectPage() {
     setIsCreatingProject(true);
 
     try {
-      // Get current auth user
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast.error('No se pudo obtener el usuario autenticado');
-        setIsCreatingProject(false);
-        return;
-      }
-
-      // Get member ID from members table using auth_id
-      const { data: memberData, error: memberError } = await supabase
-        .from('members')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (memberError || !memberData) {
-        toast.error('No se pudo encontrar tu perfil de miembro');
-        setIsCreatingProject(false);
-        return;
-      }
-
-      // Create minimal project with creator, owner, and onboarding type
+      // Create minimal project with creator and onboarding type
       const onboardingType = typeMapping[typeParam] || 'generative';
 
       const { data: newProject, error } = await supabase
@@ -87,9 +66,8 @@ export function CreateFirstProjectPage() {
         .insert({
           nombre: 'Nuevo Proyecto',
           descripcion: 'Proyecto en configuración',
-          creator_id: memberData.id,
-          owner_id: memberData.id,
-          metadata: {
+          created_by: profile.id,
+          onboarding_data: {
             onboarding_type: onboardingType
           }
         })
@@ -99,6 +77,13 @@ export function CreateFirstProjectPage() {
       if (error) {
         throw error;
       }
+
+      // Add creator as project member
+      await supabase
+        .from('project_members')
+        .insert({ project_id: newProject.id, member_id: profile.id, is_lead: true });
+
+      trackProjectCreated({ project_id: newProject.id });
 
       // Navigate to standalone onboarding experience
       navigate(`/onboarding/${newProject.id}`);

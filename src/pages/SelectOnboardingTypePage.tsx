@@ -14,6 +14,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { trackProjectCreated } from '@/lib/analytics';
 
 export function SelectOnboardingTypePage() {
   const navigate = useNavigate();
@@ -87,25 +88,12 @@ export function SelectOnboardingTypePage() {
     setSelectedType(typeId);
 
     try {
-      // Get current auth user
-      const { data: { user } } = await supabase.auth.getUser();
-
-      if (!user) {
-        toast.error('No se pudo obtener el usuario autenticado');
+      // Verify token is valid with a server round-trip (forces refresh if expired)
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      if (userError || !currentUser) {
+        toast.error('Sesión expirada. Por favor, recarga la página e inicia sesión de nuevo.');
         setIsCreating(false);
-        return;
-      }
-
-      // Get member ID from members table using auth_id
-      const { data: memberData, error: memberError } = await supabase
-        .from('members')
-        .select('id')
-        .eq('auth_id', user.id)
-        .single();
-
-      if (memberError || !memberData) {
-        toast.error('No se pudo encontrar tu perfil de miembro');
-        setIsCreating(false);
+        setSelectedType(null);
         return;
       }
 
@@ -115,9 +103,8 @@ export function SelectOnboardingTypePage() {
         .insert({
           nombre: 'Nuevo Proyecto',
           descripcion: 'Proyecto en configuración',
-          creator_id: memberData.id,
-          owner_id: memberData.id,
-          metadata: {
+          created_by: profile.id,
+          onboarding_data: {
             onboarding_type: typeId
           }
         })
@@ -128,10 +115,18 @@ export function SelectOnboardingTypePage() {
         throw error;
       }
 
+      // Add creator as project member
+      await supabase
+        .from('project_members')
+        .insert({ project_id: newProject.id, member_id: profile.id, is_lead: true });
+
+      trackProjectCreated({ project_id: newProject.id });
+
       // Navigate directly to onboarding
       navigate(`/onboarding/${newProject.id}`);
 
-    } catch (_error) {
+    } catch (err) {
+      console.error('[SelectOnboardingTypePage] Error creating project:', err);
       toast.error('Error al crear el proyecto');
       setIsCreating(false);
       setSelectedType(null);

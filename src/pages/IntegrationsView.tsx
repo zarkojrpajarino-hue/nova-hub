@@ -13,8 +13,10 @@ import { SlackIntegration } from '@/components/integrations/SlackIntegration';
 import { StripeIntegration } from '@/components/integrations/StripeIntegration';
 import { HoldedIntegration } from '@/components/integrations/HoldedIntegration';
 import { AsanaIntegration } from '@/components/integrations/AsanaIntegration';
+import { HubSpotIntegration } from '@/components/integrations/HubSpotIntegration';
+import { GoogleCalendarIntegration } from '@/components/integrations/GoogleCalendarIntegration';
 import { IntegrationRecommendationsPanel } from '@/components/integrations/IntegrationRecommendationsPanel';
-import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare } from 'lucide-react';
+import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare, CalendarDays, Settings2 } from 'lucide-react';
 import { HelpWidget } from '@/components/ui/section-help';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -25,6 +27,8 @@ import { HowItWorks } from '@/components/ui/how-it-works';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { supabase } from '@/integrations/supabase/client';
 import { useIntegrationConnections, type IntegrationConnectionStatus } from '@/hooks/useIntegrationConnections';
+import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
+import { SourcePreferencesPanel } from '@/components/evidence/SourcePreferencesPanel';
 
 // Badge que refleja estado real de integration_connections (I15.58 + I15.60)
 // isLoading: muestra skeleton mientras la query de connections está cargando (evita falso "Disponible")
@@ -76,6 +80,14 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
   const { getStatus, isLoading, connections } = useIntegrationConnections(currentProject?.id);
   const hasAnyActive = !isLoading && Object.values(connections).some((c) => c.status === 'active');
 
+  // T17.27 — Sheet de preferencias de fuente
+  const [sourcePrefsOpen, setSourcePrefsOpen] = useState(false);
+  const activeProviders = new Set(
+    Object.entries(connections)
+      .filter(([, c]) => c.status === 'active')
+      .map(([provider]) => provider)
+  );
+
   // Controlled tab state — permite navegar desde IntegrationRecommendationsPanel (I15.74)
   const [activeTab, setActiveTab] = useState('slack');
 
@@ -112,13 +124,47 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         <BackButton onClick={goBack} />
       )}
 
-      {/* Header */}
-      <div>
-        <h1 className="text-3xl font-bold mb-2">Integraciones</h1>
-        <p className="text-muted-foreground">
-          Conecta Nova Hub con tus herramientas favoritas para automatizar tu flujo de trabajo
-        </p>
+      {/* Header — T17.27 */}
+      <div className="flex items-start justify-between gap-4">
+        <div>
+          <h1 className="text-3xl font-bold mb-2">Integraciones</h1>
+          <p className="text-muted-foreground">
+            Conecta Nova Hub con tus herramientas favoritas para automatizar tu flujo de trabajo
+          </p>
+        </div>
+        {hasAnyActive && !isDemoMode && (
+          <button
+            onClick={() => setSourcePrefsOpen(true)}
+            className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1 shrink-0"
+          >
+            <Settings2 size={14} />
+            Configurar fuentes
+          </button>
+        )}
       </div>
+
+      {/* T17.27 — Sheet de preferencias de fuente */}
+      <Sheet open={sourcePrefsOpen} onOpenChange={setSourcePrefsOpen}>
+        <SheetContent className="w-[420px] sm:max-w-[420px] overflow-y-auto">
+          <SheetHeader className="pb-4 border-b border-border">
+            <SheetTitle className="text-base">Configurar fuentes de datos</SheetTitle>
+            <p className="text-xs text-muted-foreground mt-1">
+              Ajusta qué fuentes usa el sistema de evidencia y con qué peso.
+              Solo se muestran las integraciones activas de este proyecto.
+            </p>
+          </SheetHeader>
+          <div className="pt-4">
+            {currentProject?.id ? (
+              <SourcePreferencesPanel
+                projectId={currentProject.id}
+                activeProviders={activeProviders}
+              />
+            ) : (
+              <p className="text-sm text-muted-foreground">Sin proyecto activo.</p>
+            )}
+          </div>
+        </SheetContent>
+      </Sheet>
 
       {/* I15.62 — Estado vacío: ninguna integración activa */}
       {!isLoading && !hasAnyActive && !isDemoMode && (
@@ -269,6 +315,46 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           </CardHeader>
         </Card>
 
+        {/* HubSpot Card */}
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                <TrendingUp className="w-7 h-7 text-orange-500" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-lg">HubSpot</CardTitle>
+                <div className="mt-1">
+                  <ConnectionBadge status={getStatus('hubspot')} isLoading={isLoading} />
+                </div>
+              </div>
+            </div>
+            <CardDescription>
+              Deals del CRM → <span className="font-mono text-xs">integration_entities</span> con <span className="font-mono text-xs">entity_type='deal'</span> → pipeline de ventas real sin entrada manual.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Google Calendar Card */}
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                <CalendarDays className="w-7 h-7 text-blue-500" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-lg">Google Calendar</CardTitle>
+                <div className="mt-1">
+                  <ConnectionBadge status={getStatus('google_calendar')} isLoading={isLoading} />
+                </div>
+              </div>
+            </div>
+            <CardDescription>
+              Reuniones del calendario → <span className="font-mono text-xs">integration_entities</span> con <span className="font-mono text-xs">entity_type='calendar_event'</span> → carga de reuniones visible sin entrada manual.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
         {/* Webhooks Card */}
         <Card className="hover-lift opacity-60 cursor-not-allowed">
           <CardHeader>
@@ -328,6 +414,14 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           <TabsTrigger value="asana" className="gap-2">
             <CheckSquare size={16} />
             Asana
+          </TabsTrigger>
+          <TabsTrigger value="hubspot" className="gap-2">
+            <TrendingUp size={16} />
+            HubSpot
+          </TabsTrigger>
+          <TabsTrigger value="google-calendar" className="gap-2">
+            <CalendarDays size={16} />
+            Google Calendar
           </TabsTrigger>
           <TabsTrigger value="webhooks" disabled>
             <Zap size={16} />
@@ -970,6 +1064,16 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         {/* Asana Tab — I15.94 */}
         <TabsContent value="asana" className="space-y-6">
           <AsanaIntegration projectId={currentProject?.id} />
+        </TabsContent>
+
+        {/* HubSpot Tab — I15.93 */}
+        <TabsContent value="hubspot" className="space-y-6">
+          <HubSpotIntegration projectId={currentProject?.id} />
+        </TabsContent>
+
+        {/* Google Calendar Tab — I15.97 */}
+        <TabsContent value="google-calendar" className="space-y-6">
+          <GoogleCalendarIntegration projectId={currentProject?.id} />
         </TabsContent>
 
         {/* Webhooks Tab (placeholder) */}

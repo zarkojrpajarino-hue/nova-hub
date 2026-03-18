@@ -67,7 +67,7 @@ function DeepSetupList() {
 
       const { data: project, error } = await supabase
         .from('projects')
-        .select('metadata, nombre')
+        .select('onboarding_data, nombre')
         .eq('id', projectId)
         .single();
 
@@ -76,18 +76,20 @@ function DeepSetupList() {
         return;
       }
 
-      if (!project?.metadata?.fast_start_completed) {
+      const od = project?.onboarding_data as Record<string, unknown> | null;
+
+      if (!od?.fast_start_completed) {
         toast.error('Please complete Fast Start first');
         navigate(`/onboarding/${projectId}`);
         return;
       }
 
-      const type = project.metadata.onboarding_type as OnboardingType;
-      const progress = project.metadata.onboarding_progress || 25;
+      const type = (od?.onboarding_type ?? 'idea') as OnboardingType;
+      const progress = (od?.onboarding_progress as number) || 25;
 
       setOnboardingType(type);
       setCurrentProgress(progress);
-      setSections(getDeepSetupSections(type, progress, project.metadata.completed_sections || []));
+      setSections(getDeepSetupSections(type, progress, (od?.completed_sections as string[]) || []));
       setLoading(false);
     };
 
@@ -501,14 +503,15 @@ function DeepSetupSection() {
 
       const { data: project } = await supabase
         .from('projects')
-        .select('metadata')
+        .select('onboarding_data')
         .eq('id', projectId)
         .single();
 
       if (project) {
+        const od = project.onboarding_data as Record<string, unknown> | null;
         setProjectData({
-          onboardingType: project.metadata.onboarding_type,
-          currentProgress: project.metadata.onboarding_progress || 25,
+          onboardingType: (od?.onboarding_type ?? 'idea') as OnboardingType,
+          currentProgress: (od?.onboarding_progress as number) || 25,
         });
       }
       setLoading(false);

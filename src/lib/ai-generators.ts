@@ -325,3 +325,9 @@ export async function regenerateArtifact(
     confidence_improvement: Math.round(contextQuality * 0.25),
   };
 }
+
+// Re-exports desde el módulo ai-generators/ (directorio)
+// El fichero ai-generators.ts tapa al directorio en resolución de módulos,
+// por lo que los imports de '@/lib/ai-generators' deben encontrar todo aquí.
+export { generateBusinessIdeas } from './ai-generators/businessIdeas';
+export type { BusinessIdea, GenerateBusinessIdeasInput } from './ai-generators/businessIdeas';

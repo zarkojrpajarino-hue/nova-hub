@@ -30,6 +30,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
+import { trackProjectCreated } from '@/lib/analytics';
 
 const ICONS = ['🚀', '💡', '🎯', '⚡', '🔥', '✨', '🌟', '💎', '🎨', '🏆', '📊', '💼'];
 const COLORS = [
@@ -109,6 +110,8 @@ export function CreateProjectDialog() {
         .single();
 
       if (projectError) throw projectError;
+
+      trackProjectCreated({ project_id: newProject.id });
 
       toast.success('¡Proyecto creado! Completando onboarding...');
 

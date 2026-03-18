@@ -6,6 +6,7 @@
  */
 
 import { createClient, SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { getCorsHeaders } from './cors-config.ts';
 
 export interface AuthResult {
   user: { id: string; email?: string };
@@ -16,14 +17,16 @@ export interface AuthResult {
 /**
  * Validates the Authorization header and returns authenticated user.
  * Throws a Response with 401 if auth fails.
+ * CORS headers are always included so the browser can read the error body.
  */
 export async function validateAuth(req: Request): Promise<AuthResult> {
   const authHeader = req.headers.get('Authorization');
+  const origin = req.headers.get('Origin');
 
   if (!authHeader) {
     throw new Response(
       JSON.stringify({ error: 'Authorization required' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 
@@ -41,7 +44,7 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   if (authError || !user) {
     throw new Response(
       JSON.stringify({ error: 'Invalid or expired token' }),
-      { status: 401, headers: { 'Content-Type': 'application/json' } }
+      { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     );
   }
 

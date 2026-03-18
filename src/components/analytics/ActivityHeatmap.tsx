@@ -169,7 +169,7 @@ export function ActivityHeatmap({ isDemoMode = false }: ActivityHeatmapProps = {
                     <p className="text-xs">
                       {format(day.date, 'dd MMM yyyy', { locale: es })}
                       <br />
-                      {day.count} actividades
+                      {day.count} evidencias registradas
                     </p>
                   </TooltipContent>
                 </Tooltip>

@@ -3,7 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import { leadService } from '@/services/LeadService';
-import { PIPELINE_STAGES } from '@/components/crm/LeadForm';
+import { PIPELINE_STAGES } from '@/components/crm/pipeline-stages';
 import type { DropResult } from '@hello-pangea/dnd';
 import type { Database } from '@/integrations/supabase/types';
 

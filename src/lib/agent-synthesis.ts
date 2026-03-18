@@ -19,6 +19,8 @@
  *   (pipeline vs cashflow) pueda contradecir a Finance Agent.
  */
 
+import type { EvidenceType, ProviderSlug } from '@/lib/evidence'
+
 export interface SynthesizedInsight {
   id:           string
   agent_type:   'finance' | 'execution' | 'sales' | 'team' | 'calendar'
@@ -31,6 +33,10 @@ export interface SynthesizedInsight {
   }
   confidence:   number
   generated_at: string
+  /** T17.17 — metadata de fiabilidad y evidencia (opcionales: compatibles con filas pre-FASE17) */
+  reliability_score?: number
+  evidence_type?:     EvidenceType
+  sources?:           Array<{ source: ProviderSlug; confidence: number; synced_at: string }>
 }
 
 export interface InsightConflict {
@@ -67,6 +73,35 @@ function priorityScore(insight: SynthesizedInsight): number {
   const agt  = AGENT_WEIGHT[insight.agent_type] ?? 1
   // severity domina, agente es desempate, confidence es sub-desempate
   return sev * 100 + agt * 10 + Math.round(insight.confidence * 9)
+}
+
+// ──────────────────────────────────────────────────────────────────────────────
+// T17.17 — severity downgrade para insights de baja fiabilidad
+// Si reliability_score < 0.4 → un nivel menos (critical→warning, etc.)
+// Evita que datos de mala calidad generen alarmas agresivas.
+// ──────────────────────────────────────────────────────────────────────────────
+
+type Severity = 'info' | 'attention' | 'warning' | 'critical'
+
+function downgradeSeverity(sev: Severity): Severity {
+  switch (sev) {
+    case 'critical':  return 'warning'
+    case 'warning':   return 'attention'
+    case 'attention': return 'info'
+    default:          return 'info'
+  }
+}
+
+function applyReliabilityDowngrade(insight: SynthesizedInsight): SynthesizedInsight {
+  const score = insight.reliability_score
+  if (score === undefined || score >= 0.4) return insight
+  return {
+    ...insight,
+    content: {
+      ...insight.content,
+      severity: downgradeSeverity(insight.content.severity),
+    },
+  }
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -111,7 +146,9 @@ export function synthesizeAgentContext(
   }
 
   const nonConflicting = insights.filter(i => !excludeIds.has(i.id))
-  return prioritizeInsights(nonConflicting).slice(0, maxInsights)
+  return prioritizeInsights(nonConflicting)
+    .slice(0, maxInsights)
+    .map(applyReliabilityDowngrade)
 }
 
 // ──────────────────────────────────────────────────────────────────────────────
@@ -215,10 +252,15 @@ export function detectConflicts(
 // ──────────────────────────────────────────────────────────────────────────────
 
 const RISK_DELTA: Record<string, Partial<Record<string, number>>> = {
-  cash_flow_signal:       { warning: 10, critical: 20 },
-  revenue_concentration:  { warning:  8, critical: 15 },
-  task_completion_rate:   { warning:  5, critical: 10 },
-  overdue_ratio:          { warning:  5, critical:  8 },
+  cash_flow_signal:          { warning: 10, critical: 20 },
+  revenue_concentration:     { warning:  8, critical: 15 },
+  task_completion_rate:      { warning:  5, critical: 10 },
+  overdue_ratio:             { warning:  5, critical:  8 },
+  pipeline_conversion_rate:  { warning:  7, critical: 12 },
+  meeting_load:              { warning:  4, critical:  8 },
+  meeting_density:           { warning:  4, critical:  7 },
+  // open_pipeline_value: no contribuye a riesgo — señal positiva
+  // meeting_load/meeting_density info: no contribuyen — señales neutras
 }
 
 export interface AgentRiskModifier {

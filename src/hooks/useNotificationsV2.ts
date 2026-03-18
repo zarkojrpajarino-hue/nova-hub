@@ -23,8 +23,10 @@ import type {
 import { isToday, isYesterday, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
 
+const PAGE_SIZE = 20;
+
 // Fetch notifications with filters
-export function useNotifications(filters?: NotificationFilters) {
+export function useNotifications(filters?: NotificationFilters, limit = PAGE_SIZE) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
 
@@ -74,7 +76,7 @@ export function useNotifications(filters?: NotificationFilters) {
   }, [profile?.id, queryClient]);
 
   return useQuery({
-    queryKey: ['notifications', profile?.id, filters],
+    queryKey: ['notifications', profile?.id, filters, limit],
     queryFn: async () => {
       if (!profile?.id) return [];
 
@@ -82,7 +84,9 @@ export function useNotifications(filters?: NotificationFilters) {
         .from('notifications')
         .select('*')
         .eq('user_id', profile.id)
-        .order('created_at', { ascending: false });
+        .eq('archived', false)
+        .order('created_at', { ascending: false })
+        .limit(limit);
 
       // Apply filters
       if (filters?.priority && filters.priority.length > 0) {
@@ -132,12 +136,13 @@ export function useUnreadNotificationsCount() {
     queryFn: async () => {
       if (!profile?.id) return 0;
 
+      // G9.1 fix: filter for unread + non-archived only
       const { count, error } = await supabase
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profile.id)
-        
-        ;
+        .eq('read', false)
+        .eq('archived', false);
 
       if (error) throw error;
 
@@ -232,9 +237,11 @@ export function useArchiveNotification() {
   });
 }
 
+export { PAGE_SIZE };
+
 // Group notifications by date
-export function useGroupedNotifications(filters?: NotificationFilters): NotificationGroup[] {
-  const { data: notifications = [] } = useNotifications(filters);
+export function useGroupedNotifications(filters?: NotificationFilters, limit = PAGE_SIZE): NotificationGroup[] {
+  const { data: notifications = [] } = useNotifications(filters, limit);
 
   const grouped: NotificationGroup[] = [];
   const today: Notification[] = [];

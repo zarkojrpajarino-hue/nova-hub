@@ -10,6 +10,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useCloseCycleForPivot } from '@/hooks/useNovaDataOptimized';
 
 interface StrategyEditorProps {
   projectId: string;
@@ -27,6 +28,8 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
+  const [showPivotPrompt, setShowPivotPrompt] = useState(false);
+  const { mutate: closeForPivot, isPending: isArchivingCycle } = useCloseCycleForPivot();
 
   const [form, setForm] = useState({
     segment: '',
@@ -137,11 +140,32 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
       toast.success('Estrategia guardada');
       queryClient.invalidateQueries({ queryKey: ['strategy', projectId] });
       queryClient.invalidateQueries({ queryKey: ['strategy_versions_count', projectId] });
+
+      // EC13.4: Detectar pivot total — los 3 pilares cambian desde una hipótesis completa
+      const wasFullHypothesis =
+        (current?.segment_text?.trim().length ?? 0) >= MIN_CHARS &&
+        (current?.problem_text?.trim().length ?? 0) >= MIN_CHARS &&
+        (current?.value_prop_text?.trim().length ?? 0) >= MIN_CHARS;
+      if (Object.keys(changedFields).length === 3 && wasFullHypothesis) {
+        setShowPivotPrompt(true);
+      }
     } catch {
       toast.error('Error al guardar la estrategia');
     } finally {
       setIsSaving(false);
     }
+  };
+
+  const handleArchiveCycle = () => {
+    closeForPivot(projectId, {
+      onSuccess: () => {
+        toast.success('Ciclo cerrado. El siguiente ciclo comienza con tu nuevo modelo.');
+        setShowPivotPrompt(false);
+      },
+      onError: () => {
+        toast.error('Error al cerrar el ciclo');
+      },
+    });
   };
 
   if (isLoading) {
@@ -250,6 +274,41 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
             Guardar estrategia
           </Button>
         </div>
+
+        {/* EC13.4 — Pivot total detectado: ofrecer archivar el ciclo actual */}
+        {showPivotPrompt && (
+          <div className="mt-1 p-4 bg-warning/10 border border-warning/30 rounded-xl space-y-3">
+            <div className="flex items-start gap-2">
+              <GitBranch className="w-4 h-4 text-warning mt-0.5 shrink-0" />
+              <div>
+                <p className="text-sm font-semibold">Pivot completo detectado</p>
+                <p className="text-xs text-muted-foreground mt-1">
+                  Has cambiado los tres pilares de tu modelo de negocio. El ciclo estratégico
+                  actual se construyó sobre la hipótesis anterior. ¿Quieres cerrarlo y comenzar
+                  uno nuevo desde este modelo?
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-2">
+              <Button
+                size="sm"
+                variant="outline"
+                onClick={() => setShowPivotPrompt(false)}
+                disabled={isArchivingCycle}
+              >
+                Mantener ciclo
+              </Button>
+              <Button
+                size="sm"
+                onClick={handleArchiveCycle}
+                disabled={isArchivingCycle}
+              >
+                {isArchivingCycle && <Loader2 className="w-3 h-3 mr-1 animate-spin" />}
+                Cerrar ciclo actual
+              </Button>
+            </div>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

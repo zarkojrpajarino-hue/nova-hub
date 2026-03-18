@@ -38,8 +38,8 @@ export function OnboardingPage() {
   }, [projectId]);
 
   const handleComplete = () => {
-    // Al completar, redirigir al dashboard del proyecto
-    navigate(`/proyecto/${projectId}`);
+    // Al completar, pasar por primer-inicio antes del dashboard (O5.9)
+    navigate(`/proyecto/${projectId}/primer-inicio`);
   };
 
   if (loading) {

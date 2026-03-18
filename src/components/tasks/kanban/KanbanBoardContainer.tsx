@@ -35,9 +35,10 @@ interface Member {
 interface KanbanBoardContainerProps {
   projectId: string;
   projectMembers: Member[];
+  currentPhase?: number  // F19.B.5: para phase-relevant sorting en columna 'todo'
 }
 
-export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardContainerProps) {
+export function KanbanBoardContainer({ projectId, projectMembers, currentPhase = 1 }: KanbanBoardContainerProps) {
   const {
     tasks,
     isLoading,
@@ -138,6 +139,7 @@ export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardC
                 onCompleteClick={handleCompleteClick}
                 onPlaybookClick={setSelectedTaskForPlaybook}
                 onDeleteClick={setTaskToDelete}
+                currentPhase={currentPhase}
               />
             );
           })}
@@ -180,13 +182,16 @@ export function KanbanBoardContainer({ projectId, projectMembers }: KanbanBoardC
           open={!!taskToComplete}
           onOpenChange={(open) => !open && setTaskToComplete(null)}
           task={{
-            id: taskToComplete.id,
-            titulo: taskToComplete.titulo,
-            descripcion: taskToComplete.descripcion,
-            playbook: taskToComplete.playbook as Json,
-            metadata: taskToComplete.metadata as Json,
+            id:            taskToComplete.id,
+            titulo:        taskToComplete.titulo,
+            descripcion:   taskToComplete.descripcion,
+            playbook:      taskToComplete.playbook as Json,
+            metadata:      taskToComplete.metadata as Json,
             function_type: taskToComplete.function_type,
+            prioridad:     taskToComplete.prioridad,
+            assignee_id:   taskToComplete.assignee_id,
           }}
+          projectId={projectId}
           onComplete={handleTaskComplete}
         />
       )}

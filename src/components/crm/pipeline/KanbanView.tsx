@@ -1,7 +1,7 @@
 import { memo } from 'react';
 import { Plus, Calendar } from 'lucide-react';
 import { DragDropContext, Droppable, Draggable, DropResult } from '@hello-pangea/dnd';
-import { PIPELINE_STAGES } from '../LeadForm';
+import { PIPELINE_STAGES } from '../pipeline-stages';
 import { cn } from '@/lib/utils';
 import type { Lead } from '@/hooks/useCRMPipeline';
 

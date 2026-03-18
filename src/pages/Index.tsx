@@ -16,6 +16,8 @@ import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigationHistory } from '@/hooks/useNavigationHistory';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
+import { usePhaseTransitionNotification } from '@/hooks/usePhaseTransitionNotification';
+import { PhaseTransitionModal } from '@/components/nova/PhaseTransitionModal';
 
 // Lazy load views for better code splitting
 const DashboardView = lazy(() => import('./views/DashboardView').then(m => ({ default: m.DashboardView })));
@@ -38,10 +40,9 @@ const IntegrationsView = lazy(() => import('./IntegrationsView'));
 const ExplorationDashboard = lazy(() => import('./views/ExplorationDashboard').then(m => ({ default: m.ExplorationDashboard })));
 const TeamPerformanceDashboard = lazy(() => import('./views/TeamPerformanceDashboard').then(m => ({ default: m.TeamPerformanceDashboard })));
 const PathToMasterPage = lazy(() => import('./PathToMasterPage').then(m => ({ default: m.PathToMasterPage })));
-const GenerativeOnboardingView = lazy(() => import('./views/GenerativeOnboardingView').then(m => ({ default: m.GenerativeOnboardingView })));
-const UltraOnboardingView = lazy(() => import('./views/UltraOnboardingView').then(m => ({ default: m.UltraOnboardingView })));
 const MeetingIntelligencePage = lazy(() => import('./MeetingIntelligencePage'));
 const StartupOSView = lazy(() => import('./views/StartupOSView').then(m => ({ default: m.StartupOSView })));
+const MiModeloView = lazy(() => import('./views/MiModeloView').then(m => ({ default: m.MiModeloView })));
 
 function IndexContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -55,6 +56,9 @@ function IndexContent() {
   const { currentProject } = useCurrentProject();
 
   const currentView = navCurrentView.view;
+
+  // Phase transition feedback — detects upward phase/score changes via React Query cache
+  const { phaseModal, closePhaseModal } = usePhaseTransitionNotification(projectId);
 
   // Sincronizar el proyecto actual con el projectId de la URL
   useEffect(() => {
@@ -216,13 +220,12 @@ function IndexContent() {
               <Route path="mi-espacio" element={<MiEspacioView onNewOBV={handleNewOBV} />} />
               <Route path="mi-desarrollo" element={<MiDesarrolloView />} />
               <Route path="proyectos" element={<ProjectsView onNewOBV={handleNewOBV} />} />
-              <Route path="generative-onboarding" element={<GenerativeOnboardingView />} />
-              <Route path="ultra-onboarding" element={<UltraOnboardingView />} />
               <Route path="validaciones" element={<ValidacionesView onNewOBV={handleNewOBV} />} />
               <Route path="obvs" element={<OBVCenterView onNewOBV={handleNewOBV} />} />
               <Route path="crm" element={<CRMView onNewOBV={handleNewOBV} />} />
               <Route path="financiero" element={<FinancieroView onNewOBV={handleNewOBV} />} />
               <Route path="meetings" element={<MeetingIntelligencePage />} />
+              <Route path="mi-modelo" element={<MiModeloView />} />
               <Route path="startup-os" element={<StartupOSView />} />
               <Route path="exploration" element={<ExplorationDashboard />} />
               <Route path="path-to-master" element={<PathToMasterPage />} />
@@ -249,6 +252,9 @@ function IndexContent() {
             onComplete={completeOnboarding}
           />
         )}
+
+        {/* Phase transition celebration modal */}
+        <PhaseTransitionModal state={phaseModal} onClose={closePhaseModal} />
       </div>
     </NavigationProvider>
   );

@@ -15,8 +15,8 @@ import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, Noti
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 
-const getNotificationIcon = (tipo: string | null) => {
-  switch (tipo) {
+const getNotificationIcon = (type: string | null) => {
+  switch (type) {
     case 'obv_nueva':
       return <FileCheck size={16} className="text-primary" />;
     case 'obv_aprobada':
@@ -41,7 +41,7 @@ export function NotificationDropdown() {
 
   const handleNotificationClick = (notification: Notification) => {
     // Mark as read
-    if (!notification.leida) {
+    if (!notification.read) {
       markAsRead.mutate(notification.id);
     }
 
@@ -101,22 +101,22 @@ export function NotificationDropdown() {
                 key={notification.id}
                 className={cn(
                   "flex items-start gap-3 p-3 cursor-pointer",
-                  !notification.leida && "bg-accent/50"
+                  !notification.read && "bg-accent/50"
                 )}
                 onClick={() => handleNotificationClick(notification)}
               >
                 <div className="flex-shrink-0 mt-0.5">
-                  {getNotificationIcon(notification.tipo)}
+                  {getNotificationIcon(notification.type)}
                 </div>
                 <div className="flex-1 min-w-0">
                   <p className={cn(
                     "text-sm truncate",
-                    !notification.leida && "font-medium"
+                    !notification.read && "font-medium"
                   )}>
-                    {notification.titulo}
+                    {notification.title}
                   </p>
                   <p className="text-xs text-muted-foreground line-clamp-2">
-                    {notification.mensaje}
+                    {notification.message}
                   </p>
                   <p className="text-xs text-muted-foreground mt-1">
                     {notification.created_at && formatDistanceToNow(new Date(notification.created_at), {

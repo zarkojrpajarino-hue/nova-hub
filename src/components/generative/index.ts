@@ -5,6 +5,5 @@
  * relacionados con Generative Onboarding
  */
 
-export { GenerativeOnboardingWizard } from './GenerativeOnboardingWizard';
 export { BrandingPreviewSelector } from './BrandingPreviewSelector';
 export { GeneratedBusinessDashboard } from './GeneratedBusinessDashboard';

@@ -6,11 +6,11 @@ import { useAuth } from './useAuth';
 export interface Notification {
   id: string;
   user_id: string;
-  titulo: string | null;
-  mensaje: string | null;
-  tipo: string | null;
+  title: string | null;
+  message: string | null;
+  type: string | null;
   link: string | null;
-  leida: boolean | null;
+  read: boolean | null;
   created_at: string | null;
 }
 
@@ -85,7 +85,7 @@ export function useUnreadCount() {
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', profileId)
-        .eq('leida', false);
+        .eq('read', false);
 
       if (error) throw error;
       return count || 0;
@@ -103,7 +103,7 @@ export function useMarkAsRead() {
     mutationFn: async (notificationId: string) => {
       const { error } = await supabase
         .from('notifications')
-        .update({ leida: true })
+        .update({ read: true })
         .eq('id', notificationId);
 
       if (error) throw error;
@@ -126,9 +126,9 @@ export function useMarkAllAsRead() {
 
       const { error } = await supabase
         .from('notifications')
-        .update({ leida: true })
+        .update({ read: true })
         .eq('user_id', profileId)
-        .eq('leida', false);
+        .eq('read', false);
 
       if (error) throw error;
     },

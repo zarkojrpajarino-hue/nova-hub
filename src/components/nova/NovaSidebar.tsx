@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import {
   LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet,
-  BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target
+  BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target, Layers
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -44,18 +44,11 @@ const coreItems: NavItem[] = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', route: '' }, // ruta vacía = base del proyecto
   { id: 'mi-espacio', icon: User, label: 'Mi Espacio', route: 'mi-espacio' },
   { id: 'mi-desarrollo', icon: TrendingUp, label: 'Mi Desarrollo', route: 'mi-desarrollo' },
+  { id: 'mi-modelo', icon: Layers, label: 'Mi Modelo', route: 'mi-modelo' },
 ];
 
 const createValidateItems: NavItem[] = [
   { id: 'proyectos', icon: FolderKanban, label: 'Proyectos', route: 'proyectos' },
-  {
-    id: 'generative-onboarding',
-    icon: Sparkles,
-    label: 'Generative Onboarding',
-    route: 'generative-onboarding',
-    requiredFeature: 'ai_role_generation',
-    requiredPlan: 'starter'
-  },
   { id: 'validaciones', icon: Shield, label: 'Validaciones', route: 'validaciones' },
   { id: 'obvs', icon: FileCheck, label: 'Centro OBVs', route: 'obvs' },
 ];

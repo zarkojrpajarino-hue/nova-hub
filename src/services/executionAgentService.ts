@@ -140,6 +140,11 @@ export async function runExecutionAgent(
       expires_at:         expiresAt.toISOString(),
       include_in_context: insight.include_in_context,
       status:             'pending',
+      // T17.15 — metadata de evidencia
+      evidence_type:        insight.evidence_type,
+      sources_used:         insight.sources_used,
+      sources_discarded:    insight.sources_discarded,
+      low_evidence_quality: insight.confidence < 0.5 && insight.entity_ids.length === 0,
     }
   })
 
@@ -161,7 +166,7 @@ export async function getActiveExecutionInsights(projectId: string) {
   const now = new Date().toISOString()
   const { data, error } = await supabase
     .from('integration_insights')
-    .select('id, insight_type, payload, confidence, generated_at, expires_at')
+    .select('id, insight_type, payload, confidence, generated_at, expires_at, evidence_type, sources_used, sources_discarded')
     .eq('project_id', projectId)
     .eq('agent_type', 'execution')
     .gt('expires_at', now)

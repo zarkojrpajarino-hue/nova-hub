@@ -15,6 +15,7 @@ import { KanbanBoardContainer } from './kanban/KanbanBoardContainer';
 interface KanbanBoardProps {
   projectId: string;
   projectMembers: Array<{ id: string; nombre: string; color: string }>;
+  currentPhase?: number
 }
 
 export function KanbanBoard(props: KanbanBoardProps) {

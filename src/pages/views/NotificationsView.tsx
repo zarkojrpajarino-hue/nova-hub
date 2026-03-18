@@ -18,8 +18,8 @@ interface NotificationsViewProps {
   onNavigate: (view: string) => void;
 }
 
-const getNotificationIcon = (tipo: string | null) => {
-  switch (tipo) {
+const getNotificationIcon = (type: string | null) => {
+  switch (type) {
     case 'obv_nueva':
       return <FileCheck size={20} className="text-primary" />;
     case 'obv_aprobada':
@@ -35,8 +35,8 @@ const getNotificationIcon = (tipo: string | null) => {
   }
 };
 
-const getNotificationColor = (tipo: string | null) => {
-  switch (tipo) {
+const getNotificationColor = (type: string | null) => {
+  switch (type) {
     case 'obv_nueva':
       return 'border-l-primary';
     case 'obv_aprobada':
@@ -62,19 +62,19 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
   // Transform demo notifications to match the expected format
   const demoNotificationsFormatted = DEMO_NOTIFICATIONS.map(n => ({
     id: n.id,
-    tipo: n.tipo,
-    titulo: n.titulo,
-    mensaje: n.mensaje,
-    leida: n.leida,
+    type: n.type,
+    title: n.title,
+    message: n.message,
+    read: n.read,
     created_at: n.fecha,
-    link: n.tipo === 'obv_nueva' ? '/obvs' : n.tipo === 'tarea_asignada' ? '/mi-espacio' : null,
+    link: n.type === 'obv_nueva' ? '/obvs' : n.type === 'tarea_asignada' ? '/mi-espacio' : null,
     user_id: '1',
   }));
 
   const notifications = isDemoMode ? demoNotificationsFormatted : realNotifications;
 
   const handleNotificationClick = (notification: Notification | typeof demoNotificationsFormatted[0]) => {
-    if (!notification.leida && !isDemoMode) {
+    if (!notification.read && !isDemoMode) {
       markAsRead.mutate(notification.id);
     }
     
@@ -84,7 +84,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
     }
   };
 
-  const unreadCount = notifications.filter(n => !n.leida).length;
+  const unreadCount = notifications.filter(n => !n.read).length;
 
   // Group notifications by date
   const groupedNotifications = notifications.reduce((groups, notification) => {
@@ -216,22 +216,22 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                       key={notification.id}
                       className={cn(
                         "p-4 border-l-4 cursor-pointer transition-all hover:shadow-md",
-                        getNotificationColor(notification.tipo),
-                        !notification.leida && "bg-accent/30"
+                        getNotificationColor(notification.type),
+                        !notification.read && "bg-accent/30"
                       )}
                       onClick={() => handleNotificationClick(notification)}
                     >
                       <div className="flex items-start gap-4">
                         <div className="flex-shrink-0 w-10 h-10 rounded-full bg-muted flex items-center justify-center">
-                          {getNotificationIcon(notification.tipo)}
+                          {getNotificationIcon(notification.type)}
                         </div>
                         <div className="flex-1 min-w-0">
                           <div className="flex items-start justify-between gap-2">
                             <h4 className={cn(
                               "text-sm",
-                              !notification.leida && "font-semibold"
+                              !notification.read && "font-semibold"
                             )}>
-                              {notification.titulo}
+                              {notification.title}
                             </h4>
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
                               {notification.created_at && formatDistanceToNow(new Date(notification.created_at), {
@@ -241,7 +241,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                             </span>
                           </div>
                           <p className="text-sm text-muted-foreground mt-1">
-                            {notification.mensaje}
+                            {notification.message}
                           </p>
                           {notification.link && (
                             <div className="flex items-center gap-1 mt-2 text-xs text-primary">
@@ -250,7 +250,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                             </div>
                           )}
                         </div>
-                        {!notification.leida && (
+                        {!notification.read && (
                           <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />
                         )}
                       </div>

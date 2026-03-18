@@ -15,7 +15,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
-import { PIPELINE_STAGES } from './LeadForm';
+import { PIPELINE_STAGES } from './pipeline-stages';
 import type { Database } from '@/integrations/supabase/types';
 
 interface Lead {

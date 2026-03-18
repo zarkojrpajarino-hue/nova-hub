@@ -37,6 +37,7 @@ interface TaskCardProps {
   dragHandleProps: DraggableProvidedDragHandleProps | null;
   draggableProps: DraggableProvidedDraggableProps;
   innerRef: (element: HTMLElement | null) => void;
+  isHighRelevance?: boolean  // F19.B.5: punto de color si relevance=3 para la fase
 }
 
 export const TaskCard = memo(function TaskCard({
@@ -52,6 +53,7 @@ export const TaskCard = memo(function TaskCard({
   dragHandleProps,
   draggableProps,
   innerRef,
+  isHighRelevance = false,
 }: TaskCardProps) {
   const isOverdue = task.fecha_limite &&
     new Date(task.fecha_limite) < new Date() &&
@@ -98,9 +100,13 @@ export const TaskCard = memo(function TaskCard({
           )}
         </button>
         <p className={cn(
-          "font-medium text-sm",
+          "font-medium text-sm flex items-center gap-1.5",
           task.status === 'done' && "line-through text-muted-foreground"
         )}>
+          {/* F19.B.5 — punto de color para tareas de alta relevancia en la fase actual */}
+          {isHighRelevance && (
+            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" title="Alta relevancia para tu fase actual" />
+          )}
           {task.titulo}
         </p>
       </div>

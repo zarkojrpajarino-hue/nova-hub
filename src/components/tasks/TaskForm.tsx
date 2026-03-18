@@ -52,6 +52,12 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       return;
     }
 
+    // C3.6 — leader ≠ executor
+    if (formData.leaderId && formData.assigneeId && formData.leaderId === formData.assigneeId) {
+      toast.error('El responsable y el ejecutor no pueden ser la misma persona');
+      return;
+    }
+
     setIsSubmitting(true);
 
     try {
@@ -196,7 +202,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
                     <TooltipContent side="top" className="max-w-52">
                       <p className="text-xs">
                         Quien responde por el resultado final, aunque no lo ejecute.
-                        Puede coincidir con el ejecutor. Opcional.
+                        Debe ser distinto al ejecutor. Opcional.
                       </p>
                     </TooltipContent>
                   </Tooltip>

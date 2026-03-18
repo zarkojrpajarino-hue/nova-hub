@@ -5,6 +5,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useAuth } from "@/hooks/useAuth";
+import { AuthProvider } from "@/contexts/AuthContext";
 import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { CurrentProjectProvider } from "@/contexts/CurrentProjectContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -19,6 +20,7 @@ const SelectProjectPage = lazy(() => import("./pages/SelectProjectPage").then(m 
 const SelectOnboardingTypePage = lazy(() => import("./pages/SelectOnboardingTypePage").then(m => ({ default: m.SelectOnboardingTypePage })));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage").then(m => ({ default: m.OnboardingPage })));
 const DeepSetupPage = lazy(() => import("./pages/DeepSetupPage").then(m => ({ default: m.DeepSetupPage })));
+const PrimerInicioPage = lazy(() => import("./pages/PrimerInicioPage").then(m => ({ default: m.PrimerInicioPage })));
 const EvidenceTestPage = lazy(() => import("./pages/EvidenceTestPage"));
 
 // ✨ OPTIMIZADO: Configuración de React Query mejorada
@@ -61,6 +63,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
+    console.log('[ProtectedRoute] REDIRECT → loading was false, no session');
     return <Navigate to="/auth" replace />;
   }
 
@@ -69,6 +72,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
 const App = () => (
   <ErrorBoundary>
+    <AuthProvider>
     <QueryClientProvider client={queryClient}>
       <DemoModeProvider>
         <CurrentProjectProvider>
@@ -134,6 +138,16 @@ const App = () => (
                     }
                   />
 
+                  {/* Primer Inicio standalone - Activación post-onboarding (O5.9) */}
+                  <Route
+                    path="/proyecto/:projectId/primer-inicio"
+                    element={
+                      <ProtectedRoute>
+                        <PrimerInicioPage />
+                      </ProtectedRoute>
+                    }
+                  />
+
                   {/* Rutas del proyecto - TODAS las vistas van aquí */}
                   <Route
                     path="/proyecto/:projectId/*"
@@ -163,6 +177,7 @@ const App = () => (
       </CurrentProjectProvider>
     </DemoModeProvider>
   </QueryClientProvider>
+  </AuthProvider>
 </ErrorBoundary>
 );
 

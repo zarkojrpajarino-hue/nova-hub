@@ -1,6 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
+import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjects, useProjectMembers, useMemberStats, usePipelineGlobal } from '@/hooks/useNovaData';
+import { useProjectMembers, useMemberStats, usePipelineGlobal } from '@/hooks/useNovaData';
+import { useProjects } from '@/hooks/useNovaDataOptimized';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
@@ -64,6 +66,7 @@ const initialFormData: OBVFormData = {
  */
 export function useOBVFormLogic(onSuccess: () => void) {
   const { profile } = useAuth();
+  const queryClient = useQueryClient();
   const { data: projects = [] } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
   const { data: members = [] } = useMemberStats();
@@ -132,7 +135,7 @@ export function useOBVFormLogic(onSuccess: () => void) {
           return !!formData.producto && formData.facturacion > 0;
         }
         return true;
-      case 6: return true;
+      case 6: return !!formData.obvOutcome;
       default: return true;
     }
   }, [step, formData, isVenta]);
@@ -254,6 +257,10 @@ export function useOBVFormLogic(onSuccess: () => void) {
 
         if (partError) throw partError;
       }
+
+      // Invalidate engine cache so phase panels reflect the new OBV immediately
+      queryClient.invalidateQueries({ queryKey: ['project-engine', formData.projectId] });
+      queryClient.invalidateQueries({ queryKey: ['my_obvs', profile?.id] });
 
       toast.success('OBV creada correctamente');
       onSuccess();

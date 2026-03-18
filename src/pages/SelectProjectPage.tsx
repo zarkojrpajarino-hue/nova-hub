@@ -17,7 +17,7 @@ import { es } from 'date-fns/locale';
 
 export function SelectProjectPage() {
   const navigate = useNavigate();
-  const { userProjects, setCurrentProject } = useCurrentProject();
+  const { userProjects, isLoading, setCurrentProject } = useCurrentProject();
 
   const handleSelectProject = (project: Record<string, unknown> & { id: string }) => {
     setCurrentProject(project);
@@ -28,9 +28,17 @@ export function SelectProjectPage() {
     navigate('/select-onboarding-type');
   };
 
+  // Wait for projects to load before deciding to redirect
+  if (isLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 animate-spin rounded-full border-b-2 border-primary" />
+      </div>
+    );
+  }
+
   if (userProjects.length === 0) {
-    // Si no tiene proyectos, redirigir a crear primero
-    navigate('/create-first-project');
+    navigate('/select-onboarding-type');
     return null;
   }
 

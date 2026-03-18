@@ -50,9 +50,6 @@ vi.mock('@/components/project/ProjectOBVsTab', () => ({
 vi.mock('@/components/project/ProjectFinancialTab', () => ({
   ProjectFinancialTab: () => <div data-testid="project-financial-tab">Financial</div>,
 }));
-vi.mock('@/components/project/ProjectOnboardingTab', () => ({
-  ProjectOnboardingTab: () => <div data-testid="project-onboarding-tab">Onboarding</div>,
-}));
 vi.mock('@/components/project/ProjectHelpMenu', () => ({
   ProjectHelpMenu: () => null,
 }));

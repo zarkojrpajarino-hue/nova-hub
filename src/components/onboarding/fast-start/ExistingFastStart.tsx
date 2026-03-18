@@ -24,36 +24,33 @@ import {
   CheckCircle2,
   Sparkles,
   FileText,
-  DollarSign,
-  Users,
   Database,
   Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateAllArtifacts } from '@/lib/ai-generators';
+import type { FaseAAnswers } from './FaseACommon';
 
 interface ExistingFastStartProps {
   projectId: string;
+  faseAAnswers: FaseAAnswers;
   onComplete: (data: Record<string, unknown>) => void;
 }
 
-export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartProps) {
+export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: ExistingFastStartProps) {
   const [isGenerating, setIsGenerating] = useState(false);
   const [showDataIntegration, setShowDataIntegration] = useState(false);
   const [formData, setFormData] = useState({
     project_name: '',
     business_description: '',
-    mrr: '',
-    customers: '',
     use_data_integration: false,
   });
 
+  // MRR y clientes vienen de Fase A (Q2-Q3)
   const canGenerate = () => {
-    // Project name, description, and at least one metric (MRR or customers) are required
     return (
       formData.project_name.trim().length >= 3 &&
-      formData.business_description.trim().length >= 30 &&
-      (formData.mrr || formData.customers)
+      formData.business_description.trim().length >= 30
     );
   };
 
@@ -63,11 +60,20 @@ export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartPr
     setIsGenerating(true);
 
     try {
-      // Generate AI artifacts from existing business data
+      // Generate AI artifacts from existing business data + Fase A context
       const input = {
         project_id: projectId,
         onboarding_type: 'existing',
         ...formData,
+        existing_metrics: {
+          mrr: faseAAnswers.mrr_monthly ?? 0,
+          customers: faseAAnswers.active_customers ?? 0,
+        },
+        team_size: faseAAnswers.team_size,
+        monetization_type: faseAAnswers.monetization_type,
+        sales_cycle: faseAAnswers.sales_cycle,
+        market_scope: faseAAnswers.market_scope,
+        location: faseAAnswers.location_country,
       };
 
       const artifacts = await generateAllArtifacts(input);
@@ -78,6 +84,7 @@ export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartPr
         ai_generated_artifacts: artifacts,
         fast_start_type: 'existing',
         completed_at: new Date().toISOString(),
+        fase_a: faseAAnswers,
       });
 
       toast.success('Business analyzed!', {
@@ -215,74 +222,12 @@ export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartPr
             </div>
           </div>
 
-          {/* Question 3: Key Metrics (AT LEAST ONE REQUIRED) */}
-          <div className="space-y-3 p-4 bg-purple-50 rounded-lg border-2 border-purple-200">
-            <div className="flex items-center gap-2">
-              <DollarSign className="h-5 w-5 text-purple-600" />
-              <Label className="text-base font-bold text-gray-900">
-                3. Key business metrics <span className="text-red-600">* (at least one)</span>
-              </Label>
-            </div>
-            <p className="text-sm text-gray-700 ml-7 mb-4">
-              Provide at least one metric to help AI understand your business stage
-            </p>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 ml-7">
-              <div className="space-y-2">
-                <Label htmlFor="mrr" className="text-sm font-medium flex items-center gap-2">
-                  <DollarSign className="h-4 w-4 text-green-600" />
-                  Monthly Recurring Revenue (MRR)
-                </Label>
-                <div className="relative">
-                  <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
-                  <Input
-                    id="mrr"
-                    type="number"
-                    placeholder="5000"
-                    value={formData.mrr}
-                    onChange={(e) => setFormData({ ...formData, mrr: e.target.value })}
-                    className="pl-7 bg-white"
-                    min="0"
-                  />
-                </div>
-                {formData.mrr && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    MRR provided
-                  </p>
-                )}
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="customers" className="text-sm font-medium flex items-center gap-2">
-                  <Users className="h-4 w-4 text-blue-600" />
-                  Number of Customers
-                </Label>
-                <Input
-                  id="customers"
-                  type="number"
-                  placeholder="150"
-                  value={formData.customers}
-                  onChange={(e) => setFormData({ ...formData, customers: e.target.value })}
-                  className="bg-white"
-                  min="0"
-                />
-                {formData.customers && (
-                  <p className="text-xs text-green-600 flex items-center gap-1">
-                    <CheckCircle2 className="h-3 w-3" />
-                    Customer count provided
-                  </p>
-                )}
-              </div>
-            </div>
-          </div>
-
-          {/* Question 4: Data Integration (OPTIONAL) */}
+          {/* Question 3: Data Integration (OPTIONAL) */}
           <div className="space-y-3">
             <div className="flex items-center gap-2">
               <Database className="h-5 w-5 text-pink-600" />
               <Label className="text-base font-medium text-gray-900">
-                4. Want to connect your data sources? <span className="text-gray-500 text-sm font-normal">(optional)</span>
+                3. Want to connect your data sources? <span className="text-gray-500 text-sm font-normal">(optional)</span>
               </Label>
             </div>
             <Alert className="bg-pink-50 border-pink-200">
@@ -345,12 +290,6 @@ export function ExistingFastStart({ projectId, onComplete }: ExistingFastStartPr
                   <div className="flex items-center gap-2 text-purple-700 bg-purple-50 py-2 px-4 rounded-md">
                     <AlertCircle className="h-4 w-4" />
                     <span>Please provide a brief description (minimum 30 characters)</span>
-                  </div>
-                )}
-                {!formData.mrr && !formData.customers && (
-                  <div className="flex items-center gap-2 text-purple-700 bg-purple-50 py-2 px-4 rounded-md">
-                    <AlertCircle className="h-4 w-4" />
-                    <span>Please provide at least one metric (MRR or customer count)</span>
                   </div>
                 )}
               </div>

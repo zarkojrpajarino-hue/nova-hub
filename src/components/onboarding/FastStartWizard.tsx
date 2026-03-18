@@ -1,18 +1,19 @@
 /**
- * 🚀 FAST START WIZARD
+ * FAST START WIZARD
  *
- * New onboarding orchestrator for hybrid Fast Start + Deep Setup architecture
+ * Orquestador principal de onboarding.
  *
- * FLOWS:
- * - Generative: 3 min (5 preguntas mínimas)
- * - Idea: 4 min (3 preguntas + AutoFill opcional)
- * - Existing: 5 min (4 preguntas + Data Integration opcional)
+ * Fases:
+ *   loading       → carga + rehidratación
+ *   fase-a        → FaseACommon (Q2-Q10, preguntas comunes obligatorias)
+ *   path-specific → GenerativeFastStart | IdeaFastStart | ExistingFastStart
+ *   complete      → pantalla de celebración + redirect
  *
- * GOALS:
- * - 75-85% completion rate (vs 20% anterior)
- * - Minimal friction
- * - Immediate value
- * - Progressive disclosure
+ * Rehidratación: al montar lee projects.onboarding_data y detecta en qué
+ * fase retomar si el usuario ya había avanzado.
+ *
+ * Merge: todas las escrituras sobre onboarding_data hacen merge con el JSON
+ * existente para no perder campos previos.
  */
 
 import { useState, useEffect } from 'react';
@@ -20,160 +21,260 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp } from 'lucide-react';
+import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import confetti from '@/lib/confetti';
+import type { Json } from '@/integrations/supabase/types';
+import { trackOnboardingStarted, trackOnboardingCompleted } from '@/lib/analytics';
 
-// Import Fast Start components (to be created)
+import { FaseACommon, type FaseAAnswers } from './fast-start/FaseACommon';
 import { GenerativeFastStart } from './fast-start/GenerativeFastStart';
 import { IdeaFastStart } from './fast-start/IdeaFastStart';
 import { ExistingFastStart } from './fast-start/ExistingFastStart';
+import { OnboardingProfileCard } from './OnboardingProfileCard';
+import type { BusinessIdea } from '@/lib/ai-generators';
 
 type OnboardingType = 'generative' | 'idea' | 'existing';
+type WizardPhase = 'loading' | 'fase-a' | 'path-specific' | 'complete';
 
 interface FastStartWizardProps {
   projectId: string;
   onComplete: () => void;
 }
 
-export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps) {
-  const _navigate = useNavigate();
-  const [onboardingType, setOnboardingType] = useState<OnboardingType | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
-  const [step, setStep] = useState<'fast-start' | 'complete'>('fast-start');
-  const [_completedData, setCompletedData] = useState<Record<string, unknown> | null>(null);
+// market_scope DB CHECK: 'local' | 'national' | 'international'
+function mapMarketScope(scope: FaseAAnswers['market_scope']): string {
+  if (scope === 'nacional') return 'national';
+  if (scope === 'global') return 'international';
+  return 'local';
+}
 
-  // Load onboarding type from project metadata
+export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps) {
+  const navigate = useNavigate();
+  const [phase, setPhase] = useState<WizardPhase>('loading');
+  const [onboardingType, setOnboardingType] = useState<OnboardingType>('idea');
+  const [faseAAnswers, setFaseAAnswers] = useState<FaseAAnswers | null>(null);
+  // Cache del onboarding_data actual para writes con merge
+  const [cachedOD, setCachedOD] = useState<Record<string, unknown>>({});
+  // Tanda de ideas generativas guardada (para rehydración si el usuario refresca)
+  const [savedTanda, setSavedTanda] = useState<BusinessIdea[] | undefined>(undefined);
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Mount: cargar proyecto + rehidratación de fase
+  // ─────────────────────────────────────────────────────────────────────────
   useEffect(() => {
-    const loadProjectType = async () => {
+    const load = async () => {
       const { data: project, error } = await supabase
         .from('projects')
-        .select('metadata')
+        .select('onboarding_data')
         .eq('id', projectId)
         .single();
 
       if (error) {
-        toast.error('Error loading project', {
-          description: 'Please try again or contact support'
-        });
+        toast.error('Error al cargar el proyecto');
+        setPhase('fase-a');
+        return;
       }
 
-      if (project?.metadata?.onboarding_type) {
-        setOnboardingType(project.metadata.onboarding_type);
-      } else {
-        // Fallback to 'idea' if no type saved
-        setOnboardingType('idea');
+      const od = (project?.onboarding_data ?? {}) as Record<string, unknown>;
+      const savedType = (od.onboarding_type as OnboardingType | undefined) ?? 'idea';
+      setCachedOD(od);
+      setOnboardingType(savedType);
+
+      // Rehydrate tanda de ideas generativas si existe
+      if (Array.isArray(od.generative_ideas_tanda) && od.generative_ideas_tanda.length > 0) {
+        setSavedTanda(od.generative_ideas_tanda as BusinessIdea[]);
       }
-      setLoading(false);
+
+      // Detectar en qué fase retomar
+      if (od.fast_start_completed === true) {
+        navigate(`/proyecto/${projectId}`, { replace: true });
+        return;
+      }
+      if (od.fase_a_completed === true && od.fase_a_answers) {
+        setFaseAAnswers(od.fase_a_answers as FaseAAnswers);
+        setPhase('path-specific');
+      } else {
+        setPhase('fase-a');
+      }
+      trackOnboardingStarted({ project_id: projectId });
     };
 
-    loadProjectType();
-  }, [projectId]);
+    load();
+  }, [projectId, navigate]);
 
-  const handleFastStartComplete = async (data: Record<string, unknown>) => {
-    setSaving(true);
-    setCompletedData(data);
+  // ─────────────────────────────────────────────────────────────────────────
+  // Merge helper
+  // ─────────────────────────────────────────────────────────────────────────
+  const mergeOD = (patch: Record<string, unknown>) => ({ ...cachedOD, ...patch });
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Fase A completa → save intermedio + transición
+  // ─────────────────────────────────────────────────────────────────────────
+  const handleFaseAComplete = async (answers: FaseAAnswers) => {
+    setFaseAAnswers(answers);
 
     try {
-      // Calculate initial progress (Fast Start = 25% of total onboarding)
-      const initialProgress = 25;
+      // onboarding_sessions: guardar respuestas de Fase A
+      const { error: sessErr } = await supabase.from('onboarding_sessions').upsert({
+        project_id: projectId,
+        onboarding_type: onboardingType,
+        phase: 'essentials',
+        location_country: answers.location_country,
+        answers: answers as unknown as Json,
+        updated_at: new Date().toISOString(),
+      }, { onConflict: 'project_id' });
+      if (sessErr) throw sessErr;
 
-      // Save Fast Start data and initialize progress system
-      const { error } = await supabase
-        .from('projects')
-        .update({
-          nombre: data.project_name || 'Mi Proyecto',
-          descripcion: data.business_description || 'Proyecto en configuración',
-          metadata: {
-            onboarding_type: onboardingType,
-            fast_start_completed: true,
-            fast_start_data: data,
-            fast_start_completed_at: new Date().toISOString(),
-            onboarding_progress: initialProgress,
-            deep_setup_unlocked: false,
-            ai_generated_artifacts: data.ai_generated_artifacts || null,
-          }
-        })
-        .eq('id', projectId);
+      // projects: columnas top-level + merge onboarding_data
+      const newOD = mergeOD({
+        onboarding_type: onboardingType,
+        fase_a_completed: true,
+        fase_a_answers: answers,
+        fase_a_completed_at: new Date().toISOString(),
+      });
+
+      const { error } = await supabase.from('projects').update({
+        country: answers.location_country,
+        market_scope: mapMarketScope(answers.market_scope),
+        onboarding_data: newOD as Json,
+      }).eq('id', projectId);
 
       if (error) throw error;
 
-      // Show success step
-      setStep('complete');
-
-      // Trigger confetti celebration
-      confetti({
-        particleCount: 100,
-        spread: 70,
-        origin: { y: 0.6 }
+      setCachedOD(newOD);
+      setPhase('path-specific');
+    } catch (_err) {
+      toast.error('Error al guardar las respuestas', {
+        description: 'Revisa tu conexión e inténtalo de nuevo',
       });
-
-      toast.success('Fast Start completed!', {
-        description: 'Your project is ready to start'
-      });
-
-      // Redirect after 3 seconds to dashboard with progress banner
-      setTimeout(() => {
-        onComplete();
-      }, 3000);
-
-    } catch (_error) {
-      toast.error('Error saving progress', {
-        description: error instanceof Error ? error.message : 'Unknown error'
-      });
-      setSaving(false);
+      // No transicionar: el usuario puede reintentar
     }
   };
 
-  // Loading state
-  if (loading) {
+  // ─────────────────────────────────────────────────────────────────────────
+  // Path-specific completo → save final + celebración
+  // ─────────────────────────────────────────────────────────────────────────
+  const handlePathComplete = async (data: Record<string, unknown>) => {
+    try {
+      const now = new Date().toISOString();
+
+      // For the generative path: extract selected_idea from ai_generated_artifacts
+      // so it can be promoted to a top-level field in onboarding_data.
+      const artifacts = (data.ai_generated_artifacts ?? null) as Record<string, unknown> | null;
+      const selectedIdea = (artifacts?.selected_idea as BusinessIdea | undefined) ?? null;
+      const selectedIndustry = (data.selected_industry as string | undefined) ?? null;
+
+      const newOD = mergeOD({
+        fast_start_completed: true,
+        fast_start_completed_at: now,
+        // Keep for backward compatibility
+        ai_generated_artifacts: artifacts,
+        // Top-level source of truth for downstream features
+        ...(selectedIdea ? { selected_idea: selectedIdea } : {}),
+        ...(selectedIndustry ? { selected_industry: selectedIndustry } : {}),
+      });
+
+      // projects: update final
+      const { error: projErr } = await supabase.from('projects').update({
+        nombre: (data.project_name as string) || 'Mi Proyecto',
+        descripcion: (data.business_description as string) || '',
+        onboarding_completed: true,
+        onboarding_data: newOD as Json,
+      }).eq('id', projectId);
+
+      if (projErr) throw projErr;
+
+      // onboarding_sessions: update final con completion_percentage=100
+      const { ai_generated_artifacts: _ai, ...pathSpecificData } = data;
+      // For the generative path, surface cliente_objetivo and monetizacion so the
+      // session is self-contained without needing to read onboarding_data.
+      const ideaContextForAnswers = selectedIdea
+        ? { cliente_objetivo: selectedIdea.cliente_objetivo, monetizacion: selectedIdea.monetizacion }
+        : {};
+      const { error: sessErrFinal } = await supabase.from('onboarding_sessions').upsert({
+        project_id: projectId,
+        onboarding_type: onboardingType,
+        phase: 'essentials',
+        completion_percentage: 100,
+        location_country: faseAAnswers?.location_country ?? '',
+        answers: { ...(faseAAnswers ?? {}), ...pathSpecificData, ...ideaContextForAnswers } as unknown as Json,
+        completed_at: now,
+        updated_at: now,
+      }, { onConflict: 'project_id' });
+      if (sessErrFinal) throw sessErrFinal;
+
+      setCachedOD(newOD);
+      setPhase('complete');
+
+      trackOnboardingCompleted({ project_id: projectId });
+
+      confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
+      toast.success('¡Onboarding completado!');
+
+      // 8s para que el usuario pueda leer el Perfil Operativo Detectado (O5.8)
+      setTimeout(() => onComplete(), 8000);
+    } catch (_err) {
+      toast.error('Error al guardar el progreso', {
+        description: 'Inténtalo de nuevo',
+      });
+    }
+  };
+
+  // ─────────────────────────────────────────────────────────────────────────
+  // Render
+  // ─────────────────────────────────────────────────────────────────────────
+  if (phase === 'loading') {
     return (
       <div className="flex items-center justify-center py-16">
         <Card className="max-w-md border-2 border-blue-200">
           <CardContent className="pt-12 pb-12 text-center">
-            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4" />
-            <p className="text-lg font-semibold text-gray-900 mb-2">Loading onboarding...</p>
-            <p className="text-sm text-gray-600">Preparing your experience</p>
+            <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
+            <p className="text-lg font-semibold text-gray-900">Cargando onboarding...</p>
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  // Step 1: Fast Start (type-specific)
-  if (step === 'fast-start' && onboardingType) {
+  if (phase === 'fase-a') {
+    return <FaseACommon onComplete={handleFaseAComplete} />;
+  }
+
+  if (phase === 'path-specific') {
     return (
       <>
         {onboardingType === 'generative' && (
           <GenerativeFastStart
             projectId={projectId}
-            onComplete={handleFastStartComplete}
+            faseAAnswers={faseAAnswers!}
+            onComplete={handlePathComplete}
+            savedTanda={savedTanda}
           />
         )}
         {onboardingType === 'idea' && (
           <IdeaFastStart
             projectId={projectId}
-            onComplete={handleFastStartComplete}
+            faseAAnswers={faseAAnswers!}
+            onComplete={handlePathComplete}
           />
         )}
         {onboardingType === 'existing' && (
           <ExistingFastStart
             projectId={projectId}
-            onComplete={handleFastStartComplete}
+            faseAAnswers={faseAAnswers!}
+            onComplete={handlePathComplete}
           />
         )}
       </>
     );
   }
 
-  // Step 2: Completion Celebration
-  if (step === 'complete') {
+  if (phase === 'complete') {
     return (
-      <div className="max-w-3xl mx-auto animate-fade-in">
+      <div className="max-w-3xl mx-auto">
         <Card className="border-2 border-green-500 bg-gradient-to-br from-green-50 to-emerald-50">
           <CardContent className="pt-12 pb-12 text-center">
-            {/* Success Icon */}
             <div className="relative inline-block mb-6">
               <div className="absolute inset-0 bg-green-500 rounded-full animate-ping opacity-75" />
               <div className="relative bg-green-500 rounded-full p-6">
@@ -181,65 +282,52 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
               </div>
             </div>
 
-            {/* Success Message */}
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">
-              Fast Start Completed!
-            </h2>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">¡Listo!</h2>
             <p className="text-lg text-gray-700 mb-8">
-              Your project is ready. You've completed the essential setup in just a few minutes!
+              Tu proyecto está configurado. Ahora Optimus puede empezar a trabajar contigo.
             </p>
 
-            {/* What You've Accomplished */}
-            <div className="bg-white rounded-lg p-6 max-w-md mx-auto mb-8 shadow-sm">
+            <div className="bg-white rounded-lg p-6 max-w-md mx-auto mb-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Sparkles className="h-6 w-6 text-blue-600" />
-                  <span className="text-gray-900 font-semibold">Initial Setup Progress</span>
+                  <span className="text-gray-900 font-semibold">Configuración inicial</span>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="text-3xl font-bold text-green-600">25%</div>
+                  <div className="text-3xl font-bold text-green-600">100%</div>
                   <TrendingUp className="h-6 w-6 text-green-600" />
                 </div>
               </div>
               <div className="w-full bg-gray-200 rounded-full h-3">
-                <div className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full transition-all duration-500" style={{ width: '25%' }} />
+                <div
+                  className="bg-gradient-to-r from-green-500 to-emerald-600 h-3 rounded-full"
+                  style={{ width: '100%' }}
+                />
               </div>
             </div>
 
-            {/* Next Steps Preview */}
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-6 max-w-xl mx-auto mb-8">
-              <h3 className="text-lg font-bold text-gray-900 mb-3">What's Next?</h3>
-              <ul className="text-left space-y-2 text-sm text-gray-700">
-                <li className="flex items-start gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600 mt-0.5 flex-shrink-0" />
-                  <span>Access your project dashboard</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Sparkles className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                  <span>Complete Deep Setup sections to unlock advanced tools (optional)</span>
-                </li>
-                <li className="flex items-start gap-2">
-                  <Rocket className="h-4 w-4 text-purple-600 mt-0.5 flex-shrink-0" />
-                  <span>Start using AI-powered features immediately</span>
-                </li>
-              </ul>
-            </div>
+            {/* O5.8 — Perfil Operativo Detectado */}
+            {faseAAnswers && (
+              <div className="max-w-md mx-auto mb-8 w-full">
+                <p className="text-sm font-medium text-gray-700 mb-3 text-left">
+                  Perfil operativo detectado
+                </p>
+                <OnboardingProfileCard faseAAnswers={faseAAnswers} />
+              </div>
+            )}
 
-            {/* CTA Button */}
             <Button
               size="lg"
               onClick={onComplete}
-              disabled={saving}
               className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
             >
               <Rocket className="h-5 w-5" />
-              Go to Dashboard
+              Ir al dashboard
               <ArrowRight className="h-5 w-5" />
             </Button>
 
-            {/* Auto-redirect message */}
-            <p className="text-sm text-gray-600 mt-6">
-              Redirecting automatically in 3 seconds...
+            <p className="text-sm text-gray-500 mt-6">
+              Redirigiendo automáticamente en 8 segundos...
             </p>
           </CardContent>
         </Card>
@@ -247,6 +335,5 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
     );
   }
 
-  // Fallback
   return null;
 }

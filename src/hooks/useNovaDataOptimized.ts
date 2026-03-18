@@ -11,7 +11,8 @@
  * DESPUÉS: Hooks específicos → 1 query optimizada por recurso
  */
 
-import { useQuery } from '@tanstack/react-query';
+import { useMemo } from 'react';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
 // ============================================================================
@@ -108,8 +109,11 @@ export function useProfiles() {
   return useQuery({
     queryKey: ['profiles'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return [] as Profile[];
+
       const { data, error } = await supabase
-        .from('members')
+        .from('profiles')
         .select('*')
         .order('nombre');
 
@@ -132,6 +136,9 @@ export function useProjects() {
   return useQuery({
     queryKey: ['projects', 'with-phase-state'],
     queryFn: async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return [];
+
       const { data, error } = await supabase
         .from('projects')
         .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at)')
@@ -509,67 +516,550 @@ export interface ProjectEngineData {
     probability_score: number | null;
     probability_status: string;
     data_completeness_score: number;
+    phase_score_input: number | null;
+    execution_rate_input: number | null;
+    validation_strength_input: number | null;
+    revenue_momentum_input: number | null;
+    capacity_health_input: number | null;
   } | null;
+  probabilityHistory: {
+    probability_score: number | null;
+    calculated_at: string;
+  }[];
   risk: {
     risk_score: number | null;
     risk_level: string;
     risk_status: string;
     data_completeness_score: number;
+    runway_factor_input: number | null;
+    execution_drop_input: number | null;
+    validation_weakness_input: number | null;
+    revenue_concentration_input: number | null;
+    bottleneck_severity_input: number | null;
+    inputs_available: number;
   } | null;
+  riskHistory: {
+    risk_score: number | null;
+    risk_level: string;
+    calculated_at: string;
+  }[];
   coverage: {
     function_type: string;
     coverage_score: number;
     coverage_level: string;
   }[];
+  phaseHistory: {
+    phase: number;
+    phase_score: number;
+    change_reason: string | null;
+    calculated_at: string;
+  }[];
 }
 
-/**
- * Hook para datos del engine de un proyecto específico.
- * Agrega en paralelo: phase_state, probability, risk_score, function_coverage.
- * Todas las tablas se inicializan al crear el proyecto (fn_initialize_project_data,
- * migration 00002) — no depende de cron para el primer proyecto.
- */
-export function useProjectEngineData(projectId: string | undefined) {
-  return useQuery({
-    queryKey: ['project-engine', projectId],
-    queryFn: async (): Promise<ProjectEngineData | null> => {
-      if (!projectId) return null;
+// ── Sub-interfaces por dominio ────────────────────────────────────────────────
 
-      const [phaseResult, probabilityResult, riskResult, coverageResult] = await Promise.all([
+export interface PhaseEngineData {
+  phaseState: ProjectEngineData['phaseState'];
+  phaseHistory: ProjectEngineData['phaseHistory'];
+}
+
+export interface ProbabilityEngineData {
+  probability: ProjectEngineData['probability'];
+  probabilityHistory: ProjectEngineData['probabilityHistory'];
+}
+
+export interface RiskEngineData {
+  risk: ProjectEngineData['risk'];
+  riskHistory: ProjectEngineData['riskHistory'];
+}
+
+// ── Hooks de dominio ──────────────────────────────────────────────────────────
+// Cada uno usa el prefijo ['project-engine', projectId, '<dominio>'] para que
+// la invalidación por prefijo en useRealtimeSubscription (exact: false) siga
+// funcionando sin cambios en ese archivo.
+
+export function useProjectPhaseData(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-engine', projectId, 'phase'],
+    queryFn: async (): Promise<PhaseEngineData> => {
+      const [stateResult, historyResult] = await Promise.all([
         supabase
           .from('project_phase_state')
           .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at')
-          .eq('project_id', projectId)
+          .eq('project_id', projectId!)
           .maybeSingle(),
         supabase
-          .from('project_probability')
-          .select('probability_score, probability_status, data_completeness_score')
-          .eq('project_id', projectId)
-          .maybeSingle(),
-        supabase
-          .from('project_risk_score')
-          .select('risk_score, risk_level, risk_status, data_completeness_score')
-          .eq('project_id', projectId)
-          .maybeSingle(),
-        supabase
-          .from('project_function_coverage')
-          .select('function_type, coverage_score, coverage_level')
-          .eq('project_id', projectId),
+          .from('project_phase_history')
+          .select('phase, phase_score, change_reason, calculated_at')
+          .eq('project_id', projectId!)
+          .order('calculated_at', { ascending: false })
+          .limit(2),
       ]);
-
-      if (phaseResult.error) throw phaseResult.error;
-      if (probabilityResult.error) throw probabilityResult.error;
-      if (riskResult.error) throw riskResult.error;
-      if (coverageResult.error) throw coverageResult.error;
-
+      if (stateResult.error)   throw stateResult.error;
+      if (historyResult.error) throw historyResult.error;
       return {
-        phaseState: phaseResult.data,
-        probability: probabilityResult.data,
-        risk: riskResult.data,
-        coverage: coverageResult.data || [],
+        phaseState:   stateResult.data,
+        phaseHistory: historyResult.data ?? [],
       };
     },
     enabled: !!projectId,
+  });
+}
+
+export function useProjectProbabilityData(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-engine', projectId, 'probability'],
+    queryFn: async (): Promise<ProbabilityEngineData> => {
+      const [probResult, historyResult] = await Promise.all([
+        supabase
+          .from('project_probability')
+          .select('probability_score, probability_status, data_completeness_score, phase_score_input, execution_rate_input, validation_strength_input, revenue_momentum_input, capacity_health_input')
+          .eq('project_id', projectId!)
+          .maybeSingle(),
+        supabase
+          .from('project_probability_history')
+          .select('probability_score, calculated_at')
+          .eq('project_id', projectId!)
+          .order('calculated_at', { ascending: false })
+          .limit(2),
+      ]);
+      if (probResult.error)    throw probResult.error;
+      if (historyResult.error) throw historyResult.error;
+      return {
+        probability:        probResult.data,
+        probabilityHistory: historyResult.data ?? [],
+      };
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useProjectRiskData(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-engine', projectId, 'risk'],
+    queryFn: async (): Promise<RiskEngineData> => {
+      const [riskResult, historyResult] = await Promise.all([
+        supabase
+          .from('project_risk_score')
+          .select('risk_score, risk_level, risk_status, data_completeness_score, runway_factor_input, execution_drop_input, validation_weakness_input, revenue_concentration_input, bottleneck_severity_input, inputs_available')
+          .eq('project_id', projectId!)
+          .maybeSingle(),
+        supabase
+          .from('project_risk_score_history')
+          .select('risk_score, risk_level, calculated_at')
+          .eq('project_id', projectId!)
+          .order('calculated_at', { ascending: false })
+          .limit(2),
+      ]);
+      if (riskResult.error)    throw riskResult.error;
+      if (historyResult.error) throw historyResult.error;
+      return {
+        risk:        riskResult.data,
+        riskHistory: historyResult.data ?? [],
+      };
+    },
+    enabled: !!projectId,
+  });
+}
+
+export function useProjectCoverageData(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-engine', projectId, 'coverage'],
+    queryFn: async (): Promise<ProjectEngineData['coverage']> => {
+      const { data, error } = await supabase
+        .from('project_function_coverage')
+        .select('function_type, coverage_score, coverage_level')
+        .eq('project_id', projectId!);
+      if (error) throw error;
+      return data as ProjectEngineData['coverage'];
+    },
+    enabled: !!projectId,
+  });
+}
+
+// ── Aggregator — composición de hooks de dominio ──────────────────────────────
+// No hace queries propias. Componentes simples pueden usar los hooks de dominio
+// directamente; pantallas compuestas usan este aggregador.
+
+export function useProjectEngineData(projectId: string | undefined) {
+  const phase    = useProjectPhaseData(projectId);
+  const prob     = useProjectProbabilityData(projectId);
+  const risk     = useProjectRiskData(projectId);
+  const coverage = useProjectCoverageData(projectId);
+
+  const isLoading = phase.isLoading || prob.isLoading || risk.isLoading || coverage.isLoading;
+
+  const data = useMemo((): ProjectEngineData | null => {
+    if (!projectId) return null;
+    return {
+      phaseState:         phase.data?.phaseState         ?? null,
+      phaseHistory:       phase.data?.phaseHistory        ?? [],
+      probability:        prob.data?.probability          ?? null,
+      probabilityHistory: prob.data?.probabilityHistory   ?? [],
+      risk:               risk.data?.risk                 ?? null,
+      riskHistory:        risk.data?.riskHistory          ?? [],
+      coverage:           coverage.data                   ?? [],
+    };
+  }, [projectId, phase.data, prob.data, risk.data, coverage.data]);
+
+  return { data, isLoading };
+}
+
+// ============================================================================
+// VIABILITY STATE — U6.7
+// ============================================================================
+
+export interface ViabilityStateData {
+  viability_status: 'healthy' | 'monitoring' | 'stagnation' | 'critical';
+  top_trigger_type: 'stagnation' | 'margin_risk' | 'overload' | 'weak_validation' | null;
+  t2_cash_flow_active: boolean;
+  active_trigger_count: number;
+  last_evaluated_at: string;
+}
+
+export function useProjectViabilityState(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-viability', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('project_viability_state')
+        .select('viability_status, top_trigger_type, t2_cash_flow_active, active_trigger_count, last_evaluated_at')
+        .eq('project_id', projectId!)
+        .single();
+      if (error) {
+        if (error.code === 'PGRST116') return null; // sin fila aún
+        throw error;
+      }
+      return data as ViabilityStateData;
+    },
+    enabled: !!projectId,
+  });
+}
+
+// ============================================================================
+// WEEKLY REVIEW — U6.12
+// ============================================================================
+
+export interface WeeklyReviewSummary {
+  headline: string;
+  highlights: string[];
+  warnings: string[];
+  next_step: string;
+}
+
+export interface WeeklyReview {
+  id: string;
+  project_id: string;
+  week_start_date: string;
+  week_end_date: string;
+  phase: number | null;
+  phase_score: number | null;
+  phase_status: string | null;
+  mrr: number | null;
+  runway_months: number | null;
+  tasks_completed: number;
+  obvs_count: number;
+  sales_count: number;
+  summary_json: WeeklyReviewSummary;
+  has_regression: boolean;
+  has_transition: boolean;
+  created_at: string;
+  read_at: string | null; // migr 00055 — NULL = no leída (weekly_pending = true)
+}
+
+export function useLatestWeeklyReview(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['weekly-review', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('weekly_reviews')
+        .select('*')
+        .eq('project_id', projectId!)
+        .order('week_end_date', { ascending: false })
+        .limit(1)
+        .single();
+      if (error) {
+        if (error.code === 'PGRST116') return null; // sin fila aún
+        throw error;
+      }
+      return data as WeeklyReview;
+    },
+    enabled: !!projectId,
+  });
+}
+
+// ============================================================================
+// SURFACE SELECTION — V11.3
+// ============================================================================
+
+export type ProjectSurface = 'engine' | 'weekly' | 'reset';
+
+export interface ActiveSurfaceState {
+  surface: ProjectSurface;
+  isReentry: boolean;
+  lastSeenAt: string | null;    // para calcular absenceDays en ReentrySurface
+  weeklyReviewId: string | null;
+  isLoading: boolean;
+}
+
+// Hook: ciclos estratégicos cerrados mientras el usuario estaba ausente
+// Necesario para changes_since_last_seen.cycle_closed_while_away + ritual_missed
+export function useStrategicCyclesWhileAway(
+  projectId: string | undefined,
+  lastSeenAt: string | null,
+) {
+  return useQuery({
+    queryKey: ['cycles-while-away', projectId, lastSeenAt],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('strategic_cycles')
+        .select('closed_at, ritual_responses')
+        .eq('project_id', projectId!)
+        .not('closed_at', 'is', null)
+        .gt('closed_at', lastSeenAt!)
+        .order('closed_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return { cycleClosedWhileAway: false, ritualMissed: false };
+      return {
+        cycleClosedWhileAway: true,
+        ritualMissed: data.ritual_responses === null,
+      };
+    },
+    enabled: !!projectId && !!lastSeenAt,
+  });
+}
+
+// Hook: lee last_seen_at del usuario para este proyecto
+export function useProjectUserState(
+  projectId: string | undefined,
+  userId: string | undefined,
+) {
+  return useQuery({
+    queryKey: ['project-user-state', projectId, userId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('project_user_state')
+        .select('last_seen_at')
+        .eq('project_id', projectId!)
+        .eq('user_id', userId!)
+        .maybeSingle();
+      if (error) throw error;
+      return (data?.last_seen_at as string | null) ?? null;
+    },
+    enabled: !!projectId && !!userId,
+  });
+}
+
+// Hook: ritual_pending = cycle_due OR urgent_reset_requested
+export function useRitualPending(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['ritual-pending', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('strategic_cycles')
+        .select('end_date, urgent_reset_requested')
+        .eq('project_id', projectId!)
+        .is('closed_at', null)
+        .is('ritual_responses', null)
+        .maybeSingle();
+      if (error) throw error;
+      if (!data) return false;
+      // cycle_due: CURRENT_DATE >= end_date - 6 días (semana 4 del ciclo)
+      const endDate = new Date(data.end_date);
+      const cycleDueThreshold = new Date(endDate.getTime() - 6 * 24 * 60 * 60 * 1000);
+      const cycleDue = new Date() >= cycleDueThreshold;
+      return cycleDue || data.urgent_reset_requested === true;
+    },
+    enabled: !!projectId,
+  });
+}
+
+// Composed hook: estado activo de superficie
+// Prioridad: reset > weekly > engine
+// isReentry = ausencia > 7 días (threshold v1) — no afecta la prioridad de superficie,
+//   se usa como capa previa en ProjectPage.
+const REENTRY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
+
+export function useActiveSurface(
+  projectId: string | undefined,
+  userId: string | undefined,
+): ActiveSurfaceState {
+  const { data: lastSeenAt, isLoading: loadingUserState } = useProjectUserState(projectId, userId);
+  const { data: ritualPending = false, isLoading: loadingRitual } = useRitualPending(projectId);
+  const { data: latestReview, isLoading: loadingReview } = useLatestWeeklyReview(projectId);
+
+  const isLoading = loadingUserState || loadingRitual || loadingReview;
+
+  const isReentry =
+    lastSeenAt != null &&
+    Date.now() - new Date(lastSeenAt).getTime() > REENTRY_THRESHOLD_MS;
+
+  const hasUnreadWeekly =
+    latestReview != null && latestReview.read_at === null;
+
+  let surface: ProjectSurface;
+  if (ritualPending) surface = 'reset';
+  else if (hasUnreadWeekly) surface = 'weekly';
+  else surface = 'engine';
+
+  return {
+    surface,
+    isReentry,
+    lastSeenAt: lastSeenAt ?? null,
+    weeklyReviewId: latestReview?.id ?? null,
+    isLoading,
+  };
+}
+
+// Mutation: marcar weekly review como leída (founder hace click en "Continue execution")
+export function useMarkWeeklyReviewRead() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({ reviewId }: { reviewId: string; projectId: string }) => {
+      const { error } = await supabase
+        .from('weekly_reviews')
+        .update({ read_at: new Date().toISOString() })
+        .eq('id', reviewId);
+      if (error) throw error;
+    },
+    onSuccess: (_data, variables) => {
+      // Invalidar para que hasUnreadWeekly recalcule
+      queryClient.invalidateQueries({ queryKey: ['weekly-review', variables.projectId] });
+    },
+  });
+}
+
+// Mutation: actualizar last_seen_at en project_user_state
+// No invalida ['project-user-state'] — el valor capturado al inicio de sesión
+// debe mantenerse para la detección de re-entry durante esta visita.
+export function useUpdateLastSeenAt() {
+  return useMutation({
+    mutationFn: async ({ projectId, userId }: { projectId: string; userId: string }) => {
+      const { error } = await supabase
+        .from('project_user_state')
+        .upsert(
+          { project_id: projectId, user_id: userId, last_seen_at: new Date().toISOString() },
+          { onConflict: 'project_id,user_id' },
+        );
+      if (error) throw error;
+    },
+  });
+}
+
+// Mutation: completar el ritual estratégico de cierre de ciclo
+// Llama a submit_strategic_reset() que internamente cierra el ciclo y crea el N+1.
+// Returns: 'progress' | 'stagnation' | 'regression'
+// NO invalida queries aquí — la invalidación ocurre en onComplete() tras ver el output.
+export function useSubmitRitual() {
+  return useMutation({
+    mutationFn: async ({
+      projectId,
+      responses,
+    }: {
+      projectId: string;
+      responses: {
+        evidence_progress: string;
+        broken_hypothesis: string;
+        main_bottleneck: string;
+        stop_doing: string;
+        next_bet: string;
+        success_signal: string;
+        invalidation_condition: string;
+      };
+    }) => {
+      const { data, error } = await supabase.rpc('submit_strategic_reset', {
+        p_project_id: projectId,
+        p_ritual_responses: responses,
+      });
+      if (error) throw error;
+      return data as 'progress' | 'stagnation' | 'regression';
+    },
+  });
+}
+
+// Mutation: cerrar ciclo estratégico activo sin ritual (pivot total — EC13.4)
+// Llama a close_cycle_for_pivot() que delega en close_strategic_cycle('pivot').
+// Invalida ritual-pending para que useActiveSurface recalcule surface.
+export function useCloseCycleForPivot() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async (projectId: string) => {
+      const { data, error } = await supabase.rpc('close_cycle_for_pivot', {
+        p_project_id: projectId,
+      });
+      if (error) throw error;
+      return data as string | null; // cycle_evaluation or null (no active cycle)
+    },
+    onSuccess: (_data, projectId) => {
+      queryClient.invalidateQueries({ queryKey: ['ritual-pending', projectId] });
+    },
+  });
+}
+
+// Hook: owner status de las 3 funciones críticas (demand / delivery / cash)
+// Devuelve hasOwner=true si owner_user_id IS NOT NULL (sin resolver nombre — v1)
+export function useProjectFunctions(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['project-functions', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('project_functions')
+        .select('function_type, owner_user_id')
+        .eq('project_id', projectId!);
+      if (error) throw error;
+      return (data ?? []).map((row) => ({
+        function_type: row.function_type as string,
+        hasOwner: row.owner_user_id !== null,
+        owner_user_id: row.owner_user_id as string | null,
+      }));
+    },
+    enabled: !!projectId,
+  });
+}
+
+// Hook: ciclos estratégicos cerrados (closed_at IS NOT NULL)
+export function useClosedCyclesCount(projectId: string | undefined) {
+  return useQuery({
+    queryKey: ['closed-cycles-count', projectId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('strategic_cycles')
+        .select('*', { count: 'exact', head: true })
+        .eq('project_id', projectId!)
+        .not('closed_at', 'is', null);
+      if (error) throw error;
+      return count ?? 0;
+    },
+    enabled: !!projectId,
+  });
+}
+
+// Mutation: reemplazar participantes de un OBV existente (split crédito — EC13.10)
+// Llama a upsert_obv_participants() SECURITY DEFINER que hace DELETE+INSERT atómico.
+// El caller incluye TODOS los participantes (owner + colaboradores) con sus %.
+// owner_id de obvs nunca cambia — historial preservado.
+export function useUpsertOBVParticipants() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: async ({
+      obvId,
+      participants,
+    }: {
+      obvId: string;
+      projectId: string;
+      participants: Array<{ member_id: string; porcentaje: number }>;
+    }) => {
+      const { error } = await supabase.rpc('upsert_obv_participants', {
+        p_obv_id: obvId,
+        p_participants: participants,
+      });
+      if (error) throw error;
+    },
+    onSuccess: (_data, { projectId }) => {
+      queryClient.invalidateQueries({ queryKey: ['project_obvs', projectId] });
+    },
   });
 }
 

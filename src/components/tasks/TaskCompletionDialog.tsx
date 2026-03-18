@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Loader2, Sparkles, CheckCircle2, Lightbulb, TrendingUp, AlertTriangle, Send, Layers } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Loader2, Sparkles, CheckCircle2, Lightbulb, TrendingUp, AlertTriangle, Send, Layers, ArrowRight } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -26,7 +27,10 @@ interface TaskCompletionDialogProps {
     playbook?: unknown;
     metadata?: unknown;
     function_type?: string | null;
+    prioridad?: number | null;
+    assignee_id?: string | null;
   };
+  projectId?: string;
   onComplete: (taskId: string, feedback: TaskFeedback) => void;
 }
 
@@ -45,27 +49,38 @@ interface AIQuestion {
   placeholder?: string;
 }
 
-export function TaskCompletionDialog({ 
-  open, 
-  onOpenChange, 
-  task, 
-  onComplete 
+export function TaskCompletionDialog({
+  open,
+  onOpenChange,
+  task,
+  projectId,
+  onComplete
 }: TaskCompletionDialogProps) {
+  const navigate = useNavigate();
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [aiQuestions, setAiQuestions] = useState<AIQuestion[]>([]);
   const [answers, setAnswers] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
 
   // Classify step (shown when task.function_type is null)
-  const [step, setStep] = useState<'classify' | 'feedback'>(
+  const [step, setStep] = useState<'classify' | 'feedback' | 'followup'>(
     task.function_type ? 'feedback' : 'classify'
   );
   const [isSavingFunctionType, setIsSavingFunctionType] = useState(false);
+
+  // Follow-up step state (F19.B.1 + F19.B.3)
+  const [completedFeedback, setCompletedFeedback] = useState<TaskFeedback | null>(null);
+  const [isCreatingFollowUpTask, setIsCreatingFollowUpTask] = useState(false);
+  const [resolvedFunctionType, setResolvedFunctionType] = useState<string | null>(
+    task.function_type ?? null
+  );
 
   // Reset step when dialog opens/closes
   useEffect(() => {
     if (open) {
       setStep(task.function_type ? 'feedback' : 'classify');
+      setCompletedFeedback(null);
+      setResolvedFunctionType(task.function_type ?? null);
     }
   }, [open, task.function_type]);
 
@@ -111,6 +126,7 @@ export function TaskCompletionDialog({
         .update({ function_type: ft })
         .eq('id', task.id);
       if (error) throw error;
+      setResolvedFunctionType(ft);
       setStep('feedback');
     } catch {
       toast.error('Error al guardar la función. Intenta de nuevo.');
@@ -135,7 +151,7 @@ export function TaskCompletionDialog({
     }
 
     setIsSubmitting(true);
-    
+
     const feedback: TaskFeedback = {
       resultado,
       insights,
@@ -146,21 +162,71 @@ export function TaskCompletionDialog({
 
     try {
       await onComplete(task.id, feedback);
-      
-      // Reset form
-      setResultado('exito');
-      setInsights('');
-      setAprendizaje('');
-      setSiguienteAccion('');
-      setDificultad(3);
-      setAiQuestions([]);
-      setAnswers({});
-      
-      onOpenChange(false);
+
+      // F19.B.1: si hay siguiente_accion, mostrar paso follow-up
+      const hasSiguiente = siguienteAccion.trim().length > 5;
+      const isDemandSuccess = resolvedFunctionType === 'demand' && resultado === 'exito';
+
+      if (hasSiguiente || isDemandSuccess) {
+        setCompletedFeedback(feedback);
+        setStep('followup');
+      } else {
+        // Reset form + cerrar
+        setResultado('exito');
+        setInsights('');
+        setAprendizaje('');
+        setSiguienteAccion('');
+        setDificultad(3);
+        setAiQuestions([]);
+        setAnswers({});
+        onOpenChange(false);
+      }
     } catch (err) {
       toast.error('Error al completar la tarea');
     } finally {
       setIsSubmitting(false);
+    }
+  };
+
+  const handleCreateFollowUpTask = async () => {
+    if (!completedFeedback?.siguiente_accion || !projectId) return;
+    setIsCreatingFollowUpTask(true);
+    try {
+      const { error } = await supabase.from('tasks').insert({
+        project_id:    projectId,
+        titulo:        completedFeedback.siguiente_accion.slice(0, 80),
+        prioridad:     task.prioridad ?? 3,
+        function_type: resolvedFunctionType,
+        assignee_id:   task.assignee_id ?? null,
+        ai_generated:  false,
+        metadata:      { origin: 'task_feedback', source_task_id: task.id },
+      });
+      if (error) throw error;
+      toast.success(`Tarea creada · ${completedFeedback.siguiente_accion.slice(0, 40)}`);
+    } catch {
+      toast.error('Error al crear la tarea');
+    } finally {
+      setIsCreatingFollowUpTask(false);
+    }
+  };
+
+  const handleCloseFollowUp = () => {
+    setResultado('exito');
+    setInsights('');
+    setAprendizaje('');
+    setSiguienteAccion('');
+    setDificultad(3);
+    setAiQuestions([]);
+    setAnswers({});
+    setCompletedFeedback(null);
+    onOpenChange(false);
+  };
+
+  const handleNavigateToOBVs = () => {
+    handleCloseFollowUp();
+    if (projectId) {
+      // Navigate with prefill param so ProjectOBVsTab can open CreateOBVDialog
+      navigate(`?tab=obvs&prefill=${encodeURIComponent(task.titulo)}`);
     }
   };
 
@@ -380,6 +446,72 @@ export function TaskCompletionDialog({
           </Button>
         </div>
         </>
+        )}
+
+        {/* F19.B.1 + F19.B.3 — Follow-up step */}
+        {step === 'followup' && completedFeedback && (
+          <div className="space-y-4 py-4">
+            <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
+              <CheckCircle2 className="w-4 h-4" />
+              Tarea completada
+            </div>
+
+            {/* B.1: Siguiente acción detectada */}
+            {completedFeedback.siguiente_accion.trim().length > 5 && (
+              <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                <p className="text-xs text-muted-foreground font-medium">Siguiente paso detectado:</p>
+                <p className="text-sm">"{completedFeedback.siguiente_accion.slice(0, 80)}"</p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    className="flex-1"
+                    disabled={isCreatingFollowUpTask}
+                    onClick={async () => {
+                      await handleCreateFollowUpTask();
+                      handleCloseFollowUp();
+                    }}
+                  >
+                    {isCreatingFollowUpTask
+                      ? <Loader2 className="w-3 h-3 mr-1 animate-spin" />
+                      : <ArrowRight className="w-3 h-3 mr-1" />
+                    }
+                    Crear tarea
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={handleCloseFollowUp}>
+                    Ignorar
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* B.3: demand + exito → sugerencia de OBV */}
+            {resolvedFunctionType === 'demand' && completedFeedback.resultado === 'exito' && (
+              <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
+                <p className="text-xs text-muted-foreground font-medium">¿Fue una validación con un cliente?</p>
+                <div className="flex gap-2">
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-1"
+                    onClick={handleNavigateToOBVs}
+                  >
+                    Registrar como OBV →
+                  </Button>
+                  <Button size="sm" variant="ghost" onClick={handleCloseFollowUp}>
+                    No por ahora
+                  </Button>
+                </div>
+              </div>
+            )}
+
+            {/* Cierre sin acción extra */}
+            {completedFeedback.siguiente_accion.trim().length <= 5 &&
+              resolvedFunctionType !== 'demand' && (
+              <Button className="w-full" onClick={handleCloseFollowUp}>
+                Cerrar
+              </Button>
+            )}
+          </div>
         )}
       </DialogContent>
     </Dialog>

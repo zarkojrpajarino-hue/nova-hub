@@ -1,8 +1,17 @@
 /**
- * 👥 INVITE MEMBER WIZARD
+ * ADD MEMBER WIZARD
  *
- * Wizard para invitar miembros al equipo con asignación flexible de roles
- * Respeta límites de miembros según el plan de suscripción
+ * Añade un miembro registrado al proyecto por email.
+ * Fuente única de verdad para roles: project_members.role (specialization_role ENUM).
+ *
+ * Flujo:
+ *   1. Usuario introduce email + rol opcional
+ *   2. Submit busca profiles por email
+ *   3. Si existe y no es ya miembro → INSERT en project_members
+ *   4. Si no existe → error claro "usuario no registrado"
+ *
+ * Nota: no es un sistema de invitación real (sin email, sin tokens).
+ * La invitación por email se implementará en FASE 7 como feature nueva.
  */
 
 import { useState } from 'react';
@@ -10,7 +19,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
   Select,
   SelectContent,
@@ -18,19 +26,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { UserPlus, Mail, User, Briefcase, AlertCircle, CheckCircle } from 'lucide-react';
+import { UserPlus, Mail, Briefcase, AlertCircle } from 'lucide-react';
 import { useFeatureAccess } from '@/hooks/useSubscription';
-import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import type { Database } from '@/integrations/supabase/types';
 
-interface ProjectRole {
-  id: string;
-  role_name: string;
-  description: string;
-  department: string;
-  is_critical: boolean;
-}
+type SpecializationRole = Database['public']['Enums']['specialization_role'];
+
+// C3.3 — fuente única de verdad: enum specialization_role
+// Elimina dependencia de project_roles (tabla ghost).
+const ROLE_OPTIONS: { value: SpecializationRole; label: string; description: string }[] = [
+  { value: 'sales',      label: 'Ventas',          description: 'Captación y cierre de clientes' },
+  { value: 'marketing',  label: 'Marketing',        description: 'Adquisición y comunicación' },
+  { value: 'ai_tech',    label: 'Tecnología / IA',  description: 'Desarrollo de producto y sistemas' },
+  { value: 'operations', label: 'Operaciones',      description: 'Entrega de servicio y procesos' },
+  { value: 'finance',    label: 'Finanzas',         description: 'Gestión de cobros y tesorería' },
+  { value: 'strategy',   label: 'Estrategia',       description: 'Dirección y decisiones de producto' },
+];
 
 interface InviteMemberWizardProps {
   isOpen: boolean;
@@ -49,34 +62,22 @@ export function InviteMemberWizard({
   const membersLimit = getLimitInfo('members');
 
   const [email, setEmail] = useState('');
-  const [nombre, setNombre] = useState('');
-  const [selectedRoleId, setSelectedRoleId] = useState<string>('');
+  // C3.2 — selectedRole almacena directamente un valor de specialization_role
+  const [selectedRole, setSelectedRole] = useState<SpecializationRole | ''>('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch available roles
-  const { data: roles = [], isLoading: isLoadingRoles } = useQuery({
-    queryKey: ['project-roles', projectId],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('project_roles')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('display_order');
-
-      if (error) throw error;
-      return data as ProjectRole[];
-    },
-    enabled: isOpen && !!projectId,
-  });
-
-  // Check if limit reached
   const canAddMember = membersLimit.isUnlimited || membersLimit.current < membersLimit.max;
 
+  // C3.1 — submit real: busca profile por email, verifica no duplicado, inserta en project_members
   const handleSubmit = async () => {
-    // Validación
-    if (!email || !nombre) {
-      setError('Por favor completa todos los campos obligatorios');
+    if (!email.trim()) {
+      setError('El email es obligatorio');
+      return;
+    }
+
+    if (!selectedRole) {
+      setError('El rol es obligatorio');
       return;
     }
 
@@ -89,22 +90,46 @@ export function InviteMemberWizard({
     setIsSubmitting(true);
 
     try {
-      // TODO: Implementar invitación real en Fase 7
-      // Por ahora solo simulamos la invitación
+      // 1. Buscar perfil por email
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id, nombre')
+        .eq('email', email.toLowerCase().trim())
+        .single();
 
-      // En producción, esto debería:
-      // 1. Crear una invitación en la tabla project_invitations
-      // 2. Enviar email con link de invitación
-      // 3. Al aceptar, crear el member con el role asignado
+      if (!profile) {
+        setError('Usuario no registrado. Pídele que se registre primero en Nova Hub.');
+        return;
+      }
 
-      // Simulación de delay
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      // 2. Verificar que no sea ya miembro
+      const { data: existing } = await supabase
+        .from('project_members')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('member_id', profile.id)
+        .single();
 
-      // Success
+      if (existing) {
+        setError(`${profile.nombre} ya es miembro de este proyecto.`);
+        return;
+      }
+
+      // 3. Añadir a project_members con el rol seleccionado
+      const { error: insertError } = await supabase
+        .from('project_members')
+        .insert({
+          project_id: projectId,
+          member_id: profile.id,
+          role: selectedRole,
+        });
+
+      if (insertError) throw insertError;
+
       onSuccess?.();
       handleClose();
-    } catch (err) {
-      setError('Error al enviar la invitación. Por favor intenta de nuevo.');
+    } catch (_err) {
+      setError('Error al añadir el miembro. Por favor intenta de nuevo.');
     } finally {
       setIsSubmitting(false);
     }
@@ -112,64 +137,55 @@ export function InviteMemberWizard({
 
   const handleClose = () => {
     setEmail('');
-    setNombre('');
-    setSelectedRoleId('');
+    setSelectedRole('');
     setError(null);
     onClose();
   };
 
-  const selectedRole = roles.find((r) => r.id === selectedRoleId);
+  const roleInfo = ROLE_OPTIONS.find(r => r.value === selectedRole);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <div className="flex items-center gap-2">
             <UserPlus className="h-6 w-6 text-primary" />
             <DialogTitle className="text-2xl">
-              Invitar Miembro al Equipo
+              Añadir Miembro al Proyecto
             </DialogTitle>
           </div>
-          <p className="text-gray-600">
-            Invita a un nuevo miembro y asígnale un rol personalizado
+          <p className="text-muted-foreground text-sm">
+            El usuario debe tener cuenta en Nova Hub. Introduce su email y asígnale un rol.
           </p>
         </DialogHeader>
 
-        <div className="space-y-6 mt-4">
-          {/* Limit Warning */}
+        <div className="space-y-5 mt-4">
+          {/* Limit warning */}
           {!canAddMember && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-4">
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-4">
               <div className="flex items-start gap-3">
-                <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                <div className="flex-1">
-                  <h4 className="font-semibold text-sm text-red-900 mb-1">
-                    Límite de Miembros Alcanzado
-                  </h4>
-                  <p className="text-sm text-red-800">
-                    Has alcanzado el límite de {membersLimit.max} miembros en tu plan actual.
-                    Actualiza tu plan para invitar más miembros.
-                  </p>
-                </div>
+                <AlertCircle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
+                <p className="text-sm text-destructive">
+                  Has alcanzado el límite de {membersLimit.max} miembros en tu plan actual.
+                </p>
               </div>
             </div>
           )}
 
-          {/* Members Usage */}
-          <div className="bg-gray-50 rounded-lg p-4">
+          {/* Members usage */}
+          <div className="bg-muted/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium text-gray-700">
-                Miembros en el proyecto
-              </span>
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-medium">Miembros en el proyecto</span>
+              <span className="text-sm font-semibold">
                 {membersLimit.current} / {membersLimit.isUnlimited ? '∞' : membersLimit.max}
               </span>
             </div>
             {!membersLimit.isUnlimited && (
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+              <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                 <div
                   className={cn(
                     'h-full transition-all',
-                    membersLimit.percentage >= 90 ? 'bg-red-500' : 'bg-primary'
+                    membersLimit.percentage >= 90 ? 'bg-destructive' : 'bg-primary'
                   )}
                   style={{ width: `${Math.min(membersLimit.percentage, 100)}%` }}
                 />
@@ -193,108 +209,54 @@ export function InviteMemberWizard({
             />
           </div>
 
-          {/* Nombre */}
-          <div className="space-y-2">
-            <Label htmlFor="nombre" className="flex items-center gap-2">
-              <User className="h-4 w-4" />
-              Nombre *
-            </Label>
-            <Input
-              id="nombre"
-              placeholder="Nombre completo"
-              value={nombre}
-              onChange={(e) => setNombre(e.target.value)}
-              disabled={!canAddMember || isSubmitting}
-            />
-          </div>
-
-          {/* Role Selection */}
+          {/* Role — C3.2: selector sobre specialization_role, no sobre project_roles */}
           <div className="space-y-2">
             <Label htmlFor="role" className="flex items-center gap-2">
               <Briefcase className="h-4 w-4" />
-              Rol Asignado (Opcional)
+              Rol *
             </Label>
             <Select
-              value={selectedRoleId}
-              onValueChange={setSelectedRoleId}
-              disabled={!canAddMember || isSubmitting || isLoadingRoles}
+              value={selectedRole}
+              onValueChange={(v) => setSelectedRole(v as SpecializationRole)}
+              disabled={!canAddMember || isSubmitting}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Sin rol asignado (puede elegir más tarde)" />
+                <SelectValue placeholder="Sin rol asignado" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="no-role">Sin rol asignado</SelectItem>
-                {roles.map((role) => (
-                  <SelectItem key={role.id} value={role.id}>
-                    <div className="flex items-center gap-2">
-                      {role.role_name}
-                      {role.is_critical && (
-                        <Badge variant="outline" className="text-xs ml-2">
-                          Crítico
-                        </Badge>
-                      )}
-                    </div>
+                {ROLE_OPTIONS.map((role) => (
+                  <SelectItem key={role.value} value={role.value}>
+                    {role.label}
                   </SelectItem>
                 ))}
               </SelectContent>
             </Select>
+
+            {roleInfo && (
+              <p className="text-xs text-muted-foreground pl-1">{roleInfo.description}</p>
+            )}
           </div>
 
-          {/* Selected Role Details */}
-          {selectedRole && (
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <h4 className="font-semibold text-sm text-blue-900 mb-2">
-                {selectedRole.role_name}
-              </h4>
-              <p className="text-sm text-blue-800">
-                {selectedRole.description}
-              </p>
-              <div className="flex items-center gap-2 mt-2">
-                <Badge variant="outline" className="text-xs">
-                  {selectedRole.department}
-                </Badge>
-                {selectedRole.is_critical && (
-                  <Badge className="text-xs bg-amber-500">
-                    Crítico para MVP
-                  </Badge>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Error Message */}
+          {/* Error */}
           {error && (
-            <div className="bg-red-50 border border-red-200 rounded-lg p-3">
-              <p className="text-sm text-red-800 flex items-center gap-2">
-                <AlertCircle className="h-4 w-4" />
+            <div className="bg-destructive/10 border border-destructive/30 rounded-lg p-3">
+              <p className="text-sm text-destructive flex items-center gap-2">
+                <AlertCircle className="h-4 w-4 shrink-0" />
                 {error}
               </p>
             </div>
           )}
-
-          {/* Info */}
-          <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
-            <p className="text-xs text-gray-600">
-              <CheckCircle className="h-4 w-4 inline mr-1 text-green-600" />
-              El miembro recibirá un email de invitación. Puede aceptar o rechazar la invitación.
-            </p>
-          </div>
         </div>
 
-        {/* Actions */}
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-          <Button
-            onClick={handleClose}
-            variant="outline"
-            disabled={isSubmitting}
-          >
+          <Button onClick={handleClose} variant="outline" disabled={isSubmitting}>
             Cancelar
           </Button>
           <Button
             onClick={handleSubmit}
-            disabled={!canAddMember || isSubmitting || !email || !nombre}
+            disabled={!canAddMember || isSubmitting || !email.trim() || !selectedRole}
           >
-            {isSubmitting ? 'Enviando...' : 'Enviar Invitación'}
+            {isSubmitting ? 'Añadiendo...' : 'Añadir miembro'}
           </Button>
         </div>
       </DialogContent>

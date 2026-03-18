@@ -19,17 +19,29 @@ import {
   type SynthesizedInsight,
   type AgentRiskModifier,
 } from '@/lib/agent-synthesis'
+import {
+  computeReliabilityScore,
+  SOURCE_WEIGHTS,
+  type SourceUsed,
+  type ProviderSlug,
+  type ProjectSourcePreferences,
+} from '@/lib/evidence'
 
 type RawInsightRow = {
-  id:           string
-  agent_type:   string
-  insight_type: string
-  payload:      Record<string, unknown>
-  confidence:   number
-  generated_at: string
+  id:                string
+  agent_type:        string
+  insight_type:      string
+  payload:           Record<string, unknown>
+  confidence:        number
+  generated_at:      string
+  evidence_type?:    string
+  sources_used?:     unknown
 }
 
-function toSynthesizedInsight(row: RawInsightRow): SynthesizedInsight | null {
+function toSynthesizedInsight(
+  row: RawInsightRow,
+  preferences?: ProjectSourcePreferences,
+): SynthesizedInsight | null {
   const content = (row.payload as { content?: Record<string, unknown> })?.content
   if (!content) return null
 
@@ -50,6 +62,13 @@ function toSynthesizedInsight(row: RawInsightRow): SynthesizedInsight | null {
     agentType !== 'calendar'
   ) return null
 
+  // T17.17 — parsear sources_used para computar reliability_score
+  const sourcesUsed: SourceUsed[] = Array.isArray(row.sources_used)
+    ? (row.sources_used as SourceUsed[])
+    : []
+  // T17.26 — pasar preferencias para respetar fuentes desactivadas/con peso override
+  const reliabilityScore = computeReliabilityScore(sourcesUsed, row.confidence, preferences)
+
   return {
     id:           row.id,
     agent_type:   agentType,
@@ -60,8 +79,15 @@ function toSynthesizedInsight(row: RawInsightRow): SynthesizedInsight | null {
       severity,
       ...(content['action_hint'] != null && { action_hint: String(content['action_hint']) }),
     },
-    confidence:   row.confidence,
-    generated_at: row.generated_at,
+    confidence:        row.confidence,
+    generated_at:      row.generated_at,
+    reliability_score: reliabilityScore,
+    evidence_type:     (row.evidence_type as SynthesizedInsight['evidence_type']) ?? 'inferred',
+    sources:           sourcesUsed.map(s => ({
+      source:     s.source as ProviderSlug,
+      confidence: s.confidence,
+      synced_at:  s.timestamp,
+    })),
   }
 }
 
@@ -72,19 +98,41 @@ export interface AgentContextData {
 
 async function fetchAgentContext(projectId: string): Promise<AgentContextData> {
   const now = new Date().toISOString()
-  const { data, error } = await supabase
-    .from('integration_insights')
-    .select('id, agent_type, insight_type, payload, confidence, generated_at')
-    .eq('project_id', projectId)
-    .in('agent_type', ['finance', 'execution'])
-    .eq('include_in_context', true)
-    .gt('expires_at', now)
 
-  if (error) throw new Error(`useAgentContext: ${error.message}`)
+  // T17.26 — cargar preferencias de fuente en paralelo con los insights
+  const [insightsResult, prefsResult] = await Promise.all([
+    supabase
+      .from('integration_insights')
+      .select('id, agent_type, insight_type, payload, confidence, generated_at, evidence_type, sources_used')
+      .eq('project_id', projectId)
+      .in('agent_type', ['finance', 'execution', 'sales', 'calendar'])
+      .eq('include_in_context', true)
+      .gt('expires_at', now),
+    supabase
+      .from('project_source_preferences')
+      .select('source, enabled, weight_override')
+      .eq('project_id', projectId),
+  ])
 
-  const raw = (data ?? []) as RawInsightRow[]
+  if (insightsResult.error) throw new Error(`useAgentContext: ${insightsResult.error.message}`)
+
+  // Construir ProjectSourcePreferences desde filas de DB (filas ausentes = default enabled)
+  const preferences: ProjectSourcePreferences = Object.fromEntries(
+    (Object.keys(SOURCE_WEIGHTS) as ProviderSlug[]).map(s => [s, { enabled: true }])
+  ) as ProjectSourcePreferences
+  for (const row of (prefsResult.data ?? [])) {
+    const source = row.source as ProviderSlug
+    if (source in preferences) {
+      preferences[source] = {
+        enabled:         row.enabled,
+        weight_override: (row.weight_override as number | null) ?? undefined,
+      }
+    }
+  }
+
+  const raw = (insightsResult.data ?? []) as RawInsightRow[]
   const allInsights = raw.flatMap((r) => {
-    const s = toSynthesizedInsight(r)
+    const s = toSynthesizedInsight(r, preferences)
     return s ? [s] : []
   })
 

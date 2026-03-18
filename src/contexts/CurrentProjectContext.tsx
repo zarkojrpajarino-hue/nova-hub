@@ -1,3 +1,4 @@
+// @refresh reset
 /**
  * 🎯 CURRENT PROJECT CONTEXT
  *
@@ -18,14 +19,16 @@ export interface Project {
   id: string;
   nombre: string;
   descripcion: string | null;
-  owner_id: string;
-  work_mode: 'individual' | 'team_small' | 'team_established' | 'no_roles';
-  business_idea: string | null;
-  industry: string | null;
-  logo_url: string | null;
-  facturacion: number;
-  margen: number;
-  active: boolean;
+  created_by: string | null;
+  // Legacy alias kept for existing code — maps to created_by in DB
+  owner_id?: string;
+  work_mode?: 'individual' | 'team_small' | 'team_established' | 'no_roles';
+  business_idea?: string | null;
+  industry?: string | null;
+  logo_url?: string | null;
+  facturacion?: number;
+  margen?: number;
+  active?: boolean;
   deleted_at: string | null;
   created_at: string;
   updated_at: string;
@@ -68,15 +71,23 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
     queryFn: async () => {
       if (!user || !profile) return [];
 
-      const { data, error } = await supabase
+      const memberProjectIds = await getUserProjectIds(profile.id);
+
+      const query = supabase
         .from('projects')
         .select('*')
-        .is('deleted_at', null)
-        .or(`owner_id.eq.${profile.id},id.in.(${await getUserProjectIds(profile.id)})`)
-        .order('created_at', { ascending: false });
+        .is('deleted_at', null);
+
+      const { data, error } = await (memberProjectIds
+        ? query.or(`created_by.eq.${profile.id},id.in.(${memberProjectIds})`)
+        : query.eq('created_by', profile.id)
+      ).order('created_at', { ascending: false });
 
       if (error) {
-        throw error;
+        // 403 = sesión expirada o token sin role authenticated
+        // Degradar a [] en lugar de propagar el error
+        console.warn('[CurrentProjectContext] projects query failed:', error.code, error.message);
+        return [];
       }
 
       return data;
@@ -147,7 +158,7 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
     userProjects,
     isLoading,
     hasProjects: userProjects.length > 0,
-    isOwner: currentProject ? currentProject.owner_id === profile?.id : false,
+    isOwner: currentProject ? currentProject.created_by === profile?.id : false,
     switchProject,
     clearCurrentProject,
   };
@@ -172,8 +183,3 @@ export function useCurrentProject() {
   return context;
 }
 
-// =====================================================
-// EXPORTS
-// =====================================================
-
-export { CurrentProjectContext };

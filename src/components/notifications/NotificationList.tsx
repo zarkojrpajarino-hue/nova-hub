@@ -34,7 +34,7 @@ interface Notification {
   type: string;
   priority: string;
   action_url: string | null;
-  read_at: string | null;
+  read: boolean | null;
   created_at: string;
 }
 
@@ -87,7 +87,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
         .limit(50);
 
       if (filter === 'unread') {
-        query = query.is('read_at', null);
+        query = query.eq('read', false);
       }
 
       const { data, error } = await query;
@@ -105,13 +105,13 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
     try {
       const { error } = await supabase
         .from('notifications')
-        .update({ read_at: new Date().toISOString() })
+        .update({ read: true })
         .eq('id', notificationId);
 
       if (error) throw error;
 
       setNotifications((prev) =>
-        prev.map((n) => (n.id === notificationId ? { ...n, read_at: new Date().toISOString() } : n))
+        prev.map((n) => (n.id === notificationId ? { ...n, read: true } : n))
       );
 
       onNotificationRead?.();
@@ -121,7 +121,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
 
   const markAllAsRead = async () => {
     try {
-      const unreadIds = notifications.filter((n) => !n.read_at).map((n) => n.id);
+      const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
 
       if (unreadIds.length === 0) {
         toast.info('No hay notificaciones sin leer');
@@ -130,7 +130,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
 
       const { error } = await supabase
         .from('notifications')
-        .update({ read_at: new Date().toISOString() })
+        .update({ read: true })
         .in('id', unreadIds);
 
       if (error) throw error;
@@ -157,7 +157,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
   };
 
   const handleNotificationClick = (notification: Notification) => {
-    if (!notification.read_at) {
+    if (!notification.read) {
       markAsRead(notification.id);
     }
 
@@ -167,7 +167,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
     }
   };
 
-  const unreadCount = notifications.filter((n) => !n.read_at).length;
+  const unreadCount = notifications.filter((n) => !n.read).length;
 
   if (isLoading) {
     return (
@@ -217,7 +217,7 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
             {notifications.map((notification) => {
               const Icon = typeIcons[notification.type] || Info;
               const colorClass = typeColors[notification.type] || typeColors.info;
-              const isUnread = !notification.read_at;
+              const isUnread = !notification.read;
 
               return (
                 <div

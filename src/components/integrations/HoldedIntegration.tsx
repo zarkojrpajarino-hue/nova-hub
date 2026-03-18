@@ -13,8 +13,10 @@ import { Label } from '@/components/ui/label';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+// I15.0.4 — supabase import aislado (financial_integrations no existe — pendiente reescritura)
+// import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { ApiKeyGuide } from './ApiKeyGuide';
 
 export function HoldedIntegration() {
   const [apiKey, setApiKey] = useState('');
@@ -24,75 +26,20 @@ export function HoldedIntegration() {
   const [lastSync, setLastSync] = useState<string | null>(null);
 
   const handleConnect = async () => {
-    if (!apiKey) {
-      toast.error('Por favor ingresa tu API Key de Holded');
-      return;
-    }
-
-    setIsLoading(true);
-    try {
-      // Guardar en tabla financial_integrations
-      const { error } = await supabase
-        .from('financial_integrations')
-        .upsert({
-          provider: 'holded',
-          api_key: apiKey,
-          is_active: true,
-        });
-
-      if (error) throw error;
-
-      setIsConnected(true);
-      toast.success('¡Holded conectado exitosamente!');
-      setApiKey(''); // Limpiar por seguridad
-
-      // Hacer primera sincronización
-      await handleSync();
-    } catch (_error) {
-      toast.error('Error al conectar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
-    } finally {
-      setIsLoading(false);
-    }
+    // I15.0.4 — AISLADO: tabla financial_integrations no existe.
+    // Pendiente reescritura completa (mismo patrón que StripeIntegration + integration_connections + pgcrypto).
+    toast.error('Holded no disponible aún — integración en desarrollo');
   };
 
   const handleSync = async () => {
-    setIsSyncing(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('auto-sync-finances', {
-        body: {
-          provider: 'holded',
-          manual: true
-        },
-      });
-
-      if (error) throw error;
-
-      setLastSync(new Date().toLocaleString('es-ES'));
-      toast.success(`Sincronización completada: ${data?.invoicesCount || 0} facturas`);
-    } catch (_error) {
-      toast.error('Error en sincronización: ' + (error instanceof Error ? error.message : 'Error desconocido'));
-    } finally {
-      setIsSyncing(false);
-    }
+    // I15.0.4 — AISLADO: auto-sync-finances depende de financial_integrations (no existe).
+    toast.error('Sync de Holded no disponible aún');
   };
 
   const handleDisconnect = async () => {
-    setIsLoading(true);
-    try {
-      const { error } = await supabase
-        .from('financial_integrations')
-        .update({ is_active: false })
-        .eq('provider', 'holded');
-
-      if (error) throw error;
-
-      setIsConnected(false);
-      toast.success('Holded desconectado');
-    } catch (_error) {
-      toast.error('Error al desconectar');
-    } finally {
-      setIsLoading(false);
-    }
+    // I15.0.4 — AISLADO: tabla financial_integrations no existe.
+    setIsConnected(false);
+    toast.success('Holded desconectado');
   };
 
   return (
@@ -150,7 +97,10 @@ export function HoldedIntegration() {
               </Alert>
 
               <div className="space-y-2">
-                <Label htmlFor="holded-key">API Key</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="holded-key">API Key</Label>
+                  <ApiKeyGuide provider="holded" />
+                </div>
                 <Input
                   id="holded-key"
                   type="password"

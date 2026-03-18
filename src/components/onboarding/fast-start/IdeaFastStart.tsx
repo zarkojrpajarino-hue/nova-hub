@@ -1,12 +1,15 @@
 /**
  * 🚀 IDEA FAST START
  *
- * Para usuarios CON IDEA que quieren validarla
- * Metodología: Lean Startup
+ * Para usuarios CON IDEA que quieren validarla.
+ * Metodología: Lean Startup (con hipótesis) / Design Thinking (sin hipótesis).
+ *
+ * Fases internas:
+ *   screening     → pregunta binaria "¿tienes hipótesis clara?"
+ *   with-hyp      → flujo original: pitch + nombre + generate (Lean Startup)
+ *   without-hyp   → DiscoveryThinkingForm 5 pasos (O5.5)
  *
  * OBJETIVO: 4 minutos, 75-85% completion
- * INPUT: Pitch + nombre del proyecto + AutoFill opcional
- * OUTPUT: Business Model Canvas + 2 Buyer Personas + Sales Playbook inicial
  */
 
 import { useState } from 'react';
@@ -29,13 +32,19 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { generateAllArtifacts } from '@/lib/ai-generators';
+import type { FaseAAnswers } from './FaseACommon';
+import { DiscoveryThinkingForm } from './DiscoveryThinkingForm';
 
 interface IdeaFastStartProps {
   projectId: string;
+  faseAAnswers: FaseAAnswers;
   onComplete: (data: Record<string, unknown>) => void;
 }
 
-export function IdeaFastStart({ projectId, onComplete }: IdeaFastStartProps) {
+export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastStartProps) {
+  // O5.5 — madurez de hipótesis: null=sin responder, 'structured'=Lean Startup, 'partial'/'none'=DT
+  const [hypothesisMaturity, setHypothesisMaturity] = useState<'none' | 'partial' | 'structured' | null>(null);
+
   const [isGenerating, setIsGenerating] = useState(false);
   const [showAutoFill, setShowAutoFill] = useState(false);
   const [formData, setFormData] = useState({
@@ -58,11 +67,17 @@ export function IdeaFastStart({ projectId, onComplete }: IdeaFastStartProps) {
     setIsGenerating(true);
 
     try {
-      // Generate AI artifacts from pitch
+      // Generate AI artifacts from pitch + Fase A context
       const input = {
         project_id: projectId,
         onboarding_type: 'idea',
         ...formData,
+        location: faseAAnswers.location_country,
+        mrr_monthly: faseAAnswers.mrr_monthly,
+        active_customers: faseAAnswers.active_customers,
+        team_size: faseAAnswers.team_size,
+        monetization_type: faseAAnswers.monetization_type,
+        market_scope: faseAAnswers.market_scope,
       };
 
       const artifacts = await generateAllArtifacts(input);
@@ -72,6 +87,7 @@ export function IdeaFastStart({ projectId, onComplete }: IdeaFastStartProps) {
         ...formData,
         ai_generated_artifacts: artifacts,
         fast_start_type: 'idea',
+        hypothesis_maturity: 'structured',
         completed_at: new Date().toISOString(),
       });
 
@@ -86,6 +102,82 @@ export function IdeaFastStart({ projectId, onComplete }: IdeaFastStartProps) {
     }
   };
 
+  // ── O5.5: Screening ────────────────────────────────────────────────────────
+  if (hypothesisMaturity === null) {
+    return (
+      <div className="max-w-2xl mx-auto">
+        <Card>
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
+                <Rocket className="h-7 w-7 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl">Tienes una idea</CardTitle>
+                <CardDescription className="text-base mt-1">
+                  Una pregunta para orientar tu flujo
+                </CardDescription>
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-6">
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <p className="font-semibold text-gray-900 text-lg mb-1">
+                ¿En qué punto está tu hipótesis de negocio?
+              </p>
+              <p className="text-sm text-muted-foreground">
+                No necesitas tener nada validado, solo saber qué tan formada está tu tesis.
+              </p>
+            </div>
+            <div className="flex flex-col gap-3">
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex flex-col gap-1.5 border-2 hover:border-primary hover:bg-primary/5 text-left items-start px-5"
+                onClick={() => setHypothesisMaturity('structured')}
+              >
+                <span className="font-semibold">Ya tengo una hipótesis clara</span>
+                <span className="text-xs text-muted-foreground font-normal">
+                  Sé quién es mi cliente, qué problema resuelvo y qué construiré
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex flex-col gap-1.5 border-2 hover:border-primary hover:bg-primary/5 text-left items-start px-5"
+                onClick={() => setHypothesisMaturity('partial')}
+              >
+                <span className="font-semibold">Tengo una idea pero está poco definida</span>
+                <span className="text-xs text-muted-foreground font-normal">
+                  Intuyo el problema y la solución, pero no lo he formulado con claridad
+                </span>
+              </Button>
+              <Button
+                variant="outline"
+                className="h-auto py-4 flex flex-col gap-1.5 border-2 hover:border-primary hover:bg-primary/5 text-left items-start px-5"
+                onClick={() => setHypothesisMaturity('none')}
+              >
+                <span className="font-semibold">Quiero descubrir una oportunidad</span>
+                <span className="text-xs text-muted-foreground font-normal">
+                  Tengo ganas de emprender pero aún no tengo una dirección clara
+                </span>
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
+  // ── O5.5: Design Thinking path ('none' | 'partial') ────────────────────────
+  if (hypothesisMaturity === 'partial' || hypothesisMaturity === 'none') {
+    return (
+      <DiscoveryThinkingForm
+        hypothesisMaturity={hypothesisMaturity}
+        onComplete={onComplete}
+      />
+    );
+  }
+
+  // ── Lean Startup path ('structured') ──────────────────────────────────────
   if (isGenerating) {
     return (
       <div className="max-w-2xl mx-auto">

@@ -533,14 +533,16 @@ pero el Phase Engine evalúa avance con ≥75 estándar).
 | Verificar existencia de `strategic_cycles` y `tasks.strategic_cycle_id` | E4.4 O3.3 proxy | PENDIENTE |
 | C3.4 — calculate_role_performance_score (6 fórmulas) | E4.4 O3.2 completo | PENDIENTE |
 | C3.5 — leader_id en task form + accountability_score | O4.2 v2 mejora | PENDIENTE (no bloquea E4.5 — proxy funcional) |
-| UI AcquisitionChannelEditor (botón "Validado hoy") | O2.3 last_validated_at útil | PENDIENTE |
+| ~~UI AcquisitionChannelEditor (botón "Validado hoy")~~ | O2.3 last_validated_at útil | CERRADO — ya existía antes de EP sprint (EP.1 audit 2026-03-10) |
 | ~~Verificar campo `obv_outcome` en tabla `obvs`~~ | E4.3 O2.1 y O2.2 | CERRADO — existe en migration 00003 |
 | ~~Verificar campo `strategic_cycle_id` en tabla `tasks`~~ | E4.4 O3.3 | CERRADO — NO existe; proxy temporal implementado en migration 00015 |
 | ~~E4.5 Phase 4 Engine~~ | run_phase_engine Phase 4 block | CERRADO — migration 00018 |
 | automation_score pathway O4.3 | O4.3 max=100 para solo founder | DEUDA v2 — no existe en schema |
 | financial_projections UI | O4.2 cost_data_months | DEUDA v2 — eliminado de hard signal v1 |
 | ~~phase_state en useProjects()~~ | UI consume engine phase | CERRADO — LEFT JOIN añadido, `phase_state.current_phase` disponible |
-| UI components migrar a `phase_state.current_phase` | Badges, labels, tabs condicionales | P1 pendiente — no bloquea engine |
+| ~~UI components migrar a `phase_state.current_phase`~~ | Badges, labels, tabs condicionales | CERRADO — OBVStep2Project + useOBVFormLogic → useNovaDataOptimized (EP.2 2026-03-10) |
+| C3.4 — calculate_role_performance_score | E4.4 O3.2 completo | DEUDA v2 — ~10 inputs inexistentes en DB; compute_role_execution_health cubre proxy operacional |
+| generate-tasks-v2 edge fn lee `projects.fase` (legacy enum) | AI context de fase | DEUDA v2 — decisión de producto pendiente sobre qué fase exponer al modelo |
 
 ---
 

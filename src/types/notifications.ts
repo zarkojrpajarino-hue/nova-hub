@@ -1,17 +1,21 @@
 /**
  * NOTIFICATION TYPES V2
  *
- * Tipos completos para el sistema de notificaciones mejorado
+ * Tipos completos para el sistema de notificaciones.
+ * Layer 1: actividad de usuario
+ * Layer 2: Phase Engine
+ * Layer 3: Probability Engine
+ * Layer 4: Viability Engine
+ * Layer 5: Risk/Org Engine
  */
 
 export type NotificationPriority = 'critical' | 'high' | 'medium' | 'low';
 
 export type NotificationType =
-  // Existentes
+  // ── Layer 1: Actividad (existentes) ──────────────────────────────────────
   | 'nuevas_obvs'
   | 'validaciones'
   | 'tareas'
-  // Nuevas v2
   | 'lead_inactive'
   | 'task_overdue'
   | 'validation_expiring'
@@ -21,7 +25,26 @@ export type NotificationType =
   | 'project_deleted'
   | 'role_accepted'
   | 'lead_won'
-  | 'obv_validated';
+  | 'obv_validated'
+  // ── Layer 2: Phase Engine ─────────────────────────────────────────────────
+  | 'phase_advanced'
+  | 'phase_regressed'
+  | 'phase_critical'
+  | 'hard_signal_reached'
+  | 'phase_stagnant'
+  // ── Layer 3: Probability Engine ───────────────────────────────────────────
+  | 'probability_drop'
+  | 'probability_critical'
+  | 'probability_recovered'
+  // ── Layer 4: Viability Engine ─────────────────────────────────────────────
+  | 'viability_critical'
+  | 'viability_monitoring'
+  | 'viability_resolved'
+  | 'cash_flow_alert'
+  // ── Layer 5: Risk / Org Engine ────────────────────────────────────────────
+  | 'risk_critical'
+  | 'risk_elevated'
+  | 'bottleneck_detected';
 
 export interface Notification {
   id: string;
@@ -37,7 +60,6 @@ export interface Notification {
   archived: boolean;
   snoozed_until?: string | null;
   created_at: string;
-  updated_at: string;
 }
 
 export interface NotificationFilters {
@@ -60,7 +82,7 @@ export const NOTIFICATION_CONFIG: Record<NotificationType, {
   bgColor: string;
   defaultPriority: NotificationPriority;
 }> = {
-  // Existentes
+  // ── Layer 1: Actividad ───────────────────────────────────────────────────
   nuevas_obvs: {
     icon: '📋',
     color: 'text-amber-500',
@@ -79,7 +101,6 @@ export const NOTIFICATION_CONFIG: Record<NotificationType, {
     bgColor: 'bg-blue-500/10',
     defaultPriority: 'medium',
   },
-  // Nuevas v2
   lead_inactive: {
     icon: '🔥',
     color: 'text-orange-500',
@@ -139,6 +160,100 @@ export const NOTIFICATION_CONFIG: Record<NotificationType, {
     color: 'text-green-500',
     bgColor: 'bg-green-500/10',
     defaultPriority: 'low',
+  },
+  // ── Layer 2: Phase Engine ────────────────────────────────────────────────
+  phase_advanced: {
+    icon: '🚀',
+    color: 'text-green-600',
+    bgColor: 'bg-green-500/10',
+    defaultPriority: 'high',
+  },
+  phase_regressed: {
+    icon: '📉',
+    color: 'text-red-600',
+    bgColor: 'bg-red-500/10',
+    defaultPriority: 'critical',
+  },
+  phase_critical: {
+    icon: '🔴',
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/10',
+    defaultPriority: 'high',
+  },
+  hard_signal_reached: {
+    icon: '🏁',
+    color: 'text-green-600',
+    bgColor: 'bg-green-500/10',
+    defaultPriority: 'high',
+  },
+  phase_stagnant: {
+    icon: '⏸️',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    defaultPriority: 'medium',
+  },
+  // ── Layer 3: Probability Engine ──────────────────────────────────────────
+  probability_drop: {
+    icon: '📉',
+    color: 'text-orange-600',
+    bgColor: 'bg-orange-500/10',
+    defaultPriority: 'high',
+  },
+  probability_critical: {
+    icon: '🚨',
+    color: 'text-red-600',
+    bgColor: 'bg-red-500/10',
+    defaultPriority: 'critical',
+  },
+  probability_recovered: {
+    icon: '📈',
+    color: 'text-green-600',
+    bgColor: 'bg-green-500/10',
+    defaultPriority: 'low',
+  },
+  // ── Layer 4: Viability Engine ────────────────────────────────────────────
+  viability_critical: {
+    icon: '🚨',
+    color: 'text-red-600',
+    bgColor: 'bg-red-500/10',
+    defaultPriority: 'critical',
+  },
+  viability_monitoring: {
+    icon: '👁️',
+    color: 'text-amber-500',
+    bgColor: 'bg-amber-500/10',
+    defaultPriority: 'medium',
+  },
+  viability_resolved: {
+    icon: '✅',
+    color: 'text-green-600',
+    bgColor: 'bg-green-500/10',
+    defaultPriority: 'low',
+  },
+  cash_flow_alert: {
+    icon: '💸',
+    color: 'text-red-600',
+    bgColor: 'bg-red-500/10',
+    defaultPriority: 'critical',
+  },
+  // ── Layer 5: Risk / Org Engine ───────────────────────────────────────────
+  risk_critical: {
+    icon: '⚠️',
+    color: 'text-red-600',
+    bgColor: 'bg-red-500/10',
+    defaultPriority: 'critical',
+  },
+  risk_elevated: {
+    icon: '⚠️',
+    color: 'text-orange-500',
+    bgColor: 'bg-orange-500/10',
+    defaultPriority: 'high',
+  },
+  bottleneck_detected: {
+    icon: '🚧',
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-500/10',
+    defaultPriority: 'high',
   },
 };
 

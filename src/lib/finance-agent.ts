@@ -20,6 +20,8 @@
  * Registrado como I15.DEBT.5.
  */
 
+import type { EvidenceType, SourceUsed, SourceDiscarded } from '@/lib/evidence'
+
 export type FinanceInsightType = 'cash_flow_signal' | 'revenue_concentration'
 
 export interface SubscriptionEntityRow {
@@ -53,6 +55,10 @@ export interface FinanceInsightData {
   include_in_context: boolean
   /** En horas — el servicio calcula expires_at = generated_at + expires_hours */
   expires_hours: number
+  /** T17.12 — metadata de evidencia */
+  evidence_type:     EvidenceType
+  sources_used:      SourceUsed[]
+  sources_discarded: SourceDiscarded[]
 }
 
 // Statuses que generan revenue real
@@ -107,6 +113,9 @@ export function computeCashFlowSignal(
     entity_ids: active.map((e) => e.id),
     include_in_context: true,
     expires_hours: 24,
+    evidence_type:     'observed',
+    sources_used:      [{ source: 'stripe', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: active.length }],
+    sources_discarded: [],
   }
 }
 
@@ -179,6 +188,9 @@ export function computeRevenueConcentration(
     entity_ids: active.map((e) => e.id),
     include_in_context: concentrationPct > 30,
     expires_hours: 7 * 24,
+    evidence_type:     'observed',
+    sources_used:      [{ source: 'stripe', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: active.length }],
+    sources_discarded: [],
   }
 }
 
@@ -189,5 +201,8 @@ export function runFinanceAgentLocal(
   return [
     computeCashFlowSignal(entities),
     computeRevenueConcentration(entities),
-  ].filter((x): x is FinanceInsightData => x !== null)
+  ]
+    .filter((x): x is FinanceInsightData => x !== null)
+    // T17.29 — §12 política de silencio: dato estimado con baja confianza y sin entidades → no emitir
+    .filter(x => !(x.confidence < 0.5 && x.entity_ids.length === 0))
 }

@@ -18,6 +18,9 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { CheckSquare, AlertTriangle, Info, Loader2 } from 'lucide-react'
 import { getActiveExecutionInsights } from '@/services/executionAgentService'
+import { EvidenceBadge } from '@/components/evidence/EvidenceBadge'
+import { SourcesPanel } from '@/components/evidence/SourcesPanel'
+import type { EvidenceType, SourceUsed, SourceDiscarded, ProviderSlug } from '@/lib/evidence'
 
 interface InsightPayload {
   signal: { metric_name: string; current_value: number; data_points: number }
@@ -84,6 +87,9 @@ export function ExecutionInsightsCard({ projectId }: ExecutionInsightsCardProps)
         {insights.map((insight) => {
           const payload = insight.payload as InsightPayload
           const { content } = payload
+          const evidenceType = (insight as unknown as { evidence_type?: string }).evidence_type as EvidenceType | undefined
+          const sourcesUsed = ((insight as unknown as { sources_used?: unknown }).sources_used ?? []) as SourceUsed[]
+          const sourcesDiscarded = ((insight as unknown as { sources_discarded?: unknown }).sources_discarded ?? []) as SourceDiscarded[]
 
           return (
             <div
@@ -101,6 +107,13 @@ export function ExecutionInsightsCard({ projectId }: ExecutionInsightsCardProps)
                 <span className="text-xs text-muted-foreground font-mono">
                   {insight.insight_type}
                 </span>
+                {evidenceType && (
+                  <EvidenceBadge
+                    type={evidenceType}
+                    source={sourcesUsed[0]?.source as ProviderSlug | undefined}
+                    compact
+                  />
+                )}
               </div>
               {/* §4.3 — summary: 1 frase factual */}
               <p className="text-sm font-medium">{content.summary}</p>
@@ -123,6 +136,16 @@ export function ExecutionInsightsCard({ projectId }: ExecutionInsightsCardProps)
                   })}
                 </span>
               </div>
+              {evidenceType && (
+                <SourcesPanel
+                  sources_used={sourcesUsed}
+                  sources_discarded={sourcesDiscarded}
+                  evidence_type={evidenceType}
+                  generated_at={insight.generated_at}
+                  project_id={projectId}
+                  insight_type={insight.insight_type}
+                />
+              )}
             </div>
           )
         })}

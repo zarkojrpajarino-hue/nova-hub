@@ -12,17 +12,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import type { LeadStatus } from '@/types';
-
-// eslint-disable-next-line react-refresh/only-export-components
-export const PIPELINE_STAGES = [
-  { id: 'frio', label: 'Frío', color: '#64748B' },
-  { id: 'tibio', label: 'Tibio', color: '#F59E0B' },
-  { id: 'hot', label: 'Hot', color: '#EF4444' },
-  { id: 'propuesta', label: 'Propuesta', color: '#A855F7' },
-  { id: 'negociacion', label: 'Negociación', color: '#3B82F6' },
-  { id: 'cerrado_ganado', label: 'Cerrado Ganado', color: '#22C55E' },
-  { id: 'cerrado_perdido', label: 'Cerrado Perdido', color: '#6B7280' },
-];
+import { PIPELINE_STAGES } from './pipeline-stages';
 
 interface LeadFormProps {
   projectId?: string;

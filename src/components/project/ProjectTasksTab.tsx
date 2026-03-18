@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useProfiles } from '@/hooks/useNovaData';
 import { KanbanBoard } from '@/components/tasks/KanbanBoard';
 import { AITaskGenerator } from '@/components/tasks/AITaskGenerator';
+import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
 interface ProjectTasksTabProps {
   projectId: string;
@@ -19,6 +20,7 @@ interface ProjectTasksTabProps {
 
 function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) {
   const { data: profiles = [] } = useProfiles();
+  const { data: engineData } = useProjectEngineData(projectId);
 
   // Get project members with roles
   const { data: projectMembersData = [], isLoading } = useQuery({
@@ -81,17 +83,27 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
     };
   });
 
-  // Build AI context
+  // Build AI context — F19.B.2: reemplazar ENUM legacy por datos reales del motor
+  const coverageLevel = (type: string) =>
+    (engineData?.coverage ?? []).find(c => c.function_type === type)?.coverage_level ?? 'none';
+
   const aiProjectContext = project ? {
     id: project.id,
     nombre: project.nombre,
-    fase: project.fase,
+    fase: project.fase,      // mantenido por compatibilidad con la edge function
     tipo: project.tipo,
     onboarding_data: project.onboarding_data,
     team: projectMembers.map(m => ({ id: m.id, nombre: m.nombre, role: m.role || '' })),
     obvs_count: projectStats?.obvs_count || 0,
     leads_count: projectStats?.leads_count || 0,
     last_activity: projectStats?.last_activity || null,
+    // Motor del proyecto — sustituye la interpretación del ENUM por datos reales
+    current_phase:     engineData?.phaseState?.current_phase  ?? 1,
+    phase_score:       engineData?.phaseState?.phase_score    ?? 0,
+    hard_signal_met:   engineData?.phaseState?.hard_signal_met ?? false,
+    risk_level:        engineData?.risk?.risk_level           ?? 'low',
+    demand_coverage:   coverageLevel('demand'),
+    delivery_coverage: coverageLevel('delivery'),
   } : null;
 
   if (isLoading) {
@@ -112,9 +124,10 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
         )}
       </div>
 
-      <KanbanBoard 
-        projectId={projectId} 
+      <KanbanBoard
+        projectId={projectId}
         projectMembers={projectMembers}
+        currentPhase={engineData?.phaseState?.current_phase ?? 1}
       />
     </div>
   );

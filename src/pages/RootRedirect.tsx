@@ -16,12 +16,12 @@ import { Loader2 } from 'lucide-react';
 
 export function RootRedirect() {
   const navigate = useNavigate();
-  const { isAuthenticated, loading: authLoading, profile } = useAuth();
+  const { isAuthenticated, loading: authLoading, profileLoading } = useAuth();
   const { currentProject, userProjects, isLoading: projectsLoading } = useCurrentProject();
 
   useEffect(() => {
     // CRÍTICO: Esperar a que TODO esté cargado (auth, profile, y proyectos)
-    if (authLoading || projectsLoading || (isAuthenticated && !profile)) {
+    if (authLoading || projectsLoading || profileLoading) {
       return;
     }
 
@@ -45,7 +45,7 @@ export function RootRedirect() {
 
     // Si tiene proyecto seleccionado, ir al dashboard de ese proyecto
     navigate(`/proyecto/${currentProject.id}`, { replace: true });
-  }, [isAuthenticated, authLoading, projectsLoading, profile, currentProject, userProjects, navigate]);
+  }, [isAuthenticated, authLoading, projectsLoading, profileLoading, currentProject, userProjects, navigate]);
 
   // Loading state
   return (

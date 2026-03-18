@@ -74,7 +74,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
         {/* obv_outcome — resultado del OBV (drives velocity + scoring) */}
         <div>
           <Label className="mb-2 block">
-            ¿Cuál fue el resultado? <span className="text-muted-foreground font-normal">(recomendado)</span>
+            ¿Cuál fue el resultado? <span className="text-destructive">*</span>
           </Label>
           <div className="grid grid-cols-3 gap-2">
             {OUTCOME_OPTIONS.map((opt) => {
@@ -84,7 +84,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
                 <button
                   key={opt.value}
                   type="button"
-                  onClick={() => onUpdate({ obvOutcome: selected ? '' : opt.value })}
+                  onClick={() => onUpdate({ obvOutcome: opt.value })}
                   className={cn(
                     'flex flex-col items-center gap-1.5 p-3 rounded-xl border-2 text-center transition-all',
                     selected ? opt.bg + ' border-2' : 'border-border hover:border-muted-foreground/40'
@@ -98,8 +98,8 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
             })}
           </div>
           {!formData.obvOutcome && (
-            <p className="text-xs text-muted-foreground mt-1.5">
-              Sin resultado declarado esta OBV no contará como iteración para el motor.
+            <p className="text-xs text-destructive mt-1.5">
+              Obligatorio — sin resultado el motor no contabiliza esta OBV como iteración.
             </p>
           )}
         </div>

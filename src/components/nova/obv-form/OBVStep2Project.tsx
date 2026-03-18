@@ -8,8 +8,8 @@ interface Project {
   nombre: string;
   icon: string;
   color: string;
-  fase: string;
   tipo: string;
+  phase_state?: { current_phase: number | null } | null;
 }
 
 interface OBVStep2ProjectProps {
@@ -53,7 +53,7 @@ export const OBVStep2Project = memo(function OBVStep2Project({
                 <div className="flex-1">
                   <p className="font-semibold">{project.nombre}</p>
                   <p className="text-sm text-muted-foreground">
-                    {project.fase} • {project.tipo}
+                    Fase {project.phase_state?.current_phase ?? '?'} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
                   </p>
                 </div>
                 {formData.projectId === project.id && (

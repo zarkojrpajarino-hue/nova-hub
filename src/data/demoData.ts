@@ -99,10 +99,10 @@ export interface DemoValidation {
 
 export interface DemoNotification {
   id: string;
-  tipo: string;
-  titulo: string;
-  mensaje: string;
-  leida: boolean;
+  type: string;
+  title: string;
+  message: string;
+  read: boolean;
   fecha: string;
 }
 
@@ -310,13 +310,13 @@ export const DEMO_VALIDATIONS: DemoValidation[] = [
 // ============================================
 
 export const DEMO_NOTIFICATIONS: DemoNotification[] = [
-  { id: 'n1', tipo: 'obv_aprobada', titulo: 'OBV aprobada', mensaje: 'Tu OBV "Cierre contrato consultoría IA" ha sido validada por 2 compañeros.', leida: false, fecha: '2026-01-21T10:30:00' },
-  { id: 'n2', tipo: 'tarea_asignada', titulo: 'Nueva tarea asignada', mensaje: 'Se te ha asignado la tarea "Preparar propuesta colegio Sagrada Familia" en el proyecto Experea.', leida: false, fecha: '2026-01-21T09:15:00' },
-  { id: 'n3', tipo: 'obv_nueva', titulo: 'OBV pendiente de validación', mensaje: 'Fernando S ha subido un OBV que necesita tu validación. Tienes 3 días.', leida: true, fecha: '2026-01-20T16:45:00' },
-  { id: 'n4', tipo: 'lead_ganado', titulo: '¡Lead cerrado!', mensaje: 'El lead "Empresa Logística Sur SL" ha sido marcado como ganado. ¡Felicidades Zarko!', leida: true, fecha: '2026-01-19T14:00:00' },
-  { id: 'n5', tipo: 'obv_rechazada', titulo: 'OBV necesita corrección', mensaje: 'Tu OBV "Piloto instituto público" ha sido rechazada. Revisa los comentarios.', leida: false, fecha: '2026-01-18T11:20:00' },
-  { id: 'n6', tipo: 'ranking', titulo: '¡Has subido en el ranking!', mensaje: 'Ahora eres #2 en el ranking de OBVs del rol Sales. ¡Sigue así!', leida: true, fecha: '2026-01-17T18:00:00' },
-  { id: 'n7', tipo: 'master', titulo: 'Nuevo Master de Sales', mensaje: 'Fernando S ha sido nombrado Master de Sales. ¡Enhorabuena!', leida: true, fecha: '2026-01-16T10:00:00' },
+  { id: 'n1', type: 'obv_aprobada',   title: 'OBV aprobada',                   message: 'Tu OBV "Cierre contrato consultoría IA" ha sido validada por 2 compañeros.', read: false, fecha: '2026-01-21T10:30:00' },
+  { id: 'n2', type: 'tarea_asignada', title: 'Nueva tarea asignada',            message: 'Se te ha asignado la tarea "Preparar propuesta colegio Sagrada Familia" en el proyecto Experea.', read: false, fecha: '2026-01-21T09:15:00' },
+  { id: 'n3', type: 'obv_nueva',      title: 'OBV pendiente de validación',     message: 'Fernando S ha subido un OBV que necesita tu validación. Tienes 3 días.', read: true,  fecha: '2026-01-20T16:45:00' },
+  { id: 'n4', type: 'lead_ganado',    title: '¡Lead cerrado!',                  message: 'El lead "Empresa Logística Sur SL" ha sido marcado como ganado. ¡Felicidades Zarko!', read: true,  fecha: '2026-01-19T14:00:00' },
+  { id: 'n5', type: 'obv_rechazada',  title: 'OBV necesita corrección',         message: 'Tu OBV "Piloto instituto público" ha sido rechazada. Revisa los comentarios.', read: false, fecha: '2026-01-18T11:20:00' },
+  { id: 'n6', type: 'ranking',        title: '¡Has subido en el ranking!',      message: 'Ahora eres #2 en el ranking de OBVs del rol Sales. ¡Sigue así!', read: true,  fecha: '2026-01-17T18:00:00' },
+  { id: 'n7', type: 'master',         title: 'Nuevo Master de Sales',           message: 'Fernando S ha sido nombrado Master de Sales. ¡Enhorabuena!', read: true,  fecha: '2026-01-16T10:00:00' },
 ];
 
 // ============================================

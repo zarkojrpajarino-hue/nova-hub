@@ -49,16 +49,17 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
 
       const { data: project } = await supabase
         .from('projects')
-        .select('metadata')
+        .select('onboarding_data')
         .eq('id', projectId)
         .single();
 
-      if (project?.metadata?.fast_start_completed) {
+      const od = project?.onboarding_data as Record<string, unknown> | null;
+      if (od?.fast_start_completed) {
         setOnboardingProgress({
-          progress: project.metadata.onboarding_progress || 25,
-          fastStartCompleted: project.metadata.fast_start_completed || false,
-          deepSetupSections: project.metadata.deep_setup_sections || [],
-          onboardingType: project.metadata.onboarding_type || 'idea',
+          progress: (od?.onboarding_progress as number) || 25,
+          fastStartCompleted: (od?.fast_start_completed as boolean) || false,
+          deepSetupSections: (od?.deep_setup_sections as string[]) || [],
+          onboardingType: (od?.onboarding_type as string) || 'idea',
         });
       }
     };

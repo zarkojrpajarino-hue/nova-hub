@@ -61,7 +61,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
         .from('notifications')
         .select('*', { count: 'exact', head: true })
         .eq('user_id', userId)
-        .is('read_at', null);
+        .eq('read', false);
 
       if (error) throw error;
       setUnreadCount(count || 0);
