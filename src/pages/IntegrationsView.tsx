@@ -6,12 +6,15 @@
  */
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { SlackIntegration } from '@/components/integrations/SlackIntegration';
 import { StripeIntegration } from '@/components/integrations/StripeIntegration';
 import { HoldedIntegration } from '@/components/integrations/HoldedIntegration';
-import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock } from 'lucide-react';
+import { AsanaIntegration } from '@/components/integrations/AsanaIntegration';
+import { IntegrationRecommendationsPanel } from '@/components/integrations/IntegrationRecommendationsPanel';
+import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare } from 'lucide-react';
 import { HelpWidget } from '@/components/ui/section-help';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -19,8 +22,47 @@ import { useNavigation } from '@/contexts/NavigationContext';
 import { BackButton } from '@/components/navigation/BackButton';
 import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 import { HowItWorks } from '@/components/ui/how-it-works';
-import { IntegrationsPreviewModal } from '@/components/preview/IntegrationsPreviewModal';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
+import { supabase } from '@/integrations/supabase/client';
+import { useIntegrationConnections, type IntegrationConnectionStatus } from '@/hooks/useIntegrationConnections';
+
+// Badge que refleja estado real de integration_connections (I15.58 + I15.60)
+// isLoading: muestra skeleton mientras la query de connections está cargando (evita falso "Disponible")
+function ConnectionBadge({ status, isLoading }: { status: IntegrationConnectionStatus; isLoading: boolean }) {
+  if (isLoading) {
+    return <Badge variant="outline" className="text-xs opacity-40 animate-pulse">Cargando</Badge>
+  }
+  if (status.status === 'active' && status.is_stale) {
+    return (
+      <Badge variant="outline" className="text-xs text-amber-600 border-amber-400">
+        <AlertTriangle size={11} className="mr-1" />
+        Stale
+      </Badge>
+    )
+  }
+  if (status.status === 'active') {
+    return (
+      <Badge className="text-xs bg-green-500">
+        <CheckCircle2 size={11} className="mr-1" />
+        Conectado
+      </Badge>
+    )
+  }
+  if (status.status === 'error') {
+    return (
+      <Badge variant="destructive" className="text-xs">
+        <AlertCircle size={11} className="mr-1" />
+        Error
+      </Badge>
+    )
+  }
+  // not_connected | disconnected
+  return (
+    <Badge variant="outline" className="text-xs">
+      Disponible
+    </Badge>
+  )
+}
 
 interface IntegrationsViewProps {
   isDemoMode?: boolean;
@@ -29,10 +71,39 @@ interface IntegrationsViewProps {
 // Componente interno que renderiza el contenido
 function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {}) {
   const { goBack, canGoBack } = useNavigation();
-  const { currentProject: _currentProject } = useCurrentProject();
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
-
+  const { currentProject } = useCurrentProject();
   const demoData = PREMIUM_DEMO_DATA.integrations;
+  const { getStatus, isLoading, connections } = useIntegrationConnections(currentProject?.id);
+  const hasAnyActive = !isLoading && Object.values(connections).some((c) => c.status === 'active');
+
+  // Controlled tab state — permite navegar desde IntegrationRecommendationsPanel (I15.74)
+  const [activeTab, setActiveTab] = useState('slack');
+
+  // Fase del proyecto — para IntegrationRecommendationsPanel (I15.67 + I15.68)
+  const { data: phaseData } = useQuery({
+    queryKey: ['project_phase_state', currentProject?.id],
+    enabled: !!currentProject?.id,
+    staleTime: 60_000,
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('project_phase_state')
+        .select('current_phase')
+        .eq('project_id', currentProject!.id)
+        .maybeSingle();
+      return data;
+    },
+  });
+  const currentPhase = phaseData?.current_phase ?? 0;
+
+  // Contexto para el motor de recomendaciones (I15.70)
+  const connectedProviders = Object.entries(connections)
+    .filter(([, c]) => c.status === 'active')
+    .map(([provider]) => provider);
+  const recommendationCtx = {
+    current_phase: currentPhase,
+    connected_providers: connectedProviders,
+    mrr: null,  // I15.75 DEBT — mrr no disponible en este nivel; se filtra por fase y conexión
+  };
 
   return (
     <div className="container max-w-6xl py-8 space-y-6">
@@ -48,6 +119,27 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           Conecta Nova Hub con tus herramientas favoritas para automatizar tu flujo de trabajo
         </p>
       </div>
+
+      {/* I15.62 — Estado vacío: ninguna integración activa */}
+      {!isLoading && !hasAnyActive && !isDemoMode && (
+        <div className="rounded-lg border-2 border-dashed border-border/60 p-8 text-center space-y-3">
+          <div className="flex justify-center">
+            <div className="w-14 h-14 rounded-full bg-primary/10 flex items-center justify-center">
+              <Zap className="w-7 h-7 text-primary/60" />
+            </div>
+          </div>
+          <div>
+            <p className="font-semibold text-lg">Sin integraciones activas</p>
+            <p className="text-sm text-muted-foreground mt-1">
+              Conecta Stripe para importar MRR, o Holded para sincronizar facturas.<br />
+              Optimus usará los datos externos para recalcular tu evaluación automáticamente.
+            </p>
+          </div>
+          <p className="text-xs text-muted-foreground">
+            Elige un proveedor abajo y pulsa "Conectar" para empezar.
+          </p>
+        </div>
+      )}
 
       {/* How It Works */}
       <HowItWorks
@@ -78,10 +170,17 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           action: "Configura tu primera integración",
           destination: "Automatiza tu flujo de trabajo"
         }}
-        onViewPreview={() => setShowPreviewModal(true)}
         premiumFeature="api_access"
         requiredPlan="advanced"
       />
+
+      {/* I15.67–I15.68 — Panel de recomendaciones contextuales (no en modo demo) */}
+      {!isDemoMode && !isLoading && (
+        <IntegrationRecommendationsPanel
+          ctx={recommendationCtx}
+          onNavigate={setActiveTab}
+        />
+      )}
 
       {/* Integration Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
@@ -105,7 +204,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
             </div>
             <CardDescription>
-              Recibe notificaciones automáticas de eventos importantes en tu workspace
+              Output-only: envía alertas a tu workspace cuando ocurren eventos — lead ganado, OBV validado, hito completado. No importa datos.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -119,13 +218,13 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">Stripe</CardTitle>
-                <Badge variant="secondary" className="text-xs mt-1">
-                  Disponible
-                </Badge>
+                <div className="mt-1">
+                  <ConnectionBadge status={getStatus('stripe')} isLoading={isLoading} />
+                </div>
               </div>
             </div>
             <CardDescription>
-              Sincroniza transacciones, suscripciones y revenue de Stripe
+              Suscripciones activas → <span className="font-mono text-xs">key_metrics.mrr</span> → Financial Engine recalcula probabilidad de éxito (peso 15%).
             </CardDescription>
           </CardHeader>
         </Card>
@@ -139,13 +238,33 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">Holded</CardTitle>
-                <Badge variant="secondary" className="text-xs mt-1">
-                  Disponible
-                </Badge>
+                <div className="mt-1">
+                  <ConnectionBadge status={getStatus('holded')} isLoading={isLoading} />
+                </div>
               </div>
             </div>
             <CardDescription>
-              Importa facturas, clientes y cobros desde Holded automáticamente
+              Facturas y cobros → proyecciones financieras → <span className="font-mono text-xs">runway_months</span> más preciso. <span className="text-amber-600 dark:text-amber-400">Implementación pendiente.</span>
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Asana Card */}
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center">
+                <CheckSquare className="w-7 h-7 text-pink-500" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-lg">Asana</CardTitle>
+                <div className="mt-1">
+                  <ConnectionBadge status={getStatus('asana')} isLoading={isLoading} />
+                </div>
+              </div>
+            </div>
+            <CardDescription>
+              Tareas del workspace → <span className="font-mono text-xs">tasks</span> con <span className="font-mono text-xs">external_provider='asana'</span> → ejecución real visible sin entrada manual.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -191,8 +310,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         </Card>
       </div>
 
-      {/* Tabs */}
-      <Tabs defaultValue="slack" className="space-y-6">
+      {/* Tabs — controlado para permitir navegación desde el panel de recomendaciones (I15.74) */}
+      <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="slack" className="gap-2">
             <MessageSquare size={16} />
@@ -205,6 +324,10 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           <TabsTrigger value="holded" className="gap-2">
             <FileText size={16} />
             Holded
+          </TabsTrigger>
+          <TabsTrigger value="asana" className="gap-2">
+            <CheckSquare size={16} />
+            Asana
           </TabsTrigger>
           <TabsTrigger value="webhooks" disabled>
             <Zap size={16} />
@@ -566,7 +689,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           </Card>
 
           {/* Stripe Integration Component */}
-          <StripeIntegration />
+          <StripeIntegration projectId={currentProject?.id} />
 
           {/* Demo Preview Stripe */}
           {isDemoMode && (
@@ -844,6 +967,11 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           )}
         </TabsContent>
 
+        {/* Asana Tab — I15.94 */}
+        <TabsContent value="asana" className="space-y-6">
+          <AsanaIntegration projectId={currentProject?.id} />
+        </TabsContent>
+
         {/* Webhooks Tab (placeholder) */}
         <TabsContent value="webhooks">
           <Card>
@@ -866,12 +994,6 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
       </Tabs>
 
       <HelpWidget section="integrations" />
-
-      {/* Preview Modal */}
-      <IntegrationsPreviewModal
-        open={showPreviewModal}
-        onOpenChange={setShowPreviewModal}
-      />
     </div>
   );
 }

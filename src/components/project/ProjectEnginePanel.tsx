@@ -1,7 +1,14 @@
-import { memo } from 'react';
-import { Activity, TrendingUp, Shield, Layers, CheckCircle2 } from 'lucide-react';
+import { memo, useEffect, useRef } from 'react';
+import { Activity, TrendingUp, Shield, Layers, CheckCircle2, ArrowRight, Zap } from 'lucide-react';
+import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
+import { getNextAction } from '@/lib/next-action';
+import type { NextAction } from '@/lib/next-action';
+import { CostOfIgnoring } from './CostOfIgnoring';
+import { UnlockModeCard } from './UnlockModeCard';
+import { trackEngineViewed, trackNextActionClicked } from '@/lib/analytics';
+import { useAgentContext } from '@/hooks/useAgentContext';
 
 // =============================================================================
 // Phase status
@@ -103,65 +110,53 @@ function riskMessage(
 }
 
 // =============================================================================
-// Recomendación (v1 conservadora)
+// Next Action (v1.2)
 //
+// Fuente de verdad única para recomendaciones del engine.
 // Solo visible cuando hay señal clara y acción obvia.
 // Sin señal → null → no se renderiza nada.
 //
 // Prioridad:
-//   1. Risk active + high/critical  → siempre primero, bloquea avance
-//   2. Fase 1 + demand débil        → validar problema
-//   3. Fase 2 + demand débil        → validar canal de adquisición
-//   4. Fase 3 + delivery/cash nulos → reforzar operación
-//   5. Resto                        → null
+//   1. Riesgo crítico (siempre)
+//   2. Riesgo alto en fase 3+ (contextual)
+//   3. Fase 1: hard signal no cumplida o demand débil → OBV
+//   4. Fase 2: demand débil sin hard signal → OBV
+//   5. Fase 2: demand débil + hard signal + score alto → canal
+//   6. Fase 2: demand ok + prob inactive/low → métricas
+//   7. Fase 3: ops débiles (none o basic) → OBV operativo
+//   8. Fase 3: ops ok pero hard signal sin cumplir → consolidar
+//   9. Fase 4: ops degradadas en escala → OBV operativo urgente
+//  10. Fase 4: sin señal de crecimiento cuantificada → añadir métricas
+//  11. Fase 4: hard signal no cumplida (general) → revisar condiciones
+//  12. Fase 4: hard signal cumplida → mantener momentum
+//  13. Resto → null
+//
+// Inputs usados: phase, phaseScore, hardSignalMet, riskStatus, riskLevel,
+//   probStatus, coverage (demand/delivery/cash).
+//
+// Nota: caso demandWeak + hardSignalMet=true es teóricamente improbable
+// (hard signal F2 requiere OBV de revenue que debería elevar demand coverage),
+// pero se mantiene por si coverage y hard signal divergen en edge cases reales.
+//
+// Fase 4 (Escala — terminal en v1): nunca devuelve null.
+//   opsWeak en fase 4 = regresión operativa en escala (delivery/cash debilitados).
+//   probStatus proxy de crecimiento (O4.1): inactive/low_confidence → sin datos MRR.
+//   hard_signal_met = O4.1≥33 AND O4.2≥50 AND risk NOT IN ('high','critical').
+//
+// actionType:
+//   'create_obv'  → navegar a tab OBVs
+//   'add_metrics' → navegar a tab Financiero
+//   (sin tipo)    → solo texto, sin botón
+// =============================================================================
+// Agent risk driver labels — I15.90
+// Mapea insight_type a etiqueta legible para el tooltip de presión de agentes
 // =============================================================================
 
-function getRecommendation(engineData: ProjectEngineData | null | undefined): string | null {
-  if (!engineData) return null;
-
-  const phase      = engineData.phaseState?.current_phase ?? 1;
-  const riskStatus = engineData.risk?.risk_status          ?? 'insufficient_data';
-  const riskLevel  = engineData.risk?.risk_level           ?? 'low';
-  const probStatus = engineData.probability?.probability_status ?? 'inactive'; // 'inactive' ≠ healthy, solo no dispara recomendación
-  const coverage   = engineData.coverage ?? [];
-
-  const coverageLevel = (type: string) =>
-    coverage.find(c => c.function_type === type)?.coverage_level ?? 'none';
-
-  const demand   = coverageLevel('demand');
-  const delivery = coverageLevel('delivery');
-  const cash     = coverageLevel('cash');
-
-  // 1. Risk override — máxima prioridad independiente de fase
-  if (riskStatus === 'active' && (riskLevel === 'high' || riskLevel === 'critical')) {
-    return 'Reduce el riesgo principal antes de avanzar';
-  }
-
-  // 2. Reglas por fase
-  if (phase === 1 && (demand === 'none' || demand === 'basic')) {
-    return 'Valida el problema con más señales reales';
-  }
-
-  if (phase === 2) {
-    const demandWeak = demand === 'none' || demand === 'basic';
-    const probWeak   = probStatus === 'low_confidence';
-
-    if (demandWeak && probWeak) {
-      return 'Valida la demanda con más evidencia antes de escalar adquisición';
-    }
-    if (demandWeak) {
-      return 'Define y valida un canal de adquisición';
-    }
-    if (probWeak) {
-      return 'Necesitas más evidencia antes de tomar esta señal como sólida';
-    }
-  }
-
-  if (phase === 3 && (delivery === 'none' || cash === 'none')) {
-    return 'Refuerza la operación antes de escalar';
-  }
-
-  return null;
+const AGENT_DRIVER_LABELS: Record<string, string> = {
+  cash_flow_signal:      'flujo de caja',
+  revenue_concentration: 'concentración de ingresos',
+  task_completion_rate:  'tasa de ejecución baja',
+  overdue_ratio:         'tareas vencidas',
 }
 
 // =============================================================================
@@ -180,12 +175,37 @@ const COVERAGE_ORDER = ['demand', 'delivery', 'cash'];
 // Component
 // =============================================================================
 
-interface ProjectEnginePanelProps {
-  engineData: ProjectEngineData | null | undefined;
-  isLoading?: boolean;
+interface FunctionOwner {
+  function_type: string;
+  hasOwner: boolean;
 }
 
-function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePanelProps) {
+interface ProjectEnginePanelProps {
+  projectId?: string;
+  engineData: ProjectEngineData | null | undefined;
+  isLoading?: boolean;
+  onAction?: (actionType: 'create_obv' | 'add_metrics' | 'define_channel') => void;
+  viabilityStatus?: string;
+  functionOwners?: FunctionOwner[];
+  fastStartCompleted?: boolean;
+  onNavigateToOnboarding?: () => void;
+}
+
+function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onAction, viabilityStatus, functionOwners, fastStartCompleted, onNavigateToOnboarding }: ProjectEnginePanelProps) {
+  const { data: agentCtx } = useAgentContext(projectId);
+  const agentInsights  = agentCtx?.insights     ?? [];
+  const agentRiskDelta = agentCtx?.riskModifier ?? null;
+
+  // engine_viewed: fire once when engine has real data and is visible
+  const viewedRef = useRef(false);
+  useEffect(() => {
+    if (viewedRef.current || !projectId || !engineData || fastStartCompleted === false) return;
+    viewedRef.current = true;
+    trackEngineViewed({
+      project_id: projectId,
+      phase: engineData.phaseState?.current_phase ?? undefined,
+    });
+  }, [projectId, engineData, fastStartCompleted]);
   if (isLoading) {
     return (
       <div className="bg-card border border-border rounded-2xl p-4 space-y-3 animate-pulse">
@@ -193,6 +213,40 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
         <div className="h-2 bg-muted rounded w-full" />
         <div className="h-2 bg-muted rounded w-3/4" />
         <div className="h-8 bg-muted rounded" />
+      </div>
+    );
+  }
+
+  // ── Estado onboarding pendiente (Day 0 sin configuración inicial) ───────────
+  // Visible cuando el FastStartWizard no se ha completado.
+  // No bloquea el dashboard — solo explica qué necesita el motor para activarse.
+  if (fastStartCompleted === false) {
+    return (
+      <div className="bg-card border border-border rounded-2xl p-4 space-y-4">
+        <h3 className="text-sm font-semibold flex items-center gap-2">
+          <Activity size={15} className="text-primary" />
+          Motor del proyecto
+        </h3>
+        <p className="text-xs text-muted-foreground leading-relaxed">
+          Antes de analizar tu proyecto, el motor necesita conocer tres piezas básicas:
+        </p>
+        <ul className="space-y-1.5">
+          {['Problema principal', 'Cliente objetivo', 'Propuesta de valor'].map(item => (
+            <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="w-1 h-1 rounded-full bg-muted-foreground/40 shrink-0" />
+              {item}
+            </li>
+          ))}
+        </ul>
+        {onNavigateToOnboarding && (
+          <button
+            onClick={onNavigateToOnboarding}
+            className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
+          >
+            Completar configuración inicial
+            <ArrowRight size={11} />
+          </button>
+        )}
       </div>
     );
   }
@@ -221,13 +275,19 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
   const riskCfg      = riskCardConfig(riskStatus, riskLevel);
   const riskBadge    = riskMessage(riskStatus, riskLevel, riskComp);
 
-  // Recommendation
-  const recommendation = getRecommendation(engineData);
+  // Next Action
+  const nextAction = getNextAction(engineData);
 
   // Coverage
   const sortedCoverage = COVERAGE_ORDER.map(
     type => engineData?.coverage?.find(c => c.function_type === type)
          ?? { function_type: type, coverage_score: 0, coverage_level: 'none' }
+  );
+
+  const hasStructuralGap = sortedCoverage.some(c => c.coverage_level === 'none');
+
+  const ownerMap = Object.fromEntries(
+    (functionOwners ?? []).map(f => [f.function_type, f.hasOwner])
   );
 
   return (
@@ -237,7 +297,7 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold flex items-center gap-2">
           <Activity size={15} className="text-primary" />
-          Engine
+          Motor del proyecto
         </h3>
         {hardSignal && (
           <span className="text-xs text-success bg-success/10 px-2 py-0.5 rounded-md flex items-center gap-1">
@@ -291,9 +351,27 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
             <Shield size={11} className={riskCfg.color} />
             <span className="text-xs text-muted-foreground">Riesgo</span>
           </div>
-          <p className={`text-sm font-bold ${riskCfg.color}`}>
-            {riskScore != null ? Math.round(riskScore) : '—'}
-          </p>
+          <div className="flex items-baseline gap-1.5">
+            <p className={`text-sm font-bold ${riskCfg.color}`}>
+              {riskScore != null ? Math.round(riskScore) : '—'}
+            </p>
+            {agentRiskDelta && riskStatus === 'active' && (
+              <Tooltip>
+                <TooltipTrigger asChild>
+                  <span className={`text-xs font-medium cursor-help ${
+                    agentRiskDelta.delta > 0 ? 'text-destructive/80' : 'text-success/80'
+                  }`}>
+                    {agentRiskDelta.delta > 0 ? `+${agentRiskDelta.delta}` : agentRiskDelta.delta} (no incluido)
+                  </span>
+                </TooltipTrigger>
+                <TooltipContent side="bottom" className="max-w-48 text-xs">
+                  Presión de agentes: {agentRiskDelta.drivers
+                    .map((d) => AGENT_DRIVER_LABELS[d] ?? d)
+                    .join(', ')}
+                </TooltipContent>
+              </Tooltip>
+            )}
+          </div>
           {riskBadge && (
             <p className={`text-xs ${riskCfg.color} opacity-75`}>{riskBadge}</p>
           )}
@@ -308,44 +386,116 @@ function ProjectEnginePanelComponent({ engineData, isLoading }: ProjectEnginePan
           <span className="text-xs text-muted-foreground font-medium">Cobertura</span>
         </div>
         <div className="space-y-2">
-          {sortedCoverage.map(c => (
-            <div key={c.function_type} className="flex items-center gap-2">
-              <span className="text-xs text-muted-foreground w-12 shrink-0">
-                {COVERAGE_LABELS[c.function_type] ?? c.function_type}
-              </span>
-              <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
-                <div
-                  className={`h-full rounded-full transition-all duration-300 ${
-                    c.coverage_level === 'strong' ? 'bg-success' :
-                    c.coverage_level === 'basic'  ? 'bg-warning' :
-                    'bg-muted-foreground/20'
-                  }`}
-                  style={{ width: `${Math.max(c.coverage_score ?? 0, 0)}%` }}
-                />
+          {sortedCoverage.map(c => {
+            const hasOwner = ownerMap[c.function_type];
+            const ownerKnown = c.function_type in ownerMap;
+            return (
+              <div key={c.function_type} className="flex items-center gap-2">
+                {ownerKnown && (
+                  <div
+                    className={`w-1.5 h-1.5 rounded-full shrink-0 ${
+                      hasOwner ? 'bg-success' : 'bg-muted-foreground/40'
+                    }`}
+                    title={hasOwner ? 'Con responsable' : 'Sin responsable'}
+                  />
+                )}
+                <span className={`text-xs text-muted-foreground shrink-0 ${ownerKnown ? 'w-11' : 'w-12'}`}>
+                  {COVERAGE_LABELS[c.function_type] ?? c.function_type}
+                </span>
+                <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
+                  <div
+                    className={`h-full rounded-full transition-all duration-300 ${
+                      c.coverage_level === 'strong' ? 'bg-success' :
+                      c.coverage_level === 'basic'  ? 'bg-warning' :
+                      'bg-muted-foreground/20'
+                    }`}
+                    style={{ width: `${Math.max(c.coverage_score ?? 0, 0)}%` }}
+                  />
+                </div>
+                <span className={`text-xs w-11 text-right shrink-0 ${
+                  c.coverage_level === 'strong' ? 'text-success' :
+                  c.coverage_level === 'basic'  ? 'text-warning' :
+                  'text-muted-foreground'
+                }`}>
+                  {c.coverage_level === 'strong' ? 'Fuerte' :
+                   c.coverage_level === 'basic'  ? 'Básica' :
+                   'Ninguna'}
+                </span>
               </div>
-              <span className={`text-xs w-11 text-right shrink-0 ${
-                c.coverage_level === 'strong' ? 'text-success' :
-                c.coverage_level === 'basic'  ? 'text-warning' :
-                'text-muted-foreground'
-              }`}>
-                {c.coverage_level === 'strong' ? 'Fuerte' :
-                 c.coverage_level === 'basic'  ? 'Básica' :
-                 'Ninguna'}
-              </span>
-            </div>
-          ))}
+            );
+          })}
         </div>
+        {/* Gap estructural: solo visible cuando el engine tiene datos reales.
+            Suprimido en Day 0 (probStatus=inactive) para no crear falsa alarma. */}
+        {hasStructuralGap && probStatus !== 'inactive' && (
+          <div className="flex items-center gap-1.5 mt-2 px-2 py-1.5 rounded-lg bg-destructive/10">
+            <div className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
+            <span className="text-xs text-destructive font-medium">Gap estructural detectado</span>
+          </div>
+        )}
       </div>
 
-      {/* Recomendación — solo si hay señal clara */}
-      {recommendation && (
-        <div className="border-t border-border pt-3">
-          <p className="text-xs text-muted-foreground leading-snug">
-            <span className="font-medium text-foreground">Siguiente paso recomendado:</span>{' '}
-            {recommendation}
+      {/* Unlock Mode — U6.15 (antes de Next Action) */}
+      <UnlockModeCard
+        engineData={engineData}
+        nextAction={nextAction}
+        viabilityStatus={viabilityStatus}
+        onCTA={onAction}
+      />
+
+      {/* Next Action */}
+      <div className="border-t border-border pt-3 space-y-2">
+        {nextAction ? (
+          <>
+            <p className="text-xs font-medium text-foreground">{nextAction.title}</p>
+            <p className="text-xs text-muted-foreground leading-snug">{nextAction.description}</p>
+            {nextAction.actionType && nextAction.ctaLabel && onAction && (
+              <button
+                onClick={() => {
+                  if (projectId) trackNextActionClicked({
+                    project_id: projectId,
+                    action_type: nextAction.actionType!,
+                    phase: engineData?.phaseState?.current_phase ?? undefined,
+                  });
+                  onAction(nextAction.actionType!);
+                }}
+                className="flex items-center gap-1 text-xs text-primary hover:underline font-medium mt-1"
+              >
+                {nextAction.ctaLabel}
+                <ArrowRight size={11} />
+              </button>
+            )}
+          </>
+        ) : (
+          <p className="text-xs text-muted-foreground">
+            El sistema aún no tiene suficiente información para recomendar el siguiente paso.
           </p>
-        </div>
-      )}
+        )}
+
+        {/* Agent signals — I15.89 (complemento, no sustitución de getNextAction) */}
+        {agentInsights.length > 0 && (
+          <div className="pt-1 space-y-1">
+            {agentInsights.map((insight) => (
+              <div
+                key={insight.id}
+                className={`flex items-start gap-1.5 text-xs px-2 py-1.5 rounded-md ${
+                  insight.content.severity === 'warning' || insight.content.severity === 'critical'
+                    ? 'bg-red-500/10 text-red-700 dark:text-red-400'
+                    : insight.content.severity === 'attention'
+                      ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
+                      : 'bg-blue-500/10 text-blue-700 dark:text-blue-400'
+                }`}
+              >
+                <Zap size={10} className="mt-0.5 shrink-0" />
+                <span className="leading-snug">{insight.content.summary}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+
+      {/* Cost of Ignoring — U6.14 */}
+      <CostOfIgnoring engineData={engineData} nextAction={nextAction} />
 
     </div>
   );
