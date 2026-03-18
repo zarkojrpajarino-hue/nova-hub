@@ -15,6 +15,7 @@ import {
   type MeetingInsightRow,
   type MeetingAgentInsightData,
 } from '@/lib/meeting-agent'
+import { type EvidenceType, type SourceUsed } from '@/lib/evidence'
 
 export interface RunMeetingAgentResult {
   insights_emitted:       number
@@ -182,6 +183,20 @@ export async function runMeetingAgent(
 
   // ── 8. Insertar insights ──────────────────────────────────────────────────
   const generatedAt = new Date()
+
+  // M18.27 — evidence_type basado en transcription_confidence (meeting-level)
+  const evidenceType: EvidenceType =
+    transcriptionConfidence >= 0.7 ? 'observed' :
+    transcriptionConfidence >= 0.4 ? 'declared' :
+    'estimated'
+
+  const meetingSources: SourceUsed[] = [{
+    source:       'meeting_intelligence',
+    confidence:   transcriptionConfidence,
+    timestamp:    generatedAt.toISOString(),
+    entity_count: insights.length,
+  }]
+
   const rows = toEmit.map(insight => {
     const expiresAt = new Date(generatedAt.getTime() + insight.expires_hours * 3_600_000)
     return {
@@ -200,8 +215,8 @@ export async function runMeetingAgent(
       expires_at:         expiresAt.toISOString(),
       include_in_context: insight.include_in_context,
       status:             'pending',
-      evidence_type:        insight.evidence_type,
-      sources_used:         insight.sources_used,
+      evidence_type:        evidenceType,           // M18.27: override con tc-based value
+      sources_used:         meetingSources,          // M18.27: meeting_intelligence source
       sources_discarded:    insight.sources_discarded,
       low_evidence_quality: insight.confidence < 0.5,
     }
@@ -210,11 +225,82 @@ export async function runMeetingAgent(
   const { error: insertErr } = await supabase.from('integration_insights').insert(rows)
   if (insertErr) throw new Error(`Meeting Agent: error escribiendo insights — ${insertErr.message}`)
 
+  // ── M18.19: detectar blockers recurrentes → strategic_blocks (non-fatal) ───
+  try {
+    await detectAndPersistRecurringBlockers(projectId)
+  } catch {
+    // no romper el flujo principal si falla la detección de patrones
+  }
+
   return {
     insights_emitted:       toEmit.length,
     insights_skipped_dedup: skipped,
     insight_types:          toEmit.map(c => c.insight_type),
   }
+}
+
+// ─── M18.19: Detectar blockers recurrentes y persistir como strategic_blocks ──
+
+interface RecurringTopic {
+  blocker_title: string
+  meeting_count: number
+  first_seen_at: string
+  last_seen_at:  string
+}
+
+interface MeetingPatternsResult {
+  recurring_topics:       RecurringTopic[]
+  unresolved_blockers:    unknown[]
+  meeting_type_frequency: Record<string, number>
+  avg_fulfillment_rate:   number | null
+  blocker_threshold_met:  boolean
+}
+
+/**
+ * M18.19: Llama detect_meeting_patterns y si blocker_threshold_met=true,
+ * crea strategic_blocks para los blockers en ≥3 reuniones.
+ * Llamada al final de runMeetingAgent() para cerrar el loop patrones → motor.
+ */
+export async function detectAndPersistRecurringBlockers(
+  projectId: string,
+): Promise<{ blocks_created: number }> {
+  const { data, error } = await supabase
+    .rpc('detect_meeting_patterns', { p_project_id: projectId })
+
+  if (error || !data) return { blocks_created: 0 }
+
+  const patterns = data as MeetingPatternsResult
+  if (!patterns.blocker_threshold_met) return { blocks_created: 0 }
+
+  // Filtrar los que tienen ≥ 3 reuniones (threshold para strategic_block)
+  const threshold3 = (patterns.recurring_topics ?? []).filter(t => t.meeting_count >= 3)
+  if (threshold3.length === 0) return { blocks_created: 0 }
+
+  let created = 0
+  for (const topic of threshold3) {
+    const { data: blockId, error: upsertErr } = await supabase
+      .rpc('upsert_recurring_blocker_as_strategic_block', {
+        p_project_id:    projectId,
+        p_description:   topic.blocker_title,
+        p_first_seen_at: topic.first_seen_at,
+      })
+
+    if (!upsertErr && blockId) created++
+  }
+
+  return { blocks_created: created }
+}
+
+/**
+ * Lee los patrones detectados de reuniones para un proyecto.
+ * Usado por useMeetingPatterns en MeetingHistory.
+ */
+export async function getMeetingPatterns(projectId: string): Promise<MeetingPatternsResult | null> {
+  const { data, error } = await supabase
+    .rpc('detect_meeting_patterns', { p_project_id: projectId })
+
+  if (error || !data) return null
+  return data as MeetingPatternsResult
 }
 
 /**

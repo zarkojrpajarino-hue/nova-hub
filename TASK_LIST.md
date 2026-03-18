@@ -2338,11 +2338,11 @@ ORDER  BY critical_count DESC, total DESC;
   > Copy: "Tienes N compromisos de reunión vencidos · [Ver tareas]"
   > **Criterio:** 2 tasks de reunión vencidas → notificación HIGH visible en notification center.
 
-### BLOQUE E — Detección de patrones
+### BLOQUE E — Detección de patrones ✅ 3/3
 > Depende de Bloque A (Meeting Agent emitiendo insights) + al menos 3 reuniones en DB.
 > Este bloque convierte el historial de reuniones en señal estratégica.
 
-- [ ] **M18.18** Función SQL `detect_meeting_patterns(p_project_id UUID)`
+- [x] **M18.18** Función SQL `detect_meeting_patterns(p_project_id UUID)`
   > ```sql
   > CREATE OR REPLACE FUNCTION detect_meeting_patterns(p_project_id UUID)
   > RETURNS JSONB LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
@@ -2357,7 +2357,7 @@ ORDER  BY critical_count DESC, total DESC;
   > No require ML — usa comparación textual de titles de blockers.
   > **Criterio:** 3 reuniones con blocker "falta de recursos técnicos" → aparece en `recurring_topics`.
 
-- [ ] **M18.19** Conectar patrones recurrentes → `strategic_blocks`
+- [x] **M18.19** Conectar patrones recurrentes → `strategic_blocks`
   > Si `detect_meeting_patterns` detecta un blocker que aparece en ≥ 3 reuniones:
   > Crear automáticamente un `strategic_block` con:
   > - `block_type = 'structural'`
@@ -2369,7 +2369,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Ejecutar como parte de `runMeetingAgent()` (M18.1) → comprueba historial antes de emitir.
   > **Criterio:** blocker en 3 reuniones → nueva fila en strategic_blocks visible en ProjectEnginePanel.
 
-- [ ] **M18.20** UI "Temas sin resolver" en `MeetingHistory.tsx`
+- [x] **M18.20** UI "Temas sin resolver" en `MeetingHistory.tsx`
   > Sección colapsable al top de MeetingHistory con output de `detect_meeting_patterns`:
   > - Lista de blockers recurrentes con conteo de reuniones donde apareció
   > - Fulfillment rate histórico (últimas 5 reuniones)
@@ -2380,7 +2380,7 @@ ORDER  BY critical_count DESC, total DESC;
 ### BLOQUE F — Strategic alignment
 > Depende de Bloque A y Bloque D. Evalúa si las reuniones avanzan el proyecto o lo distraen.
 
-- [ ] **M18.21** Edge function `evaluate-meeting-alignment/index.ts`
+- [x] **M18.21** Edge function `evaluate-meeting-alignment/index.ts`
   > Post-meeting: Claude evalúa si la reunión avanzó las prioridades del motor.
   > Input: `{ meeting_id }` — carga meeting_insights aprobados + get_optimus_context
   > Prompt a Claude: "Dado el estado del motor (fase X, riesgo Y, bloqueo Z) y los insights de esta reunión
@@ -2398,7 +2398,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Llamar automáticamente tras `apply-meeting-insights`.
   > **Criterio:** reunión de ventas cuando el motor dice "necesitas validar hipótesis" → alignment_score < 0.6.
 
-- [ ] **M18.22** Meeting quality score visible en `MeetingCompletionSummary.tsx`
+- [x] **M18.22** Meeting quality score visible en `MeetingCompletionSummary.tsx`
   > `quality_score = (compromisos_accionables / duracion_min) × alignment_score × fulfillment_predictor`
   > - compromisos_accionables = tasks + decisions con assigned_to definido
   > - fulfillment_predictor basado en historial de fulfillment del proyecto
@@ -2408,7 +2408,7 @@ ORDER  BY critical_count DESC, total DESC;
   > - "¿Esta reunión avanzó tu fase actual?" (alignment summary de M18.21)
   > **Criterio:** reunión de 30min con 3 tasks asignadas y alignment_score 0.8 → quality_score > 70.
 
-- [ ] **M18.23** Widget "Última reunión" en `ProjectEnginePanel`
+- [x] **M18.23** Widget "Última reunión" en `ProjectEnginePanel`
   > Sección compacta en ProjectEnginePanel (debajo de los agent signals) que muestra:
   > - Fecha y tipo de la última reunión completada
   > - Fulfillment rate de sus compromisos
@@ -2420,7 +2420,7 @@ ORDER  BY critical_count DESC, total DESC;
 ### BLOQUE G — UX y superficies mejoradas
 > Depende de Bloques D, E, F. Consolida la experiencia en superficies coherentes.
 
-- [ ] **M18.24** Dashboard de Meeting Intelligence — KPIs en `MeetingHistory.tsx`
+- [x] **M18.24** Dashboard de Meeting Intelligence — KPIs en `MeetingHistory.tsx`
   > Header de MeetingHistory con 4 stats cards:
   > - Total reuniones (mes actual)
   > - Tiempo total en reuniones (horas) — `sum(estimated_duration_min) / 60`
@@ -2428,7 +2428,7 @@ ORDER  BY critical_count DESC, total DESC;
   > - Alignment score medio (últimas 5 reuniones)
   > **Criterio:** con ≥3 reuniones → las 4 métricas muestran valores reales.
 
-- [ ] **M18.25** Timeline de decisiones — vista cruzada reuniones × ciclos estratégicos
+- [x] **M18.25** Timeline de decisiones — vista cruzada reuniones × ciclos estratégicos
   > Nueva vista `MeetingDecisionTimeline.tsx` accesible desde MeetingHistory.
   > Muestra en orden cronológico: decisiones de reunión + hitos de strategic_cycles + phase transitions.
   > Permite ver si las decisiones de reunión alinearon con los momentos clave del motor.
@@ -2436,13 +2436,13 @@ ORDER  BY critical_count DESC, total DESC;
   > Lee de: `decision_events[source='meeting_intelligence']` + `project_phase_history` + `strategic_cycles`.
   > **Criterio:** 2 reuniones con decisiones + 1 phase transition → timeline muestra los 3 eventos ordenados.
 
-- [ ] **M18.26** Integrar meetings en `WeeklyReviewCard.tsx`
+- [x] **M18.26** Integrar meetings en `WeeklyReviewCard.tsx`
   > La `generate_weekly_review_for_project()` ya calcula tasks y OBVs de la semana.
   > Añadir: reuniones completadas esa semana + total compromisos + fulfillment rate semanal.
   > Migración en la función SQL: añadir subquery sobre `meetings WHERE completed_at > week_start`.
   > **Criterio:** semana con 1 reunión completada → WeeklyReview incluye "1 reunión · 3 compromisos · 67% cumplidos".
 
-- [ ] **M18.G.1** Pantalla de review post-reunión como experiencia full-screen
+- [x] **M18.G.1** Pantalla de review post-reunión como experiencia full-screen
   > `MeetingInsightsReview.tsx` existe y tiene approve/reject/edit, pero está embebido como paso
   > en el wizard de `MeetingIntelligencePage.tsx` — no tiene presencia visual suficiente para la
   > importancia de la decisión que se le pide al founder.
@@ -2467,7 +2467,7 @@ ORDER  BY critical_count DESC, total DESC;
 > Depende de FASE 17 Bloque A + Bloque D de esta fase.
 > Las reuniones son evidencia observada y verificable — deben integrarse con el sistema de evidencia.
 
-- [ ] **M18.27** `evidence_type = 'observed'` para insights de reunión con transcripción
+- [x] **M18.27** `evidence_type = 'observed'` para insights de reunión con transcripción
   > En `meetingAgentService.ts` (M18.2): al insertar integration_insights del Meeting Agent,
   > poblar `evidence_type`:
   > - Si `meeting.transcription_confidence ≥ 0.7` → `'observed'` (transcripción fiable)
@@ -2476,7 +2476,7 @@ ORDER  BY critical_count DESC, total DESC;
   > `sources_used = [{ source: 'meeting_intelligence', confidence: transcription_confidence, entity_count: approved_insights_count }]`
   > **Criterio:** reunión con audio claro → evidence_type='observed' en integration_insights del Meeting Agent.
 
-- [ ] **M18.28** `SourcesPanel` en `MeetingInsightsReview.tsx` — mostrar fragmento del transcript
+- [x] **M18.28** `SourcesPanel` en `MeetingInsightsReview.tsx` — mostrar fragmento del transcript
   > Al expandir "Ver fuentes" en cada insight de `MeetingInsightsReview`:
   > Mostrar el fragmento del transcript que generó el insight (si disponible en payload).
   > Formato: "Extraído de: '[...fragmento de 100 chars...]' · minuto 12:34"
@@ -2484,7 +2484,7 @@ ORDER  BY critical_count DESC, total DESC;
   > por cada insight (pedir a Claude que incluya evidencia textual del transcript).
   > **Criterio:** insight de tipo "decision" → "Ver fuentes" muestra el fragmento del transcript que lo justifica.
 
-- [ ] **M18.29** Fiabilidad de insights de reunión basada en `transcription_confidence`
+- [x] **M18.29** Fiabilidad de insights de reunión basada en `transcription_confidence`
   > En `computeEvidenceScore()` (T17.5 de FASE 17):
   > Para evidencias con `source = 'meeting_intelligence'`:
   > `base_weight = SOURCE_WEIGHTS.meeting_intelligence ?? 0.75`
@@ -2492,6 +2492,78 @@ ORDER  BY critical_count DESC, total DESC;
   > Si la reunión no tiene transcription_confidence (reunión anterior a FASE 18) → usar 0.6 como fallback.
   > Añadir `'meeting_intelligence'` a `FIELD_COMPATIBILITY` para los campos que el Meeting Agent puede actualizar.
   > **Criterio:** insight de reunión con transcription_confidence=0.9 → computeEvidenceScore ≥ 0.7.
+
+### BLOQUE DEUDA — Agujeros acumulados Bloques A–G 6/6 ✅
+> Agujeros detectados durante la implementación de los Bloques A–G que no podían
+> corregirse en el momento. La fase no cierra hasta que este bloque esté [x].
+
+- [x] **DEUDA.1** UI para flag `low_quality=true` en `MeetingIntelligencePage.tsx`
+  > `transcribe-meeting` ya retorna `low_quality: true` cuando `0.2 ≤ tc < 0.4`.
+  > El frontend ignora este flag — el usuario no ve ningún aviso.
+  > Fix: en `MeetingIntelligencePage.tsx`, al recibir la respuesta de `transcribe-meeting`,
+  > si `low_quality === true` → mostrar banner ámbar: "Audio de calidad baja (Xˋ%).
+  > El análisis puede ser menos preciso. ¿Continuar o subir de nuevo?"
+  > Con dos botones: "Continuar de todas formas" (pasa `low_quality=true` a `analyze-meeting`)
+  > y "Subir de nuevo" (vuelve al estado de grabación).
+  > **Criterio:** audio con tc=0.35 → banner ámbar visible antes de analizar.
+
+- [x] **DEUDA.2** Columna `participant_count` asumida en `meetings` para diarización
+  > `buildTranscriptSegments()` en `transcribe-meeting` usa `participantCount` que viene
+  > del body de la request. Si el frontend no lo envía → cae a 1 → todo el transcript
+  > se etiqueta "Participante A" sin separación.
+  > Fix (dos partes):
+  > 1. En `transcribe-meeting/index.ts`: si `participantCount` no viene en el body,
+  >    intentar leerlo de `meetings.participant_count` (query a la BD con el `meeting_id`).
+  >    Si tampoco existe → usar heurística: contar gaps > 3s como cambio probable de speaker.
+  > 2. Migración: `ALTER TABLE meetings ADD COLUMN IF NOT EXISTS participant_count SMALLINT`
+  >    y que `StartMeetingModal` lo guarde al crear la reunión (ya tiene el selector de participantes).
+  > **Criterio:** reunión creada con 3 participantes → diarización produce ≥ 2 speakers distintos.
+
+- [x] **DEUDA.3** `analyze-meeting` falla con 500 si Claude retorna JSON malformado
+  > En `analyze-meeting/index.ts`, si `JSON.parse(content)` lanza → la función devuelve 500.
+  > Con GPT-4o ocurría igual, pero Claude puede retornar JSON con trailing comma o comentarios.
+  > Fix: envolver el parse en try/catch con fallback:
+  > ```typescript
+  > let parsed;
+  > try {
+  >   parsed = JSON.parse(content);
+  > } catch {
+  >   // Intentar extraer JSON del bloque de código si Claude lo envolvió en ```json
+  >   const match = content.match(/```json\s*([\s\S]*?)```/);
+  >   if (match) parsed = JSON.parse(match[1]);
+  >   else return new Response(JSON.stringify({
+  >     error: 'parse_error', raw: content.slice(0, 200)
+  >   }), { status: 422, headers: corsHeaders });
+  > }
+  > ```
+  > Retornar 422 (no 500) para que el frontend pueda distinguir "error del LLM" de "error del servidor".
+  > **Criterio:** Claude retorna JSON con ``` envuelto → se parsea correctamente. JSON inválido → 422 con raw snippet.
+
+- [x] **DEUDA.4** `notifications.project_id` en `notify_overdue_meeting_commitments()` asumido
+  > La migración `20260322000003` inserta en `notifications` con `project_id`.
+  > No se verificó si la tabla `notifications` tiene columna `project_id` — si no existe,
+  > la función lanza error en runtime silencioso.
+  > Fix: migración adicional con `ALTER TABLE notifications ADD COLUMN IF NOT EXISTS project_id UUID REFERENCES projects(id) ON DELETE CASCADE`
+  > + `CREATE INDEX IF NOT EXISTS idx_notifications_project_id ON notifications(project_id) WHERE project_id IS NOT NULL`.
+  > Verificar primero con `SELECT column_name FROM information_schema.columns WHERE table_name='notifications'`.
+  > **Criterio:** `notify_overdue_meeting_commitments()` ejecuta sin error con proyecto real que tiene tasks vencidas.
+
+- [x] **DEUDA.5** Código muerto en `MeetingIntelligencePage.tsx` tras M18.G.1
+  > Con M18.G.1, `handleContinueToInsights` ahora navega a `/meeting-review/:id` en lugar de
+  > setear `reviewingMeeting`. El bloque condicional `if (reviewingMeeting)` + `MeetingInsightsReview`
+  > + `handleApplyInsights` + `completedSummary` en `MeetingIntelligencePage.tsx` son código muerto.
+  > Fix: eliminar el estado y renderizado inline de `MeetingInsightsReview` y `MeetingCompletionSummary`
+  > del wizard. Mantener solo `questionsReviewMeeting` → navega a review page.
+  > **Criterio:** `MeetingIntelligencePage.tsx` no importa `MeetingInsightsReview`.
+
+- [x] **DEUDA.6** Level 1 auto-approve en `MeetingReviewPage` solo persiste en estado local
+  > En `MeetingReviewPage.tsx`, el `useEffect` que auto-aprueba insights de Level 1 solo actualiza
+  > `localInsights` (estado React). No persiste en DB (`meeting_insights.review_status`).
+  > Cuando el usuario pulsa "Aplicar insights aprobados", `apply-meeting-insights` filtra por
+  > `review_status='approved'` desde DB → los Level 1 no se aplican si no se persistieron antes.
+  > Fix: en el mismo `useEffect`, ejecutar `supabase.from('meeting_insights').update({ review_status: 'approved' })`
+  > para cada insight Level 1 de forma silenciosa (non-blocking Promise.all).
+  > **Criterio:** reunión con 3 insights Level 1 → tras apply, los 3 aparecen como aplicados.
 
 ---
 

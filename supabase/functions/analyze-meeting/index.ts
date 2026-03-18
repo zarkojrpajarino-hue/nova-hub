@@ -171,16 +171,38 @@ serve(async (req) => {
     const analysisText = response.content[0].type === 'text' ? response.content[0].text : ''
     console.log('✅ Claude analysis received, length:', analysisText.length)
 
-    // 6. Parsear JSON
+    // 6. Parsear JSON — DEUDA.3: fallback para cuando Claude envuelve el JSON en ```json
     let insights: Record<string, unknown[]>
     try {
       insights = JSON.parse(analysisText)
-    } catch (parseError) {
-      console.error('Error parsing Claude response:', parseError)
-      return new Response(
-        JSON.stringify({ error: 'Failed to parse analysis response', details: analysisText.slice(0, 500) }),
-        { status: 500, headers: jsonHeaders },
-      )
+    } catch {
+      // Claude a veces envuelve la respuesta en un bloque ```json … ``` — intentar extraerlo
+      const fenced = analysisText.match(/```(?:json)?\s*([\s\S]*?)```/)
+      if (fenced) {
+        try {
+          insights = JSON.parse(fenced[1])
+        } catch (innerError) {
+          console.error('Error parsing Claude fenced response:', innerError)
+          return new Response(
+            JSON.stringify({
+              error:   'parse_error',
+              message: 'Claude returned invalid JSON even inside a fenced block.',
+              raw:     analysisText.slice(0, 200),
+            }),
+            { status: 422, headers: jsonHeaders },
+          )
+        }
+      } else {
+        console.error('Error parsing Claude response — no valid JSON found')
+        return new Response(
+          JSON.stringify({
+            error:   'parse_error',
+            message: 'Claude returned non-JSON output. Retry or check the prompt.',
+            raw:     analysisText.slice(0, 200),
+          }),
+          { status: 422, headers: jsonHeaders },
+        )
+      }
     }
 
     console.log('✅ Insights parsed:', {
@@ -343,6 +365,8 @@ Extrae los siguientes insights en formato JSON:
       "estimated_hours": 8,
       "deadline": "YYYY-MM-DD (si se mencionó)",
       "context": "Cita o referencia de la transcripción",
+      "transcript_fragment": "Frase exacta de la transcripción que origina este insight (máx 120 caracteres)",
+      "transcript_timestamp": "Marca de tiempo en el audio en formato MM:SS (si está disponible, si no omitir)",
       "clarity_score": 0.85,
       "speaker_certainty": "definitive|conditional|speculative"
     }
@@ -355,6 +379,8 @@ Extrae los siguientes insights en formato JSON:
       "impact": "alto|medio|bajo",
       "stakeholders": ["IDs de miembros afectados"],
       "context": "Cita o referencia",
+      "transcript_fragment": "Frase exacta de la transcripción que origina este insight (máx 120 caracteres)",
+      "transcript_timestamp": "Marca de tiempo en el audio en formato MM:SS (si está disponible, si no omitir)",
       "clarity_score": 0.85,
       "speaker_certainty": "definitive|conditional|speculative"
     }
@@ -389,6 +415,8 @@ Extrae los siguientes insights en formato JSON:
       "severity": "crítico|alto|medio|bajo",
       "suggested_solution": "Solución propuesta si se mencionó",
       "context": "Cita o referencia",
+      "transcript_fragment": "Frase exacta de la transcripción que origina este insight (máx 120 caracteres)",
+      "transcript_timestamp": "Marca de tiempo en el audio en formato MM:SS (si está disponible, si no omitir)",
       "clarity_score": 0.85,
       "speaker_certainty": "definitive|conditional|speculative"
     }
@@ -400,6 +428,8 @@ Extrae los siguientes insights en formato JSON:
       "unit": "€, usuarios, %, etc",
       "trend": "subiendo|bajando|estable",
       "context": "Cita o referencia",
+      "transcript_fragment": "Frase exacta de la transcripción que origina este insight (máx 120 caracteres)",
+      "transcript_timestamp": "Marca de tiempo en el audio en formato MM:SS (si está disponible, si no omitir)",
       "action_required": "Acción necesaria si aplica",
       "clarity_score": 0.85,
       "speaker_certainty": "definitive|conditional|speculative"

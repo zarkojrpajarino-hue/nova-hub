@@ -34,6 +34,7 @@ import {
   ChevronDown,
   ChevronUp,
   Info,
+  Quote,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
@@ -450,6 +451,7 @@ interface InsightCardProps {
 
 function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }: InsightCardProps) {
   const [showContext, setShowContext] = useState(false);
+  const [showSources, setShowSources] = useState(false);
   const { content, review_status } = insight;
   const impactLevel = classified?.impact_level ?? 'medium';
 
@@ -657,6 +659,32 @@ function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }:
       {/* Reliability bar — M18.X.6 */}
       {classified && (
         <ReliabilityBar classified={classified} />
+      )}
+
+      {/* Ver fuentes — M18.28: transcript_fragment / transcript_timestamp */}
+      {(content.transcript_fragment || content.transcript_timestamp) && (
+        <div className="mt-2">
+          <button
+            className="flex items-center gap-1 text-[11px] text-gray-400 hover:text-gray-600 transition-colors"
+            onClick={() => setShowSources(v => !v)}
+          >
+            <Quote className="h-3 w-3" />
+            Ver fuente en transcripción
+            {showSources ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
+          </button>
+          {showSources && (
+            <div className="mt-1.5 rounded-md bg-gray-50 border border-gray-200 px-3 py-2 text-xs text-gray-600">
+              {content.transcript_timestamp && (
+                <span className="inline-block mb-1 font-mono text-[10px] text-gray-400 bg-gray-100 rounded px-1.5 py-0.5">
+                  {content.transcript_timestamp as string}
+                </span>
+              )}
+              {content.transcript_fragment && (
+                <p className="italic text-gray-500">"{content.transcript_fragment as string}"</p>
+              )}
+            </div>
+          )}
+        </div>
       )}
     </div>
   );

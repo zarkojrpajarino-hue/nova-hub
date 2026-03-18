@@ -25,6 +25,7 @@ export type ProviderSlug =
   | 'holded'
   | 'user_manual'
   | 'ai_inferred'
+  | 'meeting_intelligence'
 
 export interface EvidenceRecord {
   value:          unknown        // el valor del dato
@@ -43,13 +44,14 @@ export interface EvidenceRecord {
 // ─────────────────────────────────────────────────────────────────────────────
 
 export const SOURCE_WEIGHTS: Record<ProviderSlug, number> = {
-  stripe:          1.0,  // datos financieros verificados por pasarela de pago
-  holded:          0.9,  // datos contables verificados (ERP)
-  hubspot:         0.8,  // pipeline CRM declarado por el equipo comercial
-  asana:           0.8,  // estado de tareas registrado en herramienta de ejecución
-  google_calendar: 0.75, // agenda real sincronizada — no refleja calidad, solo tiempo
-  user_manual:     0.6,  // declaración del founder sin verificación externa
-  ai_inferred:     0.35, // derivación algorítmica a partir de otras señales
+  stripe:               1.0,  // datos financieros verificados por pasarela de pago
+  holded:               0.9,  // datos contables verificados (ERP)
+  hubspot:              0.8,  // pipeline CRM declarado por el equipo comercial
+  asana:                0.8,  // estado de tareas registrado en herramienta de ejecución
+  meeting_intelligence: 0.8,  // transcripción revisada y aprobada por el usuario
+  google_calendar:      0.75, // agenda real sincronizada — no refleja calidad, solo tiempo
+  user_manual:          0.6,  // declaración del founder sin verificación externa
+  ai_inferred:          0.35, // derivación algorítmica a partir de otras señales
 }
 
 // Qué fuentes son válidas para qué campos.
@@ -57,12 +59,17 @@ export const SOURCE_WEIGHTS: Record<ProviderSlug, number> = {
 export const FIELD_COMPATIBILITY: Record<string, ProviderSlug[]> = {
   mrr:                    ['stripe', 'holded', 'user_manual'],
   pipeline_value:         ['hubspot', 'user_manual'],
-  task_completion_rate:   ['asana', 'user_manual'],
-  meeting_load_hours:     ['google_calendar', 'user_manual'],
+  task_completion_rate:   ['asana', 'user_manual', 'meeting_intelligence'],
+  meeting_load_hours:     ['google_calendar', 'user_manual', 'meeting_intelligence'],
   cash_on_hand:           ['holded', 'stripe', 'user_manual'],
   top_client_revenue_pct: ['stripe', 'holded', 'user_manual'],
   cac_estimate:           ['hubspot', 'user_manual', 'ai_inferred'],
   gross_margin:           ['holded', 'user_manual', 'ai_inferred'],
+  // Meeting Agent insight types
+  strategic_decision:     ['meeting_intelligence'],
+  commitment_cluster:     ['meeting_intelligence'],
+  recurring_blocker:      ['meeting_intelligence'],
+  metric_update:          ['meeting_intelligence', 'user_manual', 'ai_inferred'],
 }
 
 // ─────────────────────────────────────────────────────────────────────────────
@@ -180,6 +187,7 @@ function insightAgentToProvider(agentType: string): ProviderSlug {
     case 'sales':     return 'hubspot'
     case 'execution': return 'asana'
     case 'calendar':  return 'google_calendar'
+    case 'meeting':   return 'meeting_intelligence'
     default:          return 'ai_inferred'
   }
 }
@@ -191,7 +199,7 @@ function insightAgentToProvider(agentType: string): ProviderSlug {
  * - síntesis de múltiples agentes → 'inferred'
  */
 function resolveInsightEvidenceType(insight: IntegrationInsightRow): EvidenceType {
-  const REAL_AGENTS = ['finance', 'sales', 'execution', 'calendar'] as const
+  const REAL_AGENTS = ['finance', 'sales', 'execution', 'calendar', 'meeting'] as const
   const isRealAgent = (REAL_AGENTS as readonly string[]).includes(insight.agent_type)
 
   if (insight.entity_ids.length === 0) return 'estimated'
