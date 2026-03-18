@@ -2257,10 +2257,10 @@ ORDER  BY critical_count DESC, total DESC;
   > No crear el meeting record hasta que el usuario confirme — el modal sigue siendo el punto de entrada.
   > **Criterio:** evento de GCal con 2 attendees que son project_members → StartMeetingModal pre-populado con esos datos.
 
-### BLOQUE C — Calidad y fidelidad de transcripción/análisis
+### BLOQUE C — Calidad y fidelidad de transcripción/análisis ✅ 4/4
 > Depende de Bloque 0. Mejora la calidad de los datos de entrada al sistema.
 
-- [ ] **M18.10** Migrar `analyze-meeting` de GPT-4o a Claude (claude-sonnet-4-6)
+- [x] **M18.10** Migrar `analyze-meeting` de GPT-4o a Claude (claude-sonnet-4-6)
   > El proyecto ya tiene `ANTHROPIC_API_KEY` configurado. Usar Claude en lugar de GPT-4o:
   > - Mejor comprensión del contexto en español
   > - Costes más predecibles
@@ -2271,7 +2271,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Mantener el JSON response format — Claude también soporta JSON estructurado.
   > **Criterio:** análisis de reunión real con Claude → mismos 6 tipos de insights extraídos correctamente.
 
-- [ ] **M18.11** Añadir `transcription_confidence` a `meetings` table
+- [x] **M18.11** Añadir `transcription_confidence` a `meetings` table
   > Migración: `ALTER TABLE meetings ADD COLUMN IF NOT EXISTS transcription_confidence NUMERIC`
   > Whisper `verbose_json` incluye `avg_logprob` (log-probabilidad media de la transcripción) por segmento.
   > Calcular confidence como `EXP(avg(avg_logprob))` de todos los segmentos → valor 0–1.
@@ -2280,7 +2280,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Conectar con FASE 17: `low_evidence_quality = transcription_confidence < 0.6` para insights de reunión.
   > **Criterio:** audio de baja calidad (ruido) → transcription_confidence < 0.7 · audio limpio → > 0.85.
 
-- [ ] **M18.12** Validación mínima de calidad antes de analizar
+- [x] **M18.12** Validación mínima de calidad antes de analizar
   > En `transcribe-meeting/index.ts`, tras transcribir:
   > Si `transcription_confidence < 0.4` → guardar transcript pero NO auto-disparar analyze-meeting.
   > En su lugar: mostrar aviso al usuario "Calidad de audio baja (40%). La transcripción puede tener errores.
@@ -2289,7 +2289,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Si < 0.2 → rechazar directamente: "Audio no procesable. Sube un archivo de mayor calidad."
   > **Criterio:** audio de prueba de 5 segundos con ruido fuerte → aviso de baja calidad visible.
 
-- [ ] **M18.13** Diarización básica de speakers en transcript
+- [x] **M18.13** Diarización básica de speakers en transcript
   > Whisper `verbose_json` incluye `segments` con timestamps. No incluye speaker IDs.
   > Implementación pragmática sin servicio de diarización externo:
   > Dividir transcript en bloques por pausas largas (gap > 2s entre segmentos).
