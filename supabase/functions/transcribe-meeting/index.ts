@@ -112,7 +112,7 @@ serve(async (req) => {
   const jsonHeaders = { 'Content-Type': 'application/json', ...corsHeaders }
 
   try {
-    const { meetingId, language } = await req.json();
+    const { meetingId, language, participantCount: bodyParticipantCount } = await req.json();
 
     if (!meetingId) {
       return new Response(
@@ -220,8 +220,12 @@ serve(async (req) => {
       )
     }
 
-    // ── M18.13: Construir segmentos diarizados ─────────────────────────────────
+    // ── DEUDA.2: participantCount — body → meetings.participant_count → fallback 1 ──
+    // Prioridad: (1) body del request, (2) meetings.participant_count (DB), (3) 1
     const participantCount: number = (() => {
+      if (typeof bodyParticipantCount === 'number' && bodyParticipantCount > 0) {
+        return bodyParticipantCount
+      }
       const pc = (meeting as Record<string, unknown>).participant_count
       return typeof pc === 'number' && pc > 0 ? pc : 1
     })()

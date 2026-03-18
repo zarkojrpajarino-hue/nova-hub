@@ -287,7 +287,7 @@
 ### Mejoras v2 — Adaptación a FASE 18/19 (Meeting Intelligence + Task Loop)
 
 - [ ] **N7.V2.1** Nuevo tipo de notificación `overdue_tasks_warning` — HIGH priority, ventana dedup 3 días. Trigger: `overdue_count >= 3` en `get_project_task_stats()` (E4.V2.1). Sin este tipo, el Task Loop de FASE 19 detecta tareas vencidas pero no puede escalar la señal fuera de la app. Formato: "Tienes N tareas vencidas — tu score de ejecución está en riesgo". Añadir a `run_notification_batch()` y a los caps existentes.
-- [ ] **N7.V2.2** Nuevo tipo de notificación `meeting_suggested` — MEDIUM priority, ventana dedup 7 días. Trigger: `detect_meeting_triggers()` (M18.I.1) detecta ≥3 señales activas. Sin este tipo, las sugerencias de Meeting Intelligence (Bloque I de FASE 18) solo aparecen en el dashboard si el usuario abre la app — nunca llegan como notificación push. Formato: "Optimus detectó 3 señales que convergen — puede ser buen momento para una reunión de revisión".
+- [x] **N7.V2.2** Nuevo tipo de notificación `meeting_suggested` — MEDIUM priority, ventana dedup 7 días. Trigger: `detect_meeting_triggers()` (M18.I.1) detecta ≥3 señales activas. Sin este tipo, las sugerencias de Meeting Intelligence (Bloque I de FASE 18) solo aparecen en el dashboard si el usuario abre la app — nunca llegan como notificación push. Formato: "Optimus detectó 3 señales que convergen — puede ser buen momento para una reunión de revisión".
 - [ ] **N7.V2.3** Filtro de notificaciones por fase — tab "Relevante a mi fase" en `NotificationsView`
   > Fase 1: muestra solo `idea_validation`, `risk_*`, `probability_*`. Oculta `team_bottleneck` (sin equipo), `meeting_suggested` (sin historial).
   > Fase 2: añade `revenue_signals`, `validation_progress`.
@@ -2492,6 +2492,35 @@ ORDER  BY critical_count DESC, total DESC;
   > Si la reunión no tiene transcription_confidence (reunión anterior a FASE 18) → usar 0.6 como fallback.
   > Añadir `'meeting_intelligence'` a `FIELD_COMPATIBILITY` para los campos que el Meeting Agent puede actualizar.
   > **Criterio:** insight de reunión con transcription_confidence=0.9 → computeEvidenceScore ≥ 0.7.
+
+### BLOQUE I — Sugerencias proactivas de reunión
+> Detecta señales en el estado del proyecto que indican que el founder debería convocar una reunión.
+> Depende de A+B+D+E (datos reales del motor y reuniones anteriores).
+> Graceful degradation: si no hay historial, no muestra nada — no falla.
+
+- [x] **M18.I.1** SQL RPC `detect_meeting_triggers(p_project_id)` — 7 tipos de señal → migración 20260322000009
+  > overdue_commitments · unresolved_blockers · recurring_blocker · low_alignment ·
+  > no_recent_meeting · pending_strategic_insights · low_fulfillment.
+  > suggest_meeting=true cuando total_signals≥3. urgency: high|medium|low|none.
+  > **Criterio:** proyecto con 3 compromisos vencidos → suggest_meeting=true, urgency='high'.
+
+- [x] **M18.I.2** Hook `useMeetingTriggers(projectId)` — llama al RPC, staleTime 5min
+  > `src/hooks/useMeetingTriggers.ts` — exporta `MeetingTrigger`, `MeetingTriggersResult`.
+
+- [x] **M18.I.3** Componente `MeetingSuggestionBanner` — banner con urgency color + triggers + CTA
+  > `src/components/meetings/MeetingSuggestionBanner.tsx`.
+  > Urgency: high=rojo, medium=ámbar, low=azul.
+  > Dismissible por sesión. Muestra top 3 triggers con "Ver más" si hay más.
+  > CTA: "Programar reunión de {tipo}" → llama onStartMeeting.
+  > **Criterio:** ≥3 señales activas → banner visible en MeetingHistory.
+
+- [x] **M18.I.4** Integrar `MeetingSuggestionBanner` en `MeetingHistory.tsx` — encima del header
+  > `MeetingSuggestionBanner` renderizado como primer elemento en la vista principal.
+
+- [x] **M18.I.5** N7.V2.2: notificación `meeting_suggested` con dedup 7 días (client-side)
+  > En `MeetingSuggestionBanner`, useEffect fire-and-forget que inserta en `notifications`
+  > con tipo='meeting_suggested', priority='medium', dedup: no insertar si ya existe en 7 días.
+  > **Criterio:** primera vez que suggest_meeting=true → notificación insertada. Segunda vez en <7d → no duplica.
 
 ### BLOQUE DEUDA — Agujeros acumulados Bloques A–G 6/6 ✅
 > Agujeros detectados durante la implementación de los Bloques A–G que no podían

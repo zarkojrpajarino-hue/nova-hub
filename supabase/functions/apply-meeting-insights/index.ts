@@ -276,7 +276,22 @@ serve(async (req) => {
 
     console.log('✅ Insights applied successfully:', results);
 
-    // 10. Retornar resultado
+    // 10. M18.21 — evaluate-meeting-alignment (fire-and-forget, non-fatal)
+    // No esperamos la respuesta — guarda en meetings.alignment_data cuando termina.
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')
+    const serviceKey  = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')
+    if (supabaseUrl && serviceKey) {
+      void fetch(`${supabaseUrl}/functions/v1/evaluate-meeting-alignment`, {
+        method:  'POST',
+        headers: {
+          'Content-Type':  'application/json',
+          'Authorization': `Bearer ${serviceKey}`,
+        },
+        body: JSON.stringify({ meeting_id: meetingId }),
+      }).catch(e => console.warn('evaluate-meeting-alignment failed (non-fatal):', e))
+    }
+
+    // 11. Retornar resultado
     return new Response(
       JSON.stringify({
         success: true,

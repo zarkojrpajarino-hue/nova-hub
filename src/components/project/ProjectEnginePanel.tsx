@@ -1,5 +1,6 @@
 import { memo, useEffect, useRef } from 'react';
-import { Activity, TrendingUp, Shield, Layers, CheckCircle2, ArrowRight, Zap, AlertTriangle, BarChart2, Radio, ChevronRight } from 'lucide-react';
+import { useNavigate, useParams } from 'react-router-dom';
+import { Activity, TrendingUp, Shield, Layers, CheckCircle2, ArrowRight, Zap, AlertTriangle, BarChart2, Radio, ChevronRight, Mic, ExternalLink } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip';
@@ -177,6 +178,129 @@ const COVERAGE_LABELS: Record<string, string> = {
 };
 
 const COVERAGE_ORDER = ['demand', 'delivery', 'cash'];
+
+// =============================================================================
+// LastMeetingWidget — M18.23
+// =============================================================================
+
+const MEETING_TYPE_LABELS: Record<string, string> = {
+  weekly:        'Semanal',
+  strategic:     'Estratégica',
+  sales:         'Ventas',
+  retrospective: 'Retro',
+  investor:      'Inversores',
+  team:          'Equipo',
+  kickoff:       'Kickoff',
+  one_on_one:    '1:1',
+};
+
+interface LastMeetingRow {
+  id:           string;
+  title:        string;
+  meeting_type: string;
+  created_at:   string;
+}
+
+interface MeetingFulfillmentRow {
+  fulfillment_rate: number | null;
+  overdue_tasks:    number;
+  total_tasks:      number;
+}
+
+function LastMeetingWidget({ projectId }: { projectId: string }) {
+  const navigate = useNavigate();
+  const { projectId: routeProjectId } = useParams<{ projectId: string }>();
+
+  const { data: lastMeeting } = useQuery<LastMeetingRow | null>({
+    queryKey:  ['last_completed_meeting', projectId],
+    enabled:   !!projectId,
+    staleTime: 3 * 60_000,
+    queryFn:   async () => {
+      const { data } = await supabase
+        .from('meetings')
+        .select('id, title, meeting_type, created_at')
+        .eq('project_id', projectId)
+        .eq('status', 'completed')
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      return data ?? null;
+    },
+  });
+
+  const { data: fulfillment } = useQuery<MeetingFulfillmentRow | null>({
+    queryKey:  ['meeting_fulfillment_widget', lastMeeting?.id],
+    enabled:   !!lastMeeting?.id,
+    staleTime: 3 * 60_000,
+    queryFn:   async () => {
+      const { data } = await supabase
+        .rpc('get_meeting_fulfillment', { p_meeting_id: lastMeeting!.id });
+      return (data as MeetingFulfillmentRow | null) ?? null;
+    },
+  });
+
+  if (!lastMeeting) return null;
+
+  const rate      = fulfillment?.fulfillment_rate ?? null;
+  const overdue   = fulfillment?.overdue_tasks ?? 0;
+  const dateStr   = new Date(lastMeeting.created_at).toLocaleDateString('es-ES', {
+    day: 'numeric', month: 'short',
+  });
+  const typeLabel = MEETING_TYPE_LABELS[lastMeeting.meeting_type] ?? lastMeeting.meeting_type;
+
+  return (
+    <div className="border-t border-border pt-3 space-y-2">
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-1.5">
+          <Mic size={11} className="text-muted-foreground" />
+          <span className="text-xs text-muted-foreground font-medium">Última reunión</span>
+        </div>
+        <button
+          onClick={() => navigate(`/proyecto/${routeProjectId}/meetings`)}
+          className="flex items-center gap-0.5 text-xs text-primary hover:underline"
+        >
+          Ver todas
+          <ExternalLink size={10} />
+        </button>
+      </div>
+
+      <div className="rounded-lg bg-muted/30 px-2.5 py-2 space-y-1.5">
+        <div className="flex items-start justify-between gap-2">
+          <div className="min-w-0">
+            <p className="text-xs font-medium text-foreground leading-snug line-clamp-1">
+              {lastMeeting.title}
+            </p>
+            <p className="text-xs text-muted-foreground">{typeLabel} · {dateStr}</p>
+          </div>
+          {overdue > 0 && (
+            <span className="shrink-0 flex items-center gap-0.5 text-xs font-medium text-red-600 dark:text-red-400 bg-red-500/10 rounded px-1.5 py-0.5">
+              <AlertTriangle size={9} />
+              {overdue} venc.
+            </span>
+          )}
+        </div>
+
+        {rate !== null && (
+          <div className="flex items-center gap-2">
+            <div className="flex-1 h-1 bg-muted rounded-full overflow-hidden">
+              <div
+                className={`h-full rounded-full transition-all duration-300 ${
+                  rate >= 0.7 ? 'bg-success' : rate >= 0.4 ? 'bg-warning' : 'bg-destructive'
+                }`}
+                style={{ width: `${Math.round(rate * 100)}%` }}
+              />
+            </div>
+            <span className={`text-xs font-medium shrink-0 ${
+              rate >= 0.7 ? 'text-success' : rate >= 0.4 ? 'text-warning' : 'text-destructive'
+            }`}>
+              {Math.round(rate * 100)}%
+            </span>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
 
 // =============================================================================
 // Component
@@ -551,6 +675,9 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
 
       {/* M18.5 — Meeting Agent insights */}
       <MeetingInsightsCard projectId={projectId} />
+
+      {/* M18.23 — Última reunión completada */}
+      {projectId && <LastMeetingWidget projectId={projectId} />}
 
       {/* Cost of Ignoring — U6.14 */}
       <CostOfIgnoring engineData={engineData} nextAction={nextAction} />

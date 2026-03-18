@@ -43,7 +43,7 @@ interface LiveMeetingRecorderProps {
   onCancel: () => void;
 }
 
-type RecordingState = 'idle' | 'recording' | 'paused' | 'stopped' | 'uploading' | 'transcribing' | 'analyzing';
+type RecordingState = 'idle' | 'recording' | 'paused' | 'stopped' | 'uploading' | 'transcribing' | 'low_quality_confirm' | 'analyzing';
 
 export function LiveMeetingRecorder({
   meetingId,
@@ -59,6 +59,9 @@ export function LiveMeetingRecorder({
   const [uploadProgress, setUploadProgress] = useState(0);
   const [mode, setMode] = useState<'live' | 'upload'>('live');
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  // DEUDA.1: estado de baja calidad para confirmación
+  const [lowQualityConfidence, setLowQualityConfidence] = useState<number | null>(null);
+  const [pendingAudioUrl, setPendingAudioUrl] = useState<string | null>(null);
 
   // Refs
   const mediaRecorderRef = useRef<MediaRecorder | null>(null);
@@ -327,15 +330,20 @@ export function LiveMeetingRecorder({
       toast.info('Iniciando transcripción con Whisper AI...');
 
       try {
-        await transcribeMeeting.mutateAsync(meetingId);
-        // El toast de éxito lo muestra el hook useTranscribeMeeting
+        const transcribeResult = await transcribeMeeting.mutateAsync(meetingId);
 
-        // Después de transcribir, iniciar análisis con Claude
+        // DEUDA.1: si la transcripción es de baja calidad, pedir confirmación antes de analizar
+        if (transcribeResult?.low_quality) {
+          setLowQualityConfidence(transcribeResult.confidence ?? null);
+          setPendingAudioUrl(audioUrl);
+          setRecordingState('low_quality_confirm');
+          return;  // no continuar — el usuario decide desde la UI de confirmación
+        }
+
+        // Calidad ≥ 0.4 → analizar automáticamente
         setRecordingState('analyzing');
         toast.info('Analizando reunión con Claude...');
-
-        await analyzeMeeting.mutateAsync(meetingId);
-        // El toast de éxito lo muestra el hook useAnalyzeMeeting
+        await analyzeMeeting.mutateAsync({ meetingId });
       } catch (transcriptionError) {
         // El toast de error lo muestran los hooks
       }
@@ -346,6 +354,33 @@ export function LiveMeetingRecorder({
       toast.error('Error al subir el audio: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       setRecordingState('stopped');
     }
+  };
+
+  /**
+   * DEUDA.1: el usuario confirma analizar con baja calidad
+   */
+  const handleContinueWithLowQuality = async () => {
+    setRecordingState('analyzing');
+    toast.info('Analizando reunión con Claude...');
+    try {
+      await analyzeMeeting.mutateAsync({ meetingId, lowQuality: true });
+    } catch {
+      // toast de error lo muestra el hook
+    }
+    onRecordingComplete(pendingAudioUrl ?? '');
+    setPendingAudioUrl(null);
+    setLowQualityConfidence(null);
+  };
+
+  /**
+   * DEUDA.1: el usuario decide subir de nuevo → reset a idle
+   */
+  const handleRetryAudio = () => {
+    setRecordingState('idle');
+    setLowQualityConfidence(null);
+    setPendingAudioUrl(null);
+    setSelectedFile(null);
+    toast.info('Sube un nuevo archivo de audio o graba de nuevo');
   };
 
   /**
@@ -666,6 +701,41 @@ export function LiveMeetingRecorder({
         </Card>
       )}
 
+      {/* DEUDA.1 — Low Quality Confirmation */}
+      {recordingState === 'low_quality_confirm' && (
+        <Card className="border-amber-200 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30">
+          <CardContent className="pt-6 space-y-4">
+            <div className="flex items-start gap-3">
+              <AlertCircle className="h-5 w-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="text-sm font-semibold text-amber-900 dark:text-amber-200">
+                  Audio de calidad baja ({lowQualityConfidence !== null ? Math.round(lowQualityConfidence * 100) : '—'}%)
+                </p>
+                <p className="text-xs text-amber-700 dark:text-amber-300 mt-1">
+                  La transcripción puede tener errores. El análisis será más conservador,
+                  pero algunos insights pueden ser imprecisos.
+                </p>
+              </div>
+            </div>
+            <div className="flex gap-3">
+              <Button
+                onClick={handleContinueWithLowQuality}
+                variant="outline"
+                className="flex-1 border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-200"
+              >
+                Continuar de todas formas
+              </Button>
+              <Button
+                onClick={handleRetryAudio}
+                className="flex-1"
+              >
+                Subir de nuevo
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
       {/* Analysis Progress */}
       {recordingState === 'analyzing' && (
         <Card>
@@ -673,17 +743,17 @@ export function LiveMeetingRecorder({
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="text-sm font-semibold">Analizando con GPT-4...</span>
+                <span className="text-sm font-semibold">Analizando con Claude...</span>
               </div>
               <Alert className="bg-purple-50 border-purple-200">
                 <AlertCircle className="h-4 w-4 text-purple-600" />
                 <AlertDescription className="text-purple-900 text-xs">
-                  <strong>GPT-4</strong> está analizando la transcripción para extraer insights:
+                  <strong>Claude</strong> está analizando la transcripción para extraer insights:
                   tareas, decisiones, leads, OBVs mencionados, blockers y métricas.
                 </AlertDescription>
               </Alert>
               <p className="text-xs text-gray-500 text-center">
-                Por favor espera mientras GPT-4 analiza la reunión...
+                Por favor espera mientras Claude analiza la reunión...
               </p>
             </div>
           </CardContent>

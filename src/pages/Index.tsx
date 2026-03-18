@@ -41,6 +41,7 @@ const ExplorationDashboard = lazy(() => import('./views/ExplorationDashboard').t
 const TeamPerformanceDashboard = lazy(() => import('./views/TeamPerformanceDashboard').then(m => ({ default: m.TeamPerformanceDashboard })));
 const PathToMasterPage = lazy(() => import('./PathToMasterPage').then(m => ({ default: m.PathToMasterPage })));
 const MeetingIntelligencePage = lazy(() => import('./MeetingIntelligencePage'));
+const MeetingReviewPage = lazy(() => import('./MeetingReviewPage'));
 const StartupOSView = lazy(() => import('./views/StartupOSView').then(m => ({ default: m.StartupOSView })));
 const MiModeloView = lazy(() => import('./views/MiModeloView').then(m => ({ default: m.MiModeloView })));
 
@@ -225,6 +226,7 @@ function IndexContent() {
               <Route path="crm" element={<CRMView onNewOBV={handleNewOBV} />} />
               <Route path="financiero" element={<FinancieroView onNewOBV={handleNewOBV} />} />
               <Route path="meetings" element={<MeetingIntelligencePage />} />
+              <Route path="meeting-review/:meetingId" element={<MeetingReviewPage />} />
               <Route path="mi-modelo" element={<MiModeloView />} />
               <Route path="startup-os" element={<StartupOSView />} />
               <Route path="exploration" element={<ExplorationDashboard />} />

@@ -39,6 +39,7 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 import { classifyInsightImpact, type MeetingInsightRow, type MeetingInsightWithImpact } from '@/lib/meeting-agent';
+import { runMeetingAgent } from '@/services/meetingAgentService';
 
 export interface ApplyResults {
   tasks:              number;
@@ -53,6 +54,7 @@ export interface ApplyResults {
 
 interface MeetingInsightsReviewProps {
   meetingId: string;
+  projectId?: string;
   onApplyInsights: (results: ApplyResults) => void;
   onCancel: () => void;
 }
@@ -76,6 +78,7 @@ const INSIGHT_TYPES = {
 
 export function MeetingInsightsReview({
   meetingId,
+  projectId,
   onApplyInsights,
   onCancel,
 }: MeetingInsightsReviewProps) {
@@ -248,6 +251,11 @@ export function MeetingInsightsReview({
     setIsApplying(true);
     try {
       const result = await applyInsights.mutateAsync(meetingId);
+      // M18.A — Meeting Agent: fire-and-forget (si hay projectId disponible)
+      if (projectId) {
+        void runMeetingAgent(projectId, meetingId)
+          .catch(e => console.warn('Meeting Agent failed (non-fatal):', e));
+      }
       onApplyInsights(result?.results ?? { tasks: 0, decisions: 0, leads: 0, obv_updates: 0, blockers: 0, metrics: 0 });
     } catch (_error) {
       // El error ya se muestra por el hook

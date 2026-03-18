@@ -120,6 +120,8 @@ export function useCreateMeeting() {
       if (!profile) throw new Error('User not authenticated');
 
       // 1. Crear la reunión
+      // DEUDA.2: participant_count = participants.length para diarización en transcribe-meeting
+      const participantCount = (input.participants?.length ?? 0) + (input.assignable_members?.length ?? 0);
       const { data: meeting, error: meetingError } = await supabase
         .from('meetings')
         .insert({
@@ -132,6 +134,7 @@ export function useCreateMeeting() {
           strategic_context: input.strategic_context,
           status: 'configuring',
           created_by: profile.id,
+          participant_count: participantCount > 0 ? participantCount : null,
         })
         .select()
         .single();
@@ -369,16 +372,16 @@ export function useTranscribeMeeting() {
 }
 
 /**
- * Hook para analizar una reunión usando GPT-4
+ * Hook para analizar una reunión usando Claude (claude-sonnet-4-6).
+ * DEUDA.1: acepta lowQuality para bypasear el check de status en audio de baja calidad.
  */
 export function useAnalyzeMeeting() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (meetingId: string) => {
-      // Llamar a la Edge Function
+    mutationFn: async ({ meetingId, lowQuality }: { meetingId: string; lowQuality?: boolean }) => {
       const { data, error } = await supabase.functions.invoke('analyze-meeting', {
-        body: { meetingId },
+        body: { meetingId, low_quality: lowQuality ?? false },
       });
 
       if (error) {
@@ -391,7 +394,7 @@ export function useAnalyzeMeeting() {
 
       return data;
     },
-    onSuccess: (data, meetingId) => {
+    onSuccess: (data, { meetingId }) => {
       queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
       queryClient.invalidateQueries({ queryKey: ['meetings'] });
       queryClient.invalidateQueries({ queryKey: ['meeting-insights', meetingId] });

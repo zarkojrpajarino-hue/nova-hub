@@ -56,6 +56,7 @@ Estados: `[x]` hecho · `[~]` en curso · `[!]` diferido · `[ ]` pendiente
 
 - Leer archivos antes de modificarlos. Verificar nombres de columnas, enums y escalas en migraciones antes de escribir código.
 - **Nunca simplificar una spec en silencio.** Si el usuario especifica N condiciones y se implementan menos de N, señalarlo explícitamente antes de escribir código — no después. Toda omisión o simplificación debe ser una decisión explícita acordada, no una decisión interna.
+- **Los agujeros se arreglan, no se declaran y se olvidan.** Si al cerrar un bloque/tarea se detecta un agujero real (bug, columna asumida, comportamiento incorrecto): corregirlo en el mismo bloque. Si no es posible (requiere más contexto o es una limitación de diseño v1 consciente), anotarlo en `TASK_LIST.md` como tarea `[ ]` del **Bloque DEUDA** de la fase actual. Al final de cada fase, antes de cerrarla, existe un **Bloque DEUDA** que resuelve todos los agujeros acumulados. La fase no se cierra hasta que el Bloque DEUDA esté `[x]`.
 
 ### Norma: bases de una fase
 

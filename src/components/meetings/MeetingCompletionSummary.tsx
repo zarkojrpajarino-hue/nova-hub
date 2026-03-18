@@ -27,8 +27,44 @@ import {
   ShieldCheck,
   ShieldAlert,
   ShieldOff,
+  TrendingUp,
+  TrendingDown,
+  Minus,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+
+// ── M18.22: helpers para quality score ───────────────────────────────────────
+
+export interface AlignmentData {
+  alignment_score:      number
+  aligned_insights:     string[]
+  distraction_insights: string[]
+  summary:              string
+  evaluated_at?:        string
+}
+
+/**
+ * quality_score (0–100):
+ *   base     = min(1, actionable_items / (duration_min × 0.1))   → densidad normalizada (1 item/10 min = 100%)
+ *   score    = base × alignment_score × fulfillment_predictor × 100
+ * fulfillment_predictor: default 0.8 (sin historial) — puede mejorarse con avg histórico.
+ */
+function computeQualityScore(
+  actionableItems: number,
+  durationMin:     number,
+  alignmentScore:  number,
+): number {
+  const base = Math.min(1, actionableItems / Math.max(1, durationMin * 0.1))
+  const fulfillmentPredictor = 0.8 // v1 default — mejora cuando haya historial
+  return Math.round(base * alignmentScore * fulfillmentPredictor * 100)
+}
+
+function qualityLabel(score: number): string {
+  if (score >= 75) return 'Reunión muy ejecutiva'
+  if (score >= 50) return 'Reunión operativa'
+  if (score >= 30) return 'Reunión estratégica'
+  return 'Reunión de alineación'
+}
 
 interface MeetingCompletionSummaryProps {
   meetingTitle: string;
@@ -47,6 +83,8 @@ interface MeetingCompletionSummaryProps {
   meetingDuration?: number;
   /** Confianza de la transcripción (0–1) — para badge de calidad */
   transcriptionConfidence?: number;
+  /** M18.22: datos de alineación estratégica (de meetings.alignment_data) */
+  alignmentData?: AlignmentData | null;
   onViewDetails?: () => void;
   onClose?: () => void;
 }
@@ -58,10 +96,17 @@ export function MeetingCompletionSummary({
   results,
   meetingDuration,
   transcriptionConfidence,
+  alignmentData,
   onViewDetails,
   onClose,
 }: MeetingCompletionSummaryProps) {
   const navigate = useNavigate();
+
+  // M18.22: quality score
+  const actionableItems = results.tasks + results.decisions
+  const alignmentScore  = alignmentData?.alignment_score ?? 0.7
+  const qualityScore    = computeQualityScore(actionableItems, meetingDuration ?? 30, alignmentScore)
+  const label           = qualityLabel(qualityScore)
 
   const totalCreated =
     results.tasks +
@@ -218,6 +263,63 @@ export function MeetingCompletionSummary({
           </Card>
         )}
       </div>
+
+      {/* M18.22 — Quality score + strategic alignment */}
+      <Card>
+        <CardHeader className="pb-2">
+          <CardTitle className="flex items-center justify-between text-base">
+            <span className="flex items-center gap-2">
+              {qualityScore >= 60
+                ? <TrendingUp className="h-5 w-5 text-green-600" />
+                : qualityScore >= 35
+                  ? <Minus className="h-5 w-5 text-amber-500" />
+                  : <TrendingDown className="h-5 w-5 text-red-500" />
+              }
+              Calidad de la reunión
+            </span>
+            <span className={`text-2xl font-bold ${
+              qualityScore >= 60 ? 'text-green-600' :
+              qualityScore >= 35 ? 'text-amber-600' : 'text-red-600'
+            }`}>
+              {qualityScore}
+            </span>
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="space-y-3">
+          <Badge
+            className={
+              qualityScore >= 60 ? 'bg-green-100 text-green-700' :
+              qualityScore >= 35 ? 'bg-amber-100 text-amber-700' :
+              'bg-red-100 text-red-700'
+            }
+          >
+            {label}
+          </Badge>
+
+          {/* Alignment summary (disponible cuando evaluate-meeting-alignment ha terminado) */}
+          {alignmentData ? (
+            <div className="space-y-2">
+              <p className="text-sm text-gray-700 dark:text-gray-300 leading-snug">
+                {alignmentData.summary}
+              </p>
+              {alignmentData.distraction_insights.length > 0 && (
+                <div className="rounded-md bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 px-3 py-2 text-xs text-amber-800 dark:text-amber-200">
+                  <p className="font-medium mb-1">Posibles distracciones:</p>
+                  <ul className="list-disc list-inside space-y-0.5">
+                    {alignmentData.distraction_insights.slice(0, 3).map((d, i) => (
+                      <li key={i}>{d}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </div>
+          ) : (
+            <p className="text-xs text-gray-500">
+              Evaluando alineación estratégica…
+            </p>
+          )}
+        </CardContent>
+      </Card>
 
       {/* Calidad de la sesión — M18.X.6 */}
       {(transcriptionConfidence !== undefined || (results.insights_degraded ?? 0) > 0) && (

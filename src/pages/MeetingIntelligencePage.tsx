@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -14,15 +15,12 @@ import {
   StartMeetingModal,
   LiveMeetingRecorder,
   MeetingQuestionsReview,
-  MeetingInsightsReview,
   MeetingHistory,
-  MeetingCompletionSummary,
 } from '@/components/meetings';
-import { useCreateMeeting, useMeeting, Meeting } from '@/hooks/useMeetings';
+import { useCreateMeeting, Meeting } from '@/hooks/useMeetings';
 import { useProjectTeamMembers } from '@/hooks/useNovaDataOptimized';
 import { useMeetingMode } from '@/hooks/useMeetingMode';
 import { supabase } from '@/integrations/supabase/client';
-import type { ApplyResults } from '@/components/meetings/MeetingInsightsReview';
 import { toast } from 'sonner';
 
 export default function MeetingIntelligencePage() {
@@ -31,16 +29,11 @@ export default function MeetingIntelligencePage() {
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
   const [questionsReviewMeeting, setQuestionsReviewMeeting] = useState<string | null>(null);
   const [questionsReviewMeetingTitle, setQuestionsReviewMeetingTitle] = useState<string>('');
-  const [reviewingMeeting, setReviewingMeeting] = useState<string | null>(null);
-  // M18.0.4 — summary tras apply
-  const [completedSummary, setCompletedSummary] = useState<{
-    meetingId: string;
-    results:   ApplyResults;
-  } | null>(null);
 
   // Context
   const { currentProject } = useCurrentProject();
   const createMeeting = useCreateMeeting();
+  const navigate = useNavigate();
 
   // M18.0.3 — datos reales de proyecto (hooks siempre al top, antes de returns condicionales)
   const { data: teamMembers = [] } = useProjectTeamMembers(currentProject?.id);
@@ -59,8 +52,6 @@ export default function MeetingIntelligencePage() {
   });
   // M18.0.6 — modo solo/equipo
   const { data: meetingMode } = useMeetingMode(currentProject?.id);
-  // M18.0.4 — datos de reunión completada para summary
-  const { data: completedMeetingData } = useMeeting(completedSummary?.meetingId);
 
   // Mapeo team members → shape que espera StartMeetingModal
   const projectParticipants = meetingMode?.mode === 'solo'
@@ -103,10 +94,9 @@ export default function MeetingIntelligencePage() {
   };
 
   /**
-   * Handler para completar grabación
+   * Handler para completar grabación — transición a revisión de preguntas
    */
-  const handleRecordingComplete = (audioUrl: string) => {
-    // Transición a revisión de preguntas primero
+  const handleRecordingComplete = (_audioUrl: string) => {
     if (currentMeeting) {
       setQuestionsReviewMeeting(currentMeeting.id);
       setQuestionsReviewMeetingTitle(currentMeeting.title);
@@ -115,11 +105,11 @@ export default function MeetingIntelligencePage() {
   };
 
   /**
-   * Handler para continuar de preguntas a insights
+   * Handler para continuar de preguntas a insights — M18.G.1: navega a review page full-screen
    */
   const handleContinueToInsights = () => {
-    if (questionsReviewMeeting) {
-      setReviewingMeeting(questionsReviewMeeting);
+    if (questionsReviewMeeting && currentProject) {
+      navigate(`/proyecto/${currentProject.id}/meeting-review/${questionsReviewMeeting}`);
     }
     setQuestionsReviewMeeting(null);
   };
@@ -138,24 +128,6 @@ export default function MeetingIntelligencePage() {
   const handleCancelRecording = () => {
     setCurrentMeeting(null);
     toast.info('Grabación cancelada');
-  };
-
-  /**
-   * Handler para aplicar insights — M18.0.4: recibe resultados para mostrar summary
-   */
-  const handleApplyInsights = (results: ApplyResults) => {
-    if (reviewingMeeting) {
-      setCompletedSummary({ meetingId: reviewingMeeting, results });
-    }
-    setReviewingMeeting(null);
-  };
-
-  /**
-   * Handler para cancelar revisión
-   */
-  const handleCancelReview = () => {
-    setReviewingMeeting(null);
-    toast.info('Revisión cancelada');
   };
 
   // Validación de proyecto
@@ -181,36 +153,6 @@ export default function MeetingIntelligencePage() {
           meetingTitle={questionsReviewMeetingTitle}
           onContinueToInsights={handleContinueToInsights}
           onBack={handleCancelQuestionsReview}
-        />
-      </div>
-    );
-  }
-
-  // Si hay una reunión en revisión de insights, mostrar insights review
-  if (reviewingMeeting) {
-    return (
-      <div className="container max-w-5xl mx-auto py-8">
-        <MeetingInsightsReview
-          meetingId={reviewingMeeting}
-          onApplyInsights={handleApplyInsights}
-          onCancel={handleCancelReview}
-        />
-      </div>
-    );
-  }
-
-  // M18.0.4 — Summary post-apply
-  if (completedSummary) {
-    return (
-      <div className="container max-w-3xl mx-auto py-8">
-        <MeetingCompletionSummary
-          meetingTitle={completedMeetingData?.title ?? 'Reunión completada'}
-          meetingSummary={completedMeetingData?.summary ?? undefined}
-          keyPoints={(completedMeetingData?.key_points as string[] | undefined) ?? []}
-          results={completedSummary.results}
-          meetingDuration={completedMeetingData?.estimated_duration_min ?? undefined}
-          transcriptionConfidence={completedMeetingData?.ai_confidence_score ?? undefined}
-          onClose={() => setCompletedSummary(null)}
         />
       </div>
     );
@@ -246,7 +188,6 @@ export default function MeetingIntelligencePage() {
       <MeetingHistory
         projectId={currentProject.id}
         onStartNewMeeting={() => setShowModal(true)}
-        onReviewInsights={setReviewingMeeting}
       />
 
       {/* Modal de configuración */}
