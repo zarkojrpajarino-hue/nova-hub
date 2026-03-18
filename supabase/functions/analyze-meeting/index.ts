@@ -184,10 +184,9 @@ serve(async (req) => {
     try {
       insights = JSON.parse(analysisText);
     } catch (parseError) {
-          if (error instanceof Response) return error;
-console.error('Error parsing GPT-4 response:', parseError);
+      console.error('Error parsing analysis response:', parseError);
       return new Response(
-        JSON.stringify({ error: 'Failed to parse GPT-4 response', details: analysisText }),
+        JSON.stringify({ error: 'Failed to parse analysis response', details: analysisText }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }

@@ -36,9 +36,18 @@ import {
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
 
+export interface ApplyResults {
+  tasks:       number;
+  decisions:   number;
+  leads:       number;
+  obv_updates: number;
+  blockers:    number;
+  metrics:     number;
+}
+
 interface MeetingInsightsReviewProps {
   meetingId: string;
-  onApplyInsights: () => void;
+  onApplyInsights: (results: ApplyResults) => void;
   onCancel: () => void;
 }
 
@@ -193,9 +202,8 @@ export function MeetingInsightsReview({
 
     setIsApplying(true);
     try {
-      await applyInsights.mutateAsync(meetingId);
-      // Después de aplicar con éxito, notificar al padre
-      onApplyInsights();
+      const result = await applyInsights.mutateAsync(meetingId);
+      onApplyInsights(result?.results ?? { tasks: 0, decisions: 0, leads: 0, obv_updates: 0, blockers: 0, metrics: 0 });
     } catch (_error) {
       // El error ya se muestra por el hook
     } finally {

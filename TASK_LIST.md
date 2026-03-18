@@ -24,7 +24,8 @@
 > | FASE 13 — Edge Cases | ✅ CERRADA v1 8/10 + 2 v2 pendientes | EC13.5 + EC13.9 diferidos con criterio |
 > | FASE 14 — Monetización | ⏸ POST-VALIDACIÓN 0/5 + 1 v2 pendiente | Solo tras usuarios validados |
 > | FASE 15 — Integraciones y agentes | ✅ CERRADA v1 (2026-03-18) + 2 v2 pendientes | 4 providers · 4 agentes · motor writes en prod |
-> | **FASE 16 — Adquisición y validación** | **🔄 ACTIVA + 2 v2 pendientes** | **Siguiente paso real** |
+> | FASE 16 — Adquisición y validación | 🔄 ACTIVA + 2 v2 pendientes | |
+| **FASE 18 — Meeting Intelligence** | **🔄 ACTIVA Bloque 0 ✅** | **En curso** |
 > | FASE 17 — Evidencia, fiabilidad y transparencia | ✅ CERRADA v1 32/32 + 4/5 v2 completadas | T17.V2.3 diferido hasta FASE 18 |
 > | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ⏸ POST-F16 0/49 + 3 v2 pendientes | Prerequisito: FASE 16 activa + Bloque 0 completado |
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
@@ -1918,11 +1919,11 @@ ORDER  BY critical_count DESC, total DESC;
 > Optimus muestra contexto de decisiones recientes · el founder ve si sus compromisos se cumplen ·
 > el motor sugiere la próxima reunión · el sistema guía al founder durante la reunión.
 
-### BLOQUE 0 — Saneamiento (prerequisito inmediato — hacer antes que todo)
+### BLOQUE 0 — Saneamiento ✅ 6/6
 > Bugs activos y datos mock que hacen que el sistema actual falle silenciosamente en producción.
 > Son horas de trabajo, no días. Sin esto Bloque A no tiene base sólida.
 
-- [ ] **M18.0.1** Fix bugs de variable shadowing en `LiveMeetingRecorder.tsx`
+- [x] **M18.0.1** Fix bugs de variable shadowing en `LiveMeetingRecorder.tsx`
   > Mismo patrón que G7.1 y G8.1. En 4 bloques catch del archivo:
   > parámetro `_error` pero el cuerpo del catch referencia `error` (undefined).
   > Fix: renombrar parámetro a `error` en los 4 catch blocks (~líneas 144, 205, 255, 346).
@@ -1930,28 +1931,28 @@ ORDER  BY critical_count DESC, total DESC;
   > fallan silenciosamente — el usuario ve un spinner infinito sin mensaje.
   > **Criterio:** negar permiso de micrófono → toast "Permiso denegado" visible. tsc limpio.
 
-- [ ] **M18.0.2** Fix bugs de variable shadowing en `analyze-meeting/index.ts` y `apply-meeting-insights/index.ts`
+- [x] **M18.0.2** Fix bugs de variable shadowing en `analyze-meeting/index.ts` y `apply-meeting-insights/index.ts`
   > `analyze-meeting/index.ts` ~línea 187: catch nombra `parseError` pero cuerpo usa `error`.
   > `apply-meeting-insights/index.ts` ~línea 163: patrón de error handling retorna Response
   > dentro de catch que no tiene sentido — debería retornar JSON de error consistente.
   > Fix: usar nombre consistente + retornar `new Response(JSON.stringify({error: e.message}), {status:500})`.
   > **Criterio:** forzar error de parsing en GPT-4 respuesta → error visible en logs de Supabase, no silencio.
 
-- [ ] **M18.0.3** Conectar datos reales en `MeetingIntelligencePage.tsx`
+- [x] **M18.0.3** Conectar datos reales en `MeetingIntelligencePage.tsx`
   > Actualmente pasa datos mock hardcodeados como participants y OBVs al flow.
   > `// (en producción vendría de la BD)` — ese comentario lleva ahí desde el inicio.
   > Fix: usar `useProjectMembers(projectId)` para participants y `useProjectOBVs(projectId)` para OBVs.
   > Sin esto, GPT-4 asigna tasks a member IDs ficticios que no existen → apply falla silenciosamente.
   > **Criterio:** crear reunión real → insights con assigned_to que corresponde a member real del proyecto.
 
-- [ ] **M18.0.4** Conectar `MeetingCompletionSummary` al flujo
+- [x] **M18.0.4** Conectar `MeetingCompletionSummary` al flujo
   > El componente `src/components/meetings/MeetingCompletionSummary.tsx` está completamente implementado
   > pero nunca se renderiza. `MeetingIntelligencePage.tsx` no lo incluye en el state machine.
   > Fix: tras `apply-meeting-insights` exitoso, mostrar `MeetingCompletionSummary` con los counts reales
   > (N tasks creadas, N leads, N OBVs actualizados) antes de volver a idle.
   > **Criterio:** completar flujo completo → pantalla de resumen visible con datos reales.
 
-- [ ] **M18.0.5** Quitar `language: 'es'` hardcodeado en `transcribe-meeting/index.ts`
+- [x] **M18.0.5** Quitar `language: 'es'` hardcodeado en `transcribe-meeting/index.ts`
   > Whisper soporta auto-detección de idioma omitiendo el parámetro `language`.
   > Con el valor hardcodeado, reuniones en inglés o con mezcla español/inglés producen
   > transcripciones degradadas.
@@ -1959,7 +1960,7 @@ ORDER  BY critical_count DESC, total DESC;
   > para que el frontend lo pueda pasar explícitamente si se desea.
   > **Criterio:** reunión en inglés transcrita correctamente sin especificar idioma.
 
-- [ ] **M18.0.6** Modo solo vs modo equipo — adaptar UX según tamaño del equipo
+- [x] **M18.0.6** Modo solo vs modo equipo — adaptar UX según tamaño del equipo
   > La feature tiene valor para un solo founder (reuniones con clientes, inversores, partners)
   > pero algunas partes (asignación a miembros, insights de "actividad de socios") no aplican.
   > En `MeetingIntelligencePage.tsx`: al cargar, comprobar count de `project_members`.

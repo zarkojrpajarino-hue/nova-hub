@@ -6,17 +6,23 @@
  */
 
 import { useState } from 'react';
+import { useQuery } from '@tanstack/react-query';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle } from 'lucide-react';
+import { AlertCircle, Users } from 'lucide-react';
 import {
   StartMeetingModal,
   LiveMeetingRecorder,
   MeetingQuestionsReview,
   MeetingInsightsReview,
   MeetingHistory,
+  MeetingCompletionSummary,
 } from '@/components/meetings';
-import { useCreateMeeting, Meeting } from '@/hooks/useMeetings';
+import { useCreateMeeting, useMeeting, Meeting } from '@/hooks/useMeetings';
+import { useProjectTeamMembers } from '@/hooks/useNovaDataOptimized';
+import { useMeetingMode } from '@/hooks/useMeetingMode';
+import { supabase } from '@/integrations/supabase/client';
+import type { ApplyResults } from '@/components/meetings/MeetingInsightsReview';
 import { toast } from 'sonner';
 
 export default function MeetingIntelligencePage() {
@@ -26,50 +32,45 @@ export default function MeetingIntelligencePage() {
   const [questionsReviewMeeting, setQuestionsReviewMeeting] = useState<string | null>(null);
   const [questionsReviewMeetingTitle, setQuestionsReviewMeetingTitle] = useState<string>('');
   const [reviewingMeeting, setReviewingMeeting] = useState<string | null>(null);
+  // M18.0.4 — summary tras apply
+  const [completedSummary, setCompletedSummary] = useState<{
+    meetingId: string;
+    results:   ApplyResults;
+  } | null>(null);
 
   // Context
   const { currentProject } = useCurrentProject();
   const createMeeting = useCreateMeeting();
 
-  // Mock data (en producción vendría de la BD)
-  const mockParticipants = [
-    {
-      id: '1',
-      name: 'Juan Pérez',
-      role: 'Product Manager',
-      email: 'juan@example.com',
+  // M18.0.3 — datos reales de proyecto (hooks siempre al top, antes de returns condicionales)
+  const { data: teamMembers = [] } = useProjectTeamMembers(currentProject?.id);
+  const { data: projectOBVs = [] } = useQuery({
+    queryKey: ['meeting-obvs', currentProject?.id],
+    enabled:  !!currentProject?.id,
+    staleTime: 2 * 60_000,
+    queryFn:  async () => {
+      const { data } = await supabase
+        .from('obvs')
+        .select('id, titulo')
+        .eq('proyecto_id', currentProject!.id)
+        .eq('activo', true);
+      return (data ?? []).map(o => ({ id: o.id, title: o.titulo as string }));
     },
-    {
-      id: '2',
-      name: 'María García',
-      role: 'CTO',
-      email: 'maria@example.com',
-    },
-    {
-      id: '3',
-      name: 'Carlos López',
-      role: 'CMO',
-      email: 'carlos@example.com',
-    },
-    {
-      id: '4',
-      name: 'Ana Martínez',
-      role: 'CFO',
-      email: 'ana@example.com',
-    },
-    {
-      id: '5',
-      name: 'Pedro Ruiz',
-      role: 'Backend Developer',
-      email: 'pedro@example.com',
-    },
-  ];
+  });
+  // M18.0.6 — modo solo/equipo
+  const { data: meetingMode } = useMeetingMode(currentProject?.id);
+  // M18.0.4 — datos de reunión completada para summary
+  const { data: completedMeetingData } = useMeeting(completedSummary?.meetingId);
 
-  const mockOBVs = [
-    { id: 'obv-1', title: 'Lanzar Beta Q1 2024' },
-    { id: 'obv-2', title: 'Alcanzar €50K MRR' },
-    { id: 'obv-3', title: '1000 usuarios activos' },
-  ];
+  // Mapeo team members → shape que espera StartMeetingModal
+  const projectParticipants = meetingMode?.mode === 'solo'
+    ? []  // solo mode: founder es el único participante implícito
+    : teamMembers.map(pm => ({
+        id:    pm.member_id,
+        name:  (pm.member as { nombre?: string } | null)?.nombre ?? '',
+        role:  pm.role ?? '',
+        email: (pm.member as { email?: string } | null)?.email ?? '',
+      }));
 
   /**
    * Handler para crear reunión
@@ -140,11 +141,13 @@ export default function MeetingIntelligencePage() {
   };
 
   /**
-   * Handler para aplicar insights
+   * Handler para aplicar insights — M18.0.4: recibe resultados para mostrar summary
    */
-  const handleApplyInsights = () => {
+  const handleApplyInsights = (results: ApplyResults) => {
+    if (reviewingMeeting) {
+      setCompletedSummary({ meetingId: reviewingMeeting, results });
+    }
     setReviewingMeeting(null);
-    toast.success('Insights aplicados correctamente');
   };
 
   /**
@@ -196,6 +199,22 @@ export default function MeetingIntelligencePage() {
     );
   }
 
+  // M18.0.4 — Summary post-apply
+  if (completedSummary) {
+    return (
+      <div className="container max-w-3xl mx-auto py-8">
+        <MeetingCompletionSummary
+          meetingTitle={completedMeetingData?.title ?? 'Reunión completada'}
+          meetingSummary={completedMeetingData?.summary ?? undefined}
+          keyPoints={(completedMeetingData?.key_points as string[] | undefined) ?? []}
+          results={completedSummary.results}
+          meetingDuration={completedMeetingData?.estimated_duration_min ?? undefined}
+          onClose={() => setCompletedSummary(null)}
+        />
+      </div>
+    );
+  }
+
   // Si hay una reunión en proceso, mostrar el recorder
   if (currentMeeting) {
     return (
@@ -215,6 +234,14 @@ export default function MeetingIntelligencePage() {
   // Vista principal: Historial
   return (
     <div className="container max-w-6xl mx-auto py-8">
+      {/* M18.0.6 — Banner solo mode */}
+      {meetingMode?.mode === 'solo' && (
+        <div className="mb-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
+          <Users className="h-4 w-4 shrink-0" />
+          Invita a tu equipo para activar colaboración en reuniones — asignación automática de tareas y seguimiento de compromisos.
+        </div>
+      )}
+
       <MeetingHistory
         projectId={currentProject.id}
         onStartNewMeeting={() => setShowModal(true)}
@@ -227,8 +254,8 @@ export default function MeetingIntelligencePage() {
         onClose={() => setShowModal(false)}
         onStart={handleStartMeeting}
         projectId={currentProject.id}
-        projectMembers={mockParticipants}
-        currentOBVs={mockOBVs}
+        projectMembers={projectParticipants}
+        currentOBVs={projectOBVs}
       />
     </div>
   );

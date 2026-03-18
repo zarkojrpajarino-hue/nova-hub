@@ -20,7 +20,7 @@ serve(async (req) => {
 
   try {
     // 1. Validar request
-    const { meetingId } = await req.json();
+    const { meetingId, language } = await req.json();
 
     if (!meetingId) {
       return new Response(
@@ -90,7 +90,7 @@ serve(async (req) => {
     const formData = new FormData();
     formData.append('file', audioBlob, 'audio.webm');
     formData.append('model', 'whisper-1');
-    formData.append('language', 'es'); // Español (cambiar si es necesario)
+    if (language) formData.append('language', language); // auto-detect si no se especifica
     formData.append('response_format', 'verbose_json'); // Incluye timestamps
 
     console.log('🤖 Calling Whisper API...');

@@ -141,8 +141,7 @@ export function LiveMeetingRecorder({
       });
 
       toast.success('Grabación iniciada');
-    } catch (_error) {
-
+    } catch (error) {
       if (error instanceof Error && error.name === 'NotAllowedError') {
         toast.error('Permiso de micrófono denegado. Por favor, permite el acceso al micrófono.');
       } else if (error instanceof Error && error.name === 'NotFoundError') {
@@ -331,9 +330,9 @@ export function LiveMeetingRecorder({
         await transcribeMeeting.mutateAsync(meetingId);
         // El toast de éxito lo muestra el hook useTranscribeMeeting
 
-        // Después de transcribir, iniciar análisis con GPT-4
+        // Después de transcribir, iniciar análisis con Claude
         setRecordingState('analyzing');
-        toast.info('Analizando reunión con GPT-4...');
+        toast.info('Analizando reunión con Claude...');
 
         await analyzeMeeting.mutateAsync(meetingId);
         // El toast de éxito lo muestra el hook useAnalyzeMeeting
@@ -343,7 +342,7 @@ export function LiveMeetingRecorder({
 
       // Notificar al componente padre
       onRecordingComplete(audioUrl);
-    } catch (_error) {
+    } catch (error) {
       toast.error('Error al subir el audio: ' + (error instanceof Error ? error.message : 'Error desconocido'));
       setRecordingState('stopped');
     }

@@ -160,8 +160,7 @@ serve(async (req) => {
             .eq('id', insight.id);
         }
       } catch (error) {
-            if (error instanceof Response) return error;
-console.error(`Error applying insight ${insight.id}:`, error);
+        console.error(`Error applying insight ${insight.id}:`, error);
         results.errors.push(`${insight.insight_type}: ${(error as Error).message}`);
       }
     }
