@@ -8,6 +8,7 @@ import { PHASE_LABELS } from '@/lib/engine';
 import { getNextAction } from '@/lib/next-action';
 import type { NextAction } from '@/lib/next-action';
 import { CostOfIgnoring } from './CostOfIgnoring';
+import { MeetingInsightsCard } from '@/components/integrations/MeetingInsightsCard';
 import { UnlockModeCard } from './UnlockModeCard';
 import { trackEngineViewed, trackNextActionClicked } from '@/lib/analytics';
 import { useAgentContext } from '@/hooks/useAgentContext';
@@ -547,6 +548,9 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
           </div>
         )}
       </div>
+
+      {/* M18.5 — Meeting Agent insights */}
+      <MeetingInsightsCard projectId={projectId} />
 
       {/* Cost of Ignoring — U6.14 */}
       <CostOfIgnoring engineData={engineData} nextAction={nextAction} />

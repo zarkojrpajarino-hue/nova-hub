@@ -1,10 +1,10 @@
 /**
  * Tests unitarios para classifyInsightImpact — M18.X.2
- * 6 casos cubriendo las reglas de clasificación clave + degradación por fiabilidad.
+ * Tests unitarios para runMeetingAgentLocal — M18.1
  */
 
 import { describe, it, expect } from 'vitest'
-import { classifyInsightImpact, type MeetingInsightRow } from './meeting-agent'
+import { classifyInsightImpact, runMeetingAgentLocal, type MeetingInsightRow } from './meeting-agent'
 
 // ─── Helper ────────────────────────────────────────────────────────────────
 
@@ -24,7 +24,104 @@ function makeInsight(
   }
 }
 
+function makeApprovedInsight(
+  insight_type: MeetingInsightRow['insight_type'],
+  content: Record<string, unknown> = {},
+): MeetingInsightRow {
+  return {
+    id: `approved-${Math.random()}`,
+    meeting_id: 'meeting-id',
+    insight_type,
+    content,
+    review_status: 'approved',
+    applied: false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+  }
+}
+
 // ─── Tests ─────────────────────────────────────────────────────────────────
+
+describe('runMeetingAgentLocal', () => {
+  // M18.1 criterio: 1 decisión aprobada con stakeholders → 1 insight strategic_decision emitido
+  it('1 decision aprobada con stakeholders → emite strategic_decision', () => {
+    const insights = [
+      makeApprovedInsight('decision', {
+        summary: 'Decidimos pivotar al mercado B2B',
+        stakeholders: ['investor-1'],
+        clarity_score: 0.9,
+        speaker_certainty: 'definitive',
+      }),
+    ]
+    const result = runMeetingAgentLocal(insights, 0.85)
+
+    expect(result.length).toBeGreaterThanOrEqual(1)
+    const sd = result.find(r => r.insight_type === 'strategic_decision')
+    expect(sd).toBeDefined()
+    expect(sd!.confidence).toBeGreaterThanOrEqual(0.4)
+    expect(sd!.entity_ids.length).toBeGreaterThanOrEqual(1)
+  })
+
+  it('sin decisiones aprobadas → no emite strategic_decision', () => {
+    const insights = [
+      makeApprovedInsight('task', { title: 'Actualizar docs' }),
+      makeApprovedInsight('task', { title: 'Preparar demo' }),
+      makeApprovedInsight('task', { title: 'Email a cliente' }),
+    ]
+    const result = runMeetingAgentLocal(insights, 0.8)
+
+    const sd = result.find(r => r.insight_type === 'strategic_decision')
+    expect(sd).toBeUndefined()
+  })
+
+  it('≥3 tasks aprobadas → emite commitment_cluster', () => {
+    const insights = [
+      makeApprovedInsight('task', { title: 'Task 1' }),
+      makeApprovedInsight('task', { title: 'Task 2' }),
+      makeApprovedInsight('task', { title: 'Task 3' }),
+    ]
+    const result = runMeetingAgentLocal(insights, 0.8)
+
+    const cc = result.find(r => r.insight_type === 'commitment_cluster')
+    expect(cc).toBeDefined()
+  })
+
+  it('blocker que aparece en historial → emite recurring_blocker', () => {
+    const insights = [
+      makeApprovedInsight('blocker', { title: 'Sin acceso a producción', severity: 'alto' }),
+    ]
+    const historical = ['Sin acceso a producción — desde hace 2 semanas']
+    const result = runMeetingAgentLocal(insights, 0.8, historical)
+
+    const rb = result.find(r => r.insight_type === 'recurring_blocker')
+    expect(rb).toBeDefined()
+  })
+
+  it('metric con valor numérico → emite metric_update', () => {
+    const insights = [
+      makeApprovedInsight('metric', { name: 'MRR', value: 12000 }),
+    ]
+    const result = runMeetingAgentLocal(insights, 0.9)
+
+    const mu = result.find(r => r.insight_type === 'metric_update')
+    expect(mu).toBeDefined()
+  })
+
+  it('insights con confidence < 0.4 y sin entity_ids → filtrados', () => {
+    // sin decisiones con stakeholders, sin tasks suficientes, sin blockers históricos,
+    // sin metrics con valor numérico → nada emitido
+    const insights = [
+      makeApprovedInsight('decision', {
+        summary: 'quizás algo',
+        stakeholders: [],          // sin stakeholders → no strategic_decision
+        clarity_score: 0.3,
+      }),
+    ]
+    const result = runMeetingAgentLocal(insights, 0.3)
+    // strategic_decision no se emite sin stakeholders; otros tipos sin data suficiente tampoco
+    expect(result.every(r => r.confidence >= 0.4 || r.entity_ids.length > 0)).toBe(true)
+  })
+})
 
 describe('classifyInsightImpact', () => {
   // Caso 1 — Regla 1: decision con stakeholders + clarity ≥ 0.7 + buena confianza → high

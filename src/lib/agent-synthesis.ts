@@ -23,7 +23,7 @@ import type { EvidenceType, ProviderSlug } from '@/lib/evidence'
 
 export interface SynthesizedInsight {
   id:           string
-  agent_type:   'finance' | 'execution' | 'sales' | 'team' | 'calendar'
+  agent_type:   'finance' | 'execution' | 'sales' | 'team' | 'calendar' | 'meeting'
   insight_type: string
   content: {
     summary:      string

@@ -25,7 +25,7 @@
 > | FASE 14 — Monetización | ⏸ POST-VALIDACIÓN 0/5 + 1 v2 pendiente | Solo tras usuarios validados |
 > | FASE 15 — Integraciones y agentes | ✅ CERRADA v1 (2026-03-18) + 2 v2 pendientes | 4 providers · 4 agentes · motor writes en prod |
 > | FASE 16 — Adquisición y validación | 🔄 ACTIVA + 2 v2 pendientes | |
-| **FASE 18 — Meeting Intelligence** | **🔄 ACTIVA Bloque 0 ✅** | **En curso** |
+| **FASE 18 — Meeting Intelligence** | **🔄 ACTIVA Bloque X ✅ · Bloque A ✅** | **En curso** |
 > | FASE 17 — Evidencia, fiabilidad y transparencia | ✅ CERRADA v1 32/32 + 4/5 v2 completadas | T17.V2.3 diferido hasta FASE 18 |
 > | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ⏸ POST-F16 0/49 + 3 v2 pendientes | Prerequisito: FASE 16 activa + Bloque 0 completado |
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
@@ -2121,13 +2121,13 @@ ORDER  BY critical_count DESC, total DESC;
   > **Criterio:** reunión con audio mediocre (tc=0.55) + 2 insights degradados → summary muestra
   > "2 insights reclasificados por baja fiabilidad" con fiabilidad media visible.
 
-### BLOQUE A — Meeting Agent: integración con el motor de fases
+### BLOQUE A — Meeting Agent: integración con el motor de fases ✅ 6/6
 > El cambio más importante de la fase. Conecta reuniones → motor.
 > Depende de Bloque 0 **y Bloque X** completados.
 > Sin el gate de Bloque X, este bloque permitiría que cualquier insight toque el motor.
 > Sigue el mismo patrón de Finance Agent (I15.78) y Sales Agent (I15.79).
 
-- [ ] **M18.1** Crear `src/lib/meeting-agent.ts` — lógica pura del Meeting Agent
+- [x] **M18.1** Crear `src/lib/meeting-agent.ts` — lógica pura del Meeting Agent
   > Función pura `runMeetingAgentLocal(insights: MeetingInsightRow[]): MeetingAgentInsightData[]`
   > Lee los `meeting_insights` aprobados de una reunión y genera `integration_insights`.
   > **Tipos de insight del Meeting Agent:**
@@ -2143,7 +2143,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Anti-spam §10: mismas ventanas que Finance/Sales Agent.
   > **Criterio:** test unitario: 1 decisión aprobada con stakeholders → 1 insight `strategic_decision` emitido.
 
-- [ ] **M18.2** Crear `src/services/meetingAgentService.ts` — DB interface del Meeting Agent
+- [x] **M18.2** Crear `src/services/meetingAgentService.ts` — DB interface del Meeting Agent
   > Sigue el patrón de `financeAgentService.ts` y `salesAgentService.ts` exactamente.
   > `runMeetingAgent(projectId, meetingId)`:
   > 1. Lee `meeting_insights` aprobados del meetingId
@@ -2156,7 +2156,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Llamar desde `apply-meeting-insights` al final, tras aplicar todos los insights.
   > **Criterio:** tras apply-meeting-insights, nueva fila en integration_insights con agent_type='meeting'.
 
-- [ ] **M18.3** Conectar decisiones de reunión → `decision_events`
+- [x] **M18.3** Conectar decisiones de reunión → `decision_events`
   > La tabla `decision_events` existe (creada en FASE 2 D2.9) pero nunca se escribe desde reuniones.
   > En `apply-meeting-insights/index.ts`, para cada insight de tipo `decision` aprobado:
   > ```sql
@@ -2166,7 +2166,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Esto alimenta P8.6 (behavioral_block detection, diferido en FASE 8) con datos reales de decisiones.
   > **Criterio:** aprobar 1 decision insight en reunión → nueva fila en decision_events visible en Supabase.
 
-- [ ] **M18.4** `apply-meeting-insights` dispara `run_phase_engine` tras aplicar
+- [x] **M18.4** `apply-meeting-insights` dispara `run_phase_engine` tras aplicar
   > Al final de `apply-meeting-insights/index.ts`, después de aplicar todos los insights:
   > ```typescript
   > // Si se crearon tasks o se actualizaron OBVs → puede haber cambio de fase
@@ -2181,7 +2181,7 @@ ORDER  BY critical_count DESC, total DESC;
   > (mismo patrón que `'integration'` añadido en migración 20260315000006).
   > **Criterio:** aplicar insights con ≥1 tarea creada → `project_phase_history` nueva fila con trigger_source='meeting_intelligence'.
 
-- [ ] **M18.5** Crear `src/components/integrations/MeetingInsightsCard.tsx`
+- [x] **M18.5** Crear `src/components/integrations/MeetingInsightsCard.tsx`
   > Componente para mostrar insights activos del Meeting Agent en el contexto del proyecto.
   > Mismo patrón que `FinanceInsightsCard.tsx` y `SalesInsightsCard.tsx`.
   > Lee `integration_insights[agent_type='meeting']` via `getActiveMeetingInsights(projectId)`.
@@ -2190,7 +2190,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Colocar en `ProjectEnginePanel` junto al resto de agent signals.
   > **Criterio:** tras una reunión con decisión aprobada, card visible en ProjectEnginePanel con insight. tsc limpio.
 
-- [ ] **M18.6** Añadir contexto de reuniones recientes a `get_optimus_context()`
+- [x] **M18.6** Añadir contexto de reuniones recientes a `get_optimus_context()`
   > En `supabase/migrations/20260319000002_fase18_optimus_meeting_context.sql`:
   > Añadir a la función SQL `get_optimus_context(p_project_id, p_user_id?)`:
   > ```sql

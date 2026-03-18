@@ -217,7 +217,37 @@ serve(async (req) => {
       }
     }
 
-    // 7. Actualizar estado de la reunión
+    // 7. M18.3 — decision_events: registrar cada decision aprobada en el motor
+    const decisionInsights = insights.filter(
+      i => i.insight_type === 'decision' && taskEligibleIds.has(i.id)
+    );
+    if (decisionInsights.length > 0) {
+      const decisionEvents = decisionInsights.map(i => ({
+        project_id:     (meeting as MeetingRecord).project_id,
+        event_type:     'meeting_decision',
+        payload: {
+          title:           (i as InsightRecord).content.title ?? null,
+          description:     (i as InsightRecord).content.description ?? null,
+          rationale:       (i as InsightRecord).content.rationale ?? null,
+          meeting_id:      meetingId,
+          stakeholders:    (i as InsightRecord).content.stakeholders ?? [],
+          impact:          (i as InsightRecord).content.impact ?? null,
+          clarity_score:   (i as InsightRecord).content.clarity_score ?? null,
+        },
+        triggered_by:   'meeting_intelligence',
+      }));
+      const { error: deErr } = await supabase
+        .from('decision_events')
+        .insert(decisionEvents);
+      if (deErr) {
+        console.error('Error inserting decision_events:', deErr);
+        // No fatal — continuar
+      } else {
+        console.log(`✅ ${decisionEvents.length} decision_event(s) registrados`);
+      }
+    }
+
+    // 8. Actualizar estado de la reunión
     const { error: updateError } = await supabase
       .from('meetings')
       .update({
@@ -230,9 +260,23 @@ serve(async (req) => {
       console.error('Error updating meeting status:', updateError);
     }
 
+    // 9. M18.4 — run_phase_engine si se crearon tasks o se actualizaron OBVs
+    if (results.tasks > 0 || results.obv_updates > 0) {
+      try {
+        await supabase.rpc('run_phase_engine', {
+          p_project_id:     (meeting as MeetingRecord).project_id,
+          p_trigger_source: 'meeting_intelligence',
+        });
+        console.log('✅ run_phase_engine triggered (meeting_intelligence)');
+      } catch (engineErr) {
+        // No fatal — el motor se recalcula en el próximo job semanal
+        console.error('Error triggering run_phase_engine:', engineErr);
+      }
+    }
+
     console.log('✅ Insights applied successfully:', results);
 
-    // 8. Retornar resultado
+    // 10. Retornar resultado
     return new Response(
       JSON.stringify({
         success: true,
