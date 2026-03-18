@@ -19,6 +19,8 @@ import { Badge } from '@/components/ui/badge';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useProjectMeetings, useMeeting, useMeetingInsights, Meeting } from '@/hooks/useMeetings';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import {
   Search,
   Calendar,
@@ -33,6 +35,56 @@ import {
   Briefcase,
   AlertTriangle,
 } from 'lucide-react';
+
+// ── M18.16: useMeetingFulfillment ─────────────────────────────────────────────
+
+interface MeetingFulfillment {
+  total_tasks:      number
+  completed_tasks:  number
+  overdue_tasks:    number
+  fulfillment_rate: number | null
+}
+
+function useMeetingFulfillment(meetingId: string) {
+  return useQuery({
+    queryKey:  ['meeting_fulfillment', meetingId],
+    staleTime: 120_000,
+    enabled:   !!meetingId,
+    queryFn:   async (): Promise<MeetingFulfillment | null> => {
+      const { data, error } = await supabase
+        .rpc('get_meeting_fulfillment', { p_meeting_id: meetingId })
+      if (error || !data) return null
+      return data as MeetingFulfillment
+    },
+  })
+}
+
+// ── M18.16: FulfillmentBadge ──────────────────────────────────────────────────
+
+function FulfillmentBadge({ meetingId }: { meetingId: string }) {
+  const { data } = useMeetingFulfillment(meetingId)
+  if (!data || data.total_tasks === 0) return null
+
+  const rate    = data.fulfillment_rate ?? 0
+  const pct     = Math.round(rate * 100)
+  const overdue = data.overdue_tasks
+
+  const color = rate >= 0.8
+    ? 'bg-green-500/10 text-green-700 dark:text-green-400'
+    : rate >= 0.5
+      ? 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
+      : 'bg-red-500/10 text-red-700 dark:text-red-400'
+
+  return (
+    <span className={`inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded font-medium ${color}`}>
+      <CheckCircle2 size={11} />
+      {pct}% compromisos
+      {overdue > 0 && (
+        <span className="ml-1 text-red-600 dark:text-red-400">· {overdue} vencidos</span>
+      )}
+    </span>
+  )
+}
 
 interface MeetingHistoryProps {
   projectId: string;
@@ -304,6 +356,13 @@ function MeetingCard({ meeting, onViewDetails, onReviewInsights }: MeetingCardPr
                 </span>
               )}
             </div>
+
+            {/* M18.16 — fulfillment rate, solo en reuniones completadas */}
+            {meeting.status === 'completed' && (
+              <div className="mt-1">
+                <FulfillmentBadge meetingId={meeting.id} />
+              </div>
+            )}
 
             {meeting.objectives && (
               <p className="text-sm text-gray-700 line-clamp-2">{meeting.objectives}</p>

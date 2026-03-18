@@ -2299,17 +2299,17 @@ ORDER  BY critical_count DESC, total DESC;
   > Guardar transcript estructurado como array de `{ speaker_hint, text, start_time, end_time }` en JSONB.
   > **Criterio:** transcript de reunión con 2 speakers → bloques de texto claramente separados por speaker_hint.
 
-### BLOQUE D — Cierre del loop de compromisos
+### BLOQUE D — Cierre del loop de compromisos ✅ 4/4
 > Depende de Bloque A. Sin Meeting Agent emitiendo insights, no hay qué trackear.
 
-- [ ] **M18.14** Añadir `meeting_id` a `tasks.source_context` para trazabilidad
+- [x] **M18.14** Añadir `meeting_id` a `tasks.source_context` para trazabilidad
   > Las tasks creadas desde `apply-meeting-insights` ya tienen `source='meeting_intelligence'`.
   > Añadir también `meeting_id` en `source_context JSONB` o nuevo campo `meeting_id UUID REFERENCES meetings(id)`.
   > Migración: `ALTER TABLE tasks ADD COLUMN IF NOT EXISTS meeting_id UUID REFERENCES meetings(id) ON DELETE SET NULL`
   > Actualizar `apply-meeting-insights` para poblar `meeting_id` en cada task creada.
   > **Criterio:** task creada desde reunión → `task.meeting_id` contiene el UUID de la reunión.
 
-- [ ] **M18.15** Función SQL `get_meeting_fulfillment(p_meeting_id UUID)` → commitment tracking
+- [x] **M18.15** Función SQL `get_meeting_fulfillment(p_meeting_id UUID)` → commitment tracking
   > ```sql
   > CREATE OR REPLACE FUNCTION get_meeting_fulfillment(p_meeting_id UUID)
   > RETURNS JSONB LANGUAGE plpgsql STABLE SECURITY DEFINER AS $$
@@ -2320,7 +2320,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Task overdue = `status != 'done' AND fecha_limite < NOW()`
   > **Criterio:** reunión con 3 tasks creadas (1 completada, 2 pendientes) → fulfillment_rate=0.33.
 
-- [ ] **M18.16** `MeetingHistory.tsx` — mostrar fulfillment rate por reunión
+- [x] **M18.16** `MeetingHistory.tsx` — mostrar fulfillment rate por reunión
   > En cada card de reunión completada en `MeetingHistory.tsx`:
   > Añadir indicador visual de fulfillment rate:
   > - ≥ 0.8: verde "80% compromisos cumplidos"
@@ -2330,7 +2330,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Hook `useMeetingFulfillment(meetingId)` que llama `get_meeting_fulfillment`.
   > **Criterio:** reunión con tasks en distintos estados → fulfillment rate visible en color correcto.
 
-- [ ] **M18.17** Notificación de compromisos de reunión vencidos (Layer 1)
+- [x] **M18.17** Notificación de compromisos de reunión vencidos (Layer 1)
   > En `run_notification_batch()` (migración `00050+`), añadir nueva función de Layer 1:
   > `notify_overdue_meeting_commitments(project_id)`:
   > - Busca tasks con `meeting_id IS NOT NULL AND status != 'done' AND fecha_limite < NOW()`
