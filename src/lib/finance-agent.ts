@@ -99,6 +99,9 @@ export function computeCashFlowSignal(
         ? 'Financial Engine usa este MRR real en lugar de estimaciones manuales (peso 15% en probabilidad).'
         : 'Financial Engine sigue usando estimaciones manuales de MRR. Activa suscripciones en Stripe para resolver esto.',
       severity,
+      ...(!isPositive && {
+        action_hint: 'Activa o verifica las suscripciones en Stripe esta semana para que el Financial Engine use MRR real.',
+      }),
     },
     confidence: avgConf,
     entity_ids: active.map((e) => e.id),
@@ -166,7 +169,11 @@ export function computeRevenueConcentration(
             : 'Revenue bien distribuido. La concentración está dentro de niveles saludables.',
       severity,
       action_hint:
-        concentrationPct > 30 ? 'Considera diversificar la base de clientes.' : undefined,
+        concentrationPct > 50
+          ? `Abre al menos 2 conversaciones comerciales nuevas esta semana para reducir la dependencia del cliente principal (${concentrationPct}% del MRR).`
+          : concentrationPct > 30
+            ? `Añade un cliente nuevo al pipeline este mes para bajar la concentración por debajo del 30% (ahora: ${concentrationPct}%).`
+            : undefined,
     },
     confidence,
     entity_ids: active.map((e) => e.id),

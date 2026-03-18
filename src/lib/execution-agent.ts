@@ -105,8 +105,10 @@ export function computeTaskCompletionRate(
       severity,
       action_hint:
         completionPct < 30
-          ? 'Identifica las tareas bloqueadas o sin responsable y actualiza su estado en Asana.'
-          : undefined,
+          ? `Bloquea 1h hoy en Asana: prioriza las 5 tareas más críticas entre las ${entities.length - completed.length} abiertas y archiva las obsoletas.`
+          : completionPct < 60
+            ? `Revisa las ${entities.length - completed.length} tareas abiertas en Asana esta semana e identifica cuáles están bloqueadas o sin responsable.`
+            : undefined,
     },
     confidence,
     entity_ids:         entities.map((e) => e.id),
@@ -174,9 +176,11 @@ export function computeOverdueRatio(
             : 'Hay tareas vencidas puntuales. Revisa si son bloqueadas o requieren re-priorización.',
       severity,
       action_hint:
-        overdueRatio > 20
-          ? 'Revisa las tareas vencidas en Asana y actualiza su estado o fecha límite.'
-          : undefined,
+        overdueRatio > 50
+          ? `Dedica 1h hoy a las ${overdue.length} tareas vencidas en Asana: cierra las ya completadas y re-agenda las activas.`
+          : overdueRatio > 20
+            ? `Revisa las ${overdue.length} tareas vencidas en Asana esta semana: actualiza fechas límite o ciérralas.`
+            : undefined,
     },
     confidence,
     entity_ids:         overdue.map((e) => e.id),
