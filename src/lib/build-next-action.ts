@@ -18,6 +18,7 @@
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized'
 import { getNextAction } from '@/lib/next-action'
 import type { SynthesizedInsight } from '@/lib/agent-synthesis'
+import { getReliabilityLabel, type ReliabilityLabel, type ProviderSlug } from '@/lib/evidence'
 
 export interface ProjectContext {
   mode:                  'solo' | 'team'
@@ -34,6 +35,8 @@ export interface EnrichedNextAction {
   actionType?: 'create_obv' | 'add_metrics' | 'define_channel' | 'create_task' | 'open_meeting'
   ctaLabel?:   string
   signals:     string[]  // razones legibles para "Ver señales ▼"
+  /** T17.V2.1 — info de fiabilidad visible sin expandir señales */
+  reliabilityInfo?: ReliabilityLabel & { score: number; source?: ProviderSlug }
 }
 
 function agentTypeLabel(agentType: string): string {
@@ -94,14 +97,25 @@ export function buildNextAction(
   const criticalInsight = agentInsights.find((i) => i.content.severity === 'critical')
   if (criticalInsight) {
     const type = context.mode === 'solo' ? 'task' : 'meeting'
+
+    // T17.V2.2 — si reliability < 0.4 (estimado, sin entidades) → degradar a 'medium'
+    const rs = criticalInsight.reliability_score
+    const urgency: 'high' | 'medium' = (rs !== undefined && rs < 0.4) ? 'medium' : 'high'
+
+    // T17.V2.1 — reliabilityInfo para mostrar en Focus Block sin expandir señales
+    const reliabilityInfo: EnrichedNextAction['reliabilityInfo'] = rs !== undefined
+      ? { ...getReliabilityLabel(rs), score: rs, source: criticalInsight.sources?.[0]?.source }
+      : undefined
+
     return {
-      title:       criticalInsight.content.summary,
-      description: criticalInsight.content.implication,
+      title:          criticalInsight.content.summary,
+      description:    criticalInsight.content.implication,
       type,
-      urgency:     'high',
-      source:      'agents',
-      ctaLabel:    criticalInsight.content.action_hint ?? undefined,
-      signals:     [
+      urgency,
+      source:         'agents',
+      ctaLabel:       criticalInsight.content.action_hint ?? undefined,
+      reliabilityInfo,
+      signals:        [
         `${agentTypeLabel(criticalInsight.agent_type)}: señal crítica`,
         ...signals,
       ],

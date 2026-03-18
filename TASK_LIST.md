@@ -25,7 +25,7 @@
 > | FASE 14 — Monetización | ⏸ POST-VALIDACIÓN 0/5 + 1 v2 pendiente | Solo tras usuarios validados |
 > | FASE 15 — Integraciones y agentes | ✅ CERRADA v1 (2026-03-18) + 2 v2 pendientes | 4 providers · 4 agentes · motor writes en prod |
 > | **FASE 16 — Adquisición y validación** | **🔄 ACTIVA + 2 v2 pendientes** | **Siguiente paso real** |
-> | FASE 17 — Evidencia, fiabilidad y transparencia | ⏸ POST-F16 0/32 + 3 v2 pendientes | Prerequisito: al menos 1 integración con datos reales |
+> | FASE 17 — Evidencia, fiabilidad y transparencia | ✅ CERRADA v1 32/32 + 4/5 v2 completadas | T17.V2.3 diferido hasta FASE 18 |
 > | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ⏸ POST-F16 0/49 + 3 v2 pendientes | Prerequisito: FASE 16 activa + Bloque 0 completado |
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
 > | FASE 20 — Análisis Estratégico IA v4 | ⏸ POST-F16 0/12 + 2 v2 pendientes | Prerequisito: FASE 16 activa + proyecto ≥14 días · Niveles se desbloquean con integraciones |
@@ -1345,7 +1345,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 17 — SISTEMA DE EVIDENCIA, FIABILIDAD Y TRANSPARENCIA ✅ CERRADA v1 32/32
+## FASE 17 — SISTEMA DE EVIDENCIA, FIABILIDAD Y TRANSPARENCIA ✅ CERRADA v1 32/32 + 4/5 v2 completadas
 > **Prerequisito obligatorio:** FASE 16 Bloque A completa + al menos 1 integración con datos reales en producción.
 > Sin datos reales, no hay conflictos reales entre fuentes. Diseñar resolución de conflictos en el vacío produce
 > lógica que no responde a los problemas que realmente ocurren.
@@ -1849,9 +1849,11 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Mejoras v2 — Conexión con FASE 18 (Meeting insights) + FASE 19 (Focus Block)
 
-- [ ] **T17.V2.1** `EvidenceBadge` en `NextActionFocusBlock` (F19.A.3) — cuando el Focus Block muestra un Next Action basado en un agent signal, añadir `EvidenceBadge` junto al origen de la señal. Ejemplo: "Conecta Stripe para mayor precisión" si el signal tiene `reliability_score < 0.5`. Sin este link, el usuario ve urgencia alta en el Focus Block sin saber si viene de un dato Stripe verificado o de una estimación interna. Dos impactos diferentes deberían tener urgencias diferentes visualmente.
-- [ ] **T17.V2.2** `buildNextAction()` (F19.A.1) debe degradar urgencia si `reliability_score < 0.4` — un agent signal con `severity='critical'` pero `reliability_score=0.3` (estimado, sin entidades) no debe elevar la urgencia del Focus Block a 'high'. Añadir en `buildNextAction()`: `if (signal.reliabilityScore < 0.4) downgrade severity by one level`. Requiere que `SynthesizedInsight` (T17.17) exponga `reliability_score` — esa tarea ya lo contempla.
+- [x] **T17.V2.1** Label de fiabilidad + fuente visible en `NextActionFocusBlock` sin expandir señales — cuando el Next Action viene de un agent signal, muestra icono + "Alta fiabilidad · Stripe" o "Muy incierto · estimaciones IA" bajo el título. Implementado en `build-next-action.ts` (reliabilityInfo) + `NextActionFocusBlock.tsx` (RELIABILITY_CONFIG + render).
+- [x] **T17.V2.2** `buildNextAction()` degrada urgency a 'medium' si `reliability_score < 0.4` — agent signal con `severity='critical'` pero reliability baja ya no eleva urgencia a 'high'. Implementado en rama criticalInsight de `build-next-action.ts`.
 - [ ] **T17.V2.3** Meeting insights (FASE 18 Bloque X) deben usar `EvidenceType` del sistema de evidencia — el `combined_reliability` de Bloque X (transcription_confidence × clarity_score × speaker_certainty_weight) debe mapearse a `EvidenceType`: >0.8 = `'observed'`, 0.6–0.8 = `'declared'`, 0.4–0.6 = `'inferred'`, <0.4 = `'estimated'`. Este mapeo es la interfaz oficial entre Meeting Intelligence y el sistema de evidencia. Sin él, los insights de reunión no son comparables con insights de integraciones en términos de fiabilidad.
+- [x] **T17.V2.4** `getReliabilityLabel(score)` en `evidence.ts` — wrapper semántico: ≥0.75 = "Alta fiabilidad", ≥0.45 = "Fiabilidad media", <0.45 = "Muy incierto". Devuelve `{ label, level }` con level para aplicar color en cualquier componente.
+- [x] **T17.V2.5** Warning de calidad en `SourcePreferencesPanel` — cuando el usuario desactiva todas las integraciones externas (deja solo user_manual + ai_inferred), muestra banner ámbar: "Has desactivado todas las fuentes externas. El sistema usará solo datos manuales e inferencias IA…".
 
 ---
 

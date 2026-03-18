@@ -88,6 +88,12 @@ export function SourcePreferencesPanel({
   const enabledCount = configurableSources.filter(s => preferences[s].enabled).length
   const allDisabled  = enabledCount === 0
 
+  // T17.V2.5 — advertencia calidad: hay integraciones conectadas pero todas desactivadas
+  // El usuario está reduciendo la fiabilidad del sistema a solo user_manual + ai_inferred
+  const connectedIntegrations = INTEGRATION_PROVIDERS.filter(p => activeProviders.has(p))
+  const allIntegrationsDisabled = connectedIntegrations.length > 0 &&
+    connectedIntegrations.every(p => !preferences[p].enabled)
+
   // ── Toggle fuente ─────────────────────────────────────────────────────────
   async function handleToggle(source: ProviderSlug, enabled: boolean) {
     // Bloquear deshabilitar si solo queda 1 habilitada
@@ -212,6 +218,17 @@ export function SourcePreferencesPanel({
         <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
           <AlertTriangle size={12} />
           Al menos una fuente debe estar habilitada.
+        </div>
+      )}
+
+      {/* T17.V2.5 — advertencia de calidad: integraciones externas desactivadas */}
+      {!allDisabled && allIntegrationsDisabled && (
+        <div className="flex items-start gap-2 rounded-lg bg-amber-500/10 px-3 py-2.5 text-xs text-amber-700 dark:text-amber-400">
+          <AlertTriangle size={12} className="mt-0.5 shrink-0" />
+          <span>
+            Has desactivado todas las fuentes externas. El sistema usará solo datos manuales
+            e inferencias IA, lo que reduce significativamente la fiabilidad de los análisis.
+          </span>
         </div>
       )}
 

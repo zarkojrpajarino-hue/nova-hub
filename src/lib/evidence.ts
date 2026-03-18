@@ -369,3 +369,23 @@ export function computeReliabilityScore(
 
   return total / activeSources.length
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// T17.V2.4 — getReliabilityLabel()
+// ─────────────────────────────────────────────────────────────────────────────
+
+export interface ReliabilityLabel {
+  label: string                     // texto para el usuario
+  level: 'high' | 'medium' | 'low'  // para aplicar color
+}
+
+/**
+ * Convierte un reliability_score numérico en una etiqueta legible.
+ * Umbrales: ≥0.75 = alta fiabilidad, ≥0.45 = fiabilidad media, <0.45 = muy incierto.
+ * Diseñado para mostrar junto a insights en Focus Block, ProjectEnginePanel, etc.
+ */
+export function getReliabilityLabel(score: number): ReliabilityLabel {
+  if (score >= 0.75) return { label: 'Alta fiabilidad',  level: 'high'   }
+  if (score >= 0.45) return { label: 'Fiabilidad media', level: 'medium' }
+  return                    { label: 'Muy incierto',     level: 'low'    }
+}

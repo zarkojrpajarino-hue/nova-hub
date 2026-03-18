@@ -12,7 +12,7 @@
 
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
-import { ChevronDown, ChevronUp, AlertTriangle } from 'lucide-react'
+import { ChevronDown, ChevronUp, AlertTriangle, ShieldCheck, ShieldAlert, ShieldOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { cn } from '@/lib/utils'
@@ -48,6 +48,22 @@ const URGENCY_CONFIG = {
   high:   { label: 'Urgente',      className: 'bg-red-100 text-red-800 border-red-200' },
   medium: { label: 'Esta semana',  className: 'bg-amber-100 text-amber-800 border-amber-200' },
   low:    { label: 'En progreso',  className: 'bg-blue-100 text-blue-800 border-blue-200' },
+}
+
+const RELIABILITY_CONFIG = {
+  high:   { icon: ShieldCheck, className: 'text-emerald-600 dark:text-emerald-400' },
+  medium: { icon: ShieldAlert,  className: 'text-amber-600 dark:text-amber-400'   },
+  low:    { icon: ShieldOff,    className: 'text-red-500 dark:text-red-400'        },
+}
+
+const SOURCE_LABEL: Partial<Record<string, string>> = {
+  stripe:          'Stripe',
+  holded:          'Holded',
+  hubspot:         'HubSpot',
+  asana:           'Asana',
+  google_calendar: 'Calendar',
+  user_manual:     'Manual',
+  ai_inferred:     'Estimación',
 }
 
 export function NextActionFocusBlock({
@@ -120,6 +136,24 @@ export function NextActionFocusBlock({
         <p className="text-lg font-semibold leading-snug">{nextAction.title}</p>
         <p className="text-sm text-muted-foreground">{nextAction.description}</p>
       </div>
+
+      {/* T17.V2.1 — Fiabilidad visible sin expandir señales */}
+      {nextAction.reliabilityInfo && (() => {
+        const ri  = nextAction.reliabilityInfo!
+        const cfg = RELIABILITY_CONFIG[ri.level]
+        const Icon = cfg.icon
+        return (
+          <div className={cn('flex items-center gap-1.5 text-xs', cfg.className)}>
+            <Icon size={11} className="shrink-0" />
+            <span>{ri.label}</span>
+            {ri.source && (
+              <span className="text-muted-foreground/70">
+                · {SOURCE_LABEL[ri.source] ?? ri.source}
+              </span>
+            )}
+          </div>
+        )
+      })()}
 
       {/* Actions row */}
       <div className="flex items-center gap-3 flex-wrap">
