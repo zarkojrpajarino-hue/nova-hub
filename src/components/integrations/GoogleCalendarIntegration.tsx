@@ -33,7 +33,7 @@ import { Button } from '@/components/ui/button'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import {
-  Loader2, CheckCircle2, AlertCircle, Calendar, RefreshCw, ListChecks,
+  Loader2, CheckCircle2, AlertCircle, Calendar, RefreshCw, ListChecks, Video, Mic,
 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
@@ -42,6 +42,22 @@ import { SyncHealthCard } from './SyncHealthCard'
 import { CalendarInsightsCard } from './CalendarInsightsCard'
 import { runCalendarAgent } from '@/services/calendarAgentService'
 import type { Session } from '@supabase/supabase-js'
+
+// M18.9 — prefill que se pasa al StartMeetingModal
+export interface CalendarEventPrefill {
+  title:           string
+  duration_min:    number
+  attendee_emails: string[]
+}
+
+interface UpcomingCalendarEvent {
+  id:           string
+  title:        string
+  start_at:     string
+  end_at:       string
+  attendee_count?: number
+  attendee_emails: string[]
+}
 
 const FUNCTIONS_URL     = 'https://zzxngvqwmnouchbulvlo.supabase.co/functions/v1'
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6eG5ndnF3bW5vdWNoYnVsdmxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyNDEsImV4cCI6MjA4NzQ4NTI0MX0.u0bzjhkbHrijmuvKecdRsdxYN4qn43g1fhayP7SiOvs'
@@ -60,7 +76,8 @@ async function getFreshSession(fallback: Session | null): Promise<Session | null
 }
 
 interface GoogleCalendarIntegrationProps {
-  projectId: string | undefined
+  projectId:          string | undefined
+  onStartFromEvent?:  (prefill: CalendarEventPrefill) => void   // M18.9
 }
 
 interface SyncResult {
@@ -70,7 +87,7 @@ interface SyncResult {
   is_partial:        boolean
 }
 
-export function GoogleCalendarIntegration({ projectId }: GoogleCalendarIntegrationProps) {
+export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: GoogleCalendarIntegrationProps) {
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [isConnecting, setIsConnecting]       = useState(false)
@@ -84,6 +101,9 @@ export function GoogleCalendarIntegration({ projectId }: GoogleCalendarIntegrati
   const [connectionError, setConnectionError] = useState<string | null>(null)
   const [hasPriorSync, setHasPriorSync]       = useState(false)
   const [isLoading, setIsLoading]             = useState(true)
+
+  // M18.9 — eventos próximas 48h
+  const [upcomingEvents, setUpcomingEvents]   = useState<UpcomingCalendarEvent[]>([])
 
   // Cargar conexión existente desde DB al montar
   useEffect(() => {
@@ -327,6 +347,44 @@ export function GoogleCalendarIntegration({ projectId }: GoogleCalendarIntegrati
     }
   }
 
+  // M18.9 — cargar eventos próximos 48h al montar/sync
+  useEffect(() => {
+    if (!projectId || !isConnected || !hasPriorSync) return
+    const now   = new Date()
+    const in48h = new Date(now.getTime() + 48 * 60 * 60 * 1000)
+
+    void supabase
+      .from('integration_entities')
+      .select('external_id, occurred_at, payload')
+      .eq('project_id', projectId)
+      .eq('entity_type', 'calendar_event')
+      .gte('occurred_at', now.toISOString())
+      .lte('occurred_at', in48h.toISOString())
+      .order('occurred_at', { ascending: true })
+      .limit(8)
+      .then(({ data }) => {
+        if (!data) return
+        const events: UpcomingCalendarEvent[] = data.map((row) => {
+          const p = row.payload as Record<string, unknown>
+          const startAt = p.start_at as string
+          const endAt   = p.end_at   as string
+          const durationMin = startAt && endAt
+            ? Math.round((new Date(endAt).getTime() - new Date(startAt).getTime()) / 60000)
+            : 60
+          return {
+            id:              row.external_id as string,
+            title:           (p.title as string) ?? 'Sin título',
+            start_at:        startAt,
+            end_at:          endAt,
+            attendee_count:  p.attendee_count as number | undefined,
+            attendee_emails: [],  // v1: Google no nos da emails aquí — attendee_count solo
+            _duration_min:   durationMin,
+          } as unknown as UpcomingCalendarEvent & { _duration_min: number }
+        })
+        setUpcomingEvents(events)
+      })
+  }, [projectId, isConnected, hasPriorSync, lastSync])
+
   // Detectar retorno de OAuth estándar (Google usa 'code' y 'state' params)
   useEffect(() => {
     if (!projectId || isExchanging || isConnected) return
@@ -544,6 +602,58 @@ export function GoogleCalendarIntegration({ projectId }: GoogleCalendarIntegrati
       {/* Sync Health */}
       {isConnected && (
         <SyncHealthCard connectionId={connectionId} provider="google_calendar" />
+      )}
+
+      {/* M18.9 — Próximas reuniones (48h) con botón "Iniciar reunión" */}
+      {isConnected && hasPriorSync && onStartFromEvent && upcomingEvents.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm flex items-center gap-2">
+              <Video size={15} className="text-blue-500" />
+              Próximas reuniones — 48h
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-2">
+            {upcomingEvents.map((ev) => {
+              const p = ev as unknown as UpcomingCalendarEvent & { _duration_min: number }
+              const startDate = new Date(ev.start_at)
+              const durationMin = p._duration_min ?? 60
+              return (
+                <div
+                  key={ev.id}
+                  className="flex items-center justify-between gap-3 p-2.5 rounded-lg border border-border/40 hover:bg-muted/30 transition-colors"
+                >
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium truncate">{ev.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {startDate.toLocaleString('es-ES', {
+                        weekday: 'short', month: 'short', day: 'numeric',
+                        hour: '2-digit', minute: '2-digit',
+                      })}
+                      {' · '}{durationMin} min
+                      {ev.attendee_count != null && ev.attendee_count > 0 && (
+                        <> · {ev.attendee_count} asistentes</>
+                      )}
+                    </p>
+                  </div>
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    className="flex-shrink-0 h-7 text-xs gap-1"
+                    onClick={() => onStartFromEvent({
+                      title:           ev.title,
+                      duration_min:    durationMin,
+                      attendee_emails: ev.attendee_emails,
+                    })}
+                  >
+                    <Mic size={11} />
+                    Iniciar reunión
+                  </Button>
+                </div>
+              )
+            })}
+          </CardContent>
+        </Card>
       )}
 
       {/* Calendar Agent Insights */}

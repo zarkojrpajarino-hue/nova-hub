@@ -2211,10 +2211,10 @@ ORDER  BY critical_count DESC, total DESC;
   > Así Optimus sabe qué decisiones estratégicas se tomaron recientemente en reuniones.
   > **Criterio:** proyecto con decisión de reunión aprobada → `get_optimus_context` incluye `recent_decisions` no vacío.
 
-### BLOQUE B — Pre-meeting intelligence (Optimus antes de la reunión)
+### BLOQUE B — Pre-meeting intelligence (Optimus antes de la reunión) ✅ 3/3
 > Depende de Bloque A. Convierte el sistema de reactivo a proactivo.
 
-- [ ] **M18.7** Edge function `get-meeting-brief/index.ts`
+- [x] **M18.7** Edge function `get-meeting-brief/index.ts`
   > Nueva edge function. Genera el brief pre-reunión para el founder.
   > Input: `{ project_id, meeting_type, objectives?, estimated_duration_min? }`
   > Flow:
@@ -2239,7 +2239,7 @@ ORDER  BY critical_count DESC, total DESC;
   > ```
   > **Criterio:** invocar con proyecto en fase 2, risk_level=high → brief menciona el riesgo activo.
 
-- [ ] **M18.8** UI "Brief pre-reunión" en `StartMeetingModal.tsx` paso 2
+- [x] **M18.8** UI "Brief pre-reunión" en `StartMeetingModal.tsx` paso 2
   > En el paso 2 (Strategic Context) del wizard de configuración de reunión:
   > Añadir sección "Estado del motor" que muestra el brief generado por `get-meeting-brief`.
   > Se carga automáticamente al llegar al paso 2 (spinner mientras carga, no bloqueante).
@@ -2248,7 +2248,7 @@ ORDER  BY critical_count DESC, total DESC;
   > CTA "Usar sugerencia" junto a cada `suggested_topic` para añadirlo a los objetivos.
   > **Criterio:** abrir modal de reunión con proyecto conectado a Stripe → brief cargado con datos reales del engine.
 
-- [ ] **M18.9** Google Calendar → auto-crear meeting record
+- [x] **M18.9** Google Calendar → auto-crear meeting record
   > Cuando el usuario tiene Google Calendar sincronizado (`integration_connections[provider='google_calendar']`):
   > En `GoogleCalendarIntegration.tsx`, tras un sync exitoso, mostrar lista de eventos futuros (próximas 48h)
   > con botón "Iniciar reunión" por cada uno.

@@ -5,7 +5,7 @@
  * Permite al usuario configurar todos los aspectos antes de iniciar la grabación
  */
 
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -38,9 +38,24 @@ import {
   Brain,
   AlertCircle,
   CheckCircle2,
+  Loader2,
+  Zap,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
+import { supabase } from '@/integrations/supabase/client';
+
+const FUNCTIONS_URL     = 'https://zzxngvqwmnouchbulvlo.supabase.co/functions/v1'
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6eG5ndnF3bW5vdWNoYnVsdmxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyNDEsImV4cCI6MjA4NzQ4NTI0MX0.u0bzjhkbHrijmuvKecdRsdxYN4qn43g1fhayP7SiOvs'
+
+interface MeetingBrief {
+  headline:         string
+  engine_status:    string
+  key_signals:      string[]
+  suggested_topics: string[]
+  risk_flags:       string[]
+  confidence:       'high' | 'medium' | 'low'
+}
 
 // Types
 interface MeetingType {
@@ -271,13 +286,18 @@ export function StartMeetingModal({
   isOpen,
   onClose,
   onStart,
-  projectId: _projectId,
+  projectId,
   projectMembers,
   currentOBVs = [],
 }: StartMeetingModalProps) {
   const [step, setStep] = useState<'basic' | 'strategic' | 'ai'>('basic');
   const [customMeetingType, setCustomMeetingType] = useState('');
   const [showCustomType, setShowCustomType] = useState(false);
+
+  // M18.8 — brief pre-reunión
+  const [brief, setBrief]             = useState<MeetingBrief | null>(null)
+  const [briefLoading, setBriefLoading] = useState(false)
+  const briefFetchedFor = useRef<string>('')   // evita doble-fetch si se vuelve al paso
 
   // Form state
   const [config, setConfig] = useState<MeetingConfig>({
@@ -300,6 +320,47 @@ export function StartMeetingModal({
       enable_time_alerts: true,
     },
   });
+
+  // M18.8 — cargar brief cuando el usuario llega al paso 2 con meeting_type seleccionado
+  useEffect(() => {
+    const meetingType = config.meeting_type || customMeetingType
+    if (step !== 'strategic' || !projectId || !meetingType) return
+    const cacheKey = `${projectId}:${meetingType}`
+    if (briefFetchedFor.current === cacheKey) return   // ya cargado para esta combinación
+
+    setBriefLoading(true)
+    briefFetchedFor.current = cacheKey
+
+    void (async () => {
+      try {
+        const { data: sessionData } = await supabase.auth.getSession()
+        const token = sessionData.session?.access_token
+        if (!token) return
+
+        const res = await fetch(`${FUNCTIONS_URL}/get-meeting-brief`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'apikey':        SUPABASE_ANON_KEY,
+            'Content-Type':  'application/json',
+          },
+          body: JSON.stringify({
+            project_id:            projectId,
+            meeting_type:          meetingType,
+            objectives:            config.objectives || undefined,
+            estimated_duration_min: config.estimated_duration_min,
+          }),
+        })
+        if (!res.ok) return   // fallo silencioso — el wizard sigue funcionando
+        const data = await res.json() as { ok: boolean; brief?: MeetingBrief }
+        if (data.ok && data.brief) setBrief(data.brief)
+      } catch {
+        // no bloquear — brief es decorativo
+      } finally {
+        setBriefLoading(false)
+      }
+    })()
+  }, [step, projectId, config.meeting_type, customMeetingType]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleParticipantToggle = (memberId: string) => {
     setConfig((prev) => ({
@@ -691,6 +752,79 @@ export function StartMeetingModal({
                   generar insights más precisos y relevantes durante la reunión.
                 </AlertDescription>
               </Alert>
+
+              {/* M18.8 — Brief pre-reunión del motor */}
+              {briefLoading && (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2 px-3 rounded-lg border border-border/40 bg-muted/20">
+                  <Loader2 size={13} className="animate-spin flex-shrink-0" />
+                  Optimus está preparando tu brief…
+                </div>
+              )}
+              {!briefLoading && brief && (
+                <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
+                  <div className="flex items-start gap-2">
+                    <Zap size={14} className="text-primary mt-0.5 flex-shrink-0" />
+                    <div className="space-y-1 flex-1">
+                      <p className="text-sm font-semibold text-foreground">{brief.headline}</p>
+                      <p className="text-xs text-muted-foreground">{brief.engine_status}</p>
+                    </div>
+                    <Badge
+                      variant="outline"
+                      className={cn(
+                        'text-[10px] h-4 px-1 flex-shrink-0',
+                        brief.confidence === 'high'   && 'border-green-500/40 text-green-700',
+                        brief.confidence === 'medium' && 'border-amber-500/40 text-amber-700',
+                        brief.confidence === 'low'    && 'border-muted-foreground/40 text-muted-foreground',
+                      )}
+                    >
+                      {brief.confidence === 'high' ? 'Motor actualizado' : brief.confidence === 'medium' ? 'Datos parciales' : 'Sin datos frescos'}
+                    </Badge>
+                  </div>
+
+                  {brief.key_signals.length > 0 && (
+                    <ul className="space-y-0.5 pl-5">
+                      {brief.key_signals.map((s, i) => (
+                        <li key={i} className="text-xs text-foreground/80 list-disc">{s}</li>
+                      ))}
+                    </ul>
+                  )}
+
+                  {brief.suggested_topics.length > 0 && (
+                    <div className="space-y-1.5">
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide" style={{ fontSize: '10px' }}>
+                        Temas sugeridos por el motor
+                      </p>
+                      <div className="flex flex-wrap gap-1.5">
+                        {brief.suggested_topics.map((topic, i) => (
+                          <button
+                            key={i}
+                            type="button"
+                            onClick={() => setConfig((prev) => ({
+                              ...prev,
+                              objectives: prev.objectives
+                                ? `${prev.objectives}\n• ${topic}`
+                                : `• ${topic}`,
+                            }))}
+                            className="inline-flex items-center gap-1 text-xs px-2 py-0.5 rounded-full border border-primary/30 bg-background text-primary hover:bg-primary/10 transition-colors"
+                          >
+                            + {topic}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {brief.risk_flags.length > 0 && (
+                    <div className="rounded-md bg-amber-500/10 border border-amber-500/20 px-3 py-2 space-y-0.5">
+                      {brief.risk_flags.map((flag, i) => (
+                        <p key={i} className="text-xs text-amber-700 dark:text-amber-400 flex gap-1">
+                          <span className="flex-shrink-0">⚠</span>{flag}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              )}
 
               {/* Critical Decisions */}
               <div className="space-y-3">
