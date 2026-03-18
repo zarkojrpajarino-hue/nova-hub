@@ -18,6 +18,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { useMeetingInsights, useMeeting, useApplyMeetingInsights } from '@/hooks/useMeetings';
 import {
   CheckCircle2,
@@ -32,17 +33,21 @@ import {
   FileText,
   ChevronDown,
   ChevronUp,
+  Info,
 } from 'lucide-react';
 import { toast } from 'sonner';
 import { supabase } from '@/integrations/supabase/client';
+import { classifyInsightImpact, type MeetingInsightRow, type MeetingInsightWithImpact } from '@/lib/meeting-agent';
 
 export interface ApplyResults {
-  tasks:       number;
-  decisions:   number;
-  leads:       number;
-  obv_updates: number;
-  blockers:    number;
-  metrics:     number;
+  tasks:              number;
+  decisions:          number;
+  leads:              number;
+  obv_updates:        number;
+  blockers:           number;
+  metrics:            number;
+  insights_degraded?: number;
+  engine_writes_blocked?: number;
 }
 
 interface MeetingInsightsReviewProps {
@@ -77,7 +82,7 @@ export function MeetingInsightsReview({
   const [localInsights, setLocalInsights] = useState<Insight[]>([]);
   const [editingInsight, setEditingInsight] = useState<Insight | null>(null);
   const [editedContent, setEditedContent] = useState<Record<string, unknown>>({});
-  const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(['task', 'decision']));
+  const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(['decision', 'blocker']));
   const [isApplying, setIsApplying] = useState(false);
 
   // Hooks
@@ -96,6 +101,18 @@ export function MeetingInsightsReview({
   if (insights && localInsights.length === 0) {
     setLocalInsights(insights as Insight[]);
   }
+
+  // Clasificar todos los insights por nivel de impacto (Bloque X gate)
+  const transcriptionConfidence = meeting?.ai_confidence_score ?? 0.6;
+  const classifiedMap = new Map<string, MeetingInsightWithImpact>(
+    localInsights.map(i => [
+      i.id,
+      classifyInsightImpact(
+        i as unknown as MeetingInsightRow,
+        transcriptionConfidence,
+      ),
+    ])
+  );
 
   /**
    * Aprobar insight
@@ -190,12 +207,39 @@ export function MeetingInsightsReview({
   };
 
   /**
-   * Aplicar insights aprobados
+   * Aplicar insights aprobados.
+   * Medium insights se auto-aprueban antes de llamar al endpoint
+   * (operativo = no requiere confirmación positiva individual).
    */
   const handleApplyApproved = async () => {
-    const approvedCount = localInsights.filter(i => i.review_status === 'approved').length;
+    // Auto-aprobar medium pending (no rechazados)
+    const pendingMedium = localInsights.filter(i => {
+      const c = classifiedMap.get(i.id);
+      return (
+        i.review_status === 'pending_review' &&
+        c?.impact_level === 'medium'
+      );
+    });
 
-    if (approvedCount === 0) {
+    if (pendingMedium.length > 0) {
+      const ids = pendingMedium.map(i => i.id);
+      await supabase
+        .from('meeting_insights')
+        .update({ review_status: 'approved' })
+        .in('id', ids);
+
+      setLocalInsights(prev =>
+        prev.map(i => ids.includes(i.id) ? { ...i, review_status: 'approved' } : i)
+      );
+    }
+
+    // Verificar que hay algo aprobado
+    const approvedNow = localInsights.filter(i =>
+      i.review_status === 'approved' ||
+      pendingMedium.some(m => m.id === i.id)
+    ).length;
+
+    if (approvedNow === 0) {
       toast.error('No hay insights aprobados para aplicar');
       return;
     }
@@ -222,12 +266,30 @@ export function MeetingInsightsReview({
     return acc;
   }, {} as Record<string, Insight[]>);
 
-  // Calcular stats
+  // Calcular stats por nivel de impacto
+  const impactStats = {
+    high:   localInsights.filter(i => classifiedMap.get(i.id)?.impact_level === 'high').length,
+    medium: localInsights.filter(i => classifiedMap.get(i.id)?.impact_level === 'medium').length,
+    low:    localInsights.filter(i => classifiedMap.get(i.id)?.impact_level === 'low').length,
+  };
+
+  // Cuántos high siguen pendientes de confirmación
+  const pendingHighCount = localInsights.filter(
+    i => classifiedMap.get(i.id)?.impact_level === 'high' && i.review_status === 'pending_review'
+  ).length;
+
+  // Calcular stats de estado (para el Apply button)
   const stats = {
-    total: localInsights.length,
+    total:    localInsights.length,
     approved: localInsights.filter(i => i.review_status === 'approved').length,
     rejected: localInsights.filter(i => i.review_status === 'rejected').length,
-    pending: localInsights.filter(i => i.review_status === 'pending_review').length,
+    pending:  localInsights.filter(i => i.review_status === 'pending_review').length,
+    // Medium pending se auto-aprobarán, contarlos en "aplicables"
+    applicable: localInsights.filter(i => {
+      if (i.review_status === 'rejected') return false;
+      const level = classifiedMap.get(i.id)?.impact_level;
+      return level === 'medium' || i.review_status === 'approved';
+    }).length,
   };
 
   if (isLoading) {
@@ -248,48 +310,42 @@ export function MeetingInsightsReview({
   }
 
   return (
+    <TooltipProvider>
     <div className="space-y-6">
+      {/* Sticky indicator — Level 3 pendientes */}
+      {pendingHighCount > 0 && (
+        <div className="sticky top-2 z-10 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 shadow dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
+          <AlertTriangle className="h-4 w-4 shrink-0" />
+          ⚠ {pendingHighCount} decisión{pendingHighCount !== 1 ? 'es' : ''} estratégica{pendingHighCount !== 1 ? 's' : ''} pendiente{pendingHighCount !== 1 ? 's' : ''} de confirmación
+        </div>
+      )}
+
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold">{meeting?.title}</h2>
         <p className="text-gray-600 mt-1">
-          Revisa y aprueba los insights extraídos por GPT-4
+          {impactStats.high > 0 && (
+            <span className="text-red-600 font-medium">{impactStats.high} estratégico{impactStats.high !== 1 ? 's' : ''} requieren tu confirmación</span>
+          )}
+          {impactStats.high > 0 && impactStats.medium > 0 && ' · '}
+          {impactStats.medium > 0 && (
+            <span className="text-amber-600">{impactStats.medium} operativo{impactStats.medium !== 1 ? 's' : ''}</span>
+          )}
+          {(impactStats.high > 0 || impactStats.medium > 0) && impactStats.low > 0 && ' · '}
+          {impactStats.low > 0 && (
+            <span className="text-gray-500">{impactStats.low} informativo{impactStats.low !== 1 ? 's' : ''}</span>
+          )}
+          {impactStats.high === 0 && impactStats.medium === 0 && impactStats.low === 0 && (
+            'Revisa y aprueba los insights extraídos'
+          )}
         </p>
-      </div>
-
-      {/* Stats */}
-      <div className="grid grid-cols-4 gap-4">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold">{stats.total}</div>
-            <div className="text-sm text-gray-600">Total</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-green-600">{stats.approved}</div>
-            <div className="text-sm text-gray-600">Aprobados</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-red-600">{stats.rejected}</div>
-            <div className="text-sm text-gray-600">Rechazados</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-2xl font-bold text-orange-600">{stats.pending}</div>
-            <div className="text-sm text-gray-600">Pendientes</div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Alert */}
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Revisa cada insight antes de aplicarlo al sistema. Los insights aprobados se convertirán en tareas, leads, decisiones, etc. reales en tu proyecto.
+          Los insights <strong>estratégicos</strong> requieren tu confirmación explícita. Los <strong>operativos</strong> se aplican automáticamente — solo recházalos si no corresponden. Los <strong>informativos</strong> quedan registrados pero no generan acciones.
         </AlertDescription>
       </Alert>
 
@@ -328,6 +384,7 @@ export function MeetingInsightsReview({
                       key={insight.id}
                       insight={insight}
                       type={type}
+                      classified={classifiedMap.get(insight.id)}
                       onApprove={handleApprove}
                       onReject={handleReject}
                       onEdit={handleEdit}
@@ -347,7 +404,7 @@ export function MeetingInsightsReview({
         </Button>
         <Button
           onClick={handleApplyApproved}
-          disabled={stats.approved === 0 || isApplying}
+          disabled={stats.applicable === 0 || isApplying}
           className="gap-2"
         >
           {isApplying ? (
@@ -358,7 +415,7 @@ export function MeetingInsightsReview({
           ) : (
             <>
               <CheckCircle2 className="h-4 w-4" />
-              Aplicar {stats.approved} Insight{stats.approved !== 1 ? 's' : ''}
+              Aplicar {stats.applicable} insight{stats.applicable !== 1 ? 's' : ''}
             </>
           )}
         </Button>
@@ -375,6 +432,7 @@ export function MeetingInsightsReview({
         />
       )}
     </div>
+    </TooltipProvider>
   );
 }
 
@@ -384,27 +442,89 @@ export function MeetingInsightsReview({
 interface InsightCardProps {
   insight: Insight;
   type: string;
+  classified?: MeetingInsightWithImpact;
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onEdit: (insight: Insight) => void;
 }
 
-function InsightCard({ insight, type, onApprove, onReject, onEdit }: InsightCardProps) {
+function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }: InsightCardProps) {
+  const [showContext, setShowContext] = useState(false);
   const { content, review_status } = insight;
+  const impactLevel = classified?.impact_level ?? 'medium';
 
   const getBgColor = () => {
     if (review_status === 'approved') return 'bg-green-50 border-green-200';
     if (review_status === 'rejected') return 'bg-red-50 border-red-200';
+    if (impactLevel === 'high') return 'bg-red-50/30 border-red-200';
+    if (impactLevel === 'low') return 'bg-gray-50 border-gray-200';
     return 'bg-white';
+  };
+
+  // Level 1 (low): collapsed by default, no action buttons
+  if (impactLevel === 'low' && !showContext) {
+    return (
+      <div className="flex items-center justify-between rounded-lg border border-gray-200 bg-gray-50 px-4 py-2.5">
+        <div className="flex items-center gap-2 min-w-0">
+          <Badge variant="secondary" className="shrink-0 text-xs text-gray-500">Informativo</Badge>
+          <span className="text-sm text-gray-600 truncate">{content.title || content.name || 'Sin título'}</span>
+        </div>
+        <Button size="sm" variant="ghost" className="shrink-0 h-7 px-2 text-xs" onClick={() => setShowContext(true)}>
+          Ver contexto
+        </Button>
+      </div>
+    );
+  }
+
+  // Impact badge
+  const ImpactBadge = () => {
+    if (impactLevel === 'high' && !classified?.auto_degraded) {
+      return <Badge className="shrink-0 bg-red-100 text-red-700 border-red-200">Estratégico · requiere aprobación</Badge>;
+    }
+    if (classified?.auto_degraded) {
+      return (
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <Badge className="shrink-0 bg-amber-100 text-amber-700 border-amber-200 cursor-help gap-1">
+              Estratégico degradado a Operativo · baja confianza
+              <Info className="h-3 w-3" />
+            </Badge>
+          </TooltipTrigger>
+          <TooltipContent>
+            <p className="text-xs">{classified.degradation_reason}</p>
+          </TooltipContent>
+        </Tooltip>
+      );
+    }
+    if (impactLevel === 'medium') {
+      return <Badge className="shrink-0 bg-amber-50 text-amber-700 border-amber-200">Operativo · se aplica automáticamente</Badge>;
+    }
+    return <Badge variant="secondary" className="shrink-0 text-xs text-gray-500">Informativo</Badge>;
   };
 
   return (
     <div className={`border rounded-lg p-4 ${getBgColor()}`}>
-      {/* Título */}
+      {/* Impact badge + status */}
+      <div className="flex items-center gap-2 mb-2 flex-wrap">
+        <ImpactBadge />
+        {review_status === 'approved' && (
+          <Badge className="bg-green-100 text-green-700">Confirmado</Badge>
+        )}
+        {review_status === 'rejected' && (
+          <Badge className="bg-red-100 text-red-700">Rechazado</Badge>
+        )}
+        {impactLevel === 'low' && showContext && (
+          <Button size="sm" variant="ghost" className="h-6 px-2 text-xs ml-auto" onClick={() => setShowContext(false)}>
+            Ocultar
+          </Button>
+        )}
+      </div>
+
+      {/* Título + acciones */}
       <div className="flex items-start justify-between mb-2">
         <h4 className="font-semibold">{content.title || content.name || 'Sin título'}</h4>
-        <div className="flex gap-2">
-          {review_status === 'pending_review' && (
+        <div className="flex gap-2 shrink-0 ml-2">
+          {review_status === 'pending_review' && impactLevel !== 'low' && (
             <>
               <Button
                 size="sm"
@@ -414,14 +534,16 @@ function InsightCard({ insight, type, onApprove, onReject, onEdit }: InsightCard
               >
                 <Edit3 className="h-4 w-4" />
               </Button>
-              <Button
-                size="sm"
-                variant="ghost"
-                onClick={() => onApprove(insight.id)}
-                className="h-8 w-8 p-0 text-green-600 hover:text-green-700 hover:bg-green-50"
-              >
-                <CheckCircle2 className="h-4 w-4" />
-              </Button>
+              {/* High: explicit "Confirmar" button; medium: only "Rechazar" */}
+              {impactLevel === 'high' && !classified?.auto_degraded ? (
+                <Button
+                  size="sm"
+                  onClick={() => onApprove(insight.id)}
+                  className="h-8 px-3 bg-red-600 hover:bg-red-700 text-white text-xs"
+                >
+                  Confirmar decisión estratégica
+                </Button>
+              ) : null}
               <Button
                 size="sm"
                 variant="ghost"
@@ -432,11 +554,15 @@ function InsightCard({ insight, type, onApprove, onReject, onEdit }: InsightCard
               </Button>
             </>
           )}
-          {review_status === 'approved' && (
-            <Badge className="bg-green-100 text-green-700">Aprobado</Badge>
-          )}
-          {review_status === 'rejected' && (
-            <Badge className="bg-red-100 text-red-700">Rechazado</Badge>
+          {review_status === 'approved' && impactLevel === 'high' && (
+            <Button
+              size="sm"
+              variant="ghost"
+              onClick={() => onReject(insight.id)}
+              className="h-7 px-2 text-xs text-gray-500"
+            >
+              Revertir
+            </Button>
           )}
         </div>
       </div>
@@ -527,6 +653,42 @@ function InsightCard({ insight, type, onApprove, onReject, onEdit }: InsightCard
           </p>
         )}
       </div>
+
+      {/* Reliability bar — M18.X.6 */}
+      {classified && (
+        <ReliabilityBar classified={classified} />
+      )}
+    </div>
+  );
+}
+
+/** Barra de fiabilidad combinada para un insight. */
+function ReliabilityBar({ classified }: { classified: MeetingInsightWithImpact }) {
+  const pct = Math.round(classified.combined_reliability * 100);
+  const barColor =
+    pct >= 70 ? 'bg-green-500' :
+    pct >= 45 ? 'bg-amber-400' :
+    'bg-red-400';
+  const certaintyLabel: Record<string, string> = {
+    definitive: 'Definitivo',
+    conditional: 'Condicional',
+    speculative: 'Especulativo',
+  };
+
+  return (
+    <div className="mt-3 pt-2 border-t border-gray-100">
+      <div className="flex items-center justify-between mb-1">
+        <span className="text-xs text-gray-500">Fiabilidad</span>
+        <span className={`text-xs font-medium ${pct >= 70 ? 'text-green-600' : pct >= 45 ? 'text-amber-600' : 'text-red-600'}`}>
+          {pct}%{classified.auto_degraded ? ' · ⚠ Degradado' : ''}
+        </span>
+      </div>
+      <div className="w-full h-1.5 rounded-full bg-gray-200 overflow-hidden">
+        <div className={`h-full rounded-full ${barColor}`} style={{ width: `${pct}%` }} />
+      </div>
+      <p className="text-[11px] text-gray-400 mt-1">
+        Claridad {Math.round(classified.clarity_score * 100)}% · Certeza: {certaintyLabel[classified.speaker_certainty] ?? classified.speaker_certainty}
+      </p>
     </div>
   );
 }

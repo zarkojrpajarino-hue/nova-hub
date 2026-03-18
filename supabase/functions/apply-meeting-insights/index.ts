@@ -14,6 +14,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { classifyInsightImpact } from '../_shared/meeting-agent.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface MeetingRecord extends Record<string, unknown> {
@@ -21,6 +22,7 @@ interface MeetingRecord extends Record<string, unknown> {
   project_id: string;
   created_by: string;
   notas?: string;
+  ai_confidence_score?: number;
 }
 
 interface InsightRecord extends Record<string, unknown> {
@@ -98,7 +100,42 @@ serve(async (req) => {
 
     console.log(`✅ Found ${insights.length} approved insights to apply`);
 
-    // 5. Aplicar cada insight según su tipo
+    // 5. Gate — Bloque X: clasificar por impacto y fiabilidad combinada
+    const transcriptionConfidence = (meeting as MeetingRecord).ai_confidence_score ?? 0.6;
+
+    const classified = (insights as InsightRecord[]).map(i =>
+      classifyInsightImpact(
+        { ...i, review_status: 'approved', applied: false, created_at: '', updated_at: '' },
+        transcriptionConfidence,
+      )
+    );
+
+    // Insights degradados: auto_degraded=true → nunca tocan el motor
+    const degraded        = classified.filter(i => i.auto_degraded);
+    // Engine-eligible: high + requires_confirmation (ya aprobados por el founder en la review)
+    const engineEligible  = classified.filter(i => i.impact_level === 'high' && i.requires_confirmation);
+    // Task-eligible: medium (incluyendo high degradados a medium) y high aprobados
+    const taskEligible    = classified.filter(i => i.impact_level === 'medium' || i.impact_level === 'high');
+    // Insights bloqueados del motor (combined_reliability < 0.5 para high original)
+    const engineBlocked   = degraded.filter(i => {
+      // Era high antes de degradar — combined_reliability < 0.5
+      return i.combined_reliability < 0.5;
+    });
+
+    console.log('🔒 Gate results:', {
+      total: classified.length,
+      degraded: degraded.length,
+      engine_eligible: engineEligible.length,
+      task_eligible: taskEligible.length,
+      engine_blocked: engineBlocked.length,
+    });
+
+    // Build set of IDs that are task-eligible for fast lookup
+    const taskEligibleIds = new Set(taskEligible.map(i => i.id));
+    // Build set of degradation reasons for audit
+    const degradationReasons = degraded.map(i => i.degradation_reason ?? '').filter(Boolean);
+
+    // 6. Aplicar cada insight según su tipo (solo task-eligible o low para guardado)
     const results = {
       tasks: 0,
       decisions: 0,
@@ -107,9 +144,24 @@ serve(async (req) => {
       blockers: 0,
       metrics: 0,
       errors: [] as string[],
+      insights_degraded: degraded.length,
+      engine_writes_blocked: engineBlocked.length,
+      reason: degradationReasons,
     };
 
     for (const insight of insights) {
+      // Low-impact insights: guardar en meeting_insights pero no crear entidades activas
+      const classifiedInsight = classified.find(c => c.id === insight.id);
+      if (classifiedInsight?.impact_level === 'low') {
+        // Solo marcar como aplicado sin crear nada
+        await supabase
+          .from('meeting_insights')
+          .update({ applied: true, updated_at: new Date().toISOString() })
+          .eq('id', insight.id);
+        continue;
+      }
+      // Non-task-eligible: skip (shouldn't happen, but guard)
+      if (!taskEligibleIds.has(insight.id)) continue;
       try {
         let appliedEntityId: string | null = null;
 
@@ -165,7 +217,7 @@ serve(async (req) => {
       }
     }
 
-    // 6. Actualizar estado de la reunión
+    // 7. Actualizar estado de la reunión
     const { error: updateError } = await supabase
       .from('meetings')
       .update({
@@ -180,12 +232,15 @@ serve(async (req) => {
 
     console.log('✅ Insights applied successfully:', results);
 
-    // 7. Retornar resultado
+    // 8. Retornar resultado
     return new Response(
       JSON.stringify({
         success: true,
         meetingId,
         results,
+        insights_degraded: results.insights_degraded,
+        engine_writes_blocked: results.engine_writes_blocked,
+        reason: results.reason,
         message: 'Insights applied successfully',
       }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }

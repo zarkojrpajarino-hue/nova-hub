@@ -209,6 +209,7 @@ export default function MeetingIntelligencePage() {
           keyPoints={(completedMeetingData?.key_points as string[] | undefined) ?? []}
           results={completedSummary.results}
           meetingDuration={completedMeetingData?.estimated_duration_min ?? undefined}
+          transcriptionConfidence={completedMeetingData?.ai_confidence_score ?? undefined}
           onClose={() => setCompletedSummary(null)}
         />
       </div>

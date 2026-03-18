@@ -1997,7 +1997,7 @@ ORDER  BY critical_count DESC, total DESC;
 >
 > Depende de Bloque 0 completado (clarity_score requiere audio procesado con confianza real).
 
-- [ ] **M18.X.1** Definir contrato TypeScript `MeetingInsightWithImpact`
+- [x] **M18.X.1** Definir contrato TypeScript `MeetingInsightWithImpact`
   > Extender el tipo de insight de reunión con los campos necesarios para el gate.
   > En `src/lib/meeting-agent.ts` (creado en M18.1), añadir interface:
   > ```typescript
@@ -2021,7 +2021,7 @@ ORDER  BY critical_count DESC, total DESC;
   > - `context`, `info_share`, resto → low
   > **Criterio:** type compila sin errores. Todos los campos tienen JSDoc con la regla que los gobierna.
 
-- [ ] **M18.X.2** Implementar `classifyInsightImpact()` — función pura en `meeting-agent.ts`
+- [x] **M18.X.2** Implementar `classifyInsightImpact()` — función pura en `meeting-agent.ts`
   > ```typescript
   > export function classifyInsightImpact(
   >   insight: MeetingInsightRow,
@@ -2046,7 +2046,7 @@ ORDER  BY critical_count DESC, total DESC;
   > `requires_confirmation = impact_level === 'high' && !auto_degraded`
   > **Criterio:** test unitario con 6 casos (uno por cada regla clave) → clasificación correcta en todos.
 
-- [ ] **M18.X.3** Añadir `clarity_score` y `speaker_certainty` al output de `analyze-meeting/index.ts`
+- [x] **M18.X.3** Añadir `clarity_score` y `speaker_certainty` al output de `analyze-meeting/index.ts`
   > Claude (tras M18.10) debe emitir por cada insight dos campos nuevos:
   > ```typescript
   > clarity_score: number        // 0.0–1.0
@@ -2067,7 +2067,7 @@ ORDER  BY critical_count DESC, total DESC;
   > **Criterio:** reunión con "decidimos pivotar" → clarity_score ≥ 0.8, speaker_certainty='definitive'.
   >  "quizás deberíamos explorar esto" → clarity_score ≤ 0.35, speaker_certainty='speculative'.
 
-- [ ] **M18.X.4** Gate de motor en `apply-meeting-insights/index.ts`
+- [x] **M18.X.4** Gate de motor en `apply-meeting-insights/index.ts`
   > Este es el enforcement point del Bloque X. Antes de ejecutar M18.3 (decision_events) y M18.4 (run_phase_engine):
   > ```typescript
   > const classifiedInsights = insights.map(i =>
@@ -2092,7 +2092,7 @@ ORDER  BY critical_count DESC, total DESC;
   > **Criterio:** decisión vaga con speaker_certainty='speculative' → combined_reliability < 0.5 →
   > `auto_degraded=true` → no crea decision_event, no dispara motor, crea task normal.
 
-- [ ] **M18.X.5** UX de confirmación por nivel de impacto en `MeetingInsightsReview.tsx`
+- [x] **M18.X.5** UX de confirmación por nivel de impacto en `MeetingInsightsReview.tsx`
   > Rediseñar el flujo de review para reflejar los tres niveles con fricción proporcional:
   > - **Level 3 — Estratégico** (high): badge rojo "Estratégico · requiere aprobación".
   >   Botón "Confirmar decisión estratégica" prominente. No se puede ignorar.
@@ -2106,7 +2106,7 @@ ORDER  BY critical_count DESC, total DESC;
   > **Criterio:** reunión con 1 decisión explícita + 2 action items + 1 idea vaga →
   > 1 insight con botón "Confirmar", 2 auto-aplicados, 1 colapsado. tsc limpio.
 
-- [ ] **M18.X.6** Indicador de fiabilidad en `MeetingInsightsReview.tsx` y `MeetingCompletionSummary.tsx`
+- [x] **M18.X.6** Indicador de fiabilidad en `MeetingInsightsReview.tsx` y `MeetingCompletionSummary.tsx`
   > Para cada insight en la review, mostrar barra de fiabilidad combinada:
   > `combined_reliability = tc × clarity × certainty` — valor visual 0–100%.
   > ```

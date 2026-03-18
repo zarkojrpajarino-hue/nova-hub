@@ -154,7 +154,7 @@ serve(async (req) => {
         messages: [
           {
             role: 'system',
-            content: 'Eres un asistente experto en análisis de reuniones de negocios y equipos de producto. Tu tarea es extraer insights accionables de transcripciones de reuniones.'
+            content: 'Eres un asistente experto en análisis de reuniones de negocios y equipos de producto. Tu tarea es extraer insights accionables de transcripciones de reuniones.\n\nPara cada insight, evalúa con qué grado de explicitez y certeza fue expresado:\n- clarity_score (0.0–1.0): 1.0=hecho afirmativo ("cerramos el contrato"), 0.5=plan condicional ("deberíamos cerrar"), 0.2=posibilidad vaga ("quizás explorar").\n- speaker_certainty: "definitive" (declaraciones cerradas: "cerramos","decidimos","hay que hacer X"), "conditional" (planes: "deberíamos","podríamos","cuando sea posible"), "speculative" (ideas: "quizás","a lo mejor","en algún momento").\nIncluye SIEMPRE ambos campos en cada insight de tipo task, decision, blocker y metric.'
           },
           {
             role: 'user',
@@ -399,7 +399,9 @@ Analiza la transcripción y extrae los siguientes insights en formato JSON:
       "priority": "alta|media|baja",
       "estimated_hours": 8,
       "deadline": "2024-03-15" (si se mencionó),
-      "context": "Contexto de la discusión donde se mencionó"
+      "context": "Contexto de la discusión donde se mencionó",
+      "clarity_score": 0.85,
+      "speaker_certainty": "definitive|conditional|speculative"
     }
   ],
   "decisions": [
@@ -409,7 +411,9 @@ Analiza la transcripción y extrae los siguientes insights en formato JSON:
       "rationale": "Por qué se tomó esta decisión",
       "impact": "alto|medio|bajo",
       "stakeholders": ["IDs de miembros afectados"],
-      "context": "Contexto de la discusión"
+      "context": "Contexto de la discusión",
+      "clarity_score": 0.85,
+      "speaker_certainty": "definitive|conditional|speculative"
     }
   ],
   "leads": [
@@ -441,7 +445,9 @@ Analiza la transcripción y extrae los siguientes insights en formato JSON:
       "affected_areas": ["Áreas afectadas"],
       "severity": "crítico|alto|medio|bajo",
       "suggested_solution": "Solución propuesta si se mencionó",
-      "context": "Contexto de la discusión"
+      "context": "Contexto de la discusión",
+      "clarity_score": 0.85,
+      "speaker_certainty": "definitive|conditional|speculative"
     }
   ],
   "metrics": [
@@ -451,7 +457,9 @@ Analiza la transcripción y extrae los siguientes insights en formato JSON:
       "unit": "unidad (€, usuarios, %, etc)",
       "trend": "subiendo|bajando|estable",
       "context": "Contexto de la discusión",
-      "action_required": "Acción necesaria si aplica"
+      "action_required": "Acción necesaria si aplica",
+      "clarity_score": 0.85,
+      "speaker_certainty": "definitive|conditional|speculative"
     }
   ]
 }

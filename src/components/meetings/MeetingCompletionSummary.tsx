@@ -24,6 +24,9 @@ import {
   Calendar,
   Clock,
   Sparkles,
+  ShieldCheck,
+  ShieldAlert,
+  ShieldOff,
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -38,8 +41,12 @@ interface MeetingCompletionSummaryProps {
     obv_updates: number;
     blockers: number;
     metrics: number;
+    insights_degraded?: number;
+    engine_writes_blocked?: number;
   };
   meetingDuration?: number;
+  /** Confianza de la transcripción (0–1) — para badge de calidad */
+  transcriptionConfidence?: number;
   onViewDetails?: () => void;
   onClose?: () => void;
 }
@@ -50,6 +57,7 @@ export function MeetingCompletionSummary({
   keyPoints = [],
   results,
   meetingDuration,
+  transcriptionConfidence,
   onViewDetails,
   onClose,
 }: MeetingCompletionSummaryProps) {
@@ -210,6 +218,55 @@ export function MeetingCompletionSummary({
           </Card>
         )}
       </div>
+
+      {/* Calidad de la sesión — M18.X.6 */}
+      {(transcriptionConfidence !== undefined || (results.insights_degraded ?? 0) > 0) && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2 text-base">
+              {transcriptionConfidence !== undefined && transcriptionConfidence >= 0.75 ? (
+                <ShieldCheck className="h-5 w-5 text-green-600" />
+              ) : transcriptionConfidence !== undefined && transcriptionConfidence >= 0.45 ? (
+                <ShieldAlert className="h-5 w-5 text-amber-500" />
+              ) : (
+                <ShieldOff className="h-5 w-5 text-red-500" />
+              )}
+              Calidad de la sesión
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {transcriptionConfidence !== undefined && (
+              <div className="flex items-center justify-between">
+                <span className="text-sm text-gray-600">Confianza de transcripción</span>
+                <Badge
+                  className={
+                    transcriptionConfidence >= 0.75
+                      ? 'bg-green-100 text-green-700'
+                      : transcriptionConfidence >= 0.45
+                      ? 'bg-amber-100 text-amber-700'
+                      : 'bg-red-100 text-red-700'
+                  }
+                >
+                  {Math.round(transcriptionConfidence * 100)}%
+                </Badge>
+              </div>
+            )}
+            {(results.insights_degraded ?? 0) > 0 && (
+              <div className="flex items-start gap-2 rounded-md bg-amber-50 border border-amber-200 px-3 py-2 text-sm text-amber-800">
+                <AlertTriangle className="h-4 w-4 shrink-0 mt-0.5" />
+                <span>
+                  <strong>{results.insights_degraded}</strong> insight{results.insights_degraded !== 1 ? 's' : ''} reclasificado{results.insights_degraded !== 1 ? 's' : ''} por baja fiabilidad — aplicado{results.insights_degraded !== 1 ? 's' : ''} como operativo{results.insights_degraded !== 1 ? 's' : ''}, no estratégico{results.insights_degraded !== 1 ? 's' : ''}.
+                </span>
+              </div>
+            )}
+            {(results.engine_writes_blocked ?? 0) > 0 && (
+              <p className="text-xs text-gray-500">
+                {results.engine_writes_blocked} señal{results.engine_writes_blocked !== 1 ? 'es' : ''} bloqueada{results.engine_writes_blocked !== 1 ? 's' : ''} del motor por fiabilidad combinada insuficiente.
+              </p>
+            )}
+          </CardContent>
+        </Card>
+      )}
 
       {/* Metadata */}
       <div className="flex items-center gap-6 text-sm text-gray-600">
