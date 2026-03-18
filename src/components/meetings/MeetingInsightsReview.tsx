@@ -88,6 +88,8 @@ export function MeetingInsightsReview({
   const [editedContent, setEditedContent] = useState<Record<string, unknown>>({});
   const [expandedTypes, setExpandedTypes] = useState<Set<string>>(new Set(['decision', 'blocker']));
   const [isApplying, setIsApplying] = useState(false);
+  // Medium insights: preseleccionados por defecto, el usuario puede des-seleccionar antes de aplicar
+  const [excludedMedium, setExcludedMedium] = useState<Set<string>>(new Set());
 
   // Hooks
   const { data: insights, isLoading } = useMeetingInsights(meetingId);
@@ -196,6 +198,18 @@ export function MeetingInsightsReview({
   };
 
   /**
+   * Toggle preselección de medium insight
+   */
+  const toggleMediumExclusion = (id: string) => {
+    setExcludedMedium(prev => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  };
+
+  /**
    * Toggle expansion de tipo
    */
   const toggleType = (type: string) => {
@@ -212,16 +226,17 @@ export function MeetingInsightsReview({
 
   /**
    * Aplicar insights aprobados.
-   * Medium insights se auto-aprueban antes de llamar al endpoint
-   * (operativo = no requiere confirmación positiva individual).
+   * Medium insights preseleccionados se confirman al pulsar "Aplicar"
+   * (solo los que el usuario no ha des-seleccionado explícitamente).
    */
   const handleApplyApproved = async () => {
-    // Auto-aprobar medium pending (no rechazados)
+    // Confirmar medium pending que el usuario NO ha excluido
     const pendingMedium = localInsights.filter(i => {
       const c = classifiedMap.get(i.id);
       return (
         i.review_status === 'pending_review' &&
-        c?.impact_level === 'medium'
+        c?.impact_level === 'medium' &&
+        !excludedMedium.has(i.id)
       );
     });
 
@@ -293,11 +308,12 @@ export function MeetingInsightsReview({
     approved: localInsights.filter(i => i.review_status === 'approved').length,
     rejected: localInsights.filter(i => i.review_status === 'rejected').length,
     pending:  localInsights.filter(i => i.review_status === 'pending_review').length,
-    // Medium pending se auto-aprobarán, contarlos en "aplicables"
+    // Medium pending preseleccionados (no excluidos) + ya aprobados
     applicable: localInsights.filter(i => {
       if (i.review_status === 'rejected') return false;
+      if (i.review_status === 'approved') return true;
       const level = classifiedMap.get(i.id)?.impact_level;
-      return level === 'medium' || i.review_status === 'approved';
+      return level === 'medium' && !excludedMedium.has(i.id);
     }).length,
   };
 
@@ -354,7 +370,7 @@ export function MeetingInsightsReview({
       <Alert>
         <AlertCircle className="h-4 w-4" />
         <AlertDescription>
-          Los insights <strong>estratégicos</strong> requieren tu confirmación explícita. Los <strong>operativos</strong> se aplican automáticamente — solo recházalos si no corresponden. Los <strong>informativos</strong> quedan registrados pero no generan acciones.
+          Los insights <strong>estratégicos</strong> requieren confirmación explícita. Los <strong>operativos</strong> están preseleccionados — des-selecciona los que no correspondan antes de pulsar "Aplicar". Los <strong>informativos</strong> quedan registrados pero no generan acciones.
         </AlertDescription>
       </Alert>
 
@@ -397,6 +413,8 @@ export function MeetingInsightsReview({
                       onApprove={handleApprove}
                       onReject={handleReject}
                       onEdit={handleEdit}
+                      isPreselected={!excludedMedium.has(insight.id)}
+                      onTogglePreselect={toggleMediumExclusion}
                     />
                   ))}
                 </CardContent>
@@ -455,9 +473,12 @@ interface InsightCardProps {
   onApprove: (id: string) => void;
   onReject: (id: string) => void;
   onEdit: (insight: Insight) => void;
+  // Medium preselección
+  isPreselected?: boolean;
+  onTogglePreselect?: (id: string) => void;
 }
 
-function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }: InsightCardProps) {
+function InsightCard({ insight, type, classified, onApprove, onReject, onEdit, isPreselected = true, onTogglePreselect }: InsightCardProps) {
   const [showContext, setShowContext] = useState(false);
   const [showSources, setShowSources] = useState(false);
   const { content, review_status } = insight;
@@ -467,6 +488,8 @@ function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }:
     if (review_status === 'approved') return 'bg-green-50 border-green-200';
     if (review_status === 'rejected') return 'bg-red-50 border-red-200';
     if (impactLevel === 'high') return 'bg-red-50/30 border-red-200';
+    if (impactLevel === 'medium' && !isPreselected) return 'bg-gray-50 border-gray-200 opacity-60';
+    if (impactLevel === 'medium') return 'bg-amber-50/40 border-amber-200';
     if (impactLevel === 'low') return 'bg-gray-50 border-gray-200';
     return 'bg-white';
   };
@@ -507,7 +530,9 @@ function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }:
       );
     }
     if (impactLevel === 'medium') {
-      return <Badge className="shrink-0 bg-amber-50 text-amber-700 border-amber-200">Operativo · se aplica automáticamente</Badge>;
+      return isPreselected
+        ? <Badge className="shrink-0 bg-amber-50 text-amber-700 border-amber-200">Operativo · preseleccionado</Badge>
+        : <Badge className="shrink-0 bg-gray-100 text-gray-500 border-gray-200">Operativo · excluido</Badge>;
     }
     return <Badge variant="secondary" className="shrink-0 text-xs text-gray-500">Informativo</Badge>;
   };
@@ -544,7 +569,7 @@ function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }:
               >
                 <Edit3 className="h-4 w-4" />
               </Button>
-              {/* High: explicit "Confirmar" button; medium: only "Rechazar" */}
+              {/* High: explicit "Confirmar" button; medium: toggle preselección + Rechazar */}
               {impactLevel === 'high' && !classified?.auto_degraded ? (
                 <Button
                   size="sm"
@@ -552,6 +577,15 @@ function InsightCard({ insight, type, classified, onApprove, onReject, onEdit }:
                   className="h-8 px-3 bg-red-600 hover:bg-red-700 text-white text-xs"
                 >
                   Confirmar decisión estratégica
+                </Button>
+              ) : impactLevel === 'medium' && onTogglePreselect ? (
+                <Button
+                  size="sm"
+                  variant={isPreselected ? 'outline' : 'ghost'}
+                  onClick={() => onTogglePreselect(insight.id)}
+                  className={`h-8 px-2 text-xs ${isPreselected ? 'border-amber-300 text-amber-700' : 'text-gray-400'}`}
+                >
+                  {isPreselected ? <CheckCircle2 className="h-4 w-4" /> : <XCircle className="h-4 w-4" />}
                 </Button>
               ) : null}
               <Button
