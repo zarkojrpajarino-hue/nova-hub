@@ -38,14 +38,14 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'project_id requerido' }), { status: 400, headers });
     }
 
-    // Verificar pertenencia
-    const { data: proj } = await supabase
-      .from('projects')
-      .select('id, nombre')
-      .eq('id', project_id)
-      .or(`created_by.eq.${user.id}`)
-      .maybeSingle();
-    if (!proj) return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
+    // Verificar pertenencia (miembro O creador)
+    const [{ data: membership }, { data: proj }] = await Promise.all([
+      supabase.from('project_members').select('id').eq('project_id', project_id).eq('member_id', user.id).maybeSingle(),
+      supabase.from('projects').select('id, nombre, created_by').eq('id', project_id).maybeSingle(),
+    ]);
+    if (!proj || (!membership && (proj as Record<string, unknown>).created_by !== user.id)) {
+      return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
+    }
 
     // Caché
     const { data: cached } = await supabase

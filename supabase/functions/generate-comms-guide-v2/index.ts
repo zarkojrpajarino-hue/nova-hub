@@ -30,9 +30,13 @@ serve(async (req) => {
     const { project_id } = await req.json() as { project_id: string };
     if (!project_id) return new Response(JSON.stringify({ error: 'project_id requerido' }), { status: 400, headers });
 
-    const { data: proj } = await supabase.from('projects').select('id, nombre')
-      .eq('id', project_id).or(`created_by.eq.${user.id}`).maybeSingle();
-    if (!proj) return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
+    const [{ data: membership }, { data: proj }] = await Promise.all([
+      supabase.from('project_members').select('id').eq('project_id', project_id).eq('member_id', user.id).maybeSingle(),
+      supabase.from('projects').select('id, nombre, created_by').eq('id', project_id).maybeSingle(),
+    ]);
+    if (!proj || (!membership && (proj as Record<string, unknown>).created_by !== user.id)) {
+      return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
+    }
 
     const { data: cached } = await supabase.from('founder_tool_cache').select('*')
       .eq('project_id', project_id).eq('tool_type', TOOL_TYPE).maybeSingle();
