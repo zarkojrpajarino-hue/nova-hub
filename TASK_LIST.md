@@ -30,7 +30,7 @@
 > | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ⏸ POST-F16 0/49 + 3 v2 pendientes | Prerequisito: FASE 16 activa + Bloque 0 completado |
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
 > | FASE 20 — Análisis Estratégico IA v4 | ✅ CERRADA 12/12 + 5 v2 pendientes | Prerequisito: FASE 16 activa + proyecto ≥14 días · Niveles se desbloquean con integraciones |
-> | FASE 21 — Founder Toolkit | 🔄 ACTIVA 3/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
+> | FASE 21 — Founder Toolkit | ✅ CERRADA 8/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
 > | FASE 22 — Expansion Intelligence | ⏸ POST-F21 0/9 + 2 v2 pendientes | Prerequisito: Fase 3+ · MRR estable 2 meses · riesgo no crítico · 1 integración activa |
 >
 > **Deudas técnicas abiertas:** I15.DEBT.2 (MRR diverge si upsert falla) · I15.DEBT.3 (GCal cancelados) · I15.FIX.7 (verify_jwt revierte en redeploys)
@@ -3103,7 +3103,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 21 — FOUNDER TOOLKIT 🔄 ACTIVA 3/8
+## FASE 21 — FOUNDER TOOLKIT ✅ CERRADA 8/8
 > Prerequisito: FASE 16 activa. Paralela a FASE 20 — comparte `SourceBadge` (F20.9) y `founder_tool_cache` como patrón de caché.
 > 6 herramientas generativas que se construyen sobre datos reales del negocio. Cada herramienta tiene un trigger específico basado en acciones del founder, no en tiempo. El toolkit no se muestra todo a la vez — se desbloquea tool a tool conforme el negocio crece. Nunca se muestra una herramienta vacía.
 >
@@ -3137,27 +3137,27 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE C — Las 6 Herramientas
 
-- [ ] **F21.4** Edge function `generate-buyer-persona-v2` + `BuyerPersonaView.tsx`
+- [x] **F21.4** Edge function `generate-buyer-persona-v2` + `BuyerPersonaView.tsx`
   > Input: `project_id`. Data: `onboarding_data` (sector, mercado, tipo negocio, canal adquisición) + leads de CRM (títulos, etapas, notas) + `projects.country` → enriquecimiento con `country_data` si existe (tabla demográfica) o country_context curado por región.
   > Output: nombre de persona + edad media + cargo/rol + 3 pain points + 3 motivaciones de compra + canal de contacto preferido + objeciones típicas + quote representativo.
   > `BuyerPersonaView.tsx`: card visual con initials-avatar, datos estructurados, bloque "Basado en" plegable con N leads usados + `SourceBadge` por campo. Botón "Regenerar" si hay nuevos leads (`isStale`).
 
-- [ ] **F21.5** Edge function `generate-lead-scoring-v2` + `LeadScoringView.tsx`
+- [x] **F21.5** Edge function `generate-lead-scoring-v2` + `LeadScoringView.tsx`
   > Input: `project_id`. Data: deals HubSpot (stage, amount, días en pipeline) + OBVs tipo venta (pipeline_status, valor_estimado) + buyer_persona si existe.
   > Output: 3-5 criterios de scoring (fit + timing + budget + engagement + persona match) con peso sugerido + score actual de leads existentes (0-100) + top 3 leads "hot".
   > `LeadScoringView.tsx`: tabla de leads con scores + matriz de criterios con pesos ajustables por el founder (guardados en `onboarding_data.lead_scoring_weights`). Badge hot/warm/cold por lead.
 
-- [ ] **F21.6** Edge function `generate-sales-playbook-v2` + `SalesPlaybookView.tsx`
+- [x] **F21.6** Edge function `generate-sales-playbook-v2` + `SalesPlaybookView.tsx`
   > Input: `project_id`. Data: deals cerrados (nombre, importe, días en pipeline) + OBVs cerrados_ganados + buyer_persona si existe + objeciones registradas en leads.
   > Output: 5-7 pasos del proceso de venta (con duración estimada) + 3-5 objeciones comunes + respuestas a cada objeción + "momento de cierre" ideal + señales de compra de los deals ganados.
   > `SalesPlaybookView.tsx`: vista de libro con pasos acordeón + sección de objeciones expandible + tips de cierre. Exportable a texto plano (copiar para WhatsApp/Slack al equipo).
 
-- [ ] **F21.7** Edge functions `generate-brand-kit-v2` + `generate-comms-guide-v2` + vistas
+- [x] **F21.7** Edge functions `generate-brand-kit-v2` + `generate-comms-guide-v2` + vistas
   > **Brand Kit:** Input: buyer_persona + onboarding_data (sector, propuesta de valor) + primeros pitches (tono detectado). Output: propuesta de valor en 1 frase + 3 mensajes clave + tono de comunicación (formal/cercano/técnico) + palabras que usar/evitar + headline para web + tagline.
   > **Guía de Comunicación:** Input: brand_kit + 2+ pitches + feedback de leads (si existe). Output: adaptación del tono por canal (email/LinkedIn/WhatsApp) + plantilla de primer contacto por canal + señales de que el mensaje está funcionando.
   > `BrandKitView.tsx`: card con componentes del kit + `SourceBadge` por elemento. `CommsGuideView.tsx`: acordeones por canal con plantillas copiables con 1 click.
 
-- [ ] **F21.8** Edge function `generate-customer-journey-v2` + `CustomerJourneyView.tsx`
+- [x] **F21.8** Edge function `generate-customer-journey-v2` + `CustomerJourneyView.tsx`
   > Input: `project_id`. Data: Stripe subscriptions (created_at, churn events, plan) + leads ganados + buyer_persona + onboarding_data.
   > Output: 5-6 etapas del journey (Descubrimiento → Consideración → Decisión → Onboarding → Retención → Expansión/Churning) con: punto de contacto principal por etapa, emoción del cliente, fricción más común, acción del equipo recomendada.
   > `CustomerJourneyView.tsx`: diagrama horizontal con etapas + cards expandibles. Badge `observed/estimated` por etapa según origen de datos (Stripe = observed, onboarding = declared). Si no hay Stripe: genera con datos declarados + banner "Con Stripe, estas etapas serían más precisas".

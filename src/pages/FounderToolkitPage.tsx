@@ -1,206 +1,108 @@
 /**
- * FounderToolkitPage — F21.3
+ * FounderToolkitPage — F21.3 + F21.4–F21.8
  *
  * Página principal del Founder Toolkit.
- * Muestra las 6 herramientas IA ordenadas: available → generated → locked.
- * Cada ToolCard refleja el estado actual del unlock engine.
- * Las herramientas bloqueadas muestran exactamente qué falta — nunca una caja negra.
+ * Estado selectedTool: null = grid de 6 cards · string = vista de herramienta.
+ * Herramientas ordenadas: available → generated → locked.
  */
 
+import { useState } from 'react';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { useToolkitUnlocks } from '@/hooks/useToolkitUnlocks';
+import { useFounderTool } from '@/hooks/useFounderTool';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { SourceBadge } from '@/components/shared/SourceBadge';
+import { BuyerPersonaView } from '@/components/toolkit/BuyerPersonaView';
+import { LeadScoringView } from '@/components/toolkit/LeadScoringView';
+import { SalesPlaybookView } from '@/components/toolkit/SalesPlaybookView';
+import { BrandKitView } from '@/components/toolkit/BrandKitView';
+import { CommsGuideView } from '@/components/toolkit/CommsGuideView';
+import { CustomerJourneyView } from '@/components/toolkit/CustomerJourneyView';
 import {
-  AlertCircle,
-  Lock,
-  Sparkles,
-  Users,
-  BarChart2,
-  BookOpen,
-  Palette,
-  MessageSquare,
-  Map,
-  Loader2,
-  CheckCircle2,
-  ChevronRight,
+  AlertCircle, Lock, Sparkles, Users, BarChart2, BookOpen,
+  Palette, MessageSquare, Map, Loader2, CheckCircle2, ChevronRight,
+  ArrowLeft, RefreshCw, Clock, AlertTriangle,
 } from 'lucide-react';
 import type { ToolType, ToolkitUnlockState } from '@/hooks/useToolkitUnlocks';
 import { cn } from '@/lib/utils';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
-// ── Configuración de cada herramienta ────────────────────────────────────────
+// ── Configuración de herramientas ─────────────────────────────────────────────
 
 interface ToolConfig {
   type: ToolType;
   label: string;
   description: string;
   icon: React.ElementType;
-  color: string;         // Tailwind accent para available/generated
-  route: string;         // ruta futura (stubs por ahora)
+  color: string;
 }
 
 const TOOL_CONFIG: ToolConfig[] = [
-  {
-    type: 'buyer_persona',
-    label: 'Buyer Persona',
-    description: 'Perfil detallado de tu cliente ideal basado en tus leads reales del CRM.',
-    icon: Users,
-    color: 'violet',
-    route: 'toolkit/buyer-persona',
-  },
-  {
-    type: 'lead_scoring',
-    label: 'Lead Scoring',
-    description: 'Criterios y pesos de scoring generados desde el historial de deals reales.',
-    icon: BarChart2,
-    color: 'blue',
-    route: 'toolkit/lead-scoring',
-  },
-  {
-    type: 'sales_playbook',
-    label: 'Sales Playbook',
-    description: 'Proceso de venta, objeciones y señales de cierre desde tus deals ganados.',
-    icon: BookOpen,
-    color: 'green',
-    route: 'toolkit/sales-playbook',
-  },
-  {
-    type: 'brand_kit',
-    label: 'Brand Kit',
-    description: 'Propuesta de valor, mensajes clave y tono de comunicación de tu marca.',
-    icon: Palette,
-    color: 'pink',
-    route: 'toolkit/brand-kit',
-  },
-  {
-    type: 'comms_guide',
-    label: 'Guía de Comunicación',
-    description: 'Adaptación del tono por canal y plantillas de primer contacto copiables.',
-    icon: MessageSquare,
-    color: 'amber',
-    route: 'toolkit/comms-guide',
-  },
-  {
-    type: 'customer_journey',
-    label: 'Customer Journey',
-    description: 'Mapa de las etapas del cliente con datos reales de Stripe y tu CRM.',
-    icon: Map,
-    color: 'teal',
-    route: 'toolkit/customer-journey',
-  },
+  { type: 'buyer_persona',    label: 'Buyer Persona',          description: 'Perfil de tu cliente ideal basado en leads reales.',                  icon: Users,          color: 'violet' },
+  { type: 'lead_scoring',     label: 'Lead Scoring',           description: 'Criterios y puntaje de leads desde deals reales.',                    icon: BarChart2,      color: 'blue'   },
+  { type: 'sales_playbook',   label: 'Sales Playbook',         description: 'Proceso de venta desde deals ganados.',                               icon: BookOpen,       color: 'green'  },
+  { type: 'brand_kit',        label: 'Brand Kit',              description: 'Propuesta de valor, mensajes clave y tono de marca.',                 icon: Palette,        color: 'pink'   },
+  { type: 'comms_guide',      label: 'Guía de Comunicación',   description: 'Plantillas por canal listas para usar.',                              icon: MessageSquare,  color: 'amber'  },
+  { type: 'customer_journey', label: 'Customer Journey',       description: 'Mapa de etapas con datos reales de Stripe y CRM.',                   icon: Map,            color: 'teal'   },
 ];
 
-// ── ToolCard ──────────────────────────────────────────────────────────────────
-
-interface ToolCardProps {
-  config: ToolConfig;
-  unlocks: ToolkitUnlockState;
-}
-
-const COLOR_MAP: Record<string, { accent: string; bg: string; border: string; iconColor: string }> = {
-  violet: { accent: 'text-violet-700', bg: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-200 dark:border-violet-800', iconColor: 'text-violet-500' },
-  blue:   { accent: 'text-blue-700',   bg: 'bg-blue-50 dark:bg-blue-950/30',     border: 'border-blue-200 dark:border-blue-800',     iconColor: 'text-blue-500'   },
-  green:  { accent: 'text-green-700',  bg: 'bg-green-50 dark:bg-green-950/30',   border: 'border-green-200 dark:border-green-800',   iconColor: 'text-green-500'  },
-  pink:   { accent: 'text-pink-700',   bg: 'bg-pink-50 dark:bg-pink-950/30',     border: 'border-pink-200 dark:border-pink-800',     iconColor: 'text-pink-500'   },
-  amber:  { accent: 'text-amber-700',  bg: 'bg-amber-50 dark:bg-amber-950/30',   border: 'border-amber-200 dark:border-amber-800',   iconColor: 'text-amber-500'  },
-  teal:   { accent: 'text-teal-700',   bg: 'bg-teal-50 dark:bg-teal-950/30',     border: 'border-teal-200 dark:border-teal-800',     iconColor: 'text-teal-500'   },
+const COLOR_MAP: Record<string, { accent: string; bg: string; border: string; iconBg: string; iconColor: string }> = {
+  violet: { accent: 'text-violet-700', bg: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-200 dark:border-violet-800', iconBg: 'bg-violet-100 dark:bg-violet-900/50', iconColor: 'text-violet-600' },
+  blue:   { accent: 'text-blue-700',   bg: 'bg-blue-50 dark:bg-blue-950/30',     border: 'border-blue-200 dark:border-blue-800',     iconBg: 'bg-blue-100 dark:bg-blue-900/50',     iconColor: 'text-blue-600'   },
+  green:  { accent: 'text-green-700',  bg: 'bg-green-50 dark:bg-green-950/30',   border: 'border-green-200 dark:border-green-800',   iconBg: 'bg-green-100 dark:bg-green-900/50',   iconColor: 'text-green-600'  },
+  pink:   { accent: 'text-pink-700',   bg: 'bg-pink-50 dark:bg-pink-950/30',     border: 'border-pink-200 dark:border-pink-800',     iconBg: 'bg-pink-100 dark:bg-pink-900/50',     iconColor: 'text-pink-600'   },
+  amber:  { accent: 'text-amber-700',  bg: 'bg-amber-50 dark:bg-amber-950/30',   border: 'border-amber-200 dark:border-amber-800',   iconBg: 'bg-amber-100 dark:bg-amber-900/50',   iconColor: 'text-amber-600'  },
+  teal:   { accent: 'text-teal-700',   bg: 'bg-teal-50 dark:bg-teal-950/30',     border: 'border-teal-200 dark:border-teal-800',     iconBg: 'bg-teal-100 dark:bg-teal-900/50',     iconColor: 'text-teal-600'   },
 };
 
-function ToolCard({ config, unlocks }: ToolCardProps) {
+// ── ToolCard (grid) ───────────────────────────────────────────────────────────
+
+function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: ToolkitUnlockState; onSelect: () => void }) {
   const info = unlocks[config.type];
   const colors = COLOR_MAP[config.color];
   const Icon = config.icon;
-
   const isLocked = info.status === 'locked';
   const isGenerated = info.status === 'generated';
   const isAvailable = info.status === 'available';
 
   return (
-    <Card
-      className={cn(
-        'transition-all duration-200',
-        isLocked && 'opacity-60 bg-gray-50 dark:bg-gray-900/40',
-        isAvailable && `${colors.bg} ${colors.border}`,
-        isGenerated && `${colors.bg} ${colors.border}`,
-      )}
-    >
+    <Card className={cn('transition-all duration-200', isLocked ? 'opacity-60 bg-gray-50 dark:bg-gray-900/40' : `${colors.bg} ${colors.border}`)}>
       <CardHeader className="pb-2">
         <div className="flex items-start justify-between gap-2">
           <div className="flex items-center gap-2">
-            <div
-              className={cn(
-                'w-8 h-8 rounded-lg flex items-center justify-center',
-                isLocked ? 'bg-gray-200 dark:bg-gray-700' : colors.bg,
-              )}
-            >
-              {isLocked
-                ? <Lock className="h-4 w-4 text-gray-400" />
-                : <Icon className={cn('h-4 w-4', colors.iconColor)} />
-              }
+            <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', isLocked ? 'bg-gray-200 dark:bg-gray-700' : colors.iconBg)}>
+              {isLocked ? <Lock className="h-4 w-4 text-gray-400" /> : <Icon className={cn('h-4 w-4', colors.iconColor)} />}
             </div>
-            <CardTitle className={cn('text-sm font-semibold', isLocked ? 'text-gray-500' : '')}>
-              {config.label}
-            </CardTitle>
+            <CardTitle className={cn('text-sm font-semibold', isLocked ? 'text-gray-500' : '')}>{config.label}</CardTitle>
           </div>
-
-          {/* Estado badge */}
-          {isGenerated && (
-            <Badge className="text-[10px] bg-green-100 text-green-700 border-green-200 shrink-0">
-              <CheckCircle2 className="h-3 w-3 mr-1" />
-              Generado
-            </Badge>
-          )}
-          {isAvailable && (
-            <Badge className={cn('text-[10px] shrink-0', `bg-${config.color}-100 text-${config.color}-700 border-${config.color}-200`)}>
-              <Sparkles className="h-3 w-3 mr-1" />
-              Disponible
-            </Badge>
-          )}
-          {isLocked && (
-            <Badge variant="secondary" className="text-[10px] shrink-0">
-              <Lock className="h-3 w-3 mr-1" />
-              Bloqueado
-            </Badge>
-          )}
+          {isGenerated && <Badge className="text-[10px] bg-green-100 text-green-700 border-green-200 shrink-0"><CheckCircle2 className="h-3 w-3 mr-1" />Generado</Badge>}
+          {isAvailable && <Badge className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 shrink-0"><Sparkles className="h-3 w-3 mr-1" />Disponible</Badge>}
+          {isLocked && <Badge variant="secondary" className="text-[10px] shrink-0"><Lock className="h-3 w-3 mr-1" />Bloqueado</Badge>}
         </div>
       </CardHeader>
-
       <CardContent className="space-y-3">
-        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">
-          {config.description}
-        </p>
-
-        {/* Unlock reason (available o generated) */}
+        <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{config.description}</p>
         {info.unlock_reason && (
           <p className={cn('text-xs font-medium', colors.accent)}>
             {isGenerated ? '✓ ' : '→ '}{info.unlock_reason}
           </p>
         )}
-
-        {/* Missing requirements (locked) */}
         {isLocked && info.missing_for_unlock && (
           <ul className="space-y-1">
             {info.missing_for_unlock.map((req, i) => (
               <li key={i} className="flex items-start gap-1.5 text-xs text-gray-500">
-                <span className="shrink-0 mt-0.5 w-3.5 h-3.5 rounded-full border border-gray-300 flex items-center justify-center text-[9px]">
-                  {i + 1}
-                </span>
+                <span className="shrink-0 mt-0.5 w-3.5 h-3.5 rounded-full border border-gray-300 flex items-center justify-center text-[9px]">{i + 1}</span>
                 {req}
               </li>
             ))}
           </ul>
         )}
-
-        {/* CTA */}
         {(isAvailable || isGenerated) && (
-          <Button
-            size="sm"
-            variant={isGenerated ? 'outline' : 'default'}
-            className="w-full gap-1.5 mt-1 text-xs h-8"
-            disabled // TODO: habilitar en F21.4–F21.8
-          >
+          <Button size="sm" variant={isGenerated ? 'outline' : 'default'} className="w-full gap-1.5 mt-1 text-xs h-8" onClick={onSelect}>
             {isGenerated ? 'Ver herramienta' : `Generar ${config.label}`}
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
@@ -210,42 +112,148 @@ function ToolCard({ config, unlocks }: ToolCardProps) {
   );
 }
 
+// ── ToolDetailView (vista de herramienta individual) ──────────────────────────
+
+function ToolDetailView({ config, projectId, onBack }: { config: ToolConfig; projectId: string; onBack: () => void }) {
+  const toolState = useFounderTool(projectId, config.type);
+  const colors = COLOR_MAP[config.color];
+  const Icon = config.icon;
+
+  return (
+    <div className="space-y-6">
+      {/* Header con back */}
+      <div className="flex items-center gap-3">
+        <Button size="sm" variant="ghost" onClick={onBack} className="gap-1.5 -ml-1">
+          <ArrowLeft className="h-4 w-4" /> Toolkit
+        </Button>
+        <div className="flex items-center gap-2">
+          <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', colors.iconBg)}>
+            <Icon className={cn('h-4 w-4', colors.iconColor)} />
+          </div>
+          <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{config.label}</h2>
+          {toolState.isStale && (
+            <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
+              <AlertTriangle className="h-3 w-3 mr-1" />Datos actualizados
+            </Badge>
+          )}
+        </div>
+        <div className="ml-auto flex items-center gap-2">
+          {toolState.generatedAt && (
+            <p className="text-xs text-gray-500 hidden sm:block">
+              Generado {formatDistanceToNow(new Date(toolState.generatedAt), { addSuffix: true, locale: es })}
+            </p>
+          )}
+          <Button
+            size="sm"
+            variant={toolState.isStale ? 'default' : 'outline'}
+            disabled={toolState.isGenerating || !toolState.canRegenerate}
+            onClick={toolState.generate}
+            className="gap-1.5"
+          >
+            {toolState.isGenerating
+              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Generando...</>
+              : toolState.output
+                ? <><RefreshCw className="h-3.5 w-3.5" />Regenerar</>
+                : <>Generar</>
+            }
+          </Button>
+        </div>
+      </div>
+
+      {/* Rate limit */}
+      {!toolState.canRegenerate && toolState.nextRegenerationAt && (
+        <div className="flex items-center gap-2 text-xs text-gray-500 -mt-4">
+          <Clock className="h-3.5 w-3.5" />
+          Próxima regeneración a las {toolState.nextRegenerationAt.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
+        </div>
+      )}
+
+      {/* Loading */}
+      {(toolState.isLoading || toolState.isGenerating) && !toolState.output && (
+        <div className="flex flex-col items-center justify-center py-16 gap-3">
+          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          {toolState.isGenerating && <p className="text-sm text-gray-500">Generando análisis...</p>}
+        </div>
+      )}
+
+      {/* Sin output */}
+      {!toolState.isLoading && !toolState.isGenerating && !toolState.output && (
+        <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 rounded-xl border-2 border-dashed border-gray-200">
+          <Icon className={cn('h-10 w-10', colors.iconColor, 'opacity-40')} />
+          <p className="text-gray-600 dark:text-gray-400">No hay análisis generado todavía</p>
+          <Button onClick={toolState.generate} disabled={toolState.isGenerating || !toolState.canRegenerate}>
+            Generar {config.label}
+          </Button>
+        </div>
+      )}
+
+      {/* Vista de contenido */}
+      {toolState.output && !toolState.isGenerating && (
+        <>
+          {config.type === 'buyer_persona'    && <BuyerPersonaView   output={toolState.output as Parameters<typeof BuyerPersonaView>[0]['output']}   />}
+          {config.type === 'lead_scoring'     && <LeadScoringView    output={toolState.output as Parameters<typeof LeadScoringView>[0]['output']}    />}
+          {config.type === 'sales_playbook'   && <SalesPlaybookView  output={toolState.output as Parameters<typeof SalesPlaybookView>[0]['output']}  />}
+          {config.type === 'brand_kit'        && <BrandKitView       output={toolState.output as Parameters<typeof BrandKitView>[0]['output']}       />}
+          {config.type === 'comms_guide'      && <CommsGuideView     output={toolState.output as Parameters<typeof CommsGuideView>[0]['output']}     />}
+          {config.type === 'customer_journey' && <CustomerJourneyView output={toolState.output as Parameters<typeof CustomerJourneyView>[0]['output']} />}
+
+          {/* Data sources */}
+          {toolState.dataSources.length > 0 && (
+            <div className="rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-900 p-4">
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Fuentes usadas</p>
+              <div className="flex flex-wrap gap-2">
+                {toolState.dataSources.map((src, i) => (
+                  <SourceBadge key={i} type={src.type as 'observed' | 'declared' | 'estimated' | 'inferred'} source={src.name} timestamp={src.updated_at ?? undefined} />
+                ))}
+              </div>
+            </div>
+          )}
+        </>
+      )}
+    </div>
+  );
+}
+
 // ── Página principal ──────────────────────────────────────────────────────────
 
 export default function FounderToolkitPage() {
   const { currentProject } = useCurrentProject();
   const { unlocks, isLoading } = useToolkitUnlocks(currentProject?.id);
+  const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
 
   if (!currentProject) {
     return (
       <div className="container max-w-4xl mx-auto py-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Selecciona un proyecto desde el selector en el header
-          </AlertDescription>
+          <AlertDescription>Selecciona un proyecto desde el selector en el header</AlertDescription>
         </Alert>
       </div>
     );
   }
 
-  // Ordenar: available → generated → locked
+  // Vista de herramienta seleccionada
+  if (selectedTool) {
+    const config = TOOL_CONFIG.find(c => c.type === selectedTool)!;
+    return (
+      <div className="container max-w-4xl mx-auto py-8">
+        <ToolDetailView config={config} projectId={currentProject.id} onBack={() => setSelectedTool(null)} />
+      </div>
+    );
+  }
+
+  // Grid
   const ordered = TOOL_CONFIG.slice().sort((a, b) => {
     if (!unlocks) return 0;
     const order: Record<string, number> = { available: 0, generated: 1, locked: 2 };
     return order[unlocks[a.type].status] - order[unlocks[b.type].status];
   });
 
-  const availableCount = unlocks
-    ? TOOL_CONFIG.filter(t => unlocks[t.type].status === 'available').length
-    : 0;
-  const generatedCount = unlocks
-    ? TOOL_CONFIG.filter(t => unlocks[t.type].status === 'generated').length
-    : 0;
+  const availableCount = unlocks ? TOOL_CONFIG.filter(t => unlocks[t.type].status === 'available').length : 0;
+  const generatedCount = unlocks ? TOOL_CONFIG.filter(t => unlocks[t.type].status === 'generated').length : 0;
 
   return (
     <div className="container max-w-4xl mx-auto py-8">
-      {/* Header */}
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Founder Toolkit</h1>
         <p className="text-sm text-gray-500 mt-1">
@@ -255,21 +263,18 @@ export default function FounderToolkitPage() {
           <div className="flex items-center gap-3 mt-3">
             {availableCount > 0 && (
               <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-                <Sparkles className="h-3 w-3 mr-1" />
-                {availableCount} disponible{availableCount !== 1 ? 's' : ''} para generar
+                <Sparkles className="h-3 w-3 mr-1" />{availableCount} disponible{availableCount !== 1 ? 's' : ''} para generar
               </Badge>
             )}
             {generatedCount > 0 && (
               <Badge className="bg-green-100 text-green-700 border-green-200">
-                <CheckCircle2 className="h-3 w-3 mr-1" />
-                {generatedCount} generada{generatedCount !== 1 ? 's' : ''}
+                <CheckCircle2 className="h-3 w-3 mr-1" />{generatedCount} generada{generatedCount !== 1 ? 's' : ''}
               </Badge>
             )}
           </div>
         )}
       </div>
 
-      {/* Grid */}
       {isLoading ? (
         <div className="flex items-center justify-center py-16">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
@@ -277,7 +282,12 @@ export default function FounderToolkitPage() {
       ) : unlocks ? (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {ordered.map(config => (
-            <ToolCard key={config.type} config={config} unlocks={unlocks} />
+            <ToolCard
+              key={config.type}
+              config={config}
+              unlocks={unlocks}
+              onSelect={() => setSelectedTool(config.type)}
+            />
           ))}
         </div>
       ) : null}

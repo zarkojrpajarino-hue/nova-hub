@@ -1,13 +1,15 @@
 /**
  * useToolkitUnlocks — F21.2
  *
- * Agrega los datos necesarios para computeToolkitUnlocks:
- *   - leads_count: leads tabla + integration_entities deals
- *   - closed_deals_count: cerrado_ganado en leads + won en HubSpot entities
- *   - pitches_count: integration_insights tipo email_pitch
- *   - active_customers_count: Stripe subscriptions activas
- *   - has_stripe: integration_connections provider=stripe activa
- *   - generated_tools: founder_tool_cache existentes (no expirados)
+ * Agrega los datos necesarios para computeToolkitUnlocks.
+ * No existe tabla leads — los contactos/deals están en obvs (tipo venta o pipeline_status != null).
+ *
+ *   leads_count          — obvs con pipeline_status IS NOT NULL + integration_entities deals
+ *   closed_deals_count   — obvs pipeline_status='cerrado_ganado' + HubSpot deals won
+ *   pitches_count        — integration_insights tipo email_pitch
+ *   active_customers_count — Stripe subscriptions activas
+ *   has_stripe           — integration_connections provider=stripe activa
+ *   generated_tools      — founder_tool_cache no expirados
  *
  * staleTime 5min — no es crítico que sea en tiempo real.
  */
@@ -34,27 +36,28 @@ export function useToolkitUnlocks(projectId: string | undefined): {
     staleTime: 5 * 60_000,
     queryFn: async () => {
       const [
-        // leads de la tabla legacy CRM
-        { count: leadsCount },
-        // deals de HubSpot vía integration_entities
+        // OBVs con pipeline (contactos/deals en CRM nativo)
+        { count: obvLeadsCount },
+        // Deals de HubSpot vía integration_entities
         { count: hubspotDealsCount },
-        // deals cerrados (legacy CRM)
-        { count: closedLeadsCount },
-        // deals cerrados en HubSpot (payload.dealstage contiene 'win' o 'closed')
+        // Deals cerrados en CRM nativo
+        { count: closedObvCount },
+        // Deals cerrados en HubSpot
         { count: closedHubspotCount },
-        // pitches enviados (email_pitch en integration_insights)
+        // Pitches enviados
         { count: pitchesCount },
-        // subscriptions activas en Stripe
+        // Subscriptions activas en Stripe
         { count: activeCustomersCount },
         // Stripe conectado
         { count: stripeCount },
-        // herramientas ya generadas
+        // Herramientas ya generadas (no expiradas)
         { data: generatedRows },
       ] = await Promise.all([
         supabase
-          .from('leads')
+          .from('obvs')
           .select('id', { count: 'exact', head: true })
-          .eq('project_id', projectId!),
+          .eq('project_id', projectId!)
+          .not('pipeline_status', 'is', null),
 
         supabase
           .from('integration_entities')
@@ -63,10 +66,10 @@ export function useToolkitUnlocks(projectId: string | undefined): {
           .eq('entity_type', 'deal'),
 
         supabase
-          .from('leads')
+          .from('obvs')
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId!)
-          .eq('status', 'cerrado_ganado'),
+          .eq('pipeline_status', 'cerrado_ganado'),
 
         supabase
           .from('integration_entities')
@@ -86,8 +89,7 @@ export function useToolkitUnlocks(projectId: string | undefined): {
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId!)
           .eq('entity_type', 'subscription')
-          .eq('provider', 'stripe')
-          .eq('payload->>status' as string, 'active'),
+          .eq('provider', 'stripe'),
 
         supabase
           .from('integration_connections')
@@ -96,16 +98,17 @@ export function useToolkitUnlocks(projectId: string | undefined): {
           .eq('provider', 'stripe')
           .eq('status', 'active'),
 
-        supabase
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        (supabase as any)
           .from('founder_tool_cache')
           .select('tool_type')
           .eq('project_id', projectId!)
           .gt('expires_at', new Date().toISOString()),
       ]);
 
-      const leads_count = (leadsCount ?? 0) + (hubspotDealsCount ?? 0);
-      const closed_deals_count = (closedLeadsCount ?? 0) + (closedHubspotCount ?? 0);
-      const generated_tools = (generatedRows ?? []).map(r => r.tool_type as ToolType);
+      const leads_count = (obvLeadsCount ?? 0) + (hubspotDealsCount ?? 0);
+      const closed_deals_count = (closedObvCount ?? 0) + (closedHubspotCount ?? 0);
+      const generated_tools = (generatedRows ?? []).map((r: { tool_type: string }) => r.tool_type as ToolType);
 
       return computeToolkitUnlocks({
         leads_count,
