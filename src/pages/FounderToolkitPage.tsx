@@ -25,9 +25,10 @@ import { ToolCTAs } from '@/components/toolkit/ToolCTAs';
 import {
   AlertCircle, Lock, Sparkles, Users, BarChart2, BookOpen,
   Palette, MessageSquare, Map, Loader2, CheckCircle2, ChevronRight,
-  ArrowLeft, RefreshCw, Clock, AlertTriangle,
+  ArrowLeft, RefreshCw, Clock, AlertTriangle, TrendingUp,
 } from 'lucide-react';
 import type { ToolType, ToolkitUnlockState } from '@/hooks/useToolkitUnlocks';
+import type { ToolUnlockInfo } from '@/lib/toolkit-unlock-engine';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -87,6 +88,15 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
       </CardHeader>
       <CardContent className="space-y-3">
         <p className="text-xs text-gray-600 dark:text-gray-400 leading-relaxed">{config.description}</p>
+        {/* Chip "nuevos datos disponibles" — solo para tools generadas */}
+        {isGenerated && info.has_new_data && (
+          <div className="flex items-center gap-1.5 rounded-md bg-orange-50 dark:bg-orange-950/30 border border-orange-200 dark:border-orange-800 px-2 py-1.5">
+            <TrendingUp className="h-3 w-3 text-orange-600 shrink-0" />
+            <span className="text-[11px] font-medium text-orange-700 dark:text-orange-400 leading-snug">
+              {info.new_data_reason} — regenerar para actualizar
+            </span>
+          </div>
+        )}
         {info.unlock_reason && (
           <p className={cn('text-xs font-medium', colors.accent)}>
             {isGenerated ? '✓ ' : '→ '}{info.unlock_reason}
@@ -115,7 +125,7 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
 
 // ── ToolDetailView (vista de herramienta individual) ──────────────────────────
 
-function ToolDetailView({ config, projectId, onBack }: { config: ToolConfig; projectId: string; onBack: () => void }) {
+function ToolDetailView({ config, projectId, onBack, unlockInfo }: { config: ToolConfig; projectId: string; onBack: () => void; unlockInfo?: ToolUnlockInfo }) {
   const toolState = useFounderTool(projectId, config.type);
   const colors = COLOR_MAP[config.color];
   const Icon = config.icon;
@@ -127,14 +137,19 @@ function ToolDetailView({ config, projectId, onBack }: { config: ToolConfig; pro
         <Button size="sm" variant="ghost" onClick={onBack} className="gap-1.5 -ml-1">
           <ArrowLeft className="h-4 w-4" /> Toolkit
         </Button>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap">
           <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', colors.iconBg)}>
             <Icon className={cn('h-4 w-4', colors.iconColor)} />
           </div>
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{config.label}</h2>
           {toolState.isStale && (
             <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
-              <AlertTriangle className="h-3 w-3 mr-1" />Datos actualizados
+              <AlertTriangle className="h-3 w-3 mr-1" />TTL expirado
+            </Badge>
+          )}
+          {unlockInfo?.has_new_data && (
+            <Badge className="text-xs bg-orange-100 text-orange-700 border-orange-200">
+              <TrendingUp className="h-3 w-3 mr-1" />{unlockInfo.new_data_reason}
             </Badge>
           )}
         </div>
@@ -245,7 +260,7 @@ export default function FounderToolkitPage() {
     const config = TOOL_CONFIG.find(c => c.type === selectedTool)!;
     return (
       <div className="container max-w-4xl mx-auto py-8">
-        <ToolDetailView config={config} projectId={currentProject.id} onBack={() => setSelectedTool(null)} />
+        <ToolDetailView config={config} projectId={currentProject.id} onBack={() => setSelectedTool(null)} unlockInfo={unlocks?.[selectedTool] ?? undefined} />
       </div>
     );
   }

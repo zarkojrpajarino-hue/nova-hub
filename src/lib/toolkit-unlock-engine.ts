@@ -25,8 +25,13 @@ export type ToolStatus = 'locked' | 'available' | 'generated';
 
 export interface ToolUnlockInfo {
   status: ToolStatus;
-  unlock_reason?: string;        // cuando available o generated
-  missing_for_unlock?: string[]; // cuando locked
+  unlock_reason?: string;              // cuando available o generated
+  missing_for_unlock?: string[];       // cuando locked
+  // V2.1 — señal de datos nuevos (solo cuando status='generated')
+  has_new_data?: boolean;
+  new_data_reason?: string;            // "2 deals nuevos" / "Brand Kit actualizado"
+  new_data_count?: number;
+  last_relevant_update_at?: string;    // ISO — último evento relevante
 }
 
 export interface ToolkitUnlockState {
