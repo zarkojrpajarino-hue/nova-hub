@@ -55,6 +55,12 @@ export interface AnalysisSection {
     revenue_potential: number | null;
     source: 'stripe' | 'hubspot' | 'obvs' | null;
   };
+  contradictions?: Array<{
+    past_decision: string;
+    decided_at: string | null;
+    current_reality: string;
+    tension: string;
+  }>;
   cross_signals?: Array<{
     signal: string;
     sources: string[];

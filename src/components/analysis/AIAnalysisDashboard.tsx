@@ -13,7 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 import { AnalysisLevelTeaser } from './AnalysisLevelTeaser';
 import { PreAnalysisDataReview, buildDataRows } from './PreAnalysisDataReview';
-import { ExecutiveSummarySection, PhaseFitSection, UrgentDecisionsSection } from './sections/Level1Sections';
+import { ExecutiveSummarySection, PhaseFitSection, UrgentDecisionsSection, ContradictionsSection } from './sections/Level1Sections';
 import { FinancialPulseSection, PipelineTractionSection } from './sections/Level2Sections';
 import { CrossSignalsSection, HardTruthsSection } from './sections/Level3Sections';
 import type { ProjectAnalysisState, CachedAnalysis } from '@/hooks/useProjectAnalysis';
@@ -199,6 +199,9 @@ export function AIAnalysisDashboard({
           )}
           {sections.urgent_decisions && sections.urgent_decisions.length > 0 && (
             <UrgentDecisionsSection data={sections.urgent_decisions} />
+          )}
+          {sections.contradictions && sections.contradictions.length > 0 && (
+            <ContradictionsSection data={sections.contradictions} />
           )}
 
           {/* Nivel 2 — gated o visible */}

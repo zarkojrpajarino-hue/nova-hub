@@ -240,7 +240,14 @@ ${JSON.stringify(outputSchema, null, 2)}
 
 Genera el análisis siguiendo exactamente ese schema. Sé honesto, directo y útil.
 Cada campo de "reliability" debe ser 0-1 según la calidad del dato subyacente.
-Los "data_sources" deben listar exactamente qué fuente respaldó cada sección.`;
+Los "data_sources" deben listar exactamente qué fuente respaldó cada sección.
+
+REGLAS PARA "contradictions":
+- Solo incluye contradicciones explícitas: una decisión pasada que directamente choca con el estado actual.
+- Cita la decisión previa con sus propias palabras (o paráfrasis breve) y su fecha si está disponible.
+- NO inventes contradicciones débiles o especulativas — mejor dejar el array vacío.
+- Máximo 3 contradicciones; si no hay ninguna clara, devuelve [].
+- Cada contradicción debe ser accionable: el founder debe poder hacer algo al respecto.`;
 
     // ── 5. Llamar a Claude ────────────────────────────────────────────────
     const anthropic = new Anthropic({
@@ -324,6 +331,14 @@ function buildOutputSchema(level: number): Record<string, unknown> {
           context: 'string — 1 línea de por qué es urgente',
           consequence: 'string — qué pasa si no se decide',
           cta: { label: 'string — ej: Ir a OBVs', view: 'string — nombre de vista de app' },
+        },
+      ],
+      contradictions: [
+        {
+          past_decision: 'string — decisión tomada antes, citada textualmente o parafraseada',
+          decided_at: 'string ISO | null — fecha aproximada si está en los datos',
+          current_reality: 'string — cómo está la situación hoy',
+          tension: 'string — por qué hay contradicción y qué implica',
         },
       ],
     },

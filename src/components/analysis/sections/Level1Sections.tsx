@@ -5,7 +5,7 @@
  * Siempre visibles cuando level >= 1 desbloqueado.
  */
 
-import { Gauge, Target, AlertTriangle, ArrowRight, CheckCircle2, XCircle, MinusCircle } from 'lucide-react';
+import { Gauge, Target, AlertTriangle, ArrowRight, CheckCircle2, XCircle, MinusCircle, GitCompareArrows } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
@@ -127,6 +127,59 @@ export function PhaseFitSection({ data }: { data: NonNullable<AnalysisSection['p
         {data.benchmark_note && (
           <p className="text-xs text-gray-500 italic">{data.benchmark_note}</p>
         )}
+      </CardContent>
+    </Card>
+  );
+}
+
+// ── Contradictions ────────────────────────────────────────────────────────────
+
+export function ContradictionsSection({ data }: { data: NonNullable<AnalysisSection['contradictions']> }) {
+  if (!data.length) return null;
+
+  return (
+    <Card className="border-orange-200 dark:border-orange-800">
+      <CardHeader className="pb-2">
+        <CardTitle className="flex items-center gap-2 text-base">
+          <GitCompareArrows className="h-5 w-5 text-orange-600 dark:text-orange-400" />
+          Contradicciones detectadas
+        </CardTitle>
+        <p className="text-xs text-orange-600 dark:text-orange-500">
+          Decisiones pasadas que chocan con el estado actual del proyecto
+        </p>
+      </CardHeader>
+      <CardContent className="space-y-3">
+        {data.map((item, i) => (
+          <div
+            key={i}
+            className="rounded-lg border border-orange-200 bg-orange-50/50 dark:bg-orange-950/20 dark:border-orange-800 p-3 space-y-2"
+          >
+            <div className="flex items-start gap-2">
+              <Badge variant="outline" className="text-[10px] shrink-0 border-orange-300 text-orange-700">
+                Decisión pasada
+              </Badge>
+              <p className="text-xs text-gray-700 dark:text-gray-300">
+                {item.past_decision}
+                {item.decided_at && (
+                  <span className="text-gray-400 ml-1">
+                    ({new Date(item.decided_at).toLocaleDateString('es', { month: 'short', year: 'numeric' })})
+                  </span>
+                )}
+              </p>
+            </div>
+            <div className="flex items-start gap-2">
+              <Badge variant="outline" className="text-[10px] shrink-0 border-blue-300 text-blue-700">
+                Hoy
+              </Badge>
+              <p className="text-xs text-gray-700 dark:text-gray-300">{item.current_reality}</p>
+            </div>
+            <div className="rounded-md bg-orange-100 dark:bg-orange-900/30 px-2.5 py-1.5">
+              <p className="text-xs text-orange-700 dark:text-orange-300">
+                <span className="font-medium">Tensión: </span>{item.tension}
+              </p>
+            </div>
+          </div>
+        ))}
       </CardContent>
     </Card>
   );

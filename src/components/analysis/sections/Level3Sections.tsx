@@ -77,11 +77,37 @@ export function CrossSignalsSection({ data }: { data: NonNullable<AnalysisSectio
 
 // ── Hard Truths ───────────────────────────────────────────────────────────────
 
-export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection['hard_truths']> }) {
-  // Filtrar por umbral mínimo 0.6
-  const validTruths = data.filter(t => t.reliability >= 0.6);
+function TruthCard({ truth, i }: { truth: NonNullable<AnalysisSection['hard_truths']>[number]; i: number }) {
+  return (
+    <div
+      key={i}
+      className="rounded-lg border border-red-200 bg-red-50/50 dark:bg-red-950/20 dark:border-red-800 p-3 space-y-2"
+    >
+      <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{truth.truth}</p>
+      <div className="flex items-start gap-2">
+        <SourceBadge
+          type={truth.reliability >= 0.7 ? 'observed' : 'declared'}
+          source={truth.source}
+          reliability={truth.reliability}
+          size="sm"
+          className="shrink-0 mt-0.5"
+        />
+        <p className="text-xs text-gray-600 dark:text-gray-400">{truth.data_support}</p>
+      </div>
+      <div className="rounded-md bg-red-100 dark:bg-red-900/30 px-2.5 py-1.5">
+        <p className="text-xs text-red-700 dark:text-red-300">
+          <span className="font-medium">Si lo ignoras: </span>{truth.risk_if_ignored}
+        </p>
+      </div>
+    </div>
+  );
+}
 
-  if (!validTruths.length) {
+export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection['hard_truths']> }) {
+  const strong = data.filter(t => t.reliability >= 0.6);
+  const uncertain = data.filter(t => t.reliability < 0.6);
+
+  if (!strong.length && !uncertain.length) {
     return (
       <Card>
         <CardHeader className="pb-2">
@@ -92,7 +118,7 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
         </CardHeader>
         <CardContent>
           <p className="text-sm text-gray-500">
-            No hay suficientes datos para emitir Hard Truths con fiabilidad ≥ 0.6 en este momento.
+            No hay suficientes datos para emitir Hard Truths en este momento.
           </p>
         </CardContent>
       </Card>
@@ -100,43 +126,63 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
   }
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-base">
-          <Eye className="h-5 w-5 text-red-600" />
-          Hard Truths
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-3">
-        {validTruths.map((truth, i) => (
-          <div
-            key={i}
-            className="rounded-lg border border-red-200 bg-red-50/50 dark:bg-red-950/20 dark:border-red-800 p-3 space-y-2"
-          >
-            {/* La verdad */}
-            <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{truth.truth}</p>
+    <div className="space-y-3">
+      {/* Hard Truths confirmadas (reliability ≥ 0.6) */}
+      {strong.length > 0 && (
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base">
+              <Eye className="h-5 w-5 text-red-600" />
+              Hard Truths
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {strong.map((truth, i) => (
+              <TruthCard key={i} truth={truth} i={i} />
+            ))}
+          </CardContent>
+        </Card>
+      )}
 
-            {/* Dato que la respalda */}
-            <div className="flex items-start gap-2">
-              <SourceBadge
-                type={truth.reliability >= 0.7 ? 'observed' : 'declared'}
-                source={truth.source}
-                reliability={truth.reliability}
-                size="sm"
-                className="shrink-0 mt-0.5"
-              />
-              <p className="text-xs text-gray-600 dark:text-gray-400">{truth.data_support}</p>
-            </div>
-
-            {/* Consecuencia */}
-            <div className="rounded-md bg-red-100 dark:bg-red-900/30 px-2.5 py-1.5">
-              <p className="text-xs text-red-700 dark:text-red-300">
-                <span className="font-medium">Si lo ignoras: </span>{truth.risk_if_ignored}
-              </p>
-            </div>
-          </div>
-        ))}
-      </CardContent>
-    </Card>
+      {/* Hipótesis a vigilar (reliability < 0.6) — bloque separado */}
+      {uncertain.length > 0 && (
+        <Card className="border-amber-200 dark:border-amber-800">
+          <CardHeader className="pb-2">
+            <CardTitle className="flex items-center gap-2 text-base text-amber-700 dark:text-amber-400">
+              <Eye className="h-5 w-5" />
+              Hipótesis a vigilar
+            </CardTitle>
+            <p className="text-xs text-amber-600 dark:text-amber-500">
+              Verdades posibles, aún no confirmadas por datos suficientes
+            </p>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {uncertain.map((truth, i) => (
+              <div
+                key={i}
+                className="rounded-lg border border-amber-200 bg-amber-50/50 dark:bg-amber-950/20 dark:border-amber-800 p-3 space-y-2"
+              >
+                <p className="text-sm font-semibold text-gray-900 dark:text-gray-100">{truth.truth}</p>
+                <div className="flex items-start gap-2">
+                  <SourceBadge
+                    type="estimated"
+                    source={truth.source}
+                    reliability={truth.reliability}
+                    size="sm"
+                    className="shrink-0 mt-0.5"
+                  />
+                  <p className="text-xs text-gray-600 dark:text-gray-400">{truth.data_support}</p>
+                </div>
+                <div className="rounded-md bg-amber-100 dark:bg-amber-900/30 px-2.5 py-1.5">
+                  <p className="text-xs text-amber-700 dark:text-amber-300">
+                    <span className="font-medium">A vigilar: </span>{truth.risk_if_ignored}
+                  </p>
+                </div>
+              </div>
+            ))}
+          </CardContent>
+        </Card>
+      )}
+    </div>
   );
 }
