@@ -43,6 +43,7 @@ const PathToMasterPage = lazy(() => import('./PathToMasterPage').then(m => ({ de
 const MeetingIntelligencePage = lazy(() => import('./MeetingIntelligencePage'));
 const MeetingReviewPage = lazy(() => import('./MeetingReviewPage'));
 const AIAnalysisPage = lazy(() => import('./AIAnalysisPage'));
+const FounderToolkitPage = lazy(() => import('./FounderToolkitPage'));
 const StartupOSView = lazy(() => import('./views/StartupOSView').then(m => ({ default: m.StartupOSView })));
 const MiModeloView = lazy(() => import('./views/MiModeloView').then(m => ({ default: m.MiModeloView })));
 
@@ -229,6 +230,7 @@ function IndexContent() {
               <Route path="meetings" element={<MeetingIntelligencePage />} />
               <Route path="meeting-review/:meetingId" element={<MeetingReviewPage />} />
               <Route path="analisis-ia" element={<AIAnalysisPage />} />
+              <Route path="toolkit" element={<FounderToolkitPage />} />
               <Route path="mi-modelo" element={<MiModeloView />} />
               <Route path="startup-os" element={<StartupOSView />} />
               <Route path="exploration" element={<ExplorationDashboard />} />

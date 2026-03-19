@@ -30,7 +30,7 @@
 > | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ⏸ POST-F16 0/49 + 3 v2 pendientes | Prerequisito: FASE 16 activa + Bloque 0 completado |
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
 > | FASE 20 — Análisis Estratégico IA v4 | ✅ CERRADA 12/12 + 5 v2 pendientes | Prerequisito: FASE 16 activa + proyecto ≥14 días · Niveles se desbloquean con integraciones |
-> | FASE 21 — Founder Toolkit | ⏸ POST-F16 0/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
+> | FASE 21 — Founder Toolkit | 🔄 ACTIVA 3/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
 > | FASE 22 — Expansion Intelligence | ⏸ POST-F21 0/9 + 2 v2 pendientes | Prerequisito: Fase 3+ · MRR estable 2 meses · riesgo no crítico · 1 integración activa |
 >
 > **Deudas técnicas abiertas:** I15.DEBT.2 (MRR diverge si upsert falla) · I15.DEBT.3 (GCal cancelados) · I15.FIX.7 (verify_jwt revierte en redeploys)
@@ -3103,7 +3103,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 21 — FOUNDER TOOLKIT ⏸ POST-F16 0/8
+## FASE 21 — FOUNDER TOOLKIT 🔄 ACTIVA 3/8
 > Prerequisito: FASE 16 activa. Paralela a FASE 20 — comparte `SourceBadge` (F20.9) y `founder_tool_cache` como patrón de caché.
 > 6 herramientas generativas que se construyen sobre datos reales del negocio. Cada herramienta tiene un trigger específico basado en acciones del founder, no en tiempo. El toolkit no se muestra todo a la vez — se desbloquea tool a tool conforme el negocio crece. Nunca se muestra una herramienta vacía.
 >
@@ -3119,18 +3119,18 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE A — Motor de Desbloqueo
 
-- [ ] **F21.1** `src/lib/toolkit-unlock-engine.ts` — lógica pura de triggers
+- [x] **F21.1** `src/lib/toolkit-unlock-engine.ts` — lógica pura de triggers
   > Función pura `computeToolkitUnlocks(projectData): ToolkitUnlockState`. Input: `leads_count`, `deals_count`, `closed_deals_count`, `pitches_count`, `active_customers_count`, `has_stripe`, `has_buyer_persona`, `has_brand_kit`.
   > Output por tool: `status: 'locked'|'available'|'generated'`. Si `available`: `unlock_reason: string` (descripción del trigger cumplido). Si `locked`: `missing_for_unlock: string[]` (qué falta).
   > Sin side effects, sin queries. Testeable en aislamiento. Añadir tests en `src/lib/__tests__/toolkit-unlock.test.ts`.
 
-- [ ] **F21.2** Hook `useToolkitUnlocks(projectId)` + migración `founder_tool_cache`
+- [x] **F21.2** Hook `useToolkitUnlocks(projectId)` + migración `founder_tool_cache`
   > Hook llama a `computeToolkitUnlocks` con datos reales: `useProjectEngineData` (fase, risk) + query a `integration_entities` (leads/deals COUNT) + query a `integration_insights` (pitches COUNT) + `integration_connections` (has_stripe). Refresca al cambiar entities o insights (staleTime 5min).
   > **Migración tabla `founder_tool_cache`:** `id UUID`, `project_id UUID`, `tool_type TEXT CHECK (IN buyer_persona|lead_scoring|sales_playbook|brand_kit|comms_guide|customer_journey)`, `generated_at TIMESTAMPTZ`, `expires_at TIMESTAMPTZ`, `data_sources JSONB`, `output JSONB`, `prompt_hash TEXT`. UNIQUE `(project_id, tool_type)`. RLS: project members read · owner delete/upsert. TTL: buyer_persona=30d · lead_scoring=7d · sales_playbook=14d · brand_kit=30d · comms_guide=30d · customer_journey=14d.
 
 ### BLOQUE B — UI del Toolkit
 
-- [ ] **F21.3** `FounderToolkitPage.tsx` + `ToolkitCardGrid` — página principal
+- [x] **F21.3** `FounderToolkitPage.tsx` + `ToolkitCardGrid` — página principal
   > Route: `/proyecto/:id/toolkit`. Tab "Toolkit" en `ProjectPage` — visible en Fase 1+ (no es teaser — siempre hay al menos el trigger de Buyer Persona visible). Grid de 6 `ToolCard` componentes.
   > **ToolCard** (locked): fondo gris + candado + "Necesitas: [unlock_reason]". **ToolCard** (available): highlight + "Generar [nombre] →" CTA. **ToolCard** (generated): color completo + fecha de generación + "Ver" + "Regenerar" (si `isStale`).
   > Orden: primero tools `available`, luego `generated`, al fondo `locked`. Sin abrumar: el scroll natural muestra el siguiente paso. Las tools locked no compiten visualmente con las disponibles.
