@@ -102,7 +102,6 @@ export interface ProjectAnalysisState {
 
 export function useProjectAnalysis(
   projectId: string | undefined,
-  level: 1 | 2 | 3,
 ): ProjectAnalysisState {
   const queryClient = useQueryClient();
   const [isGenerating, setIsGenerating] = useState(false);
@@ -132,17 +131,24 @@ export function useProjectAnalysis(
     },
   });
 
-  // ── Caché del análisis ────────────────────────────────────────────────────
+  // Calcular nivel desbloqueado antes de usarlo como queryKey (derivado de unlockData)
+  const { daysActive = 0, activeConnections = 0, decisions = 0 } = unlockData ?? {};
+  let unlockedLevelEarly: 1 | 2 | 3 | null = null;
+  if (daysActive >= 60 && activeConnections >= 2 && decisions >= 5) unlockedLevelEarly = 3;
+  else if (daysActive >= 30 && activeConnections >= 1) unlockedLevelEarly = 2;
+  else if (daysActive >= 14) unlockedLevelEarly = 1;
+
+  // ── Caché del análisis — usa el nivel real desbloqueado ───────────────────
   const { data: cachedRow } = useQuery({
-    queryKey: ['analysis-cache', projectId, level],
-    enabled: !!projectId,
+    queryKey: ['analysis-cache', projectId, unlockedLevelEarly],
+    enabled: !!projectId && unlockedLevelEarly !== null,
     staleTime: 60_000,
     queryFn: async () => {
       const { data } = await supabase
         .from('ai_analysis_cache')
         .select('*')
         .eq('project_id', projectId!)
-        .eq('analysis_level', level)
+        .eq('analysis_level', unlockedLevelEarly!)
         .maybeSingle();
       return data;
     },
@@ -166,16 +172,13 @@ export function useProjectAnalysis(
     },
   });
 
-  // ── Calcular nivel desbloqueado ───────────────────────────────────────────
-  const { daysActive = 0, activeConnections = 0, decisions = 0 } = unlockData ?? {};
-
-  let unlockedLevel: 1 | 2 | 3 | null = null;
+  // ── Nivel desbloqueado final + requirements para siguiente nivel ──────────
+  const unlockedLevel = unlockedLevelEarly;
   let nextLevelRequirements: NextLevelRequirements | null = null;
 
   if (daysActive >= 60 && activeConnections >= 2 && decisions >= 5) {
-    unlockedLevel = 3;
+    // nivel 3 — ya calculado arriba, sin requirements adicionales
   } else if (daysActive >= 30 && activeConnections >= 1) {
-    unlockedLevel = 2;
     nextLevelRequirements = {
       days_needed: daysActive < 60 ? 60 - daysActive : undefined,
       needs_more_integrations: activeConnections < 2,
@@ -231,14 +234,14 @@ export function useProjectAnalysis(
       if (!session) throw new Error('Sin sesión');
 
       const response = await supabase.functions.invoke('analyze-project-v4', {
-        body: { project_id: projectId, level, additional_context: additionalContext },
+        body: { project_id: projectId, level: unlockedLevel, additional_context: additionalContext },
       });
 
       if (response.error) throw response.error;
 
       // Invalidar caché local para releer
-      await queryClient.invalidateQueries({ queryKey: ['analysis-cache', projectId, level] });
-      toast.success(`Análisis nivel ${level} generado`);
+      await queryClient.invalidateQueries({ queryKey: ['analysis-cache', projectId, unlockedLevel] });
+      toast.success(`Análisis nivel ${unlockedLevel} generado`);
     } catch (err) {
       console.error('generateAnalysis error:', err);
       toast.error('Error generando el análisis');

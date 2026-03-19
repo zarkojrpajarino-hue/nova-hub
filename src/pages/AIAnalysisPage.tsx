@@ -19,9 +19,8 @@ export default function AIAnalysisPage() {
   const { currentProject } = useCurrentProject();
   const projectId = currentProject?.id;
 
-  // Nivel activo — por ahora siempre renderizamos el máximo disponible
-  // El hook internamente decide qué nivel está desbloqueado
-  const analysisState = useProjectAnalysis(projectId, 3);
+  // El hook determina internamente el nivel desbloqueado
+  const analysisState = useProjectAnalysis(projectId);
 
   // Datos de contexto para PreAnalysisDataReview y header
   const { data: contextData, isLoading } = useQuery({
