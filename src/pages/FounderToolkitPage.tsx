@@ -22,6 +22,7 @@ import { BrandKitView } from '@/components/toolkit/BrandKitView';
 import { CommsGuideView } from '@/components/toolkit/CommsGuideView';
 import { CustomerJourneyView } from '@/components/toolkit/CustomerJourneyView';
 import { ToolCTAs } from '@/components/toolkit/ToolCTAs';
+import { ToolCrossLinks } from '@/components/toolkit/ToolCrossLinks';
 import {
   AlertCircle, Lock, Sparkles, Users, BarChart2, BookOpen,
   Palette, MessageSquare, Map, Loader2, CheckCircle2, ChevronRight,
@@ -125,7 +126,14 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
 
 // ── ToolDetailView (vista de herramienta individual) ──────────────────────────
 
-function ToolDetailView({ config, projectId, onBack, unlockInfo }: { config: ToolConfig; projectId: string; onBack: () => void; unlockInfo?: ToolUnlockInfo }) {
+function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavigateTool }: {
+  config: ToolConfig;
+  projectId: string;
+  onBack: () => void;
+  unlockInfo?: ToolUnlockInfo;
+  unlocks?: ToolkitUnlockState | null;
+  onNavigateTool?: (tool: ToolType) => void;
+}) {
   const toolState = useFounderTool(projectId, config.type);
   const colors = COLOR_MAP[config.color];
   const Icon = config.icon;
@@ -213,6 +221,15 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo }: { config: Too
           {config.type === 'comms_guide'      && <CommsGuideView     output={toolState.output as Parameters<typeof CommsGuideView>[0]['output']}     />}
           {config.type === 'customer_journey' && <CustomerJourneyView output={toolState.output as Parameters<typeof CustomerJourneyView>[0]['output']} />}
 
+          {/* Cross-links entre herramientas */}
+          {unlocks && onNavigateTool && (
+            <ToolCrossLinks
+              toolType={config.type}
+              unlocks={unlocks}
+              onNavigateTool={onNavigateTool}
+            />
+          )}
+
           {/* CTAs de acción */}
           <ToolCTAs
             toolType={config.type}
@@ -260,7 +277,14 @@ export default function FounderToolkitPage() {
     const config = TOOL_CONFIG.find(c => c.type === selectedTool)!;
     return (
       <div className="container max-w-4xl mx-auto py-8">
-        <ToolDetailView config={config} projectId={currentProject.id} onBack={() => setSelectedTool(null)} unlockInfo={unlocks?.[selectedTool] ?? undefined} />
+        <ToolDetailView
+          config={config}
+          projectId={currentProject.id}
+          onBack={() => setSelectedTool(null)}
+          unlockInfo={unlocks?.[selectedTool] ?? undefined}
+          unlocks={unlocks}
+          onNavigateTool={setSelectedTool}
+        />
       </div>
     );
   }
