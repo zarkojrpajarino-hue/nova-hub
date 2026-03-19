@@ -21,6 +21,7 @@ import { SalesPlaybookView } from '@/components/toolkit/SalesPlaybookView';
 import { BrandKitView } from '@/components/toolkit/BrandKitView';
 import { CommsGuideView } from '@/components/toolkit/CommsGuideView';
 import { CustomerJourneyView } from '@/components/toolkit/CustomerJourneyView';
+import { ToolCTAs } from '@/components/toolkit/ToolCTAs';
 import {
   AlertCircle, Lock, Sparkles, Users, BarChart2, BookOpen,
   Palette, MessageSquare, Map, Loader2, CheckCircle2, ChevronRight,
@@ -196,6 +197,13 @@ function ToolDetailView({ config, projectId, onBack }: { config: ToolConfig; pro
           {config.type === 'brand_kit'        && <BrandKitView       output={toolState.output as Parameters<typeof BrandKitView>[0]['output']}       />}
           {config.type === 'comms_guide'      && <CommsGuideView     output={toolState.output as Parameters<typeof CommsGuideView>[0]['output']}     />}
           {config.type === 'customer_journey' && <CustomerJourneyView output={toolState.output as Parameters<typeof CustomerJourneyView>[0]['output']} />}
+
+          {/* CTAs de acción */}
+          <ToolCTAs
+            toolType={config.type}
+            output={toolState.output as Record<string, unknown>}
+            projectId={projectId}
+          />
 
           {/* Data sources */}
           {toolState.dataSources.length > 0 && (
