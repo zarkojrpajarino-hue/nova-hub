@@ -58,6 +58,7 @@ const executeItems: NavItem[] = [
   { id: 'crm', icon: Phone, label: 'CRM Global', route: 'crm' },
   { id: 'financiero', icon: Wallet, label: 'Financiero', route: 'financiero' },
   { id: 'meetings', icon: Mic, label: 'Meeting Intelligence', route: 'meetings' },
+  { id: 'analisis-ia', icon: Sparkles, label: 'Análisis IA', route: 'analisis-ia' },
 ];
 
 const teamItems: NavItem[] = [
