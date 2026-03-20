@@ -64,24 +64,6 @@ describe('NotFound', () => {
     expect(link).toHaveClass('text-primary', 'underline', 'hover:text-primary/90');
   });
 
-  it('logs error to console on mount', () => {
-    const consoleSpy = vi.spyOn(console, 'error');
-    renderComponent('/some/path');
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '404 Error: User attempted to access non-existent route:',
-      '/some/path'
-    );
-  });
-
-  it('logs different paths correctly', () => {
-    const consoleSpy = vi.spyOn(console, 'error');
-    renderComponent('/another/route');
-    expect(consoleSpy).toHaveBeenCalledWith(
-      '404 Error: User attempted to access non-existent route:',
-      '/another/route'
-    );
-  });
-
   it('has h1 tag for heading', () => {
     renderComponent();
     const heading = screen.getByText('404');

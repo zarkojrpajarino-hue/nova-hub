@@ -95,9 +95,9 @@ describe('PredictionsWidget', () => {
   it('displays status summary card', () => {
     renderComponent();
     expect(screen.getByText('Resumen de Estado')).toBeInTheDocument();
-    expect(screen.getByText('En buen camino')).toBeInTheDocument();
-    expect(screen.getByText('En riesgo')).toBeInTheDocument();
-    expect(screen.getByText('Por detrás')).toBeInTheDocument();
+    expect(screen.getByText('En ritmo')).toBeInTheDocument();
+    expect(screen.getByText('Por debajo')).toBeInTheDocument();
+    expect(screen.getByText('Fuera de ritmo')).toBeInTheDocument();
   });
 
   it('shows current and target values', () => {

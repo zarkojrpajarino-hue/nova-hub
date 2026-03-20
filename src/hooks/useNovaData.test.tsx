@@ -18,6 +18,9 @@ import type { Profile, Project, ProjectMember, Lead, MemberStats, Objective } fr
 // Mock Supabase client
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    auth: {
+      getSession: vi.fn(() => Promise.resolve({ data: { session: { user: { id: 'user1' } } } })),
+    },
     from: vi.fn(),
   },
 }));
@@ -67,7 +70,7 @@ describe('useNovaData hooks', () => {
       await waitFor(() => expect(result.current.isSuccess).toBe(true));
 
       expect(result.current.data).toEqual(mockProfiles);
-      expect(supabase.from).toHaveBeenCalledWith('members');
+      expect(supabase.from).toHaveBeenCalledWith('profiles');
     });
 
     it('handles error when fetching profiles', async () => {

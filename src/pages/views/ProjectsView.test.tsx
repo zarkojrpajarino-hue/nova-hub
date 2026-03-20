@@ -21,6 +21,12 @@ vi.mock('@/hooks/useNovaData', () => ({
   useProfiles: () => ({ data: [] }),
 }));
 
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
+  useProjects: () => ({ data: [], isLoading: false }),
+  useProjectMembers: () => ({ data: [], isLoading: false }),
+  useMemberStats: () => ({ data: [], isLoading: false }),
+}));
+
 vi.mock('@/contexts/DemoModeContext', () => ({
   useDemoMode: () => ({ isDemoMode: false }),
 }));

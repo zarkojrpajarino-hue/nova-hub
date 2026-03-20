@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { MemoryRouter } from 'react-router-dom';
 import { TaskCompletionDialog } from './TaskCompletionDialog';
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -19,15 +20,18 @@ describe('TaskCompletionDialog', () => {
     id: 'task1',
     titulo: 'Test Task',
     descripcion: 'Test description',
+    function_type: 'demand',
   };
 
   const renderComponent = () => render(
-    <TaskCompletionDialog
-      open={true}
-      onOpenChange={vi.fn()}
-      task={mockTask}
-      onComplete={vi.fn()}
-    />
+    <MemoryRouter>
+      <TaskCompletionDialog
+        open={true}
+        onOpenChange={vi.fn()}
+        task={mockTask}
+        onComplete={vi.fn()}
+      />
+    </MemoryRouter>
   );
 
   it('renders dialog title', () => {

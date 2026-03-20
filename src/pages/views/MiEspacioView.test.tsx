@@ -67,6 +67,10 @@ vi.mock('@/hooks/useNovaData', () => ({
   useProjectStats: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
+  useProjects: vi.fn(() => ({ data: [], isLoading: false })),
+}));
+
 describe('MiEspacioView', () => {
   let queryClient: QueryClient;
 

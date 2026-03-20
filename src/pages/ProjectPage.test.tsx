@@ -22,6 +22,7 @@ vi.mock('@/hooks/useNovaDataOptimized', () => ({
         onboarding_completed: true,
         icon: '🚀',
         color: '#6366F1',
+        phase_state: { current_phase: 1 },
       },
     ],
     isLoading: false,
@@ -29,6 +30,27 @@ vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProjectTeamMembers: vi.fn(() => ({ data: [], isLoading: false })),
   useProjectStats: vi.fn(() => ({ data: null, isLoading: false })),
   useProjectLeads: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectEngineData: vi.fn(() => ({ data: null, isLoading: false })),
+  useProjectViabilityState: vi.fn(() => ({ data: null, isLoading: false })),
+  useMarkWeeklyReviewRead: vi.fn(() => ({ mutate: vi.fn() })),
+  useUpdateLastSeenAt: vi.fn(() => ({ mutate: vi.fn() })),
+}));
+
+vi.mock('@/hooks/useActiveSurface', () => ({
+  useActiveSurface: vi.fn(() => ({ surface: 'engine', isReentry: false, weeklyReviewId: null, lastSeenAt: null, isLoading: false })),
+}));
+
+vi.mock('@/hooks/useRealtimeSubscription', () => ({
+  useProjectRealtimeSync: vi.fn(),
+}));
+
+vi.mock('@/hooks/usePhaseFeatures', () => ({
+  usePhaseFeatures: vi.fn(() => ({
+    getTabStatus: vi.fn(() => 'active'),
+    isFocusTab: vi.fn(() => false),
+    getTeaserReason: vi.fn(() => ''),
+    getUnlockCondition: vi.fn(() => ''),
+  })),
 }));
 
 // Mock project tab components
