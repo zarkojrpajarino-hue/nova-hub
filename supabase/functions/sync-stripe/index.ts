@@ -145,6 +145,7 @@ Deno.serve(async (req) => {
     for (const raw of rawSubscriptions) {
       // Normalización pura — Stripe payload → ContractEntity
       // deno-lint-ignore no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const entity = normalizeStripeSubscription(raw as any, ctx)
 
       if (!entity) {

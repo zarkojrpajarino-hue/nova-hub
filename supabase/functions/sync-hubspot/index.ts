@@ -337,7 +337,7 @@ Deno.serve(async (req) => {
     // ──────────────────────────────────────────────────────────────────────────
     let obvsWritten  = 0
     let obvsSkipped  = 0
-    let obvsMissed   = 0
+    let _obvsMissed   = 0
 
     const highConfDeals = acceptedEntities.filter((e) => e.confidence >= 0.8)
 
@@ -378,7 +378,7 @@ Deno.serve(async (req) => {
 
       if (obvError) {
         console.error(`Error writing deal ${entity.external_id} to obvs:`, obvError)
-        obvsMissed++
+        _obvsMissed++
       } else if (obvResult?.ok === true) {
         if (obvResult?.reason === 'duplicate_skipped') {
           obvsSkipped++
@@ -386,7 +386,7 @@ Deno.serve(async (req) => {
           obvsWritten++
         }
       } else {
-        obvsMissed++
+        _obvsMissed++
         console.warn(`Deal ${entity.external_id} obv write rejected: ${obvResult?.reason}`)
       }
     }

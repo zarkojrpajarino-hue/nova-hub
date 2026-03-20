@@ -266,6 +266,7 @@ Deno.serve(async (req) => {
 
     for (const raw of rawEvents) {
       // deno-lint-ignore no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const entity = normalizeGCalEvent(raw as any, ctx)
 
       if (!entity) {
