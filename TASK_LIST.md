@@ -3181,8 +3181,8 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **F21.V2.0** CTAs por herramienta — cada tool tiene 2 CTAs fuertes conectados a acciones reales del sistema: Buyer Persona → pitch generator + tarea validación; Lead Scoring → CRM + tarea aplicar scoring; Sales Playbook → meetings + tarea paso 1; Brand Kit → CRM + tarea coherencia; Comms Guide → pitch generator + copiar plantilla email; Customer Journey → tarea fricción + CRM. Respeta límite de 5 tareas activas. Implementado en `src/components/toolkit/ToolCTAs.tsx`.
 - [x] **F21.V2.1** "Nuevos datos disponibles" — prompt de regeneración. Cuando una tool generada tiene `expires_at` próximo Y hay nuevos datos relevantes (ej. lead_scoring: nuevos deals desde la última generación), mostrar chip en la ToolCard: "Actualizar con N nuevos datos →". Sin notificación push — solo visual inline. El founder decide cuándo regenerar. Output anterior accesible hasta confirmar la regeneración.
 - [x] **F21.V2.2** Toolkit cross-linking — las herramientas se citan entre sí. Si Lead Scoring detecta que la Buyer Persona está desactualizada → nota inline "Esta herramienta sería más precisa con la Buyer Persona actualizada → Regenerar". Si Sales Playbook existe → Lead Scoring añade nota "Para usar estos scores en el campo, ver el Sales Playbook". Evita que el founder trate las herramientas como silos.
-- [ ] **F21.V2.3** Regenerar tipos Supabase para `founder_tool_cache` — la tabla existe en migraciones pero `src/integrations/supabase/types.ts` no la incluye. El hook `useFounderTool` usa `as any` para las queries. Fix: ejecutar `supabase gen types typescript` contra el proyecto activo y reemplazar types.ts. Sin esto TypeScript no valida las queries a `founder_tool_cache`. Diferido hasta que la migración esté aplicada en producción.
-- [ ] **F21.V2.4** Fix `.ilike('payload->>dealstage', '%won%')` en PostgREST — usado en `useToolkitUnlocks` (closed HubSpot deals) y `generate-lead-scoring-v2` / `generate-sales-playbook-v2`. PostgREST puede no soportar esta sintaxis de JSONB path con `.ilike()`, lo que causaría que los deals HubSpot cerrados se cuenten como 0 en silencio. Fix: traer los deals HubSpot sin filtro y filtrar por stage en cliente. Diferido hasta tener usuarios reales con HubSpot conectado y deals cerrados para verificar el comportamiento real.
+- [x] **F21.V2.3** Regenerar tipos Supabase para `founder_tool_cache` — ✅ 2026-03-20. `supabase gen types typescript` ejecutado. types.ts regenerado con ai_analysis_cache, founder_tool_cache y additional_context. DEUDA.PE.6 cerrada simultáneamente.
+- [x] **F21.V2.4** Fix `.ilike('payload->>dealstage', '%won%')` en PostgREST — ✅ 2026-03-20. useToolkitUnlocks: fetch all HubSpot deals con payload, filtrar dealstage.toLowerCase().includes('won') en cliente. Robusto ante variantes de PostgREST.
 
 ---
 
@@ -4024,10 +4024,8 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **AUD.M.2** `PlaybookTriggerBanner` — engine state vs triggers de playbooks → sugiere guía automáticamente
 - [x] **O5.V2.3** Modo Emergencia — 3er path de onboarding: problema urgente → diagnóstico → 3 tareas en ≤3min
 - [x] **SR10.V2.3** Decision retrospective loop — seguimiento de outcome a los 30 días de cada decisión
-- [!] **F21.V2.3** Regenerar tipos Supabase para `founder_tool_cache` (aplica cuando migración en producción)
-  > DIFERIDO — depende de que la migración `founder_tool_cache` esté en producción.
-- [!] **F21.V2.4** Fix `.ilike('payload->>dealstage', '%won%')` — cuando haya usuarios HubSpot reales
-  > DIFERIDO — requiere usuarios HubSpot reales para validar el fix.
+- [x] **F21.V2.3** Regenerar tipos Supabase para `founder_tool_cache` ✅ 2026-03-20
+- [x] **F21.V2.4** Fix `.ilike('payload->>dealstage', '%won%')` ✅ 2026-03-20 — filtrado en cliente
 - [x] **I15.V2.1** Añadir `meeting_intelligence` al enum de providers en integration_connections
 - [!] **I15.V2.2** Especificar payload del Team Agent Contract (I15.81) — `overdue_count + blocked_members`
   > DIFERIDO — Team Agent Contract (I15.81) ya diferido en F15. Spec depende de diseño bloqueado.
@@ -4102,12 +4100,9 @@ ORDER  BY critical_count DESC, total DESC;
   > Garantiza `get_project_task_stats().done_this_week` y `compute_task_completion_rate()` correctos
   > para todos los paths (DnD kanban, AI executor, MyTasksList).
 
-- [!] **DEUDA.PE.6** `ai_analysis_cache` puede no estar en los tipos Supabase generados
-  > DIFERIDO — requiere Supabase CLI (`supabase gen types`) para regenerar `src/integrations/supabase/types.ts`.
-  > `useAnalysisUrgentDecisions` en NextActionFocusBlock.tsx hace `.from('ai_analysis_cache')` sin verificar
-  > que la tabla existe en los tipos generados de Supabase. Si la tabla fue añadida después de la última
-  > regeneración de tipos, TypeScript no dará error en runtime pero sí en build estricto.
-  > **Fix:** regenerar tipos Supabase (`supabase gen types`) y verificar que `ai_analysis_cache` aparece.
+- [x] **DEUDA.PE.6** `ai_analysis_cache` puede no estar en los tipos Supabase generados
+  > ✅ Resuelto 2026-03-20. types.ts regenerado con `supabase gen types`. Confirmado: 12 referencias a
+  > `ai_analysis_cache` y `founder_tool_cache` en types.ts. TypeScript valida queries correctamente.
 
 - [x] **DEUDA.PE.7** `onNavigateToTab` en ReentrySurface pierde el parámetro de tab
   > ✅ Resuelto Bloque DEUDA 2026-03-20. ReentrySurface.tsx: prop `onNavigateToTab?(tab)` añadido.
@@ -4169,8 +4164,9 @@ ORDER  BY critical_count DESC, total DESC;
   > en `strategic_blocks`. `refresh_behavioral_block_candidates` reescrita para usar `blocker_area` directamente
   > en INSERT, SELECT y UPDATE — elimina REGEXP_REPLACE sobre description.
 
-- [!] **DEUDA.PE.18** `F20.V2.4` — cast `(cachedRow as Record<string, unknown>).additional_context` frágil
-  > DIFERIDO — depende de DEUDA.PE.6 (regenerar tipos Supabase). Resolver junto con PE.6.
+- [x] **DEUDA.PE.18** `F20.V2.4` — cast `(cachedRow as Record<string, unknown>).additional_context` frágil
+  > ✅ Resuelto 2026-03-20. useProjectAnalysis.ts línea 218: eliminado cast frágil, acceso directo
+  > `cachedRow.additional_context ?? null` gracias a types.ts regenerado (DEUDA.PE.6).
 
 - [x] **DEUDA.PE.19** `AUD.M.7` — `source: 'optimus'` no está documentado en COMMENT de `tasks.source`
   > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000021: COMMENT ON COLUMN tasks.source
