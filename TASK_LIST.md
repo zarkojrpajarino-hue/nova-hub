@@ -3780,10 +3780,10 @@ ORDER  BY critical_count DESC, total DESC;
   > correctamente secuenciada. El desacuerdo semántico entre pipeline_boost y O1.2 es comportamiento
   > intencional por diseño (son métricas ortogonales).
 
-- [ ] **AUD.B.4** `siguiente_accion` en Task Loop sin validación semántica mínima
-  > `TaskCompletionDialog.tsx` solo chequea `length > 5` → "Aaaa aaaa aaaa" pasa validación.
-  > **Fix:** Mínimo 15 caracteres + no todo mayúsculas. Bonus: edge function micro de validación semántica.
-  > Esfuerzo: muy bajo.
+- [x] **AUD.B.4** `siguiente_accion` en Task Loop sin validación semántica mínima
+  > ✅ Resuelto 2026-03-20. `isValidSiguienteAccion()`: ≥15 chars + no todo mayúsculas.
+  > Reemplaza `length > 5` en los 3 puntos del componente. Hint inline bajo el textarea
+  > cuando el input falla (conteo de chars o aviso de mayúsculas). 6/6 tests pasan.
 
 - [ ] **AUD.B.5** Expansion Intelligence (F22) sin "cuándo viable" para mercados secundarios
   > Los mercados excluidos del top-5 solo muestran "score 0.68, excluido por: regulatory_ease=2.1".

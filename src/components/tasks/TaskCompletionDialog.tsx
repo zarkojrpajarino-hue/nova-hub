@@ -10,6 +10,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+// AUD.B.4 — validación semántica mínima para siguiente_accion
+// Reglas: ≥15 chars + no todo mayúsculas (evita "LLAMAR LLAMAR LLAMAR")
+function isValidSiguienteAccion(text: string): boolean {
+  const t = text.trim();
+  if (t.length < 15) return false;
+  if (/[A-ZÁÉÍÓÚÑ]/.test(t) && t === t.toUpperCase()) return false;
+  return true;
+}
+
 const FUNCTION_TYPE_OPTIONS = [
   { value: 'demand',   label: 'Demanda',  color: '#F59E0B', description: 'Generación de leads, ventas, marketing' },
   { value: 'delivery', label: 'Delivery', color: '#3B82F6', description: 'Producto, desarrollo, entrega al cliente' },
@@ -164,7 +173,7 @@ export function TaskCompletionDialog({
       await onComplete(task.id, feedback);
 
       // F19.B.1: si hay siguiente_accion, mostrar paso follow-up
-      const hasSiguiente = siguienteAccion.trim().length > 5;
+      const hasSiguiente = isValidSiguienteAccion(siguienteAccion);
       const isDemandSuccess = resolvedFunctionType === 'demand' && resultado === 'exito';
 
       if (hasSiguiente || isDemandSuccess) {
@@ -382,6 +391,13 @@ export function TaskCompletionDialog({
               placeholder="Próxima acción a tomar..."
               className="min-h-[60px] resize-none"
             />
+            {siguienteAccion.trim().length > 0 && !isValidSiguienteAccion(siguienteAccion) && (
+              <p className="text-xs text-muted-foreground">
+                {siguienteAccion.trim().length < 15
+                  ? `Describe un poco más para crear tarea (${siguienteAccion.trim().length}/15 chars)`
+                  : 'Evita escribir todo en mayúsculas'}
+              </p>
+            )}
           </div>
 
           {/* AI Generated Questions */}
@@ -457,7 +473,7 @@ export function TaskCompletionDialog({
             </div>
 
             {/* B.1: Siguiente acción detectada */}
-            {completedFeedback.siguiente_accion.trim().length > 5 && (
+            {isValidSiguienteAccion(completedFeedback.siguiente_accion) && (
               <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
                 <p className="text-xs text-muted-foreground font-medium">Siguiente paso detectado:</p>
                 <p className="text-sm">"{completedFeedback.siguiente_accion.slice(0, 80)}"</p>
@@ -505,7 +521,7 @@ export function TaskCompletionDialog({
             )}
 
             {/* Cierre sin acción extra */}
-            {completedFeedback.siguiente_accion.trim().length <= 5 &&
+            {!isValidSiguienteAccion(completedFeedback.siguiente_accion) &&
               resolvedFunctionType !== 'demand' && (
               <Button className="w-full" onClick={handleCloseFollowUp}>
                 Cerrar
