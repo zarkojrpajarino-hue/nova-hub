@@ -44,7 +44,9 @@ export type NotificationType =
   // ── Layer 5: Risk / Org Engine ────────────────────────────────────────────
   | 'risk_critical'
   | 'risk_elevated'
-  | 'bottleneck_detected';
+  | 'bottleneck_detected'
+  // ── Layer 1: Task urgency ─────────────────────────────────────────────────
+  | 'overdue_tasks_warning';
 
 export interface Notification {
   id: string;
@@ -253,6 +255,12 @@ export const NOTIFICATION_CONFIG: Record<NotificationType, {
     icon: '🚧',
     color: 'text-amber-600',
     bgColor: 'bg-amber-500/10',
+    defaultPriority: 'high',
+  },
+  overdue_tasks_warning: {
+    icon: '⏰',
+    color: 'text-red-600',
+    bgColor: 'bg-red-500/10',
     defaultPriority: 'high',
   },
 };

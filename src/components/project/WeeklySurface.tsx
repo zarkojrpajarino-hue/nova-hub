@@ -10,10 +10,13 @@
  * Botón de salida: "Continue execution" → marca review como leída → regresa a Surface 1.
  */
 
-import { CalendarDays, TrendingUp, TrendingDown, ArrowRight } from 'lucide-react';
+import { CalendarDays, TrendingUp, TrendingDown, ArrowRight, Target } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { useLatestWeeklyReview } from '@/hooks/useNovaDataOptimized';
+import { useLatestWeeklyReview, useProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { useAgentContext } from '@/hooks/useAgentContext';
+import { useProjectContext } from '@/hooks/useProjectContext';
+import { buildNextAction } from '@/lib/build-next-action';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
 import { es } from 'date-fns/locale';
@@ -25,6 +28,17 @@ interface WeeklySurfaceProps {
 
 export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
   const { data: review, isLoading } = useLatestWeeklyReview(projectId);
+
+  // U6.V2.2 — Foco de la próxima semana: buildNextAction() en lugar de next_step estático
+  const { data: engineData } = useProjectEngineData(projectId);
+  const { data: agentCtx }   = useAgentContext(projectId);
+  const { data: projectCtx } = useProjectContext(projectId);
+  const weekNextAction = buildNextAction(
+    engineData,
+    agentCtx?.insights ?? [],
+    { overdueCount: 0 },
+    projectCtx ?? { mode: 'solo', teamSize: 0, operationalComplexity: 'low' },
+  );
 
   if (isLoading) {
     return (
@@ -127,15 +141,30 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
         </div>
       )}
 
-      {/* Focus confirmation — Next Action en contexto semanal (read-only) */}
+      {/* Focus confirmation — Next Action contexto retrospectivo (read-only) */}
       {nextStep && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-1">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Foco de esta semana
+            Dirección de esta semana
           </h3>
           <p className="text-sm leading-relaxed">{nextStep}</p>
           <p className="text-[11px] text-muted-foreground">
             Esta es la dirección del engine — no cambia por la revisión.
+          </p>
+        </div>
+      )}
+
+      {/* U6.V2.2 — Foco de la próxima semana: calculado en tiempo real por buildNextAction() */}
+      {weekNextAction && weekNextAction.type !== 'none' && (
+        <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 space-y-2">
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
+            <Target size={12} />
+            Foco de la próxima semana
+          </h3>
+          <p className="text-sm font-medium leading-snug">{weekNextAction.title}</p>
+          <p className="text-sm text-muted-foreground">{weekNextAction.description}</p>
+          <p className="text-[11px] text-muted-foreground">
+            Calculado por el motor en tiempo real — prioridad para la próxima semana.
           </p>
         </div>
       )}

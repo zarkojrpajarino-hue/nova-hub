@@ -15,7 +15,7 @@ import { AlertTriangle, Info, Loader2, Video } from 'lucide-react'
 import { getActiveMeetingInsights } from '@/services/meetingAgentService'
 import { EvidenceBadge } from '@/components/evidence/EvidenceBadge'
 import { SourcesPanel } from '@/components/evidence/SourcesPanel'
-import type { EvidenceType, SourceUsed, SourceDiscarded, ProviderSlug } from '@/lib/evidence'
+import type { ProviderSlug } from '@/lib/evidence'
 
 interface InsightPayload {
   signal:  { metric_name: string; current_value: number; data_points: number }
@@ -84,9 +84,10 @@ export function MeetingInsightsCard({ projectId }: MeetingInsightsCardProps) {
           const { content } = payload
           const cfg = SEVERITY_CONFIG[content.severity] ?? SEVERITY_CONFIG.info
 
-          const evidenceType = (insight as unknown as { evidence_type?: string }).evidence_type as EvidenceType | undefined
-          const sourcesUsed = ((insight as unknown as { sources_used?: unknown }).sources_used ?? []) as SourceUsed[]
-          const sourcesDiscarded = ((insight as unknown as { sources_discarded?: unknown }).sources_discarded ?? []) as SourceDiscarded[]
+          // T17.V2.3 — MeetingInsight ya tipado con EvidenceType
+          const evidenceType = insight.evidence_type ?? undefined
+          const sourcesUsed = insight.sources_used
+          const sourcesDiscarded = insight.sources_discarded
 
           return (
             <div

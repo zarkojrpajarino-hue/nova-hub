@@ -1,12 +1,14 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { EngineEmptyState } from './EngineEmptyState';
+import { InputAuditModal, InputAuditTrigger } from './InputAuditModal';
 
 interface ProbabilityBreakdownProps {
   probability: ProjectEngineData['probability'];
   probabilityHistory: ProjectEngineData['probabilityHistory'];
   onCTA?: () => void;
+  onNavigateToTab?: (tab: string) => void;
 }
 
 // ── Input config ──────────────────────────────────────────────────────────────
@@ -45,7 +47,9 @@ function ProbabilityBreakdownComponent({
   probability,
   probabilityHistory,
   onCTA,
+  onNavigateToTab,
 }: ProbabilityBreakdownProps) {
+  const [auditOpen, setAuditOpen] = useState(false);
   // Sin datos, inactivo o confianza baja (EC13.7: no mostrar número bajo hasta tener datos reales)
   if (!probability || probability.probability_status !== 'active') {
     const isBuilding = probability?.probability_status === 'low_confidence';
@@ -76,7 +80,11 @@ function ProbabilityBreakdownComponent({
     <div className="bg-card border border-border rounded-2xl p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-sm">Probabilidad de avance</h3>
+        <h3 className="font-semibold text-sm flex items-center gap-1.5">
+          Probabilidad de avance
+          {/* U6.V2.4 — ⓘ botón: abre InputAuditModal */}
+          <InputAuditTrigger onClick={() => setAuditOpen(true)} />
+        </h3>
         <div className="flex items-center gap-2">
           {/* Trend */}
           {trend != null && (
@@ -134,6 +142,16 @@ function ProbabilityBreakdownComponent({
           Confianza del modelo: {conf}%
         </span>
       </div>
+
+      {/* U6.V2.4 — Modal de inputs del motor */}
+      {auditOpen && (
+        <InputAuditModal
+          type="probability"
+          probability={probability}
+          onNavigateToTab={onNavigateToTab}
+          onClose={() => setAuditOpen(false)}
+        />
+      )}
     </div>
   );
 }

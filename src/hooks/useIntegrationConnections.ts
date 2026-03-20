@@ -59,6 +59,36 @@ const NOT_CONNECTED: IntegrationConnectionStatus = {
   is_stale: false,
 }
 
+// AUD.B.7 — Calidad del último sync por provider
+export interface SyncQuality {
+  provider:          string
+  quality_pct:       number      // 0–1, 1 = sin entidades procesadas
+  has_quality_warning: boolean
+  last_sync_at:      string | null
+  last_sync_status:  string | null
+}
+
+export function useSyncQuality(projectId: string | undefined) {
+  return useQuery({
+    queryKey:  ['sync_quality', projectId],
+    enabled:   !!projectId,
+    staleTime: 60_000,
+    queryFn:   async () => {
+      const { data, error } = await supabase
+        .from('integration_sync_quality')
+        .select('provider, quality_pct, has_quality_warning, last_sync_at, last_sync_status')
+        .eq('project_id', projectId!)
+
+      if (error) throw error
+      const byProvider: Record<string, SyncQuality> = {}
+      for (const row of data ?? []) {
+        byProvider[row.provider as string] = row as SyncQuality
+      }
+      return byProvider
+    },
+  })
+}
+
 export function useIntegrationConnections(projectId: string | undefined) {
   const { data, isLoading, error, refetch } = useQuery({
     queryKey: ['integration_connections', projectId],

@@ -41,6 +41,8 @@ interface RitualResponses {
   next_bet: string;
   success_signal: string;
   invalidation_condition: string;
+  /** SR10.V2.2 — opcional: decisiones de reuniones en este ciclo */
+  key_meeting_decisions: string;
 }
 
 interface OptimusOutput {
@@ -63,7 +65,14 @@ const EMPTY_RESPONSES: RitualResponses = {
   next_bet: '',
   success_signal: '',
   invalidation_condition: '',
+  key_meeting_decisions: '',  // SR10.V2.2 — opcional
 };
+
+// Campos obligatorios para habilitar el submit — key_meeting_decisions es opcional
+const REQUIRED_RITUAL_FIELDS: ReadonlyArray<keyof RitualResponses> = [
+  'evidence_progress', 'broken_hypothesis', 'main_bottleneck',
+  'stop_doing', 'next_bet', 'success_signal', 'invalidation_condition',
+] as const;
 
 // =============================================================================
 // Props
@@ -141,7 +150,7 @@ function RitualForm({
   submitError: string | null;
   onSkip?: () => void;
 }) {
-  const allFilled = Object.values(responses).every(v => v.trim().length > 0);
+  const allFilled = REQUIRED_RITUAL_FIELDS.every(f => responses[f].trim().length > 0);
 
   return (
     <div className="max-w-2xl mx-auto py-10 space-y-8">
@@ -257,6 +266,20 @@ function RitualForm({
           />
         </FieldBlock>
       </div>
+
+      {/* Q6 — key_meeting_decisions (SR10.V2.2 — opcional) */}
+      <FieldBlock
+        label="¿Qué decisiones clave tomasteis en reuniones este ciclo?"
+        sublabel="Opcional. Solo si registráis reuniones en el sistema."
+      >
+        <Textarea
+          value={responses.key_meeting_decisions}
+          onChange={e => onChange('key_meeting_decisions', e.target.value)}
+          placeholder="Ej: Decidimos pausar el canal X y doblar en canal Y tras revisar la tasa de conversión"
+          rows={2}
+          disabled={isSubmitting}
+        />
+      </FieldBlock>
 
       {/* Error */}
       {submitError && (

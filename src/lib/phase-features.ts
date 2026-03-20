@@ -16,6 +16,12 @@
 
 export type TabStatus = 'primary' | 'secondary' | 'teaser'
 
+// F19.V2.3 — AUDIT NOTE:
+// `reuniones` aparece aquí pero NO existe como tab en ProjectPage.tsx TABS array todavía.
+// El tab está planificado pero sin implementar. Mientras tanto:
+//   - getTabStatus('reuniones') retorna el valor abajo (inofensivo — nunca se renderiza)
+//   - NextActionFocusBlock 'open_meeting' navega a 'tareas' como fallback
+// Al implementar el tab 'reuniones': añadirlo a TABS en ProjectPage.tsx.
 export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
   1: {
     dashboard:    'primary',
@@ -25,7 +31,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     crm:          'teaser',
     financiero:   'teaser',
     'negocio-ia': 'teaser',
-    reuniones:    'secondary',
+    reuniones:    'secondary',  // tab planificado — aún no en ProjectPage TABS
   },
   2: {
     dashboard:    'primary',

@@ -511,6 +511,8 @@ export interface ProjectEngineData {
     phase_status: string;
     hard_signal_met: boolean;
     last_calculated_at: string;
+    // DEUDA.PE.8/AUD.B.2: bloqueo principal computado en SQL
+    primary_block: string;
   } | null;
   probability: {
     probability_score: number | null;
@@ -585,7 +587,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
       const [stateResult, historyResult] = await Promise.all([
         supabase
           .from('project_phase_state')
-          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at')
+          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, primary_block')
           .eq('project_id', projectId!)
           .maybeSingle(),
         supabase
@@ -791,16 +793,8 @@ export function useLatestWeeklyReview(projectId: string | undefined) {
 // ============================================================================
 // SURFACE SELECTION — V11.3
 // ============================================================================
-
-export type ProjectSurface = 'engine' | 'weekly' | 'reset';
-
-export interface ActiveSurfaceState {
-  surface: ProjectSurface;
-  isReentry: boolean;
-  lastSeenAt: string | null;    // para calcular absenceDays en ReentrySurface
-  weeklyReviewId: string | null;
-  isLoading: boolean;
-}
+// AUD.M.3: useActiveSurface extraído a src/hooks/useActiveSurface.ts
+// Importar directamente desde '@/hooks/useActiveSurface'.
 
 // Hook: ciclos estratégicos cerrados mientras el usuario estaba ausente
 // Necesario para changes_since_last_seen.cycle_closed_while_away + ritual_missed
@@ -876,43 +870,6 @@ export function useRitualPending(projectId: string | undefined) {
   });
 }
 
-// Composed hook: estado activo de superficie
-// Prioridad: reset > weekly > engine
-// isReentry = ausencia > 7 días (threshold v1) — no afecta la prioridad de superficie,
-//   se usa como capa previa en ProjectPage.
-const REENTRY_THRESHOLD_MS = 7 * 24 * 60 * 60 * 1000;
-
-export function useActiveSurface(
-  projectId: string | undefined,
-  userId: string | undefined,
-): ActiveSurfaceState {
-  const { data: lastSeenAt, isLoading: loadingUserState } = useProjectUserState(projectId, userId);
-  const { data: ritualPending = false, isLoading: loadingRitual } = useRitualPending(projectId);
-  const { data: latestReview, isLoading: loadingReview } = useLatestWeeklyReview(projectId);
-
-  const isLoading = loadingUserState || loadingRitual || loadingReview;
-
-  const isReentry =
-    lastSeenAt != null &&
-    Date.now() - new Date(lastSeenAt).getTime() > REENTRY_THRESHOLD_MS;
-
-  const hasUnreadWeekly =
-    latestReview != null && latestReview.read_at === null;
-
-  let surface: ProjectSurface;
-  if (ritualPending) surface = 'reset';
-  else if (hasUnreadWeekly) surface = 'weekly';
-  else surface = 'engine';
-
-  return {
-    surface,
-    isReentry,
-    lastSeenAt: lastSeenAt ?? null,
-    weeklyReviewId: latestReview?.id ?? null,
-    isLoading,
-  };
-}
-
 // Mutation: marcar weekly review como leída (founder hace click en "Continue execution")
 export function useMarkWeeklyReviewRead() {
   const queryClient = useQueryClient();
@@ -951,8 +908,9 @@ export function useUpdateLastSeenAt() {
 // Mutation: completar el ritual estratégico de cierre de ciclo
 // Llama a submit_strategic_reset() que internamente cierra el ciclo y crea el N+1.
 // Returns: 'progress' | 'stagnation' | 'regression'
-// NO invalida queries aquí — la invalidación ocurre en onComplete() tras ver el output.
+// SR10.V2.1: invalida el Focus Block (engine phase/probability/risk) tras completar.
 export function useSubmitRitual() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: async ({
       projectId,
@@ -975,6 +933,12 @@ export function useSubmitRitual() {
       });
       if (error) throw error;
       return data as 'progress' | 'stagnation' | 'regression';
+    },
+    onSuccess: (_data, { projectId }) => {
+      // SR10.V2.1 — el ritual puede cambiar phase_score y execution_rate.
+      // Invalidar engine para que el Focus Block muestre datos frescos.
+      queryClient.invalidateQueries({ queryKey: ['project-engine', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['ritual-pending', projectId] });
     },
   });
 }

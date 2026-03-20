@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
+  Bell,
   CheckCircle2,
   AlertTriangle,
   Info,
@@ -42,7 +43,23 @@ interface NotificationListProps {
   userId: string;
   onNotificationRead?: () => void;
   onClose?: () => void;
+  /** N7.V2.3 — fase del proyecto activo para filtro "Relevante a mi fase" */
+  phase?: number;
 }
+
+// N7.V2.3 — tipos relevantes por fase (acumulativos)
+const PHASE_RELEVANT_TYPES: Record<number, string[]> = {
+  1: ['info', 'warning', 'risk_critical', 'risk_changed', 'probability_drop', 'probability_change',
+      'idea_validation', 'weekly_review', 'overdue_tasks_warning'],
+  2: ['info', 'warning', 'risk_critical', 'risk_changed', 'probability_drop', 'probability_change',
+      'idea_validation', 'weekly_review', 'overdue_tasks_warning',
+      'revenue_signals', 'validation_progress', 'success'],
+  3: ['info', 'warning', 'success', 'risk_critical', 'risk_changed', 'probability_drop', 'probability_change',
+      'idea_validation', 'weekly_review', 'overdue_tasks_warning',
+      'revenue_signals', 'validation_progress',
+      'performance', 'deadline', 'feedback', 'bottleneck_detected', 'meeting_suggested'],
+  4: [], // vacío = mostrar todo
+};
 
 const typeIcons: Record<string, React.ElementType> = {
   success: CheckCircle2,
@@ -66,10 +83,10 @@ const typeColors: Record<string, string> = {
   deadline: 'text-orange-600 bg-orange-500/10',
 };
 
-export function NotificationList({ userId, onNotificationRead, onClose }: NotificationListProps) {
+export function NotificationList({ userId, onNotificationRead, onClose, phase }: NotificationListProps) {
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
-  const [filter, setFilter] = useState<'all' | 'unread'>('all');
+  const [filter, setFilter] = useState<'all' | 'unread' | 'phase'>('all');
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -88,6 +105,12 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
 
       if (filter === 'unread') {
         query = query.eq('read', false);
+      } else if (filter === 'phase' && phase) {
+        // N7.V2.3 — fase 4 o desconocida: mostrar todo; fases 1-3: filtrar por tipos relevantes
+        const relevantTypes = PHASE_RELEVANT_TYPES[phase] ?? [];
+        if (relevantTypes.length > 0) {
+          query = query.in('type', relevantTypes);
+        }
       }
 
       const { data, error } = await query;
@@ -191,14 +214,20 @@ export function NotificationList({ userId, onNotificationRead, onClose }: Notifi
           )}
         </div>
 
-        <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread')} className="w-full">
+        <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread' | 'phase')} className="w-full">
           <TabsList className="w-full">
-            <TabsTrigger value="all" className="flex-1">
+            <TabsTrigger value="all" className={phase ? 'flex-1' : 'flex-1'}>
               Todas {notifications.length > 0 && `(${notifications.length})`}
             </TabsTrigger>
             <TabsTrigger value="unread" className="flex-1">
               Sin leer {unreadCount > 0 && `(${unreadCount})`}
             </TabsTrigger>
+            {/* N7.V2.3 — tab de fase: solo si se pasa el prop phase */}
+            {phase && (
+              <TabsTrigger value="phase" className="flex-1">
+                Fase {phase}
+              </TabsTrigger>
+            )}
           </TabsList>
         </Tabs>
       </div>

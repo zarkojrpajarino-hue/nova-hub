@@ -20,7 +20,8 @@ async function fetchProjectContextData(projectId: string) {
     supabase
       .from('project_members')
       .select('id', { count: 'exact', head: true })
-      .eq('project_id', projectId),
+      .eq('project_id', projectId)
+      .eq('role_accepted', true),
     supabase
       .from('integration_connections')
       .select('id', { count: 'exact', head: true })

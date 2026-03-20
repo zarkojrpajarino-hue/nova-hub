@@ -84,6 +84,8 @@ export interface CachedAnalysis {
   is_stale: boolean;
   data_sources: AnalysisDataSource[];
   tokens_used?: number;
+  /** F20.V2.4 — contexto adicional del founder al generar; para pre-rellenar en regeneraciones */
+  additional_context?: string | null;
 }
 
 export interface NextLevelRequirements {
@@ -214,6 +216,7 @@ export function useProjectAnalysis(
         is_stale: isStale,
         data_sources: cachedRow.data_sources ?? [],
         tokens_used: cachedRow.tokens_used,
+        additional_context: (cachedRow as Record<string, unknown>).additional_context as string | null ?? null, // F20.V2.4
       }
     : null;
 

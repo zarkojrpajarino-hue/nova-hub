@@ -79,3 +79,40 @@ export function trackSourcePreferenceChanged(props: {
 }) {
   posthog.capture('source_preference_changed', props);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// F19 — Focus Block · Task Loop · Ritual
+// V11.V2.1 — 4 eventos para los sistemas de FASE 19.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export function trackFocusBlockImpression(props: {
+  project_id: string;
+  urgency: string;
+  source: string;
+  phase?: number;
+}) {
+  posthog.capture('focus_block_impression', props);
+}
+
+export function trackFocusBlockCTAClicked(props: {
+  project_id: string;
+  action_type: string;
+  urgency: string;
+  source: string;
+}) {
+  posthog.capture('focus_block_cta_clicked', props);
+}
+
+export function trackTaskLoopTriggered(props: {
+  project_id: string;
+  task_count: number;
+}) {
+  posthog.capture('task_loop_triggered', props);
+}
+
+export function trackRitualStarted(props: {
+  project_id: string;
+  phase?: number;
+}) {
+  posthog.capture('ritual_started', props);
+}

@@ -15,7 +15,7 @@ import {
   type MeetingInsightRow,
   type MeetingAgentInsightData,
 } from '@/lib/meeting-agent'
-import { type EvidenceType, type SourceUsed } from '@/lib/evidence'
+import { type EvidenceType, type SourceUsed, type SourceDiscarded } from '@/lib/evidence'
 
 export interface RunMeetingAgentResult {
   insights_emitted:       number
@@ -303,11 +303,24 @@ export async function getMeetingPatterns(projectId: string): Promise<MeetingPatt
   return data as MeetingPatternsResult
 }
 
+// T17.V2.3 — tipo tipado para insights del Meeting Agent con campos de evidencia
+export interface MeetingInsight {
+  id:                string
+  insight_type:      string
+  payload:           unknown
+  confidence:        number | null
+  generated_at:      string
+  expires_at:        string | null
+  evidence_type:     EvidenceType | null
+  sources_used:      SourceUsed[]
+  sources_discarded: SourceDiscarded[]
+}
+
 /**
  * Lee los insights activos (no expirados) del Meeting Agent para un proyecto.
  * Usado por MeetingInsightsCard.
  */
-export async function getActiveMeetingInsights(projectId: string) {
+export async function getActiveMeetingInsights(projectId: string): Promise<MeetingInsight[]> {
   const now = new Date().toISOString()
   const { data, error } = await supabase
     .from('integration_insights')
@@ -318,5 +331,5 @@ export async function getActiveMeetingInsights(projectId: string) {
     .order('generated_at', { ascending: false })
 
   if (error) throw new Error(`Meeting Agent: error leyendo insights — ${error.message}`)
-  return data ?? []
+  return (data ?? []) as MeetingInsight[]
 }

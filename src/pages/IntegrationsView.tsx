@@ -26,9 +26,21 @@ import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { supabase } from '@/integrations/supabase/client';
-import { useIntegrationConnections, type IntegrationConnectionStatus } from '@/hooks/useIntegrationConnections';
+import { useIntegrationConnections, useSyncQuality, type IntegrationConnectionStatus, type SyncQuality } from '@/hooks/useIntegrationConnections';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { SourcePreferencesPanel } from '@/components/evidence/SourcePreferencesPanel';
+
+// AUD.B.7 — Badge de calidad de sync (migration 20260326000009)
+function SyncQualityBadge({ quality }: { quality: SyncQuality | undefined }) {
+  if (!quality || !quality.has_quality_warning) return null
+  const pct = quality.quality_pct != null ? Math.round(quality.quality_pct * 100) : null
+  return (
+    <Badge variant="outline" className="text-xs text-amber-600 border-amber-400">
+      <AlertTriangle size={11} className="mr-1" />
+      {pct != null ? `datos incompletos (${pct}% sync)` : 'sync parcial'}
+    </Badge>
+  )
+}
 
 // Badge que refleja estado real de integration_connections (I15.58 + I15.60)
 // isLoading: muestra skeleton mientras la query de connections está cargando (evita falso "Disponible")
@@ -78,6 +90,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
   const { currentProject } = useCurrentProject();
   const demoData = PREMIUM_DEMO_DATA.integrations;
   const { getStatus, isLoading, connections } = useIntegrationConnections(currentProject?.id);
+  const { data: syncQuality = {} } = useSyncQuality(currentProject?.id);
   const hasAnyActive = !isLoading && Object.values(connections).some((c) => c.status === 'active');
 
   // T17.27 — Sheet de preferencias de fuente
@@ -264,8 +277,9 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">Stripe</CardTitle>
-                <div className="mt-1">
+                <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('stripe')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['stripe']} />
                 </div>
               </div>
             </div>
@@ -284,8 +298,9 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">Holded</CardTitle>
-                <div className="mt-1">
+                <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('holded')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['holded']} />
                 </div>
               </div>
             </div>
@@ -324,8 +339,9 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">HubSpot</CardTitle>
-                <div className="mt-1">
+                <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('hubspot')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['hubspot']} />
                 </div>
               </div>
             </div>
@@ -344,8 +360,9 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">Google Calendar</CardTitle>
-                <div className="mt-1">
+                <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('google_calendar')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['google_calendar']} />
                 </div>
               </div>
             </div>

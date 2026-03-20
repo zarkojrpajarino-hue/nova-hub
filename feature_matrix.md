@@ -134,16 +134,74 @@
 
 ---
 
+## Features FASE 17 — Focus Block
+
+Acción prioritaria inteligente. `buildNextAction()` + `NextActionFocusBlock` + digest mode.
+
+| Feature | Component | Surface | Phase | Mode | Viability | Status |
+|---|---|---|---|---|---|---|
+| Focus Block — acción principal calculada | `NextActionFocusBlock` + `buildNextAction()` | Engine | all | both | all | ✅ impl (F19.C) |
+| Digest Mode — condensado cuando ≥3 insights | `NextActionFocusBlock` (isDigestMode) | Engine | all | both | all | ✅ impl (AUD.M.4) |
+| Low reliability warning | `NextActionFocusBlock` (F19.V2.1) | Engine | all | both | all | ✅ impl |
+| Focus Block context → Optimus input | `get_optimus_context()` + `OPTIMUS_PROMPTS.md §1` | Engine | all | both | all | ✅ impl (PL9.V2.1) |
+| Data completeness card (U6.V2.3) | `DataCompletenessCard` | Engine | all | both | all | ✅ impl |
+| Input audit modal (U6.V2.4) | `InputAuditModal` + `InputAuditTrigger` | Engine | all | both | all | ✅ impl |
+
+---
+
+## Features FASE 18 — Task Loop
+
+Ciclo de ejecución + feedback de tareas.
+
+| Feature | Component | Surface | Phase | Mode | Viability | Status |
+|---|---|---|---|---|---|---|
+| task_completion_rate benchmark | `BENCHMARKS_V1.md §Parte 3` | Engine | all | both | all | ✅ impl (PL9.V2.2) |
+| Phase-adaptive tab lock (F19.C.3/4) | `usePhaseFeatures` + `PhaseTeaserModal` | Engine | 1–3 | both | all | ✅ impl |
+| FaseB progress timestamps (AUD.B.8) | `FaseBPanel.recordItemCompleted()` | Engine | 1 | both | all | ✅ impl |
+| Optimus Zod runtime validation | `src/lib/optimus.ts` | Engine | all | both | all | ❌ pending (AUD.B.1) |
+
+---
+
+## Features FASE 19 — Meeting Intelligence
+
+Reuniones registradas, decisiones aprobadas, señales de bloqueo.
+
+| Feature | Component | Surface | Phase | Mode | Viability | Status |
+|---|---|---|---|---|---|---|
+| meeting_to_action_conversion benchmark | `BENCHMARKS_V1.md §Parte 3` | Engine | ≥2 | both | all | ✅ impl (PL9.V2.2) |
+| recent_decisions_from_meetings en Optimus | `get_optimus_context()` SQL | Engine | all | both | all | ❌ pending (P8.V2.2) |
+| behavioral_block accelerated activation | `strategic_blocks` trigger | Engine | ≥3 weeks | both | all | ❌ pending (P8.V2.1) |
+| Optimus feedback UI (thumbs up/down) | migration + component | Engine | all | both | all | ❌ pending (P8.V2.3) |
+| Optimus additional_context cache | `analyze-project-v4` + `useProjectAnalysis` | Engine | all | both | all | ❌ pending (F20.V2.4) |
+| Optimus scarce-data calibration | `analyze-project-v4` prompt | Engine | all | both | all | ❌ pending (F20.V2.5) |
+
+---
+
+## Features transversales (UX/Surfaces post-V11.1)
+
+| Feature | Component | Surface | Phase | Mode | Viability | Status |
+|---|---|---|---|---|---|---|
+| Reentry Surface (>7d ausencia) | `ReentrySurface` + `useActiveSurface` | Nav | all | both | all | ✅ impl (V11.3) |
+| useActiveSurface extracted (AUD.M.3) | `src/hooks/useActiveSurface.ts` | Nav | all | both | all | ✅ impl |
+| Phase-filtered notifications (N7.V2.3) | `NotificationList` phase tab | Nav | all | both | all | ✅ impl |
+| Weekly surface with Focus context (U6.V2.2) | `WeeklySurface` | Weekly | all | both | all | ✅ impl |
+
+---
+
 ## Resumen de estado
 
-| Surface | Features totales | Implementadas | Pendientes | Diferidas |
+| Surface / Fase | Features totales | Implementadas | Pendientes | Diferidas |
 |---|---|---|---|---|
-| Engine | 15 | 14 | 1 (Optimus UI) | 0 |
+| Engine (V11.1) | 15 | 14 | 1 (Optimus UI) | 0 |
 | Weekly | 4 | 0 | 4 | 0 |
 | Reset | 5 | 0 | 5 | 0 |
 | History | 6 | 0 | 0 | 6 |
 | Nav (capa) | 2 | 0 | 2 | 0 |
-| **TOTAL** | **32** | **14** | **12** | **6** |
+| FASE 17 — Focus Block | 6 | 5 | 1 (AUD.B.1) | 0 |
+| FASE 18 — Task Loop | 4 | 3 | 1 (AUD.B.1 shared) | 0 |
+| FASE 19 — Meeting Intelligence | 6 | 1 | 5 | 0 |
+| Transversal UX | 4 | 4 | 0 | 0 |
+| **TOTAL** | **52** | **27** | **19** | **6** |
 
 ---
 
@@ -168,6 +226,7 @@
 
 ---
 
+*v1.1 — 2026-03-20 — FASE 17/18/19 features añadidas (V11.V2.2)*
 *v1.0 — 2026-03-12*
 *Para especificación de superficies → SURFACES_V1.md.*
 *Para implementación de visibilidad → V11.3.*

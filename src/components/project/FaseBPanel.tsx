@@ -58,6 +58,23 @@ interface PanelData {
   competitors: string[];
 }
 
+// AUD.B.8 — registrar timestamp de completitud por ítem en fase_b_progress
+async function recordItemCompleted(projectId: string, itemId: string, value?: unknown): Promise<void> {
+  const { data: row } = await supabase
+    .from('projects')
+    .select('onboarding_data')
+    .eq('id', projectId)
+    .single();
+  const od = (row?.onboarding_data ?? {}) as Record<string, unknown>;
+  const progress = (od.fase_b_progress ?? {}) as Record<string, unknown>;
+  const items = (progress.items ?? {}) as Record<string, unknown>;
+  items[itemId] = { completed: true, completed_at: new Date().toISOString(), value: value ?? null };
+  await supabase
+    .from('projects')
+    .update({ onboarding_data: { ...od, fase_b_progress: { ...progress, items } } as unknown as Json })
+    .eq('id', projectId);
+}
+
 // ── Merge helper (read-then-merge, mismo patrón que FirstStepsPanel) ──────────
 async function mergeOD(projectId: string, patch: Record<string, unknown>): Promise<void> {
   const { data: row } = await supabase
@@ -179,6 +196,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
     setSaving('sector');
     try {
       await mergeOD(projectId, { selected_industry: val });
+      await recordItemCompleted(projectId, 'sector', val);
       setData(prev => prev ? { ...prev, selectedIndustry: val } : prev);
       setSectorInput('');
     } finally { setSaving(null); }
@@ -192,6 +210,10 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
     setSaving('competitors');
     try {
       await mergeCompetitors(projectId, newList);
+      // AUD.B.8 — marcar completado la primera vez que se añade un competidor
+      if ((data?.competitors.length ?? 0) === 0) {
+        await recordItemCompleted(projectId, 'competitors', newList);
+      }
       setData(prev => prev ? { ...prev, competitors: newList } : prev);
       setCompetitorInput('');
     } finally { setSaving(null); }
@@ -217,6 +239,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
       // Si hypothesis_maturity era null (paths sin DT), establecer 'partial'
       if (!data?.hypothesisMaturity) patch.hypothesis_maturity = 'partial';
       await mergeOD(projectId, patch);
+      await recordItemCompleted(projectId, 'riskiest_assumption', val);
       setData(prev => prev ? { ...prev, riskiestAssumption: val } : prev);
       setRiskiestInput('');
     } finally { setSaving(null); }

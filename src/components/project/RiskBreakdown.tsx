@@ -1,11 +1,13 @@
 import { TrendingUp, TrendingDown, Minus, Shield } from 'lucide-react';
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { EngineEmptyState } from './EngineEmptyState';
+import { InputAuditModal, InputAuditTrigger } from './InputAuditModal';
 
 interface RiskBreakdownProps {
   risk: ProjectEngineData['risk'];
   riskHistory: ProjectEngineData['riskHistory'];
+  onNavigateToTab?: (tab: string) => void;
 }
 
 // ── Factor config ─────────────────────────────────────────────────────────────
@@ -60,7 +62,8 @@ function computeTrend(history: ProjectEngineData['riskHistory']): number | null 
 
 // ── Component ─────────────────────────────────────────────────────────────────
 
-function RiskBreakdownComponent({ risk, riskHistory }: RiskBreakdownProps) {
+function RiskBreakdownComponent({ risk, riskHistory, onNavigateToTab }: RiskBreakdownProps) {
+  const [auditOpen, setAuditOpen] = useState(false);
   if (!risk || risk.risk_status === 'insufficient_data') {
     const available = risk?.inputs_available ?? 0;
     return (
@@ -83,7 +86,11 @@ function RiskBreakdownComponent({ risk, riskHistory }: RiskBreakdownProps) {
     <div className="bg-card border border-border rounded-2xl p-5">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-sm">Factores de riesgo</h3>
+        <h3 className="font-semibold text-sm flex items-center gap-1.5">
+          Factores de riesgo
+          {/* U6.V2.4 — ⓘ botón: abre InputAuditModal */}
+          <InputAuditTrigger onClick={() => setAuditOpen(true)} />
+        </h3>
         <div className="flex items-center gap-2">
           {/* Trend — delta positivo = riesgo subió (malo) → rojo */}
           {trend != null && (
@@ -146,6 +153,16 @@ function RiskBreakdownComponent({ risk, riskHistory }: RiskBreakdownProps) {
           Confianza: {conf}%
         </span>
       </div>
+
+      {/* U6.V2.4 — Modal de inputs del motor */}
+      {auditOpen && (
+        <InputAuditModal
+          type="risk"
+          risk={risk}
+          onNavigateToTab={onNavigateToTab}
+          onClose={() => setAuditOpen(false)}
+        />
+      )}
     </div>
   );
 }

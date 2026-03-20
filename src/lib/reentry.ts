@@ -84,7 +84,16 @@ function deriveProbabilityTrend(
   return 'stable';
 }
 
+// AUD.B.2 / DEUDA.PE.8: primary_block ahora viene de SQL (migration 20260326000008).
+// derivePrimaryBlock() se mantiene como fallback client-side por si engineData.phaseState
+// está disponible antes de que la migración se haya aplicado (proyectos sin fila aún).
 function derivePrimaryBlock(engineData: ProjectEngineData): PrimaryBlock {
+  // Fast-path: leer desde SQL si ya está disponible
+  const sqlBlock = engineData.phaseState?.primary_block as PrimaryBlock | undefined;
+  if (sqlBlock && sqlBlock !== 'none') return sqlBlock;
+  if (sqlBlock === 'none') return 'none';
+
+  // Fallback client-side (proyectos sin migración aplicada aún)
   const coverageLevel = (type: string) =>
     engineData.coverage?.find(c => c.function_type === type)?.coverage_level ?? 'none';
 

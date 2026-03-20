@@ -159,13 +159,23 @@ export function buildNextAction(
     signals.push(`Fase ${phase} · Score ${Math.round(score)}/100`)
   }
 
+  // AUD.M.12 — ajustar urgency según operationalComplexity:
+  // proyectos con alta complejidad operacional merecen más atención incluso
+  // en acciones que el motor categoriza como 'low' (más contexto → más riesgo de dilación).
+  const baseUrgency: EnrichedNextAction['urgency'] =
+    signals.some((s) => s.includes('vencida') || s.includes('crítica'))
+      ? 'medium'
+      : 'low'
+  const adjustedUrgency: EnrichedNextAction['urgency'] =
+    context.operationalComplexity === 'high' && baseUrgency === 'low'
+      ? 'medium'
+      : baseUrgency
+
   return {
     title:       base.title,
     description: base.description,
     type:        finalType,
-    urgency:     signals.some((s) => s.includes('vencida') || s.includes('crítica'))
-                   ? 'medium'
-                   : 'low',
+    urgency:     adjustedUrgency,
     source:      'engine',
     actionType:  base.actionType,
     ctaLabel:    base.ctaLabel,

@@ -73,6 +73,40 @@ serve(async (req) => {
     const { data: engineContext } = await supabase
       .rpc('get_optimus_context', { p_project_id: project_id, p_user_id: user.id })
 
+    // AUD.M.5: delta_probability — comparar probabilidad actual vs hace 7 días
+    const { data: probHistory } = await supabase
+      .from('project_probability_history')
+      .select('probability_score, calculated_at')
+      .eq('project_id', project_id)
+      .gte('calculated_at', new Date(Date.now() - 14 * 86_400_000).toISOString())
+      .order('calculated_at', { ascending: false })
+      .limit(5)
+
+    // AUD.M.5: pending_decisions — meeting_insights tipo decision sin aplicar
+    const { data: pendingDecisions } = await supabase
+      .from('meeting_insights')
+      .select('content, created_at')
+      .eq('insight_type', 'decision')
+      .eq('review_status', 'approved')
+      .eq('applied', false)
+      .in('meeting_id',
+        // subquery via join — obtener meeting_ids del proyecto
+        (await supabase
+          .from('meetings')
+          .select('id')
+          .eq('project_id', project_id)
+          .limit(20)
+        ).data?.map(m => m.id) ?? []
+      )
+      .order('created_at', { ascending: false })
+      .limit(5)
+
+    // Calcular delta_probability: más reciente vs el anterior
+    const probScores = (probHistory ?? []).map(p => p.probability_score).filter(s => s != null)
+    const deltaProbability = probScores.length >= 2
+      ? Math.round((probScores[0] - probScores[probScores.length - 1]) * 10) / 10
+      : null
+
     // 2. Últimas 3 reuniones del mismo tipo
     const { data: recentMeetings } = await supabase
       .from('meetings')
@@ -108,6 +142,9 @@ serve(async (req) => {
       engine_state: engineContext ?? null,
       meeting_history: meetingHistory,
       active_agent_signals: agentSignals ?? [],
+      // AUD.M.5 — datos estructurados explícitos para el brief
+      delta_probability: deltaProbability,   // cambio de prob. en los últimos días (null si sin datos)
+      pending_decisions: (pendingDecisions ?? []).map(d => d.content?.['title'] ?? d.content),
     })
 
     const anthropic = new Anthropic({
@@ -139,7 +176,13 @@ serve(async (req) => {
       }
     }
 
-    return new Response(JSON.stringify({ ok: true, brief }), { status: 200, headers: jsonHeaders })
+    // AUD.M.5 — añadir campos estructurados junto al brief generado por LLM
+    return new Response(JSON.stringify({
+      ok: true,
+      brief,
+      delta_probability: deltaProbability,
+      pending_decisions_count: (pendingDecisions ?? []).length,
+    }), { status: 200, headers: jsonHeaders })
   } catch (err) {
     console.error('get-meeting-brief error:', err)
     return new Response(

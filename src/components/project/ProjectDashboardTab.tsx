@@ -17,6 +17,7 @@ import { FeatureTeasersPanel } from './FeatureTeasersPanel';
 import { FunctionDelegationHint } from './FunctionDelegationHint';
 import { PHASE_LABELS } from '@/lib/engine';
 import { NextActionFocusBlock } from './NextActionFocusBlock';
+import { DataCompletenessCard } from './DataCompletenessCard';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
 
@@ -203,17 +204,25 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         </div>
       </div>
 
+          {/* U6.V2.3 — Data completeness warning antes de scores del motor */}
+          <DataCompletenessCard
+            engineData={engineData}
+            onNavigateToTab={onNavigateToTab}
+          />
+
           {/* Probability breakdown — U6.4 */}
           <ProbabilityBreakdown
             probability={engineData?.probability ?? null}
             probabilityHistory={engineData?.probabilityHistory ?? []}
             onCTA={onNavigateToTab ? () => onNavigateToTab('financiero') : undefined}
+            onNavigateToTab={onNavigateToTab}
           />
 
           {/* Risk breakdown — U6.5 */}
           <RiskBreakdown
             risk={engineData?.risk ?? null}
             riskHistory={engineData?.riskHistory ?? []}
+            onNavigateToTab={onNavigateToTab}
           />
 
           {/* Weekly Review: movido a WeeklySurface (V11.3 — Rule 2: 1 surface = 1 time context) */}

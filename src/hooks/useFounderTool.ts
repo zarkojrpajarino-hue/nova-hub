@@ -49,7 +49,9 @@ export interface FounderToolState<T = Record<string, unknown>> {
   isStale: boolean;
   canRegenerate: boolean;
   nextRegenerationAt: Date | null;
-  generate: () => Promise<void>;
+  /** AUD.B.9: notas anteriores del founder guardadas en caché — para pre-rellenar el campo */
+  previousNotes: string | null;
+  generate: (founderNotes?: string) => Promise<void>;
 }
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -91,8 +93,13 @@ export function useFounderTool<T = Record<string, unknown>>(
       ? new Date(new Date(cached.generated_at).getTime() + 24 * 3_600_000)
       : null;
 
-  // Función de generación
-  const generate = async () => {
+  // AUD.B.9 — notas anteriores guardadas en caché (para pre-rellenar en UI de regeneración)
+  const previousNotes = cached
+    ? ((cached as Record<string, unknown>).founder_notes as string | null ?? null)
+    : null;
+
+  // Función de generación — AUD.B.9: acepta notas opcionales del founder
+  const generate = async (founderNotes?: string) => {
     if (!projectId) return;
     if (!canRegenerate) {
       const time = nextRegenerationAt?.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' });
@@ -103,7 +110,11 @@ export function useFounderTool<T = Record<string, unknown>>(
     setIsGenerating(true);
     try {
       const response = await supabase.functions.invoke(EDGE_FN[toolType], {
-        body: { project_id: projectId },
+        body: {
+          project_id: projectId,
+          // AUD.B.9: pasar notas del founder al LLM para contexto de regeneración
+          ...(founderNotes ? { founder_notes: founderNotes } : {}),
+        },
       });
       if (response.error) throw response.error;
 
@@ -127,6 +138,7 @@ export function useFounderTool<T = Record<string, unknown>>(
     isStale,
     canRegenerate,
     nextRegenerationAt,
+    previousNotes,     // AUD.B.9
     generate,
   };
 }

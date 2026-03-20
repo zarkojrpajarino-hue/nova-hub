@@ -219,7 +219,61 @@ usa para contextualizar el estado de avance del proyecto dentro de su fase.
 
 ---
 
-## Cómo usa Optimus estos benchmarks
+## Parte 3 — Process Benchmarks F17/18/19 (→ referencia Optimus, no DB)
+
+Benchmarks de proceso introducidos en FASE 17 (Focus Block), FASE 18 (Task Loop) y FASE 19 (Meeting Intelligence).
+No tienen columna en `benchmarks`. Optimus los usa para calibrar señales de ejecución y reuniones.
+
+---
+
+### task_completion_rate
+
+**Definición:** proporción de tareas completadas en las últimas 2 semanas sobre tareas creadas en el mismo período.
+`task_completion_rate = tasks_completed_14d / tasks_created_14d`
+
+| Level | Rango | Lectura en Optimus |
+|---|---|---|
+| Low | < 40% | Bloqueo de ejecución probable. Señal para `traction_block` o `bottleneck_severity`. |
+| Expected | 40–70% | Ritmo de ejecución normal. No activa señal por sí solo. |
+| Strong | > 70% | Ejecución sólida. Contribuye positivamente a `execution_rate_input`. |
+
+**Notas:**
+- Solo tiene sentido si `tasks_created_14d >= 3` (proyectos sin tareas no aplica).
+- En Phase 1 (exploración), umbral de Low se relaja: < 25% activa señal.
+- Usado por `buildNextAction()` para diferenciar entre "ejecución baja" vs "sin tareas suficientes".
+
+---
+
+### meeting_to_action_conversion
+
+**Definición:** proporción de reuniones registradas en meeting_insights que produjeron al menos 1 decisión aprobada.
+`meeting_to_action_conversion = meetings_with_decision / meetings_total_30d`
+
+| Level | Rango | Lectura en Optimus |
+|---|---|---|
+| Low | < 20% | Las reuniones no producen acción. Señal de `clarity_block` o falta de proceso de toma de decisiones. |
+| Expected | 20–50% | Conversión normal. No activa señal por sí solo. |
+| Strong | > 50% | Alta densidad de decisiones. Contribuye a `recent_decisions_count` alto. |
+
+**Notas:**
+- Solo aplica si `meetings_total_30d >= 3` (proyectos sin reuniones registradas: campo null, no Low).
+- En Phase 1: no aplica (reuniones son exploración, no decisiones operativas).
+- En Phase 3–4: Low es señal fuerte de problema de gobernanza → Optimus menciona proceso de decisión.
+
+---
+
+### Conexión con el Input Schema de Optimus
+
+Estos benchmarks no entran directamente en el input JSON. Su efecto es indirecto:
+- `task_completion_rate` → afecta `execution_rate_input` → afecta `probability_score` y `risk_level`
+- `meeting_to_action_conversion` → afecta `recent_decisions_count` → campo directo en input schema
+
+Cuando `recent_decisions_count = 0` y el proyecto lleva > 4 semanas activo, Optimus puede inferir
+baja conversión de reuniones a acción. Esto informa la confianza de las recomendaciones.
+
+---
+
+
 
 **Financial benchmarks (Parte 1):**
 Optimus recibe el contexto del engine (`get_optimus_context()`). El engine ya calcula scores
