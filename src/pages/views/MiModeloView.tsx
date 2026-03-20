@@ -27,7 +27,6 @@ import {
   Users,
   Activity,
   DollarSign,
-  TrendingUp,
   Clock,
   ShoppingCart,
   CheckCircle2,

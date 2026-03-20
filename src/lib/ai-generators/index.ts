@@ -108,7 +108,7 @@ export async function generateAllArtifacts(
   ]);
 
   const endTime = Date.now();
-  const duration = (endTime - startTime) / 1000;
+  const _duration = (endTime - startTime) / 1000;
 
   // Calculate overall confidence
   const avgConfidence = Math.round(

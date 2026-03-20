@@ -83,6 +83,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
       if (error) throw error;
       setUnreadCount(count || 0);
     } catch (_error) {
+      // intentionally empty
     }
   };
 

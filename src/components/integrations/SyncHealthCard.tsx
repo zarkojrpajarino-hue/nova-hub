@@ -83,7 +83,7 @@ function StatusBadge({ status, isPartial }: { status: string; isPartial: boolean
   return <Badge variant="outline" className="text-xs">{status}</Badge>
 }
 
-export function SyncHealthCard({ connectionId, provider }: SyncHealthCardProps) {
+export function SyncHealthCard({ connectionId, provider: _provider }: SyncHealthCardProps) {
   const { data: lastRun, isLoading } = useQuery({
     queryKey: ['sync_runs', connectionId, 'last'],
     enabled: !!connectionId,

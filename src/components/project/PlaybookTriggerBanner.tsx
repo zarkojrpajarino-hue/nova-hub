@@ -157,6 +157,7 @@ export function PlaybookTriggerBanner({
 
   const riskLevel = riskData?.data?.risk?.risk_level ?? null;
 
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   const ctx: TriggerContext = {
     phase,
     riskLevel,

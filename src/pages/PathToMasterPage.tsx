@@ -102,6 +102,7 @@ export function PathToMasterPage() {
         setCurrentRoles(roles);
       }
     } catch (_error) {
+      // intentionally empty
     } finally {
       setLoading(false);
     }

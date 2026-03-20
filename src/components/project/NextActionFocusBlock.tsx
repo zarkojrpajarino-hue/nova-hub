@@ -95,7 +95,7 @@ export function NextActionFocusBlock({
   projectId,
   onNavigateToTab,
 }: NextActionFocusBlockProps) {
-  const navigate = useNavigate()
+  const _navigate = useNavigate()
   const [signalsExpanded, setSignalsExpanded] = useState(false)
 
   const { data: engineData } = useProjectEngineData(projectId)
@@ -133,7 +133,7 @@ export function NextActionFocusBlock({
 
   // AUD.M.4 — Digest Mode: ≥3 agent signals y riesgo no crítico → resumen consolidado
   if (isDigestMode && nextAction.source === 'agents') {
-    const mostSevereInsight = agentInsights[0]
+    const _mostSevereInsight = agentInsights[0]
     return (
       <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center gap-2">

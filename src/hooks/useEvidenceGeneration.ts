@@ -344,6 +344,7 @@ export function useEvidenceGeneration({
         generated_content: result.content,
       });
     } catch (_error) {
+      // intentionally empty
     }
   }
 

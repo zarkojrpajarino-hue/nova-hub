@@ -48,7 +48,7 @@ export function OptimusFeedback({
   onSubmit,
 }: OptimusFeedbackProps) {
   const [vote, setVote] = useState<'up' | 'down' | null>(null);
-  const [category, setCategory] = useState<string | null>(null);
+  const [_category, setCategory] = useState<string | null>(null);
   const [showCategories, setShowCategories] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [loading, setLoading] = useState(false);

@@ -111,6 +111,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
 
       setCompetitions(comp || []);
     } catch (_error) {
+      // intentionally empty
     }
   };
 
@@ -129,6 +130,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
 
       setRoleInsights(data || []);
     } catch (_error) {
+      // intentionally empty
     }
   };
 

@@ -121,8 +121,7 @@ export function useFounderTool<T = Record<string, unknown>>(
       await queryClient.invalidateQueries({ queryKey: ['founder-tool', projectId, toolType] });
       await queryClient.invalidateQueries({ queryKey: ['toolkit-unlocks', projectId] });
       toast.success(`${TOOL_LABEL[toolType]} generado`);
-    } catch (err) {
-      console.error(`${toolType} generation error:`, err);
+    } catch (_err) {
       toast.error(`Error generando ${TOOL_LABEL[toolType]}`);
     } finally {
       setIsGenerating(false);

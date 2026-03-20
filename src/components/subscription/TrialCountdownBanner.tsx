@@ -20,7 +20,7 @@ interface TrialCountdownBannerProps {
 }
 
 export function TrialCountdownBanner({ projectId, className }: TrialCountdownBannerProps) {
-  const { isTrial, daysLeft, isExpiringSoon } = useTrialStatus(projectId);
+  const { isTrial, daysLeft, isExpiringSoon: _isExpiringSoon } = useTrialStatus(projectId);
   const availablePlans = useAvailablePlans();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [isDismissed, setIsDismissed] = useState(false);
@@ -34,7 +34,7 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
     setShowUpgradeModal(true);
   };
 
-  const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
+  const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
     setShowUpgradeModal(false);
   };

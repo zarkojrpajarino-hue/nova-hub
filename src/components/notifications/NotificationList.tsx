@@ -139,6 +139,7 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
 
       onNotificationRead?.();
     } catch (_error) {
+      // intentionally empty
     }
   };
 

@@ -82,7 +82,7 @@ export function SelfEvaluationModal({
         await supabase.functions.invoke('calculate-fit-score', {
           body: { exploration_period_id: exploration.id },
         });
-      } catch (err) {
+      } catch (_err) {
         // No bloqueamos el submit si falla el cálculo
       }
 

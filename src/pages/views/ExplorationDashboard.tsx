@@ -148,6 +148,7 @@ export function ExplorationDashboard() {
 
       setPendingFeedback(pending);
     } catch (_error) {
+      // intentionally empty
     }
   };
 
@@ -175,6 +176,7 @@ export function ExplorationDashboard() {
 
       setPhaseProgress(progress);
     } catch (_error) {
+      // intentionally empty
     }
   };
 
@@ -199,6 +201,7 @@ export function ExplorationDashboard() {
         setCurrentRoles(roles);
       }
     } catch (_error) {
+      // intentionally empty
     }
   };
 

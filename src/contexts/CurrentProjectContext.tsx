@@ -86,7 +86,6 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
       if (error) {
         // 403 = sesión expirada o token sin role authenticated
         // Degradar a [] en lugar de propagar el error
-        console.warn('[CurrentProjectContext] projects query failed:', error.code, error.message);
         return [];
       }
 

@@ -82,7 +82,7 @@ export function MeetingInsightsCard({ projectId }: MeetingInsightsCardProps) {
         {insights.map((insight) => {
           const payload = insight.payload as InsightPayload
           const { content } = payload
-          const cfg = SEVERITY_CONFIG[content.severity] ?? SEVERITY_CONFIG.info
+          const _cfg = SEVERITY_CONFIG[content.severity] ?? SEVERITY_CONFIG.info
 
           // T17.V2.3 — MeetingInsight ya tipado con EvidenceType
           const evidenceType = insight.evidence_type ?? undefined

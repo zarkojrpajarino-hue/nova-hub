@@ -7,7 +7,6 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
 import { getNextAction } from '@/lib/next-action';
-import type { NextAction } from '@/lib/next-action';
 import { CostOfIgnoring } from './CostOfIgnoring';
 import { MeetingInsightsCard } from '@/components/integrations/MeetingInsightsCard';
 import { UnlockModeCard } from './UnlockModeCard';

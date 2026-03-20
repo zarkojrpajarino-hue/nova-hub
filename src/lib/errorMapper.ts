@@ -155,6 +155,6 @@ export function mapAuthError(error: unknown): string {
  * @param context - Description of where the error occurred
  * @param error - The error object
  */
-export function logError(context: string, error: unknown): void {
+export function logError(_context: string, _error: unknown): void {
   // In production, you might want to send this to an error tracking service
 }

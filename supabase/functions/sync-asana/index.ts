@@ -237,7 +237,7 @@ Deno.serve(async (req) => {
     let entitiesRejected = 0
 
     for (const raw of rawTasks) {
-      // deno-lint-ignore no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       const entity = normalizeAsanaTask(raw as any, ctx)
 
       if (!entity) {

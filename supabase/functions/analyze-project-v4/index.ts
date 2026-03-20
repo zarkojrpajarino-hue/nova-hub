@@ -466,7 +466,7 @@ function buildDataSources(
   level: number,
   l1: Record<string, unknown>,
   l2: Record<string, unknown>,
-  l3: Record<string, unknown>,
+  _l3: Record<string, unknown>,
 ): Array<{ name: string; type: string; updated_at: string | null }> {
   const sources: Array<{ name: string; type: string; updated_at: string | null }> = [
     { name: 'Datos de onboarding', type: 'declared', updated_at: null },

@@ -129,8 +129,7 @@ export function SelectOnboardingTypePage() {
         navigate(`/onboarding/${newProject.id}`);
       }
 
-    } catch (err) {
-      console.error('[SelectOnboardingTypePage] Error creating project:', err);
+    } catch (_err) {
       toast.error('Error al crear el proyecto');
       setIsCreating(false);
       setSelectedType(null);

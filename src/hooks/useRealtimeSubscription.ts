@@ -146,7 +146,9 @@ export function useRealtimeSubscription({
     // Suscribirse al canal
     channel.subscribe((status) => {
       if (status === 'SUBSCRIBED') {
+        // intentionally empty
       } else if (status === 'CHANNEL_ERROR') {
+        // intentionally empty
       }
     });
 

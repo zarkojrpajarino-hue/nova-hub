@@ -13,7 +13,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, CheckCircle2, XCircle, FileText, Target, Briefcase, AlertTriangle, BarChart3, ArrowLeft, Sparkles } from 'lucide-react';
@@ -362,7 +362,7 @@ export default function MeetingReviewPage() {
       .update({ review_status: 'approved' })
       .in('id', ids)
       .then(({ error }) => {
-        if (error) console.warn('Auto-approve Level 1 persist failed:', error.message);
+        if (error) { /* Auto-approve Level 1 persist failed — non-critical */ }
       });
   }, [localInsights.length, meeting?.ai_confidence_score]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -415,7 +415,7 @@ export default function MeetingReviewPage() {
       // M18.A — Meeting Agent: genera integration_insights desde insights aprobados (fire-and-forget)
       if (currentProject) {
         void runMeetingAgent(currentProject.id, meetingId)
-          .catch(e => console.warn('Meeting Agent failed (non-fatal):', e));
+          .catch(_e => { /* Meeting Agent failed — non-fatal */ });
       }
     } catch {
       toast.error('Error al aplicar insights');

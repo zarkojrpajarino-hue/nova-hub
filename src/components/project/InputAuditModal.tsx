@@ -12,7 +12,6 @@
  */
 
 import { Info, X } from 'lucide-react';
-import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 

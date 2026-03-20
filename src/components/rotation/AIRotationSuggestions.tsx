@@ -89,16 +89,17 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
                   risks,
                 });
               }
-            } catch (e) {
+            } catch (_e) {
+              // intentionally empty
             }
           }
         }
       }
-      
+
       // Sort by score descending and take top 5
       newSuggestions.sort((a, b) => b.score - a.score);
       setSuggestions(newSuggestions.slice(0, 5));
-    } catch (e) {
+    } catch (_e) {
       setError('Error al generar sugerencias');
     } finally {
       setLoading(false);

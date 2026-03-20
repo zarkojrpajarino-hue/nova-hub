@@ -139,8 +139,7 @@ export function EmergencyOnboardingPage() {
         navigate(`/proyecto/${projectId}`);
       }, 1500);
 
-    } catch (err) {
-      console.error('[EmergencyOnboarding] Error:', err);
+    } catch (_err) {
       toast.error('Error al configurar el proyecto');
       setSaving(false);
     }

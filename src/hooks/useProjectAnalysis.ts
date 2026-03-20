@@ -10,7 +10,7 @@
  */
 
 import { useState } from 'react';
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
@@ -251,8 +251,7 @@ export function useProjectAnalysis(
       // Invalidar caché local para releer
       await queryClient.invalidateQueries({ queryKey: ['analysis-cache', projectId, unlockedLevel] });
       toast.success(`Análisis nivel ${unlockedLevel} generado`);
-    } catch (err) {
-      console.error('generateAnalysis error:', err);
+    } catch (_err) {
       toast.error('Error generando el análisis');
     } finally {
       setIsGenerating(false);

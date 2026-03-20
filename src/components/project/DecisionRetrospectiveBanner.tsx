@@ -100,7 +100,7 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
 
   if (!projectId || isSnoozed() || pending.length === 0) return null;
 
-  const first = pending[0];
+  const _first = pending[0];
 
   const handleSnooze = () => {
     localStorage.setItem(SNOOZED_KEY(projectId), String(Date.now() + 7 * 86_400_000));

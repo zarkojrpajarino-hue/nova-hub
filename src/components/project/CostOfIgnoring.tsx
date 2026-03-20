@@ -17,6 +17,7 @@ interface CostInfo {
 // Nota: viability_status=critical como fuente adicional de Rescue Mode no está disponible
 // sin threading de viabilityData — mejora futura.
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function deriveCostOfIgnoring(
   engineData: ProjectEngineData | null | undefined,
   nextAction: NextAction,

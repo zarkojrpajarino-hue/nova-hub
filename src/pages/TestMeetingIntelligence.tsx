@@ -92,10 +92,11 @@ export default function TestMeetingIntelligence() {
       setCurrentMeeting(meeting);
       toast.success('¡Reunión creada! Ahora puedes grabar o subir el audio');
     } catch (_error) {
+      // intentionally empty
     }
   };
 
-  const handleRecordingComplete = (audioUrl: string) => {
+  const handleRecordingComplete = (_audioUrl: string) => {
     // Transición a revisión de insights
     if (currentMeeting) {
       setReviewingMeeting(currentMeeting);

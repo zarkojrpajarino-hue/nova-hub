@@ -74,7 +74,7 @@ export async function logEvidenceGeneration(metrics: EvidenceGenerationMetrics):
 
     // Retornar generation_id para vincular eventos UI
     return data?.id || null;
-  } catch (err) {
+  } catch (_err) {
     return null;
   }
 }
@@ -90,8 +90,10 @@ export async function logUserEvent(event: UserEvent) {
       .insert(event);
 
     if (error) {
+      // intentionally empty
     }
-  } catch (err) {
+  } catch (_err) {
+    // intentionally empty
   }
 }
 

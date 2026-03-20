@@ -88,7 +88,7 @@ export function FinanceInsightsCard({ projectId }: FinanceInsightsCardProps) {
         {insights.map((insight) => {
           const payload = insight.payload as InsightPayload
           const { content } = payload
-          const cfg = SEVERITY_CONFIG[content.severity] ?? SEVERITY_CONFIG.info
+          const _cfg = SEVERITY_CONFIG[content.severity] ?? SEVERITY_CONFIG.info
 
           const evidenceType = (insight as unknown as { evidence_type?: string }).evidence_type as EvidenceType | undefined
           const sourcesUsed = ((insight as unknown as { sources_used?: unknown }).sources_used ?? []) as SourceUsed[]

@@ -13,6 +13,7 @@ export type PhaseHorizon = 'soon' | 'stable' | 'gradual' | 'correction' | 'count
 
 const RISK_ORDER: Record<string, number> = { low: 0, medium: 1, high: 2, critical: 3 };
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function derivePhaseHorizon(
   phaseState:   ProjectEngineData['phaseState'],
   phaseHistory: ProjectEngineData['phaseHistory'],

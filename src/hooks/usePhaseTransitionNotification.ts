@@ -64,7 +64,6 @@ export function usePhaseTransitionNotification(projectId: string | undefined) {
     prevPhaseRef.current = currentPhase;
     prevScoreRef.current = currentScore;
   // Primitive dependencies — effect only runs when actual values change
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentPhase, currentScore]);
 
   const closePhaseModal = () =>

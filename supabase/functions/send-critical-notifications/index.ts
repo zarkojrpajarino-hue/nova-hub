@@ -29,7 +29,6 @@ import { Resend } from 'https://esm.sh/resend@2.0.0';
 // ── Tipos críticos que abren el canal email ───────────────────────────────────
 
 const CRITICAL_EMAIL_TYPES = ['phase_regressed', 'viability_critical', 'cash_flow_alert'] as const;
-type CriticalEmailType = typeof CRITICAL_EMAIL_TYPES[number];
 
 // ── Templates de email ────────────────────────────────────────────────────────
 

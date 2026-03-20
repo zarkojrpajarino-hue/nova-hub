@@ -4,6 +4,7 @@ import type { ProjectEngineData, ViabilityStateData } from '@/hooks/useNovaDataO
 
 export type ProjectMode = 'build' | 'rescue';
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function deriveProjectMode(
   risk: ProjectEngineData['risk'],
   viability: ViabilityStateData | null | undefined,

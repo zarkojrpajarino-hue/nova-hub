@@ -208,9 +208,8 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
             // Invalidar para que FinanceInsightsCard recargue
             void queryClient.invalidateQueries({ queryKey: ['finance_insights', projectId] })
           }
-        }).catch((err) => {
+        }).catch((_err) => {
           // El Finance Agent falla silenciosamente — no interrumpe el flujo de sync
-          console.warn('Finance Agent error (non-blocking):', err)
         })
       }
     } catch (err) {

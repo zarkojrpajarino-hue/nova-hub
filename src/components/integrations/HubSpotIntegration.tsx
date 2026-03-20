@@ -212,9 +212,8 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
           if (result.insights_emitted > 0) {
             void queryClient.invalidateQueries({ queryKey: ['sales_insights', projectId] })
           }
-        }).catch((err) => {
+        }).catch((_err) => {
           // El Sales Agent falla silenciosamente — no interrumpe el flujo de sync
-          console.warn('Sales Agent error (non-blocking):', err)
         })
       }
 

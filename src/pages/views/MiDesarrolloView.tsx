@@ -99,6 +99,7 @@ export function MiDesarrolloView() {
 
       setBadges({ earned: earned || [], all: all || [] });
     } catch (_error) {
+      // intentionally empty
     }
   };
 

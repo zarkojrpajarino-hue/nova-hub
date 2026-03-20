@@ -332,8 +332,8 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
         if (result.insights_emitted > 0) {
           void queryClient.invalidateQueries({ queryKey: ['calendar_insights', projectId] })
         }
-      }).catch((err) => {
-        console.warn('Calendar Agent error (non-blocking):', err)
+      }).catch((_err) => {
+        // Calendar Agent error — non-blocking
       })
 
       const msg = data.is_partial

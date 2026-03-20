@@ -17,6 +17,7 @@ interface UnlockInfo {
   ctaActionType?: 'create_obv' | 'add_metrics' | 'define_channel';
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function deriveUnlockMode(
   engineData: ProjectEngineData | null | undefined,
   nextAction: NextAction,

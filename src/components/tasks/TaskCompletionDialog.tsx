@@ -110,7 +110,7 @@ export function TaskCompletionDialog({
       if (data?.questions) {
         setAiQuestions(data.questions);
       }
-    } catch (err) {
+    } catch (_err) {
       // Use fallback questions if AI fails
       setAiQuestions([]);
     } finally {
@@ -181,7 +181,7 @@ export function TaskCompletionDialog({
         setAnswers({});
         onOpenChange(false);
       }
-    } catch (err) {
+    } catch (_err) {
       toast.error('Error al completar la tarea');
     } finally {
       setIsSubmitting(false);

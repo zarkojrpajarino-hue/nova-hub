@@ -344,7 +344,7 @@ export function LiveMeetingRecorder({
         setRecordingState('analyzing');
         toast.info('Analizando reunión con Claude...');
         await analyzeMeeting.mutateAsync({ meetingId });
-      } catch (transcriptionError) {
+      } catch (_transcriptionError) {
         // El toast de error lo muestran los hooks
       }
 

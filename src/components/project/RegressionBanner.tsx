@@ -14,6 +14,7 @@ export interface RegressionInfo {
 
 // ── Derivation (exported — also used by PhaseProgressBar for Level 1 signal) ──
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function deriveRegression(
   history: ProjectEngineData['phaseHistory'],
 ): RegressionInfo | null {

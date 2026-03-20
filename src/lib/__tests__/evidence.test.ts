@@ -9,7 +9,7 @@
  * 5. computeEvidenceScore usuario deshabilita Stripe → score=0
  */
 
-import { describe, it, expect, beforeEach, vi } from 'vitest'
+import { describe, it, expect } from 'vitest'
 import {
   computeRecencyFactor,
   computeEvidenceScore,

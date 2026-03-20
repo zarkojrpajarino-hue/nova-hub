@@ -91,7 +91,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       async (event, newSession) => {
         if (!isMounted) return;
 
-        console.log('[Auth] event:', event, 'hasUser:', !!newSession?.user, 'hadSession:', hadSession.current, 'loadingResolved:', loadingResolved);
 
         if (newSession?.user) {
           // Sesión válida: TOKEN_REFRESHED, SIGNED_IN, o INITIAL_SESSION con sesión
@@ -118,7 +117,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 hadSession.current = true;
               } else {
                 // Sesión genuinamente muerta
-                console.log('[Auth] SIGNED_OUT confirmed by getSession() — clearing session');
                 setSession(null);
                 setUser(null);
                 setProfile(null);
@@ -139,8 +137,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     // getSession() espera initializePromise (incluye token refresh) antes de retornar.
     // Es el mecanismo correcto para estado inicial — sin timers, sin race conditions.
     // .catch() cubre AbortError u otros fallos del lock — sin él, loading nunca se resuelve.
-    supabase.auth.getSession().then(({ data: { session: initialSession }, error }) => {
-      console.log('[Auth] getSession resolved — hasSession:', !!initialSession?.user, 'error:', error?.message, 'loadingResolved:', loadingResolved);
+    supabase.auth.getSession().then(({ data: { session: initialSession }, error: _error }) => {
       if (!isMounted || loadingResolved) return;
       if (initialSession?.user) {
         hadSession.current = true;
@@ -153,8 +150,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setProfile(null);
       }
       resolveLoading();
-    }).catch((err) => {
-      console.warn('[Auth] getSession threw (AbortError or lock failure):', err?.message);
+    }).catch((_err) => {
       if (isMounted && !loadingResolved) {
         setSession(null);
         setUser(null);
@@ -198,6 +194,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useAuth() {
   return useContext(AuthContext);
 }

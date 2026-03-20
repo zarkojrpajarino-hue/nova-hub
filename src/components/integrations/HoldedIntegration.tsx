@@ -20,10 +20,10 @@ import { ApiKeyGuide } from './ApiKeyGuide';
 
 export function HoldedIntegration() {
   const [apiKey, setApiKey] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
-  const [isSyncing, setIsSyncing] = useState(false);
+  const [isLoading, _setIsLoading] = useState(false);
+  const [isSyncing, _setIsSyncing] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
-  const [lastSync, setLastSync] = useState<string | null>(null);
+  const [lastSync, _setLastSync] = useState<string | null>(null);
 
   const handleConnect = async () => {
     // I15.0.4 — AISLADO: tabla financial_integrations no existe.

@@ -6,7 +6,6 @@
  * PostHog: trackAnalysisUnlockLevel, trackAnalysisGenerated (en hook).
  */
 
-import { useParams } from 'react-router-dom';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { useProjectAnalysis } from '@/hooks/useProjectAnalysis';
 import { useQuery } from '@tanstack/react-query';

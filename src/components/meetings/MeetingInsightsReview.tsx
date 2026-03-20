@@ -269,7 +269,7 @@ export function MeetingInsightsReview({
       // M18.A — Meeting Agent: fire-and-forget (si hay projectId disponible)
       if (projectId) {
         void runMeetingAgent(projectId, meetingId)
-          .catch(e => console.warn('Meeting Agent failed (non-fatal):', e));
+          .catch(_e => { /* Meeting Agent failed — non-fatal */ });
       }
       onApplyInsights(result?.results ?? { tasks: 0, decisions: 0, leads: 0, obv_updates: 0, blockers: 0, metrics: 0 });
     } catch (_error) {

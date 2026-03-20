@@ -198,7 +198,7 @@ describe('classifyInsightImpact', () => {
   // Caso 6 — Degradación: decision estratégica pero speaker especulativo + baja confianza →
   //          combined_reliability < 0.5 → auto_degraded=true, impact_level='medium'
   it('decision con speaker especulativo y baja confianza → degrada a medium', () => {
-    const insight = makeInsight('decision', {
+    const _insight = makeInsight('decision', {
       stakeholders: ['user-1'],
       clarity_score: 0.6,
       speaker_certainty: 'speculative',  // weight = 0.3

@@ -212,9 +212,8 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
           if (result.insights_emitted > 0) {
             void queryClient.invalidateQueries({ queryKey: ['execution_insights', projectId] })
           }
-        }).catch((err) => {
+        }).catch((_err) => {
           // El Execution Agent falla silenciosamente — no interrumpe el flujo de sync
-          console.warn('Execution Agent error (non-blocking):', err)
         })
       }
 

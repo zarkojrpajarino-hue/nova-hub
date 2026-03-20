@@ -109,6 +109,7 @@ export default function ProjectPage() {
     if (projectId && profile?.id) {
       updateLastSeen({ projectId, userId: profile.id });
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [surfaceLoading, rawIsReentry, projectId, profile?.id, updateLastSeen]);
 
   const isReentry = capturedReentry.current ?? false;

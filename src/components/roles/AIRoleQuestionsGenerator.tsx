@@ -106,7 +106,7 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
       if ((data?.questions || []).length === 0) {
         setError('No se pudieron generar preguntas. Inténtalo de nuevo.');
       }
-    } catch (err) {
+    } catch (_err) {
       setError('Error al conectar con el servicio de IA. Inténtalo de nuevo.');
     } finally {
       setIsGenerating(false);

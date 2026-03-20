@@ -90,6 +90,7 @@ export default function MeetingIntelligencePage() {
       setCurrentMeeting(meeting);
       toast.success('¡Reunión creada! Ahora puedes grabar o subir el audio');
     } catch (_error) {
+      // intentionally empty
     }
   };
 
