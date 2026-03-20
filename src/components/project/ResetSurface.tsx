@@ -28,6 +28,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useSubmitRitual, useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { getNextAction } from '@/lib/next-action';
 import { trackRitualCompleted } from '@/lib/analytics';
+import { useAuth } from '@/hooks/useAuth';
+import { OptimusFeedback } from '@/components/project/OptimusFeedback';
 
 // =============================================================================
 // Types
@@ -343,10 +345,14 @@ function RitualOutput({
   cycleEval,
   optimus,
   onComplete,
+  projectId,
+  userId,
 }: {
   cycleEval: 'progress' | 'stagnation' | 'regression';
   optimus: OptimusOutput | null;
   onComplete: () => void;
+  projectId: string;
+  userId: string;
 }) {
   const evalCfg = cycleEvalConfig(cycleEval);
   const EvalIcon = evalCfg.icon;
@@ -435,6 +441,18 @@ function RitualOutput({
         </div>
       )}
 
+      {/* P8.V2.3 — Feedback sobre el output de Optimus */}
+      {optimus && (
+        <div className="border-t border-border pt-4">
+          <OptimusFeedback
+            projectId={projectId}
+            userId={userId}
+            primaryAction={optimus.recommended_action}
+            confidence={optimus.confidence}
+          />
+        </div>
+      )}
+
       {/* Exit button — solo aparece tras output completo */}
       <div className="pt-2 flex justify-end">
         <Button onClick={onComplete} className="gap-2">
@@ -459,6 +477,7 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
   // EC13.1d — doble submit desde otra pestaña: el ciclo ya está cerrado, el usuario puede continuar.
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
+  const { profile } = useAuth();
   const { mutateAsync: submitRitual, isPending } = useSubmitRitual();
   // nextAction alimenta recommended_action en Optimus §8.
   // Capturable aquí porque ResetSurface solo se muestra cuando surface='reset',
@@ -523,6 +542,8 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
         cycleEval={cycleEval}
         optimus={optimusOutput}
         onComplete={onComplete}
+        projectId={projectId}
+        userId={profile?.id ?? ''}
       />
     );
   }

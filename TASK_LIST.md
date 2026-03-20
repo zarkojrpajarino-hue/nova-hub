@@ -3918,8 +3918,8 @@ ORDER  BY critical_count DESC, total DESC;
   > ✅ Hook `useAnalysisUrgentDecisions` lee `ai_analysis_cache`. Si urgency < high y hay urgent_decisions → banner debajo del panel de señales.
 - [x] **T17.V2.3** Meeting insights usan `EvidenceType` del sistema de evidencia (F17)
   > ✅ Interfaz `MeetingInsight` tipada en meetingAgentService.ts con `evidence_type: EvidenceType | null`, `sources_used`, `sources_discarded`. Eliminado `as unknown as` hack en MeetingInsightsCard.tsx.
-- [!] **AUD.B.2** Block detection unificado — reentry.ts lee `primary_block` de SQL en lugar de derivarlo
-  > DIFERIDO — `primary_block` no existe como columna en `project_phase_state`. Requiere migración SQL para computed/stored column. Mover a Bloque IV.
+- [x] **AUD.B.2** Block detection unificado — reentry.ts lee `primary_block` de SQL en lugar de derivarlo
+  > ✅ Resuelto vía DEUDA.PE.8 (2026-03-26). `derivePrimaryBlock()` en reentry.ts:87-110 lee `engineData.phaseState?.primary_block` como fast-path; fallback client-side solo para proyectos sin migración.
 - [x] **AUD.M.12** `buildNextAction()` ajusta urgency según `operationalComplexity` del proyecto
   > ✅ Si `operationalComplexity === 'high'` y baseUrgency === 'low' → se eleva a 'medium'. build-next-action.ts.
 - [x] **AUD.B.10** `PhaseHorizonHint` detecta contratendencia — "Fase 3 cercana pero riesgo subiendo"
@@ -4147,12 +4147,8 @@ ORDER  BY critical_count DESC, total DESC;
   > por `currentProject?.id` (del context). Almacena en estado local `currentPhase` y pasa a NotificationList.
   > Fix real: CurrentProjectContext hace `select('*')` en `projects` sin join → phase_state no disponible ahí.
 
-- [!] **DEUDA.PE.15** `AUD.B.1` + `P8.V2.3` — Zod schema y OptimusFeedback sin conectar a UI
-  > DIFERIDO — awaits implementación Optimus UI en FASE 11.
-  > `src/lib/optimus.ts` (parseOptimus) y `OptimusFeedback.tsx` existen pero no están montados en ningún componente.
-  > Esperan la implementación de Optimus UI (FASE 11 pendiente).
-  > **Fix:** al implementar la UI de Optimus en FASE 11, importar `parseOptimus()` antes de renderizar y
-  > añadir `<OptimusFeedback />` al pie del card de respuesta.
+- [x] **DEUDA.PE.15** `AUD.B.1` + `P8.V2.3` — Zod schema y OptimusFeedback sin conectar a UI
+  > ✅ Parcialmente resuelto 2026-03-20. `<OptimusFeedback />` conectado en `ResetSurface.tsx:RitualOutput` (única superficie donde Optimus muestra output hoy: `ritual-optimus`). `parseOptimus()` de `optimus.ts` queda diferido hasta que exista la superficie principal del engine (ProjectEnginePanel + edge function Optimus advisor) — el schema de `optimus.ts` (`primary`/`alternative`) no aplica al ritual (schema diferente).
 
 - [x] **DEUDA.PE.16** `P8.V2.2` — `recent_decisions_from_meetings` no expuesto en §1 de OPTIMUS_PROMPTS.md
   > ✅ Resuelto Bloque DEUDA 2026-03-20. OPTIMUS_PROMPTS.md §1: añadido `recent_decisions_from_meetings`
@@ -4188,12 +4184,12 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-*Bloque DEUDA completado 2026-03-20 · 15/22 items [x] · 7 diferidos [!] (PE.6, PE.11, PE.12, PE.13, PE.15, PE.18 — infraestructura/contenido pendiente) · PE.22 no-bug confirmado · 3 migraciones SQL (00020–00022) · 2 archivos modificados (NotificationBell.tsx, OPTIMUS_PROMPTS.md §1)*
+*Bloque DEUDA completado 2026-03-20 · 16/22 items [x] · 6 diferidos [!] (PE.6, PE.11, PE.12, PE.13, PE.18 — infraestructura/contenido pendiente) · PE.15 resuelto parcialmente 2026-03-20 (OptimusFeedback conectado a ResetSurface; parseOptimus diferido hasta Optimus advisor surface) · PE.22 no-bug confirmado · 3 migraciones SQL (00020–00022) · 2 archivos modificados (NotificationBell.tsx, OPTIMUS_PROMPTS.md §1)*
 
 *Plan generado 2026-03-20 · integra V2 existentes (49 items) + Auditoría V3 (33 items) · 82 items totales*
 *Bloque I completado 2026-03-26 · 4 false positives descartados · 2 migraciones SQL creadas (AUD.A.1, AUD.A.2)*
 *Bloque II completado 2026-03-26 · 6 items cerrados (E4.V2.1-2, N7.V2.1, EC13.V2.1, SR10.V2.1, AUD.A.6) · DEUDA.PE.5 fix inline*
-*Bloque III completado 2026-03-26 · 7/9 items cerrados · 2 diferidos (AUD.B.2 → Bloque IV, O5.V2.1 → Bloque V)*
+*Bloque III completado 2026-03-26 · 8/9 items cerrados · AUD.B.2 resuelto vía DEUDA.PE.8 (2026-03-20) · 1 diferido (O5.V2.1 → Bloque V)*
 *Bloque IV completado 2026-03-26 · 3/4 items cerrados · D2.V2.1 diferido (sin usuarios Asana) · DEUDA.PE.3 + PE.8 resueltas · 4 migraciones SQL (00006–00009)*
 *Bloque V completado 2026-03-26 · 8/11 items cerrados · 3 diferidos (AUD.A.5, AUD.M.9, N7.V2.4) · DEUDA.PE.11-14 registradas · 3 componentes nuevos (DataCompletenessCard, InputAuditModal, useActiveSurface.ts)*
 *Bloque VI completado 2026-03-26 · 9/9 items cerrados · DEUDA.PE.15-18 registradas · 4 migraciones SQL (00010–00013) · 2 archivos nuevos (src/lib/optimus.ts, OptimusFeedback.tsx)*
