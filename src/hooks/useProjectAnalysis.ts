@@ -193,7 +193,6 @@ export function useProjectAnalysis(
       needs_decisions: decisions < 5 ? 5 - decisions : undefined,
     };
   } else if (daysActive >= 14) {
-    unlockedLevel = 1;
     nextLevelRequirements = {
       days_needed: daysActive < 30 ? 30 - daysActive : undefined,
       needs_integration: activeConnections === 0,
