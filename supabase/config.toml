@@ -1,1 +1,238 @@
 project_id = "zzxngvqwmnouchbulvlo"
+
+# I15.FIX.7 — verify_jwt = false para todas las edge functions.
+# Este proyecto usa ES256 (ECDSA asimétrico). El gateway de Supabase verifica
+# con HS256 por defecto → incompatible. Cada función valida el JWT internamente
+# con validateAuth() propio. Sin esta configuración, cada `supabase functions deploy`
+# resetea verify_jwt a true y rompe la auth silenciosamente.
+
+[functions.ai-business-advisor]
+verify_jwt = false
+
+[functions.ai-career-coach]
+verify_jwt = false
+
+[functions.ai-lead-finder]
+verify_jwt = false
+
+[functions.ai-task-executor]
+verify_jwt = false
+
+[functions.ai-task-router]
+verify_jwt = false
+
+[functions.analyze-competitor-urls]
+verify_jwt = false
+
+[functions.analyze-competitors]
+verify_jwt = false
+
+[functions.analyze-meeting]
+verify_jwt = false
+
+[functions.analyze-project-v4]
+verify_jwt = false
+
+[functions.apply-meeting-insights]
+verify_jwt = false
+
+[functions.approve-generation-preview]
+verify_jwt = false
+
+[functions.auto-sync-finances]
+verify_jwt = false
+
+[functions.calculate-fit-score]
+verify_jwt = false
+
+[functions.calculate-lead-score]
+verify_jwt = false
+
+[functions.cofounder-alignment-analyzer]
+verify_jwt = false
+
+[functions.competitive-swot-generator]
+verify_jwt = false
+
+[functions.competitor-intelligence-cron]
+verify_jwt = false
+
+[functions.connect-asana]
+verify_jwt = false
+
+[functions.connect-google-calendar]
+verify_jwt = false
+
+[functions.connect-hubspot]
+verify_jwt = false
+
+[functions.connect-stripe]
+verify_jwt = false
+
+[functions.deploy-to-vercel]
+verify_jwt = false
+
+[functions.enrich-project-intelligence]
+verify_jwt = false
+
+[functions.evaluate-meeting-alignment]
+verify_jwt = false
+
+[functions.export-excel]
+verify_jwt = false
+
+[functions.extract-business-info]
+verify_jwt = false
+
+[functions.generate-actionable-insights]
+verify_jwt = false
+
+[functions.generate-brand-kit-v2]
+verify_jwt = false
+
+[functions.generate-business-ideas]
+verify_jwt = false
+
+[functions.generate-business-options]
+verify_jwt = false
+
+[functions.generate-buyer-persona-v2]
+verify_jwt = false
+
+[functions.generate-comms-guide-v2]
+verify_jwt = false
+
+[functions.generate-complete-business]
+verify_jwt = false
+
+[functions.generate-content-calendar]
+verify_jwt = false
+
+[functions.generate-customer-journey-v2]
+verify_jwt = false
+
+[functions.generate-email-pitch]
+verify_jwt = false
+
+[functions.generate-financial-projections]
+verify_jwt = false
+
+[functions.generate-launch-checklist]
+verify_jwt = false
+
+[functions.generate-lead-scoring-v2]
+verify_jwt = false
+
+[functions.generate-learning-path]
+verify_jwt = false
+
+[functions.generate-learning-roadmap]
+verify_jwt = false
+
+[functions.generate-local-context]
+verify_jwt = false
+
+[functions.generate-pitch-deck]
+verify_jwt = false
+
+[functions.generate-playbook]
+verify_jwt = false
+
+[functions.generate-predictions]
+verify_jwt = false
+
+[functions.generate-project-roles]
+verify_jwt = false
+
+[functions.generate-role-questions]
+verify_jwt = false
+
+[functions.generate-role-questions-v2]
+verify_jwt = false
+
+[functions.generate-sales-playbook-v2]
+verify_jwt = false
+
+[functions.generate-task-completion-questions]
+verify_jwt = false
+
+[functions.generate-tasks-v2]
+verify_jwt = false
+
+[functions.generate-testimonial]
+verify_jwt = false
+
+[functions.generate-weekly-insights]
+verify_jwt = false
+
+[functions.generate-weekly-reviews]
+verify_jwt = false
+
+[functions.geo-intelligence]
+verify_jwt = false
+
+[functions.get-meeting-brief]
+verify_jwt = false
+
+[functions.google-analytics-sync]
+verify_jwt = false
+
+[functions.growth-playbook-generator]
+verify_jwt = false
+
+[functions.learning-path-generator]
+verify_jwt = false
+
+[functions.market-research]
+verify_jwt = false
+
+[functions.prepare-one-on-one]
+verify_jwt = false
+
+[functions.ritual-optimus]
+verify_jwt = false
+
+[functions.scrape-and-extract]
+verify_jwt = false
+
+[functions.seed-projects]
+verify_jwt = false
+
+[functions.seed-users]
+verify_jwt = false
+
+[functions.send-critical-notifications]
+verify_jwt = false
+
+[functions.send-email-real]
+verify_jwt = false
+
+[functions.send-slack-notification]
+verify_jwt = false
+
+[functions.suggest-buyer-persona]
+verify_jwt = false
+
+[functions.suggest-optimal-schedule]
+verify_jwt = false
+
+[functions.sync-asana]
+verify_jwt = false
+
+[functions.sync-google-calendar]
+verify_jwt = false
+
+[functions.sync-hubspot]
+verify_jwt = false
+
+[functions.sync-stripe]
+verify_jwt = false
+
+[functions.transcribe-meeting]
+verify_jwt = false
+
+[functions.validate-monetization]
+verify_jwt = false
+
+[functions.write-content-piece]
+verify_jwt = false

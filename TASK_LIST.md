@@ -32,7 +32,7 @@
 > | FASE 21 — Founder Toolkit | ✅ CERRADA 8/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
 > | FASE 22 — Expansion Intelligence | ⏸ POST-F21 0/9 + 2 v2 pendientes | Prerequisito: Fase 3+ · MRR estable 2 meses · riesgo no crítico · 1 integración activa |
 >
-> **Deudas técnicas abiertas:** I15.DEBT.2 (MRR diverge si upsert falla) · I15.DEBT.3 (GCal cancelados) · I15.FIX.7 (verify_jwt revierte en redeploys)
+> **Deudas técnicas abiertas:** I15.DEBT.2 (MRR diverge si upsert falla) · I15.DEBT.3 (GCal cancelados) · I15.DEBT.4 (invalidateQueries silencioso) · ~~I15.FIX.7~~ (resuelto 2026-03-20 via config.toml)
 > **Diferidos conscientes F15 v2:** I15.91 (Holded) · I15.95 (Trello) · I15.96 (Slack) · I15.81 (Team Agent) · Bloques I–M
 
 ---
@@ -715,13 +715,15 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **I15.FIX.5** RPC `upsert_integration_credential` fallaba con HTTP 500
   > **CAUSA:** `pgcrypto` instalado en schema `extensions` (estándar Supabase), no en `public`. La función PL/pgSQL no encontraba `pgp_sym_encrypt` en el search_path por defecto (`public`). **FIX:** `CREATE OR REPLACE FUNCTION ... SET search_path = public, extensions`. Verificado con roundtrip encrypt→decode→decrypt. Aplicado via Management API.
 
-- [ ] **I15.FIX.7** `verify_jwt` revierte a `true` en cada redeploy de edge functions
-  > **CAUSA:** Supabase no persiste la configuración `verify_jwt: false` en el repositorio — es metadata del proyecto en la plataforma. Cada deploy (`supabase functions deploy`) resetea el valor al default (`true`). Este proyecto usa ES256, incompatible con la verificación HS256 del gateway, así que cualquier redeploy rompe la auth silenciosamente hasta que se re-aplique el PATCH.
-  > **FIX pendiente:** dos opciones — (A) añadir script `scripts/post-deploy.sh` que ejecute los dos `curl PATCH` automáticamente y documentarlo en README como paso obligatorio post-deploy; (B) configurar `supabase/config.toml` con `[functions.sync-stripe] verify_jwt = false` si la versión de CLI lo soporta. Verificar opción B primero (sin deuda de script). Funciones afectadas: `sync-stripe`, `connect-stripe`.
+- [x] **I15.FIX.7** `verify_jwt` revierte a `true` en cada redeploy de edge functions
+  > ✅ Resuelto 2026-03-20. `supabase/config.toml` extendido con `[functions.nombre] verify_jwt = false`
+  > para las 78 edge functions. CLI v2.x respeta esta config en cada deploy — ya no revierte.
+  > Opción B elegida (config permanente). AUD.A.6 cerrado en paralelo.
 
-- [ ] **I15.FIX.7** `verify_jwt` revierte a `true` en cada redeploy de edge functions
-  > **CAUSA:** Supabase no persiste la configuración `verify_jwt: false` en el repositorio — es metadata del proyecto en la plataforma. Cada deploy (`supabase functions deploy`) resetea el valor al default (`true`). Este proyecto usa ES256, incompatible con la verificación HS256 del gateway, así que cualquier redeploy rompe la auth silenciosamente hasta que se re-aplique el PATCH.
-  > **FIX pendiente:** dos opciones — (A) añadir script `scripts/post-deploy.sh` que ejecute los dos `curl PATCH` automáticamente y documentarlo en README como paso obligatorio post-deploy; (B) configurar `supabase/config.toml` con `[functions.sync-stripe] verify_jwt = false` si la versión de CLI lo soporta. Verificar opción B primero (sin deuda de script). Funciones afectadas: `sync-stripe`, `connect-stripe`.
+- [x] **I15.FIX.7** `verify_jwt` revierte a `true` en cada redeploy de edge functions
+  > ✅ Resuelto 2026-03-20. `supabase/config.toml` extendido con `[functions.nombre] verify_jwt = false`
+  > para las 78 edge functions. CLI v2.x respeta esta config en cada deploy — ya no revierte.
+  > Opción B elegida (config permanente). AUD.A.6 cerrado en paralelo.
 
 - [x] **I15.FIX.6** RPC `decrypt_integration_credential` fallaba con "convert_from(text, unknown) does not exist"
   > **CAUSA:** (1) mismo problema de `search_path` que FIX.5. (2) `pgp_sym_decrypt` ya devuelve `text` directamente — el `convert_from(result, 'UTF8')` era incorrecto porque `convert_from` espera `bytea` como primer argumento, pero recibía el `text` que devuelve `pgp_sym_decrypt`. **FIX:** `SET search_path = public, extensions` + eliminar `convert_from` wrapper. La función devuelve `pgp_sym_decrypt(decode(credential_enc, 'escape'), p_app_secret)` directamente. Verificado en producción: sync completado con `ok:true`.
@@ -3645,12 +3647,11 @@ ORDER  BY critical_count DESC, total DESC;
   > "Ver qué datos necesito" → tooltips con inputs faltantes. Auto-dismiss cuando `phaseState !== null`.
   > Esfuerzo: medio-alto.
 
-- [ ] **AUD.A.6** `verify_jwt` revert en cada deploy — integraciones rompen silenciosamente post-deploy
-  > I15.FIX.7 diferido: cada `supabase functions deploy` resetea `verify_jwt: false` a `true`.
-  > Las funciones Stripe/HubSpot fallan silenciosamente. Requiere PATCH manual vía Management API post-deploy.
-  > **Fix opción A:** Verificar si `supabase/config.toml` soporta `[functions.sync-stripe] verify_jwt = false`.
-  > **Fix opción B:** Script `scripts/post-deploy.sh` que ejecute PATCH vía Management API para cada función.
-  > Esfuerzo: bajo. Bloquea confiabilidad en producción.
+- [x] **AUD.A.6** `verify_jwt` revert en cada deploy — integraciones rompen silenciosamente post-deploy
+  > ✅ Resuelto 2026-03-20. `supabase/config.toml` extendido con `[functions.nombre] verify_jwt = false`
+  > para las 78 edge functions. CLI v2.x respeta esta config en cada `supabase functions deploy` —
+  > el valor ya no revierte. Opción A elegida (config permanente vs. script manual).
+  > I15.FIX.7 cerrado en paralelo.
 
 ---
 
