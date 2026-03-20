@@ -14,8 +14,7 @@
  */
 
 import { useState } from 'react'
-import { Settings2, CheckCircle2, AlertTriangle, RotateCcw } from 'lucide-react'
-import { Button } from '@/components/ui/button'
+import { Settings2, AlertTriangle, RotateCcw } from 'lucide-react'
 import { Switch } from '@/components/ui/switch'
 import { Slider } from '@/components/ui/slider'
 import { Badge } from '@/components/ui/badge'

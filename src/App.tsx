@@ -64,7 +64,6 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   }
 
   if (!isAuthenticated) {
-    console.log('[ProtectedRoute] REDIRECT → loading was false, no session');
     return <Navigate to="/auth" replace />;
   }
 

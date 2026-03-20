@@ -7,7 +7,6 @@
 
 import { TrendingUp, TrendingDown, Minus, DollarSign, Users, AlertTriangle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis';
 

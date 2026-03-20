@@ -16,7 +16,7 @@ import { PreAnalysisDataReview, buildDataRows } from './PreAnalysisDataReview';
 import { ExecutiveSummarySection, PhaseFitSection, UrgentDecisionsSection, ContradictionsSection } from './sections/Level1Sections';
 import { FinancialPulseSection, PipelineTractionSection } from './sections/Level2Sections';
 import { CrossSignalsSection, HardTruthsSection } from './sections/Level3Sections';
-import type { ProjectAnalysisState, CachedAnalysis } from '@/hooks/useProjectAnalysis';
+import type { ProjectAnalysisState } from '@/hooks/useProjectAnalysis';
 import { formatDistanceToNow } from 'date-fns';
 import { es } from 'date-fns/locale';
 
@@ -34,7 +34,7 @@ interface AIAnalysisDashboardProps {
 }
 
 export function AIAnalysisDashboard({
-  projectId,
+  projectId: _projectId,
   projectName,
   analysisState,
   currentPhase,

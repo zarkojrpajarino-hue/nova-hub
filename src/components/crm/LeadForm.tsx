@@ -12,7 +12,6 @@ import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import type { LeadStatus } from '@/types';
-import { PIPELINE_STAGES } from './pipeline-stages';
 
 interface LeadFormProps {
   projectId?: string;

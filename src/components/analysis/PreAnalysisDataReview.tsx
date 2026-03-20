@@ -11,7 +11,6 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import { ExternalLink, RefreshCw, Loader2 } from 'lucide-react';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 import { useNavigate, useParams } from 'react-router-dom';
@@ -154,7 +153,7 @@ export function PreAnalysisDataReview({
 }
 
 // ── Helper para construir filas desde datos del proyecto ──────────────────────
-
+// eslint-disable-next-line react-refresh/only-export-components
 export function buildDataRows(
   level: number,
   projectData?: {

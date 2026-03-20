@@ -74,6 +74,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
         }
       }
     } catch (_error) {
+      // load errors are non-critical — ignore silently
     }
   };
 
