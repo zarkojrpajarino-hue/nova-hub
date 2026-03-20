@@ -215,7 +215,7 @@ export function useProjectAnalysis(
         is_stale: isStale,
         data_sources: cachedRow.data_sources ?? [],
         tokens_used: cachedRow.tokens_used,
-        additional_context: (cachedRow as Record<string, unknown>).additional_context as string | null ?? null, // F20.V2.4
+        additional_context: cachedRow.additional_context ?? null,
       }
     : null;
 

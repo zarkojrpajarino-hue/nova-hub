@@ -129,6 +129,84 @@ export type Database = {
           },
         ]
       }
+      ai_analysis_cache: {
+        Row: {
+          additional_context: string | null
+          analysis_level: number
+          data_sources: Json
+          expires_at: string
+          generated_at: string
+          id: string
+          last_data_updated_at: string
+          model: string
+          output: Json
+          project_id: string
+          tokens_used: number | null
+        }
+        Insert: {
+          additional_context?: string | null
+          analysis_level: number
+          data_sources?: Json
+          expires_at: string
+          generated_at?: string
+          id?: string
+          last_data_updated_at: string
+          model?: string
+          output: Json
+          project_id: string
+          tokens_used?: number | null
+        }
+        Update: {
+          additional_context?: string | null
+          analysis_level?: number
+          data_sources?: Json
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          last_data_updated_at?: string
+          model?: string
+          output?: Json
+          project_id?: string
+          tokens_used?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "ai_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "ai_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "ai_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       ai_generation_logs: {
         Row: {
           claims_made: Json | null
@@ -1007,6 +1085,57 @@ export type Database = {
           },
         ]
       }
+      country_data: {
+        Row: {
+          business_culture: Json
+          continent: string
+          cost_of_living_index: number
+          country_code: string
+          country_name: string
+          created_at: string
+          ecommerce_penetration: number
+          gdp_per_capita_usd: number
+          internet_penetration: number
+          languages: string[]
+          last_updated: string
+          median_age: number
+          regulatory_ease_score: number
+          startup_density_rank: number
+        }
+        Insert: {
+          business_culture?: Json
+          continent: string
+          cost_of_living_index: number
+          country_code: string
+          country_name: string
+          created_at?: string
+          ecommerce_penetration: number
+          gdp_per_capita_usd: number
+          internet_penetration: number
+          languages?: string[]
+          last_updated?: string
+          median_age: number
+          regulatory_ease_score: number
+          startup_density_rank: number
+        }
+        Update: {
+          business_culture?: Json
+          continent?: string
+          cost_of_living_index?: number
+          country_code?: string
+          country_name?: string
+          created_at?: string
+          ecommerce_penetration?: number
+          gdp_per_capita_usd?: number
+          internet_penetration?: number
+          languages?: string[]
+          last_updated?: string
+          median_age?: number
+          regulatory_ease_score?: number
+          startup_density_rank?: number
+        }
+        Relationships: []
+      }
       decision_events: {
         Row: {
           decided_at: string
@@ -1088,6 +1217,88 @@ export type Database = {
           },
         ]
       }
+      decision_retrospectives: {
+        Row: {
+          created_at: string
+          decision_event_id: string | null
+          decision_made_at: string
+          decision_summary: string
+          filled_at: string | null
+          id: string
+          outcome_text: string | null
+          project_id: string
+          retrospective_due_at: string
+          was_correct: boolean | null
+        }
+        Insert: {
+          created_at?: string
+          decision_event_id?: string | null
+          decision_made_at?: string
+          decision_summary: string
+          filled_at?: string | null
+          id?: string
+          outcome_text?: string | null
+          project_id: string
+          retrospective_due_at: string
+          was_correct?: boolean | null
+        }
+        Update: {
+          created_at?: string
+          decision_event_id?: string | null
+          decision_made_at?: string
+          decision_summary?: string
+          filled_at?: string | null
+          id?: string
+          outcome_text?: string | null
+          project_id?: string
+          retrospective_due_at?: string
+          was_correct?: boolean | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decision_retrospectives_decision_event_id_fkey"
+            columns: ["decision_event_id"]
+            isOneToOne: false
+            referencedRelation: "decision_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_retrospectives_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_retrospectives_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_retrospectives_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "decision_retrospectives_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decision_retrospectives_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       engine_versions: {
         Row: {
           deployed_at: string
@@ -1123,6 +1334,7 @@ export type Database = {
           gross_profit: number | null
           id: string
           infrastructure: number | null
+          integration_source: string | null
           marketing_spend: number | null
           month: number
           mrr: number | null
@@ -1133,6 +1345,8 @@ export type Database = {
           project_id: string
           revenue: number | null
           runway_months: number | null
+          source_confidence: number | null
+          source_timestamp: string | null
           updated_at: string
           year: number
         }
@@ -1146,6 +1360,7 @@ export type Database = {
           gross_profit?: number | null
           id?: string
           infrastructure?: number | null
+          integration_source?: string | null
           marketing_spend?: number | null
           month: number
           mrr?: number | null
@@ -1156,6 +1371,8 @@ export type Database = {
           project_id: string
           revenue?: number | null
           runway_months?: number | null
+          source_confidence?: number | null
+          source_timestamp?: string | null
           updated_at?: string
           year: number
         }
@@ -1169,6 +1386,7 @@ export type Database = {
           gross_profit?: number | null
           id?: string
           infrastructure?: number | null
+          integration_source?: string | null
           marketing_spend?: number | null
           month?: number
           mrr?: number | null
@@ -1179,6 +1397,8 @@ export type Database = {
           project_id?: string
           revenue?: number | null
           runway_months?: number | null
+          source_confidence?: number | null
+          source_timestamp?: string | null
           updated_at?: string
           year?: number
         }
@@ -1216,6 +1436,154 @@ export type Database = {
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_tool_cache: {
+        Row: {
+          data_sources: Json
+          expires_at: string
+          generated_at: string
+          id: string
+          model: string
+          output: Json
+          project_id: string
+          tokens_used: number | null
+          tool_type: Database["public"]["Enums"]["founder_tool_type"]
+        }
+        Insert: {
+          data_sources?: Json
+          expires_at: string
+          generated_at?: string
+          id?: string
+          model?: string
+          output: Json
+          project_id: string
+          tokens_used?: number | null
+          tool_type: Database["public"]["Enums"]["founder_tool_type"]
+        }
+        Update: {
+          data_sources?: Json
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          model?: string
+          output?: Json
+          project_id?: string
+          tokens_used?: number | null
+          tool_type?: Database["public"]["Enums"]["founder_tool_type"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_tool_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "founder_tool_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      founder_tool_tasks: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          ignored_at: string | null
+          project_id: string
+          task_id: string
+          tool_cache_id: string | null
+          tool_type: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          ignored_at?: string | null
+          project_id: string
+          task_id: string
+          tool_cache_id?: string | null
+          tool_type: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          ignored_at?: string | null
+          project_id?: string
+          task_id?: string
+          tool_cache_id?: string | null
+          tool_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_task_id_fkey"
+            columns: ["task_id"]
+            isOneToOne: false
+            referencedRelation: "tasks"
             referencedColumns: ["id"]
           },
         ]
@@ -1406,6 +1774,609 @@ export type Database = {
           },
         ]
       }
+      integration_connections: {
+        Row: {
+          connected_at: string | null
+          connected_by: string
+          created_at: string
+          disconnected_at: string | null
+          error_message: string | null
+          id: string
+          last_sync_at: string | null
+          metadata: Json
+          project_id: string
+          provider: string
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          connected_at?: string | null
+          connected_by: string
+          created_at?: string
+          disconnected_at?: string | null
+          error_message?: string | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json
+          project_id: string
+          provider: string
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          connected_at?: string | null
+          connected_by?: string
+          created_at?: string
+          disconnected_at?: string | null
+          error_message?: string | null
+          id?: string
+          last_sync_at?: string | null
+          metadata?: Json
+          project_id?: string
+          provider?: string
+          status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_connections_connected_by_fkey"
+            columns: ["connected_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_connections_connected_by_fkey"
+            columns: ["connected_by"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "integration_connections_connected_by_fkey"
+            columns: ["connected_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_connections_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_credentials: {
+        Row: {
+          connection_id: string
+          created_at: string
+          credential_enc: string
+          credential_key: string
+          expires_at: string | null
+          id: string
+          project_id: string
+          provider: string
+          updated_at: string
+        }
+        Insert: {
+          connection_id: string
+          created_at?: string
+          credential_enc: string
+          credential_key: string
+          expires_at?: string | null
+          id?: string
+          project_id: string
+          provider: string
+          updated_at?: string
+        }
+        Update: {
+          connection_id?: string
+          created_at?: string
+          credential_enc?: string
+          credential_key?: string
+          expires_at?: string | null
+          id?: string
+          project_id?: string
+          provider?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_credentials_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_credentials_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_entities: {
+        Row: {
+          confidence: number
+          connection_id: string
+          contract_version: string
+          entity_type: string
+          external_id: string
+          id: string
+          last_seen_at: string | null
+          occurred_at: string
+          payload: Json
+          project_id: string
+          provider: string
+          source_timestamp: string
+          status: string
+          sync_run_id: string
+          synced_at: string
+        }
+        Insert: {
+          confidence: number
+          connection_id: string
+          contract_version?: string
+          entity_type: string
+          external_id: string
+          id?: string
+          last_seen_at?: string | null
+          occurred_at: string
+          payload: Json
+          project_id: string
+          provider: string
+          source_timestamp: string
+          status?: string
+          sync_run_id: string
+          synced_at?: string
+        }
+        Update: {
+          confidence?: number
+          connection_id?: string
+          contract_version?: string
+          entity_type?: string
+          external_id?: string
+          id?: string
+          last_seen_at?: string | null
+          occurred_at?: string
+          payload?: Json
+          project_id?: string
+          provider?: string
+          source_timestamp?: string
+          status?: string
+          sync_run_id?: string
+          synced_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_entities_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_entities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_entities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_entities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_entities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_entities_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_entities_sync_run_id_fkey"
+            columns: ["sync_run_id"]
+            isOneToOne: false
+            referencedRelation: "integration_sync_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_insights: {
+        Row: {
+          agent_type: string
+          confidence: number
+          created_at: string
+          entity_ids: string[]
+          evidence_type: string | null
+          expires_at: string | null
+          generated_at: string
+          id: string
+          include_in_context: boolean
+          insight_type: string
+          low_evidence_quality: boolean
+          payload: Json
+          project_id: string
+          source_timestamp: string
+          sources_discarded: Json
+          sources_used: Json
+          status: string
+          sync_run_id: string
+        }
+        Insert: {
+          agent_type: string
+          confidence: number
+          created_at?: string
+          entity_ids?: string[]
+          evidence_type?: string | null
+          expires_at?: string | null
+          generated_at?: string
+          id?: string
+          include_in_context?: boolean
+          insight_type: string
+          low_evidence_quality?: boolean
+          payload: Json
+          project_id: string
+          source_timestamp: string
+          sources_discarded?: Json
+          sources_used?: Json
+          status?: string
+          sync_run_id: string
+        }
+        Update: {
+          agent_type?: string
+          confidence?: number
+          created_at?: string
+          entity_ids?: string[]
+          evidence_type?: string | null
+          expires_at?: string | null
+          generated_at?: string
+          id?: string
+          include_in_context?: boolean
+          insight_type?: string
+          low_evidence_quality?: boolean
+          payload?: Json
+          project_id?: string
+          source_timestamp?: string
+          sources_discarded?: Json
+          sources_used?: Json
+          status?: string
+          sync_run_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_insights_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_insights_sync_run_id_fkey"
+            columns: ["sync_run_id"]
+            isOneToOne: false
+            referencedRelation: "integration_sync_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_sync_runs: {
+        Row: {
+          adapter_version: string
+          completed_at: string | null
+          connection_id: string
+          created_at: string
+          entities_processed: number
+          entities_rejected: number
+          entities_skipped: number
+          entities_written: number
+          error_message: string | null
+          id: string
+          is_partial: boolean
+          pagination_cursor: string | null
+          post_engine_snapshot: Json | null
+          pre_engine_snapshot: Json | null
+          project_id: string
+          provider: string
+          retry_count: number
+          started_at: string
+          status: string
+          trigger_type: string
+        }
+        Insert: {
+          adapter_version?: string
+          completed_at?: string | null
+          connection_id: string
+          created_at?: string
+          entities_processed?: number
+          entities_rejected?: number
+          entities_skipped?: number
+          entities_written?: number
+          error_message?: string | null
+          id?: string
+          is_partial?: boolean
+          pagination_cursor?: string | null
+          post_engine_snapshot?: Json | null
+          pre_engine_snapshot?: Json | null
+          project_id: string
+          provider: string
+          retry_count?: number
+          started_at?: string
+          status?: string
+          trigger_type?: string
+        }
+        Update: {
+          adapter_version?: string
+          completed_at?: string | null
+          connection_id?: string
+          created_at?: string
+          entities_processed?: number
+          entities_rejected?: number
+          entities_skipped?: number
+          entities_written?: number
+          error_message?: string | null
+          id?: string
+          is_partial?: boolean
+          pagination_cursor?: string | null
+          post_engine_snapshot?: Json | null
+          pre_engine_snapshot?: Json | null
+          project_id?: string
+          provider?: string
+          retry_count?: number
+          started_at?: string
+          status?: string
+          trigger_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_sync_runs_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_write_log: {
+        Row: {
+          agent_type: string
+          confidence: number
+          created_at: string
+          entity_ids: string[]
+          id: string
+          insight_id: string | null
+          logical_period: string | null
+          operation: string
+          payload_hash: string
+          project_id: string
+          reason: string | null
+          source_timestamp: string
+          status: string
+          sync_run_id: string
+          target: string
+          wrote_at: string | null
+        }
+        Insert: {
+          agent_type: string
+          confidence: number
+          created_at?: string
+          entity_ids?: string[]
+          id?: string
+          insight_id?: string | null
+          logical_period?: string | null
+          operation: string
+          payload_hash: string
+          project_id: string
+          reason?: string | null
+          source_timestamp: string
+          status?: string
+          sync_run_id: string
+          target: string
+          wrote_at?: string | null
+        }
+        Update: {
+          agent_type?: string
+          confidence?: number
+          created_at?: string
+          entity_ids?: string[]
+          id?: string
+          insight_id?: string | null
+          logical_period?: string | null
+          operation?: string
+          payload_hash?: string
+          project_id?: string
+          reason?: string | null
+          source_timestamp?: string
+          status?: string
+          sync_run_id?: string
+          target?: string
+          wrote_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_write_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_write_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_write_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_write_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_write_log_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_write_log_sync_run_id_fkey"
+            columns: ["sync_run_id"]
+            isOneToOne: false
+            referencedRelation: "integration_sync_runs"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       key_metrics: {
         Row: {
           arr: number | null
@@ -1418,6 +2389,7 @@ export type Database = {
           date: string
           dau: number | null
           id: string
+          integration_source: string | null
           ltv: number | null
           ltv_cac_ratio: number | null
           mau: number | null
@@ -1426,6 +2398,8 @@ export type Database = {
           new_customers: number | null
           project_id: string
           runway_months: number | null
+          source_confidence: number | null
+          source_timestamp: string | null
           total_customers: number | null
         }
         Insert: {
@@ -1439,6 +2413,7 @@ export type Database = {
           date: string
           dau?: number | null
           id?: string
+          integration_source?: string | null
           ltv?: number | null
           ltv_cac_ratio?: number | null
           mau?: number | null
@@ -1447,6 +2422,8 @@ export type Database = {
           new_customers?: number | null
           project_id: string
           runway_months?: number | null
+          source_confidence?: number | null
+          source_timestamp?: string | null
           total_customers?: number | null
         }
         Update: {
@@ -1460,6 +2437,7 @@ export type Database = {
           date?: string
           dau?: number | null
           id?: string
+          integration_source?: string | null
           ltv?: number | null
           ltv_cac_ratio?: number | null
           mau?: number | null
@@ -1468,6 +2446,8 @@ export type Database = {
           new_customers?: number | null
           project_id?: string
           runway_months?: number | null
+          source_confidence?: number | null
+          source_timestamp?: string | null
           total_customers?: number | null
         }
         Relationships: [
@@ -2132,6 +3112,322 @@ export type Database = {
           },
         ]
       }
+      meeting_ai_questions: {
+        Row: {
+          asked_at: string
+          created_at: string
+          id: string
+          meeting_id: string
+          question: string | null
+        }
+        Insert: {
+          asked_at?: string
+          created_at?: string
+          id?: string
+          meeting_id: string
+          question?: string | null
+        }
+        Update: {
+          asked_at?: string
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          question?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_ai_questions_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_ai_recommendations: {
+        Row: {
+          created_at: string
+          id: string
+          meeting_id: string
+          recommendation: string | null
+          shown_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          meeting_id: string
+          recommendation?: string | null
+          shown_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          recommendation?: string | null
+          shown_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_ai_recommendations_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_decisions: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          meeting_id: string
+          title: string | null
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          meeting_id: string
+          title?: string | null
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          meeting_id?: string
+          title?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_decisions_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_insights: {
+        Row: {
+          applied: boolean
+          applied_entity_id: string | null
+          content: Json
+          created_at: string
+          id: string
+          insight_type: string
+          meeting_id: string
+          review_status: string
+          updated_at: string
+        }
+        Insert: {
+          applied?: boolean
+          applied_entity_id?: string | null
+          content: Json
+          created_at?: string
+          id?: string
+          insight_type: string
+          meeting_id: string
+          review_status?: string
+          updated_at?: string
+        }
+        Update: {
+          applied?: boolean
+          applied_entity_id?: string | null
+          content?: Json
+          created_at?: string
+          id?: string
+          insight_type?: string
+          meeting_id?: string
+          review_status?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_insights_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meeting_participants: {
+        Row: {
+          attended: boolean
+          can_receive_tasks: boolean
+          created_at: string
+          id: string
+          meeting_id: string
+          member_id: string
+        }
+        Insert: {
+          attended?: boolean
+          can_receive_tasks?: boolean
+          created_at?: string
+          id?: string
+          meeting_id: string
+          member_id: string
+        }
+        Update: {
+          attended?: boolean
+          can_receive_tasks?: boolean
+          created_at?: string
+          id?: string
+          meeting_id?: string
+          member_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meeting_participants_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      meetings: {
+        Row: {
+          ai_confidence_score: number | null
+          alignment_data: Json | null
+          audio_url: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          duration_actual_min: number | null
+          ended_at: string | null
+          estimated_duration_min: number | null
+          id: string
+          insights: Json | null
+          key_points: string[] | null
+          meeting_type: string
+          objectives: string | null
+          participant_count: number | null
+          project_id: string
+          started_at: string | null
+          status: string
+          strategic_context: Json | null
+          summary: string | null
+          title: string
+          transcript: string | null
+          transcript_segments: Json | null
+          transcription_confidence: number | null
+          updated_at: string
+        }
+        Insert: {
+          ai_confidence_score?: number | null
+          alignment_data?: Json | null
+          audio_url?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          duration_actual_min?: number | null
+          ended_at?: string | null
+          estimated_duration_min?: number | null
+          id?: string
+          insights?: Json | null
+          key_points?: string[] | null
+          meeting_type: string
+          objectives?: string | null
+          participant_count?: number | null
+          project_id: string
+          started_at?: string | null
+          status?: string
+          strategic_context?: Json | null
+          summary?: string | null
+          title: string
+          transcript?: string | null
+          transcript_segments?: Json | null
+          transcription_confidence?: number | null
+          updated_at?: string
+        }
+        Update: {
+          ai_confidence_score?: number | null
+          alignment_data?: Json | null
+          audio_url?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          duration_actual_min?: number | null
+          ended_at?: string | null
+          estimated_duration_min?: number | null
+          id?: string
+          insights?: Json | null
+          key_points?: string[] | null
+          meeting_type?: string
+          objectives?: string | null
+          participant_count?: number | null
+          project_id?: string
+          started_at?: string | null
+          status?: string
+          strategic_context?: Json | null
+          summary?: string | null
+          title?: string
+          transcript?: string | null
+          transcript_segments?: Json | null
+          transcription_confidence?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "meetings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "meetings_created_by_fkey"
+            columns: ["created_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "meetings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "meetings_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       member_kpi_base: {
         Row: {
           bps: number | null
@@ -2301,17 +3597,43 @@ export type Database = {
           },
         ]
       }
+      notification_health_snapshots: {
+        Row: {
+          captured_at: string
+          data: Json
+          environment: string
+          id: string
+          panel: string
+        }
+        Insert: {
+          captured_at?: string
+          data: Json
+          environment?: string
+          id?: string
+          panel: string
+        }
+        Update: {
+          captured_at?: string
+          data?: Json
+          environment?: string
+          id?: string
+          panel?: string
+        }
+        Relationships: []
+      }
       notifications: {
         Row: {
           action_label: string | null
           action_url: string | null
           archived: boolean | null
           created_at: string | null
+          emailed_at: string | null
           id: string
           link: string | null
           message: string | null
           metadata: Json | null
           priority: string | null
+          project_id: string | null
           read: boolean | null
           snoozed_until: string | null
           title: string | null
@@ -2323,11 +3645,13 @@ export type Database = {
           action_url?: string | null
           archived?: boolean | null
           created_at?: string | null
+          emailed_at?: string | null
           id?: string
           link?: string | null
           message?: string | null
           metadata?: Json | null
           priority?: string | null
+          project_id?: string | null
           read?: boolean | null
           snoozed_until?: string | null
           title?: string | null
@@ -2339,11 +3663,13 @@ export type Database = {
           action_url?: string | null
           archived?: boolean | null
           created_at?: string | null
+          emailed_at?: string | null
           id?: string
           link?: string | null
           message?: string | null
           metadata?: Json | null
           priority?: string | null
+          project_id?: string | null
           read?: boolean | null
           snoozed_until?: string | null
           title?: string | null
@@ -2351,6 +3677,41 @@ export type Database = {
           user_id?: string
         }
         Relationships: [
+          {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "notifications_user_id_fkey"
             columns: ["user_id"]
@@ -2650,6 +4011,8 @@ export type Database = {
           estado_cobro: string | null
           evidence_type: string | null
           evidence_url: string | null
+          external_id: string | null
+          external_provider: string | null
           facturacion: number | null
           fecha: string | null
           forma_pago: string | null
@@ -2662,7 +4025,7 @@ export type Database = {
           notas: string | null
           numero_factura: string | null
           numero_presupuesto: string | null
-          obv_outcome: string | null
+          obv_outcome: string
           owner_id: string
           pipeline_status: Database["public"]["Enums"]["lead_status"] | null
           precio_unitario: number | null
@@ -2671,6 +4034,7 @@ export type Database = {
           proxima_accion: string | null
           proxima_accion_fecha: string | null
           responsable_id: string | null
+          source: string
           status: Database["public"]["Enums"]["kpi_status"] | null
           telefono_contacto: string | null
           tipo: Database["public"]["Enums"]["obv_type"]
@@ -2703,6 +4067,8 @@ export type Database = {
           estado_cobro?: string | null
           evidence_type?: string | null
           evidence_url?: string | null
+          external_id?: string | null
+          external_provider?: string | null
           facturacion?: number | null
           fecha?: string | null
           forma_pago?: string | null
@@ -2715,7 +4081,7 @@ export type Database = {
           notas?: string | null
           numero_factura?: string | null
           numero_presupuesto?: string | null
-          obv_outcome?: string | null
+          obv_outcome: string
           owner_id: string
           pipeline_status?: Database["public"]["Enums"]["lead_status"] | null
           precio_unitario?: number | null
@@ -2724,6 +4090,7 @@ export type Database = {
           proxima_accion?: string | null
           proxima_accion_fecha?: string | null
           responsable_id?: string | null
+          source?: string
           status?: Database["public"]["Enums"]["kpi_status"] | null
           telefono_contacto?: string | null
           tipo: Database["public"]["Enums"]["obv_type"]
@@ -2758,6 +4125,8 @@ export type Database = {
           estado_cobro?: string | null
           evidence_type?: string | null
           evidence_url?: string | null
+          external_id?: string | null
+          external_provider?: string | null
           facturacion?: number | null
           fecha?: string | null
           forma_pago?: string | null
@@ -2770,7 +4139,7 @@ export type Database = {
           notas?: string | null
           numero_factura?: string | null
           numero_presupuesto?: string | null
-          obv_outcome?: string | null
+          obv_outcome?: string
           owner_id?: string
           pipeline_status?: Database["public"]["Enums"]["lead_status"] | null
           precio_unitario?: number | null
@@ -2779,6 +4148,7 @@ export type Database = {
           proxima_accion?: string | null
           proxima_accion_fecha?: string | null
           responsable_id?: string | null
+          source?: string
           status?: Database["public"]["Enums"]["kpi_status"] | null
           telefono_contacto?: string | null
           tipo?: Database["public"]["Enums"]["obv_type"]
@@ -3057,6 +4427,84 @@ export type Database = {
           },
         ]
       }
+      optimus_feedback_events: {
+        Row: {
+          category: string | null
+          confidence: string | null
+          created_at: string
+          id: string
+          note: string | null
+          optimus_mode: string | null
+          primary_action: string
+          primary_block: string | null
+          project_id: string
+          user_id: string
+          vote: string
+        }
+        Insert: {
+          category?: string | null
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          optimus_mode?: string | null
+          primary_action: string
+          primary_block?: string | null
+          project_id: string
+          user_id: string
+          vote: string
+        }
+        Update: {
+          category?: string | null
+          confidence?: string | null
+          created_at?: string
+          id?: string
+          note?: string | null
+          optimus_mode?: string | null
+          primary_action?: string
+          primary_block?: string | null
+          project_id?: string
+          user_id?: string
+          vote?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "optimus_feedback_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimus_feedback_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimus_feedback_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "optimus_feedback_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimus_feedback_events_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_validations: {
         Row: {
           created_at: string | null
@@ -3288,6 +4736,189 @@ export type Database = {
         }
         Relationships: []
       }
+      project_acquisition_channel: {
+        Row: {
+          channel_type: string
+          created_at: string
+          documented_playbook: boolean
+          estimated_cac: number | null
+          id: string
+          is_primary: boolean
+          last_validated_at: string | null
+          notes: string | null
+          project_id: string
+          updated_at: string
+        }
+        Insert: {
+          channel_type: string
+          created_at?: string
+          documented_playbook?: boolean
+          estimated_cac?: number | null
+          id?: string
+          is_primary?: boolean
+          last_validated_at?: string | null
+          notes?: string | null
+          project_id: string
+          updated_at?: string
+        }
+        Update: {
+          channel_type?: string
+          created_at?: string
+          documented_playbook?: boolean
+          estimated_cac?: number | null
+          id?: string
+          is_primary?: boolean
+          last_validated_at?: string | null
+          notes?: string | null
+          project_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_acquisition_channel_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_acquisition_channel_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_acquisition_channel_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_acquisition_channel_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_acquisition_channel_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_challenges: {
+        Row: {
+          activated_at: string | null
+          activated_by: string | null
+          challenge_type: string
+          completed_at: string | null
+          completed_by: string | null
+          created_at: string
+          description: string | null
+          dismissed_at: string | null
+          dismissed_by: string | null
+          ends_at: string | null
+          id: string
+          outcome: string | null
+          outcome_notes: string | null
+          project_id: string
+          source_engine: string
+          source_function: string | null
+          source_role_candidates: Json | null
+          starts_at: string | null
+          status: string
+          suggested_at: string
+          title: string
+        }
+        Insert: {
+          activated_at?: string | null
+          activated_by?: string | null
+          challenge_type: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          ends_at?: string | null
+          id?: string
+          outcome?: string | null
+          outcome_notes?: string | null
+          project_id: string
+          source_engine: string
+          source_function?: string | null
+          source_role_candidates?: Json | null
+          starts_at?: string | null
+          status?: string
+          suggested_at?: string
+          title: string
+        }
+        Update: {
+          activated_at?: string | null
+          activated_by?: string | null
+          challenge_type?: string
+          completed_at?: string | null
+          completed_by?: string | null
+          created_at?: string
+          description?: string | null
+          dismissed_at?: string | null
+          dismissed_by?: string | null
+          ends_at?: string | null
+          id?: string
+          outcome?: string | null
+          outcome_notes?: string | null
+          project_id?: string
+          source_engine?: string
+          source_function?: string | null
+          source_role_candidates?: Json | null
+          starts_at?: string | null
+          status?: string
+          suggested_at?: string
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_challenges_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_challenges_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_challenges_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_challenges_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_challenges_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_documents: {
         Row: {
           authority_score: number | null
@@ -3398,12 +5029,17 @@ export type Database = {
           engine_version: string
           field_sources: Json
           gross_margin_target: number | null
+          incoherences: Json
+          inputs_sources: Json | null
+          integration_source: string | null
           last_updated_at: string
           model_type: string
           pricing_model: string
           project_id: string
           revenue_type: string
           sales_cycle_days: number | null
+          source_confidence: number | null
+          source_timestamp: string | null
           top_client_revenue_percent: number | null
         }
         Insert: {
@@ -3413,15 +5049,20 @@ export type Database = {
           cash_on_hand_updated_at?: string | null
           confidence_level?: string
           confidence_score?: number
-          engine_version: string
+          engine_version?: string
           field_sources?: Json
           gross_margin_target?: number | null
+          incoherences?: Json
+          inputs_sources?: Json | null
+          integration_source?: string | null
           last_updated_at?: string
           model_type: string
           pricing_model?: string
           project_id: string
           revenue_type?: string
           sales_cycle_days?: number | null
+          source_confidence?: number | null
+          source_timestamp?: string | null
           top_client_revenue_percent?: number | null
         }
         Update: {
@@ -3434,12 +5075,17 @@ export type Database = {
           engine_version?: string
           field_sources?: Json
           gross_margin_target?: number | null
+          incoherences?: Json
+          inputs_sources?: Json | null
+          integration_source?: string | null
           last_updated_at?: string
           model_type?: string
           pricing_model?: string
           project_id?: string
           revenue_type?: string
           sales_cycle_days?: number | null
+          source_confidence?: number | null
+          source_timestamp?: string | null
           top_client_revenue_percent?: number | null
         }
         Relationships: [
@@ -3817,6 +5463,106 @@ export type Database = {
           },
         ]
       }
+      project_org_state: {
+        Row: {
+          bottleneck_function: string | null
+          bottleneck_role: string | null
+          bottleneck_role_candidates: Json | null
+          coverage_cash: string
+          coverage_delivery: string
+          coverage_demand: string
+          critical_role_empty: boolean
+          engine_version: string
+          last_calculated_at: string
+          missing_critical_role: string | null
+          org_health_score: number
+          org_status: string
+          project_id: string
+          roles_filled: number
+          roles_unfilled: number
+          total_members: number
+        }
+        Insert: {
+          bottleneck_function?: string | null
+          bottleneck_role?: string | null
+          bottleneck_role_candidates?: Json | null
+          coverage_cash?: string
+          coverage_delivery?: string
+          coverage_demand?: string
+          critical_role_empty?: boolean
+          engine_version?: string
+          last_calculated_at?: string
+          missing_critical_role?: string | null
+          org_health_score?: number
+          org_status?: string
+          project_id: string
+          roles_filled?: number
+          roles_unfilled?: number
+          total_members?: number
+        }
+        Update: {
+          bottleneck_function?: string | null
+          bottleneck_role?: string | null
+          bottleneck_role_candidates?: Json | null
+          coverage_cash?: string
+          coverage_delivery?: string
+          coverage_demand?: string
+          critical_role_empty?: boolean
+          engine_version?: string
+          last_calculated_at?: string
+          missing_critical_role?: string | null
+          org_health_score?: number
+          org_status?: string
+          project_id?: string
+          roles_filled?: number
+          roles_unfilled?: number
+          total_members?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_org_state_engine_version_fkey"
+            columns: ["engine_version"]
+            isOneToOne: false
+            referencedRelation: "engine_versions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_org_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_org_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_org_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_org_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_org_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_phase_history: {
         Row: {
           calculated_at: string
@@ -3901,36 +5647,45 @@ export type Database = {
       }
       project_phase_state: {
         Row: {
+          consecutive_low_score: number
           current_phase: number
           engine_version: string
           hard_signal_met: boolean
+          inputs_sources: Json | null
           last_calculated_at: string
           phase_entered_at: string
           phase_last_changed_at: string
           phase_score: number
           phase_status: string
+          primary_block: string
           project_id: string
         }
         Insert: {
+          consecutive_low_score?: number
           current_phase: number
           engine_version: string
           hard_signal_met?: boolean
+          inputs_sources?: Json | null
           last_calculated_at?: string
           phase_entered_at?: string
           phase_last_changed_at?: string
           phase_score: number
           phase_status: string
+          primary_block?: string
           project_id: string
         }
         Update: {
+          consecutive_low_score?: number
           current_phase?: number
           engine_version?: string
           hard_signal_met?: boolean
+          inputs_sources?: Json | null
           last_calculated_at?: string
           phase_entered_at?: string
           phase_last_changed_at?: string
           phase_score?: number
           phase_status?: string
+          primary_block?: string
           project_id?: string
         }
         Relationships: [
@@ -3984,6 +5739,7 @@ export type Database = {
           data_completeness_score: number
           engine_version: string
           execution_rate_input: number | null
+          inputs_sources: Json | null
           last_calculated_at: string
           phase_score_input: number | null
           probability_score: number | null
@@ -3997,6 +5753,7 @@ export type Database = {
           data_completeness_score?: number
           engine_version: string
           execution_rate_input?: number | null
+          inputs_sources?: Json | null
           last_calculated_at?: string
           phase_score_input?: number | null
           probability_score?: number | null
@@ -4010,6 +5767,7 @@ export type Database = {
           data_completeness_score?: number
           engine_version?: string
           execution_rate_input?: number | null
+          inputs_sources?: Json | null
           last_calculated_at?: string
           phase_score_input?: number | null
           probability_score?: number | null
@@ -4233,7 +5991,9 @@ export type Database = {
           engine_version: string
           execution_drop_input: number | null
           inputs_available: number
+          inputs_sources: Json | null
           last_calculated_at: string
+          org_capacity_input: number | null
           project_id: string
           revenue_concentration_input: number | null
           risk_level: string
@@ -4248,7 +6008,9 @@ export type Database = {
           engine_version: string
           execution_drop_input?: number | null
           inputs_available?: number
+          inputs_sources?: Json | null
           last_calculated_at?: string
+          org_capacity_input?: number | null
           project_id: string
           revenue_concentration_input?: number | null
           risk_level?: string
@@ -4263,7 +6025,9 @@ export type Database = {
           engine_version?: string
           execution_drop_input?: number | null
           inputs_available?: number
+          inputs_sources?: Json | null
           last_calculated_at?: string
+          org_capacity_input?: number | null
           project_id?: string
           revenue_concentration_input?: number | null
           risk_level?: string
@@ -4326,6 +6090,7 @@ export type Database = {
           execution_drop_input: number | null
           id: string
           inputs_available: number
+          org_capacity_input: number | null
           project_id: string
           revenue_concentration_input: number | null
           risk_level: string
@@ -4343,6 +6108,7 @@ export type Database = {
           execution_drop_input?: number | null
           id?: string
           inputs_available?: number
+          org_capacity_input?: number | null
           project_id: string
           revenue_concentration_input?: number | null
           risk_level: string
@@ -4360,6 +6126,7 @@ export type Database = {
           execution_drop_input?: number | null
           id?: string
           inputs_available?: number
+          org_capacity_input?: number | null
           project_id?: string
           revenue_concentration_input?: number | null
           risk_level?: string
@@ -4407,6 +6174,72 @@ export type Database = {
           },
           {
             foreignKeyName: "project_risk_score_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      project_source_preferences: {
+        Row: {
+          enabled: boolean
+          excluded_fields: string[]
+          id: string
+          project_id: string
+          source: string
+          updated_at: string
+          weight_override: number | null
+        }
+        Insert: {
+          enabled?: boolean
+          excluded_fields?: string[]
+          id?: string
+          project_id: string
+          source: string
+          updated_at?: string
+          weight_override?: number | null
+        }
+        Update: {
+          enabled?: boolean
+          excluded_fields?: string[]
+          id?: string
+          project_id?: string
+          source?: string
+          updated_at?: string
+          weight_override?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_source_preferences_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_source_preferences_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_source_preferences_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_source_preferences_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_source_preferences_project_id_fkey"
             columns: ["project_id"]
             isOneToOne: false
             referencedRelation: "projects"
@@ -4480,10 +6313,65 @@ export type Database = {
           },
         ]
       }
+      project_user_state: {
+        Row: {
+          last_seen_at: string | null
+          project_id: string
+          user_id: string
+        }
+        Insert: {
+          last_seen_at?: string | null
+          project_id: string
+          user_id: string
+        }
+        Update: {
+          last_seen_at?: string | null
+          project_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_user_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_user_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_user_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_user_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_user_state_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_viability_state: {
         Row: {
           active_trigger_count: number
           engine_version: string
+          inputs_sources: Json | null
           last_evaluated_at: string
           project_id: string
           t2_cash_flow_active: boolean
@@ -4495,6 +6383,7 @@ export type Database = {
         Insert: {
           active_trigger_count?: number
           engine_version: string
+          inputs_sources?: Json | null
           last_evaluated_at?: string
           project_id: string
           t2_cash_flow_active?: boolean
@@ -4506,6 +6395,7 @@ export type Database = {
         Update: {
           active_trigger_count?: number
           engine_version?: string
+          inputs_sources?: Json | null
           last_evaluated_at?: string
           project_id?: string
           t2_cash_flow_active?: boolean
@@ -5070,24 +6960,33 @@ export type Database = {
       slack_webhooks: {
         Row: {
           created_at: string | null
+          created_by: string | null
+          enabled: boolean | null
           id: string
-          is_active: boolean | null
+          last_used_at: string | null
+          notification_types: string[] | null
           project_id: string | null
           webhook_type: string | null
           webhook_url: string
         }
         Insert: {
           created_at?: string | null
+          created_by?: string | null
+          enabled?: boolean | null
           id?: string
-          is_active?: boolean | null
+          last_used_at?: string | null
+          notification_types?: string[] | null
           project_id?: string | null
           webhook_type?: string | null
           webhook_url: string
         }
         Update: {
           created_at?: string | null
+          created_by?: string | null
+          enabled?: boolean | null
           id?: string
-          is_active?: boolean | null
+          last_used_at?: string | null
+          notification_types?: string[] | null
           project_id?: string | null
           webhook_type?: string | null
           webhook_url?: string
@@ -5130,9 +7029,100 @@ export type Database = {
           },
         ]
       }
+      strategic_bet_invalidations: {
+        Row: {
+          acknowledged_at: string | null
+          created_at: string
+          decision_event_id: string | null
+          decision_made_at: string
+          decision_summary: string
+          evidence: Json
+          id: string
+          invalidation_reason: string
+          project_id: string
+          strategic_block_id: string | null
+        }
+        Insert: {
+          acknowledged_at?: string | null
+          created_at?: string
+          decision_event_id?: string | null
+          decision_made_at: string
+          decision_summary: string
+          evidence?: Json
+          id?: string
+          invalidation_reason: string
+          project_id: string
+          strategic_block_id?: string | null
+        }
+        Update: {
+          acknowledged_at?: string | null
+          created_at?: string
+          decision_event_id?: string | null
+          decision_made_at?: string
+          decision_summary?: string
+          evidence?: Json
+          id?: string
+          invalidation_reason?: string
+          project_id?: string
+          strategic_block_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "strategic_bet_invalidations_decision_event_id_fkey"
+            columns: ["decision_event_id"]
+            isOneToOne: false
+            referencedRelation: "decision_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategic_bet_invalidations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategic_bet_invalidations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategic_bet_invalidations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "strategic_bet_invalidations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategic_bet_invalidations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategic_bet_invalidations_strategic_block_id_fkey"
+            columns: ["strategic_block_id"]
+            isOneToOne: false
+            referencedRelation: "strategic_blocks"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       strategic_blocks: {
         Row: {
+          behavioral_block_candidate: boolean
           block_type: string
+          blocker_area: string | null
           created_by: string | null
           description: string | null
           engine_version: string | null
@@ -5146,12 +7136,15 @@ export type Database = {
           project_id: string
           reopen_count: number
           resolved_at: string | null
+          source: string | null
           status: string
           task_id: string | null
           weeks_active: number
         }
         Insert: {
+          behavioral_block_candidate?: boolean
           block_type: string
+          blocker_area?: string | null
           created_by?: string | null
           description?: string | null
           engine_version?: string | null
@@ -5165,12 +7158,15 @@ export type Database = {
           project_id: string
           reopen_count?: number
           resolved_at?: string | null
+          source?: string | null
           status?: string
           task_id?: string | null
           weeks_active?: number
         }
         Update: {
+          behavioral_block_candidate?: boolean
           block_type?: string
+          blocker_area?: string | null
           created_by?: string | null
           description?: string | null
           engine_version?: string | null
@@ -5184,6 +7180,7 @@ export type Database = {
           project_id?: string
           reopen_count?: number
           resolved_at?: string | null
+          source?: string | null
           status?: string
           task_id?: string | null
           weeks_active?: number
@@ -5251,6 +7248,7 @@ export type Database = {
         Row: {
           close_reason: string | null
           closed_at: string | null
+          cycle_evaluation: string | null
           cycle_index: number
           decision_event_id: string | null
           end_date: string
@@ -5259,10 +7257,12 @@ export type Database = {
           project_id: string
           ritual_responses: Json | null
           start_date: string
+          urgent_reset_requested: boolean
         }
         Insert: {
           close_reason?: string | null
           closed_at?: string | null
+          cycle_evaluation?: string | null
           cycle_index: number
           decision_event_id?: string | null
           end_date: string
@@ -5271,10 +7271,12 @@ export type Database = {
           project_id: string
           ritual_responses?: Json | null
           start_date: string
+          urgent_reset_requested?: boolean
         }
         Update: {
           close_reason?: string | null
           closed_at?: string | null
+          cycle_evaluation?: string | null
           cycle_index?: number
           decision_event_id?: string | null
           end_date?: string
@@ -5283,6 +7285,7 @@ export type Database = {
           project_id?: string
           ritual_responses?: Json | null
           start_date?: string
+          urgent_reset_requested?: boolean
         }
         Relationships: [
           {
@@ -5408,15 +7411,20 @@ export type Database = {
           completed_at: string | null
           created_at: string | null
           descripcion: string | null
+          external_id: string | null
+          external_provider: string | null
+          external_synced_at: string | null
           fecha_limite: string | null
           function_type: string | null
           id: string
           leader_id: string | null
+          meeting_id: string | null
           metadata: Json | null
           playbook: Json | null
           prioridad: number | null
           project_id: string | null
           relacionada_con_leads: string[] | null
+          source: string | null
           status: Database["public"]["Enums"]["task_status"] | null
           tiempo_estimado_horas: number | null
           tipo_tarea: string | null
@@ -5428,15 +7436,20 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           descripcion?: string | null
+          external_id?: string | null
+          external_provider?: string | null
+          external_synced_at?: string | null
           fecha_limite?: string | null
           function_type?: string | null
           id?: string
           leader_id?: string | null
+          meeting_id?: string | null
           metadata?: Json | null
           playbook?: Json | null
           prioridad?: number | null
           project_id?: string | null
           relacionada_con_leads?: string[] | null
+          source?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           tiempo_estimado_horas?: number | null
           tipo_tarea?: string | null
@@ -5448,15 +7461,20 @@ export type Database = {
           completed_at?: string | null
           created_at?: string | null
           descripcion?: string | null
+          external_id?: string | null
+          external_provider?: string | null
+          external_synced_at?: string | null
           fecha_limite?: string | null
           function_type?: string | null
           id?: string
           leader_id?: string | null
+          meeting_id?: string | null
           metadata?: Json | null
           playbook?: Json | null
           prioridad?: number | null
           project_id?: string | null
           relacionada_con_leads?: string[] | null
+          source?: string | null
           status?: Database["public"]["Enums"]["task_status"] | null
           tiempo_estimado_horas?: number | null
           tipo_tarea?: string | null
@@ -5503,6 +7521,13 @@ export type Database = {
             columns: ["leader_id"]
             isOneToOne: false
             referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "tasks_meeting_id_fkey"
+            columns: ["meeting_id"]
+            isOneToOne: false
+            referencedRelation: "meetings"
             referencedColumns: ["id"]
           },
           {
@@ -6369,6 +8394,111 @@ export type Database = {
           },
         ]
       }
+      weekly_reviews: {
+        Row: {
+          commitments_fulfilled: number
+          commitments_generated: number
+          created_at: string | null
+          has_regression: boolean | null
+          has_transition: boolean | null
+          id: string
+          meetings_count: number
+          mrr: number | null
+          obvs_count: number | null
+          phase: number | null
+          phase_score: number | null
+          phase_status: string | null
+          project_id: string
+          read_at: string | null
+          runway_months: number | null
+          sales_count: number | null
+          summary_json: Json
+          tasks_completed: number | null
+          week_end_date: string
+          week_start_date: string
+        }
+        Insert: {
+          commitments_fulfilled?: number
+          commitments_generated?: number
+          created_at?: string | null
+          has_regression?: boolean | null
+          has_transition?: boolean | null
+          id?: string
+          meetings_count?: number
+          mrr?: number | null
+          obvs_count?: number | null
+          phase?: number | null
+          phase_score?: number | null
+          phase_status?: string | null
+          project_id: string
+          read_at?: string | null
+          runway_months?: number | null
+          sales_count?: number | null
+          summary_json?: Json
+          tasks_completed?: number | null
+          week_end_date: string
+          week_start_date: string
+        }
+        Update: {
+          commitments_fulfilled?: number
+          commitments_generated?: number
+          created_at?: string | null
+          has_regression?: boolean | null
+          has_transition?: boolean | null
+          id?: string
+          meetings_count?: number
+          mrr?: number | null
+          obvs_count?: number | null
+          phase?: number | null
+          phase_score?: number | null
+          phase_status?: string | null
+          project_id?: string
+          read_at?: string | null
+          runway_months?: number | null
+          sales_count?: number | null
+          summary_json?: Json
+          tasks_completed?: number | null
+          week_end_date?: string
+          week_start_date?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "weekly_reviews_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_reviews_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_reviews_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "weekly_reviews_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "weekly_reviews_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       active_projects: {
@@ -6548,6 +8678,139 @@ export type Database = {
           project_name: string | null
         }
         Relationships: []
+      }
+      founder_tool_feedback: {
+        Row: {
+          completion_rate: number | null
+          last_task_at: string | null
+          project_id: string | null
+          tasks_completed: number | null
+          tasks_created: number | null
+          tasks_ignored: number | null
+          tool_type: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "founder_tool_tasks_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      integration_sync_quality: {
+        Row: {
+          connection_id: string | null
+          entities_processed: number | null
+          entities_rejected: number | null
+          entities_skipped: number | null
+          entities_written: number | null
+          has_quality_warning: boolean | null
+          last_sync_at: string | null
+          last_sync_status: string | null
+          project_id: string | null
+          provider: string | null
+          quality_pct: number | null
+        }
+        Insert: {
+          connection_id?: string | null
+          entities_processed?: number | null
+          entities_rejected?: number | null
+          entities_skipped?: number | null
+          entities_written?: number | null
+          has_quality_warning?: never
+          last_sync_at?: string | null
+          last_sync_status?: string | null
+          project_id?: string | null
+          provider?: string | null
+          quality_pct?: never
+        }
+        Update: {
+          connection_id?: string | null
+          entities_processed?: number | null
+          entities_rejected?: number | null
+          entities_skipped?: number | null
+          entities_written?: number | null
+          has_quality_warning?: never
+          last_sync_at?: string | null
+          last_sync_status?: string | null
+          project_id?: string | null
+          provider?: string | null
+          quality_pct?: never
+        }
+        Relationships: [
+          {
+            foreignKeyName: "integration_sync_runs_connection_id_fkey"
+            columns: ["connection_id"]
+            isOneToOne: false
+            referencedRelation: "integration_connections"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "integration_sync_runs_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       member_stats: {
         Row: {
@@ -6817,6 +9080,78 @@ export type Database = {
           },
         ]
       }
+      v_engine_input_audit: {
+        Row: {
+          computed_at: string | null
+          engine: string | null
+          input_mrr: string | null
+          input_mrr_source: string | null
+          input_mrr_ts: string | null
+          input_obvs_count: string | null
+          input_obvs_count_source: string | null
+          input_obvs_count_ts: string | null
+          input_validation_rate: string | null
+          input_validation_rate_source: string | null
+          input_validation_rate_ts: string | null
+          output_value: string | null
+          project_id: string | null
+          raw_sources: Json | null
+        }
+        Relationships: []
+      }
+      v_notif_health_critical: {
+        Row: {
+          email_ratio: number | null
+          read_count: number | null
+          read_ratio: number | null
+          total: number | null
+          type: string | null
+          unread_emailed: number | null
+          unread_not_emailed: number | null
+        }
+        Relationships: []
+      }
+      v_notif_health_per_entity: {
+        Row: {
+          critical_count: number | null
+          project_id: string | null
+          project_name: string | null
+          total: number | null
+          user_id: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "notifications_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      v_notif_health_volume: {
+        Row: {
+          day: string | null
+          priority: string | null
+          total: number | null
+          type: string | null
+        }
+        Relationships: []
+      }
       v_obvs_canonical: {
         Row: {
           cantidad: number | null
@@ -7063,6 +9398,72 @@ export type Database = {
       }
     }
     Functions: {
+      _integration_write_economic_profile: {
+        Args: {
+          p_confidence: number
+          p_payload: Json
+          p_project_id: string
+          p_provider: string
+          p_source_timestamp: string
+        }
+        Returns: {
+          ok: boolean
+          reason: string
+        }[]
+      }
+      _integration_write_financial_projections: {
+        Args: {
+          p_confidence: number
+          p_logical_period: string
+          p_payload: Json
+          p_project_id: string
+          p_provider: string
+          p_source_timestamp: string
+        }
+        Returns: {
+          ok: boolean
+          reason: string
+        }[]
+      }
+      _integration_write_key_metrics: {
+        Args: {
+          p_confidence: number
+          p_payload: Json
+          p_project_id: string
+          p_provider: string
+          p_source_timestamp: string
+        }
+        Returns: {
+          ok: boolean
+          reason: string
+        }[]
+      }
+      _integration_write_obv: {
+        Args: {
+          p_confidence: number
+          p_payload: Json
+          p_project_id: string
+          p_provider: string
+          p_source_timestamp: string
+        }
+        Returns: {
+          ok: boolean
+          reason: string
+        }[]
+      }
+      _integration_write_task: {
+        Args: {
+          p_confidence: number
+          p_payload: Json
+          p_project_id: string
+          p_provider: string
+          p_source_timestamp: string
+        }
+        Returns: {
+          ok: boolean
+          reason: string
+        }[]
+      }
       _upsert_viability_trigger: {
         Args: {
           p_active: boolean
@@ -7071,6 +9472,24 @@ export type Database = {
           p_project_id: string
           p_trigger_type: string
         }
+        Returns: undefined
+      }
+      activate_challenge: {
+        Args: { p_activated_by: string; p_challenge_id: string }
+        Returns: undefined
+      }
+      apply_viability_decision: {
+        Args: {
+          p_decided_by: string
+          p_decision_type: string
+          p_notes?: string
+          p_project_id: string
+          p_trigger_type: string
+        }
+        Returns: string
+      }
+      archive_notification: {
+        Args: { p_notification_id: string }
         Returns: undefined
       }
       auth_is_project_member: {
@@ -7085,9 +9504,31 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: boolean
       }
-      calculate_role_performance_score: {
-        Args: { p_project_id: string; p_role: string; p_user_id: string }
+      calculate_role_performance_score:
+        | {
+            Args: { p_member_id: string; p_project_id: string }
+            Returns: number
+          }
+        | {
+            Args: { p_project_id: string; p_role: string; p_user_id: string }
+            Returns: number
+          }
+      capture_notification_health_snapshot: {
+        Args: { p_environment?: string }
+        Returns: undefined
+      }
+      check_bet_invalidations: {
+        Args: { p_project_id: string }
         Returns: number
+      }
+      check_notification_cap: {
+        Args: { p_priority: string; p_user_id: string }
+        Returns: boolean
+      }
+      close_cycle_for_pivot: { Args: { p_project_id: string }; Returns: string }
+      close_strategic_cycle: {
+        Args: { p_close_reason?: string; p_project_id: string }
+        Returns: string
       }
       compute_bottleneck_severity: {
         Args: { p_project_id: string }
@@ -7098,6 +9539,10 @@ export type Database = {
         Returns: number
       }
       compute_data_completeness: {
+        Args: { p_project_id: string }
+        Returns: number
+      }
+      compute_econ_incoherence_penalty: {
         Args: { p_project_id: string }
         Returns: number
       }
@@ -7113,6 +9558,22 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: number
       }
+      compute_org_capacity_risk: {
+        Args: { p_project_id: string }
+        Returns: number
+      }
+      compute_phase2_o21: { Args: { p_project_id: string }; Returns: number }
+      compute_phase2_o22: { Args: { p_project_id: string }; Returns: number }
+      compute_phase2_o23: { Args: { p_project_id: string }; Returns: number }
+      compute_phase2_score: { Args: { p_project_id: string }; Returns: number }
+      compute_phase3_o31: { Args: { p_project_id: string }; Returns: number }
+      compute_phase3_o32: { Args: { p_project_id: string }; Returns: number }
+      compute_phase3_o33: { Args: { p_project_id: string }; Returns: number }
+      compute_phase3_score: { Args: { p_project_id: string }; Returns: number }
+      compute_phase4_o41: { Args: { p_project_id: string }; Returns: number }
+      compute_phase4_o42: { Args: { p_project_id: string }; Returns: number }
+      compute_phase4_o43: { Args: { p_project_id: string }; Returns: number }
+      compute_primary_block: { Args: { p_project_id: string }; Returns: string }
       compute_revenue_concentration: {
         Args: { p_project_id: string }
         Returns: number
@@ -7138,6 +9599,10 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: number
       }
+      count_stable_revenue_months: {
+        Args: { p_project_id: string }
+        Returns: number
+      }
       create_notification: {
         Args: {
           p_action_label?: string
@@ -7151,7 +9616,36 @@ export type Database = {
         }
         Returns: string
       }
+      decrypt_integration_credential: {
+        Args: {
+          p_app_secret: string
+          p_connection_id: string
+          p_credential_key: string
+        }
+        Returns: string
+      }
+      detect_meeting_patterns: { Args: { p_project_id: string }; Returns: Json }
+      detect_meeting_triggers: { Args: { p_project_id: string }; Returns: Json }
+      generate_all_weekly_reviews: { Args: never; Returns: undefined }
+      generate_weekly_review_for_project: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      get_active_engine_version: { Args: { p_motor: string }; Returns: string }
+      get_engine_snapshot: { Args: { p_project_id: string }; Returns: Json }
+      get_evidence_audit: { Args: { p_project_id: string }; Returns: Json }
+      get_meeting_fulfillment: { Args: { p_meeting_id: string }; Returns: Json }
+      get_optimus_context: {
+        Args: { p_project_id: string; p_user_id?: string }
+        Returns: Json
+      }
       get_profile_id: { Args: { _auth_id: string }; Returns: string }
+      get_project_owner: { Args: { p_project_id: string }; Returns: string }
+      get_project_task_stats: { Args: { p_project_id: string }; Returns: Json }
+      get_ritual_optimus_context: {
+        Args: { p_next_action?: string; p_project_id: string }
+        Returns: Json
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -7159,12 +9653,70 @@ export type Database = {
         }
         Returns: boolean
       }
+      mark_all_notifications_read: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      notify_all_project_members: {
+        Args: {
+          p_action_label?: string
+          p_action_url?: string
+          p_dedup_days?: number
+          p_message: string
+          p_metadata?: Json
+          p_priority: string
+          p_project_id: string
+          p_title: string
+          p_type: string
+        }
+        Returns: number
+      }
+      notify_bottlenecks: { Args: { p_project_id: string }; Returns: undefined }
+      notify_expiring_validations: { Args: never; Returns: number }
+      notify_inactive_leads: { Args: never; Returns: number }
+      notify_inactive_projects: { Args: never; Returns: number }
+      notify_overdue_meeting_commitments: { Args: never; Returns: undefined }
+      notify_overdue_tasks: { Args: never; Returns: number }
+      notify_overdue_tasks_warning: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: undefined
+      }
+      notify_phase_changes: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      notify_probability_changes: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      notify_risk_changes: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      notify_viability_changes: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      refresh_behavioral_block_candidates: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      refresh_bet_invalidations: { Args: never; Returns: undefined }
       restore_project: {
         Args: { p_project_id: string; p_restored_by: string }
         Returns: undefined
       }
       run_coverage_engine: {
         Args: { p_project_id: string }
+        Returns: undefined
+      }
+      run_economic_profile_engine: {
+        Args: { p_project_id: string; p_trigger_source?: string }
+        Returns: undefined
+      }
+      run_notification_batch: { Args: never; Returns: undefined }
+      run_org_capacity_engine: {
+        Args: { p_project_id: string; p_trigger_source?: string }
         Returns: undefined
       }
       run_phase_engine: {
@@ -7179,6 +9731,7 @@ export type Database = {
         Args: { p_project_id: string; p_trigger_source?: string }
         Returns: undefined
       }
+      run_strategic_cycle_checks: { Args: never; Returns: undefined }
       run_viability_engine: {
         Args: { p_project_id: string }
         Returns: undefined
@@ -7195,13 +9748,73 @@ export type Database = {
           upload_date: string
         }[]
       }
+      seed_simulation_data: { Args: { p_owner_id: string }; Returns: Json }
       soft_delete_project: {
         Args: { p_deleted_by: string; p_project_id: string; p_reason?: string }
         Returns: undefined
       }
+      submit_strategic_reset: {
+        Args: { p_project_id: string; p_ritual_responses: Json }
+        Returns: string
+      }
+      suggest_bottleneck_challenge: {
+        Args: { p_project_id: string }
+        Returns: Json
+      }
+      update_member_performance_scores: {
+        Args: { p_project_id: string }
+        Returns: undefined
+      }
+      upsert_integration_credential: {
+        Args: {
+          p_app_secret: string
+          p_connection_id: string
+          p_credential_key: string
+          p_credential_plaintext: string
+          p_project_id: string
+          p_provider: string
+        }
+        Returns: undefined
+      }
+      upsert_obv_participants: {
+        Args: { p_obv_id: string; p_participants: Json }
+        Returns: undefined
+      }
+      upsert_recurring_blocker_as_strategic_block: {
+        Args: {
+          p_description: string
+          p_first_seen_at: string
+          p_project_id: string
+        }
+        Returns: string
+      }
+      write_integration_to_engine_table: {
+        Args: {
+          p_agent_type: string
+          p_confidence: number
+          p_entity_ids: string[]
+          p_insight_id: string
+          p_logical_period: string
+          p_operation: string
+          p_payload: Json
+          p_payload_hash: string
+          p_project_id: string
+          p_source_timestamp: string
+          p_sync_run_id: string
+          p_target: string
+        }
+        Returns: Json
+      }
     }
     Enums: {
       app_role: "admin" | "tlt" | "member"
+      founder_tool_type:
+        | "buyer_persona"
+        | "lead_scoring"
+        | "sales_playbook"
+        | "brand_kit"
+        | "comms_guide"
+        | "customer_journey"
       kpi_status: "pending" | "validated" | "rejected"
       lead_status:
         | "frio"
@@ -7234,7 +9847,7 @@ export type Database = {
         | "marketing"
         | "operations"
         | "strategy"
-      task_status: "todo" | "doing" | "done" | "blocked"
+      task_status: "todo" | "doing" | "done" | "blocked" | "done_historical"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -7363,6 +9976,14 @@ export const Constants = {
   public: {
     Enums: {
       app_role: ["admin", "tlt", "member"],
+      founder_tool_type: [
+        "buyer_persona",
+        "lead_scoring",
+        "sales_playbook",
+        "brand_kit",
+        "comms_guide",
+        "customer_journey",
+      ],
       kpi_status: ["pending", "validated", "rejected"],
       lead_status: [
         "frio",
@@ -7399,7 +10020,9 @@ export const Constants = {
         "operations",
         "strategy",
       ],
-      task_status: ["todo", "doing", "done", "blocked"],
+      task_status: ["todo", "doing", "done", "blocked", "done_historical"],
     },
   },
 } as const
+A new version of Supabase CLI is available: v2.78.1 (currently installed v2.75.0)
+We recommend updating regularly for new features and bug fixes: https://supabase.com/docs/guides/cli/getting-started#updating-the-supabase-cli

@@ -52,8 +52,8 @@ export function useToolkitUnlocks(projectId: string | undefined): {
         { count: hubspotDealsCount },
         // Deals cerrados en CRM nativo
         { count: closedObvCount },
-        // Deals cerrados en HubSpot
-        { count: closedHubspotCount },
+        // Deals HubSpot con payload para filtrar dealstage en cliente (F21.V2.4)
+        { data: hubspotDealRows },
         // Pitches enviados
         { count: pitchesCount },
         // Subscriptions activas en Stripe
@@ -81,12 +81,12 @@ export function useToolkitUnlocks(projectId: string | undefined): {
           .eq('project_id', projectId!)
           .eq('pipeline_status', 'cerrado_ganado'),
 
+        // F21.V2.4: filtrar dealstage en cliente — ilike sobre JSONB path no es fiable en PostgREST
         supabase
           .from('integration_entities')
-          .select('id', { count: 'exact', head: true })
+          .select('payload')
           .eq('project_id', projectId!)
-          .eq('entity_type', 'deal')
-          .ilike('payload->>dealstage', '%won%'),
+          .eq('entity_type', 'deal'),
 
         supabase
           .from('integration_insights')
@@ -116,8 +116,14 @@ export function useToolkitUnlocks(projectId: string | undefined): {
           .gt('expires_at', new Date().toISOString()),
       ]);
 
+      // F21.V2.4: filtrar deals cerrados de HubSpot en cliente
+      const closedHubspotCount = (hubspotDealRows ?? []).filter(
+        r => typeof (r.payload as Record<string, unknown>)?.dealstage === 'string'
+          && ((r.payload as Record<string, unknown>).dealstage as string).toLowerCase().includes('won')
+      ).length;
+
       const leads_count = (obvLeadsCount ?? 0) + (hubspotDealsCount ?? 0);
-      const closed_deals_count = (closedObvCount ?? 0) + (closedHubspotCount ?? 0);
+      const closed_deals_count = (closedObvCount ?? 0) + closedHubspotCount;
       const cacheRows = (generatedRows ?? []) as Array<{ tool_type: string; generated_at: string }>;
       const generated_tools = cacheRows.map(r => r.tool_type as ToolType);
 
