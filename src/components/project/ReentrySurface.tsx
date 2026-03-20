@@ -19,6 +19,7 @@ import {
   useStrategicCyclesWhileAway,
 } from '@/hooks/useNovaDataOptimized';
 import { getNextAction } from '@/lib/next-action';
+import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
 import {
   computeReentryPayload,
   PHASE_LABEL,
@@ -34,6 +35,8 @@ interface ReentrySurfaceProps {
   projectId: string;
   lastSeenAt: string;
   onAcknowledge: () => void;
+  /** DEUDA.PE.7: callback opcional para navegar a un tab específico tras acknowledge */
+  onNavigateToTab?: (tab: string) => void;
 }
 
 const SEVERITY_BADGE: Record<UrgencySeverity, string> = {
@@ -48,7 +51,7 @@ const SEVERITY_LABEL: Record<UrgencySeverity, string> = {
   medium:   'MEDIO',
 };
 
-export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge }: ReentrySurfaceProps) {
+export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigateToTab }: ReentrySurfaceProps) {
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
   const { data: viabilityData, isLoading: viabilityLoading } = useProjectViabilityState(projectId);
   const { data: cycleData, isLoading: cycleLoading } = useStrategicCyclesWhileAway(projectId, lastSeenAt);
@@ -102,6 +105,16 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge }: Reentry
 
   return (
     <div className="max-w-2xl mx-auto py-10 space-y-8">
+
+      {/* ── U6.V2.1: Focus Block — primera acción concreta al volver ──────── */}
+      {/* DEUDA.PE.7: si hay onNavigateToTab, acknowledge + navegar al tab correcto */}
+      <NextActionFocusBlock
+        projectId={projectId}
+        onNavigateToTab={(tab) => {
+          onAcknowledge();
+          onNavigateToTab?.(tab);
+        }}
+      />
 
       {/* ── Banner 60 días (EC13.8) ────────────────────────────────────────── */}
       {triggerReason === 'inactive_60d' && (

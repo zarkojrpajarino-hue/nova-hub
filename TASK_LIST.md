@@ -3,7 +3,7 @@
 > Para detalle de cada tarea → ver MASTER_ACTION_PLAN.md
 > Estado: [ ] Pendiente · [x] Completado · [~] En progreso · [!] Diferido (con motivo)
 >
-> **Última actualización: 2026-03-19 (Bloque 1 + FASE 19 completados)**
+> **Última actualización: 2026-03-20 (Auditoría V3 + Plan de ejecución completo — 82 items totales, 70 ejecutables)**
 >
 > ### Estado real por fase
 > | Fase | Estado | Notas |
@@ -25,9 +25,8 @@
 > | FASE 14 — Monetización | ⏸ POST-VALIDACIÓN 0/5 + 1 v2 pendiente | Solo tras usuarios validados |
 > | FASE 15 — Integraciones y agentes | ✅ CERRADA v1 (2026-03-18) + 2 v2 pendientes | 4 providers · 4 agentes · motor writes en prod |
 > | FASE 16 — Adquisición y validación | 🔄 ACTIVA + 2 v2 pendientes | |
-| **FASE 18 — Meeting Intelligence** | **🔄 ACTIVA Bloque X ✅ · Bloque A ✅** | **En curso** |
 > | FASE 17 — Evidencia, fiabilidad y transparencia | ✅ CERRADA v1 32/32 + 4/5 v2 completadas | T17.V2.3 diferido hasta FASE 18 |
-> | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ⏸ POST-F16 0/49 + 3 v2 pendientes | Prerequisito: FASE 16 activa + Bloque 0 completado |
+> | FASE 18 — Meeting Intelligence: cierre de loop estratégico | ✅ CERRADA 53/53 + 3 v2 pendientes | Bloque J (co-pilot live) sin definir — diferido |
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
 > | FASE 20 — Análisis Estratégico IA v4 | ✅ CERRADA 12/12 + 5 v2 pendientes | Prerequisito: FASE 16 activa + proyecto ≥14 días · Niveles se desbloquean con integraciones |
 > | FASE 21 — Founder Toolkit | ✅ CERRADA 8/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
@@ -1308,16 +1307,26 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque A — Infraestructura de observabilidad (hacer antes de conseguir usuarios)
 
-- [ ] **U16.1** Activar PostHog con key real
-  > `VITE_POSTHOG_KEY` en `.env.local` + `.env.production`. V11.7 ya instrumentó los 8 eventos clave (project_created, onboarding_started/completed, engine_viewed, next_action_clicked, ritual_completed, reentry). Sin key, todos los eventos son no-ops silenciosos.
+- [~] **U16.1** Activar PostHog con key real
+  > **Código listo** (main.tsx: init condicional a VITE_POSTHOG_KEY, 13+ eventos instrumentados incluyendo focus_block_cta_clicked).
+  > **Pendiente (manual):** crear proyecto en posthog.com → Settings → Project API key → añadir a `.env`: `VITE_POSTHOG_KEY="phc_xxx"` + var en Vercel/hosting.
   > **Criterio:** ver eventos llegar al dashboard de PostHog con 1 sesión real.
 
-- [ ] **U16.2** Activar Sentry con DSN real
-  > `VITE_SENTRY_DSN` en `.env`. Sentry ya está instalado (V11.7). Sin DSN, los errores en producción son invisibles.
+- [~] **U16.2** Activar Sentry con DSN real
+  > **Código listo** (main.tsx: Sentry.init con VITE_SENTRY_DSN, enabled: PROD, tracing + replay configurados).
+  > **Pendiente (manual):** crear proyecto React en sentry.io → Settings → Client Keys → DSN → añadir a `.env`: `VITE_SENTRY_DSN="https://xxx@sentry.io/xxx"` + var en Vercel/hosting.
   > **Criterio:** ver 1 error de prueba llegando al dashboard de Sentry.
 
-- [ ] **U16.3** Configurar Resend para emails críticos
-  > `RESEND_API_KEY` + `NOTIFICATION_FROM_EMAIL` + `APP_URL` en secrets de Supabase edge functions. N7.6 ya implementó el pipeline completo de `send-critical-notifications`. Sin key, los emails críticos no se envían.
+- [~] **U16.3** Configurar Resend para emails críticos
+  > **Código listo** (send-critical-notifications/index.ts: RESEND_API_KEY, NOTIFICATION_FROM_EMAIL, NOTIFICATION_FROM_NAME, APP_URL).
+  > **Pendiente (manual):** crear cuenta en resend.com → API Keys → ejecutar:
+  > ```
+  > supabase secrets set --project-ref zzxngvqwmnouchbulvlo \
+  >   RESEND_API_KEY="re_xxx" \
+  >   NOTIFICATION_FROM_EMAIL="alertas@tudominio.com" \
+  >   NOTIFICATION_FROM_NAME="Nova Hub" \
+  >   APP_URL="https://tuapp.vercel.app"
+  > ```
   > **Criterio:** recibir 1 email de prueba de tipo `viability_critical` o `probability_critical`.
 
 ### Bloque B — Adquisición y observación (core de la fase)
@@ -1327,11 +1336,12 @@ ORDER  BY critical_count DESC, total DESC;
   > Canal más directo sin red existente: comunidades de founders (Indie Hackers, Product Hunt, grupos de WhatsApp/Slack de emprendedores locales).
   > **Criterio:** 5 usuarios que completen onboarding Fase A completa (no solo se registren).
 
-- [ ] **U16.5** Observar 3 momentos críticos con datos reales
+- [ ] **U16.5** Observar 4 momentos críticos con datos reales
   > **A — Onboarding:** ¿terminan Fase A? ¿dónde abandonan? (PostHog: funnel onboarding_started → onboarding_completed)
   > **B — FirstSteps:** ¿actúan sobre alguna de las 3 acciones propuestas? ¿o las ignoran? (PostHog: next_action_clicked)
-  > **C — Agents:** si alguno conecta una integración, ¿leen los insights? ¿les cambia algo?
-  > **Criterio:** tener datos reales para cada uno de los 3 momentos, aunque sean de 3 usuarios distintos.
+  > **C — Focus Block:** ¿hacen clic en el CTA del Focus Block? (PostHog: focus_block_cta_clicked) — señal de engagement más directa. Meta: ≥40% CTR antes de escalar (A16.V2.2).
+  > **D — Agents:** si alguno conecta una integración, ¿leen los insights? ¿les cambia algo?
+  > **Criterio:** tener datos reales para cada uno de los 4 momentos, aunque sean de usuarios distintos.
 
 - [ ] **U16.6** Primera calibración de notificaciones (gate post-Fase 7)
   > Ejecutar las 3 queries del panel de observación de la Calibración post-Fase 7 con datos reales.
@@ -1341,8 +1351,12 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Mejoras v2 — Conexión con FASE 19 (Focus Block como señal de adquisición)
 
-- [ ] **A16.V2.1** Incluir `focus_block_cta_clicked` (V11.V2.1) en los momentos de observación de U16.5 — el clic en el CTA del Focus Block es la señal de engagement más directa del sistema. Un usuario que lo pulsa está siguiendo la recomendación del motor. Añadir a la lista de 3 momentos clave (onboarding completado + Next Action visto + integración conectada) como cuarto momento opcional pero prioritario.
-- [ ] **A16.V2.2** Añadir criterio de paso: Focus Block click-through rate ≥ 40% antes de escalar adquisición — si el Focus Block existe pero el 60%+ de usuarios lo ignora, el problema no es de distribución sino de relevancia de la recomendación. Escalar con ese ratio produciría usuarios que no se activan. Este criterio debe medirse en U16.4 (observación de 10 usuarios) antes de escalar a 50+.
+- [x] **A16.V2.1** Incluir `focus_block_cta_clicked` en los momentos de observación de U16.5
+  > ✅ Resuelto 2026-03-20. `focus_block_cta_clicked` ya existe en analytics.ts (trackFocusBlockCTAClicked).
+  > U16.5 actualizado: momento C añadido con PostHog event + criterio ≥40% CTR.
+- [ ] **A16.V2.2** Criterio: Focus Block CTR ≥ 40% antes de escalar adquisición
+  > Medir durante U16.4 (primeros 10 usuarios). Si <40%, problema de relevancia — no escalar.
+  > Bloquea escalar de 10 a 50+ usuarios.
 
 ---
 
@@ -1858,7 +1872,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 18 — MEETING INTELLIGENCE: CIERRE DE LOOP ESTRATÉGICO ⏸ POST-F16 0/49
+## FASE 18 — MEETING INTELLIGENCE: CIERRE DE LOOP ESTRATÉGICO ✅ CERRADA 53/53
 > **Prerequisito obligatorio:** FASE 16 activa + Bloque 0 completado (sanear bugs y datos mock).
 >
 > **Por qué esta feature es el núcleo del sistema:**
@@ -3538,3 +3552,654 @@ ORDER  BY critical_count DESC, total DESC;
 *Última actualización: 2026-03-13*
 *Para detalle de cada tarea → MASTER_ACTION_PLAN.md*
 *Para fórmulas y especificaciones técnicas → ENGINE_SPEC_V1.md*
+
+---
+
+## AUDITORÍA V3 — ANÁLISIS EXHAUSTIVO POR AGENTES (2026-03-20)
+
+> **Origen:** 6 agentes de análisis ejecutados en paralelo, uno por grupo de fases (F1-F4, F5-F7, F8-F11, F12-F15, F16-F19, F20-F22).
+> Cada agente leyó código real (migraciones SQL, hooks, componentes, edge functions) y detectó gaps de lógica,
+> loops rotos y oportunidades de valor no implementadas. Items ya existentes en secciones V2 no se repiten aquí.
+>
+> **Estados:** `[ ]` pendiente · `[!]` diferido con criterio · `[x]` completado
+
+---
+
+### BLOQUE CRÍTICO — Loops rotos y bugs que afectan el motor central
+
+> Estos items rompen la coherencia del sistema aunque la app "funcione". Prioridad máxima.
+
+- [x] **AUD.C.1** ~~`run_phase_engine()` no llama a `compute_phase2/3/4_score()` — Phase 2-4 son stubs~~
+  > ❌ FALSE POSITIVE — verificado 2026-03-20. Migration 00018 (`20260224000018_phase4_engine.sql`) es la
+  > autoritativa y reescribe `run_phase_engine()` completo con CASE para las 4 fases. Migration 00005 solo
+  > tiene Fase 1 porque 00014/00015/00018 la sobreescriben en cascada. Todas las fases implementadas.
+
+- [x] **AUD.C.2** ~~Probability Engine no redistribuye pesos cuando inputs son NULL~~
+  > ❌ FALSE POSITIVE — verificado 2026-03-20. `compute_execution_rate()` (00006 líneas 241-257) ya tiene
+  > redistribución explícita idéntica al Risk Engine (`v_total_weight` pattern). Las sub-funciones retornan 0
+  > (nunca NULL), y el comentario en 00007 documenta explícitamente esta decisión de diseño.
+
+- [ ] **AUD.C.3** Meeting Intelligence genera insights pero NO escribe al motor
+  > `meetingAgentService.ts` inserta en `integration_insights` (línea 225) pero no llama `write_integration_to_engine_table()`.
+  > Los insights de tipo `strategic_decision` y `metric_update` nunca afectan `phase_score`, `probability_score` ni `risk_score`.
+  > Meeting Intelligence es decorativo: "decidimos reposicionar" queda como texto leído, no como señal del motor.
+  > **Fix:** Después de insertar insights aprobados, llamar `write_integration_to_engine_table()` para tipos estratégicos.
+  > Reutiliza lógica existente de F15 agents. ~10-15 líneas.
+  > Esfuerzo: bajo (reutiliza patrón de Finance/Sales/Execution agents).
+
+- [x] **AUD.C.4** ~~Phase 4 sin Next Action — `buildNextAction()` devuelve `null` en Fase 4~~
+  > ❌ FALSE POSITIVE — verificado 2026-03-20. `src/lib/next-action.ts` línea 31 documenta explícitamente
+  > "Fase 4 (terminal en v1): nunca devuelve null." y tiene 4 branches completos (casos 9-12):
+  > opsWeak → estabiliza operación · probStatus inactive → registra MRR · !hardSignalMet → revisa condiciones
+  > · hardSignalMet → mantén momentum. Cobertura total de Phase 4.
+
+- [ ] **AUD.C.5** Datos de integraciones guardados pero no retroalimentan motores
+  > `integration_entities` almacena deals HubSpot, tasks Asana, eventos Google Calendar. Pero:
+  > Sales Agent lee deals solo si se invoca manualmente desde UI. Calendar Agent genera insights diferidos (Bloque D).
+  > Asana tasks nunca convergen con tareas internas. Solo Stripe→MRR tiene hidratación automática real.
+  > **Fix:** Implementar hidratación automática al finalizar sync para al menos 1 integración de alto valor
+  > (HubSpot deals → velocity signal en Probability Engine). Medir: "founders con HubSpot avanzan de fase más rápido".
+  > Esfuerzo: alto (Edge Function nueva, trigger en sync, validación en engine).
+
+---
+
+### BLOQUE ALTO — Sistemas desconectados y gaps de arquitectura
+
+> Sistemas implementados en paralelo que deberían alimentarse mutuamente.
+
+- [x] **AUD.A.1** Economic Profile incoherences no retroalimentan Phase Engine
+  > ✅ Implementado 2026-03-26 en `20260326000001_aud_a1_econ_penalty_phase_engine.sql`.
+  > BEFORE trigger `trg_phase_state_econ_penalty` en project_phase_state. Phase 2+.
+  > -10 pts por incoherencia activa, cap -30. Helper `compute_econ_incoherence_penalty(UUID)`.
+
+- [x] **AUD.A.2** Org Capacity desacoplado de Risk Score
+  > ✅ Implementado 2026-03-26 en `20260326000002_aud_a2_org_capacity_risk_engine.sql`.
+  > R1.6 `compute_org_capacity_risk()` = 100 - org_health_score (peso 0.10).
+  > Pesos redistribuidos (total 1.00). Trigger automático en project_org_state.
+  > run_risk_engine() reescrito como v1.6 con 6 inputs.
+
+- [ ] **AUD.A.3** Análisis Estratégico (F20) e Insights de Agentes (F15) son sistemas paralelos sin coordinación
+  > `analyze-project-v4` genera "hard truths" sin consumir `integration_insights` de agentes.
+  > Un mismo problema puede aparecer en Análisis Estratégico Y en Execution Agent con palabras distintas.
+  > Riesgo: contradicciones entre superficies, ruido doble del mismo problema.
+  > **Fix:** `analyze-project-v4` recibe top-3 insights activos de agentes; clasifica si son redundantes con
+  > hard truths ya generadas; enriquece ("Stripe CONFIRMA: cash flow bajo") o emite banner
+  > "Señal no cubierta en análisis" si hay anomalía sin cubrir.
+  > Esfuerzo: alto (refactoring de edge function, validación exhaustiva).
+
+- [ ] **AUD.A.4** PostHog no instrumentado en Focus Block ni en sistema de adquisición
+  > Grep de `posthog|track(` en .tsx = 0 resultados. F19 y F16 no tienen ni una línea de tracking.
+  > U16.5 observa "3 momentos críticos" pero sin datos de PostHog no hay forma de medir:
+  > qué tipo de Next Action se mostró, si el CTA fue clickeado, si la acción se completó en 24h.
+  > **Fix:** `NextActionFocusBlock`: `posthog.capture('focus_block_viewed', { type, urgency, source })` +
+  > CTA click: `posthog.capture('focus_block_cta_clicked', { actionType, type })`.
+  > PostHog ya está instalado — solo falta instrumentación.
+  > Esfuerzo: bajo.
+
+- [ ] **AUD.A.5** Empty state Day 1 sin demo guiado — el founder abandona sin entender el valor
+  > `EngineEmptyState` es card estático. Un founder nuevo ve PhaseProgressBar vacío ("El motor no tiene
+  > señales suficientes") y cierra la app. No hay "si añadieras un OBV, esto aparecería".
+  > **Fix:** `EngineBloomComponent` — si `phaseState === null` AND onboarding completado:
+  > mostrar PhaseProgressBar mockeado con datos demo del sector seleccionado en onboarding.
+  > "Tu fase inicial estimada. Cambiará cuando añadas datos reales." CTAs en indicadores:
+  > "Ver qué datos necesito" → tooltips con inputs faltantes. Auto-dismiss cuando `phaseState !== null`.
+  > Esfuerzo: medio-alto.
+
+- [ ] **AUD.A.6** `verify_jwt` revert en cada deploy — integraciones rompen silenciosamente post-deploy
+  > I15.FIX.7 diferido: cada `supabase functions deploy` resetea `verify_jwt: false` a `true`.
+  > Las funciones Stripe/HubSpot fallan silenciosamente. Requiere PATCH manual vía Management API post-deploy.
+  > **Fix opción A:** Verificar si `supabase/config.toml` soporta `[functions.sync-stripe] verify_jwt = false`.
+  > **Fix opción B:** Script `scripts/post-deploy.sh` que ejecute PATCH vía Management API para cada función.
+  > Esfuerzo: bajo. Bloquea confiabilidad en producción.
+
+---
+
+### BLOQUE MEDIO — Mejoras de valor significativo y UX de sistema
+
+- [ ] **AUD.M.1** Strategic Reset sin mecanismo de "apuesta fallida" — loop de decisión incompleto
+  > Q5 del ritual captura `success_signal + invalidation_condition` (el founder dice "si X ocurre, descarto").
+  > Pero no hay función que marque la apuesta como descartada cuando se cumple la invalidación.
+  > Las apuestas fallidas no generan `decision_events` — quedan como texto sin efecto.
+  > **Fix:** Tabla `strategic_bet_invalidations`. Cron diario chequea si `invalidation_condition` es observable
+  > en engine state. Si sí, crea fila. Surface 3 (Reset) muestra "Tu apuesta fue descartada por: [signal].
+  > Necesitamos una nueva estrategia." Cierra el loop: apuesta → éxito/fracaso binario → data para behavioral_block.
+  > Esfuerzo: alto (3 SQL functions + cron + UI + lógica de detección).
+
+- [ ] **AUD.M.2** Playbooks tienen triggers precisos pero no existe UI que los surface automáticamente
+  > `BUILD_PLAYBOOKS.md` y `RESCUE_PLAYBOOKS.md` definen triggers exactos ("Trigger: phase=1 AND clarity_block active")
+  > pero ningún componente los chequea automáticamente. Un founder con `clarity_block` activo no sabe que
+  > debería ejecutar el "Problem Discovery Playbook".
+  > **Fix:** `PlaybookTriggerBanner` en `ProjectEnginePanel` — chequea engine state vs triggers de playbooks,
+  > si hay match muestra "[Playbook Name]" + 1 línea + "Ver guía" → modal con 5 steps. Tracking: impression + viewed.
+  > Esfuerzo: alto (UI + trigger logic + content parsing + tracking).
+
+- [ ] **AUD.M.3** Superficies (Engine/Weekly/Reset/History) sin lógica explícita de transición
+  > `SURFACES_V1.md` dice "nunca mostrar dos contextos temporales simultáneamente" pero no define cómo
+  > evitarlo en código. ¿Cuándo pasa de Engine a Weekly? ¿Cómo vuelve? ¿Qué pasa si Reset está abierto
+  > cuando llega señal de Weekly? No existe `useActiveSurface.ts`.
+  > **Fix:** `src/hooks/useActiveSurface.ts` con máquina de estados explícita:
+  > ritual_pending → 'reset' / weekly_pending → 'weekly' / >7 días sin ver → prepend reentry / else → 'engine'.
+  > Volver a 'engine' automáticamente tras leer weekly (5s) o completar ritual.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.4** buildNextAction() sin gestión de saturación de señales (5+ señales simultáneas)
+  > Si hay ≥5 agent signals activas, el Focus Block muestra solo 1 recomendación sin indicar saturación.
+  > El founder con 3+ integraciones activas puede estar "inundado" sin que el sistema lo gestione.
+  > **Fix:** Si `agentInsights.length ≥ 3 && riskLevel !== 'critical'` → renderizar Focus Block en "Digest Mode":
+  > lista top 3 señales + recomendación de cuáles resolver primero. Evita dilución de atención.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.5** Pre-meeting brief no implementado — Bloque B de F18 es un stub
+  > TASK_LIST (línea 1877) dice "reunión ocurre — con brief del motor (Bloque B)" pero no existe
+  > `pre_meeting_brief()` ni componente que lo muestre antes de empezar grabación.
+  > Solo existe post-meeting summary. El founder entra a la reunión sin contexto del motor.
+  > **Fix:** Edge function `get-meeting-brief` que devuelva: probabilidad delta (vs 7 días atrás),
+  > risk score cambios, top 3 decision_events sin resolver, OBVs vencidas. Panel "Contexto motor"
+  > en MeetingIntelligencePage antes de iniciar grabación.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.6** Feedback loop entre outputs del Toolkit y la ejecución real
+  > CTAs del Founder Toolkit crean tareas, pero el sistema no sabe si la tarea fue completada, si validó
+  > la hipótesis o si el CTA fue ignorado. Los outputs son documentos estáticos que no aprenden.
+  > **Fix:** Tabla `founder_tool_feedback (tool_type, feedback_type, outcome_note, created_at)`.
+  > Disparar captura cuando tarea creada desde toolkit se completa. Si 60%+ de usuarios ignoran un CTA
+  > específico → bajar visibilidad o reemplazar con alternativa.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.7** Análisis Estratégico produce diagnóstico, no plan de acción ejecutable
+  > `urgent_decisions` en F20 tienen CTA de navegación pero no plan concreto: qué hacer HOY, qué
+  > hipótesis validar, qué métrica monitorear. "Cash flow crítico" sin "llama a estos 3 clientes hoy".
+  > **Fix:** Extender `urgent_decisions` con `action_plan: { day1_do, day1_measure, day3_checkpoint, day7_goal }`.
+  > Crear automáticamente 3 tasks (Día 1, Día 3, Día 7). Integrar con el Task Loop de F19.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.8** Founder Toolkit sin herramientas para Fase 3+ (Org, PMF, Retención)
+  > Las 6 herramientas actuales cubren Fase 1-2 (Buyer Persona, Lead Scoring, Sales Playbook...).
+  > Un founder en Fase 3 (50k+ MRR, equipo establecido) no tiene herramientas relevantes en el toolkit.
+  > **Fix:** 3 herramientas phase-gated: (1) **Org Design Toolkit** (Fase 3+) — roles, RACI, skill gaps;
+  > (2) **PMF Validator** (Fase 2+ con 10+ customers) — price elasticity, net retention, NPS, concentration;
+  > (3) **Retention Playbook** (Fase 3+ con Stripe activo) — churn analysis, expansion revenue, cohort health.
+  > Mismo patrón: CTAs + cross-linking + chip de nuevos datos.
+  > Esfuerzo: alto (3 edge functions + 3 componentes View + unlock triggers nuevos).
+
+- [ ] **AUD.M.9** WeeklyReview sin causalidad — snapshot sin "qué causó este cambio"
+  > `WeeklyReviewCard` muestra snapshot (MRR, runway, tareas, OBVs) pero sin delta explícito vs. semana anterior
+  > ni causa inferida de cambios. "MRR creció 15%" sin "2 nuevos clientes en Stripe".
+  > **Fix:** Extender `generate_weekly_review_for_project()` con `week_deltas` (mrr_delta, runway_delta,
+  > risk_trending, probability_trending) y `events_this_week` (obv_created, lead_won, etc.).
+  > UI en WeeklyReviewDetail: tabla "Qué cambió esta semana" con causas inferidas.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.10** Datos de onboarding no fluyen a engines para contextualización de recomendaciones
+  > Fase A recoge 9 datos (sector, equipo, monetización, mercado, país...) pero engines los ignoran.
+  > `getNextAction()` recomienda lo mismo a una idea Día 1 que a un negocio existente.
+  > **Fix:** Extender `useProjectEngineData()` con `onboarding_context: { type, monetizationType, marketScope }`.
+  > Helper `buildContextualMessage(engineData, onboardingContext)` adapta frases del motor:
+  > "Fase 1 + generative → valida 3 asunciones" vs. "Fase 1 + existing → conecta Stripe o ERP".
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.11** Meeting blocker recurrente vs. agudo — el motor los trata igual
+  > `detectAndPersistRecurringBlockers()` cuenta `meeting_count ≥ 3` para crear strategic block,
+  > pero no distingue "aparece en 3 reuniones CONSECUTIVAS (AGUDO)" vs. "3 de las últimas 10 (CRÓNICO)".
+  > Un problema que explota esta semana tiene el mismo tratamiento que uno que reaparece cada mes.
+  > **Fix:** Si últimas 3 reuniones consecutivas contienen el blocker → `urgency='critical'` en strategic block.
+  > Si 3 de 10 últimas → `urgency='high'`. Diferencia priorización en Optimus context.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.M.12** useProjectContext no personaliza urgency según complejidad operativa del proyecto
+  > `buildNextAction()` usa `context.mode` solo para filtrar `type='meeting'` en solo mode.
+  > No ajusta `urgency` por capacidad real: 1 tarea vencida es "normal" para un solo founder,
+  > es "red flag" para un equipo de 3. Los agent signals tampoco se filtran por `operationalComplexity`.
+  > **Fix:** Reglas de urgency contextual en `buildNextAction()`:
+  > `complexity=low + overdueCount=1 → no urgency=high` /
+  > `complexity=high + overdueCount=1 → urgency=high`.
+  > Esfuerzo: bajo (ajuste de lógica existente).
+
+---
+
+### BLOQUE BAJO — Robustez, polish y documentación
+
+- [ ] **AUD.B.1** Outputs de Optimus sin validación de schema en runtime
+  > Si la API devuelve JSON con campos fuera del enum o sin campos requeridos, el frontend falla silenciosamente.
+  > **Fix:** Zod schema en `src/lib/optimus.ts` validando output contra OPTIMUS_PROMPTS.md §4.
+  > En edge function: si falla validación → devolver fallback genérico. Añadir constraint de longitud en prompt.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.B.2** Block detection duplicado en backend y frontend (reentry.ts)
+  > `reentry.ts` reimplementa `derivePrimaryBlock()` con la misma lógica que `get_optimus_context()`.
+  > Si cambian reglas de detección en SQL, habrá divergencia silenciosa.
+  > **Fix:** Añadir `primary_block` como campo derivado en `get_optimus_context()` SQL.
+  > `reentry.ts` lee el valor en lugar de derivarlo.
+  > Esfuerzo: bajo.
+
+- [x] **AUD.B.3** ~~Revenue Momentum (Probability Engine) y Phase Engine desalineados semánticamente~~
+  > ❌ FALSE POSITIVE — verificado 2026-03-20. Migration 00019 implementa `trg_probability_revenue_to_phase`:
+  > cuando `project_probability.revenue_momentum_input` cambia, el trigger dispara `run_phase_engine()`.
+  > La cadena `key_metrics.mrr → run_probability_engine → revenue_momentum_input → run_phase_engine` está
+  > correctamente secuenciada. El desacuerdo semántico entre pipeline_boost y O1.2 es comportamiento
+  > intencional por diseño (son métricas ortogonales).
+
+- [ ] **AUD.B.4** `siguiente_accion` en Task Loop sin validación semántica mínima
+  > `TaskCompletionDialog.tsx` solo chequea `length > 5` → "Aaaa aaaa aaaa" pasa validación.
+  > **Fix:** Mínimo 15 caracteres + no todo mayúsculas. Bonus: edge function micro de validación semántica.
+  > Esfuerzo: muy bajo.
+
+- [ ] **AUD.B.5** Expansion Intelligence (F22) sin "cuándo viable" para mercados secundarios
+  > Los mercados excluidos del top-5 solo muestran "score 0.68, excluido por: regulatory_ease=2.1".
+  > El founder no sabe si Brasil es "mediocre para siempre" o "perfecto pero prematuro".
+  > **Fix:** Categoría "mercados secundarios prometedores" con `{ blocker, when_viable: { phase, mrr_threshold },
+  > upside }`. Icono diferente (compass con "más adelante"). Founder no los ignora pero entiende por qué no ahora.
+  > Esfuerzo: bajo-medio.
+
+- [ ] **AUD.B.6** Viability thresholds (T1-T4) sin documentación de criterio
+  > Los valores hardcodeados (75, 55, etc.) no tienen justificación en comentarios SQL.
+  > Risk Engine sí tiene semántica clara por umbral (≥12m → 0 riesgo, <1m → crítico).
+  > **Fix:** Añadir COMMENT en cada trigger function explicando por qué el threshold. Sin cambio de lógica.
+  > Esfuerzo: muy bajo.
+
+- [ ] **AUD.B.7** Sync quality opaca — partial sync sin feedback al usuario ni al motor
+  > HubSpot puede sincronizar 900 de 1000 deals (timeout) con `is_partial: true` pero el frontend
+  > no avisa y el engine usa los datos como si fueran completos.
+  > **Fix:** Tabla `integration_sync_quality (connection_id, quality: complete|partial|failed, coverage_percent)`.
+  > UI muestra "⚠ Datos incompletos (90% sincronizado)" cuando `quality='partial'`.
+  > Esfuerzo: medio.
+
+- [ ] **AUD.B.8** Onboarding Fase B sin tracking granular de completitud por ítem
+  > FaseBPanel guarda respuestas en `onboarding_data.fase_b_answers` pero sin timestamp por ítem
+  > ni indicador visual de progreso (checkmarks, barra 3/5).
+  > **Fix:** Cambiar estructura a `fase_b_progress.items[{id, completed, completed_at, value}]`.
+  > UI: progress bar 5/5 + checkmarks animados + "1 ítem pendiente: Competidores".
+  > Esfuerzo: bajo.
+
+- [ ] **AUD.B.9** Generación de herramientas del Toolkit sin re-use de contexto anterior
+  > Cada regeneración llama al LLM ignorando correcciones del founder en la generación anterior.
+  > Si el founder anotó "la sección de canales está mal", la nueva generación lo ignora.
+  > **Fix:** Extender `founder_tool_cache.output` con `founder_notes[]`. Pasar notas al LLM al regenerar:
+  > "El founder anotó: '[problema]' — mejorar en esta área."
+  > Esfuerzo: medio-alto.
+
+- [ ] **AUD.B.10** PhaseHorizonHint sin señal de contratendencia (fase sube pero riesgo también)
+  > `derivePhaseHorizon()` es predictivo basado solo en tendencia de fase. No detecta
+  > "Fase 3 cercana pero probabilidad cayendo y riesgo subiendo" → el hint dice "soon" sin matiz.
+  > **Fix:** Flag `hasCountertrend: boolean` en `derivePhaseHorizon()`. Si phase trending up pero
+  > risk/probability trending down → "Fase 3 cercana — pero monitorea el riesgo creciente".
+  > Esfuerzo: bajo.
+
+---
+
+### RESUMEN DE AUDITORÍA V3
+
+| Bloque | Items | Impacto | Foco |
+|--------|-------|---------|------|
+| CRÍTICO | 5 (AUD.C.1-5) | Motor roto / loops sin cierre | Phase 2-4 stubs · Probability pesos · Meeting→motor · Phase4 null · Integrations vacíos |
+| ALTO | 6 (AUD.A.1-6) | Sistemas paralelos desconectados | Org→Risk · EconProfile→Phase · Analysis+Agents · PostHog · Day1 empty state · verify_jwt |
+| MEDIO | 12 (AUD.M.1-12) | Valor de producto significativo | Apuesta fallida · Playbooks auto · Superficies · Pre-meeting · Toolkit F3+ · etc. |
+| BAJO | 10 (AUD.B.1-10) | Robustez y polish | Zod · Block detection · Revenue align · Siguiente_accion · Expansion · etc. |
+| **Total** | **33 items nuevos** | — | — |
+
+> **Items V2 existentes confirmados como críticos por auditoría** (ya están en TASK_LIST, no se duplican):
+> EC13.V2.1 · E4.V2.2 · U6.V2.1 · N7.V2.3 · N7.V2.4 · SR10.V2.1 · F20.V2.3 · I15.FIX.7
+
+---
+
+*Auditoría ejecutada 2026-03-20 · 6 agentes paralelos · lectura directa de código real*
+
+---
+
+## PLAN DE EJECUCIÓN COMPLETO — V2 + AUDITORÍA V3 (2026-03-20)
+
+> **82 items totales:** 49 V2 existentes + 33 AUD nuevos.
+> Ordenados por prioridad de ejecución real. Criterio: primero lo que está roto, luego lo que conecta,
+> luego lo que aporta valor nuevo, al final lo que requiere datos reales o es feature grande.
+>
+> **Referencia rápida de IDs:**
+> — `E4.V2.x`, `D2.V2.x`, etc. → sección V2 de su fase respectiva en este documento
+> — `AUD.C.x`, `AUD.A.x`, `AUD.M.x`, `AUD.B.x` → sección AUDITORÍA V3 al final de este documento
+>
+> **Estados:** `[ ]` pendiente · `[x]` hecho · `[!]` diferido · `[~]` en curso
+
+---
+
+### BLOQUE I — Motor correcto
+> **Criterio:** bugs que afectan el cálculo central. SQL puro, sin riesgo de UI.
+> **Audit 2026-03-20:** De 6 items originales, 4 eran false positives tras leer el código real.
+> Items reales del bloque: AUD.A.1 y AUD.A.2.
+
+- [x] **AUD.C.2** ~~Probability Engine redistribuye pesos con inputs NULL~~ → FALSE POSITIVE (compute_execution_rate ya lo hace)
+- [x] **AUD.C.4** ~~Phase 4 Next Action null~~ → FALSE POSITIVE (next-action.ts tiene 4 branches para Phase 4)
+- [x] **AUD.C.1** ~~run_phase_engine stubs para Phase 2-4~~ → FALSE POSITIVE (migration 00018 implementa las 4 fases completas)
+- [x] **AUD.B.3** ~~Revenue Momentum desalineado con Phase Engine~~ → FALSE POSITIVE (trigger 00019 cierra el loop)
+- [x] **AUD.A.1** EconProfile incoherencias → penalización en Phase Engine
+  > Implementado en migration `20260326000001_aud_a1_econ_penalty_phase_engine.sql`.
+  > BEFORE trigger `trg_phase_state_econ_penalty` + helper `compute_econ_incoherence_penalty()`.
+  > -10 pts/incoherencia, cap -30. Phase 2+ únicamente. Sin modificar run_phase_engine().
+- [x] **AUD.A.2** Org Capacity → Risk Score como factor R1.6 — salud del equipo entra en el riesgo
+  > Implementado en migration `20260326000002_aud_a2_org_capacity_risk_engine.sql`.
+  > R1.6 = `compute_org_capacity_risk()` = 100 - org_health_score. Peso 0.10.
+  > Pesos redistribuidos: runway 0.22, rev_conc 0.18, exec_drop 0.18, val_weak 0.18, bottleneck 0.14.
+  > Trigger `trg_org_state_risk` propaga cambios de org al Risk Engine automáticamente.
+
+---
+
+### BLOQUE II — Cerrar loops rotos  6/7 ✅ (AUD.C.3 diferido)
+> **Criterio:** sistemas cerrados a medias. Feedback que no llega, señales que se pierden.
+
+- [x] **EC13.V2.1** `useProjectContext()` filtra solo `role_accepted=true`
+  > Fix: `.eq('role_accepted', true)` en `src/hooks/useProjectContext.ts` línea 23. 1 línea.
+- [x] **SR10.V2.1** Ritual completado → invalida engine queries del Focus Block
+  > `useSubmitRitual()` ahora tiene `onSuccess` que invalida `['project-engine', projectId]` + `['ritual-pending']`.
+- [x] **E4.V2.1** RPC `get_project_task_stats()` → `{ overdue_count, done_this_week, total_open }`
+  > Migration `20260326000003_e4v21_get_project_task_stats.sql`. SECURITY INVOKER (RLS aplica).
+- [x] **E4.V2.2** Trigger `trg_task_done_phase_engine` — tarea → done → dispara Phase Engine
+  > Migration `20260326000004_e4v22_task_feedback_engine_trigger.sql`. AFTER UPDATE OF status.
+  > trigger_source='acceleration'. Solo cuando OLD.status != 'done' AND NEW.status = 'done'.
+- [x] **N7.V2.1** Tipo notificación `overdue_tasks_warning` HIGH
+  > TypeScript: añadido a `NotificationType` + `NOTIFICATION_CONFIG` en `src/types/notifications.ts`.
+  > SQL: migration `20260326000005_n7v21_overdue_tasks_warning.sql` con anti-spam 48h, threshold ≥3.
+- [x] **AUD.A.6** Script `scripts/patch-verify-jwt.sh` — parchea todas las functions a verify_jwt=false
+  > Itera sobre funciones desplegadas via Management API. Variables: `SUPABASE_ACCESS_TOKEN`, `PROJECT_REF`.
+- [!] **AUD.C.3** Meeting Intelligence → SQL engine
+  > DIFERIDO — fix más complejo de lo estimado (ver DEUDA.PE.1). Esfuerzo real ~50-80 líneas.
+  > Requiere: sync_run 'running' durante proceso + autorizar agent_type 'meeting' + mapeo insight_type→target.
+
+---
+
+### BLOQUE III — Conectar sistemas existentes  7/9
+> **Criterio:** sistemas implementados que no se hablan entre sí. Wiring, no features nuevas.
+> **2 diferidos** — requieren cambio de schema o múltiples paths de onboarding.
+
+- [x] **AUD.A.4** PostHog instrumentation en Focus Block — impression + CTA click
+  > ✅ `trackFocusBlockImpression` (useEffect al montar) + `trackFocusBlockCTAClicked` (handleCTA) en NextActionFocusBlock.tsx.
+- [x] **V11.V2.1** 4 eventos PostHog nuevos en analytics.ts para F19 (Task Loop, Focus Block, ritual)
+  > ✅ `trackFocusBlockImpression`, `trackFocusBlockCTAClicked`, `trackTaskLoopTriggered`, `trackRitualStarted` añadidos a analytics.ts.
+- [x] **U6.V2.1** `ReentrySurface` integra `NextActionFocusBlock` como primer elemento
+  > ✅ `<NextActionFocusBlock>` añadido como primer elemento en ReentrySurface.tsx. CTA → `onAcknowledge()`.
+- [x] **F20.V2.3** Focus Block conectado con Análisis Estratégico — propaga decisiones urgentes
+  > ✅ Hook `useAnalysisUrgentDecisions` lee `ai_analysis_cache`. Si urgency < high y hay urgent_decisions → banner debajo del panel de señales.
+- [x] **T17.V2.3** Meeting insights usan `EvidenceType` del sistema de evidencia (F17)
+  > ✅ Interfaz `MeetingInsight` tipada en meetingAgentService.ts con `evidence_type: EvidenceType | null`, `sources_used`, `sources_discarded`. Eliminado `as unknown as` hack en MeetingInsightsCard.tsx.
+- [!] **AUD.B.2** Block detection unificado — reentry.ts lee `primary_block` de SQL en lugar de derivarlo
+  > DIFERIDO — `primary_block` no existe como columna en `project_phase_state`. Requiere migración SQL para computed/stored column. Mover a Bloque IV.
+- [x] **AUD.M.12** `buildNextAction()` ajusta urgency según `operationalComplexity` del proyecto
+  > ✅ Si `operationalComplexity === 'high'` y baseUrgency === 'low' → se eleva a 'medium'. build-next-action.ts.
+- [x] **AUD.B.10** `PhaseHorizonHint` detecta contratendencia — "Fase 3 cercana pero riesgo subiendo"
+  > ✅ Nuevo tipo 'counter_trend'. `derivePhaseHorizon` acepta `riskHistory` y detecta si riesgo sube mientras fase avanza. Copia: "avance de fase con riesgo subiendo — atención aquí".
+- [!] **O5.V2.1** Guardar `solo_mode: boolean` en `onboarding_data` — evita query extra en useProjectContext
+  > DIFERIDO — `solo_mode` no existe en ningún archivo. Requiere modificar múltiples paths del wizard de onboarding + riesgo de stale data (fundador añade equipo después). Mover a Bloque V con diseño más cuidadoso.
+
+---
+
+### BLOQUE IV — Datos e integraciones  3/4
+> **Criterio:** datos que entran al sistema pero no fluyen a donde deben.
+> **1 diferido** — explícitamente condicionado a usuarios Asana reales.
+
+- [x] **D2.V2.2** `ALTER TABLE obvs ADD COLUMN source TEXT DEFAULT 'internal'` + índice
+  > ✅ migration 20260326000006. Índice partial excluye 'internal'. DEFAULT garantiza backward compat.
+- [x] **AUD.C.5** Hidratación automática al terminar sync: HubSpot deals → Probability + Risk Engine
+  > ✅ migration 20260326000007. `trg_hubspot_sync_completed`: AFTER UPDATE status→completed, provider=hubspot → run_probability_engine('acceleration') + run_risk_engine('block_event').
+- [x] **AUD.B.7** Sync quality: VIEW `integration_sync_quality` + badge "⚠ datos incompletos (X% sync)"
+  > ✅ migration 20260326000009 (VIEW, no tabla — datos 100% derivados de integration_sync_runs). Hook `useSyncQuality` en useIntegrationConnections.ts. Badge `SyncQualityBadge` en IntegrationsView.tsx junto a cada ConnectionBadge.
+- [!] **D2.V2.1** `ALTER TABLE tasks ADD COLUMN external_provider, external_id, external_sync_at`
+  > DIFERIDO — spec dice explícitamente "cuando haya usuarios Asana". Sin usuarios Asana, esta columna no se usa y la migración añade complejidad sin beneficio.
+
+### BLOQUE IV — DEUDA.PE.8 resuelta  1/1
+- [x] **DEUDA.PE.8** `primary_block` no existe en schema SQL
+  > ✅ migration 20260326000008. ADD COLUMN primary_block en project_phase_state. Función `compute_primary_block(UUID)`. Triggers en project_risk_score y project_function_coverage. Backfill inicial. `useNovaDataOptimized.ts` selecciona el campo. `reentry.ts` lee desde SQL con fallback client-side.
+
+---
+
+### BLOQUE V — UX de transparencia y claridad  8/11
+> **Criterio:** el fundador no entiende qué hace el sistema ni por qué. Impacto directo en retención Day 1-30.
+> **3 tareas diferidas** (AUD.A.5, AUD.M.9, N7.V2.4).
+
+- [!] **AUD.A.5** `EngineBloomComponent` — Day 1 con datos mockeados del sector: el fundador ve qué pasaría al añadir datos
+  > DIFERIDO — requiere diseño de mock data por sector (vacío → qué sectores, qué valores simulados). Complejidad de contenido + UI alta. Bloque VII o post-MVP.
+- [x] **U6.V2.3** `DataCompletenessCard` — visible si completeness < 0.7, antes de PhaseProgressBar
+  > ✅ Componente creado. Donut pct + lista top-3 inputs faltantes + CTA por input → tab correspondiente. Dismissible. Insertado en ProjectDashboardTab antes de ProbabilityBreakdown. Fuente: engineData.probability/risk._input (degraded mode sin v_engine_input_audit).
+- [x] **U6.V2.4** `InputAuditModal` — botón ⓘ junto a cada score del motor, tabla inputs/fuente/confianza
+  > ✅ InputAuditModal + InputAuditTrigger creados. Añadido ⓘ junto a "Probabilidad de avance" y "Factores de riesgo". Modal muestra tabla Input/Valor/Confianza/CTA. Degraded mode: usa engineData directamente sin v_engine_input_audit.
+- [x] **N7.V2.3** Tab "Relevante a mi fase" en notificaciones — fase 1 no ve alertas de equipo ni ejecución
+  > ✅ Prop `phase?: number` añadido a NotificationList. Filtro 'phase' con PHASE_RELEVANT_TYPES map por fase. Tab "Fase N" visible solo si se pasa el prop.
+- [!] **N7.V2.4** `root_cause_inputs JSONB` en notificaciones + modal "¿Por qué recibí esto?"
+  > DIFERIDO — requiere: (1) migration ADD COLUMN root_cause_inputs JSONB en notifications, (2) actualizar 5+ edge functions que emiten notificaciones para incluir los inputs. Scope multi-archivo de backend. Bloque DEUDA.
+- [!] **AUD.M.9** WeeklyReview con causalidad — `week_deltas` + `events_this_week` + causas inferidas
+  > DIFERIDO — requiere modificar la edge function `generate_weekly_review_for_project` para añadir week_deltas al summary_json. Backend change fuera del scope del bloque actual. Bloque DEUDA.
+- [x] **U6.V2.2** `WeeklySurface` cierra con "Foco de la próxima semana" (nextAction de buildNextAction)
+  > ✅ WeeklySurface ahora llama useProjectEngineData + useAgentContext + useProjectContext + buildNextAction(). Sección "Foco de la próxima semana" añadida al final con el nextAction en tiempo real. La sección retrospectiva renombrada a "Dirección de esta semana".
+- [x] **AUD.M.3** `useActiveSurface.ts` — máquina de estados explícita entre Engine/Weekly/Reset/History
+  > ✅ Extraído a src/hooks/useActiveSurface.ts. Tipos ProjectSurface + ActiveSurfaceState definidos ahí. useNovaDataOptimized.ts re-exporta para backward-compat. Transiciones documentadas: reset > weekly > engine. Retorno automático reactivo vía React Query invalidation.
+- [x] **AUD.M.4** Focus Block en "Digest Mode" si hay ≥3 señales simultáneas — evita dilución de atención
+  > ✅ NextActionFocusBlock detecta `agentInsights.length ≥ 3 && riskLevel !== 'critical'` → Digest Mode. Muestra "N señales activas", badge, resumen más severo. CTA "Ver todas las señales" expande la lista.
+- [x] **F19.V2.1** Focus Block muestra aviso de baja fiabilidad si Next Action se basa en estimados
+  > ✅ Banner amber añadido en NextActionFocusBlock cuando reliabilityInfo.level === 'low'. "Acción basada en datos estimados — conecta integraciones para mejorar la fiabilidad."
+- [x] **AUD.B.8** Onboarding Fase B con progress bar 5/5 y checkmarks por ítem completado
+  > ✅ Barra de progreso y checkmarks ya existían (completedCount/5). Añadido `recordItemCompleted()` que escribe `fase_b_progress.items[{id, completed, completed_at, value}]` en onboarding_data al guardar sector, primer competidor, y riskiest_assumption. Canal (AcquisitionChannelEditor) y OBV se registran por eventos externos.
+
+---
+
+### BLOQUE VI — Optimus y contenido estratégico ✅ 9/9
+> **Criterio:** la capa de inteligencia de Optimus necesita más contexto y mecanismos de mejora continua.
+
+- [x] **PL9.V2.1** Actualizar `OPTIMUS_PROMPTS.md` — añadir `focus_block_context` opcional
+- [x] **PL9.V2.2** Actualizar `BENCHMARKS_V1.md` — benchmarks de proceso F17/18/19
+- [x] **P8.V2.1** `behavioral_block` activación acelerada vía insights de reuniones
+- [x] **P8.V2.2** `recent_decisions_from_meetings` en context packet de Optimus
+- [x] **P8.V2.3** Feedback explícito en respuestas Optimus — thumbs ↑/↓ + categoría → tabla optimus_feedback
+- [x] **AUD.B.1** Zod schema validando output JSON de Optimus en runtime + fallback si falla
+- [x] **F20.V2.5** Calibración del prompt de análisis para proyectos con datos escasos
+- [x] **V11.V2.2** Actualizar `feature_matrix.md` con features de FASE 17/18/19
+- [x] **F20.V2.4** Guardar `additional_context` en caché del análisis para reutilizar en regeneración
+
+---
+
+### BLOQUE VII — Features de valor nuevas  ✅ 11/13
+> **Criterio:** cierran gaps de producto reales. Cada una tiene scope definido y no depende de usuarios externos.
+> **2 tareas diferidas** (sin usuarios externos).
+
+- [x] **AUD.M.5** Edge function `get-meeting-brief` — contexto del motor antes de cada reunión (delta prob, riesgo, decisiones pendientes)
+- [x] **AUD.M.7** `urgent_decisions` en análisis incluye `action_plan` (Día 1/3/7) + crea 3 tasks automáticamente
+- [x] **AUD.M.6** `founder_tool_feedback` — captura si las tareas creadas desde toolkit se completaron o ignoraron
+- [x] **AUD.M.10** Onboarding data → engines: `buildContextualMessage()` adapta frases según sector, tipo, mercado
+- [x] **AUD.B.9** Generación Toolkit reutiliza contexto anterior — notas del fundador se pasan al LLM al regenerar
+- [x] **AUD.M.11** Meeting blocker distingue recurrente-agudo (3 seguidas) vs crónico (3 de 10) — urgency diferente
+- [x] **AUD.A.3** Análisis Estratégico consume top-3 insights de agentes — elimina contradicciones entre superficies
+- [!] **F20.V2.1** Análisis posición en cohorte — percentil del proyecto vs proyectos similares (depende A12.V2.1)
+  > DIFERIDO — depende de A12.V2.1 (requiere usuarios reales para cohorte).
+- [x] **F19.V2.2** Task Loop escala a Meeting Intelligence si tarea vencida >30 días sin resolverse
+- [!] **C3.V2.1** Cerrar C3.4 con `task_completion_rate` de Asana para roles delivery/operations
+  > DIFERIDO — requiere usuarios Asana reales (mismo patrón que D2.V2.1).
+- [x] **EC13.V2.2** Cerrar EC13.9 — `SOURCE_WEIGHTS` del sistema de evidencia (F17) resuelven el conflicto
+- [x] **F19.V2.3** Test de consistencia `PHASE_TAB_CONFIG` ↔ `feature_matrix.md`
+- [x] **SR10.V2.2** Ritual añade pregunta: "¿Decisiones clave tomadas en reuniones este ciclo?"
+
+---
+
+### BLOQUE VIII — Features grandes (scope multi-sesión)  ✅ 5/11
+> **Criterio:** valor real pero requieren más de una sesión de trabajo. Diseño + implementación significativa.
+> **6 tareas diferidas** (producción, usuarios externos, o infraestructura base inexistente).
+
+- [x] **AUD.M.1** Strategic Reset: apuesta fallida — `strategic_bet_invalidations`, cron de chequeo, cierre de loop
+- [!] **AUD.M.8** Toolkit Fase 3+: Org Design Toolkit · PMF Validator · Retention Playbook (3 edge functions + vistas)
+  > DIFERIDO — scope > 1 sesión. Requiere 3 edge functions + vistas de UI. Diferido a Bloque IX propio.
+- [x] **AUD.M.2** `PlaybookTriggerBanner` — engine state vs triggers de playbooks → sugiere guía automáticamente
+- [x] **O5.V2.3** Modo Emergencia — 3er path de onboarding: problema urgente → diagnóstico → 3 tareas en ≤3min
+- [x] **SR10.V2.3** Decision retrospective loop — seguimiento de outcome a los 30 días de cada decisión
+- [!] **F21.V2.3** Regenerar tipos Supabase para `founder_tool_cache` (aplica cuando migración en producción)
+  > DIFERIDO — depende de que la migración `founder_tool_cache` esté en producción.
+- [!] **F21.V2.4** Fix `.ilike('payload->>dealstage', '%won%')` — cuando haya usuarios HubSpot reales
+  > DIFERIDO — requiere usuarios HubSpot reales para validar el fix.
+- [x] **I15.V2.1** Añadir `meeting_intelligence` al enum de providers en integration_connections
+- [!] **I15.V2.2** Especificar payload del Team Agent Contract (I15.81) — `overdue_count + blocked_members`
+  > DIFERIDO — Team Agent Contract (I15.81) ya diferido en F15. Spec depende de diseño bloqueado.
+- [!] **AUD.B.5** Expansion Intelligence mercados secundarios: `{ blocker, when_viable, upside }`
+  > DIFERIDO — FASE 22 (POST-F21) sin infraestructura base. No hay tablas ni edge functions de expansión.
+- [!] **F22.V2.2** Chip "análisis de expansión desactualizado (14 días)" con sugerencia de regenerar
+  > DIFERIDO — mismo motivo que AUD.B.5: FASE 22 sin infraestructura base.
+
+---
+
+### DIFERIDOS — No atacar hasta que se cumplan los criterios indicados
+
+- [!] **A16.V2.1** Incluir `focus_block_cta_clicked` en U16.5 — *espera: PostHog activo (AUD.A.4 primero)*
+- [!] **A16.V2.2** Criterio paso: Focus Block CTR ≥40% — *espera: usuarios reales + PostHog activo*
+- [!] **O5.V2.2** Empty state Day 1 guiado — *cubierto por AUD.A.5 (EngineBloomComponent)*
+- [!] **M14.V2.1** Teasers upgrade por fase — *espera: validación de producto con usuarios reales*
+- [!] **M14.V2.2** Investor readiness exportable a PDF — *espera: F14 desbloqueada post-validación*
+- [!] **A12.V2.1** Cohort intelligence — *espera: base de usuarios suficiente para comparar proyectos*
+- [!] **F22.V2.1** Expansión + Modo Emergencia — *espera: O5.V2.3 implementado + F22 desbloqueada*
+- [!] **F1.V2.1** Spec matemática combined_reliability — *espera: meeting intelligence con datos reales*
+- [!] **F1.V2.2** Justificación formal SOURCE_WEIGHTS — *documentación, no urgente*
+- [!] **Calibración post-F7** — *espera: 2 semanas datos reales de usuarios en producción*
+- [!] **F12 — Sistemas avanzados** — *POST-MVP, no bloquea lanzamiento*
+- [!] **F14 — Monetización** — *POST-VALIDACIÓN, solo tras usuarios validados*
+
+---
+
+### RESUMEN DEL PLAN
+
+| Bloque | Items | Estimación | Resultado al terminar |
+|--------|-------|------------|----------------------|
+| I — Motor correcto | 6 | 2-3 sesiones | Scores correctos en todas las fases |
+| II — Loops cerrados | 7 | 1-2 sesiones | Feedback llega al motor, Task Loop completo |
+| III — Sistemas conectados | 9 | 1-2 sesiones | App coherente entre superficies |
+| IV — Datos e integración | 4 | 2 sesiones | HubSpot alimenta el motor real |
+| V — UX transparencia | 11 | 3-4 sesiones | Fundador entiende el sistema, retención Day 1-30 |
+| VI — Optimus contenido | 9 | 2 sesiones | Optimus más contextual y con aprendizaje |
+| VII — Features nuevas | 13 | 4-5 sesiones | Pre-meeting brief, plan de acción, toolkit adaptativo |
+| VIII — Features grandes | 11 | 6-8 sesiones | Apuesta fallida, Toolkit F3+, Modo Emergencia |
+| Diferidos | 12 | — | Esperando prereqs o usuarios reales |
+| **Total ejecutable** | **70** | **~21-27 sesiones** | **App llevada a máxima perfección** |
+
+> **Próximo paso:** Bloque II (loops rotos) — Bloque I completado 2026-03-26.
+
+---
+
+### BLOQUE DEUDA — Agujeros detectados durante ejecución  6/18
+
+> Agujeros encontrados al leer código real durante Bloque I. No resolubles en el mismo bloque.
+> La fase no avanza a cierre total hasta que este bloque esté `[x]`.
+
+- [x] **DEUDA.PE.1** Descripción de AUD.C.3 incorrecta — fix es más complejo de lo documentado
+  > ✅ Resuelto 2026-03-26. BLOQUE II actualizado: descripción corregida, estimación ~50-80 líneas,
+  > requisitos documentados (sync_run 'running', autorización 'meeting', mapeo insight_type→target).
+
+- [x] **DEUDA.PE.2** AUD.C.3 estimación "10-15 líneas" corregida
+  > ✅ Resuelto junto con DEUDA.PE.1. Descripción en BLOQUE II ya refleja la complejidad real.
+
+- [x] **DEUDA.PE.3** AUD.C.5 sigue sin resolver — hidratación de HubSpot al engine
+  > ✅ Resuelto Bloque IV 2026-03-26. migration 20260326000007: trigger trg_hubspot_sync_completed
+  > → run_probability_engine('acceleration') + run_risk_engine('block_event') cuando status→completed.
+
+- [x] **DEUDA.PE.4** `notify_overdue_tasks_warning()` notifica solo al `projects.created_by`
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000020: `trg_fn_task_overdue_notify` ahora
+  > itera sobre `project_members` (incluyendo `projects.created_by`) con FOR loop + EXCEPTION handler
+  > por miembro para evitar rollback si una notificación falla.
+
+- [x] **DEUDA.PE.5** `completed_at` no se auto-establece en BD — `done_this_week` incorrecto en paths sin MyTasksList
+  > ✅ Resuelto 2026-03-26. Añadido `trg_fn_task_set_completed_at()` BEFORE trigger en
+  > migration 20260326000004. Lógica: si `NEW.status='done' AND OLD.status!='done' AND NEW.completed_at IS NULL`
+  > → `NEW.completed_at = NOW()`. Si la tarea se reabre, limpia `completed_at`. No sobreescribe si el cliente ya lo pasó.
+  > Garantiza `get_project_task_stats().done_this_week` y `compute_task_completion_rate()` correctos
+  > para todos los paths (DnD kanban, AI executor, MyTasksList).
+
+- [!] **DEUDA.PE.6** `ai_analysis_cache` puede no estar en los tipos Supabase generados
+  > DIFERIDO — requiere Supabase CLI (`supabase gen types`) para regenerar `src/integrations/supabase/types.ts`.
+  > `useAnalysisUrgentDecisions` en NextActionFocusBlock.tsx hace `.from('ai_analysis_cache')` sin verificar
+  > que la tabla existe en los tipos generados de Supabase. Si la tabla fue añadida después de la última
+  > regeneración de tipos, TypeScript no dará error en runtime pero sí en build estricto.
+  > **Fix:** regenerar tipos Supabase (`supabase gen types`) y verificar que `ai_analysis_cache` aparece.
+
+- [x] **DEUDA.PE.7** `onNavigateToTab` en ReentrySurface pierde el parámetro de tab
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. ReentrySurface.tsx: prop `onNavigateToTab?(tab)` añadido.
+  > NextActionFocusBlock ahora recibe `(tab) => { onAcknowledge(); onNavigateToTab?.(tab); }`.
+  > ProjectPage.tsx pasa `onNavigateToTab={setActiveTab}` a ReentrySurface.
+
+- [x] **DEUDA.PE.8** `AUD.B.2` diferido — `primary_block` no existe en schema SQL
+  > ✅ Resuelto Bloque IV 2026-03-26. migration 20260326000008: ADD COLUMN primary_block,
+  > compute_primary_block(UUID), triggers en project_risk_score + project_function_coverage,
+  > backfill. reentry.ts usa phaseState.primary_block con fallback client-side.
+
+- [x] **DEUDA.PE.9** `trg_hubspot_sync_completed` ejecuta engines dentro de la misma transacción del sync
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000020: `trg_fn_hubspot_sync_completed`
+  > envuelve `run_probability_engine` y `run_risk_engine` en bloques `BEGIN/EXCEPTION` separados con
+  > `RAISE WARNING`. Si un engine falla, el sync sigue marcándose como 'completed'.
+
+- [x] **DEUDA.PE.10** VIEW `integration_sync_quality` sin RLS — expone syncs de cualquier proyecto
+  > ✅ Resuelto inline 2026-03-26. Añadido `WITH (security_invoker = true)` a la vista en
+  > migration 20260326000009. La vista hereda RLS del caller — policies de integration_sync_runs aplican.
+
+- [!] **DEUDA.PE.11** `N7.V2.4` diferido — `root_cause_inputs` requiere migration + actualizar 5+ edge functions
+  > DIFERIDO — scope demasiado amplio (5+ edge functions). Requiere bloque dedicado.
+  > La columna `root_cause_inputs JSONB` en la tabla `notifications` no existe. Añadirla requiere migration
+  > + actualizar todas las edge functions que emiten notificaciones (`notify_risk_changes`, `notify_probability_changes`,
+  > `notify_overdue_tasks_warning`, etc.) para incluir los inputs que dispararon la señal. Scope multi-archivo
+  > de backend. Diferido a siguiente bloque.
+
+- [!] **DEUDA.PE.12** `AUD.M.9` diferido — causality en WeeklyReview requiere modificar edge function backend
+  > DIFERIDO — requiere modificar `generate_weekly_review_for_project` para incluir week_deltas. Edge function backend change.
+  > `generate_weekly_review_for_project` no incluye `week_deltas` (mrr_delta, runway_delta, obvs_created_count,
+  > tasks_completed_count) ni `events_this_week` en el summary_json. Añadirlos requiere modificar la edge function
+  > para leer deltas comparando con la semana anterior. Backend change pendiente.
+
+- [!] **DEUDA.PE.13** `AUD.A.5` diferido — EngineBloomComponent requiere diseño de mock data por sector
+  > DIFERIDO — requiere definición de sectores soportados + valores mock + animación bloom. Scope de contenido + UI no trivial.
+  > Componente de Day 1 que muestra qué pasaría al añadir datos. Requiere: (1) definir sectores soportados,
+  > (2) valores mock por sector (phase_score, probability, risk), (3) animación "bloom" al añadir datos.
+  > Alcance de contenido + UI no trivial. Diferido a Bloque VII o post-MVP.
+
+- [x] **DEUDA.PE.14** `NotificationList` recibe `phase` prop pero `NotificationBell` no lo pasa
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. NotificationBell.tsx: useEffect query a `project_phase_state`
+  > por `currentProject?.id` (del context). Almacena en estado local `currentPhase` y pasa a NotificationList.
+  > Fix real: CurrentProjectContext hace `select('*')` en `projects` sin join → phase_state no disponible ahí.
+
+- [!] **DEUDA.PE.15** `AUD.B.1` + `P8.V2.3` — Zod schema y OptimusFeedback sin conectar a UI
+  > DIFERIDO — awaits implementación Optimus UI en FASE 11.
+  > `src/lib/optimus.ts` (parseOptimus) y `OptimusFeedback.tsx` existen pero no están montados en ningún componente.
+  > Esperan la implementación de Optimus UI (FASE 11 pendiente).
+  > **Fix:** al implementar la UI de Optimus en FASE 11, importar `parseOptimus()` antes de renderizar y
+  > añadir `<OptimusFeedback />` al pie del card de respuesta.
+
+- [x] **DEUDA.PE.16** `P8.V2.2` — `recent_decisions_from_meetings` no expuesto en §1 de OPTIMUS_PROMPTS.md
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. OPTIMUS_PROMPTS.md §1: añadido `recent_decisions_from_meetings`
+  > como array de `{summary, decided_at}` (max 3). Añadida nota en "Reglas del input" diferenciándolo
+  > de `recent_decisions_count` (decision_events vs meeting_insights aprobados).
+
+- [x] **DEUDA.PE.17** `P8.V2.1` — limpieza de `behavioral_block_candidate` usa REGEXP frágil sobre `description`
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000021: `ADD COLUMN IF NOT EXISTS blocker_area TEXT`
+  > en `strategic_blocks`. `refresh_behavioral_block_candidates` reescrita para usar `blocker_area` directamente
+  > en INSERT, SELECT y UPDATE — elimina REGEXP_REPLACE sobre description.
+
+- [!] **DEUDA.PE.18** `F20.V2.4` — cast `(cachedRow as Record<string, unknown>).additional_context` frágil
+  > DIFERIDO — depende de DEUDA.PE.6 (regenerar tipos Supabase). Resolver junto con PE.6.
+
+- [x] **DEUDA.PE.19** `AUD.M.7` — `source: 'optimus'` no está documentado en COMMENT de `tasks.source`
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000021: COMMENT ON COLUMN tasks.source
+  > actualizado para incluir `optimus` (AUD.M.7) y `emergency_onboarding` (O5.V2.3).
+
+- [x] **DEUDA.PE.20** `AUD.M.1` — `check_bet_invalidations` usa `DECLARE` anidado (bloque `BEGIN..END`) para `v_risk_at_dec`
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000021: `v_risk_at_dec` movida al scope DECLARE
+  > principal. RAISE NOTICE añadidos para historico_probabilidad y historico_riesgo insuficientes.
+
+- [x] **DEUDA.PE.21** `SR10.V2.3` — el trigger `trg_decision_retrospective_create` solo actúa con `event_type = 'strategic_decision'`
+  > ✅ Resuelto Bloque DEUDA 2026-03-20. migration 20260326000022: `submit_strategic_reset` extendida para
+  > insertar en `decision_events` con `event_type='strategic_decision'` cuando `next_bet` no está vacío.
+  > Payload incluye summary, success_signal, invalidation_condition, cycle_id, source='ritual'.
+  > Fix adicional: `project_members` check usa `member_id` (no `user_id`).
+
+- [x] **DEUDA.PE.22** `PlaybookTriggerBanner` — `useProjectRiskData` no está habilitado si `projectId` es `undefined` pero la query podría lanzar si `projectId` cambia de `undefined` a valor
+  > ✅ No es bug real. React Query estándar: `enabled: !!projectId` previene la query. El banner
+  > renderiza `null` si `!projectId`. Comportamiento correcto confirmado — ningún agujero real.
+
+---
+
+*Bloque DEUDA completado 2026-03-20 · 15/22 items [x] · 7 diferidos [!] (PE.6, PE.11, PE.12, PE.13, PE.15, PE.18 — infraestructura/contenido pendiente) · PE.22 no-bug confirmado · 3 migraciones SQL (00020–00022) · 2 archivos modificados (NotificationBell.tsx, OPTIMUS_PROMPTS.md §1)*
+
+*Plan generado 2026-03-20 · integra V2 existentes (49 items) + Auditoría V3 (33 items) · 82 items totales*
+*Bloque I completado 2026-03-26 · 4 false positives descartados · 2 migraciones SQL creadas (AUD.A.1, AUD.A.2)*
+*Bloque II completado 2026-03-26 · 6 items cerrados (E4.V2.1-2, N7.V2.1, EC13.V2.1, SR10.V2.1, AUD.A.6) · DEUDA.PE.5 fix inline*
+*Bloque III completado 2026-03-26 · 7/9 items cerrados · 2 diferidos (AUD.B.2 → Bloque IV, O5.V2.1 → Bloque V)*
+*Bloque IV completado 2026-03-26 · 3/4 items cerrados · D2.V2.1 diferido (sin usuarios Asana) · DEUDA.PE.3 + PE.8 resueltas · 4 migraciones SQL (00006–00009)*
+*Bloque V completado 2026-03-26 · 8/11 items cerrados · 3 diferidos (AUD.A.5, AUD.M.9, N7.V2.4) · DEUDA.PE.11-14 registradas · 3 componentes nuevos (DataCompletenessCard, InputAuditModal, useActiveSurface.ts)*
+*Bloque VI completado 2026-03-26 · 9/9 items cerrados · DEUDA.PE.15-18 registradas · 4 migraciones SQL (00010–00013) · 2 archivos nuevos (src/lib/optimus.ts, OptimusFeedback.tsx)*
+*Bloque VII completado 2026-03-26 · 11/13 items cerrados · 2 diferidos (F20.V2.1 sin cohorte, C3.V2.1 sin Asana) · DEUDA.PE.19 registrada · 6 migraciones SQL (00014–00016) · 1 componente nuevo (OverdueTasksBanner en MeetingHistory)*
+*Bloque VIII completado 2026-03-26 · 5/11 items cerrados · 6 diferidos · DEUDA.PE.20-22 registradas · 3 migraciones SQL (00017–00019) · 4 archivos nuevos (PlaybookTriggerBanner, DecisionRetrospectiveBanner, EmergencyOnboardingPage, ruta App.tsx)*

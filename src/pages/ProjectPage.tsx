@@ -17,8 +17,9 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import {
   useProjects, useProjectTeamMembers, useProjectStats, useProjectLeads,
   useProjectEngineData, useProjectViabilityState,
-  useActiveSurface, useMarkWeeklyReviewRead, useUpdateLastSeenAt,
+  useMarkWeeklyReviewRead, useUpdateLastSeenAt,
 } from '@/hooks/useNovaDataOptimized';
+import { useActiveSurface } from '@/hooks/useActiveSurface';
 import { WeeklySurface } from '@/components/project/WeeklySurface';
 import { ResetSurface } from '@/components/project/ResetSurface';
 import { ReentrySurface } from '@/components/project/ReentrySurface';
@@ -234,6 +235,7 @@ export default function ProjectPage() {
             projectId={projectId!}
             lastSeenAt={lastSeenAt ?? new Date().toISOString()}
             onAcknowledge={() => setReentryAcknowledged(true)}
+            onNavigateToTab={setActiveTab}
           />
         ) : activeSurface === 'weekly' ? (
           // Surface 2: Weekly Review (full page — Rule 2)

@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Rocket, Building2, ArrowRight, Loader2 } from 'lucide-react';
+import { Lightbulb, Rocket, Building2, ArrowRight, Loader2, Siren } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -122,8 +122,12 @@ export function SelectOnboardingTypePage() {
 
       trackProjectCreated({ project_id: newProject.id });
 
-      // Navigate directly to onboarding
-      navigate(`/onboarding/${newProject.id}`);
+      // O5.V2.3: Modo Emergencia tiene su propio flujo rápido
+      if (typeId === 'emergency') {
+        navigate(`/emergency-onboarding/${newProject.id}`);
+      } else {
+        navigate(`/onboarding/${newProject.id}`);
+      }
 
     } catch (err) {
       console.error('[SelectOnboardingTypePage] Error creating project:', err);
@@ -245,8 +249,21 @@ export function SelectOnboardingTypePage() {
           })}
         </div>
 
-        {/* Help Text - Más compacto */}
-        <div className="text-center">
+        {/* O5.V2.3 — Modo Emergencia: CTA especial para founders en crisis */}
+        <div className="flex flex-col items-center gap-3">
+          <button
+            onClick={() => handleSelectType('emergency')}
+            disabled={isCreating}
+            className="flex items-center gap-2 rounded-xl border border-red-400/40 bg-red-500/10 px-5 py-2.5 text-sm font-semibold text-red-300 backdrop-blur-sm transition-all hover:bg-red-500/20 hover:border-red-400/60 disabled:opacity-50"
+          >
+            {isCreating && selectedType === 'emergency' ? (
+              <Loader2 className="h-4 w-4 animate-spin" />
+            ) : (
+              <Siren className="h-4 w-4" />
+            )}
+            Tengo una crisis urgente — necesito ayuda ahora
+          </button>
+
           <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2">
             <p className="text-sm text-white font-medium flex items-center gap-2 justify-center">
               <span className="text-lg">💡</span>

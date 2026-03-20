@@ -42,15 +42,22 @@ Todo explícito. Sin catch-alls. `primary_block` siempre presente (puede ser `"n
   "bottleneck_role": "string | null",
 
   "recent_decisions_count": 0,
+  "recent_decisions_from_meetings": [
+    { "summary": "string", "decided_at": "ISO string" }
+  ],
   "critical_notifications_7d": 0,
 
-  "next_action": "string — output de getNextAction()"
+  "next_action": "string — output de getNextAction()",
+
+  "focus_block_context": "string | null — output de buildNextAction() cuando urgency='high', null otherwise"
 }
 ```
 
 **Reglas del input:**
 - `primary_block` siempre existe. Refleja la precedencia `structural > clarity > traction`.
 - `next_action` viene del engine. Optimus no lo modifica.
+- `focus_block_context` es opcional. Si está presente, es la descripción detallada de la acción urgente del Focus Block (urgency='high'). Optimus debe priorizarlo al construir el razonamiento.
+- `recent_decisions_from_meetings` es array de hasta 3 decisiones recientes extraídas de `meeting_insights` (insight_type='decision', review_status='approved'). Distinto de `recent_decisions_count` (que cuenta todos los decision_events): este campo refleja decisiones tomadas en reuniones aprobadas. Puede ser array vacío.
 - Los valores de `viability_status` y `probability_trend` coinciden exactamente con `get_optimus_context()`.
 
 ---
@@ -72,6 +79,9 @@ You analyze the project state and explain:
 - which signal triggered the recommendation
 - when the advice stops applying
 - how confident the system should be in this guidance
+
+If focus_block_context is provided, it means the Focus Block has identified a high-urgency action.
+You must anchor your reasoning to that context. Do not ignore it even if other signals suggest lower urgency.
 
 Your tone depends on the Optimus mode:
 
@@ -110,13 +120,17 @@ Before responding, follow these steps:
    Use vocabulary from the microcopy system.
    Do not mention field names.
 
-3. Connect the signal to the recommended Next Action.
+3. If focus_block_context is present (not null), use it as the primary signal basis.
+   It represents a high-urgency recommendation from the Focus Block engine.
+   Reference it in signal_basis using plain language — never expose the field name.
+
+4. Connect the signal to the recommended Next Action.
    primary.action must equal next_action exactly.
 
-4. Determine what change would make this advice no longer valid.
+5. Determine what change would make this advice no longer valid.
    This is the invalidation_condition.
 
-5. Estimate confidence:
+6. Estimate confidence:
    - high: clear signal + consistent indicators across multiple fields
    - medium: signal present but incomplete context or conflicting indicators
    - low: weak signal, ambiguous situation, or insufficient_data in trend

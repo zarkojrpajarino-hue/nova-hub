@@ -164,6 +164,68 @@ function FulfillmentBadge({ meetingId }: { meetingId: string }) {
   )
 }
 
+// ── F19.V2.2: useOverdueMeetingTasks ─────────────────────────────────────────
+// Tareas generadas desde reuniones que llevan >30 días sin resolverse.
+// Se muestran como alerta en Meeting Intelligence para cerrar el loop estratégico.
+
+interface OverdueMeetingTask {
+  id:         string
+  titulo:     string   // columna real en tasks
+  created_at: string
+  meeting_id: string
+}
+
+function useOverdueMeetingTasks(projectId: string) {
+  return useQuery({
+    queryKey:  ['overdue_meeting_tasks', projectId],
+    enabled:   !!projectId,
+    staleTime: 5 * 60_000,
+    queryFn:   async (): Promise<OverdueMeetingTask[]> => {
+      const threshold = new Date(Date.now() - 30 * 86_400_000).toISOString();
+      const { data } = await supabase
+        .from('tasks')
+        .select('id, titulo, created_at, meeting_id')
+        .eq('project_id', projectId)
+        .not('meeting_id', 'is', null)
+        .not('status', 'eq', 'done')
+        .lt('created_at', threshold)
+        .order('created_at', { ascending: true })
+        .limit(20);
+      return (data ?? []) as OverdueMeetingTask[];
+    },
+  });
+}
+
+// ── F19.V2.2: OverdueTasksBanner ──────────────────────────────────────────────
+
+function OverdueTasksBanner({ projectId }: { projectId: string }) {
+  const { data: overdueTasks } = useOverdueMeetingTasks(projectId);
+  if (!overdueTasks || overdueTasks.length === 0) return null;
+
+  const count = overdueTasks.length;
+  const oldest = overdueTasks[0];
+  const daysSince = Math.floor(
+    (Date.now() - new Date(oldest.created_at).getTime()) / 86_400_000,
+  );
+
+  return (
+    <div className="rounded-lg border border-red-200 bg-red-50 px-4 py-3 dark:border-red-800 dark:bg-red-950/30">
+      <div className="flex items-start gap-3">
+        <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-red-500" />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-semibold text-red-900 dark:text-red-200">
+            {count} {count === 1 ? 'compromiso de reunión lleva' : 'compromisos de reunión llevan'} más de 30 días sin resolverse
+          </p>
+          <p className="mt-0.5 text-xs text-red-700 dark:text-red-300">
+            El más antiguo: <span className="font-medium">"{oldest.titulo}"</span> — {daysSince} días pendiente.
+            Estos compromisos deberían discutirse en la próxima reunión.
+          </p>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 // ── M18.20: useMeetingPatterns + RecurringPatternsPanel ───────────────────────
 
 interface RecurringTopic {
@@ -487,6 +549,9 @@ export function MeetingHistory({
           </CardContent>
         </Card>
       </div>
+
+      {/* F19.V2.2 — Compromisos de reunión vencidos >30 días */}
+      <OverdueTasksBanner projectId={projectId} />
 
       {/* M18.20 — Temas sin resolver (solo ≥ 3 reuniones completadas) */}
       <RecurringPatternsPanel

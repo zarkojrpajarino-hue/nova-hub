@@ -31,6 +31,16 @@ PRINCIPIOS:
 - Si los datos son escasos, dilo — no inventes patrones donde no los hay.
 - Las "Hard Truths" son el output más valioso: lo que el founder no quiere ver pero necesita saber.
 
+CALIBRACIÓN PARA DATOS ESCASOS (F20.V2.5):
+- Si el proyecto lleva menos de 30 días activo O no tiene integraciones activas:
+  * Usa confidence_overall ≤ 0.5
+  * En executive_summary.paragraph menciona explícitamente que el análisis es preliminar por falta de datos operativos
+  * En phase_fit.benchmark_note incluye nota sobre la limitación de datos
+  * NO generes hard_truths ni cross_signals con reliability > 0.5 en estos casos
+  * No inventes tendencias que no están en los datos — es mejor decir "insuficiente data" que inferir
+- Si hay integraciones activas con datos recientes (< 3 días): puedes usar confidence_overall hasta 0.85
+- Nunca uses confidence_overall = 1.0 — siempre hay incertidumbre
+
 RESPONDE ÚNICAMENTE con JSON válido. Sin markdown, sin texto fuera del JSON.
 Sigue exactamente el schema de output especificado en el prompt.`;
 
@@ -184,9 +194,16 @@ serve(async (req) => {
         if (l2Max > lastDataUpdatedAt) lastDataUpdatedAt = l2Max;
       }
 
+      // AUD.A.3: top-3 insights de mayor confianza para anclar el análisis
+      const topAgentInsights = (recentInsights ?? [])
+        .sort((a, b) => (b.confidence ?? 0) - (a.confidence ?? 0))
+        .slice(0, 3);
+
       level2Context = {
         integraciones_activas: connections ?? [],
         insights_aprobados: recentInsights ?? [],
+        // AUD.A.3: top-3 destacados — el prompt los prioriza sobre otras señales
+        top_agent_insights: topAgentInsights,
         metricas: metrics ?? [],
       };
     }
@@ -221,8 +238,13 @@ serve(async (req) => {
     }
 
     // ── 4. Construir prompt ───────────────────────────────────────────────
+    // F20.V2.5: calcular días activos para calibración de datos escasos
+    const createdAt = project?.created_at ? new Date(project.created_at) : new Date();
+    const daysActive = Math.floor((Date.now() - createdAt.getTime()) / 86_400_000);
+
     const dataPayload = {
       nivel: level,
+      dias_activo: daysActive,  // F20.V2.5 — explícito para calibración
       proyecto: projectContext,
       ...(level >= 2 ? { datos_externos: level2Context } : {}),
       ...(level >= 3 ? { datos_avanzados: level3Context } : {}),
@@ -230,11 +252,21 @@ serve(async (req) => {
     };
 
     const outputSchema = buildOutputSchema(level);
+    // AUD.A.3: extraer top_agent_insights del payload para destacarlos en el prompt
+    const topInsightsSummary = level >= 2 && (dataPayload as Record<string, unknown>).datos_externos
+      ? ((dataPayload as Record<string, unknown>).datos_externos as Record<string, unknown>)?.top_agent_insights as Array<{agent_type?: string; payload?: Record<string, unknown>; confidence?: number}> ?? []
+      : [];
+
+    const topInsightsBlock = topInsightsSummary.length > 0
+      ? `\nINSIGHTS DE MAYOR CONFIANZA (no contradecir sin evidencia explícita):
+${topInsightsSummary.map((ins, i) => `${i + 1}. [${ins.agent_type ?? 'agente'}] ${JSON.stringify(ins.payload ?? {}).slice(0, 200)} (confianza: ${ins.confidence ?? 'n/a'})`).join('\n')}\n`
+      : '';
+
     const userPrompt = `Analiza este proyecto y genera el informe estratégico nivel ${level}.
 
 DATOS DEL PROYECTO:
 ${JSON.stringify(dataPayload, null, 2)}
-
+${topInsightsBlock}
 SCHEMA DE SALIDA REQUERIDO:
 ${JSON.stringify(outputSchema, null, 2)}
 
@@ -290,7 +322,45 @@ REGLAS PARA "contradictions":
       output: analysisOutput,
       tokens_used: tokensUsed,
       model: 'claude-sonnet-4-6',
+      additional_context: additional_context ?? null,  // F20.V2.4
     }, { onConflict: 'project_id,analysis_level' });
+
+    // ── AUD.M.7: auto-crear hasta 3 tareas desde urgent_decisions ─────────
+    // Cada urgent_decision con action_plan genera una tarea con el day=1 action como título.
+    // Solo se crean si la decisión tiene action_plan con al menos 1 entrada.
+    try {
+      const urgentDecisions = (
+        (analysisOutput as Record<string, unknown>)?.sections as Record<string, unknown>
+      )?.urgent_decisions as Array<{
+        title?: string;
+        action_plan?: Array<{ day: number; action: string }>;
+      }> | undefined;
+
+      if (Array.isArray(urgentDecisions) && urgentDecisions.length > 0) {
+        const tasksToInsert = urgentDecisions
+          .slice(0, 3)
+          .map(dec => {
+            const day1Action = dec.action_plan?.find(ap => ap.day === 1)?.action;
+            if (!day1Action) return null;
+            return {
+              project_id,
+              titulo: day1Action.slice(0, 250),  // columna real: titulo
+              descripcion: dec.title ?? null,     // columna real: descripcion
+              status: 'todo',                     // task_status enum: 'todo'
+              source: 'optimus',                  // M18.14: nuevo valor de source
+              ai_generated: true,
+            };
+          })
+          .filter((t): t is NonNullable<typeof t> => t !== null);
+
+        if (tasksToInsert.length > 0) {
+          await supabase.from('tasks').insert(tasksToInsert);
+          // Silently ignore insert errors — task creation is best-effort
+        }
+      }
+    } catch {
+      // Non-critical: auto-task creation failure must NOT abort the analysis response
+    }
 
     return new Response(JSON.stringify({
       ...analysisOutput,
@@ -331,6 +401,12 @@ function buildOutputSchema(level: number): Record<string, unknown> {
           context: 'string — 1 línea de por qué es urgente',
           consequence: 'string — qué pasa si no se decide',
           cta: { label: 'string — ej: Ir a OBVs', view: 'string — nombre de vista de app' },
+          // AUD.M.7: plan de acción en 3 horizontes temporales
+          action_plan: [
+            { day: 1,  action: 'string — qué hacer en las próximas 24h' },
+            { day: 3,  action: 'string — qué hacer en los próximos 3 días' },
+            { day: 7,  action: 'string — qué hacer en los próximos 7 días' },
+          ],
         },
       ],
       contradictions: [

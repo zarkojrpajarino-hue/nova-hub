@@ -19,6 +19,7 @@ const CreateFirstProjectPage = lazy(() => import("./pages/CreateFirstProjectPage
 const SelectProjectPage = lazy(() => import("./pages/SelectProjectPage").then(m => ({ default: m.SelectProjectPage })));
 const SelectOnboardingTypePage = lazy(() => import("./pages/SelectOnboardingTypePage").then(m => ({ default: m.SelectOnboardingTypePage })));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage").then(m => ({ default: m.OnboardingPage })));
+const EmergencyOnboardingPage = lazy(() => import("./pages/EmergencyOnboardingPage").then(m => ({ default: m.EmergencyOnboardingPage })));
 const DeepSetupPage = lazy(() => import("./pages/DeepSetupPage").then(m => ({ default: m.DeepSetupPage })));
 const PrimerInicioPage = lazy(() => import("./pages/PrimerInicioPage").then(m => ({ default: m.PrimerInicioPage })));
 const EvidenceTestPage = lazy(() => import("./pages/EvidenceTestPage"));
@@ -124,6 +125,16 @@ const App = () => (
                     element={
                       <ProtectedRoute>
                         <OnboardingPage />
+                      </ProtectedRoute>
+                    }
+                  />
+
+                  {/* O5.V2.3 — Modo Emergencia: flujo urgente ≤3min */}
+                  <Route
+                    path="/emergency-onboarding/:projectId"
+                    element={
+                      <ProtectedRoute>
+                        <EmergencyOnboardingPage />
                       </ProtectedRoute>
                     }
                   />

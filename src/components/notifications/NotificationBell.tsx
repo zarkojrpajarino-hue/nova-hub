@@ -16,6 +16,7 @@ import {
 } from '@/components/ui/popover';
 import { NotificationList } from './NotificationList';
 import { cn } from '@/lib/utils';
+import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
 interface NotificationBellProps {
   userId: string;
@@ -24,6 +25,22 @@ interface NotificationBellProps {
 export function NotificationBell({ userId }: NotificationBellProps) {
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
+  const { currentProject } = useCurrentProject();
+  const [currentPhase, setCurrentPhase] = useState<number | undefined>(undefined);
+
+  // DEUDA.PE.14: fetch current_phase from project_phase_state — CurrentProjectContext
+  // queries projects table without join, so phase_state is not available there.
+  useEffect(() => {
+    if (!currentProject?.id) return;
+    supabase
+      .from('project_phase_state')
+      .select('current_phase')
+      .eq('project_id', currentProject.id)
+      .single()
+      .then(({ data }) => {
+        if (data) setCurrentPhase(data.current_phase as number);
+      });
+  }, [currentProject?.id]);
 
   useEffect(() => {
     if (!userId) return;
@@ -91,6 +108,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
           userId={userId}
           onNotificationRead={loadUnreadCount}
           onClose={() => setIsOpen(false)}
+          phase={currentPhase}
         />
       </PopoverContent>
     </Popover>

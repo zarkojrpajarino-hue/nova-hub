@@ -117,7 +117,7 @@ export function PipelineTractionSection({ data }: { data: NonNullable<AnalysisSe
             </p>
           </div>
           <div className="rounded-lg bg-gray-50 dark:bg-gray-900 px-3 py-2.5">
-            <p className="text-xs text-gray-500 mb-0.5">En riesgo (>30d sin mov.)</p>
+            <p className="text-xs text-gray-500 mb-0.5">En riesgo (&gt;30d sin mov.)</p>
             <p className={`text-xl font-bold ${(data.at_risk_count ?? 0) > 0 ? 'text-red-600' : 'text-gray-800 dark:text-gray-200'}`}>
               {data.at_risk_count ?? '—'}
             </p>
