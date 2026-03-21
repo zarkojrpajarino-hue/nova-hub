@@ -35,7 +35,7 @@
 > | FASE 24 — Visibilidad de Progresión y Metodología | ✅ CERRADA 10/10 | Roadmap visible · Metodología transparente · Score bar · Unlock checklist |
 > | FASE 25 — Ciclos Estratégicos | ✅ CERRADA 13/13 | Motor de ciclos · Generación IA · CycleDashboard · Historial · Regresión |
 > | FASE 26 — Sistema de Equipo v2 | ✅ CERRADA 14/14 | Invitaciones por enlace · Permisos por rol · Dashboard filtrado · Hiring guidance |
-> | FASE 27 — Proactive Intelligence | ⏸ PENDIENTE 0/7 | Moment Detector + Runway to Phase N · Prerequisito: F16 activa |
+> | FASE 27 — Proactive Intelligence | ✅ CERRADA 7/7 | Moment Detector + Phase Runway Estimator + MomentBanner |
 > | FASE 28 — Optimus Personalization | ⏸ PENDIENTE 0/6 | Optimus Memory + Feedback Real · Prerequisito: F16 cerrada + O4.1 |
 > | FASE 29 — Execution-to-Revenue Pipeline | ⏸ PENDIENTE 0/8 | Correlación Asana→HubSpot→Stripe · Prerequisito: B0.1 + I5.1 + I5.2 |
 > | FASE 30 — Financial Intelligence Avanzada | ⏸ PENDIENTE 0/7 | Stress Test + Predictive MRR + Churn · Prerequisito: F29 + ≥8 semanas Stripe |
@@ -4727,3 +4727,79 @@ ORDER  BY critical_count DESC, total DESC;
 ---
 
 *Plan Fases 23-26 generado 2026-03-21 · 49 tareas nuevas · Motor de Progresión v2 + Visibilidad + Ciclos Estratégicos + Sistema de Equipo v2*
+
+---
+
+## FASE 27 — PROACTIVE INTELLIGENCE  7/7 (100%) ✅
+> **Objetivo:** Detectar momentos clave del proyecto (milestones, estancamientos, oportunidades)
+> y estimar cuánto falta para alcanzar la siguiente fase. Convertir datos pasivos en coaching proactivo.
+>
+> **Lo que ya existe:** Notification layers 1-5 (cambios de estado), weekly reviews, agent synthesis,
+> buildNextAction. FASE 27 añade la capa de PATRONES TEMPORALES + PREDICCIÓN que falta.
+>
+> **Principio:** El founder no debería tener que mirar los números para saber si va bien.
+> El sistema se anticipa y le dice qué está pasando ANTES de que sea un problema.
+
+### Bloque A — Moment Detector
+
+- [x] **PI27.1** `src/lib/moment-detector.ts` — lógica pura de detección de momentos
+  > Función `detectMoments(input): Moment[]`. Recibe datos del proyecto y retorna momentos detectados.
+  > **Momentos positivos (celebración):**
+  > - `first_customer`: primera OBV con tipo='venta' y outcome='success'
+  > - `first_revenue`: key_metrics.mrr > 0 por primera vez
+  > - `revenue_milestone`: MRR cruza €1k, €5k, €10k, €50k (umbrales fijos)
+  > - `team_growth`: nuevo miembro aceptado (project_members.role_accepted = true)
+  > - `phase_speed`: avanzó de fase en <4 semanas (rápido vs promedio ~8 sem)
+  > **Momentos de atención (coaching):**
+  > - `stagnation_warning`: misma fase ≥8 semanas + score sin mejorar ≥10 pts en 4 semanas
+  > - `hard_signal_close`: score ≥ 75 pero hard_signal = false desde hace ≥2 semanas
+  > - `cycle_ending_soon`: ciclo activo con ≤14 días restantes y score < 75
+  > - `regression_risk`: consecutive_low_score ≥ 3 (3 semanas de score < 50)
+  > **Output:** `{ type, severity, title, message, data, detectedAt }[]`
+  > Sin side effects. Testeable.
+
+- [x] **PI27.2** Hook `useMomentDetector(projectId)` + `MomentBanner.tsx`
+  > Hook que recopila datos y llama a `detectMoments()`.
+  > `MomentBanner`: se muestra encima del NextActionFocusBlock en el dashboard.
+  > Momentos positivos: confetti + celebración efímera (dismiss después de 1 vista).
+  > Momentos de atención: banner persistente con CTA contextual.
+  > Máximo 1 momento visible a la vez (el de mayor severidad).
+  > Persistencia: guarda `last_seen_moments` en `project_user_state.metadata` para no repetir.
+
+### Bloque B — Runway to Phase N
+
+- [x] **PI27.3** `src/lib/phase-runway-estimator.ts` — estimación de tiempo a siguiente fase
+  > Función `estimatePhaseRunway(input): PhaseRunwayEstimate`.
+  > Input: `{ currentPhase, phaseScore, scoreHistory (últimas 8 semanas), hardSignalMet, velocity }`.
+  > **Algoritmo:**
+  > 1. Calcular `score_velocity` = pendiente lineal de los últimos 8 puntos de phase_score.
+  > 2. `points_needed` = max(0, 75 - currentScore).
+  > 3. Si `score_velocity <= 0`: `estimate = 'stalled'` (no avanza).
+  > 4. Si `score_velocity > 0`: `weeks_to_75 = points_needed / score_velocity`.
+  > 5. Si `hardSignalMet = false`: añadir +2 semanas estimadas (señal dura suele tardar).
+  > 6. Si `velocity < 2`: añadir +1 semana (baja iteración).
+  > **Output:** `{ weeksEstimate: number | 'stalled', confidence: 'high'|'medium'|'low', explanation: string }`.
+  > Confidence: 'high' si ≥6 data points y R² > 0.7, 'medium' si ≥4, 'low' si <4.
+
+- [x] **PI27.4** Componente `PhaseRunwayIndicator.tsx`
+  > Integrado en PhaseRoadmap (expandido). Muestra:
+  > "A este ritmo, llegarás a Fase N en ~X semanas" (con barra de confianza).
+  > Si stalled: "Tu progreso está estancado. Enfócate en [acción más impactante]."
+  > Si < 2 semanas: "¡Estás muy cerca de Fase N! Solo falta: [hard signal / score]."
+  > Colores: verde (<4 sem), amarillo (4-8), rojo (>8 o stalled).
+
+### Bloque C — Integración y cierre
+
+- [x] **PI27.5** Integrar MomentBanner en ProjectDashboardTab + moments en notificaciones
+  > MomentBanner en dashboard (antes de NextActionFocusBlock).
+  > Momentos positivos generan notificación tipo `milestone_reached` (L1 activity).
+  > Momentos de atención generan notificación tipo `proactive_coaching` (L2 phase).
+  > No duplicar con notification layers existentes — solo momentos NUEVOS que no cubren los 5 layers.
+
+- [x] **PI27.6** Tests de moment-detector y phase-runway-estimator
+  > Tests unitarios para:
+  > - Detección de first_customer, revenue_milestone, stagnation_warning
+  > - Runway estimation: score creciente → weeks estimate, stalled → 'stalled'
+  > - Confidence levels según data points
+
+- [x] **PI27.7** Bloque DEUDA — Fase 27

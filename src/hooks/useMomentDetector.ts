@@ -1,0 +1,129 @@
+/**
+ * PI27.2 — useMomentDetector
+ *
+ * Recopila datos del proyecto y llama a detectMoments().
+ * Mantiene lista de momentos ya vistos en localStorage.
+ */
+
+import { useMemo } from 'react';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
+import { detectMoments, type Moment, type MomentDetectorInput } from '@/lib/moment-detector';
+import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { useActiveCycle } from '@/hooks/useStrategicCycles';
+
+const SEEN_KEY_PREFIX = 'moments_seen_';
+
+function getSeenMoments(projectId: string): string[] {
+  try {
+    const raw = localStorage.getItem(`${SEEN_KEY_PREFIX}${projectId}`);
+    return raw ? JSON.parse(raw) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function markMomentSeen(projectId: string, momentKey: string) {
+  const seen = getSeenMoments(projectId);
+  if (!seen.includes(momentKey)) {
+    seen.push(momentKey);
+    localStorage.setItem(`${SEEN_KEY_PREFIX}${projectId}`, JSON.stringify(seen));
+  }
+}
+
+export function useMomentDetector(projectId: string | undefined) {
+  const { data: engineData } = useProjectEngineData(projectId);
+  const { data: activeCycle } = useActiveCycle(projectId);
+
+  // Additional data: first sale, MRR, team
+  const { data: extraData } = useQuery({
+    queryKey: ['moment-detector-data', projectId],
+    queryFn: async () => {
+      const [saleResult, mrrResult, teamResult, scoreHistoryResult] = await Promise.all([
+        supabase
+          .from('obvs')
+          .select('id')
+          .eq('project_id', projectId!)
+          .in('tipo', ['venta', 'revenue_validation'])
+          .eq('obv_outcome', 'success')
+          .limit(1)
+          .maybeSingle(),
+        supabase
+          .from('key_metrics')
+          .select('mrr, date')
+          .eq('project_id', projectId!)
+          .order('date', { ascending: false })
+          .limit(2),
+        supabase
+          .from('project_members')
+          .select('id, joined_at')
+          .eq('project_id', projectId!),
+        supabase
+          .from('project_phase_history')
+          .select('phase_score, calculated_at')
+          .eq('project_id', projectId!)
+          .order('calculated_at', { ascending: false })
+          .limit(8),
+      ]);
+
+      const mrrData = mrrResult.data ?? [];
+      const currentMrr = Number(mrrData[0]?.mrr) || 0;
+      const previousMrr = Number(mrrData[1]?.mrr) || 0;
+      const members = teamResult.data ?? [];
+      const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
+      const newMembers = members.filter(m => m.joined_at && m.joined_at >= weekAgo).length;
+
+      return {
+        hasFirstSale: !!saleResult.data,
+        currentMrr,
+        previousMrr,
+        teamSize: members.length,
+        newMembersThisWeek: newMembers,
+        scoreHistory: (scoreHistoryResult.data ?? []).reverse().map(h => Number(h.phase_score)),
+      };
+    },
+    enabled: !!projectId,
+    staleTime: 5 * 60_000,
+  });
+
+  const moments = useMemo((): Moment[] => {
+    if (!engineData?.phaseState || !extraData) return [];
+
+    const ps = engineData.phaseState;
+    const weeksInPhase = ps.phase_entered_at
+      ? Math.floor((Date.now() - new Date(ps.phase_entered_at).getTime()) / (7 * 86_400_000))
+      : 0;
+
+    // Score change in last 4 weeks
+    const history = extraData.scoreHistory;
+    const scoreChange4w = history.length >= 5
+      ? history[history.length - 1] - history[history.length - 5]
+      : 0;
+
+    // Cycle data
+    const cycleDaysRemaining = activeCycle?.end_date
+      ? Math.max(0, Math.ceil((new Date(activeCycle.end_date).getTime() - Date.now()) / 86_400_000))
+      : null;
+
+    const input: MomentDetectorInput = {
+      hasFirstSale: extraData.hasFirstSale,
+      currentMrr: extraData.currentMrr,
+      previousMrr: extraData.previousMrr,
+      currentPhase: ps.current_phase,
+      phaseScore: ps.phase_score,
+      hardSignalMet: ps.hard_signal_met,
+      weeksInPhase,
+      scoreChange4w,
+      consecutiveLowScore: ps.consecutive_low_score ?? 0,
+      teamSize: extraData.teamSize,
+      newMembersThisWeek: extraData.newMembersThisWeek,
+      activeCycleDaysRemaining: cycleDaysRemaining,
+      activeCycleScore: activeCycle?.cycle_score ?? null,
+      seenMoments: getSeenMoments(projectId!),
+    };
+
+    return detectMoments(input);
+  }, [engineData, extraData, activeCycle, projectId]);
+
+  return { moments, topMoment: moments[0] ?? null };
+}

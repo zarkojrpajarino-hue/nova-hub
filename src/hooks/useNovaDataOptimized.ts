@@ -518,8 +518,10 @@ export interface ProjectEngineData {
     primary_block: string;
     // [F23] Campos de progresión v2
     entry_mode: string | null;
+    phase_entered_at: string;
     graduation_eligible_since: string | null;
     graduated: boolean;
+    consecutive_low_score: number;
   } | null;
   probability: {
     probability_score: number | null;
@@ -594,7 +596,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
       const [stateResult, historyResult] = await Promise.all([
         supabase
           .from('project_phase_state')
-          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, primary_block, entry_mode, graduation_eligible_since, graduated')
+          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, phase_entered_at, primary_block, entry_mode, graduation_eligible_since, graduated, consecutive_low_score')
           .eq('project_id', projectId!)
           .maybeSingle(),
         supabase
@@ -602,7 +604,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
           .select('phase, phase_score, change_reason, calculated_at')
           .eq('project_id', projectId!)
           .order('calculated_at', { ascending: false })
-          .limit(2),
+          .limit(8),  // [PI27] Ampliado de 2 a 8 para PhaseRunwayIndicator
       ]);
       if (stateResult.error)   throw stateResult.error;
       if (historyResult.error) throw historyResult.error;

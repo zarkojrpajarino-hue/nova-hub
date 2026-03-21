@@ -22,6 +22,7 @@ import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
 import { PhaseRoadmap } from './PhaseRoadmap';
 import { CycleDashboard } from './CycleDashboard';
+import { MomentBanner } from './MomentBanner';
 
 interface ProjectStats {
   facturacion?: number;
@@ -82,6 +83,9 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         totalOBVs={totalOBVs}
         onNavigateToTab={onNavigateToTab}
       />
+
+      {/* PI27.5 — Moment Banner (celebraciones + coaching proactivo) */}
+      <MomentBanner projectId={project.id} />
 
       {/* F19.A.3 — Next Action Focus Block (primer elemento del dashboard) */}
       <NextActionFocusBlock

@@ -17,6 +17,7 @@ import { useState } from 'react';
 import { CheckCircle2, ChevronDown, ChevronUp, Lock, GraduationCap } from 'lucide-react';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS, PHASE_METHODOLOGY } from '@/lib/engine';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { PhaseRunwayIndicator } from './PhaseRunwayIndicator';
 
 // ── Phase Explainer texts (V24.2) ────────────────────────────────────────────
 
@@ -210,6 +211,14 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
 
           {/* V24.4 — Score Bar */}
           <PhaseScoreBar score={score} status={status} />
+
+          {/* PI27.4 — Phase Runway Indicator */}
+          {currentPhase < 4 && (
+            <PhaseRunwayIndicator
+              engineData={engineData!}
+              scoreHistory={engineData!.phaseHistory.map(h => h.phase_score).reverse()}
+            />
+          )}
 
           {/* V24.3 — Unlock Checklist (solo si no estás en Phase 4 o no graduated) */}
           {currentPhase < 4 && (
