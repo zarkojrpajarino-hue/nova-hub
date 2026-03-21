@@ -40,6 +40,21 @@ SET    status = 'completed'
 WHERE  closed_at IS NOT NULL
   AND  status = 'active';
 
+-- Si un proyecto tiene 2+ ciclos con closed_at IS NULL (ambos "activos" en v1),
+-- solo dejar el más reciente como 'active' y el resto como 'completed'.
+-- Sin esto, el unique index de abajo falla.
+UPDATE strategic_cycles sc
+SET    status = 'completed'
+WHERE  sc.status = 'active'
+  AND  sc.id != (
+    SELECT s2.id
+    FROM   strategic_cycles s2
+    WHERE  s2.project_id = sc.project_id
+      AND  s2.status = 'active'
+    ORDER BY s2.cycle_index DESC
+    LIMIT  1
+  );
+
 -- Índice para buscar ciclo activo rápido
 CREATE INDEX IF NOT EXISTS idx_strategic_cycles_active
   ON strategic_cycles (project_id, status)
