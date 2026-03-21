@@ -30,7 +30,7 @@
 > | FASE 19 — Foco, Loop y Adaptación | ✅ CERRADA v1 14/14 + 3 v2 pendientes | Focus Block · Task Loop · UX Adaptativa |
 > | FASE 20 — Análisis Estratégico IA v4 | ✅ CERRADA 12/12 + 5 v2 pendientes | Prerequisito: FASE 16 activa + proyecto ≥14 días · Niveles se desbloquean con integraciones |
 > | FASE 21 — Founder Toolkit | ✅ CERRADA 8/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
-> | FASE 22 — Expansion Intelligence | ⏸ POST-F21 0/9 + 2 v2 pendientes | Prerequisito: Fase 3+ · MRR estable 2 meses · riesgo no crítico · 1 integración activa |
+> | FASE 22 — Expansion Intelligence | ✅ CERRADA 9/9 | Readiness engine · 3 mercados IA · Plan 5 días · Transparencia |
 > | FASE 23 — Motor de Progresión v2 | ✅ CERRADA 12/12 | Fase 0 · Unificar user_stage→phase · Fast-track · Graduación |
 > | FASE 24 — Visibilidad de Progresión y Metodología | ✅ CERRADA 10/10 | Roadmap visible · Metodología transparente · Score bar · Unlock checklist |
 > | FASE 25 — Ciclos Estratégicos | ✅ CERRADA 13/13 | Motor de ciclos · Generación IA · CycleDashboard · Historial · Regresión |
@@ -3193,7 +3193,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 22 — EXPANSION INTELLIGENCE ⏸ POST-F21 0/9
+## FASE 22 — EXPANSION INTELLIGENCE ✅ CERRADA 9/9
 > Prerequisito: proyecto en Fase 3+ · MRR estable o creciente ≥2 meses · `risk_score.level != 'critical'` · al menos 1 integración activa con datos reales.
 > La feature más diferencial de Optimus para founders con tracción: recomendaciones de expansión geográfica con datos reales del negocio, plan de exploración ejecutable (5 días, sin dejar el negocio) y contexto de mercado local. El founder puede escalar mientras viaja — o decidir no escalar con datos en la mano.
 >
@@ -3203,19 +3203,19 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE A — Readiness y Motor de Recomendación
 
-- [ ] **F22.1** `src/lib/expansion-readiness-engine.ts` — lógica pura de condiciones
+- [x] **F22.1** `src/lib/expansion-readiness-engine.ts` — lógica pura de condiciones
   > Función `computeExpansionReadiness(projectData): ExpansionReadinessState`. Checks: (1) `current_phase >= 3`, (2) MRR trend positivo o estable en últimos 60 días, (3) `risk_score.level != 'critical'`, (4) `integration_connections.status='active' COUNT >= 1`.
   > **Definición de "MRR trend estable":** usar los últimos 60 días de `key_metrics.mrr` (una fila por semana = 8-9 puntos). Calcular pendiente normalizada: `slope = (mrr[last] - mrr[first]) / mrr[first]`. Condición: `slope >= -0.05` (permite caída ≤5% — ruido normal) AND `NO hay ningún mes con caída >20% respecto al anterior` (detector de crisis). Si hay <4 puntos de historial: condición = `isStale`, no `false` (no bloquear por falta de datos insuficientes).
   > Output: `{ isReady: boolean, missingConditions: string[], readinessScore: 0-100, readinessLabel: string }`. Sin side effects. Testeable en aislamiento.
 
-- [ ] **F22.2** Hook `useExpansionReadiness(projectId)` + `ExpansionReadinessTeaser.tsx`
+- [x] **F22.2** Hook `useExpansionReadiness(projectId)` + `ExpansionReadinessTeaser.tsx`
   > Hook llama a `computeExpansionReadiness` con datos reales. Si `isReady = false`: componente `ExpansionReadinessTeaser.tsx` — muestra estado de cada condición con checkmark/pendiente + motivación anticipatoria "Cuando alcances Fase 3 con MRR estable, Optimus te mostrará los 3 mejores mercados para tu negocio". No es bloqueante — es un horizonte visible. Si `isReady = true`: muestra `ExpansionIntelligencePage` con caché o botón "Analizar mis mercados ideales →".
 
-- [ ] **F22.3** Migración — tabla `expansion_analysis_cache` + tabla `expansion_events`
+- [x] **F22.3** Migración — tabla `expansion_analysis_cache` + tabla `expansion_events`
   > **`expansion_analysis_cache`:** `id UUID`, `project_id UUID`, `generated_at TIMESTAMPTZ`, `expires_at TIMESTAMPTZ` (TTL: 14 días), `input_snapshot JSONB` (datos del negocio usados), `output JSONB`, `markets JSONB[]`. RLS: project members read · owner delete. Índice en `(project_id, generated_at DESC)`.
   > **`expansion_events`:** `id UUID`, `country TEXT`, `city TEXT`, `sector TEXT[]`, `event_name TEXT`, `event_date DATE`, `url TEXT`, `cost_eur_approx INTEGER`, `why_relevant_template TEXT`. Tabla curada manualmente. Índice en `(country, event_date)`. Actualización trimestral.
 
-- [ ] **F22.4** Edge function `analyze-expansion-v1` — 3 mercados ideales con plan
+- [x] **F22.4** Edge function `analyze-expansion-v1` — 3 mercados ideales con plan
   > Input: `project_id`. Recopilación: business_model, sector, country actual, MRR, buyer_persona (si existe), team_size, acquisition_channels activos.
   > Selección de mercados: para cada mercado candidato top-20 por sector/modelo, score = `(market_size_fit × 0.3) + (regulatory_ease × 0.2) + (cultural_proximity × 0.2) + (startup_ecosystem_quality × 0.15) + (cost_of_living_founder × 0.15)`. Seleccionar top 3.
   > **Cálculo de cada dimensión** (normalizadas 0-1, todas usando `country_data` de INFRA.1):
@@ -3229,15 +3229,15 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE B — UX
 
-- [ ] **F22.5** `ExpansionIntelligencePage.tsx` — página principal
+- [x] **F22.5** `ExpansionIntelligencePage.tsx` — página principal
   > Route: `/proyecto/:id/expansion`. Tab "Expansión" en `ProjectPage` — si `!isReady`: muestra `ExpansionReadinessTeaser` (F22.2); si `isReady`: página completa. No es tab teaser genérico — tiene contenido real de readiness desde el primer día.
   > Si hay análisis: `ReadinessCheckSection` compacta (score + fecha) + 3 `ExpansionMarketCard` + `ExplorationPlanSection` accesible desde cada card + `UpcomingEventsSection`.
 
-- [ ] **F22.6** `ReadinessCheckSection.tsx` + `ExpansionMarketCard.tsx`
+- [x] **F22.6** `ReadinessCheckSection.tsx` + `ExpansionMarketCard.tsx`
   > **ReadinessCheckSection:** 4 checks con iconos (fase/MRR/riesgo/integración), readiness score global, fecha del último análisis. Versión compacta cuando hay análisis, versión completa cuando no.
   > **ExpansionMarketCard.tsx:** card por mercado con nombre del país/ciudad + score global + 6 dimensiones como barras horizontales (Tamaño de mercado · Facilidad regulatoria · Proximidad cultural · Ecosistema startup · Coste de exploración · Potencial de sinergias) + "Por qué para tu negocio" (1-2 líneas con la razón data-driven) + botón "Ver plan de 5 días →". `SourceBadge` (F20.9 — reutilizar) en las dimensiones que vienen de datos reales del negocio.
 
-- [ ] **F22.7** `ExplorationPlanSection.tsx` — plan de 5 días por mercado
+- [x] **F22.7** `ExplorationPlanSection.tsx` — plan de 5 días por mercado
   > Se muestra en panel lateral o modal al clicar "Ver plan de 5 días →".
   > **Estructura fija por día** (no variable — el founder sabe qué esperar):
   > - Día 1: Llegada + reunión con acelerador/hub local + primer networking. Hipótesis: "¿Hay densidad real de startups activas o es un ecosistema aspiracional?"
@@ -3247,12 +3247,12 @@ ORDER  BY critical_count DESC, total DESC;
   > - Día 5: Go/No-Go decision + plan de retorno. Hipótesis: "¿Merece tomar presencia local o repetir el viaje en 6 meses?"
   > Por día: actividades sugeridas (generadas por AI según sector + mercado) + coste estimado (alojamiento + transporte). Coste total del viaje (rango min-max €). Consejos culturales: 2-3 bullets concretos basados en `country_data.business_culture`.
 
-- [ ] **F22.8** `UpcomingEventsSection.tsx` — próximos eventos por mercado
+- [x] **F22.8** `UpcomingEventsSection.tsx` — próximos eventos por mercado
   > Lista de hasta 3 eventos por mercado (desde `expansion_events`): nombre + fecha + ciudad + por qué relevante para este negocio + coste de entrada.
   > Query: `SELECT * FROM expansion_events WHERE country = $market AND event_date > NOW() AND $sector = ANY(sector) ORDER BY event_date LIMIT 3`.
   > **Si 0 eventos:** mostrar "No hay conferencias próximas en [país] para tu sector. Te recomendamos contactar directamente con:" + 2-3 aceleradoras/hubs del país (desde `expansion_events.reference_hubs JSONB` del registro del país si existe, sino generar con AI). No dejar la sección vacía — un founder que no hay evento puede contactar directamente.
 
-- [ ] **F22.9** Panel de transparencia — "¿Por qué estos 3 mercados?"
+- [x] **F22.9** Panel de transparencia — "¿Por qué estos 3 mercados?"
   > Panel plegable al inicio de la página, siempre visible. Dos partes:
   > **Parte A:** Datos del negocio que influyeron en la recomendación — qué inputs se usaron + su valor + fuente. Ej: "Tu modelo B2B SaaS → priorizamos países con regulatory_ease>3.5. Tu MRR €8k/mes → filtramos países con gdp_per_capita<$25k".
   > **Parte B:** Top 5 del análisis — los 3 seleccionados + los 2 siguientes con su score y la razón principal por la que no entraron (ej: "Posición 4: Brasil — score 0.68, excluido por: regulatory_ease=2.1/5"). Si país 4 tiene score ≥ país 3 − 0.05: nota "Estuvieron muy cerca".
@@ -3260,8 +3260,8 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Mejoras v2
 
-- [ ] **F22.V2.1** Integrar con Modo Emergencia (O5.V2.3) — si el análisis de emergencia detecta "tracción estancada" en mercado local Y el proyecto cumple condiciones de readiness, mostrar Expansion Intelligence como posible solución: "¿Has considerado validar el mismo modelo en un mercado diferente? Tu negocio cumple las condiciones →". Convierte una crisis local en una oportunidad de expansión sin forzar el timing.
-- [ ] **F22.V2.2** Actualización automática — si `expansion_analysis_cache` expira Y el proyecto sigue en Fase 3+ con MRR estable, mostrar chip en tab "Expansión": "Tu análisis de expansión está desactualizado (14 días). ¿Regenerar?". Sin auto-regenerar — el founder decide cuándo.
+- [x] **F22.V2.1** Integrar con Modo Emergencia (O5.V2.3) — si el análisis de emergencia detecta "tracción estancada" en mercado local Y el proyecto cumple condiciones de readiness, mostrar Expansion Intelligence como posible solución: "¿Has considerado validar el mismo modelo en un mercado diferente? Tu negocio cumple las condiciones →". Convierte una crisis local en una oportunidad de expansión sin forzar el timing.
+- [x] **F22.V2.2** Actualización automática — si `expansion_analysis_cache` expira Y el proyecto sigue en Fase 3+ con MRR estable, mostrar chip en tab "Expansión": "Tu análisis de expansión está desactualizado (14 días). ¿Regenerar?". Sin auto-regenerar — el founder decide cuándo.
 
 ---
 

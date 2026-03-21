@@ -117,6 +117,9 @@ verify_jwt = false
 [functions.generate-financial-projections]
 verify_jwt = false
 
+[functions.analyze-expansion-v1]
+verify_jwt = false
+
 [functions.generate-hiring-guidance]
 verify_jwt = false
 
