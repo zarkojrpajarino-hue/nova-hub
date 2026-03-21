@@ -95,7 +95,7 @@ CREATE POLICY "cycle_objective_progress: project members can read"
       SELECT 1 FROM strategic_cycles sc
       JOIN project_members pm ON pm.project_id = sc.project_id
       WHERE sc.id = cycle_objective_progress.cycle_id
-        AND pm.member_id = (SELECT id FROM members WHERE auth_id = auth.uid())
+        AND pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
     )
   );
 
@@ -106,7 +106,7 @@ CREATE POLICY "cycle_objective_progress: project members can insert"
       SELECT 1 FROM strategic_cycles sc
       JOIN project_members pm ON pm.project_id = sc.project_id
       WHERE sc.id = cycle_objective_progress.cycle_id
-        AND pm.member_id = (SELECT id FROM members WHERE auth_id = auth.uid())
+        AND pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
     )
   );
 

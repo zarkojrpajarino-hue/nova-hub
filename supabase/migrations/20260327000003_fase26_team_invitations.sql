@@ -15,7 +15,7 @@
 CREATE TABLE IF NOT EXISTS project_invitations (
   id            UUID        PRIMARY KEY DEFAULT gen_random_uuid(),
   project_id    UUID        NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
-  invited_by    UUID        NOT NULL REFERENCES members(id),
+  invited_by    UUID        NOT NULL REFERENCES profiles(id),
   token         TEXT        NOT NULL UNIQUE,
   role          specialization_role NOT NULL,
   email         TEXT,                            -- restricción opcional por email
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS project_invitations (
   uses_count    SMALLINT    NOT NULL DEFAULT 0,
   expires_at    TIMESTAMPTZ NOT NULL,
   accepted_at   TIMESTAMPTZ,
-  accepted_by   UUID        REFERENCES members(id),
+  accepted_by   UUID        REFERENCES profiles(id),
   created_at    TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );
 
@@ -48,7 +48,7 @@ CREATE POLICY "project_invitations: project members can read"
     EXISTS (
       SELECT 1 FROM project_members pm
       WHERE pm.project_id = project_invitations.project_id
-        AND pm.member_id = (SELECT id FROM members WHERE auth_id = auth.uid())
+        AND pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
     )
   );
 
@@ -59,7 +59,7 @@ CREATE POLICY "project_invitations: project owner can manage"
     EXISTS (
       SELECT 1 FROM project_members pm
       WHERE pm.project_id = project_invitations.project_id
-        AND pm.member_id = (SELECT id FROM members WHERE auth_id = auth.uid())
+        AND pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
         AND pm.is_lead = TRUE
     )
   )
@@ -67,7 +67,7 @@ CREATE POLICY "project_invitations: project owner can manage"
     EXISTS (
       SELECT 1 FROM project_members pm
       WHERE pm.project_id = project_invitations.project_id
-        AND pm.member_id = (SELECT id FROM members WHERE auth_id = auth.uid())
+        AND pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
         AND pm.is_lead = TRUE
     )
   );
@@ -116,7 +116,7 @@ BEGIN
     RETURN jsonb_build_object('error', 'Not authenticated');
   END IF;
 
-  SELECT id INTO v_member_id FROM members WHERE auth_id = v_auth_id;
+  SELECT id INTO v_member_id FROM profiles WHERE auth_id = v_auth_id;
   IF v_member_id IS NULL THEN
     RETURN jsonb_build_object('error', 'User profile not found');
   END IF;
@@ -146,7 +146,7 @@ BEGIN
 
   -- Check email restriction
   IF v_inv.email IS NOT NULL THEN
-    IF NOT EXISTS (SELECT 1 FROM members WHERE id = v_member_id AND email = v_inv.email) THEN
+    IF NOT EXISTS (SELECT 1 FROM profiles WHERE id = v_member_id AND email = v_inv.email) THEN
       RETURN jsonb_build_object('error', 'This invitation is restricted to a specific email');
     END IF;
   END IF;
