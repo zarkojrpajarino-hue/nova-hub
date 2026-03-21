@@ -41,30 +41,32 @@ interface UnlockItem {
   met: boolean;
 }
 
+// Nota: hard_signal_met es booleano global — no sabemos cuáles sub-condiciones
+// individuales están cumplidas (ej. "tiene 7/10 entrevistas" vs "falta estrategia").
+// Para evitar engañar al usuario (todo check o todo lock), mostramos:
+// - Score ≥ 75% → verificable con dato real
+// - Velocity ≥ 2 → verificable con dato real
+// - "Señal dura" como agrupación → refleja hard_signal_met directamente
+// Mejora futura: endpoint SQL que retorne cada sub-condición individualmente.
 function getUnlockChecklist(nextPhase: number, score: number, hardSignal: boolean): UnlockItem[] {
   const scoreMet = score >= 75;
 
   switch (nextPhase) {
     case 1: return [
-      { label: 'Idea seleccionada', met: hardSignal },
-      { label: 'Segmento definido (≥10 caracteres)', met: hardSignal },
       { label: 'Score ≥ 75%', met: scoreMet },
+      { label: 'Señal dura: idea seleccionada + segmento definido', met: hardSignal },
     ];
     case 2: return [
-      { label: '≥10 entrevistas de descubrimiento', met: hardSignal },
-      { label: '≥30% dolor detectado', met: hardSignal },
-      { label: 'Estrategia definida', met: hardSignal },
       { label: 'Score ≥ 75%', met: scoreMet },
+      { label: 'Señal dura: ≥10 entrevistas, ≥30% dolor, estrategia definida', met: hardSignal },
     ];
     case 3: return [
-      { label: 'Primer pago registrado', met: hardSignal },
-      { label: 'Revenue momentum ≥ 40', met: hardSignal },
       { label: 'Score ≥ 75%', met: scoreMet },
+      { label: 'Señal dura: primer pago + revenue momentum ≥ 40', met: hardSignal },
     ];
     case 4: return [
-      { label: '3 meses de revenue estable', met: hardSignal },
-      { label: '≥3 tareas completadas en 28 días', met: hardSignal },
       { label: 'Score ≥ 75%', met: scoreMet },
+      { label: 'Señal dura: 3 meses estables + ≥3 tareas en 28 días', met: hardSignal },
     ];
     default: return [];
   }
@@ -136,8 +138,8 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
               {/* Dot */}
               <button
                 type="button"
-                onClick={() => isCurrent && setExpanded(!expanded)}
-                className="flex flex-col items-center group relative"
+                onClick={() => setExpanded(!expanded)}
+                className="flex flex-col items-center group relative cursor-pointer"
               >
                 <div className={`
                   w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold transition-all
