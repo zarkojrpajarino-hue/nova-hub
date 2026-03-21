@@ -21,6 +21,7 @@ import { DataCompletenessCard } from './DataCompletenessCard';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
 import { PhaseRoadmap } from './PhaseRoadmap';
+import { CycleDashboard } from './CycleDashboard';
 
 interface ProjectStats {
   facturacion?: number;
@@ -88,8 +89,12 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         onNavigateToTab={onNavigateToTab}
       />
 
-      {/* V24.1-4 — Phase Roadmap (mapa visual + explainer + unlock checklist + score bar) */}
-      <PhaseRoadmap engineData={engineData} />
+      {/* V24.1-4 / CE25.9 — Phase Roadmap o Cycle Dashboard según graduación */}
+      {engineData?.phaseState?.graduated ? (
+        <CycleDashboard projectId={project.id} graduated={true} />
+      ) : (
+        <PhaseRoadmap engineData={engineData} />
+      )}
 
       {/* Layout: Sidebar + Main Content */}
       <div className="grid grid-cols-12 gap-6">

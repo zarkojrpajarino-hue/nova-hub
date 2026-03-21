@@ -75,6 +75,7 @@ export interface ProjectContext {
     user_stage?: string | null;
     methodology?: string | null;
     current_phase?: number;
+    active_cycle_context?: string | null;
   };
   intelligence?: Record<string, unknown> | null;
   onboarding: {

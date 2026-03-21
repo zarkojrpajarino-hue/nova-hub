@@ -148,6 +148,23 @@ Deno.serve(async (req) => {
       .eq('project_id', projectId)
       .maybeSingle();
     const currentPhase: number = phaseState?.current_phase ?? 1;
+    const isGraduated = phaseState?.graduated ?? false;
+
+    // [CE25.11] If graduated, get active cycle for task generation context
+    let activeCycleContext: string | null = null;
+    if (isGraduated) {
+      const { data: activeCycle } = await supabase
+        .from('strategic_cycles')
+        .select('cycle_index, title, objectives')
+        .eq('project_id', projectId)
+        .eq('status', 'active')
+        .maybeSingle();
+
+      if (activeCycle?.objectives) {
+        const objs = activeCycle.objectives as Array<{ title: string; metric_name: string; target_value: number }>;
+        activeCycleContext = `Ciclo Estratégico #${activeCycle.cycle_index}: "${activeCycle.title}". Objetivos: ${objs.map(o => `${o.title} (${o.metric_name}: target ${o.target_value})`).join('; ')}.`;
+      }
+    }
 
     // Authorization: Verify user is a member of this project
     // First get the member_id from the authenticated user's auth_id
@@ -260,7 +277,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Build context (now with intelligence)
-    const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || [], intelligence, currentPhase);
+    const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || [], intelligence, currentPhase, activeCycleContext);
 
     // ==================== EVIDENCE: END RETRIEVAL, START GENERATION ====================
     const sourcesFound = [
@@ -528,7 +545,8 @@ function buildContext(
   leads: Lead[],
   tasks: Task[],
   intelligence: Record<string, unknown> | null = null,
-  currentPhase: number = 1
+  currentPhase: number = 1,
+  activeCycleContext: string | null = null
 ): ProjectContext {
   const onboarding = project.onboarding_data || {};
 
@@ -542,6 +560,7 @@ function buildContext(
       user_stage: (project as Record<string, unknown>).user_stage as string || null,
       methodology: (project as Record<string, unknown>).methodology as string || null,
       current_phase: currentPhase,
+      active_cycle_context: activeCycleContext,
     },
     intelligence: intelligence || {
       buyer_personas: [],
@@ -725,7 +744,10 @@ function buildUserPrompt(context: ProjectContext): string {
   const currentPhase = project.current_phase ?? 1;
 
   // [F23] P23.3 — Use current_phase as single source of truth for instructions
-  const stateInstructions = getPhaseInstructions(currentPhase);
+  // [CE25.11] If graduated with active cycle, use cycle-specific instructions
+  const stateInstructions = context.project.active_cycle_context
+    ? `📍 **CICLO ESTRATÉGICO ACTIVO**\n\n${context.project.active_cycle_context}\n\nGenera tareas que contribuyan DIRECTAMENTE a los objetivos del ciclo. Cada tarea debe indicar a qué objetivo contribuye.\n\n**NO SUGERIR:**\n- ❌ Tareas genéricas sin conexión con los objetivos del ciclo\n- ❌ Validación de problema/solución (ya graduado)\n\n**PRIORIDAD**: Impacto directo en métricas del ciclo.`
+    : getPhaseInstructions(currentPhase);
 
   // Extract intelligence context
   const intelligence = (context.intelligence as Record<string, unknown>) || {};
