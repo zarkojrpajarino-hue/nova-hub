@@ -3,7 +3,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, LayoutDashboard, Users, Kanban, FileCheck,
-  TrendingUp, Target, Loader2, MoreVertical, Trash2, Sparkles
+  TrendingUp, Target, Loader2, MoreVertical, Trash2, Sparkles, Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -47,6 +47,7 @@ import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GeneratedBusinessDashboard } from '@/components/generative/GeneratedBusinessDashboard';
+import { ExpansionIntelligencePage } from '@/components/expansion/ExpansionIntelligencePage';
 // RoleAcceptanceGate eliminado - los roles se auto-aceptan tras onboarding
 
 const TABS = [
@@ -57,6 +58,7 @@ const TABS = [
   { id: 'obvs', label: 'OBVs', icon: FileCheck },
   { id: 'financiero', label: 'Financiero', icon: TrendingUp },
   { id: 'negocio-ia', label: 'Negocio IA', icon: Sparkles },
+  { id: 'expansion', label: 'Expansión', icon: Globe },
 ];
 
 export default function ProjectPage() {
@@ -374,6 +376,10 @@ export default function ProjectPage() {
 
               <TabsContent value="negocio-ia">
                 <GeneratedBusinessDashboard />
+              </TabsContent>
+
+              <TabsContent value="expansion">
+                <ExpansionIntelligencePage projectId={projectId!} />
               </TabsContent>
             </Tabs>
           </>

@@ -23,6 +23,9 @@ import type { PhaseStatKey } from '@/lib/phase-features';
 import { PhaseRoadmap } from './PhaseRoadmap';
 import { CycleDashboard } from './CycleDashboard';
 import { MomentBanner } from './MomentBanner';
+import { OptimusProfileCard } from './OptimusProfileCard';
+import { ProjectTimeline } from './ProjectTimeline';
+import { TeamRecommendation } from './TeamRecommendation';
 
 interface ProjectStats {
   facturacion?: number;
@@ -99,6 +102,14 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       ) : (
         <PhaseRoadmap engineData={engineData} />
       )}
+
+      {/* EQ26.10 — Team Recommendation (sugiere roles según fase) */}
+      <TeamRecommendation
+        projectId={project.id}
+        currentPhase={currentPhase}
+        teamSize={teamMembers.length}
+        existingRoles={teamMembers.map(m => m.role)}
+      />
 
       {/* Layout: Sidebar + Main Content */}
       <div className="grid grid-cols-12 gap-6">
@@ -269,6 +280,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
               }
             } : undefined}
           />
+          <OptimusProfileCard projectId={project.id} />
           <PlanLimitsIndicator projectId={project.id} />
           <FeatureTeasersPanel projectId={project.id} />
           {showDelegationHint && (
@@ -276,6 +288,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
               onNavigateToTeam={onNavigateToTab ? () => onNavigateToTab('equipo') : undefined}
             />
           )}
+          <ProjectTimeline projectId={project.id} />
         </div>
       </div>
     </div>

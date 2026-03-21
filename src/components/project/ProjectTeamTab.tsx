@@ -1,7 +1,10 @@
-import { memo } from 'react';
-import { Users, Crown } from 'lucide-react';
+import { memo, useState } from 'react';
+import { Users, Crown, UserPlus } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
+import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
+import { ProjectLifecycleActions } from './ProjectLifecycleActions';
 
 interface TeamMemberDisplay {
   id: string;
@@ -21,7 +24,8 @@ interface ProjectTeamTabProps {
 }
 
 function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) {
-  // Group by role
+  const [showInvite, setShowInvite] = useState(false);
+
   const membersByRole = teamMembers.reduce((acc: Record<string, TeamMemberDisplay[]>, member: TeamMemberDisplay) => {
     if (!acc[member.role]) acc[member.role] = [];
     acc[member.role].push(member);
@@ -31,10 +35,29 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
-        <div className="p-5 border-b border-border flex items-center gap-2.5">
-          <Users size={18} className="text-primary" />
-          <h3 className="font-semibold">Equipo de {project.nombre}</h3>
+        <div className="p-5 border-b border-border flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <Users size={18} className="text-primary" />
+            <h3 className="font-semibold">Equipo de {project.nombre}</h3>
+          </div>
+          <div className="flex items-center gap-2">
+            <Button size="sm" variant="outline" className="gap-1" onClick={() => setShowInvite(true)}>
+              <UserPlus className="h-3.5 w-3.5" />
+              Invitar
+            </Button>
+            <ProjectLifecycleActions
+              projectId={project.id}
+              isPaused={!!(project as Record<string, unknown>).paused_at}
+              isArchived={!!(project as Record<string, unknown>).archived_at}
+            />
+          </div>
         </div>
+
+        <InviteLinkDialog
+          isOpen={showInvite}
+          onClose={() => setShowInvite(false)}
+          projectId={project.id}
+        />
 
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

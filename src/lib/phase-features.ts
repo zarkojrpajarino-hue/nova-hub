@@ -32,6 +32,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     financiero:   'teaser',
     'negocio-ia': 'teaser',
     reuniones:    'teaser',
+    expansion:    'teaser',
   },
   1: {
     dashboard:    'primary',
@@ -41,7 +42,8 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     crm:          'teaser',
     financiero:   'teaser',
     'negocio-ia': 'teaser',
-    reuniones:    'secondary',  // tab planificado — aún no en ProjectPage TABS
+    reuniones:    'secondary',
+    expansion:    'teaser',
   },
   2: {
     dashboard:    'primary',
@@ -52,6 +54,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     financiero:   'secondary',
     'negocio-ia': 'teaser',
     reuniones:    'secondary',
+    expansion:    'teaser',
   },
   3: {
     dashboard:    'primary',
@@ -62,6 +65,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     financiero:   'primary',
     'negocio-ia': 'secondary',
     reuniones:    'primary',
+    expansion:    'secondary',   // F22: disponible en Fase 3+ (readiness gate en componente)
   },
   4: {
     dashboard:    'primary',
@@ -72,6 +76,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     financiero:   'primary',
     'negocio-ia': 'primary',
     reuniones:    'primary',
+    expansion:    'primary',
   },
 }
 
@@ -109,6 +114,11 @@ export const TAB_TEASER_REASONS: Record<string, Partial<Record<number, string>>>
   },
   reuniones: {
     0: 'Las reuniones se desbloquean cuando tengas equipo y proyecto definido.',
+  },
+  expansion: {
+    0: 'La expansión internacional se desbloquea en Fase 3 con MRR estable.',
+    1: 'Primero valida tu problema. La expansión viene después de tener revenue.',
+    2: 'Valida tu solución primero. Expansion Intelligence se activa en Fase 3.',
   },
 }
 

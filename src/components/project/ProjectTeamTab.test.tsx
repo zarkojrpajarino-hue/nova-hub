@@ -1,6 +1,26 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { ProjectTeamTab } from './ProjectTeamTab';
+
+// Mock modules that use supabase
+vi.mock('@/integrations/supabase/client', () => ({
+  supabase: {
+    from: () => ({ select: () => ({ eq: () => ({ order: () => ({ data: [], error: null }) }) }) }),
+    auth: { getSession: () => Promise.resolve({ data: { session: null } }) },
+    rpc: () => Promise.resolve({ data: null, error: null }),
+  },
+}));
+
+vi.mock('@/hooks/useProjectLifecycle', () => ({
+  usePauseProject: () => ({ mutate: vi.fn(), isPending: false }),
+  useArchiveProject: () => ({ mutate: vi.fn(), isPending: false }),
+}));
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+const wrapper = ({ children }: { children: React.ReactNode }) => (
+  <QueryClientProvider client={queryClient}>{children}</QueryClientProvider>
+);
 
 // Mock ROLE_CONFIG
 vi.mock('@/data/mockData', () => ({
@@ -58,54 +78,54 @@ const mockTeamMembers = [
 
 describe('ProjectTeamTab', () => {
   it('renders team section title', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     expect(screen.getByText('Equipo de Proyecto Alpha')).toBeInTheDocument();
   });
 
   it('displays team member names', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     expect(screen.getByText('John Doe')).toBeInTheDocument();
     expect(screen.getByText('Jane Smith')).toBeInTheDocument();
   });
 
   it('shows role labels', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     expect(screen.getAllByText('Comercial').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Closer').length).toBeGreaterThan(0);
   });
 
   it('renders Crown icon for team lead', () => {
-    const { container } = render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    const { container } = render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     const icon = container.querySelector('.lucide-crown');
     expect(icon).toBeInTheDocument();
   });
 
   it('displays roles legend section', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     expect(screen.getByText('Roles del Equipo')).toBeInTheDocument();
   });
 
   it('shows member count per role', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     // Each role (comercial and closer) has 1 member, so '1 asignados' appears twice.
     // Use getAllByText to handle multiple matching elements.
     expect(screen.getAllByText('1 asignados').length).toBeGreaterThan(0);
   });
 
   it('renders Users icon', () => {
-    const { container } = render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    const { container } = render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     const icon = container.querySelector('.lucide-users');
     expect(icon).toBeInTheDocument();
   });
 
   it('displays member stats (OBVs)', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     expect(screen.getByText('10')).toBeInTheDocument();
     expect(screen.getByText('8')).toBeInTheDocument();
   });
 
   it('shows fact. label for facturación', () => {
-    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />);
+    render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
     const labels = screen.getAllByText('Fact.');
     expect(labels.length).toBe(2);
   });
