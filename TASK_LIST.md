@@ -601,21 +601,21 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 12 — SISTEMAS AVANZADOS 0/8
+## FASE 12 — SISTEMAS AVANZADOS 8/8 ✅
 > Post-MVP. No bloquea el lanzamiento.
 
-- [ ] **A12.1** Project history / timeline (fases + pivotes + decisiones + hitos)
-- [ ] **A12.2** Múltiples proyectos (límites por plan, dashboard resumen)
-- [ ] **A12.3** Proyecto pausado (preservar datos, engines pausados)
-- [ ] **A12.4** Proyecto archivado (cerrar definitivo, no borrar)
-- [ ] **A12.5** Member deletion y redistribución de tareas/OBVs
-- [ ] **A12.6** Project graduation state (éxito sostenido 12+ semanas)
-- [ ] **A12.7** Iteration Velocity tracking en Weekly Digest
-- [ ] **A12.8** Integración Slack mejorada (Layer 2 y 4 → canales del equipo)
+- [x] **A12.1** Project history / timeline (fases + pivotes + decisiones + hitos)
+- [x] **A12.2** Múltiples proyectos (límites por plan, dashboard resumen)
+- [x] **A12.3** Proyecto pausado (preservar datos, engines pausados)
+- [x] **A12.4** Proyecto archivado (cerrar definitivo, no borrar)
+- [x] **A12.5** Member deletion y redistribución de tareas/OBVs
+- [x] **A12.6** Project graduation state (éxito sostenido 12+ semanas)
+- [x] **A12.7** Iteration Velocity tracking en Weekly Digest
+- [x] **A12.8** Integración Slack mejorada (Layer 2 y 4 → canales del equipo)
 
 ### Mejoras v2 — Inteligencia de cohorte
 
-- [ ] **A12.V2.1** Cohort intelligence — aprender de todos los proyectos para mejorar recomendaciones individuales. Cuando haya ≥30 proyectos activos con historial de `decision_events` + `decision_events.outcome_summary` (SR10.V2.3) + `project_phase_history`, construir benchmarks internos reales: qué decisiones tomaron founders en Fase 1/2 que alcanzaron Fase 3+ en <6 meses, qué tácticas de OBV tienen mayor tasa de validación, qué combinación de integraciones correlaciona con mayor iteration velocity. Datos anonimizados y agregados — nunca cruzar proyectos de forma identificable. Output: nueva columna en `benchmarks` con `source='cohort_internal'` que Optimus puede usar en lugar de benchmarks curados manualmente (PL9.3). Este es el moat de largo plazo: cuantos más proyectos, mejores las recomendaciones. Prerequisito: SR10.V2.3 en producción + N≥30 proyectos con outcomes registrados.
+- [x] **A12.V2.1** Cohort intelligence — aprender de todos los proyectos para mejorar recomendaciones individuales. Cuando haya ≥30 proyectos activos con historial de `decision_events` + `decision_events.outcome_summary` (SR10.V2.3) + `project_phase_history`, construir benchmarks internos reales: qué decisiones tomaron founders en Fase 1/2 que alcanzaron Fase 3+ en <6 meses, qué tácticas de OBV tienen mayor tasa de validación, qué combinación de integraciones correlaciona con mayor iteration velocity. Datos anonimizados y agregados — nunca cruzar proyectos de forma identificable. Output: nueva columna en `benchmarks` con `source='cohort_internal'` que Optimus puede usar en lugar de benchmarks curados manualmente (PL9.3). Este es el moat de largo plazo: cuantos más proyectos, mejores las recomendaciones. Prerequisito: SR10.V2.3 en producción + N≥30 proyectos con outcomes registrados.
 
 ---
 
