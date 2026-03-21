@@ -24,6 +24,7 @@ export interface TeamMember {
   member_id: string;
   role: string;
   role_responsibilities: string | null;
+  role_profile: Record<string, unknown> | null;
   profiles: {
     id: string;
     nombre: string;
@@ -40,6 +41,7 @@ export interface EnrichedTeamMember {
   roleLabel: string;
   especialization: string | null;
   role_responsibilities: string | null;
+  role_profile: Record<string, unknown> | null;
   obvs_validadas_mes: number;
   tareas_completadas_mes: number;
 }

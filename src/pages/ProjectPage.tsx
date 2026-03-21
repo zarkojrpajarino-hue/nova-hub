@@ -43,6 +43,7 @@ import { PhaseHorizonHint } from '@/components/project/PhaseHorizonHint';
 import { HelpWidget } from '@/components/ui/section-help';
 import { PhaseTeaserModal } from '@/components/project/PhaseTeaserModal';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { GeneratedBusinessDashboard } from '@/components/generative/GeneratedBusinessDashboard';
@@ -66,6 +67,7 @@ export default function ProjectPage() {
   const [activeTab, setActiveTab] = useState('dashboard');
   const [teaserTabClicked, setTeaserTabClicked] = useState<string | null>(null);
   const phaseFeatures = usePhaseFeatures(projectId);
+  const { permissions } = useRolePermissions(projectId);
 
   const { data: projects = [], isLoading: loadingProject } = useProjects();
 
@@ -301,8 +303,8 @@ export default function ProjectPage() {
                 setActiveTab(value)
               }}
             >
-              <TabsList className="grid grid-cols-7 mb-6">
-                {TABS.map(tab => {
+              <TabsList className={`grid mb-6`} style={{ gridTemplateColumns: `repeat(${TABS.filter(t => permissions.visibleTabs.includes(t.id)).length}, 1fr)` }}>
+                {TABS.filter(tab => permissions.visibleTabs.includes(tab.id)).map(tab => {
                   const tabStatus = phaseFeatures.getTabStatus(tab.id)
                   const isFocus   = phaseFeatures.isFocusTab(tab.id)
                   return (

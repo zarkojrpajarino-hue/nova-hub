@@ -205,6 +205,7 @@ Deno.serve(async (req) => {
         member_id,
         role,
         role_responsibilities,
+        role_profile,
         profiles!inner(id, nombre, email, especialization)
       `)
       .eq('project_id', projectId) as { data: TeamMember[] | null; error: unknown };
@@ -242,9 +243,10 @@ Deno.serve(async (req) => {
           role: tm.role || 'operations',
           roleLabel: ROLE_LABELS[tm.role || 'operations'] || tm.role,
           especialization: tm.profiles.especialization,
-          role_responsibilities: typeof tm.role_responsibilities === 'string' 
-            ? tm.role_responsibilities 
+          role_responsibilities: typeof tm.role_responsibilities === 'string'
+            ? tm.role_responsibilities
             : null,
+          role_profile: tm.role_profile || null,
           tareas_completadas_mes: completedTasks || 0,
           obvs_validadas_mes: validatedObvs || 0,
         };
@@ -794,12 +796,18 @@ ${brand ? `
 - Métricas de éxito: ${context.onboarding.metricas}
 
 ## EQUIPO (${context.team.length} miembros)
-${context.team.map((m: EnrichedTeamMember) => `
+${context.team.map((m: EnrichedTeamMember) => {
+  const profile = m.role_profile as Record<string, unknown> | null;
+  const profileInfo = profile
+    ? `\n  - Nivel: ${profile.experience_level || 'No definido'}\n  - Skills: ${(profile.skills as string[])?.join(', ') || 'No definidos'}\n  - Disponibilidad: ${profile.availability_hours || '?'}h/semana`
+    : '';
+  return `
 - **${m.nombre}** - Rol: ${m.roleLabel}
   - Especialización: ${m.especialization || 'No definida'}
   - Tareas completadas: ${m.tareas_completadas_mes}
-  - OBVs validadas: ${m.obvs_validadas_mes}
-`).join('')}
+  - OBVs validadas: ${m.obvs_validadas_mes}${profileInfo}
+`;
+}).join('')}
 
 ## MÉTRICAS ACTUALES
 - OBVs: ${context.metrics.obvs_total} total (${context.metrics.obvs_validadas} validadas, ${context.metrics.obvs_pendientes} pendientes)

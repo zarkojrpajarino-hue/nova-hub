@@ -23,6 +23,7 @@ const EmergencyOnboardingPage = lazy(() => import("./pages/EmergencyOnboardingPa
 const DeepSetupPage = lazy(() => import("./pages/DeepSetupPage").then(m => ({ default: m.DeepSetupPage })));
 const PrimerInicioPage = lazy(() => import("./pages/PrimerInicioPage").then(m => ({ default: m.PrimerInicioPage })));
 const EvidenceTestPage = lazy(() => import("./pages/EvidenceTestPage"));
+const InvitePage = lazy(() => import("./pages/InvitePage"));
 
 // ✨ OPTIMIZADO: Configuración de React Query mejorada
 const queryClient = new QueryClient({
@@ -177,6 +178,9 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
+
+                  {/* EQ26.3 — Invitación por enlace (semi-pública) */}
+                  <Route path="/invite/:token" element={<InvitePage />} />
 
                   {/* 404 */}
                   <Route path="*" element={<NotFound />} />
