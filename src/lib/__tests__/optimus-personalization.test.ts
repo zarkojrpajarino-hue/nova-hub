@@ -23,7 +23,8 @@ function derivePreferences(s: FeedbackSummary) {
   // Depth
   let depth = 'equilibrado';
   if (s.too_obvious / s.total > 0.5) depth = 'detallado';
-  else if (s.helpful / s.total > 0.7) depth = 'conciso';
+  // >70% thumbs UP (total - down) → concise is working
+  else if ((s.total - s.down) / s.total > 0.7) depth = 'conciso';
 
   // Risk
   let risk = 'moderado';
@@ -49,8 +50,9 @@ describe('OP28.1 — compute_optimus_profile logic', () => {
     expect(result?.depth).toBe('detallado');
   });
 
-  it('derives conciso when > 70% helpful', () => {
-    const result = derivePreferences({ total: 10, down: 0, too_obvious: 0, not_actionable: 0, wrong_context: 0, disagree: 0, helpful: 8 });
+  it('derives conciso when > 70% thumbs up', () => {
+    // 10 total, 2 down → 8 up = 80% → conciso
+    const result = derivePreferences({ total: 10, down: 2, too_obvious: 0, not_actionable: 0, wrong_context: 0, disagree: 0, helpful: 0 });
     expect(result?.depth).toBe('conciso');
   });
 
@@ -75,7 +77,8 @@ describe('OP28.1 — compute_optimus_profile logic', () => {
   });
 
   it('derives defaults when no strong signal', () => {
-    const result = derivePreferences({ total: 10, down: 2, too_obvious: 1, not_actionable: 1, wrong_context: 1, disagree: 1, helpful: 3 });
+    // 10 total, 4 down → 60% up (not >70%), spread categories (none >30-50%)
+    const result = derivePreferences({ total: 10, down: 4, too_obvious: 1, not_actionable: 1, wrong_context: 1, disagree: 1, helpful: 0 });
     expect(result?.depth).toBe('equilibrado');
     expect(result?.risk).toBe('moderado');
     expect(result?.style).toBe('default');

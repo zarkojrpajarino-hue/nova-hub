@@ -101,8 +101,10 @@ BEGIN
   -- >50% too_obvious → founder wants more depth
   IF v_too_obvious::NUMERIC / v_total > 0.5 THEN
     v_depth := 'detallado';
-  -- >70% helpful/up → current depth is good, keep concise
-  ELSIF v_helpful::NUMERIC / v_total > 0.7 THEN
+  -- >70% thumbs UP (vote='up') → current depth is good, keep concise
+  -- Note: v_helpful counts category='helpful' (thumbs down). For depth,
+  -- we use thumbs UP ratio: (total - down_count) / total
+  ELSIF (v_total - v_down_count)::NUMERIC / v_total > 0.7 THEN
     v_depth := 'conciso';
   END IF;
 

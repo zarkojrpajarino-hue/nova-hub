@@ -97,7 +97,7 @@ serve(async (req) => {
   }
 
   try {
-    const { supabaseClient } = await validateAuth(req);
+    const { supabaseClient, user } = await validateAuth(req);
 
     const body: RitualOptimusRequest = await req.json();
     const { projectId, nextAction } = body;
@@ -153,12 +153,22 @@ serve(async (req) => {
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
     // [OP28.4] Inject personalization from optimus_profile if available
-    const { data: profileData } = await supabaseClient
-      .from('optimus_profile')
-      .select('preferred_depth, risk_tolerance, response_style')
-      .eq('project_id', projectId)
+    // Need profiles.id (not auth.users.id) to match optimus_profile.user_id
+    const { data: founderProfile } = await supabaseClient
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', user.id)
       .maybeSingle();
-    const profile = profileData as Record<string, string> | null;
+    let profile: Record<string, string> | null = null;
+    if (founderProfile) {
+      const { data: profileData } = await supabaseClient
+        .from('optimus_profile')
+        .select('preferred_depth, risk_tolerance, response_style')
+        .eq('project_id', projectId)
+        .eq('user_id', founderProfile.id)
+        .maybeSingle();
+      profile = profileData as Record<string, string> | null;
+    }
     let personalizedPrompt = SYSTEM_PROMPT;
     if (profile) {
       personalizedPrompt += `\n\nPERSONALIZACIÓN DEL FOUNDER:
