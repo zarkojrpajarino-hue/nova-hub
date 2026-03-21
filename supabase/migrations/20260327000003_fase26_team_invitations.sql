@@ -41,10 +41,16 @@ COMMENT ON TABLE project_invitations IS
 -- RLS
 ALTER TABLE project_invitations ENABLE ROW LEVEL SECURITY;
 
--- Lectura pública del token (para validar en /invite/:token sin auth)
-CREATE POLICY "project_invitations: anyone can read by token"
-  ON project_invitations FOR SELECT
-  USING (TRUE);
+-- Lectura: solo miembros del proyecto ven sus invitaciones
+CREATE POLICY "project_invitations: project members can read"
+  ON project_invitations FOR SELECT TO authenticated
+  USING (
+    EXISTS (
+      SELECT 1 FROM project_members pm
+      WHERE pm.project_id = project_invitations.project_id
+        AND pm.member_id = (SELECT id FROM members WHERE auth_id = auth.uid())
+    )
+  );
 
 -- Solo owner/leader del proyecto puede crear/actualizar invitaciones
 CREATE POLICY "project_invitations: project owner can manage"
@@ -177,6 +183,53 @@ $$;
 
 COMMENT ON FUNCTION accept_invitation(TEXT) IS
   'FASE 26: Acepta invitación por token. Valida: auth, expiration, max_uses, email restriction, duplicate member. Inserta project_members.';
+
+-- ---------------------------------------------------------------------------
+-- PASO 3b — get_invitation_by_token(token) — lectura pública segura
+-- Retorna solo datos necesarios para la landing (no el token ni accepted_by).
+-- ---------------------------------------------------------------------------
+
+CREATE OR REPLACE FUNCTION get_invitation_by_token(p_token TEXT)
+RETURNS JSONB
+LANGUAGE plpgsql
+STABLE
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  v_inv RECORD;
+BEGIN
+  SELECT
+    pi.id, pi.project_id, pi.role::TEXT as role, pi.email,
+    pi.status, pi.expires_at, pi.uses_count, pi.max_uses,
+    p.nombre as project_name, p.descripcion as project_description
+  INTO v_inv
+  FROM   project_invitations pi
+  JOIN   projects p ON p.id = pi.project_id
+  WHERE  pi.token = p_token
+    AND  pi.status = 'pending';
+
+  IF v_inv IS NULL THEN
+    RETURN jsonb_build_object('error', 'Invitation not found');
+  END IF;
+
+  RETURN jsonb_build_object(
+    'id', v_inv.id,
+    'project_id', v_inv.project_id,
+    'role', v_inv.role,
+    'email', v_inv.email,
+    'status', v_inv.status,
+    'expires_at', v_inv.expires_at,
+    'uses_count', v_inv.uses_count,
+    'max_uses', v_inv.max_uses,
+    'project_name', v_inv.project_name,
+    'project_description', v_inv.project_description
+  );
+END;
+$$;
+
+COMMENT ON FUNCTION get_invitation_by_token(TEXT) IS
+  'FASE 26: Lectura pública de invitación por token. Retorna solo datos de presentación, no datos sensibles.';
 
 -- ---------------------------------------------------------------------------
 -- PASO 4 — ALTER project_members: role_profile (EQ26.5)

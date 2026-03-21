@@ -28,21 +28,26 @@ export default function InvitePage() {
     });
   }, []);
 
-  // Fetch invitation data
+  // Fetch invitation data via RPC (no RLS needed — public function)
   const { data: invitation, isLoading, error } = useQuery({
     queryKey: ['invitation', token],
     queryFn: async () => {
-      const { data, error } = await supabase
-        .from('project_invitations')
-        .select(`
-          id, project_id, role, email, status, expires_at, uses_count, max_uses,
-          project:projects!project_id(nombre, descripcion)
-        `)
-        .eq('token', token!)
-        .eq('status', 'pending')
-        .maybeSingle();
+      const { data, error } = await supabase.rpc('get_invitation_by_token', { p_token: token! });
       if (error) throw error;
-      return data;
+      const result = data as Record<string, unknown> | null;
+      if (!result || result.error) return null;
+      return result as {
+        id: string;
+        project_id: string;
+        role: string;
+        email: string | null;
+        status: string;
+        expires_at: string;
+        uses_count: number;
+        max_uses: number;
+        project_name: string;
+        project_description: string | null;
+      };
     },
     enabled: !!token,
   });
@@ -93,7 +98,7 @@ export default function InvitePage() {
     );
   }
 
-  const project = invitation.project as { nombre: string; descripcion: string | null } | null;
+  const project = { nombre: invitation.project_name, descripcion: invitation.project_description };
   const roleConfig = ROLE_CONFIG[invitation.role];
   const isExpired = new Date(invitation.expires_at) < new Date();
   const isMaxed = invitation.uses_count >= invitation.max_uses;
