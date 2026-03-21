@@ -34,9 +34,15 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
   const handleDismiss = () => {
     // For revenue milestones, mark the specific milestone (e.g., revenue_milestone_1000)
     // For other moments, mark the type
-    const key = moment.type === 'revenue_milestone' && moment.data?.milestone
-      ? `revenue_milestone_${moment.data.milestone}`
-      : moment.type;
+    const weekKey = Math.floor(Date.now() / (7 * 86_400_000));
+    let key: string;
+    if (moment.type === 'revenue_milestone' && moment.data?.milestone) {
+      key = `revenue_milestone_${moment.data.milestone}`;
+    } else if (moment.severity === 'warning' || moment.severity === 'info') {
+      key = `${moment.type}_${weekKey}`;  // Weekly cooldown for warnings
+    } else {
+      key = moment.type;  // One-time for celebrations
+    }
     markMomentSeen(projectId, key);
     onDismiss();
   };

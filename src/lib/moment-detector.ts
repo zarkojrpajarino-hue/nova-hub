@@ -117,9 +117,13 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
   }
 
   // ── Atención / Coaching ────────────────────────────────────────
+  // Warnings use weekly keys to avoid spamming on every visit
+  // but reappear each new week until resolved.
+  const weekKey = Math.floor(Date.now() / (7 * 86_400_000));
 
   // Stagnation warning (≥8 weeks, score didn't improve ≥10 pts in 4 weeks)
-  if (input.weeksInPhase >= 8 && input.scoreChange4w < 10 && input.currentPhase < 4) {
+  if (input.weeksInPhase >= 8 && input.scoreChange4w < 10 && input.currentPhase < 4
+    && !input.seenMoments.includes(`stagnation_warning_${weekKey}`)) {
     moments.push({
       type: 'stagnation_warning',
       severity: 'warning',
@@ -130,7 +134,8 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
   }
 
   // Hard signal close (score OK but missing hard signal for ≥2 weeks)
-  if (input.phaseScore >= 75 && !input.hardSignalMet && input.weeksInPhase >= 2 && input.currentPhase < 4) {
+  if (input.phaseScore >= 75 && !input.hardSignalMet && input.weeksInPhase >= 2 && input.currentPhase < 4
+    && !input.seenMoments.includes(`hard_signal_close_${weekKey}`)) {
     moments.push({
       type: 'hard_signal_close',
       severity: 'info',
@@ -141,7 +146,8 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
 
   // Cycle ending soon (≤14 days, score < 75)
   if (input.activeCycleDaysRemaining !== null && input.activeCycleDaysRemaining <= 14
-    && input.activeCycleDaysRemaining > 0 && (input.activeCycleScore ?? 0) < 75) {
+    && input.activeCycleDaysRemaining > 0 && (input.activeCycleScore ?? 0) < 75
+    && !input.seenMoments.includes(`cycle_ending_soon_${weekKey}`)) {
     moments.push({
       type: 'cycle_ending_soon',
       severity: 'warning',
@@ -152,7 +158,8 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
   }
 
   // Regression risk (3+ weeks of low score)
-  if (input.consecutiveLowScore >= 3 && input.currentPhase > 1) {
+  if (input.consecutiveLowScore >= 3 && input.currentPhase > 1
+    && !input.seenMoments.includes(`regression_risk_${weekKey}`)) {
     moments.push({
       type: 'regression_risk',
       severity: 'warning',
