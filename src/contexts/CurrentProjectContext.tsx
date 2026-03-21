@@ -76,7 +76,8 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
       const query = supabase
         .from('projects')
         .select('*')
-        .is('deleted_at', null);
+        .is('deleted_at', null)
+        .is('archived_at', null);  // [A12.4] Ocultar archivados de la lista
 
       const { data, error } = await (memberProjectIds
         ? query.or(`created_by.eq.${profile.id},id.in.(${memberProjectIds})`)

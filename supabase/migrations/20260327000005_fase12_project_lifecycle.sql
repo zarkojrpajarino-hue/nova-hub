@@ -31,6 +31,16 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Only project lead can pause
+  IF NOT EXISTS (
+    SELECT 1 FROM project_members
+    WHERE project_id = p_project_id
+      AND member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
+      AND is_lead = TRUE
+  ) THEN
+    RAISE EXCEPTION 'Only project lead can pause';
+  END IF;
+
   UPDATE projects
   SET    paused_at = NOW()
   WHERE  id = p_project_id
@@ -47,6 +57,16 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Only project lead can unpause
+  IF NOT EXISTS (
+    SELECT 1 FROM project_members
+    WHERE project_id = p_project_id
+      AND member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
+      AND is_lead = TRUE
+  ) THEN
+    RAISE EXCEPTION 'Only project lead can unpause';
+  END IF;
+
   UPDATE projects
   SET    paused_at = NULL
   WHERE  id = p_project_id
@@ -65,9 +85,19 @@ SECURITY DEFINER
 SET search_path = public
 AS $$
 BEGIN
+  -- Only project lead can archive
+  IF NOT EXISTS (
+    SELECT 1 FROM project_members
+    WHERE project_id = p_project_id
+      AND member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
+      AND is_lead = TRUE
+  ) THEN
+    RAISE EXCEPTION 'Only project lead can archive';
+  END IF;
+
   UPDATE projects
   SET    archived_at = NOW(),
-         paused_at = COALESCE(paused_at, NOW())  -- also pause if not already
+         paused_at = COALESCE(paused_at, NOW())
   WHERE  id = p_project_id
     AND  archived_at IS NULL
     AND  deleted_at IS NULL;
@@ -91,12 +121,30 @@ AS $$
 DECLARE
   v_tasks_affected INTEGER;
 BEGIN
+  -- Only project lead can remove members
+  IF NOT EXISTS (
+    SELECT 1 FROM project_members
+    WHERE project_id = p_project_id
+      AND member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
+      AND is_lead = TRUE
+  ) THEN
+    RETURN jsonb_build_object('error', 'Only project lead can remove members');
+  END IF;
+
   -- Cannot remove lead/owner
   IF EXISTS (
     SELECT 1 FROM project_members
     WHERE project_id = p_project_id AND member_id = p_member_id AND is_lead = TRUE
   ) THEN
     RETURN jsonb_build_object('error', 'Cannot remove project lead');
+  END IF;
+
+  -- Verify reassign target is a member of the project
+  IF p_reassign_to IS NOT NULL AND NOT EXISTS (
+    SELECT 1 FROM project_members
+    WHERE project_id = p_project_id AND member_id = p_reassign_to
+  ) THEN
+    RETURN jsonb_build_object('error', 'Reassign target is not a member of this project');
   END IF;
 
   -- Reassign or unassign tasks
