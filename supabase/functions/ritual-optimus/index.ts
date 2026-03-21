@@ -109,6 +109,32 @@ serve(async (req) => {
       );
     }
 
+    // O4.4 — Rate limit: un ritual por ciclo. Si el ciclo más reciente ya tiene
+    // cycle_evaluation y fue cerrado hace ≤7 días → rechazar para evitar
+    // llamadas redundantes al LLM y evitar sobreescribir un ritual ya hecho.
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
+    const { data: recentCycle } = await supabaseClient
+      .from('strategic_cycles')
+      .select('id, cycle_evaluation, closed_at')
+      .eq('project_id', projectId)
+      .not('cycle_evaluation', 'is', null)
+      .gte('closed_at', sevenDaysAgo)
+      .order('closed_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (recentCycle) {
+      return new Response(
+        JSON.stringify({
+          error: 'already_completed_this_week',
+          last_cycle_id: recentCycle.id,
+          last_evaluation: recentCycle.cycle_evaluation,
+          closed_at: recentCycle.closed_at,
+        }),
+        { status: 429, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } },
+      );
+    }
+
     // 1. Obtener el bundle del ciclo cerrado
     const { data: contextBundle, error: contextError } = await supabaseClient.rpc(
       'get_ritual_optimus_context',
@@ -126,12 +152,28 @@ serve(async (req) => {
     // 2. Llamar a Claude con el system prompt §8 + bundle como contexto
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
+    // [OP28.4] Inject personalization from optimus_profile if available
+    const { data: profileData } = await supabaseClient
+      .from('optimus_profile')
+      .select('preferred_depth, risk_tolerance, response_style')
+      .eq('project_id', projectId)
+      .maybeSingle();
+    const profile = profileData as Record<string, string> | null;
+    let personalizedPrompt = SYSTEM_PROMPT;
+    if (profile) {
+      personalizedPrompt += `\n\nPERSONALIZACIÓN DEL FOUNDER:
+- Prefiere respuestas: ${profile.preferred_depth ?? 'equilibrado'}
+- Tolerancia al riesgo: ${profile.risk_tolerance ?? 'moderado'}
+- Estilo de respuesta: ${profile.response_style ?? 'default'}
+Ajusta tu tono, profundidad y nivel de riesgo en las recomendaciones a estas preferencias.`;
+    }
+
     const userMessage = `Cycle context for interpretation:\n${JSON.stringify(contextBundle, null, 2)}`;
 
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1200,
-      system: SYSTEM_PROMPT,
+      system: personalizedPrompt,
       messages: [{ role: 'user', content: userMessage }],
     });
 

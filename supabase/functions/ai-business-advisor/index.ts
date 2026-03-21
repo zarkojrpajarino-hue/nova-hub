@@ -145,9 +145,28 @@ serve(async (req) => {
     // Gather project context (RAG)
     const context = await gatherProjectContext(supabaseClient, projectId);
 
+    // [OP28.4] Read Optimus profile for personalization
+    const { data: userProfile } = await supabaseClient
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', user.id)
+      .single();
+    let personalNote = '';
+    if (userProfile) {
+      const { data: opProfile } = await supabaseClient
+        .from('optimus_profile')
+        .select('preferred_depth, risk_tolerance, response_style')
+        .eq('project_id', projectId)
+        .eq('user_id', userProfile.id)
+        .maybeSingle();
+      if (opProfile) {
+        personalNote = `\n\nPERSONALIZACIÓN: Respuestas ${opProfile.preferred_depth}. Riesgo: ${opProfile.risk_tolerance}. Estilo: ${opProfile.response_style}.`;
+      }
+    }
+
     // Generate response with context
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
-    const response = await generateAdvisorResponse(anthropic, message, context, chat.messages);
+    const response = await generateAdvisorResponse(anthropic, message, context, chat.messages, personalNote);
 
     // Update chat history
     const updatedMessages = [
@@ -247,7 +266,8 @@ async function generateAdvisorResponse(
   anthropic: Anthropic,
   userMessage: string,
   context: ProjectContext,
-  chatHistory: ChatMessage[]
+  chatHistory: ChatMessage[],
+  personalNote: string = ''
 ): Promise<{ text: string; sources: ProjectContextSource[] }> {
   // Build context string
   const contextStr = `
@@ -322,7 +342,7 @@ EJEMPLOS:
   const response = await anthropic.messages.create({
     model: 'claude-3-5-sonnet-20241022',
     max_tokens: 1500,
-    system: systemPrompt,
+    system: systemPrompt + personalNote,
     messages,
   });
 

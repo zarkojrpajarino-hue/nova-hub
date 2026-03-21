@@ -36,7 +36,7 @@
 > | FASE 25 — Ciclos Estratégicos | ✅ CERRADA 13/13 | Motor de ciclos · Generación IA · CycleDashboard · Historial · Regresión |
 > | FASE 26 — Sistema de Equipo v2 | ✅ CERRADA 14/14 | Invitaciones por enlace · Permisos por rol · Dashboard filtrado · Hiring guidance |
 > | FASE 27 — Proactive Intelligence | ✅ CERRADA 7/7 | Moment Detector + Phase Runway Estimator + MomentBanner |
-> | FASE 28 — Optimus Personalization | ⏸ PENDIENTE 0/6 | Optimus Memory + Feedback Real · Prerequisito: F16 cerrada + O4.1 |
+> | FASE 28 — Optimus Personalization | ✅ CERRADA 6/6 | Optimus Memory + Feedback Real · Prerequisito: F16 cerrada + O4.1 |
 > | FASE 29 — Execution-to-Revenue Pipeline | ⏸ PENDIENTE 0/8 | Correlación Asana→HubSpot→Stripe · Prerequisito: B0.1 + I5.1 + I5.2 |
 > | FASE 30 — Financial Intelligence Avanzada | ⏸ PENDIENTE 0/7 | Stress Test + Predictive MRR + Churn · Prerequisito: F29 + ≥8 semanas Stripe |
 > | FASE 31 — Ciclo Intelligence | ⏸ PENDIENTE 0/7 | Aprendizaje entre ciclos · Prerequisito: F25 + ≥2 ciclos completados |
@@ -4727,6 +4727,58 @@ ORDER  BY critical_count DESC, total DESC;
 ---
 
 *Plan Fases 23-26 generado 2026-03-21 · 49 tareas nuevas · Motor de Progresión v2 + Visibilidad + Ciclos Estratégicos + Sistema de Equipo v2*
+
+---
+
+## FASE 28 — OPTIMUS PERSONALIZATION  6/6 (100%) ✅
+> **Objetivo:** Optimus aprende del feedback del founder y personaliza sus recomendaciones.
+> En 1 mes, dos founders con el mismo proyecto reciben consejos distintos.
+>
+> **Infraestructura existente:** `optimus_feedback_events` (tabla), `OptimusFeedback.tsx` (thumbs up/down),
+> `get_optimus_context()` (context packet SQL), `ritual-optimus` + `ai-business-advisor` (edge functions).
+>
+> **Lo que falta:** Perfil personalizado derivado del feedback + inyección en prompts de IA.
+
+### Bloque A — Perfil y aprendizaje
+
+- [x] **OP28.1** Migración SQL: tabla `optimus_profile` + función `compute_optimus_profile()`
+  > `optimus_profile`: project_id + user_id (composite PK), preferred_depth (conciso|detallado),
+  > risk_tolerance (conservador|moderado|agresivo), feedback_summary JSONB
+  > (conteo de categorías de los últimos 30 feedbacks), response_style TEXT,
+  > updated_at TIMESTAMPTZ.
+  > `compute_optimus_profile()`: agrega últimos 30 feedbacks de `optimus_feedback_events`,
+  > deriva preferencias: si >50% 'too_obvious' → preferred_depth='detallado';
+  > si >50% 'not_actionable' → response_style='más específico';
+  > si >30% 'disagree' → risk_tolerance='conservador'.
+  > UPSERT en `optimus_profile`.
+
+- [x] **OP28.2** Cron semanal: actualizar perfiles de Optimus
+  > Función SQL `update_all_optimus_profiles()` que llama `compute_optimus_profile()`
+  > para cada (project_id, user_id) que tenga ≥5 feedbacks en los últimos 30 días.
+  > Cron: domingo 22:00 UTC (antes de weekly reviews).
+
+### Bloque B — Inyección en prompts
+
+- [x] **OP28.3** Inyectar perfil en `get_optimus_context()` output
+  > Añadir al context packet JSONB: `optimus_profile: { preferred_depth, risk_tolerance, response_style }`.
+  > Si no hay perfil, omitir (no bloquear).
+
+- [x] **OP28.4** Inyectar perfil en system prompts de `ritual-optimus` y `ai-business-advisor`
+  > Si el context packet incluye `optimus_profile`, añadir al system prompt:
+  > "PERSONALIZACIÓN DEL FOUNDER: Prefiere respuestas [depth]. Tolerancia al riesgo: [risk].
+  > Estilo: [style]. Ajusta tus recomendaciones a estas preferencias."
+  > Si no hay perfil, no añadir nada (comportamiento por defecto).
+
+### Bloque C — UI y cierre
+
+- [x] **OP28.5** `OptimusProfileCard.tsx` — muestra perfil al founder
+  > Card en dashboard (sidebar o sección expandible).
+  > Muestra: preferred_depth, risk_tolerance, response_style.
+  > "Optimus te conoce: prefieres respuestas [X], con tolerancia [Y] al riesgo."
+  > Si no hay perfil: "Optimus está aprendiendo. Da feedback (👍/👎) para personalizar."
+  > Basado en feedbacks acumulados, no editable directamente (derivado de comportamiento).
+
+- [x] **OP28.6** Tests + Bloque DEUDA
 
 ---
 
