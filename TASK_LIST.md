@@ -31,8 +31,17 @@
 > | FASE 20 — Análisis Estratégico IA v4 | ✅ CERRADA 12/12 + 5 v2 pendientes | Prerequisito: FASE 16 activa + proyecto ≥14 días · Niveles se desbloquean con integraciones |
 > | FASE 21 — Founder Toolkit | ✅ CERRADA 8/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
 > | FASE 22 — Expansion Intelligence | ⏸ POST-F21 0/9 + 2 v2 pendientes | Prerequisito: Fase 3+ · MRR estable 2 meses · riesgo no crítico · 1 integración activa |
+> | FASE 23 — Motor de Progresión v2 | ✅ CERRADA 12/12 | Fase 0 · Unificar user_stage→phase · Fast-track · Graduación |
+> | FASE 24 — Visibilidad de Progresión y Metodología | ⏸ PENDIENTE 0/10 | Prerequisito: FASE 23 · Roadmap visible · Metodología transparente |
+> | FASE 25 — Ciclos Estratégicos | ⏸ PENDIENTE 0/13 | Prerequisito: FASE 23 · Motor de ciclos post-Fase 4 · Generación IA · UX completa |
+> | FASE 26 — Sistema de Equipo v2 | ⏸ PENDIENTE 0/14 | Invitación por enlace · Mini-onboarding de rol · Tareas y dashboard por rol · Guía de hiring |
+> | FASE 27 — Proactive Intelligence | ⏸ PENDIENTE 0/7 | Moment Detector + Runway to Phase N · Prerequisito: F16 activa |
+> | FASE 28 — Optimus Personalization | ⏸ PENDIENTE 0/6 | Optimus Memory + Feedback Real · Prerequisito: F16 cerrada + O4.1 |
+> | FASE 29 — Execution-to-Revenue Pipeline | ⏸ PENDIENTE 0/8 | Correlación Asana→HubSpot→Stripe · Prerequisito: B0.1 + I5.1 + I5.2 |
+> | FASE 30 — Financial Intelligence Avanzada | ⏸ PENDIENTE 0/7 | Stress Test + Predictive MRR + Churn · Prerequisito: F29 + ≥8 semanas Stripe |
+> | FASE 31 — Ciclo Intelligence | ⏸ PENDIENTE 0/7 | Aprendizaje entre ciclos · Prerequisito: F25 + ≥2 ciclos completados |
 >
-> **Deudas técnicas abiertas:** I15.DEBT.2 (MRR diverge si upsert falla) · I15.DEBT.3 (GCal cancelados) · I15.DEBT.4 (invalidateQueries silencioso) · ~~I15.FIX.7~~ (resuelto 2026-03-20 via config.toml)
+> **Deudas técnicas abiertas:** ninguna · ~~I15.DEBT.2~~ (resuelto 2026-03-20) · ~~I15.DEBT.3~~ (resuelto 2026-03-20) · ~~I15.DEBT.4~~ (resuelto 2026-03-20) · ~~I15.FIX.7~~ (resuelto 2026-03-20)
 > **Diferidos conscientes F15 v2:** I15.91 (Holded) · I15.95 (Trello) · I15.96 (Slack) · I15.81 (Team Agent) · Bloques I–M
 
 ---
@@ -106,8 +115,10 @@
 
 ### Mejoras v2 — Columnas y tablas que faltaron para sistemas nuevos (FASE 15/17/18)
 
-- [ ] **D2.V2.1** `ALTER TABLE tasks ADD COLUMN external_provider TEXT, external_id TEXT, external_sync_at TIMESTAMPTZ` — I15.38 lo menciona como prerrequisito del normalizador de Asana pero la migración nunca se ejecutó. Sin estas columnas, las tareas importadas desde Asana no son distinguibles de las tareas manuales y la ejecución de FASE 19 B.5 (phase-relevant sorting) no puede separar tareas internas de externas.
-- [ ] **D2.V2.2** `ALTER TABLE obvs ADD COLUMN source TEXT DEFAULT 'internal'` — I15.45 define que los deals de HubSpot entran como OBVs con `source='hubspot'`, pero la columna no existe en el schema actual. Sin ella, el CRM híbrido de FASE 15 no puede coexistir deals externos con OBVs manuales sin colisiones. Añadir también índice `idx_obvs_source` para filtros frecuentes.
+- [x] **D2.V2.1** `ALTER TABLE tasks ADD COLUMN external_provider TEXT, external_id TEXT, external_sync_at TIMESTAMPTZ`
+  > ✅ Confirmado en producción 2026-03-20 vía Supabase Management API — columnas existen desde migración 20260315000004. Las columnas están disponibles. El normalizador de Asana que las usa queda diferido hasta haber usuarios con Asana activo.
+- [x] **D2.V2.2** `ALTER TABLE obvs ADD COLUMN source TEXT DEFAULT 'internal'` + índice `idx_obvs_source`
+  > ✅ Migration 20260326000006. Índice partial excluye 'internal'. DEFAULT garantiza backward compat.
 
 ---
 
@@ -905,10 +916,8 @@ ORDER  BY critical_count DESC, total DESC;
   > **CERRADO 2026-03-18:** `asana-operational.ts` — `normalizeAsanaTask`. Hard guard: gid ausente → null. Status: `completed === true → 'completed'`, else → `'open'`. due_date: due_at preferido sobre due_on. schema_score 2 required. Prerrequisito de integración: columnas external_provider/external_id/external_sync_at en tasks — migración pendiente en I15.38.
 - [x] **I15.39** Crear normalizador de calendario
   > **CERRADO 2026-03-18:** `gcal-calendar.ts` — `normalizeGCalEvent`. 4 hard guards: external_id, title, start.dateTime, end.dateTime. All-day events rechazados por ausencia de start.dateTime (solo tienen start.date). schema_score = 1.0 siempre post-guards → confidence = 0.94 constante. occurred_at = start_at.
-- [ ] **I15.DEBT.3** Filtrar eventos GCal con status="cancelled" antes de normalizar
-  > **Deuda registrada 2026-03-18.** `normalizeGCalEvent` no filtra eventos cancelados — un evento cancelado con title/start/end válidos pasa todos los guards y entra como `calendar_event` activo en `integration_entities`. Esto contamina la señal de actividad de agenda. No es deduplicación — es filtro semántico de validez. Fix: añadir hard guard `if (raw.status === 'cancelled') return null` en `normalizeGCalEvent`, antes del schema_score. Impacto: bajo en v1 (GCal no suele incluir cancelados en el listado default de events.list), pero a confirmar con el orquestador cuando se implemente sync-gcal.
-- [ ] **I15.DEBT.3** Filtrar eventos GCal con status="cancelled" antes de normalizar
-  > **Deuda registrada 2026-03-18.** `normalizeGCalEvent` no filtra eventos cancelados — un evento cancelado con title/start/end válidos pasa todos los guards y entra como `calendar_event` activo en `integration_entities`. Esto contamina la señal de actividad de agenda. No es deduplicación — es filtro semántico de validez. Fix: añadir hard guard `if (raw.status === 'cancelled') return null` en `normalizeGCalEvent`, antes del schema_score. Impacto: bajo en v1 (GCal no suele incluir cancelados en el listado default de events.list), pero a confirmar con el orquestador cuando se implemente sync-gcal.
+- [x] **I15.DEBT.3** Filtrar eventos GCal con status="cancelled" antes de normalizar
+  > **CERRADO 2026-03-20.** Hard guard 0 añadido en `normalizeGCalEvent`: `if (raw.status === 'cancelled') return null` — antes del guard de external_id. Documentado en JSDoc del archivo. `RawGCalEvent.status` ya tipado como `string | null` con comentario `"confirmed" | "tentative" | "cancelled"`. El normalizer gcal-calendar.ts se comparte con sync-gcal cuando se implemente.
 - [!] **I15.40** Crear normalizador de comunicación
 - [x] **I15.41** Diseñar deduplicación
   > **CERRADO 2026-03-18.** Dedup estructural ya existe: UNIQUE (connection_id, provider, entity_type, external_id) + upsert, payload_hash en write_log. No se borran entidades que desaparecen. **Adición v1:** `last_seen_at TIMESTAMPTZ` en `integration_entities` — actualizado en cada sync que vuelve a ver la entidad. `status='stale'` definido en schema pero NO aplicado automáticamente — se aplicará en v2. **Prerrequisito:** migración para añadir `last_seen_at`.
@@ -926,16 +935,12 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **I15.TEST.km.v2** Re-verificar sync-stripe end-to-end con payload normalizado (centavos)
   > **CERRADO 2026-03-17.** Sync ejecutado con JWT real. CHECK A: integration_entities=0 filas ✅ (cuenta sin suscripciones activas). CHECK B: key_metrics.mrr="0.00" (NUMERIC), integration_source="stripe", source_confidence="1.000" ✅. CHECK C: integration_write_log.status="written", agent_type="finance", target="key_metrics", confidence="1.000" ✅. verify_jwt había revertido a true — re-aplicado false en sync-stripe y connect-stripe (mismo fix que I15.FIX.2).
   > **Nota de límite:** con mrr=0 la convención de centavos no se puede distinguir de la de euros. La validación real de escala (centavos vs euros) requiere una cuenta con suscripciones activas y MRR > 0. Pendiente de verificar cuando exista una cuenta de test con datos reales.
-- [ ] **I15.DEBT.2** MRR puede divergir de `integration_entities` si un upsert falla en DB
-  > **Deuda registrada 2026-03-17.** Finance Agent suma `acceptedEntities` (normalizadas en memoria), pero si el upsert de una entidad a `integration_entities` falla, esa entidad sí contribuye al MRR escrito en `key_metrics` aunque no haya quedado persistida. Resultado: el agente cree que X suscripciones existen, el motor recibe MRR de X, pero `integration_entities` tiene X-N. Solución v2: mover la agregación Finance Agent al final del bucle solo sobre entidades con `entityIds` exitosos — o hacer el check post-upsert. Sin bloqueo operativo en v1 (errores de upsert son raros con idempotencia via UNIQUE constraint).
-- [ ] **I15.DEBT.4** `queryClient.invalidateQueries` falla silenciosamente en flujo connect→sync inmediato
-  > **Deuda registrada 2026-03-18.** En `StripeIntegration`, tras un connect exitoso el user puede pulsar "Sincronizar Ahora" antes de que `connectionId` del state se asiente. La invalidación `invalidateQueries(['sync_runs', connectionId])` usa el `connectionId` del state (puede ser null o el valor pre-connect). SyncHealthCard no se actualiza en ese caso. No rompe funcionalidad — el user ve el resultado al recargar o en la siguiente query stale. Sin bloqueo operativo. Fix v2: pasar `overrideConnectionId` a la invalidación también.
+- [x] **I15.DEBT.2** MRR puede divergir de `integration_entities` si un upsert falla en DB
+  > **CERRADO 2026-03-20.** `persistedEntities: ContractEntity[]` añadido en `sync-stripe` — array paralelo a `entityIds` que solo acumula entidades cuyo upsert fue confirmado en DB. `totalMrrCents` y `revenue_concentration` usan `persistedEntities` en lugar de `acceptedEntities`. También `entitiesUpsertFailed` counter: si >0 → `is_partial=true` en sync_run (AUD.B.7). Deployado a producción 2026-03-20.
+- [x] **I15.DEBT.4** `queryClient.invalidateQueries` falla silenciosamente en flujo connect→sync inmediato
+  > **CERRADO 2026-03-20.** `handleSync` ya recibía `overrideConnectionId` y lo resolvía en `connId`. Bug: la invalidation usaba `connectionId` (state, puede ser null post-connect) en lugar de `connId` (ya resuelto). Fix: `invalidateQueries({ queryKey: ['sync_runs', connId] })`. `StripeIntegration.tsx` línea 200.
 - [x] **I15.DEBT.5** Motor writes del Finance Agent bloqueados por constraint de sync_run status
   > **Cerrado 2026-03-18.** Problema adicional descubierto: `write_integration_to_engine_table` es `SECURITY DEFINER GRANT TO service_role` — el cliente (JWT de usuario) no puede llamarla independientemente del status del sync_run. Solución implementada: motor writes embebidos en los edge functions durante el sync (sync_run todavía 'running'). (1) `supabase/migrations/20260318000003_debt5_relax_write_guard.sql` — relaja guard de `status='running'` a `status IN ('running','completed','partial')` para habilitar futuros edge functions de agentes post-sync. (2) `sync-stripe` Paso 8b: computa `revenue_concentration` inline sobre `acceptedEntities` → `write_integration_to_engine_table(target='project_economic_profile', payload={top_client_revenue_percent})`, confidence check >= 0.8, min 3 clientes con customer_id. (3) `sync-hubspot` Paso 6: por cada deal con confidence >= 0.8 → `write_integration_to_engine_table(target='obvs', payload={external_id, titulo, tipo='venta', pipeline_status, fecha, valor_potencial})`, mapeo HubSpot stage → lead_status ENUM. (4) `financeAgentService.ts` + `salesAgentService.ts`: campo `motor_write` en integration_insights documenta target y edge function que ejecuta el write.
-- [ ] **I15.DEBT.4** `queryClient.invalidateQueries` falla silenciosamente en flujo connect→sync inmediato
-  > **Deuda registrada 2026-03-18.** En `StripeIntegration`, tras un connect exitoso el user puede pulsar "Sincronizar Ahora" antes de que `connectionId` del state se asiente. La invalidación `invalidateQueries(['sync_runs', connectionId])` usa el `connectionId` del state (puede ser null o el valor pre-connect). SyncHealthCard no se actualiza en ese caso. No rompe funcionalidad — el user ve el resultado al recargar o en la siguiente query stale. Sin bloqueo operativo. Fix v2: pasar `overrideConnectionId` a la invalidación también.
-- [ ] **I15.DEBT.5** Motor writes del Finance Agent bloqueados por constraint de sync_run status
-  > **Deuda registrada 2026-03-18.** `write_integration_to_engine_table()` requiere `sync_run.status='running'` (PASO 1b del guard). El Finance Agent corre post-sync cuando el sync_run ya está en `status='completed'`. La función rechaza la llamada con `invalid_sync_run`. Impacto v1: Finance Agent no puede escribir en `project_economic_profile.top_client_revenue_percent` ni otros targets de motor (solo emite `integration_insights`). Soluciones v2: (A) modificar el guard para aceptar el `sync_run_id` del agente aunque esté completado — añadir permiso explícito por `agent_type`; (B) el Finance Agent crea su propio `sync_run` de tipo `agent_analysis`; (C) sync-stripe llama al agente internamente antes de marcar el sync_run como `completed`. Opción A es la más limpia. Sin bloqueo operativo: el Financial Engine lee `key_metrics.mrr` (ya hidratado por el sync), el agente solo añade análisis encima.
 
 ### BLOQUE D — Hidratación de módulos internos
 > Cuando una herramienta externa se conecta, debe alimentar módulos internos — no crear una vista paralela.
@@ -3581,13 +3586,13 @@ ORDER  BY critical_count DESC, total DESC;
   > redistribución explícita idéntica al Risk Engine (`v_total_weight` pattern). Las sub-funciones retornan 0
   > (nunca NULL), y el comentario en 00007 documenta explícitamente esta decisión de diseño.
 
-- [ ] **AUD.C.3** Meeting Intelligence genera insights pero NO escribe al motor
-  > `meetingAgentService.ts` inserta en `integration_insights` (línea 225) pero no llama `write_integration_to_engine_table()`.
-  > Los insights de tipo `strategic_decision` y `metric_update` nunca afectan `phase_score`, `probability_score` ni `risk_score`.
-  > Meeting Intelligence es decorativo: "decidimos reposicionar" queda como texto leído, no como señal del motor.
-  > **Fix:** Después de insertar insights aprobados, llamar `write_integration_to_engine_table()` para tipos estratégicos.
-  > Reutiliza lógica existente de F15 agents. ~10-15 líneas.
-  > Esfuerzo: bajo (reutiliza patrón de Finance/Sales/Execution agents).
+- [x] **AUD.C.3** Meeting Intelligence genera insights pero NO escribe al motor
+  > ✅ Resuelto 2026-03-20. `apply-meeting-insights/index.ts` step 9 extendido:
+  > - `strategicDecisionsEligible` (engineEligible filtrado a insight_type='decision') → `run_probability_engine` + `run_risk_engine` (trigger_source='meeting_strategic_decision')
+  > - `blockers > 0` → `run_risk_engine` (trigger_source='meeting_blocker_applied')
+  > - `tasks > 0 || obv_updates > 0` → `run_phase_engine` (ya existía, mantenido)
+  > `engineEligible` = insights high-impact no degradados (combined_reliability ≥ 0.5). Todos los calls son non-fatal (try/catch independiente).
+  > Deployed 2026-03-20. Nota: `write_integration_to_engine_table` no se usa (requiere service_role, no disponible desde este flujo); se reemplaza por llamadas directas a los engines.
 
 - [x] **AUD.C.4** ~~Phase 4 sin Next Action — `buildNextAction()` devuelve `null` en Fase 4~~
   > ❌ FALSE POSITIVE — verificado 2026-03-20. `src/lib/next-action.ts` línea 31 documenta explícitamente
@@ -3882,7 +3887,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-### BLOQUE II — Cerrar loops rotos  6/7 ✅ (AUD.C.3 diferido)
+### BLOQUE II — Cerrar loops rotos  7/7 ✅
 > **Criterio:** sistemas cerrados a medias. Feedback que no llega, señales que se pierden.
 
 - [x] **EC13.V2.1** `useProjectContext()` filtra solo `role_accepted=true`
@@ -3899,9 +3904,8 @@ ORDER  BY critical_count DESC, total DESC;
   > SQL: migration `20260326000005_n7v21_overdue_tasks_warning.sql` con anti-spam 48h, threshold ≥3.
 - [x] **AUD.A.6** Script `scripts/patch-verify-jwt.sh` — parchea todas las functions a verify_jwt=false
   > Itera sobre funciones desplegadas via Management API. Variables: `SUPABASE_ACCESS_TOKEN`, `PROJECT_REF`.
-- [!] **AUD.C.3** Meeting Intelligence → SQL engine
-  > DIFERIDO — fix más complejo de lo estimado (ver DEUDA.PE.1). Esfuerzo real ~50-80 líneas.
-  > Requiere: sync_run 'running' durante proceso + autorizar agent_type 'meeting' + mapeo insight_type→target.
+- [x] **AUD.C.3** Meeting Intelligence → SQL engine
+  > ✅ Resuelto 2026-03-20. `apply-meeting-insights` step 9: run_probability + run_risk para strategic_decisions (engineEligible), run_risk para blockers. Deployed.
 
 ---
 
@@ -4073,7 +4077,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-### BLOQUE DEUDA — Agujeros detectados durante ejecución  6/18
+### BLOQUE DEUDA — Agujeros detectados durante ejecución  19/23
 
 > Agujeros encontrados al leer código real durante Bloque I. No resolubles en el mismo bloque.
 > La fase no avanza a cierre total hasta que este bloque esté `[x]`.
@@ -4183,9 +4187,14 @@ ORDER  BY critical_count DESC, total DESC;
   > ✅ No es bug real. React Query estándar: `enabled: !!projectId` previene la query. El banner
   > renderiza `null` si `!projectId`. Comportamiento correcto confirmado — ningún agujero real.
 
+- [!] **DEUDA.PE.23** AUD.C.3 — `run_probability_engine` es no-op para decisiones estratégicas de reuniones
+  > DIFERIDO — el probability engine no lee `decision_events` como input. La llamada `run_probability_engine('meeting_strategic_decision')` re-computa el engine pero produce el mismo output si solo hubo decisiones (sin OBVs/tasks nuevos). "Decidimos reposicionar" nunca afecta `probability_score`.
+  > **Por qué no se resuelve ahora:** requiere migration SQL para añadir `decision_events` como factor del probability engine (nuevo input con peso definido). No es un fix de una línea — es una decisión de arquitectura de engine que afecta `run_probability_engine()` y la spec matemática F1. Scope de NIVEL 4 (post-validación, con datos reales de cómo afectan las decisiones a la probabilidad de avance).
+  > **Riesgo mientras está diferido:** bajo — el sistema no rompe, solo no refleja decisiones de reuniones en el score. El workaround es que las decisiones que generan OBVs o tareas sí afectan el engine por los paths existentes.
+
 ---
 
-*Bloque DEUDA completado 2026-03-20 · 16/22 items [x] · 6 diferidos [!] (PE.6, PE.11, PE.12, PE.13, PE.18 — infraestructura/contenido pendiente) · PE.15 resuelto parcialmente 2026-03-20 (OptimusFeedback conectado a ResetSurface; parseOptimus diferido hasta Optimus advisor surface) · PE.22 no-bug confirmado · 3 migraciones SQL (00020–00022) · 2 archivos modificados (NotificationBell.tsx, OPTIMUS_PROMPTS.md §1)*
+*Bloque DEUDA 19/23 · 7 diferidos [!] (PE.6, PE.11, PE.12, PE.13, PE.18, PE.23 — infraestructura/contenido/engine pendiente) · PE.23 añadido 2026-03-20 (AUD.C.3 — probability engine no lee decision_events)*
 
 *Plan generado 2026-03-20 · integra V2 existentes (49 items) + Auditoría V3 (33 items) · 82 items totales*
 *Bloque I completado 2026-03-26 · 4 false positives descartados · 2 migraciones SQL creadas (AUD.A.1, AUD.A.2)*
@@ -4195,4 +4204,502 @@ ORDER  BY critical_count DESC, total DESC;
 *Bloque V completado 2026-03-26 · 8/11 items cerrados · 3 diferidos (AUD.A.5, AUD.M.9, N7.V2.4) · DEUDA.PE.11-14 registradas · 3 componentes nuevos (DataCompletenessCard, InputAuditModal, useActiveSurface.ts)*
 *Bloque VI completado 2026-03-26 · 9/9 items cerrados · DEUDA.PE.15-18 registradas · 4 migraciones SQL (00010–00013) · 2 archivos nuevos (src/lib/optimus.ts, OptimusFeedback.tsx)*
 *Bloque VII completado 2026-03-26 · 11/13 items cerrados · 2 diferidos (F20.V2.1 sin cohorte, C3.V2.1 sin Asana) · DEUDA.PE.19 registrada · 6 migraciones SQL (00014–00016) · 1 componente nuevo (OverdueTasksBanner en MeetingHistory)*
-*Bloque VIII completado 2026-03-26 · 5/11 items cerrados · 6 diferidos · DEUDA.PE.20-22 registradas · 3 migraciones SQL (00017–00019) · 4 archivos nuevos (PlaybookTriggerBanner, DecisionRetrospectiveBanner, EmergencyOnboardingPage, ruta App.tsx)*
+*Bloque VIII completado 2026-03-26 · 7/11 items cerrados · 4 diferidos (AUD.M.8, I15.V2.2, AUD.B.5, F22.V2.2) · DEUDA.PE.20-22 registradas · 3 migraciones SQL (00017–00019) · 4 archivos nuevos (PlaybookTriggerBanner, DecisionRetrospectiveBanner, EmergencyOnboardingPage, ruta App.tsx) · F21.V2.3+F21.V2.4+I15.V2.1 cerrados 2026-03-20*
+
+---
+
+## FASE 23 — MOTOR DE PROGRESIÓN v2  12/12 (100%) ✅
+> **Objetivo:** Unificar los dos sistemas de progresión paralelos (user_stage y phase), añadir Fase 0 para pre-idea,
+> implementar fast-track para startups existentes, y preparar la transición Phase 4 → Ciclos Estratégicos.
+> Esta fase es fundacional — FASE 24, 25 y 26 dependen de ella.
+>
+> **Dependencias:** ENGINE_SPEC_V1.md (spec autoritativa), migraciones 00002-00028 (motor actual), generate-tasks-v2 (edge function).
+> **Principio de diseño:** Las 5 fases (0-4) son un framework universal (metodología startup validada).
+> Lo que se personaliza es el CONTENIDO dentro de cada fase, no las fases mismas.
+> Una startup madura puede saltarse fases enteras (fast-track) o ir directo a ciclos estratégicos.
+> **1 tarea diferida** (P23.12 DEUDA).
+
+### Bloque A — Fase 0 y unificación del motor
+
+- [x] **P23.1+P23.7** Migración SQL única: constraints 0-4 + Phase 0 + cascada fast-track + graduación + entry_mode
+  > Archivo: `supabase/migrations/20260327000001_fase23_progression_v2.sql`
+  > Incluye: compute_phase0_score(), run_phase_engine() rewrite con Phase 0, fast-track cascade,
+  > graduación Phase 4, regresión de graduación, nuevos campos (entry_mode, graduation_eligible_since, graduated).
+
+- [x] **P23.2** Mapeo definitivo: onboarding_type → phase inicial + estado de entrada
+  > Implementado en FastStartWizard.tsx handlePathComplete.
+  > generative→Phase 0 (bootcamp), idea→Phase 1 (bootcamp), existing→Phase 1 (fast_track, RPC ajusta).
+
+- [x] **P23.3** Unificar `user_stage` → `phase` como eje único de progresión
+  > generate-tasks-v2: getPhaseInstructions(phase) reemplaza getUserStageInstructions + getStateInstructions.
+  > Lee current_phase de project_phase_state via query separada. user_stage mantenido en BD como legacy.
+
+- [x] **P23.4** Actualizar `phase-features.ts` para soportar Phase 0
+  > PHASE_TAB_CONFIG[0], PHASE_RELEVANCE[0], PHASE_STATS_CONFIG[0], PRIMARY_FOCUS_TABS[0],
+  > TAB_TEASER_REASONS con entries para Phase 0, PhaseStatKey ampliado con ideas_explored/problems_identified.
+
+### Bloque B — Fast-track y seedeo de datos
+
+- [x] **P23.5** Seedeo de datos del onboarding "existing" al motor
+  > months_operating añadido a FaseAAnswers. MRR sedeado a key_metrics en handlePathComplete.
+  > Seedeo de clientes_activos a obvs diferido (requiere lógica compleja de N inserts ficticios — ver DEUDA).
+
+- [x] **P23.6** Fast-track automático: evaluación post-onboarding
+  > Llamada a run_phase_engine(projectId, 'onboarding_fast_track') en handlePathComplete para path existing.
+  > Gate duro cycle_direct evaluado en SQL cascade. Churn gate diferido (sin datos de churn — ver DEUDA).
+
+### Bloque C — Graduación y transición
+
+- [x] **P23.8** Definir condición de graduación de Phase 4
+  > Implementado en SQL: graduation_eligible_since se setea cuando score>=75, graduación tras 28 días.
+
+- [x] **P23.9** Flag `graduated` y UI de transición
+  > graduated, graduation_eligible_since, entry_mode expuestos en useProjects() via phase_state LEFT JOIN.
+  > Modal de graduación diferido a FASE 24 (ver DEUDA).
+
+- [x] **P23.10** Regresión de ciclos → fases
+  > Implementado en SQL: graduated=FALSE cuando consecutive_low_score>=2 en weekly_job.
+  > Al regresar Phase 4→3: graduated y grad_since se resetean.
+
+### Bloque D — Tests y cierre
+
+- [x] **P23.11** Tests del motor de progresión v2
+  > 15 tests en src/lib/__tests__/phase-engine-v2.test.ts — todos pasan.
+  > Build limpio. Suite completa: 171 files, 1785 tests, 0 failures.
+
+- [x] **P23.12** Bloque DEUDA — Fase 23
+  > **Agujeros corregidos:**
+  > - key_metrics insert usaba columnas inexistentes → corregido a (mrr, date, total_customers).
+  > - Fast-track cascade usaba gates normales → reescrito con gates alternativos basados en onboarding.
+  > - generate-tasks-v2: `supabase` variable indefinida (bug pre-existente) → creado service role client.
+  >
+  > **Limitaciones fuera de scope (requieren fases/datos no disponibles):**
+  > 1. Churn gate — no hay datos de churn en v1 (key_metrics.churn_rate nunca poblado). Requiere integración de métricas de retención.
+  > 2. Modal de graduación — pertenece a FASE 24 (UX de progresión visible) por diseño del plan.
+  > 3. cycle_direct UI — gate SQL existe, pero sin FASE 25 (Ciclos Estratégicos) no hay destino para cycle_direct.
+  > 4. Pausar ciclos — requiere FASE 25 (motor de ciclos).
+  > 5. Notificación de regresión — requiere sistema de notificaciones proactivas (no existe aún).
+
+---
+
+## FASE 24 — VISIBILIDAD DE PROGRESIÓN Y METODOLOGÍA  0/10 (0%)
+> **Objetivo:** El usuario entiende dónde está, por qué, qué necesita hacer para avanzar,
+> y qué metodología está siguiendo. Sin esto, la progresión es opaca y las tareas no se sienten
+> conectadas a un objetivo mayor.
+>
+> **Dependencias:** FASE 23 (motor v2 con Phase 0, graduación, fast-track).
+> **Principio UX:** Cada pantalla que muestra progreso debe responder 3 preguntas:
+> "¿Dónde estoy?" "¿Por qué?" "¿Qué hago ahora?"
+
+### Bloque A — Roadmap de fase visible
+
+- [ ] **V24.1** Componente `PhaseRoadmap`: mapa visual de progresión
+  > Componente que muestra las 5 fases (0-4) como un camino visual (horizontal o vertical).
+  > Fase actual resaltada. Fases completadas con check. Fases futuras en gris.
+  > Al hacer click en una fase futura: popover con "Qué necesitas para llegar aquí".
+  > Ubicación: dashboard del proyecto (arriba de todo, antes de stats).
+  > Props: `currentPhase`, `phaseScore`, `hardSignalMet`, `graduated`.
+  > Si `graduated`: mostrar badge "Graduado — Ciclos Estratégicos" al final del camino.
+
+- [ ] **V24.2** Componente `PhaseExplainer`: "Por qué estás en esta fase"
+  > Card expandible debajo del PhaseRoadmap.
+  > Contenido dinámico por fase, generado desde datos reales:
+  > Phase 0: "Estás explorando ideas. Has identificado N problemas hasta ahora."
+  > Phase 1: "Estás validando tu problema. Llevas N/10 entrevistas. Tu dolor detectado: X%."
+  > Phase 2: "Estás validando tu solución. Revenue momentum: X. Necesitas tu primer pago."
+  > Phase 3: "Estás operando. MRR estable N meses. Tareas completadas: N/3 mínimo."
+  > Phase 4: "Estás creciendo. Growth rate: X%. Funciones delegadas: N."
+  > Datos leídos de `project_phase_state` + `run_phase_engine()` outputs.
+
+- [ ] **V24.3** Componente `PhaseUnlockChecklist`: "Qué necesitas para avanzar"
+  > Checklist de los hard signals de la siguiente fase.
+  > Cada item muestra: estado actual vs requerido.
+  > Phase 0→1: [ ] Idea seleccionada (✅/❌) | [ ] Segmento definido (X/10 chars)
+  > Phase 1→2: [ ] ≥10 entrevistas (N/10) | [ ] ≥30% dolor (X%) | [ ] Estrategia definida (✅/❌)
+  > Phase 2→3: [ ] Primer pago registrado (✅/❌) | [ ] Revenue momentum ≥40 (X/40)
+  > Phase 3→4: [ ] 3 meses estables (N/3) | [ ] ≥3 tareas/28d (N/3) | [ ] Velocity ≥2 (X/2)
+  > Barra de progreso general: "X de Y condiciones cumplidas".
+
+- [ ] **V24.4** Componente `PhaseScoreBar`: progreso hacia graduación de fase
+  > Barra de progreso que muestra `phase_score` de 0 a 100.
+  > Marca visual en 75 (umbral de avance).
+  > Colores: <50 rojo (critical), 50-74 amarillo (friction), ≥75 verde (healthy).
+  > Tooltip con desglose: "O1.1: 65 (×0.40) + O1.2: 80 (×0.40) + O1.3: 40 (×0.20) = 71".
+  > Ubicación: dentro de PhaseRoadmap o como componente standalone en dashboard.
+
+### Bloque B — Tareas conectadas a progresión
+
+- [ ] **V24.5** Tareas taggeadas con impacto en fase
+  > Modificar `generate-tasks-v2` para que cada tarea generada incluya en metadata:
+  > `phase_impact: { phase: number, objective: string, contribution: string }`.
+  > Ejemplo: `{ phase: 1, objective: 'O1.1', contribution: 'Cada entrevista suma al score de validación' }`.
+  > En el KanbanCard, mostrar badge sutil: "🎯 Fase 1 — O1.1" si `phase_impact` existe.
+  > Esto conecta visualmente "hago esta tarea" → "avanzo en mi fase".
+
+- [ ] **V24.6** `NextPhaseAction` en el Focus Block (F19)
+  > Integrar con el Focus Block existente (FASE 19).
+  > Si el usuario está en friction (score 50-74): mostrar la acción más impactante para su fase.
+  > "Tu fase necesita: 3 entrevistas más. Crea una OBV de tipo 'customer_discovery'."
+  > Si el usuario está en healthy (≥75) pero falta hard signal: mostrar qué hard signal falta.
+  > "Score OK (78). Falta: registrar primer pago para avanzar a Fase 3."
+
+### Bloque C — Metodología visible
+
+- [ ] **V24.7** Metodología transparente en el proyecto
+  > Asignar metodología automáticamente según fase (no selección manual):
+  > Phase 0: "Exploración" (sin metodología formal).
+  > Phase 1: "Lean Startup — Customer Discovery".
+  > Phase 2: "Lean Startup — Product-Market Fit".
+  > Phase 3: "Operaciones — Unit Economics".
+  > Phase 4: "Scaling Up — Crecimiento estructurado".
+  > Ciclos: "OKR Strategy — Ciclos trimestrales".
+  > Mostrar en el header del proyecto como badge: "📘 Lean Startup — Customer Discovery".
+  > Al hacer click: popover explicando la metodología, por qué aplica, recursos recomendados.
+  > Actualizar `projects.methodology` automáticamente al cambiar de fase.
+
+- [ ] **V24.8** Celebración de avance de fase
+  > Mejorar `usePhaseTransitionNotification` existente (FASE 6).
+  > Modal de celebración con:
+  > - Qué logró en la fase anterior (stats reales).
+  > - Qué metodología nueva aplica.
+  > - Qué tabs se desbloquean.
+  > - Primer objetivo de la nueva fase.
+  > - CTA: "Ver mis nuevos objetivos" → scroll a PhaseRoadmap.
+  > Si es graduación (Phase 4 → Ciclos): modal especial de graduación (P23.9).
+
+### Bloque D — Cierre
+
+- [ ] **V24.9** Tests de componentes de visibilidad
+  > Tests para: PhaseRoadmap, PhaseExplainer, PhaseUnlockChecklist, PhaseScoreBar.
+  > Verificar que cada componente renderiza datos correctos para Phase 0-4.
+  > Verificar transiciones: de Phase 1 a Phase 2, datos cambian correctamente.
+  > Verificar graduación: badge "Graduado" visible cuando `graduated = true`.
+
+- [ ] **V24.10** Bloque DEUDA — Fase 24
+
+---
+
+## FASE 25 — CICLOS ESTRATÉGICOS  0/13 (0%)
+> **Objetivo:** Después de completar las 4 fases (bootcamp), la app genera ciclos estratégicos
+> de 90 días con objetivos personalizados basados en el estado actual de la empresa.
+> Los ciclos son infinitos — la app nunca se acaba.
+>
+> **Dependencias:** FASE 23 (graduación, flag `graduated`), FASE 24 (UX de progresión).
+> **Principio de diseño:** Las fases 0-4 son prescriptivas (metodología fija).
+> Los ciclos son adaptativos (IA analiza tu situación y propone objetivos).
+> Un ciclo = 90 días, 3-4 objetivos ponderados, score 0-100, completar ≥75 para cerrar.
+
+### Bloque A — Schema y motor
+
+- [ ] **CE25.1** Migración SQL: tabla `strategic_cycles`
+  > ```sql
+  > CREATE TABLE strategic_cycles (
+  >   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  >   project_id UUID NOT NULL REFERENCES projects(id),
+  >   cycle_number SMALLINT NOT NULL,          -- 1, 2, 3...
+  >   title TEXT NOT NULL,                      -- "Diversificación de revenue"
+  >   description TEXT,                         -- Resumen del ciclo
+  >   objectives JSONB NOT NULL,                -- [{id, title, weight, metric_name, target_value, current_value, score}]
+  >   cycle_score NUMERIC(5,2) DEFAULT 0,       -- 0-100, ponderado de objetivos
+  >   status TEXT NOT NULL DEFAULT 'active',     -- active | completed | revised | abandoned
+  >   started_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  >   ends_at TIMESTAMPTZ NOT NULL,             -- started_at + 90 días
+  >   completed_at TIMESTAMPTZ,
+  >   previous_cycle_id UUID REFERENCES strategic_cycles(id),
+  >   generation_context JSONB,                 -- snapshot de datos usados para generar
+  >   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  > );
+  > ```
+  > RLS: solo miembros del proyecto pueden leer/escribir.
+  > Índice: `(project_id, status)` para buscar ciclo activo.
+  > Constraint: máximo 1 ciclo `status = 'active'` por proyecto.
+
+- [ ] **CE25.2** Migración SQL: tabla `cycle_objective_progress`
+  > ```sql
+  > CREATE TABLE cycle_objective_progress (
+  >   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  >   cycle_id UUID NOT NULL REFERENCES strategic_cycles(id),
+  >   objective_id TEXT NOT NULL,               -- matches objectives[].id
+  >   recorded_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
+  >   value NUMERIC NOT NULL,                   -- valor actual de la métrica
+  >   notes TEXT                                -- contexto opcional
+  > );
+  > ```
+  > Permite trackear evolución temporal de cada objetivo dentro del ciclo.
+  > Cron semanal: registrar progress automáticamente desde key_metrics/obvs/tasks.
+
+- [ ] **CE25.3** RPC: `compute_cycle_score(cycle_id)`
+  > Función SQL que calcula `cycle_score` basándose en los objetivos:
+  > Para cada objetivo: `obj_score = MIN(100, (current_value / target_value) × 100)`.
+  > `cycle_score = SUM(obj_score × obj_weight)`.
+  > Llamada por cron semanal y por trigger cuando se registra progreso.
+
+### Bloque B — Generación de ciclos con IA
+
+- [ ] **CE25.4** Edge function: `generate-strategic-cycle`
+  > Input: `project_id`, `trigger` ('graduation' | 'cycle_completed' | 'cycle_revised' | 'manual').
+  > Context que lee:
+  > - `project_phase_state` (fase, score, historial).
+  > - `key_metrics` (MRR, clientes, churn, CAC últimos 3 meses).
+  > - `strategic_cycles` (ciclos anteriores completados — qué se logró, qué no).
+  > - `integration_insights` activos (señales de los 5 agentes).
+  > - `strategic_blocks` activos (blockers recurrentes).
+  > - `project_members` (equipo, roles, performance).
+  > - `obvs` últimas 30 (tendencias de negocio).
+  > Prompt IA (Claude 3.5 Sonnet):
+  > - Analizar estado actual y generar 3-4 objetivos estratégicos.
+  > - Cada objetivo: título, descripción, peso (0.0-1.0, suman 1.0), métrica, target_value.
+  > - Título del ciclo: resumen en 5-7 palabras.
+  > - Duración: 90 días (fija).
+  > Output: `strategic_cycles` row insertada con `status = 'active'`.
+  > Rate limit: máximo 1 generación por proyecto cada 24h.
+
+- [ ] **CE25.5** Ciclo de Estabilización (primer ciclo — semi-guiado)
+  > El primer ciclo NO es 100% libre. Es un "Ciclo 0" con objetivos semi-predefinidos
+  > para evitar que el usuario se pierda en la transición fases→ciclos.
+  > **4 objetivos base** (la IA personaliza targets y pesos, pero los ejes son fijos):
+  > 1. **Crecimiento**: Mantener o mejorar growth rate actual (métrica: MRR growth %).
+  > 2. **Equipo**: Cubrir roles críticos pendientes o mejorar performance (métrica: roles cubiertos o perf score).
+  > 3. **Eficiencia**: Reducir concentración de revenue o mejorar márgenes (métrica: top_client_pct o margen).
+  > 4. **Automatización**: Documentar procesos o automatizar tareas repetitivas (métrica: SOPs creados o tasks automatizadas).
+  > La IA asigna pesos y targets basándose en el estado actual (diagnóstico de entrada o graduación).
+  > `trigger = 'graduation'`: usa resumen de las 4 fases completadas como contexto.
+  > `trigger = 'cycle_direct'` (entry_mode = 'cycle_direct'): usa datos del onboarding + problema principal.
+  > Marcar en `strategic_cycles`: `cycle_number = 0`, `title = 'Ciclo de Estabilización'`.
+  > A partir del Ciclo 1 (post-estabilización) los ciclos son 100% generados por IA.
+
+- [ ] **CE25.6** Generación de ciclo siguiente tras completar uno
+  > Cuando `cycle_score ≥ 75` y usuario confirma:
+  > Marcar ciclo actual `status = 'completed'`, `completed_at = NOW()`.
+  > Llamar `generate-strategic-cycle` con `trigger = 'cycle_completed'`.
+  > El nuevo ciclo hereda contexto del anterior: qué se logró, qué objetivos no se alcanzaron.
+  > Objetivos no alcanzados se pueden arrastrar (IA decide si incluirlos o reformularlos).
+
+### Bloque C — Revisión y adaptación
+
+- [ ] **CE25.7** Revisión de ciclo a los 90 días
+  > Cron job: cuando `ends_at ≤ NOW()` y `status = 'active'`:
+  > Notificar al usuario: "Tu ciclo de 90 días ha terminado. ¿Revisamos resultados?"
+  > Modal de revisión:
+  > - Score final del ciclo (con desglose por objetivo).
+  > - Qué se logró vs qué no.
+  > - Opciones: "Cerrar y crear nuevo ciclo" | "Extender 30 días" | "Revisar objetivos".
+  > "Extender": actualizar `ends_at += 30 días` (máximo 1 extensión).
+  > "Revisar": marcar `status = 'revised'`, generar nuevo ciclo con objetivos reformulados.
+
+- [ ] **CE25.8** Regresión de ciclos a fases
+  > Implementar lógica de P23.10:
+  > Si `graduated = TRUE` pero score de fase cae < 50 durante 2 semanas:
+  > Pausar ciclo activo (`status = 'paused'`).
+  > Desactivar `graduated = FALSE`.
+  > Notificar: "Tu empresa necesita estabilizarse. Volvemos a Fase N."
+  > Cuando re-gradúe: reactivar ciclo pausado (o generar nuevo si han pasado >90 días).
+
+### Bloque D — UX de ciclos
+
+- [ ] **CE25.9** Componente `CycleDashboard`: vista del ciclo activo
+  > Card prominente en el dashboard del proyecto (reemplaza PhaseRoadmap cuando `graduated`).
+  > Muestra: título del ciclo, días restantes, score general, progreso por objetivo.
+  > Cada objetivo: barra de progreso, valor actual vs target, tendencia (↑↓→).
+  > Si no hay ciclo activo: CTA "Crear nuevo ciclo estratégico".
+
+- [ ] **CE25.10** Historial de ciclos
+  > Página/tab "Ciclos" accesible desde el proyecto.
+  > Lista de ciclos completados, revisados, abandonados.
+  > Click en ciclo pasado: ver objetivos, score final, duración, qué se logró.
+  > Gráfico de evolución: score por ciclo a lo largo del tiempo.
+
+- [ ] **CE25.11** Integración de ciclos con `generate-tasks-v2`
+  > Cuando el proyecto tiene ciclo activo:
+  > `getPhaseInstructions()` (P23.3) detecta `graduated = true` → lee ciclo activo.
+  > Instrucciones para IA: "El proyecto está en Ciclo Estratégico #N: [título]. Objetivos: [lista]."
+  > Las tareas generadas deben contribuir a los objetivos del ciclo.
+  > Metadata de tarea: `cycle_impact: { cycle_id, objective_id, contribution }`.
+
+### Bloque E — Cierre
+
+- [ ] **CE25.12** Tests de ciclos estratégicos
+  > Tests para:
+  > - `compute_cycle_score()`: cálculo correcto con pesos.
+  > - Graduación → Ciclo 1: flujo completo.
+  > - Ciclo completado → Ciclo siguiente: herencia de contexto.
+  > - Revisión de 90 días: extensión y reformulación.
+  > - Regresión: ciclo pausado cuando `graduated = false`.
+  > - Integración con generate-tasks-v2: instrucciones correctas en modo ciclo.
+
+- [ ] **CE25.13** Bloque DEUDA — Fase 25
+
+---
+
+## FASE 26 — SISTEMA DE EQUIPO v2  0/14 (0%)
+> **Objetivo:** Implementar invitación real por enlace, mini-onboarding diferenciado por rol,
+> tareas y dashboard específicos por rol, y guía de hiring/compensación.
+> Sin esto, la experiencia de equipo es plana — todos ven lo mismo y hacen lo mismo.
+>
+> **Dependencias:** FASE 23 (motor v2 para asignar fase correcta al nuevo miembro).
+> **Principio de diseño:** El fundador ve TODO. Los miembros ven SU área.
+> Cada rol tiene tareas, métricas y responsabilidades distintas.
+> La app recomienda cuándo y qué perfiles contratar.
+
+### Bloque A — Invitación por enlace
+
+- [ ] **EQ26.1** Migración SQL: tabla `project_invitations`
+  > ```sql
+  > CREATE TABLE project_invitations (
+  >   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  >   project_id UUID NOT NULL REFERENCES projects(id),
+  >   invited_by UUID NOT NULL REFERENCES members(id),
+  >   token TEXT NOT NULL UNIQUE,               -- token criptográfico (32 chars)
+  >   role specialization_role NOT NULL,         -- rol pre-asignado
+  >   email TEXT,                                -- email opcional (si se quiere restringir)
+  >   status TEXT NOT NULL DEFAULT 'pending',    -- pending | accepted | expired | revoked
+  >   max_uses SMALLINT DEFAULT 1,              -- 1 = single-use, N = multi-use
+  >   uses_count SMALLINT DEFAULT 0,
+  >   expires_at TIMESTAMPTZ NOT NULL,           -- default: 7 días desde creación
+  >   accepted_at TIMESTAMPTZ,
+  >   accepted_by UUID REFERENCES members(id),
+  >   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+  > );
+  > ```
+  > RLS: solo admins/leaders del proyecto pueden crear/revocar invitaciones.
+  > Función SQL: `generate_invitation_token()` usando `encode(gen_random_bytes(24), 'base64url')`.
+
+- [ ] **EQ26.2** UI: Generación de enlace de invitación
+  > En la pestaña Equipo, botón "Invitar miembro" abre modal con:
+  > - Selector de rol (6 specialization_roles).
+  > - Opción: "Restringir a email específico" (opcional).
+  > - Opción: "Enlace de un solo uso" vs "Enlace multi-uso" (para equipos).
+  > - Genera enlace: `app.optimus-k.com/invite/{token}`.
+  > - Botón "Copiar enlace" + preview del enlace.
+  > - Lista de invitaciones activas con opción de revocar.
+  > Reemplaza `InviteMemberWizard.tsx` actual (que busca por email en profiles).
+
+- [ ] **EQ26.3** Ruta `/invite/:token` — landing de invitación
+  > Página pública (no requiere auth).
+  > Muestra: nombre del proyecto, quién invita, rol asignado, descripción del rol.
+  > Si el usuario NO está logueado: botón "Registrarme y unirme" → registro + mini-onboarding.
+  > Si el usuario YA está logueado: botón "Unirme al proyecto" → mini-onboarding directo.
+  > Validaciones: token válido, no expirado, no excede max_uses, email match (si restrictivo).
+  > Al aceptar: insertar `project_members`, actualizar `project_invitations.status = 'accepted'`.
+
+### Bloque B — Mini-onboarding de rol
+
+- [ ] **EQ26.4** Flujo de mini-onboarding para miembros invitados (3-4 pantallas)
+  > **Pantalla 1 — Bienvenida y contexto:**
+  > "¡Bienvenido a [Proyecto]! Tu líder te ha invitado como [Rol]."
+  > Resumen del proyecto: qué hace, en qué fase está, objetivo actual.
+  > **Pantalla 2 — Tu perfil profesional:**
+  > Experiencia en el rol (junior/mid/senior), skills principales (checkboxes),
+  > herramientas que domina (free text), disponibilidad (horas/semana).
+  > Guarda en `project_members.role_profile` (nuevo campo JSONB).
+  > **Pantalla 3 — Tus responsabilidades:**
+  > Lista de responsabilidades del rol (generadas por project_roles si existen, o default por specialization).
+  > El miembro confirma/ajusta cuáles asume.
+  > Guarda en `project_members.role_responsibilities` (ya existe).
+  > **Pantalla 4 — Tu primera misión:**
+  > Genera 1 tarea automática adaptada al rol + fase + perfil recién capturado.
+  > "Tu primera tarea: [título]. Empieza por aquí."
+  > CTA: "Ir a mi dashboard" → vista filtrada por rol.
+
+- [ ] **EQ26.5** Migración SQL: campo `role_profile` en `project_members`
+  > `ALTER TABLE project_members ADD COLUMN role_profile JSONB;`
+  > Estructura: `{ experience_level, skills, tools, availability_hours, onboarded_at }`.
+  > Usado por `generate-tasks-v2` para personalizar tareas del miembro.
+
+### Bloque C — Tareas y dashboard por rol
+
+- [ ] **EQ26.6** Modificar `generate-tasks-v2` para tareas diferenciadas por rol
+  > Actualmente genera 1 tarea por miembro con guidelines por rol (líneas 441-447).
+  > Mejorar:
+  > - Leer `role_profile` del miembro (skills, experiencia, herramientas).
+  > - Leer fase actual + objetivos de ciclo (si graduated).
+  > - Generar tarea que combine: responsabilidad del rol × objetivo de fase/ciclo × skills del miembro.
+  > - Metadata: `role_impact: { role, responsibility, phase_objective }`.
+  > - El CEO/strategy recibe tareas de planificación y decisión.
+  > - Sales recibe tareas de prospección y cierre.
+  > - Marketing recibe tareas de contenido y campañas.
+  > - Operations recibe tareas de procesos y SOPs.
+  > - Finance recibe tareas de cobros y control.
+  > - AI_Tech recibe tareas de automatización y desarrollo.
+
+- [ ] **EQ26.7** Dashboard filtrado por rol
+  > Cuando un miembro (no fundador) entra al proyecto, su dashboard muestra:
+  > - **Sus tareas** (filtradas por `assignee_id = current_user`).
+  > - **Métricas de su área** (configuración por rol):
+  >   - Sales: pipeline value, deals cerrados, conversion rate.
+  >   - Marketing: leads generados, CAC, contenido publicado.
+  >   - Operations: tareas completadas, SLA, procesos documentados.
+  >   - Finance: MRR, cobros pendientes, margen.
+  >   - AI_Tech: integraciones activas, automatizaciones, uptime.
+  >   - Strategy: phase score, OKR progress, decisiones pendientes.
+  > - **Contexto del proyecto** (fase actual, objetivo, pero sin poder cambiar estrategia).
+  > - **Equipo** (quién más está en el proyecto, sus roles).
+  > Implementar como variante de `ProjectDashboardTab` con filtro por `specialization_role`.
+
+- [ ] **EQ26.8** Permisos por rol: qué puede ver/hacer cada rol
+  > Definir matriz de permisos:
+  > | Acción | Fundador/Strategy | Sales | Marketing | Operations | Finance | AI_Tech |
+  > | Ver dashboard completo | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+  > | Ver métricas de su área | ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+  > | Crear/editar OBVs | ✅ | ✅ | ✅ | ✅ | ✅ | ❌ |
+  > | Cambiar estrategia | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+  > | Invitar miembros | ✅ | ❌ | ❌ | ❌ | ❌ | ❌ |
+  > | Ver financiero | ✅ | ❌ | ❌ | ❌ | ✅ | ❌ |
+  > | Configurar integraciones | ✅ | ❌ | ❌ | ❌ | ❌ | ✅ |
+  > Implementar como hook `useRolePermissions(projectId)` que retorna permisos del usuario actual.
+  > Tabs y botones se ocultan/deshabilitan según permisos.
+
+### Bloque D — Puente de roles e inteligencia de equipo
+
+- [ ] **EQ26.9** Puente `project_roles` (IA) ↔ `specialization_role` (asignación)
+  > Cuando `generate-project-roles` genera roles personalizados (ej: "Growth Hacker SaaS B2B"):
+  > Mapear automáticamente a `specialization_role` más cercano (ej: → marketing).
+  > Nuevo campo en `project_roles`: `mapped_specialization specialization_role`.
+  > En la UI de equipo: mostrar rol personalizado (IA) como título, specialization como categoría.
+  > "Ana Martínez — Growth Hacker SaaS B2B (Marketing)".
+  > Al invitar: sugerir el `project_role` no cubierto más crítico (`is_critical = true`).
+
+- [ ] **EQ26.10** Recomendación inteligente de equipo
+  > Componente `TeamRecommendation` que aparece cuando:
+  > - El proyecto avanza de fase (ej: Phase 2→3 necesita operaciones).
+  > - Un `project_role` con `is_critical = true` no tiene miembro asignado.
+  > - El performance del fundador cae (hace demasiadas tareas de un área).
+  > Contenido:
+  > "Tu proyecto necesita un [Rol]. Perfil ideal: [descripción del project_role]."
+  > "Experiencia recomendada: [level]. Skills clave: [lista]."
+  > CTA: "Invitar a alguien para este rol" → genera enlace de invitación con rol pre-seleccionado.
+
+- [ ] **EQ26.11** Edge function: `generate-hiring-guidance`
+  > Input: `project_id`, `role_name` (del project_role a cubrir).
+  > Output JSONB con:
+  > - `salary_range`: rango de compensación por mercado (basado en location_country del proyecto).
+  > - `equity_guidance`: % típico según stage (early=5-15%, growth=1-5%, scale=0.5-2%).
+  > - `hiring_channels`: dónde buscar (LinkedIn, AngelList, comunidades locales, universidades).
+  > - `interview_questions`: 5 preguntas clave para evaluar el perfil.
+  > - `red_flags`: qué evitar al contratar para este rol.
+  > - `alternative`: si no puede contratar → "freelancer por €X/h" o "herramienta que automatiza X".
+  > Datos de compensación embebidos en el prompt (rangos por región, no API externa).
+  > Mostrar en un modal desde `TeamRecommendation`.
+
+### Bloque E — Cierre
+
+- [ ] **EQ26.12** Email de invitación (mejora sobre enlace)
+  > Además del enlace copiable (EQ26.2), opción de enviar email directo.
+  > Usar edge function con Resend/SendGrid (configurar en producción).
+  > Template: nombre del proyecto, quién invita, rol, enlace con token, expiración.
+  > Fallback: si email no configurado, solo enlace copiable (siempre funciona).
+
+- [ ] **EQ26.13** Tests del sistema de equipo v2
+  > Tests para:
+  > - Generación de token de invitación (unicidad, expiración).
+  > - Flujo completo: crear invitación → aceptar → mini-onboarding → miembro creado.
+  > - Permisos por rol: fundador ve todo, miembro ve solo su área.
+  > - Dashboard filtrado: métricas correctas por rol.
+  > - Puente project_roles → specialization_role (mapeo correcto).
+  > - Hiring guidance: output válido con rangos de compensación.
+
+- [ ] **EQ26.14** Bloque DEUDA — Fase 26
+
+---
+
+*Plan Fases 23-26 generado 2026-03-21 · 49 tareas nuevas · Motor de Progresión v2 + Visibilidad + Ciclos Estratégicos + Sistema de Equipo v2*

@@ -141,7 +141,7 @@ export function useProjects() {
 
       const { data, error } = await supabase
         .from('projects')
-        .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at)')
+        .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, entry_mode, graduation_eligible_since, graduated)')
         .order('nombre');
 
       if (error) throw error;
@@ -152,6 +152,9 @@ export function useProjects() {
           phase_status: string;
           hard_signal_met: boolean;
           last_calculated_at: string;
+          entry_mode: string | null;
+          graduation_eligible_since: string | null;
+          graduated: boolean;
         } | null;
       })[];
     },

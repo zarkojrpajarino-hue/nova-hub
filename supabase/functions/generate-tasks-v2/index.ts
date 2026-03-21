@@ -80,7 +80,11 @@ Deno.serve(async (req) => {
 
     const { projectId } = validation.data;
 
-    // Use service role for data operations
+    // Use service role for data operations (bypasses RLS for cross-table reads)
+    const supabaseServiceKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
+    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
+      auth: { autoRefreshToken: false, persistSession: false }
+    });
 
     console.log('Generating tasks for project:', projectId);
 
@@ -136,6 +140,14 @@ Deno.serve(async (req) => {
         { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    // [F23] P23.3 — Get current phase from project_phase_state (source of truth)
+    const { data: phaseState } = await supabase
+      .from('project_phase_state')
+      .select('current_phase, entry_mode, graduated')
+      .eq('project_id', projectId)
+      .maybeSingle();
+    const currentPhase: number = phaseState?.current_phase ?? 1;
 
     // Authorization: Verify user is a member of this project
     // First get the member_id from the authenticated user's auth_id
@@ -248,7 +260,7 @@ Deno.serve(async (req) => {
     }
 
     // 6. Build context (now with intelligence)
-    const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || [], intelligence);
+    const context = buildContext(project, teamWithMetrics, obvs || [], leads || [], tasks || [], intelligence, currentPhase);
 
     // ==================== EVIDENCE: END RETRIEVAL, START GENERATION ====================
     const sourcesFound = [
@@ -394,8 +406,7 @@ console.error('Parse error, content preview:', cleanContent.substring(0, 200));
       tasks_generated: generatedTasks.length,
       tasks_saved: savedTasks.length,
       team_size: teamWithMetrics.length,
-      project_phase: project.fase,
-      user_stage: (project as Record<string, unknown>).user_stage,
+      project_phase: currentPhase,
       has_intelligence: !!intelligence,
       context_sources: sourcesFound,
       coverage_percentage: (savedTasks.length / generatedTasks.length) * 100,
@@ -509,7 +520,8 @@ function buildContext(
   obvs: OBV[],
   leads: Lead[],
   tasks: Task[],
-  intelligence: Record<string, unknown> | null = null
+  intelligence: Record<string, unknown> | null = null,
+  currentPhase: number = 1
 ): ProjectContext {
   const onboarding = project.onboarding_data || {};
 
@@ -522,6 +534,7 @@ function buildContext(
       project_state: project.project_state || null,
       user_stage: (project as Record<string, unknown>).user_stage as string || null,
       methodology: (project as Record<string, unknown>).methodology as string || null,
+      current_phase: currentPhase,
     },
     intelligence: intelligence || {
       buyer_personas: [],
@@ -558,12 +571,12 @@ function buildContext(
   };
 }
 
-// Helper: Get user stage-specific instructions (NEW - aligned with entrepreneur journey)
-function getUserStageInstructions(stage: string, methodology: string | null): string {
-  switch (stage) {
-    case 'sin_idea':
+// [F23] P23.3 — Unified phase instructions (replaces getUserStageInstructions + getStateInstructions)
+function getPhaseInstructions(phase: number): string {
+  switch (phase) {
+    case 0:
       return `
-📍 **USUARIO SIN IDEA** - Quiere emprender pero no sabe QUÉ
+📍 **FASE 0 — EXPLORACIÓN** - Pre-idea, descubrimiento de oportunidades
 
 **ENFOQUE**: Exploración de intereses, problemas y oportunidades.
 
@@ -584,13 +597,11 @@ function getUserStageInstructions(stage: string, methodology: string | null): st
 **PRIORIDAD**: Encontrar una idea que le APASIONE y resuelva un problema REAL.
 `;
 
-    case 'idea_generada':
-    case 'idea_propia':
+    case 1:
       return `
-📍 **USUARIO CON IDEA** (${stage === 'idea_generada' ? 'IA generó la idea' : 'Usuario trajo su propia idea'})
-${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
+📍 **FASE 1 — VALIDACIÓN DE PROBLEMA** - Tiene idea, validar dolor real
 
-**ENFOQUE**: Validación de problema y solution antes de construir.
+**ENFOQUE**: Validación de problema y solución antes de construir.
 
 **TAREAS IDEALES**:
 - Entrevistas con clientes potenciales (mínimo 20-30 personas)
@@ -612,10 +623,9 @@ ${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
 **PRIORIDAD**: Validar PROBLEMA antes que solución. Evidencia de "dolor real" > idea bonita.
 `;
 
-    case 'validando':
+    case 2:
       return `
-📍 **VALIDANDO IDEA** - Primeros clientes (1-10 clientes, €0-1k/mes)
-${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
+📍 **FASE 2 — VALIDACIÓN DE SOLUCIÓN** - Primeros clientes (1-10 clientes, €0-1k/mes)
 
 **ENFOQUE**: Product-Market Fit, retención early adopters, feedback loops.
 
@@ -628,7 +638,6 @@ ${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
 - Documentar casos de éxito tempranos (testimonios)
 - Analizar por qué cancelan usuarios (exit interviews)
 - Iterar features más usadas (doblar down en lo que funciona)
-- Preparar próximos validation experiments
 
 **NO SUGERIR**:
 - ❌ Escalar adquisición sin PMF claro
@@ -640,11 +649,9 @@ ${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP**' : ''}
 **PRIORIDAD**: RETENER a los clientes actuales. PMF > Growth. Calidad > Cantidad.
 `;
 
-    case 'mvp':
-    case 'traccion':
+    case 3:
       return `
-📍 **TRACCIÓN** (10-100 clientes, €1-10k/mes)
-${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP → Transition to Growth**' : ''}
+📍 **FASE 3 — REVENUE** (10-100 clientes, €1-10k/mes)
 
 **ENFOQUE**: Escalar operaciones, optimizar unit economics, growth loops.
 
@@ -669,11 +676,9 @@ ${methodology === 'lean_startup' ? '**Metodología: LEAN STARTUP → Transition 
 **PRIORIDAD**: Unit economics saludables (LTV:CAC > 3:1). Crecer de forma sostenible.
 `;
 
-    case 'escalando':
-    case 'consolidado':
+    case 4:
       return `
-📍 **CONSOLIDADO** (100+ clientes, €10k+/mes)
-${methodology === 'scaling_up' ? '**Metodología: SCALING UP**' : ''}
+📍 **FASE 4 — CRECIMIENTO** (100+ clientes, €10k+/mes)
 
 **ENFOQUE**: Expansión estratégica, optimización de margen, team building senior.
 
@@ -701,122 +706,7 @@ ${methodology === 'scaling_up' ? '**Metodología: SCALING UP**' : ''}
 
     default:
       return `
-📍 **STAGE NO DEFINIDO**
-
-Genera tareas generales de startup considerando la fase y tipo del proyecto.
-`;
-  }
-}
-
-// Helper: Get state-specific instructions for task generation (LEGACY - fallback)
-function getStateInstructions(state: string | null): string {
-  switch (state) {
-    case 'idea':
-      return `
-📍 **ESTADO DEL PROYECTO: IDEA/EXPLORACIÓN** (Sin clientes, sin ingresos)
-
-**ENFOQUE**: Validación de problema y solución con experimentos de bajo costo.
-
-**TAREAS IDEALES**:
-- Entrevistas con clientes potenciales (mínimo 10-20)
-- Landing pages para validar interés y capturar emails
-- Prototipos de baja fidelidad (Figma, mockups, sketches)
-- Encuestas y formularios de validación
-- Análisis de competencia y alternativas actuales
-- Tests de precio (willingness to pay)
-- Definición de MVP mínimo viable
-
-**NO SUGERIR**:
-- ❌ Contratar equipo o escalar operaciones
-- ❌ Campañas de marketing con presupuesto grande
-- ❌ Métricas avanzadas (CAC, LTV, churn)
-- ❌ Procesos de venta complejos
-- ❌ Infraestructura técnica escalable
-
-**PRIORIDAD**: Validar PROBLEMA antes que solución. Buscar evidencia de "dolor real".
-`;
-
-    case 'validacion_temprana':
-      return `
-📍 **ESTADO DEL PROYECTO: VALIDACIÓN TEMPRANA** (1-10 clientes, €0-1k/mes)
-
-**ENFOQUE**: Product-Market Fit, retención y feedback loops.
-
-**TAREAS IDEALES**:
-- Mejoras de onboarding user (reducir time-to-value)
-- Entrevistas de feedback con usuarios actuales
-- Implementar métricas básicas (engagement, retención semanal)
-- Optimizar core value proposition basado en feedback
-- Identificar y reducir puntos de fricción
-- Documentar casos de éxito tempranos
-- Análisis de por qué cancelan los usuarios
-- Iterar funcionalidades más usadas
-
-**NO SUGERIR**:
-- ❌ Escalar adquisición sin PMF claro
-- ❌ Contratar equipo grande
-- ❌ Expansión a nuevos segmentos/mercados
-- ❌ Complicar el producto con features avanzadas
-- ❌ Validación de problema (ya está validado)
-
-**PRIORIDAD**: RETENER a los clientes actuales. PMF > Growth.
-`;
-
-    case 'traccion':
-      return `
-📍 **ESTADO DEL PROYECTO: TRACCIÓN** (10-100 clientes, €1-10k/mes)
-
-**ENFOQUE**: Escalar operaciones, optimizar unit economics y crecimiento.
-
-**TAREAS IDEALES**:
-- Optimización de CAC (reducir coste de adquisición)
-- Mejorar LTV mediante upsell/cross-sell
-- Automatización de procesos repetitivos
-- Implementar canales de adquisición escalables
-- Mejora de tasa de conversión (funnel optimization)
-- Documentar procesos (SOPs para escalar)
-- Contratar roles críticos (si burn rate lo permite)
-- Analizar cohorts y métricas de retención
-- Preparar pitch deck y materiales de fundraising
-
-**NO SUGERIR**:
-- ❌ Validación básica de problema/solución (ya validado)
-- ❌ Features sin impacto en métricas clave
-- ❌ Expansión prematura sin unit economics saludables
-- ❌ Procesos manuales que no escalan
-
-**PRIORIDAD**: Unit economics saludables (LTV:CAC > 3:1). Crecer de forma sostenible.
-`;
-
-    case 'consolidado':
-      return `
-📍 **ESTADO DEL PROYECTO: CONSOLIDADO** (100+ clientes, €10k+/mes)
-
-**ENFOQUE**: Expansión estratégica, optimización de margen y team building.
-
-**TAREAS IDEALES**:
-- Expansión a nuevos mercados/verticales
-- Optimización de Net Revenue Retention (target >110%)
-- Partnerships estratégicos y canales indirectos
-- Contratar liderazgo senior (VP Sales, VP Eng, etc.)
-- Preparar fundraising (Serie A/B) si aplica
-- Análisis de M&A o buy-build-partner
-- Lanzar nuevo pricing tier o producto
-- Implementar OKRs y procesos de gobernanza
-- Explorar economías de escala
-
-**NO SUGERIR**:
-- ❌ Validación de problema/solución (hace años que está validado)
-- ❌ MVPs o experimentos de bajo presupuesto
-- ❌ Tareas tácticas que debería hacer un junior
-- ❌ Procesos manuales (todo debe estar automatizado)
-
-**PRIORIDAD**: Escala y expansión. Defenderse de competencia. Margen y eficiencia.
-`;
-
-    default:
-      return `
-📍 **ESTADO DEL PROYECTO: NO DEFINIDO**
+📍 **FASE NO DEFINIDA**
 
 Genera tareas generales de startup considerando la fase y tipo del proyecto.
 `;
@@ -825,14 +715,10 @@ Genera tareas generales de startup considerando la fase y tipo del proyecto.
 
 function buildUserPrompt(context: ProjectContext): string {
   const project = context.project;
-  const projectState = project.project_state || null;
-  const userStage = project.user_stage || null;
-  const methodology = project.methodology || null;
+  const currentPhase = project.current_phase ?? 1;
 
-  // Use user_stage if available, otherwise fall back to project_state
-  const stateInstructions = userStage
-    ? getUserStageInstructions(userStage, methodology)
-    : getStateInstructions(projectState);
+  // [F23] P23.3 — Use current_phase as single source of truth for instructions
+  const stateInstructions = getPhaseInstructions(currentPhase);
 
   // Extract intelligence context
   const intelligence = (context.intelligence as Record<string, unknown>) || {};
@@ -845,11 +731,8 @@ function buildUserPrompt(context: ProjectContext): string {
 
 ## PROYECTO: ${context.project.nombre}
 - Descripción: ${context.project.descripcion}
-- Fase: ${context.project.fase}
+- Fase del Motor: ${currentPhase} (0=Exploración, 1=Validación problema, 2=Validación solución, 3=Revenue, 4=Crecimiento)
 - Tipo: ${context.project.tipo}
-${projectState ? `- Estado del Negocio: ${projectState}` : ''}
-${userStage ? `- **Stage del Usuario: ${userStage}**` : ''}
-${methodology ? `- Metodología: ${methodology}` : ''}
 
 ${stateInstructions}
 

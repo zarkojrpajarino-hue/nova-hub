@@ -74,6 +74,7 @@ export interface ProjectContext {
     project_state?: 'idea' | 'validacion_temprana' | 'traccion' | 'consolidado' | null;
     user_stage?: string | null;
     methodology?: string | null;
+    current_phase?: number;
   };
   intelligence?: Record<string, unknown> | null;
   onboarding: {

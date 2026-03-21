@@ -26,6 +26,7 @@ export interface FaseAAnswers {
   location_country: string;
   market_scope: 'local' | 'nacional' | 'global';
   goal_90d: string;
+  months_operating: number | null;  // [F23] P23.5 — meses operando (condicional: generates_revenue=true)
 }
 
 interface FaseACommonProps {
@@ -89,6 +90,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
     location_country: '',
     market_scope: 'local',
     goal_90d: '',
+    months_operating: null,
   });
 
   const set = <K extends keyof FaseAAnswers>(key: K, value: FaseAAnswers[K]) =>
@@ -181,6 +183,18 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
                     }
                   />
                 </div>
+                <Label className="text-sm font-medium text-gray-700 pt-2">
+                  ¿Cuántos meses llevas operando?
+                </Label>
+                <Input
+                  type="number"
+                  min={0}
+                  placeholder="ej. 6"
+                  value={answers.months_operating ?? ''}
+                  onChange={(e) =>
+                    set('months_operating', e.target.value ? Number(e.target.value) : null)
+                  }
+                />
               </div>
             )}
           </div>

@@ -23,6 +23,16 @@ export type TabStatus = 'primary' | 'secondary' | 'teaser'
 //   - NextActionFocusBlock 'open_meeting' navega a 'tareas' como fallback
 // Al implementar el tab 'reuniones': añadirlo a TABS en ProjectPage.tsx.
 export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
+  0: {
+    dashboard:    'primary',
+    obvs:         'teaser',
+    tareas:       'primary',
+    equipo:       'teaser',
+    crm:          'teaser',
+    financiero:   'teaser',
+    'negocio-ia': 'teaser',
+    reuniones:    'teaser',
+  },
   1: {
     dashboard:    'primary',
     obvs:         'primary',
@@ -67,6 +77,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
 
 // Tabs que son el foco principal de la fase (para badge "★ Foco")
 export const PRIMARY_FOCUS_TABS: Record<number, string[]> = {
+  0: ['dashboard', 'tareas'],
   1: ['obvs', 'tareas'],
   2: ['obvs', 'tareas'],
   3: ['crm', 'tareas'],
@@ -76,16 +87,28 @@ export const PRIMARY_FOCUS_TABS: Record<number, string[]> = {
 // ── 2. Por qué es teaser — texto para PhaseTeaserModal ────────────────────────
 
 export const TAB_TEASER_REASONS: Record<string, Partial<Record<number, string>>> = {
+  obvs: {
+    0: 'Las validaciones se desbloquean cuando tengas una idea seleccionada. Ahora el foco es explorar.',
+  },
+  equipo: {
+    0: 'El equipo cobra sentido cuando tengas un proyecto definido. Primero, elige tu idea.',
+  },
   crm: {
+    0: 'El CRM se activa cuando tengas clientes potenciales. Ahora el foco es explorar ideas.',
     1: 'El CRM cobra valor cuando tienes leads cualificados. Ahora el foco es validar el problema con evidencia real.',
   },
   financiero: {
+    0: 'Las finanzas importan cuando hay un negocio en marcha. Primero, valida tu idea.',
     1: 'Las finanzas importan cuando hay ingresos. Ahora el objetivo es validar la demanda.',
     2: 'En Fase 2 el foco es la solución. Financiero se activa cuando entras en Revenue.',
   },
   'negocio-ia': {
+    0: 'Las proyecciones IA necesitan datos reales. Disponible a partir de Fase 3.',
     1: 'Las proyecciones generativas son precisas cuando hay modelo validado. Disponible en Fase 3.',
     2: 'Disponible cuando el modelo de negocio esté validado con ingresos reales.',
+  },
+  reuniones: {
+    0: 'Las reuniones se desbloquean cuando tengas equipo y proyecto definido.',
   },
 }
 
@@ -109,8 +132,11 @@ export type PhaseStatKey =
   | 'close_rate'
   | 'margen'
   | 'mrr_growth'
+  | 'ideas_explored'
+  | 'problems_identified'
 
 export const PHASE_STATS_CONFIG: Record<number, PhaseStatKey[]> = {
+  0: ['ideas_explored', 'problems_identified', 'days_active', 'team_count'],
   1: ['total_obvs', 'leads_count', 'team_count', 'days_active'],
   2: ['total_obvs', 'leads_count', 'conversion_rate', 'team_count'],
   3: ['facturacion', 'leads_ganados', 'team_count', 'margen'],
@@ -123,6 +149,7 @@ export const PHASE_STATS_CONFIG: Record<number, PhaseStatKey[]> = {
 // Usado en: getPhaseRelevanceScore() para ordenar columna 'todo'.
 
 export const PHASE_RELEVANCE: Record<number, Record<string, number>> = {
+  0: { demand: 0, delivery: 0, cash: 0, support: 0 },
   1: { demand: 3, delivery: 1, cash: 1, support: 0 },
   2: { demand: 3, delivery: 2, cash: 1, support: 0 },
   3: { demand: 2, delivery: 3, cash: 3, support: 1 },

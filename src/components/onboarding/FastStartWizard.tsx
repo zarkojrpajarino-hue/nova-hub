@@ -185,6 +185,54 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
 
       if (projErr) throw projErr;
 
+      // [F23] P23.2 — Mapeo onboarding_type → phase inicial + entry_mode
+      // generative → Phase 0 (pre-idea, exploración)
+      // idea → Phase 1 (tiene idea, validar problema)
+      // existing → Phase 1 (base; fast-track RPC ajustará después en P23.6)
+      const initialPhase = onboardingType === 'generative' ? 0 : 1;
+      const entryMode = onboardingType === 'existing' ? 'fast_track' : 'bootcamp';
+
+      const { error: phaseErr } = await supabase
+        .from('project_phase_state')
+        .upsert({
+          project_id: projectId,
+          current_phase: initialPhase,
+          phase_score: 0,
+          hard_signal_met: false,
+          phase_status: 'critical',
+          phase_entered_at: now,
+          phase_last_changed_at: now,
+          last_calculated_at: now,
+          engine_version: 'phase_v1.0',
+          consecutive_low_score: 0,
+          entry_mode: entryMode,
+          graduation_eligible_since: null,
+          graduated: false,
+        }, { onConflict: 'project_id' });
+      if (phaseErr) console.error('Error setting initial phase:', phaseErr);
+
+      // [F23] P23.5 — Seedeo datos existing: MRR → key_metrics
+      // key_metrics schema: project_id, date, mrr, total_customers, etc.
+      if (onboardingType === 'existing' && faseAAnswers?.generates_revenue && faseAAnswers.mrr_monthly) {
+        const { error: metricErr } = await supabase.from('key_metrics').insert({
+          project_id: projectId,
+          date: new Date().toISOString().split('T')[0],  // DATE type
+          mrr: faseAAnswers.mrr_monthly,
+          total_customers: faseAAnswers.active_customers ?? 0,
+        });
+        if (metricErr) console.error('Error seeding MRR metric:', metricErr);
+      }
+
+      // [F23] P23.6 — Fast-track: llamar run_phase_engine con onboarding_fast_track
+      // para que el motor evalúe en cascada y coloque al proyecto en la fase correcta.
+      if (onboardingType === 'existing') {
+        const { error: ftErr } = await supabase.rpc('run_phase_engine', {
+          p_project_id: projectId,
+          p_trigger_source: 'onboarding_fast_track',
+        });
+        if (ftErr) console.error('Error running fast-track engine:', ftErr);
+      }
+
       // onboarding_sessions: update final con completion_percentage=100
       const { ai_generated_artifacts: _ai, ...pathSpecificData } = data;
       // For the generative path, surface cliente_objetivo and monetizacion so the
