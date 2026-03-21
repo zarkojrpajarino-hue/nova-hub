@@ -49,6 +49,31 @@ Deno.serve(async (req) => {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
+    // Verify user is a member of the project
+    const authUserId = claims.claims.sub;
+    const { data: userProfile } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('auth_id', authUserId)
+      .single();
+
+    if (!userProfile) {
+      return new Response(JSON.stringify({ error: 'User profile not found' }),
+        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
+
+    const { data: membership } = await supabase
+      .from('project_members')
+      .select('id')
+      .eq('project_id', projectId)
+      .eq('member_id', userProfile.id)
+      .maybeSingle();
+
+    if (!membership) {
+      return new Response(JSON.stringify({ error: 'Not a member of this project' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
+
     // Check cache (rate limit: 1 per 14 days)
     const { data: cached } = await supabase
       .from('expansion_analysis_cache')

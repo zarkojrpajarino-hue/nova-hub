@@ -68,6 +68,22 @@ Deno.serve(async (req) => {
       );
     }
 
+    // Verify user is a member of the project
+    const authUserId = claims.claims.sub;
+    const { data: memberCheck } = await supabase
+      .from('project_members')
+      .select('id')
+      .eq('project_id', projectId)
+      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', authUserId).single()).data?.id ?? '')
+      .maybeSingle();
+
+    if (!memberCheck) {
+      return new Response(
+        JSON.stringify({ error: 'Not a member of this project' }),
+        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      );
+    }
+
     // Check no active cycle exists
     const { data: activeCycle } = await supabase
       .from('strategic_cycles')
