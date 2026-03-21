@@ -371,6 +371,8 @@ console.error('Parse error, content preview:', cleanContent.substring(0, 200));
             por_que_esta_tarea: task.por_que_esta_tarea,
             resultado_esperado: task.resultado_esperado,
             como_medir_exito: task.como_medir_exito,
+            // [V24.5] Phase impact — conecta tarea con avance de fase
+            ...(task.phase_impact ? { phase_impact: task.phase_impact } : {}),
           },
           tipo_tarea: task.tipo_tarea,
           tiempo_estimado_horas: task.tiempo_estimado_horas,
@@ -472,6 +474,11 @@ FORMATO DE RESPUESTA (JSON válido):
       "por_que_esta_tarea": "string",
       "resultado_esperado": "string",
       "como_medir_exito": "string",
+      "phase_impact": {
+        "phase": number,
+        "objective": "string (ej. O1.1, O2.3)",
+        "contribution": "string (cómo esta tarea impacta el avance de fase)"
+      },
       "playbook": {
         "resumen_ejecutivo": "string",
         "preparacion": {

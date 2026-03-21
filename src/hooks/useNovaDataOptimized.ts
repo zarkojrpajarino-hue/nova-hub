@@ -516,6 +516,10 @@ export interface ProjectEngineData {
     last_calculated_at: string;
     // DEUDA.PE.8/AUD.B.2: bloqueo principal computado en SQL
     primary_block: string;
+    // [F23] Campos de progresión v2
+    entry_mode: string | null;
+    graduation_eligible_since: string | null;
+    graduated: boolean;
   } | null;
   probability: {
     probability_score: number | null;
@@ -590,7 +594,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
       const [stateResult, historyResult] = await Promise.all([
         supabase
           .from('project_phase_state')
-          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, primary_block')
+          .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, primary_block, entry_mode, graduation_eligible_since, graduated')
           .eq('project_id', projectId!)
           .maybeSingle(),
         supabase

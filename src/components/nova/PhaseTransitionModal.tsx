@@ -7,7 +7,7 @@ import {
   DialogDescription,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { PHASE_LABELS } from '@/lib/engine';
+import { PHASE_LABELS, PHASE_METHODOLOGY } from '@/lib/engine';
 import type { PhaseTransitionState } from '@/hooks/usePhaseTransitionNotification';
 
 interface PhaseTransitionModalProps {
@@ -17,10 +17,19 @@ interface PhaseTransitionModalProps {
 
 // Emoji decorations per phase (purely cosmetic)
 const PHASE_EMOJI: Record<number, string> = {
+  0: '🌱',
   1: '🔍',
   2: '⚡',
   3: '💰',
   4: '🚀',
+};
+
+// [V24.8] Tabs que se desbloquean al entrar en esta fase
+const PHASE_UNLOCKED_TABS: Record<number, string[]> = {
+  1: ['OBVs'],
+  2: ['CRM'],
+  3: ['Financiero'],
+  4: ['Negocio IA'],
 };
 
 export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalProps) {
@@ -84,6 +93,24 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
             <p className="text-sm text-muted-foreground">
               Tu equipo ha alcanzado los criterios de validación necesarios para avanzar.
             </p>
+          </div>
+
+          {/* [V24.8] Metodología + tabs desbloqueados */}
+          <div className="text-left space-y-2 bg-muted/50 rounded-lg p-3">
+            <p className="text-xs font-medium text-muted-foreground">Metodología activa</p>
+            <p className="text-sm font-semibold">{PHASE_METHODOLOGY[newPhase]}</p>
+            {PHASE_UNLOCKED_TABS[newPhase] && PHASE_UNLOCKED_TABS[newPhase].length > 0 && (
+              <>
+                <p className="text-xs font-medium text-muted-foreground mt-2">Nuevos tabs disponibles</p>
+                <div className="flex gap-1.5">
+                  {PHASE_UNLOCKED_TABS[newPhase].map((tab) => (
+                    <span key={tab} className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
+                      {tab}
+                    </span>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           <Button onClick={onClose} className="w-full nova-gradient text-white">

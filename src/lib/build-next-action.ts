@@ -155,8 +155,15 @@ export function buildNextAction(
 
   const phase = engineData?.phaseState?.current_phase ?? 1
   const score = engineData?.phaseState?.phase_score ?? 0
-  if (phase && score) {
+  const hardSignalMet = engineData?.phaseState?.hard_signal_met ?? false
+  if (phase !== undefined && score !== undefined) {
     signals.push(`Fase ${phase} · Score ${Math.round(score)}/100`)
+    // [V24.6] Señal de progresión: qué falta para avanzar
+    if (score >= 75 && !hardSignalMet && phase < 4) {
+      signals.push(`Score OK (${Math.round(score)}). Falta señal dura para avanzar a Fase ${phase + 1}.`)
+    } else if (score < 75 && score >= 50 && phase < 4) {
+      signals.push(`Score en fricción (${Math.round(score)}/75). Necesitas más evidencia para avanzar.`)
+    }
   }
 
   // AUD.M.12 — ajustar urgency según operationalComplexity:

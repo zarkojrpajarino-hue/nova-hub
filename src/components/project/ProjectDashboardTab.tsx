@@ -20,6 +20,7 @@ import { NextActionFocusBlock } from './NextActionFocusBlock';
 import { DataCompletenessCard } from './DataCompletenessCard';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
+import { PhaseRoadmap } from './PhaseRoadmap';
 
 interface ProjectStats {
   facturacion?: number;
@@ -86,6 +87,9 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         projectId={project.id}
         onNavigateToTab={onNavigateToTab}
       />
+
+      {/* V24.1-4 — Phase Roadmap (mapa visual + explainer + unlock checklist + score bar) */}
+      <PhaseRoadmap engineData={engineData} />
 
       {/* Layout: Sidebar + Main Content */}
       <div className="grid grid-cols-12 gap-6">

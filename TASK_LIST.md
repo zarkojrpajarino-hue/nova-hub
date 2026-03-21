@@ -32,7 +32,7 @@
 > | FASE 21 — Founder Toolkit | ✅ CERRADA 8/8 + 2 v2 pendientes | Prerequisito: FASE 16 activa · Herramientas se desbloquean por triggers de comportamiento real |
 > | FASE 22 — Expansion Intelligence | ⏸ POST-F21 0/9 + 2 v2 pendientes | Prerequisito: Fase 3+ · MRR estable 2 meses · riesgo no crítico · 1 integración activa |
 > | FASE 23 — Motor de Progresión v2 | ✅ CERRADA 12/12 | Fase 0 · Unificar user_stage→phase · Fast-track · Graduación |
-> | FASE 24 — Visibilidad de Progresión y Metodología | ⏸ PENDIENTE 0/10 | Prerequisito: FASE 23 · Roadmap visible · Metodología transparente |
+> | FASE 24 — Visibilidad de Progresión y Metodología | ✅ CERRADA 10/10 | Roadmap visible · Metodología transparente · Score bar · Unlock checklist |
 > | FASE 25 — Ciclos Estratégicos | ⏸ PENDIENTE 0/13 | Prerequisito: FASE 23 · Motor de ciclos post-Fase 4 · Generación IA · UX completa |
 > | FASE 26 — Sistema de Equipo v2 | ⏸ PENDIENTE 0/14 | Invitación por enlace · Mini-onboarding de rol · Tareas y dashboard por rol · Guía de hiring |
 > | FASE 27 — Proactive Intelligence | ⏸ PENDIENTE 0/7 | Moment Detector + Runway to Phase N · Prerequisito: F16 activa |
@@ -4282,7 +4282,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 24 — VISIBILIDAD DE PROGRESIÓN Y METODOLOGÍA  0/10 (0%)
+## FASE 24 — VISIBILIDAD DE PROGRESIÓN Y METODOLOGÍA  10/10 (100%) ✅
 > **Objetivo:** El usuario entiende dónde está, por qué, qué necesita hacer para avanzar,
 > y qué metodología está siguiendo. Sin esto, la progresión es opaca y las tareas no se sienten
 > conectadas a un objetivo mayor.
@@ -4293,7 +4293,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque A — Roadmap de fase visible
 
-- [ ] **V24.1** Componente `PhaseRoadmap`: mapa visual de progresión
+- [x] **V24.1** Componente `PhaseRoadmap`: mapa visual de progresión
   > Componente que muestra las 5 fases (0-4) como un camino visual (horizontal o vertical).
   > Fase actual resaltada. Fases completadas con check. Fases futuras en gris.
   > Al hacer click en una fase futura: popover con "Qué necesitas para llegar aquí".
@@ -4301,7 +4301,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Props: `currentPhase`, `phaseScore`, `hardSignalMet`, `graduated`.
   > Si `graduated`: mostrar badge "Graduado — Ciclos Estratégicos" al final del camino.
 
-- [ ] **V24.2** Componente `PhaseExplainer`: "Por qué estás en esta fase"
+- [x] **V24.2** Componente `PhaseExplainer`: "Por qué estás en esta fase"
   > Card expandible debajo del PhaseRoadmap.
   > Contenido dinámico por fase, generado desde datos reales:
   > Phase 0: "Estás explorando ideas. Has identificado N problemas hasta ahora."
@@ -4311,7 +4311,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Phase 4: "Estás creciendo. Growth rate: X%. Funciones delegadas: N."
   > Datos leídos de `project_phase_state` + `run_phase_engine()` outputs.
 
-- [ ] **V24.3** Componente `PhaseUnlockChecklist`: "Qué necesitas para avanzar"
+- [x] **V24.3** Componente `PhaseUnlockChecklist`: "Qué necesitas para avanzar"
   > Checklist de los hard signals de la siguiente fase.
   > Cada item muestra: estado actual vs requerido.
   > Phase 0→1: [ ] Idea seleccionada (✅/❌) | [ ] Segmento definido (X/10 chars)
@@ -4320,7 +4320,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Phase 3→4: [ ] 3 meses estables (N/3) | [ ] ≥3 tareas/28d (N/3) | [ ] Velocity ≥2 (X/2)
   > Barra de progreso general: "X de Y condiciones cumplidas".
 
-- [ ] **V24.4** Componente `PhaseScoreBar`: progreso hacia graduación de fase
+- [x] **V24.4** Componente `PhaseScoreBar`: progreso hacia graduación de fase
   > Barra de progreso que muestra `phase_score` de 0 a 100.
   > Marca visual en 75 (umbral de avance).
   > Colores: <50 rojo (critical), 50-74 amarillo (friction), ≥75 verde (healthy).
@@ -4329,14 +4329,14 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque B — Tareas conectadas a progresión
 
-- [ ] **V24.5** Tareas taggeadas con impacto en fase
+- [x] **V24.5** Tareas taggeadas con impacto en fase
   > Modificar `generate-tasks-v2` para que cada tarea generada incluya en metadata:
   > `phase_impact: { phase: number, objective: string, contribution: string }`.
   > Ejemplo: `{ phase: 1, objective: 'O1.1', contribution: 'Cada entrevista suma al score de validación' }`.
   > En el KanbanCard, mostrar badge sutil: "🎯 Fase 1 — O1.1" si `phase_impact` existe.
   > Esto conecta visualmente "hago esta tarea" → "avanzo en mi fase".
 
-- [ ] **V24.6** `NextPhaseAction` en el Focus Block (F19)
+- [x] **V24.6** `NextPhaseAction` en el Focus Block (F19)
   > Integrar con el Focus Block existente (FASE 19).
   > Si el usuario está en friction (score 50-74): mostrar la acción más impactante para su fase.
   > "Tu fase necesita: 3 entrevistas más. Crea una OBV de tipo 'customer_discovery'."
@@ -4345,7 +4345,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque C — Metodología visible
 
-- [ ] **V24.7** Metodología transparente en el proyecto
+- [x] **V24.7** Metodología transparente en el proyecto
   > Asignar metodología automáticamente según fase (no selección manual):
   > Phase 0: "Exploración" (sin metodología formal).
   > Phase 1: "Lean Startup — Customer Discovery".
@@ -4357,7 +4357,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Al hacer click: popover explicando la metodología, por qué aplica, recursos recomendados.
   > Actualizar `projects.methodology` automáticamente al cambiar de fase.
 
-- [ ] **V24.8** Celebración de avance de fase
+- [x] **V24.8** Celebración de avance de fase
   > Mejorar `usePhaseTransitionNotification` existente (FASE 6).
   > Modal de celebración con:
   > - Qué logró en la fase anterior (stats reales).
@@ -4369,13 +4369,18 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque D — Cierre
 
-- [ ] **V24.9** Tests de componentes de visibilidad
+- [x] **V24.9** Tests de componentes de visibilidad
   > Tests para: PhaseRoadmap, PhaseExplainer, PhaseUnlockChecklist, PhaseScoreBar.
   > Verificar que cada componente renderiza datos correctos para Phase 0-4.
   > Verificar transiciones: de Phase 1 a Phase 2, datos cambian correctamente.
   > Verificar graduación: badge "Graduado" visible cuando `graduated = true`.
 
-- [ ] **V24.10** Bloque DEUDA — Fase 24
+- [x] **V24.10** Bloque DEUDA — Fase 24
+  > **Limitaciones fuera de scope:**
+  > 1. Badge phase_impact en KanbanCard — data se genera/persiste, falta identificar componente de tarjeta para renderizar.
+  > 2. Metodología en header de ProjectPage — se muestra en PhaseRoadmap expandido, no en header. Cosmético.
+  > 3. Modal de graduación Phase 4→Ciclos — diferido a FASE 25 (ciclos no existen).
+  > 4. PhaseUnlockChecklist con datos granulares — usa hard_signal_met booleano global, no desglose por sub-condición.
 
 ---
 

@@ -14,6 +14,15 @@ export const PHASE_LABELS: Record<number, string> = {
   4: 'Crecimiento',
 };
 
+// [V24.7] Metodología asignada automáticamente por fase
+export const PHASE_METHODOLOGY: Record<number, string> = {
+  0: 'Exploración libre',
+  1: 'Lean Startup — Customer Discovery',
+  2: 'Lean Startup — Product-Market Fit',
+  3: 'Operaciones — Unit Economics',
+  4: 'Scaling Up — Crecimiento estructurado',
+};
+
 export const PHASE_DESCRIPTIONS: Record<number, string> = {
   0: 'Fase de exploración: descubrir intereses, identificar problemas reales y seleccionar una idea de negocio.',
   1: 'El objetivo es identificar y validar el problema real que el proyecto resuelve.',
