@@ -138,6 +138,23 @@ Phase 0 = Exploración (pre-idea). Campos adicionales: `entry_mode`, `graduated`
 Constantes de UI compartidas: `src/lib/engine.ts`.
 Hook principal con phase_state: `useProjects()` en `src/hooks/useNovaDataOptimized.ts` — queryKey `['projects', 'with-phase-state']`.
 
+### Dos documentos de trabajo — NO confundir
+
+| Documento | Propósito | Cuándo usarlo |
+|---|---|---|
+| **`TASK_LIST.md`** | Roadmap de FEATURES (Fases 1-31). Qué se construye. Tareas con [x]/[ ]/[~]/[!]. | Cuando el usuario pide implementar una fase, feature, o tarea nueva. Leerlo siempre antes de empezar una fase. |
+| **`SUPER_PLAN_DEFINITIVO` (en .claude/plans/)** | Plan de CALIDAD + GROWTH generado por el protocolo "súper análisis y plan". Bugs, seguridad, UX, monetización, datos. | Cuando el usuario pide corregir, optimizar, o lanzar. Es el output del análisis de agentes. |
+
+**Relación entre ambos:**
+- TASK_LIST contiene las fases de features (F1-F31). Cerradas: 1-13, 15, 17-28. Pendientes con datos reales: 14, 29-31.
+- SUPER_PLAN contiene correcciones transversales que NO son fases (seguridad, UX, monetización, IA, datos, growth).
+- Un item del SUPER_PLAN puede referenciar archivos de una fase (ej: "Fix en FastStartWizard.tsx creado en F23").
+- **Nunca duplicar tareas entre ambos.** Si una corrección es específica de una fase, va en TASK_LIST como DEUDA de esa fase. Si es transversal, va en SUPER_PLAN.
+
+**Estado actual (2026-03-22):**
+- TASK_LIST: 20 fases cerradas (1-13, 15, 17-28). F16 activa. F14, 29-31 pendientes (requieren datos reales).
+- SUPER_PLAN: 72 items, 10 ejecutados (B0+H7), 62 pendientes. Scorecard 5.4/10.
+
 ### Norma: súper análisis y plan
 
 **Trigger:** el usuario dice "súper análisis y plan" (o variantes: "análisis completo", "los agentes", "análisis profundo").
