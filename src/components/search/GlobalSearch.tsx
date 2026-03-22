@@ -24,7 +24,8 @@ interface SearchResult {
   action: () => void;
 }
 
-const views = [
+function getViews(t: (k: string) => string) {
+  return [
   { id: 'dashboard', label: t('search.dashboard'), icon: '📊' },
   { id: 'mi-espacio', label: t('search.miEspacio'), icon: '👤' },
   { id: 'proyectos', label: t('search.proyectos'), icon: '📁' },
@@ -35,6 +36,7 @@ const views = [
   { id: 'analytics', label: t('search.analytics'), icon: '📈' },
   { id: 'settings', label: t('search.configuración'), icon: '⚙️' },
 ];
+}
 
 export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   const { t } = useTranslation();
@@ -58,8 +60,8 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
   if (query.length > 0) {
     const q = query.toLowerCase();
 
-    // Search views
-    views.forEach(view => {
+    // Search getViews(t)
+    getViews(t).forEach(view => {
       if (view.label.toLowerCase().includes(q)) {
         results.push({
           id: `view-${view.id}`,
@@ -115,7 +117,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
     });
   } else {
     // Show recent/suggested
-    views.slice(0, 5).forEach(view => {
+    getViews(t).slice(0, 5).forEach(view => {
       results.push({
         id: `view-${view.id}`,
         type: 'view',

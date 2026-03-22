@@ -20,18 +20,22 @@ interface TaskFormProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const PRIORITY_OPTIONS = [
+function getPRIORITY_OPTIONS(t: (k: string) => string) {
+  return [
   { value: '1', label: t('tasks.alta'), color: '#EF4444' },
   { value: '2', label: t('tasks.media'), color: '#F59E0B' },
   { value: '3', label: t('tasks.baja'), color: '#22C55E' },
 ];
+}
 
-const FUNCTION_TYPE_OPTIONS = [
+function getFUNCTION_TYPE_OPTIONS(t: (k: string) => string) {
+  return [
   { value: 'demand',   label: t('tasks.demanda'),  color: '#F59E0B' },
   { value: 'delivery', label: t('tasks.delivery'), color: '#3B82F6' },
   { value: 'cash',     label: t('tasks.cash'),     color: '#22C55E' },
   { value: 'support',  label: t('tasks.soporte'),  color: '#A855F7' },
 ];
+}
 
 export function TaskForm({ projectId, projectMembers, open, onOpenChange }: TaskFormProps) {
   const { t } = useTranslation();
@@ -147,7 +151,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
                   <SelectValue placeholder={t('tasks.sinClasificarNoContabiliza')} />
                 </SelectTrigger>
                 <SelectContent>
-                  {FUNCTION_TYPE_OPTIONS.map((opt) => (
+                  {getFUNCTION_TYPE_OPTIONS(t).map((opt) => (
                     <SelectItem key={opt.value} value={opt.value}>
                       <div className="flex items-center gap-2">
                         <div
@@ -239,7 +243,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {PRIORITY_OPTIONS.map((opt) => (
+                    {getPRIORITY_OPTIONS(t).map((opt) => (
                       <SelectItem key={opt.value} value={opt.value}>
                         <div className="flex items-center gap-2">
                           <div

@@ -26,8 +26,8 @@ const T2_COPY = {
   body:  t('project.elFlujoDeCaja1'),
 };
 
-const FALLBACK_YELLOW = { title: t('project.señalesDeAlertaActivas'), body: t('project.elProyectoMuestraSeñales') };
-const FALLBACK_RED    = { title: t('project.estadoCrítico'),            body: t('project.elProyectoEstáEn') };
+function getFallbackYellow(t: (k: string) => string) { return { title: t('project.señalesDeAlertaActivas'), body: t('project.elProyectoMuestraSeñales') }; }
+function getFallbackRed(t: (k: string) => string) { return { title: t('project.estadoCrítico'),            body: t('project.elProyectoEstáEn') }; }
 
 // ── sessionStorage helpers ────────────────────────────────────────────────────
 
@@ -79,8 +79,8 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
   if (isYellow && dismissed) return null;
 
   const copy = isRed
-    ? (t2 ? T2_COPY : (RED_COPY[trigger ?? ''] ?? FALLBACK_RED))
-    : (YELLOW_COPY[trigger ?? ''] ?? FALLBACK_YELLOW);
+    ? (t2 ? T2_COPY : (RED_COPY[trigger ?? ''] ?? getFallbackRed(t)))
+    : (YELLOW_COPY[trigger ?? ''] ?? getFallbackYellow(t));
 
   function handleDismiss() {
     sessionStorage.setItem(dKey, '1');

@@ -31,13 +31,15 @@ interface OptimusFeedbackProps {
   onSubmit?: (vote: 'up' | 'down') => void;
 }
 
-const DOWN_CATEGORIES: { id: string; label: string }[] = [
+function getDOWN_CATEGORIES(t: (k: string) => string) {
+  return [
   { id: 'too_obvious',     label: t('project.yaLoSé') },
   { id: 'wrong_context',   label: t('project.noAplicaAMi') },
   { id: 'not_actionable',  label: t('project.noPuedoActuarSobre') },
   { id: 'disagree',        label: t('project.noEstoyDeAcuerdo') },
   { id: 'other',           label: t('project.otro') },
 ];
+}
 
 export function OptimusFeedback({
   projectId,
@@ -158,7 +160,7 @@ export function OptimusFeedback({
             </button>
           </div>
           <div className="flex flex-wrap gap-1.5">
-            {DOWN_CATEGORIES.map(cat => (
+            {getDOWN_CATEGORIES(t).map(cat => (
               <Button
                 key={cat.id}
                 variant="outline"

@@ -16,7 +16,8 @@ interface EconomicProfileFormProps {
   projectId: string;
 }
 
-const MODEL_TYPE_OPTIONS = [
+function getMODEL_TYPE_OPTIONS(t: (k: string) => string) {
+  return [
   { value: 'saas',        label: 'SaaS' },
   { value: 'service',     label: t('engineInputs.servicios') },
   { value: 'physical',    label: t('engineInputs.productoFísico') },
@@ -24,20 +25,25 @@ const MODEL_TYPE_OPTIONS = [
   { value: 'agency',      label: t('engineInputs.agencia') },
   { value: 'unknown',     label: t('engineInputs.porDefinir') },
 ];
+}
 
-const PRICING_MODEL_OPTIONS = [
+function getPRICING_MODEL_OPTIONS(t: (k: string) => string) {
+  return [
   { value: 'subscription', label: t('engineInputs.suscripción') },
   { value: 'usage',        label: t('engineInputs.porUso') },
   { value: 'one_off',      label: t('engineInputs.pagoÚnico') },
   { value: 'hybrid',       label: t('engineInputs.híbrido') },
   { value: 'unknown',      label: t('engineInputs.porDefinir') },
 ];
+}
 
-const REVENUE_TYPE_OPTIONS = [
+function getREVENUE_TYPE_OPTIONS(t: (k: string) => string) {
+  return [
   { value: 'recurring',     label: t('engineInputs.recurrente') },
   { value: 'transactional', label: t('engineInputs.transaccional') },
   { value: 'mixed',         label: t('engineInputs.mixto') },
 ];
+}
 
 function computeConfidence(form: {
   modelType: string;
@@ -214,7 +220,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                     <SelectValue placeholder={t('engineInputs.seleccionar')} />
                   </SelectTrigger>
                   <SelectContent>
-                    {MODEL_TYPE_OPTIONS.map((o) => (
+                    {getMODEL_TYPE_OPTIONS(t).map((o) => (
                       <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                     ))}
                   </SelectContent>
@@ -228,7 +234,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {PRICING_MODEL_OPTIONS.map((o) => (
+                    {getPRICING_MODEL_OPTIONS(t).map((o) => (
                       <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                     ))}
                   </SelectContent>
@@ -242,7 +248,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    {REVENUE_TYPE_OPTIONS.map((o) => (
+                    {getREVENUE_TYPE_OPTIONS(t).map((o) => (
                       <SelectItem key={o.value} value={o.value}>{o.label}</SelectItem>
                     ))}
                   </SelectContent>

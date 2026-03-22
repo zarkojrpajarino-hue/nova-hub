@@ -33,21 +33,25 @@ interface InputRow {
   ctaLabel: string;
 }
 
-const PROB_ROWS: Omit<InputRow, 'value'>[] = [
+function getPROB_ROWS(t: (k: string) => string) {
+  return [
   { label: t('project.avanceDeFase'),      source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: t('project.añadirObvs') },
   { label: t('project.tasaDeEjecución'),   source: 'Motor (Tareas)', confidence: '—', tab: 'tareas',     ctaLabel: t('project.verTareas') },
   { label: t('project.validación'),          source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: t('project.añadirValidaciones') },
   { label: t('project.momentumIngresos'),   source: t('project.financiero'),     confidence: '—', tab: 'financiero', ctaLabel: t('project.verFinanciero') },
   { label: t('project.capacidadEquipo'),    source: t('project.motor'),          confidence: '—', tab: 'financiero', ctaLabel: t('project.verMiModelo') },
 ];
+}
 
-const RISK_ROWS: Omit<InputRow, 'value'>[] = [
+function getRISK_ROWS(t: (k: string) => string) {
+  return [
   { label: t('project.runwayFinanciero'),      source: t('project.financiero'),     confidence: '—', tab: 'financiero', ctaLabel: t('project.añadirRunway') },
   { label: t('project.caídaDeEjecución'),     source: 'Motor (Tareas)', confidence: '—', tab: 'tareas',     ctaLabel: t('project.verTareas') },
   { label: t('project.fragilidadValidación'),  source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: t('project.añadirObvs') },
   { label: t('project.concentraciónRevenue'),  source: t('project.financiero'),     confidence: '—', tab: 'financiero', ctaLabel: t('project.verFinanciero') },
   { label: t('project.bloqueosActivos'),       source: t('project.motor'),          confidence: '—', tab: 'tareas',     ctaLabel: t('project.revisarTareas') },
 ];
+}
 
 function formatValue(v: number | null): string {
   if (v === null) return '—';
@@ -70,7 +74,7 @@ export function InputAuditModal({
 }: InputAuditModalProps) {
   const { t } = useTranslation();
   const isProbability = type === 'probability';
-  const baseRows = isProbability ? PROB_ROWS : RISK_ROWS;
+  const baseRows = isProbability ? getPROB_ROWS(t) : getRISK_ROWS(t);
 
   const rawValues: (number | null)[] = isProbability
     ? [

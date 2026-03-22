@@ -92,7 +92,7 @@ const projects: Project[] = [
   { name: t('preview.projectNu'), members: [t('preview.ninaKowalski'), t('preview.emmaWatson')], allocation: { 'Nina Kowalski': 60, 'Emma Watson': 70 } },
 ];
 
-const skills = [t('preview.leadership'), t('preview.technical'), t('preview.communication'), t('preview.strategy')];
+function getSkills(t: (k: string) => string) { return [t('preview.leadership'), t('preview.technical'), t('preview.communication'), t('preview.strategy')]; }
 
 export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerformancePreviewModalProps) {
   const { t } = useTranslation();
@@ -538,7 +538,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                     <div className="grid grid-cols-5 gap-1">
                       {/* Header */}
                       <div className="p-3 bg-gray-100 font-semibold text-sm sticky left-0">{t('preview.teamMember')}</div>
-                      {skills.map((skill) => (
+                      {getSkills(t).map((skill) => (
                         <div key={skill} className="p-3 bg-gray-100 font-semibold text-sm text-center">
                           {skill}
                         </div>
@@ -552,7 +552,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                               {member.name}
                             </div>
                           </div>
-                          {skills.map((skill) => {
+                          {getSkills(t).map((skill) => {
                             const score = member.skills[skill];
                             return (
                               <div
@@ -573,7 +573,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                 </div>
 
                 <div className="grid grid-cols-4 gap-4 mt-6">
-                  {skills.map((skill) => {
+                  {getSkills(t).map((skill) => {
                     const avgScore = Math.round(
                       teamMembers.reduce((sum, m) => sum + m.skills[skill], 0) / teamMembers.length
                     );

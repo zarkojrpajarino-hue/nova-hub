@@ -7,7 +7,8 @@ import { toast } from 'sonner';
 import { useUserSettings, useUpdateUserSettings, type NotificationSettings } from '@/hooks/useSettings';
 
 import { useTranslation } from 'react-i18next';
-const NOTIFICATION_OPTIONS = [
+function getNOTIFICATION_OPTIONS(t: (k: string) => string) {
+  return [
   {
     key: 'nuevas_obvs' as const,
     label: t('settings.nuevasObvs'),
@@ -43,6 +44,7 @@ const NOTIFICATION_OPTIONS = [
     badge: t('settings.próximamente'),
   },
 ];
+}
 
 export function NotificationSettings() {
   const { t } = useTranslation();
@@ -98,7 +100,7 @@ export function NotificationSettings() {
           <p className="text-sm text-muted-foreground mb-6">{t('settings.configuraQuéNotificacionesQuieres')}</p>
 
           <div className="space-y-4">
-            {NOTIFICATION_OPTIONS.map(option => (
+            {getNOTIFICATION_OPTIONS(t).map(option => (
               <div 
                 key={option.key}
                 className="flex items-center justify-between p-4 bg-muted/50 rounded-xl"

@@ -37,7 +37,8 @@ type SpecializationRole = Database['public']['Enums']['specialization_role'];
 
 // C3.3 — fuente única de verdad: enum specialization_role
 // Elimina dependencia de project_roles (tabla ghost).
-const ROLE_OPTIONS: { value: SpecializationRole; label: string; description: string }[] = [
+function getROLE_OPTIONS(t: (k: string) => string) {
+  return [
   { value: 'sales',      label: t('roles.ventas'),          description: t('roles.captaciónYCierreDe') },
   { value: 'marketing',  label: t('roles.marketing'),        description: t('roles.adquisiciónYComunicación') },
   { value: 'ai_tech',    label: 'Tecnología / IA',  description: t('roles.desarrolloDeProductoY') },
@@ -45,6 +46,7 @@ const ROLE_OPTIONS: { value: SpecializationRole; label: string; description: str
   { value: 'finance',    label: t('roles.finanzas'),         description: t('roles.gestiónDeCobrosY') },
   { value: 'strategy',   label: t('roles.estrategia'),       description: t('roles.direcciónYDecisionesDe') },
 ];
+}
 
 interface InviteMemberWizardProps {
   isOpen: boolean;
@@ -144,7 +146,7 @@ export function InviteMemberWizard({
     onClose();
   };
 
-  const roleInfo = ROLE_OPTIONS.find(r => r.value === selectedRole);
+  const roleInfo = getROLE_OPTIONS(t).find(r => r.value === selectedRole);
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
@@ -222,7 +224,7 @@ export function InviteMemberWizard({
                 <SelectValue placeholder={t('roles.sinRolAsignado')} />
               </SelectTrigger>
               <SelectContent>
-                {ROLE_OPTIONS.map((role) => (
+                {getROLE_OPTIONS(t).map((role) => (
                   <SelectItem key={role.value} value={role.value}>
                     {role.label}
                   </SelectItem>

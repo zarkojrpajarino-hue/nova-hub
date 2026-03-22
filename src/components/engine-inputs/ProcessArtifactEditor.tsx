@@ -15,13 +15,15 @@ interface ProcessArtifactEditorProps {
   projectId: string;
 }
 
-const FUNCTION_TYPES = [
+function getFUNCTION_TYPES(t: (k: string) => string) {
+  return [
   { value: 'demand',   label: t('engineInputs.demanda'),  color: '#F59E0B', description: t('engineInputs.generaciónDeLeadsVentas') },
   { value: 'delivery', label: t('engineInputs.delivery'), color: '#3B82F6', description: t('engineInputs.productoDesarrolloEntregaAl') },
   { value: 'cash',     label: t('engineInputs.cash'),     color: '#22C55E', description: t('engineInputs.facturaciónCobrosGestiónFinanciera') },
 ] as const;
+}
 
-type FunctionType = typeof FUNCTION_TYPES[number]['value'];
+type FunctionType = 'demand' | 'delivery' | 'cash';
 
 interface ProcessArtifact {
   id: string;
@@ -150,7 +152,7 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
-        {FUNCTION_TYPES.map((ft) => {
+        {getFUNCTION_TYPES(t).map((ft) => {
           const ftArtifacts = artifacts.filter((a) => a.function_type === ft.value);
           const hasActiveProcess = ftArtifacts.some(
             (a) => a.checklist_items_count >= CHECKLIST_THRESHOLD && isUsedRecently(a.last_used_at)

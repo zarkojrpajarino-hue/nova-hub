@@ -22,7 +22,8 @@ interface OBVStep6EvidenceProps {
   onUpdate: (updates: Partial<OBVFormData>) => void;
 }
 
-const EVIDENCE_TYPE_LABELS: Record<string, string> = {
+function getEVIDENCE_TYPE_LABELS(t: (k: string) => string) {
+  return {
   payment:             t('obv.comprobanteDePago'),
   interview_recording: t('obv.grabaciónDeEntrevista'),
   public_url:          'URL pública (web, social)',
@@ -30,8 +31,10 @@ const EVIDENCE_TYPE_LABELS: Record<string, string> = {
   doc:                 t('obv.documento'),
   other:               t('obv.otro'),
 };
+}
 
-const OUTCOME_OPTIONS = [
+function getOUTCOME_OPTIONS(t: (k: string) => string) {
+  return [
   {
     value: 'success',
     label: t('obv.éxito'),
@@ -57,6 +60,7 @@ const OUTCOME_OPTIONS = [
     bg: 'bg-destructive/10 border-destructive/40',
   },
 ] as const;
+}
 
 export const OBVStep6Evidence = memo(function OBVStep6Evidence({
   step,
@@ -78,7 +82,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
           <Label className="mb-2 block">{t('obv.cuálFueElResultado')}<span className="text-destructive">*</span>
           </Label>
           <div className="grid grid-cols-3 gap-2">
-            {OUTCOME_OPTIONS.map((opt) => {
+            {getOUTCOME_OPTIONS(t).map((opt) => {
               const Icon = opt.icon;
               const selected = formData.obvOutcome === opt.value;
               return (
@@ -115,7 +119,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
               <SelectValue placeholder={t('obv.seleccionaTipoDeEvidencia')} />
             </SelectTrigger>
             <SelectContent>
-              {Object.entries(EVIDENCE_TYPE_LABELS).map(([value, label]) => (
+              {Object.entries(getEVIDENCE_TYPE_LABELS(t)).map(([value, label]) => (
                 <SelectItem key={value} value={value}>{label}</SelectItem>
               ))}
             </SelectContent>
@@ -152,7 +156,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
               <>
                 <span className="text-muted-foreground">Resultado:</span>
                 <span className="font-medium capitalize">
-                  {OUTCOME_OPTIONS.find(o => o.value === formData.obvOutcome)?.label ?? formData.obvOutcome}
+                  {getOUTCOME_OPTIONS(t).find(o => o.value === formData.obvOutcome)?.label ?? formData.obvOutcome}
                 </span>
               </>
             )}

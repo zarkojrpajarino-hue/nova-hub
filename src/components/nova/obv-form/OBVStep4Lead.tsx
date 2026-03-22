@@ -6,7 +6,8 @@ import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
 import { useTranslation } from 'react-i18next';
-const LEAD_STATUS_OPTIONS = [
+function getLEAD_STATUS_OPTIONS(t: (k: string) => string) {
+  return [
   { value: 'frio', label: t('obv.frío') },
   { value: 'tibio', label: t('obv.tibio') },
   { value: 'hot', label: 'Hot' },
@@ -14,6 +15,7 @@ const LEAD_STATUS_OPTIONS = [
   { value: 'negociacion', label: t('obv.negociación') },
   { value: 'cerrado_ganado', label: t('obv.cerradoGanado') },
 ];
+}
 
 interface Lead {
   id: string;
@@ -119,7 +121,7 @@ export const OBVStep4Lead = memo(function OBVStep4Lead({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {LEAD_STATUS_OPTIONS.map(opt => (
+                  {getLEAD_STATUS_OPTIONS(t).map(opt => (
                     <SelectItem key={opt.value} value={opt.value}>
                       {opt.label}
                     </SelectItem>

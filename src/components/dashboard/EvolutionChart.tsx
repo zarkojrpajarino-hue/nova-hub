@@ -39,13 +39,15 @@ interface EvolutionChartProps {
 
 type MetricType = 'obvs' | 'facturacion' | 'leads' | 'tareas' | 'all';
 
-const METRICS = [
+function getMETRICS(t: (k: string) => string) {
+  return [
   { value: 'all', label: t('dashboard.todasLasMétricas') },
   { value: 'obvs', label: t('dashboard.obvs'), color: '#6366F1' },
   { value: 'facturacion', label: t('dashboard.facturación'), color: '#10B981' },
   { value: 'leads', label: t('dashboard.leads'), color: '#F59E0B' },
   { value: 'tareas', label: t('dashboard.tareas'), color: '#8B5CF6' },
 ] as const;
+}
 
 export function EvolutionChart({ data }: EvolutionChartProps) {
   const { t } = useTranslation();
@@ -109,7 +111,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
       );
     }
 
-    const metric = METRICS.find((m) => m.value === selectedMetric);
+    const metric = getMETRICS(t).find((m) => m.value === selectedMetric);
     if (!metric || !metric.color) return null;
 
     return (
@@ -146,7 +148,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
               <SelectValue />
             </SelectTrigger>
             <SelectContent>
-              {METRICS.map((metric) => (
+              {getMETRICS(t).map((metric) => (
                 <SelectItem key={metric.value} value={metric.value}>
                   {metric.label}
                 </SelectItem>

@@ -22,13 +22,15 @@ interface InsightFormProps {
   defaultRoleContext?: string;
 }
 
-const TIPOS = [
+function getTIPOS(t: (k: string) => string) {
+  return [
   { value: 'aprendizaje', label: t('development.aprendizaje') },
   { value: 'reflexion', label: t('development.reflexión') },
   { value: 'error', label: t('development.error') },
   { value: 'exito', label: t('development.éxito') },
   { value: 'idea', label: t('development.idea') },
 ];
+}
 
 export function InsightForm({ 
   open, 
@@ -162,7 +164,7 @@ export function InsightForm({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {TIPOS.map(t => (
+                  {getTIPOS(t).map(t => (
                     <SelectItem key={t.value} value={t.value}>
                       {t.label}
                     </SelectItem>

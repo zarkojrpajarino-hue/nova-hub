@@ -36,7 +36,8 @@ interface SlackWebhook {
   created_at: string;
 }
 
-const NOTIFICATION_TYPES = [
+function getNOTIFICATION_TYPES(t: (k: string) => string) {
+  return [
   { value: 'lead_won', label: t('integrations.leadGanado'), icon: '🎉' },
   { value: 'obv_validated', label: t('integrations.obvValidado'), icon: '✅' },
   { value: 'objective_reached', label: t('integrations.objetivoAlcanzado'), icon: '🎯' },
@@ -44,6 +45,7 @@ const NOTIFICATION_TYPES = [
   { value: 'task_completed', label: t('integrations.tareaCompletada'), icon: '✔️' },
   { value: 'new_member', label: t('integrations.nuevoMiembro'), icon: '👋' },
 ];
+}
 
 interface SlackIntegrationProps {
   projectId?: string;
@@ -243,7 +245,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
                 <div>
                   <Label>{t('integrations.tiposDeNotificaciones')}</Label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
-                    {NOTIFICATION_TYPES.map((type) => (
+                    {getNOTIFICATION_TYPES(t).map((type) => (
                       <div
                         key={type.value}
                         onClick={() => handleTypeToggle(type.value)}
@@ -326,7 +328,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
 
                     <div className="flex flex-wrap gap-1">
                       {webhook.notification_types.map((type) => {
-                        const config = NOTIFICATION_TYPES.find((t) => t.value === type);
+                        const config = getNOTIFICATION_TYPES(t).find((t) => t.value === type);
                         return (
                           <Badge key={type} variant="outline" className="text-xs">
                             {config?.icon} {config?.label}

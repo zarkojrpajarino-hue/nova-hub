@@ -33,7 +33,8 @@ interface ProviderMeta {
   color:       string  // Tailwind text color
 }
 
-const PROVIDER_META: Record<ProviderSlug, ProviderMeta> = {
+function getPROVIDER_META(t: (k: string) => string) {
+  return {
   stripe:          { label: t('evidence.stripePayments'),    description: t('evidence.ingresosSuscripcionesPagos'),     color: 'text-indigo-500' },
   holded:          { label: 'Holded ERP',          description: t('evidence.contabilidadFacturasMárgenes'),   color: 'text-emerald-600' },
   hubspot:         { label: 'HubSpot CRM',         description: t('evidence.pipelineDeVentasDeals'),           color: 'text-orange-500' },
@@ -41,6 +42,7 @@ const PROVIDER_META: Record<ProviderSlug, ProviderMeta> = {
   google_calendar: { label: t('evidence.googleCalendar'),     description: t('evidence.reunionesAgendaCargaHoraria'),   color: 'text-blue-500' },
   user_manual:     { label: t('evidence.entradasManuales'),   description: t('evidence.datosDeclaradosPorTi'),            color: 'text-muted-foreground' },
   ai_inferred:     { label: 'Inferencias IA',      description: t('evidence.derivadasPorElSistema'),           color: 'text-purple-500' },
+}
 }
 
 // Las fuentes que pueden venir de integration_connections (provider field)
@@ -227,7 +229,7 @@ export function SourcePreferencesPanel({
       <div className="space-y-2">
         {configurableSources.map(source => {
           const pref    = preferences[source]
-          const meta    = PROVIDER_META[source]
+          const meta    = getPROVIDER_META(t)[source]
           const isSaving = savingSource === source
           const defaultWeight = getDefaultWeight(source)
           const currentWeight = pref.weight_override ?? defaultWeight

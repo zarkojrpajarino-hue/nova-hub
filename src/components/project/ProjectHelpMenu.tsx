@@ -36,7 +36,8 @@ import { getHelp } from '@/data/helpContent';
 import type { HelpContent } from '@/components/ui/section-help';
 
 import { useTranslation } from 'react-i18next';
-const PROJECT_SECTIONS = [
+function getPROJECT_SECTIONS(t: (k: string) => string) {
+  return [
   {
     id: 'proyecto.dashboard',
     label: t('project.dashboard'),
@@ -94,6 +95,7 @@ const PROJECT_SECTIONS = [
     bgColor: 'bg-pink-500/10',
   },
 ];
+}
 
 interface HelpSectionDisplayProps {
   icon: React.ElementType;
@@ -183,7 +185,7 @@ export function ProjectHelpMenu() {
   };
 
   const selectedContent = selectedSection ? getHelp(selectedSection) : null;
-  const selectedInfo = PROJECT_SECTIONS.find(s => s.id === selectedSection);
+  const selectedInfo = getPROJECT_SECTIONS(t).find(s => s.id === selectedSection);
 
   return (
     <>
@@ -200,7 +202,7 @@ export function ProjectHelpMenu() {
             <p className="text-xs text-muted-foreground">{t('project.seleccionaUnaSecciónPara')}</p>
           </div>
           <DropdownMenuSeparator />
-          {PROJECT_SECTIONS.map((section) => {
+          {getPROJECT_SECTIONS(t).map((section) => {
             const Icon = section.icon;
             return (
               <DropdownMenuItem
