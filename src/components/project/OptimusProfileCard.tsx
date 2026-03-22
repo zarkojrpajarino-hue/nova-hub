@@ -9,8 +9,10 @@
 import { Brain, ThumbsUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface OptimusProfileCardProps {
   projectId: string;
 }
@@ -67,6 +69,7 @@ export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
         <span className="text-[10px] text-muted-foreground ml-auto">
           {profile.total_feedbacks} feedbacks
         </span>
+        <SourceBadge type="inferred" source="optimusIA" reliability={0.4} size="sm" />
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">

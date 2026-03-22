@@ -1,8 +1,10 @@
 import { useState, useEffect } from 'react';
 import { AlertTriangle, X, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ViabilityStateData } from '@/hooks/useNovaDataOptimized';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 // ── Copy por trigger_type ─────────────────────────────────────────────────────
 
 const YELLOW_COPY: Record<string, { title: string; body: string }> = {
@@ -102,6 +104,7 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-warning">{copy.title}</p>
           <p className="text-sm text-muted-foreground mt-0.5">{copy.body}</p>
+        <SourceBadge type="estimated" source="motorDeViabilidad" reliability={0.5} size="sm" />
         </div>
         <button
           onClick={handleDismiss}

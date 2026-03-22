@@ -8,8 +8,10 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TrendingUp, Clock } from 'lucide-react';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface StageTransition {
   from_status: string;
   to_status: string;
@@ -78,6 +80,7 @@ export function LeadConversionInsights({ projectId }: { projectId: string }) {
       <div className="flex items-center gap-2">
         <TrendingUp className="h-4 w-4 text-blue-500" />
         <span className="text-xs font-semibold">{t('project.velocidadDeConversión')}</span>
+        <SourceBadge type="declared" source="pipelineOBVs" reliability={0.6} size="sm" />
       </div>
       <div className="space-y-1.5">
         {transitions.map((t) => {

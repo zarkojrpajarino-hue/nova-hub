@@ -1,10 +1,10 @@
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { EngineEmptyState } from './EngineEmptyState';
 import { InputAuditModal, InputAuditTrigger } from './InputAuditModal';
-
-import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface ProbabilityBreakdownProps {
   probability: ProjectEngineData['probability'];
   probabilityHistory: ProjectEngineData['probabilityHistory'];
@@ -14,16 +14,15 @@ interface ProbabilityBreakdownProps {
 
 // ── Input config ──────────────────────────────────────────────────────────────
 
-const INPUTS: {
-  key: keyof NonNullable<ProjectEngineData['probability']>;
-  label: string;
-}[] = [
-  { key: 'phase_score_input',         label: t('project.avanceDeFase')    },
-  { key: 'execution_rate_input',      label: t('project.ejecución')         },
-  { key: 'validation_strength_input', label: t('project.validación')        },
-  { key: 'revenue_momentum_input',    label: t('project.revenue')           },
-  { key: 'capacity_health_input',     label: t('project.equipo')            },
-];
+function getInputs(t: (k: string) => string) {
+  return [
+    { key: 'phase_score_input' as const,         label: t('project.avanceDeFase')    },
+    { key: 'execution_rate_input' as const,      label: t('project.ejecución')       },
+    { key: 'validation_strength_input' as const, label: t('project.validación')      },
+    { key: 'revenue_momentum_input' as const,    label: t('project.revenue')         },
+    { key: 'capacity_health_input' as const,     label: t('project.equipo')          },
+  ];
+}
 
 function inputBarColor(value: number): string {
   if (value >= 70) return 'bg-success';
@@ -83,11 +82,11 @@ function ProbabilityBreakdownComponent({
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-sm flex items-center gap-1.5">
-          Probabilidad de avance
-          {/* U6.V2.4 — ⓘ botón: abre InputAuditModal */}
+          {t('project.probabilidadDeAvance')}
           <InputAuditTrigger onClick={() => setAuditOpen(true)} />
         </h3>
         <div className="flex items-center gap-2">
+          <SourceBadge type="estimated" source={t('project.motorDelProyecto')} reliability={0.5} size="sm" />
           {/* Trend */}
           {trend != null && (
             <span className={`flex items-center gap-0.5 text-xs font-semibold ${
@@ -113,7 +112,7 @@ function ProbabilityBreakdownComponent({
 
       {/* 5 inputs */}
       <div className="space-y-2.5">
-        {INPUTS.map(({ key, label }) => {
+        {getInputs(t).map(({ key, label }) => {
           const raw = probability[key] as number | null;
           const val = raw != null ? Math.round(raw) : null;
           return (

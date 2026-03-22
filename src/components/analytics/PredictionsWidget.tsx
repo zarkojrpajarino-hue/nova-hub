@@ -7,8 +7,10 @@ import { useObjectives } from '@/hooks/useNovaData';
 import type { MemberStats } from '@/hooks/useNovaData';
 import { differenceInDays } from 'date-fns';
 import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface PredictionsWidgetProps {
   members: MemberStats[];
   period: 'week' | 'month' | 'quarter' | 'year';
@@ -169,6 +171,7 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
                   <span className="text-lg font-semibold text-green-600">{demoPred.confidence}%</span>
                 </div>
               </div>
+        <SourceBadge type="estimated" source="predicciónLineal" reliability={0.3} size="sm" />
             </div>
 
             <div className="flex items-center gap-2 p-3 rounded-lg bg-green-500/10 border border-green-500/20">

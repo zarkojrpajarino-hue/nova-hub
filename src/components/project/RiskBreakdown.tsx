@@ -1,10 +1,10 @@
 import { TrendingUp, TrendingDown, Minus, Shield } from 'lucide-react';
 import { memo, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { EngineEmptyState } from './EngineEmptyState';
 import { InputAuditModal, InputAuditTrigger } from './InputAuditModal';
-
-import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface RiskBreakdownProps {
   risk: ProjectEngineData['risk'];
   riskHistory: ProjectEngineData['riskHistory'];
@@ -17,23 +17,25 @@ interface RiskBreakdownProps {
 //   mayor valor = mayor riesgo en ese factor.
 // Colores: ≥70 destructive · 30–69 warning · <30 success
 
-const FACTORS: {
-  key: keyof NonNullable<ProjectEngineData['risk']>;
-  label: string;
-}[] = [
-  { key: 'runway_factor_input',          label: t('project.pistaFinanciera')      },
-  { key: 'execution_drop_input',         label: t('project.caídaDeEjecución')    },
-  { key: 'validation_weakness_input',    label: t('project.fragilidadValidación') },
-  { key: 'revenue_concentration_input',  label: t('project.concentraciónRevenue') },
-  { key: 'bottleneck_severity_input',    label: t('project.bloqueosActivos')      },
-];
+function getFactors(t: (k: string) => string) {
+  return [
+    { key: 'runway_factor_input' as const,          label: t('project.pistaFinanciera')      },
+    { key: 'execution_drop_input' as const,         label: t('project.caídaDeEjecución')    },
+    { key: 'validation_weakness_input' as const,    label: t('project.fragilidadValidación') },
+    { key: 'revenue_concentration_input' as const,  label: t('project.concentraciónRevenue') },
+    { key: 'bottleneck_severity_input' as const,    label: t('project.bloqueosActivos')      },
+  ];
+}
 
-const RISK_LEVEL_LABEL: Record<string, string> = {
-  low:      t('project.bajo'),
-  medium:   t('project.medio'),
-  high:     t('project.alto'),
-  critical: t('project.crítico'),
-};
+function getRiskLevelLabel(level: string, t: (k: string) => string): string {
+  const labels: Record<string, string> = {
+    low:      t('project.bajo'),
+    medium:   t('project.medio'),
+    high:     t('project.alto'),
+    critical: t('project.crítico'),
+  };
+  return labels[level] ?? level;
+}
 
 const RISK_LEVEL_COLOR: Record<string, string> = {
   low:      'text-success',
@@ -89,11 +91,11 @@ function RiskBreakdownComponent({ risk, riskHistory, onNavigateToTab }: RiskBrea
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold text-sm flex items-center gap-1.5">
-          Factores de riesgo
-          {/* U6.V2.4 — ⓘ botón: abre InputAuditModal */}
+          {t('project.factoresDeRiesgo')}
           <InputAuditTrigger onClick={() => setAuditOpen(true)} />
         </h3>
         <div className="flex items-center gap-2">
+          <SourceBadge type="estimated" source={t('project.motorDelProyecto')} reliability={0.5} size="sm" />
           {/* Trend — delta positivo = riesgo subió (malo) → rojo */}
           {trend != null && (
             <span className={`flex items-center gap-0.5 text-xs font-semibold ${
@@ -108,7 +110,7 @@ function RiskBreakdownComponent({ risk, riskHistory, onNavigateToTab }: RiskBrea
           )}
           {/* Level + score */}
           <span className={`text-lg font-bold ${RISK_LEVEL_COLOR[level] ?? ''}`}>
-            {RISK_LEVEL_LABEL[level] ?? level}
+            {getRiskLevelLabel(level, t)}
           </span>
           {score != null && (
             <span className="text-sm text-muted-foreground tabular-nums">({score})</span>
@@ -121,7 +123,7 @@ function RiskBreakdownComponent({ risk, riskHistory, onNavigateToTab }: RiskBrea
 
       {/* 5 factores */}
       <div className="space-y-2.5">
-        {FACTORS.map(({ key, label }) => {
+        {getFactors(t).map(({ key, label }) => {
           const raw = risk[key] as number | null;
           const val = raw != null ? Math.round(raw) : null;
           return (

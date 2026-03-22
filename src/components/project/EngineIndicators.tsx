@@ -1,6 +1,8 @@
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface EngineIndicatorsProps {
   engineData: ProjectEngineData | null | undefined;
 }
@@ -62,6 +64,7 @@ export function EngineIndicators({ engineData }: EngineIndicatorsProps) {
 
   return (
     <div className="flex items-center gap-5">
+      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source="motorDelProyecto" reliability={0.5} size="sm" /></div>
 
       {/* Fase */}
       <div className="flex items-center gap-2">

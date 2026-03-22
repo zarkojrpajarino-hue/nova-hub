@@ -13,6 +13,7 @@
 
 import { Loader2, Clock, AlertTriangle, ArrowRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 import {
   useProjectEngineData,
   useProjectViabilityState,
@@ -21,6 +22,7 @@ import {
 import { getNextAction } from '@/lib/next-action';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 import {
   computeReentryPayload,
   PHASE_LABEL,
@@ -127,6 +129,7 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
               Vale la pena evaluar si este proyecto sigue siendo prioritario.
             </p>
           </div>
+        <SourceBadge type="estimated" source="motorDelProyecto" reliability={0.5} size="sm" />
         </div>
       )}
 

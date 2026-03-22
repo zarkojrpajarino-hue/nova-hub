@@ -9,8 +9,10 @@
 import { CheckCircle2, Circle, Globe, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useExpansionReadiness } from '@/hooks/useExpansionReadiness';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface ExpansionReadinessTeaserProps {
   projectId: string;
   onAnalyze?: () => void;
@@ -56,6 +58,7 @@ export function ExpansionReadinessTeaser({ projectId, onAnalyze }: ExpansionRead
           isReady ? 'bg-green-100' : 'bg-muted'
         }`}>
           <Globe className={`h-5 w-5 ${isReady ? 'text-green-600' : 'text-muted-foreground'}`} />
+        <SourceBadge type="estimated" source="motorDeExpansion" reliability={0.4} size="sm" />
         </div>
         <div>
           <h3 className="text-sm font-semibold">{t('expansion.expansionIntelligence')}</h3>

@@ -15,6 +15,7 @@
  */
 
 import { useMemo } from 'react';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 import {
   TrendingUp, Target, Zap,
   DollarSign, Sparkles, Brain
@@ -23,8 +24,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface Lead {
   id: string;
   nombre: string;
@@ -224,6 +227,7 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
           <Brain className="w-6 h-6 text-purple-600" />
+        <SourceBadge type="inferred" source="iALeadScoring" reliability={0.4} size="sm" />
         </div>
         <div>
           <h3 className="text-xl font-semibold flex items-center gap-2">

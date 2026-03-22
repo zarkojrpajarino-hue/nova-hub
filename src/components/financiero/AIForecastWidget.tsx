@@ -15,8 +15,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface ForecastData {
   proyeccion_hot: number;
   proyeccion_propuesta: number;
@@ -52,6 +54,7 @@ export function AIForecastWidget() {
   if (isLoading) {
     return (
       <Card>
+      <div className="flex justify-end mb-2"><SourceBadge type="inferred" source="iAFinanciera" reliability={0.35} size="sm" /></div>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-600" />

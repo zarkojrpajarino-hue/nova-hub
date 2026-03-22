@@ -3,8 +3,10 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
 import { deriveRegression } from './RegressionBanner';
 import { EngineEmptyState } from './EngineEmptyState';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface PhaseProgressBarProps {
   engineData: ProjectEngineData | null | undefined;
   onCTA?: () => void;
@@ -42,6 +44,7 @@ export function PhaseProgressBar({ engineData, onCTA }: PhaseProgressBarProps) {
 
   return (
     <div className="flex items-center gap-4 mb-4">
+      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source="motorDelProyecto" reliability={0.6} size="sm" /></div>
       {/* Etiqueta */}
       <div className="shrink-0 w-40">
         <p className="text-sm font-semibold leading-none">Fase {phase}</p>

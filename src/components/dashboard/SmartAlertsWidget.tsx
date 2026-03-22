@@ -4,8 +4,10 @@ import { supabase } from '@/integrations/supabase/client';
 import { useProfiles, useProjects, useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { cn } from '@/lib/utils';
 import { differenceInDays } from 'date-fns';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface Alert {
   id: string;
   type: 'inactive_member' | 'stale_leads' | 'goal_at_risk';
@@ -125,6 +127,7 @@ export function SmartAlertsWidget() {
         <div className="flex items-center gap-2.5 mb-4">
           <AlertTriangle size={18} className="text-warning" />
           <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
+        <SourceBadge type="inferred" source="alertasAutomáticas" reliability={0.5} size="sm" />
         </div>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />

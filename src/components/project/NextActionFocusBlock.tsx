@@ -22,13 +22,16 @@ import { useProjectEngineData } from '@/hooks/useNovaDataOptimized'
 import { useAgentContext } from '@/hooks/useAgentContext'
 import { useProjectContext } from '@/hooks/useProjectContext'
 import { buildNextAction } from '@/lib/build-next-action'
+import { SourceBadge } from '@/components/shared/SourceBadge';
 import {
   trackFocusBlockImpression,
   trackFocusBlockCTAClicked,
 } from '@/lib/analytics'
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis'
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface NextActionFocusBlockProps {
   projectId:      string
   onNavigateToTab?: (tab: string) => void
@@ -143,6 +146,7 @@ export function NextActionFocusBlock({
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             {agentInsights.length} señales activas — resumen del sistema
           </span>
+        <SourceBadge type="inferred" source="motorYAgentesIA" reliability={0.4} size="sm" />
         </div>
         <div className="space-y-1">
           <p className="text-lg font-semibold leading-snug">{nextAction.title}</p>

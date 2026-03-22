@@ -21,8 +21,10 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 interface DataCompletenessCardProps {
   engineData: ProjectEngineData | null | undefined;
   onNavigateToTab?: (tab: string) => void;
@@ -36,21 +38,25 @@ interface InputDef {
 }
 
 // Los 10 inputs del motor (5 prob + 5 riesgo)
-const PROB_INPUTS: InputDef[] = [
-  { id: 'phase_score_input',          label: t('project.scoreDeFase'),          tab: 'obvs',        ctaLabel: t('project.añadirObvs') },
-  { id: 'execution_rate_input',       label: t('project.tasaDeEjecución'),      tab: 'tareas',      ctaLabel: t('project.verTareas') },
-  { id: 'validation_strength_input',  label: t('project.validaciones'),           tab: 'obvs',        ctaLabel: t('project.añadirValidaciones') },
-  { id: 'revenue_momentum_input',     label: t('project.momentumDeIngresos'),   tab: 'financiero',  ctaLabel: t('project.conectarIngresos') },
-  { id: 'capacity_health_input',      label: t('project.capacidadDelEquipo'),   tab: 'financiero',  ctaLabel: t('project.verMiModelo') },
-];
+function getProbInputs(t: (k: string) => string): InputDef[] {
+  return [
+    { id: 'phase_score_input',          label: t('project.scoreDeFase'),          tab: 'obvs',        ctaLabel: t('project.añadirObvs') },
+    { id: 'execution_rate_input',       label: t('project.tasaDeEjecución'),      tab: 'tareas',      ctaLabel: t('project.verTareas') },
+    { id: 'validation_strength_input',  label: t('project.validaciones'),         tab: 'obvs',        ctaLabel: t('project.añadirValidaciones') },
+    { id: 'revenue_momentum_input',     label: t('project.momentumDeIngresos'),   tab: 'financiero',  ctaLabel: t('project.conectarIngresos') },
+    { id: 'capacity_health_input',      label: t('project.capacidadDelEquipo'),   tab: 'financiero',  ctaLabel: t('project.verMiModelo') },
+  ];
+}
 
-const RISK_INPUTS: InputDef[] = [
-  { id: 'runway_factor_input',         label: t('project.runwayFinanciero'),      tab: 'financiero',  ctaLabel: t('project.añadirRunway') },
-  { id: 'execution_drop_input',        label: t('project.caídaDeEjecución'),     tab: 'tareas',      ctaLabel: t('project.verTareas') },
-  { id: 'validation_weakness_input',   label: t('project.debilidadDeValidación'),tab: 'obvs',        ctaLabel: t('project.añadirObvs') },
-  { id: 'revenue_concentration_input', label: t('project.concentraciónDeIngresos'), tab: 'financiero', ctaLabel: t('project.verFinanciero') },
-  { id: 'bottleneck_severity_input',   label: t('project.cuellosDeBotella'),     tab: 'tareas',      ctaLabel: t('project.revisarTareas') },
-];
+function getRiskInputs(t: (k: string) => string): InputDef[] {
+  return [
+    { id: 'runway_factor_input',         label: t('project.runwayFinanciero'),        tab: 'financiero',  ctaLabel: t('project.añadirRunway') },
+    { id: 'execution_drop_input',        label: t('project.caídaDeEjecución'),       tab: 'tareas',      ctaLabel: t('project.verTareas') },
+    { id: 'validation_weakness_input',   label: t('project.debilidadDeValidación'),  tab: 'obvs',        ctaLabel: t('project.añadirObvs') },
+    { id: 'revenue_concentration_input', label: t('project.concentraciónDeIngresos'),tab: 'financiero',  ctaLabel: t('project.verFinanciero') },
+    { id: 'bottleneck_severity_input',   label: t('project.cuellosDeBotella'),       tab: 'tareas',      ctaLabel: t('project.revisarTareas') },
+  ];
+}
 
 export function DataCompletenessCard({ engineData, onNavigateToTab }: DataCompletenessCardProps) {
   const { t } = useTranslation();
@@ -73,11 +79,11 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
   const probRecord = prob as Record<string, unknown> | null | undefined;
   const riskRecord = risk as Record<string, unknown> | null | undefined;
   const missingInputs: InputDef[] = [];
-  for (const def of PROB_INPUTS) {
+  for (const def of getProbInputs(t)) {
     const val = probRecord?.[def.id];
     if (val === null || val === undefined) missingInputs.push(def);
   }
-  for (const def of RISK_INPUTS) {
+  for (const def of getRiskInputs(t)) {
     const val = riskRecord?.[def.id];
     if (val === null || val === undefined) missingInputs.push(def);
   }
@@ -101,6 +107,7 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
           <span className="absolute text-xs font-bold text-amber-700 dark:text-amber-400">
             {pct}%
           </span>
+        <SourceBadge type="estimated" source="motorDelProyecto" reliability={0.7} size="sm" />
         </div>
 
         <div className="flex-1 min-w-0">
