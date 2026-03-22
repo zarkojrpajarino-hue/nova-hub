@@ -1315,26 +1315,16 @@ ORDER  BY critical_count DESC, total DESC;
 ### Bloque A — Infraestructura de observabilidad (hacer antes de conseguir usuarios)
 
 - [~] **U16.1** Activar PostHog con key real
-  > **Código listo** (main.tsx: init condicional a VITE_POSTHOG_KEY, 13+ eventos instrumentados incluyendo focus_block_cta_clicked).
-  > **Pendiente (manual):** crear proyecto en posthog.com → Settings → Project API key → añadir a `.env`: `VITE_POSTHOG_KEY="phc_xxx"` + var en Vercel/hosting.
-  > **Criterio:** ver eventos llegar al dashboard de PostHog con 1 sesión real.
+  > **Código listo** (main.tsx: init condicional a VITE_POSTHOG_KEY, 13+ eventos instrumentados).
+  > **Pendiente:** `VITE_POSTHOG_KEY` no está en ningún .env. Crear proyecto en posthog.com → añadir key.
 
 - [~] **U16.2** Activar Sentry con DSN real
-  > **Código listo** (main.tsx: Sentry.init con VITE_SENTRY_DSN, enabled: PROD, tracing + replay configurados).
-  > **Pendiente (manual):** crear proyecto React en sentry.io → Settings → Client Keys → DSN → añadir a `.env`: `VITE_SENTRY_DSN="https://xxx@sentry.io/xxx"` + var en Vercel/hosting.
-  > **Criterio:** ver 1 error de prueba llegando al dashboard de Sentry.
+  > **Código listo** (main.tsx: Sentry.init con VITE_SENTRY_DSN).
+  > **Pendiente:** `VITE_SENTRY_DSN` no está en ningún .env. Crear proyecto en sentry.io → añadir DSN.
 
 - [~] **U16.3** Configurar Resend para emails críticos
-  > **Código listo** (send-critical-notifications/index.ts: RESEND_API_KEY, NOTIFICATION_FROM_EMAIL, NOTIFICATION_FROM_NAME, APP_URL).
-  > **Pendiente (manual):** crear cuenta en resend.com → API Keys → ejecutar:
-  > ```
-  > supabase secrets set --project-ref zzxngvqwmnouchbulvlo \
-  >   RESEND_API_KEY="re_xxx" \
-  >   NOTIFICATION_FROM_EMAIL="alertas@tudominio.com" \
-  >   NOTIFICATION_FROM_NAME="Nova Hub" \
-  >   APP_URL="https://tuapp.vercel.app"
-  > ```
-  > **Criterio:** recibir 1 email de prueba de tipo `viability_critical` o `probability_critical`.
+  > **Código listo** (send-critical-notifications/index.ts).
+  > **Pendiente:** `RESEND_API_KEY` no está en Supabase vault. Ejecutar `supabase secrets set`.
 
 ### Bloque B — Adquisición y observación (core de la fase)
 

@@ -28,6 +28,8 @@ import { ProjectTimeline } from './ProjectTimeline';
 import { TeamRecommendation } from './TeamRecommendation';
 import { LeadConversionInsights } from './LeadConversionInsights';
 import { DataCompletenessGuide } from './DataCompletenessGuide';
+import { GraduationCelebration } from './GraduationCelebration';
+import { InvestorSummary } from './InvestorSummary';
 
 interface ProjectStats {
   facturacion?: number;
@@ -103,7 +105,10 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       {/* V24.1-4 / CE25.9 — Phase Roadmap o Cycle Dashboard según graduación */}
       {/* [B3/U3.2] Ocultar PhaseRoadmap completo en Fase 0-1 (abrumador) — solo mostrar en Fase 2+ */}
       {engineData?.phaseState?.graduated ? (
-        <CycleDashboard projectId={project.id} graduated={true} />
+        <>
+          <GraduationCelebration projectName={project.nombre || 'Mi Proyecto'} projectId={project.id} />
+          <CycleDashboard projectId={project.id} graduated={true} />
+        </>
       ) : currentPhase >= 2 ? (
         <PhaseRoadmap engineData={engineData} />
       ) : null}
@@ -301,6 +306,13 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
             />
           )}
           <DataCompletenessGuide projectId={project.id} />
+          {currentPhase >= 2 && (
+            <InvestorSummary
+              projectId={project.id}
+              projectName={project.nombre || 'Mi Proyecto'}
+              engineData={engineData}
+            />
+          )}
           <LeadConversionInsights projectId={project.id} />
           <ProjectTimeline projectId={project.id} />
         </div>

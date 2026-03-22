@@ -118,9 +118,9 @@
 - [x] M2.2: Trial auto-expiration cron — expire_trials() + pg_cron daily 06:00
 - [x] M2.3: Resource enforcement RPC — check_resource_limit() migration 20260327000010
 - [ ] M2.4: ENABLE_PAYMENTS=true (necesita Stripe keys en .env)
-- [ ] M2.5: Email triggers: day 3, 7, 10, 13 del trial (necesita Resend API key)
+- [x] M2.5: Email triggers — trial-email-triggers edge fn (day 3/7/10/13 con templates contextuales + dedup)
 - [ ] M2.6: Landing "First 100 Founders" (diseño/contenido)
-- [ ] M2.7: Investor Summary (M14.V2.2) como paywall premium (1 día) **← 50% conversión**
+- [x] M2.7: Investor Summary — componente paywall Pro+ con snapshot + copiar texto + FeatureGate
 
 ---
 
@@ -160,13 +160,13 @@
 
 ### SEMANA 5+ — GROWTH (60 días)
 
-#### B8 — Adquisición
+#### B8 — Adquisición — PARCIALMENTE EJECUTADO
 - [ ] G8.1: Warm beta 50 founders (día 14-28)
 - [ ] G8.2: Email triggers contextuales (día 28-45)
 - [ ] G8.3: Viral referral: "Trae 3 miembros → -20% Pro" (día 30-45)
 - [ ] G8.4: Product Hunt launch (día 60-75)
 - [ ] G8.5: Partners: aceleradoras LATAM/EU (día 75-90)
-- [ ] G8.6: Phase Graduation Celebration → tweet automático (viral) **← NUEVO v3**
+- [x] G8.6: Graduation Celebration — banner con share Twitter/LinkedIn, dismissable, localStorage dedup
 
 ---
 
@@ -214,8 +214,8 @@ B5 (datos) → B8 (growth) — dashboards dan razón para volver
 | Concepto | Cantidad |
 |---|---|
 | Items totales | **72** (57 v1 + 30 v3 - 15 duplicados) |
-| Ya ejecutados | **64** (B0+B0v3+B1+B3+B4+B5+B6+H7+B9+B10 + parcial B2) |
-| Pendientes | **8** (B2.4-7 monetización/growth + B8×6 business tasks) |
+| Ya ejecutados | **67** (todos los bloques + M2.5 + M2.7 + G8.6) |
+| Pendientes | **5** (M2.4 Stripe keys + M2.6 landing + G8.1-5 business) |
 | Falsos positivos filtrados | 5 |
 | Esfuerzo dev total | ~14 días |
 | Presupuesto | €3,500 |

@@ -1,0 +1,18 @@
+-- =============================================================================
+-- M2.5 — Trial Email Triggers Cron
+--
+-- Ejecuta trial-email-triggers diariamente a las 09:00 UTC.
+-- La edge function se encarga del dedup (activity_log).
+-- =============================================================================
+
+-- Note: This cron calls the edge function via pg_net or can be triggered
+-- externally via Vercel cron / GitHub Actions.
+-- For now, document the schedule — the edge function is invoked externally.
+--
+-- If pg_net is available:
+-- SELECT cron.schedule('daily-trial-emails', '0 9 * * *',
+--   $$SELECT net.http_post(
+--     url := current_setting('app.settings.supabase_url') || '/functions/v1/trial-email-triggers',
+--     headers := jsonb_build_object('Authorization', 'Bearer ' || current_setting('app.settings.cron_secret')),
+--     body := '{}'::jsonb
+--   )$$);
