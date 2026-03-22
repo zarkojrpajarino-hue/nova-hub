@@ -176,8 +176,8 @@ serve(async (req) => {
         }
       );
     } catch (executionError) {
-          if (error instanceof Response) return error;
-// Error en la ejecución
+      if (executionError instanceof Response) return executionError;
+      // Error en la ejecución
       await supabaseClient
         .from('ai_task_executions')
         .update({

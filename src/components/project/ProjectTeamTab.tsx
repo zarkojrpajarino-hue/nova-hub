@@ -47,8 +47,8 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
             </Button>
             <ProjectLifecycleActions
               projectId={project.id}
-              isPaused={!!(project as Record<string, unknown>).paused_at}
-              isArchived={!!(project as Record<string, unknown>).archived_at}
+              isPaused={!!project.paused_at}
+              isArchived={!!project.archived_at}
             />
           </div>
         </div>

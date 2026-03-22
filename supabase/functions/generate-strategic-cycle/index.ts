@@ -201,7 +201,7 @@ REGLAS:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
+        model: 'claude-3-5-sonnet-20241022',  // [B6] Downgrade: de Sonnet 4 a 3.5, suficiente para OKRs
         max_tokens: 2000,
         system: systemPrompt,
         messages: [{

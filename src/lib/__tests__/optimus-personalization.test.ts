@@ -22,20 +22,20 @@ function derivePreferences(s: FeedbackSummary) {
 
   // Depth
   let depth = 'equilibrado';
-  if (s.too_obvious / s.total > 0.5) depth = 'detallado';
-  // >70% thumbs UP (total - down) → concise is working
-  else if ((s.total - s.down) / s.total > 0.7) depth = 'conciso';
+  if (s.too_obvious / s.total > 0.35) depth = 'detallado';
+  // >55% thumbs UP (total - down) → concise is working
+  else if ((s.total - s.down) / s.total > 0.55) depth = 'conciso';
 
   // Risk
   let risk = 'moderado';
-  if (s.disagree / s.total > 0.3) risk = 'conservador';
+  if (s.disagree / s.total > 0.25) risk = 'conservador';
   else if (s.disagree / s.total < 0.1 && s.down / s.total < 0.2) risk = 'agresivo';
 
   // Style
   let style = 'default';
-  if (s.not_actionable / s.total > 0.4) style = 'más específico';
-  else if (s.wrong_context / s.total > 0.3) style = 'más estratégico';
-  else if (s.too_obvious / s.total > 0.3 && s.not_actionable / s.total < 0.2) style = 'más motivacional';
+  if (s.not_actionable / s.total > 0.30) style = 'más específico';
+  else if (s.wrong_context / s.total > 0.25) style = 'más estratégico';
+  else if (s.too_obvious / s.total > 0.25 && s.not_actionable / s.total < 0.2) style = 'más motivacional';
 
   return { depth, risk, style };
 }
@@ -77,8 +77,8 @@ describe('OP28.1 — compute_optimus_profile logic', () => {
   });
 
   it('derives defaults when no strong signal', () => {
-    // 10 total, 4 down → 60% up (not >70%), spread categories (none >30-50%)
-    const result = derivePreferences({ total: 10, down: 4, too_obvious: 1, not_actionable: 1, wrong_context: 1, disagree: 1, helpful: 0 });
+    // 10 total, 5 down → 50% up (not >55%), spread categories (none >25-35%)
+    const result = derivePreferences({ total: 10, down: 5, too_obvious: 1, not_actionable: 1, wrong_context: 1, disagree: 2, helpful: 0 });
     expect(result?.depth).toBe('equilibrado');
     expect(result?.risk).toBe('moderado');
     expect(result?.style).toBe('default');

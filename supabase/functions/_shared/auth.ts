@@ -55,6 +55,45 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
 }
 
 /**
+ * B1 — Verifies that the authenticated user is a member of the given project.
+ * Uses service client to bypass RLS (checks project_members directly).
+ * Throws Response(403) if not a member.
+ */
+export async function verifyProjectMembership(
+  serviceClient: ReturnType<typeof createClient>,
+  userId: string,
+  projectId: string,
+  origin: string | null
+): Promise<void> {
+  const { data: profile } = await serviceClient
+    .from('profiles')
+    .select('id')
+    .eq('auth_id', userId)
+    .single();
+
+  if (!profile) {
+    throw new Response(
+      JSON.stringify({ error: 'User profile not found' }),
+      { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+    );
+  }
+
+  const { data: membership } = await serviceClient
+    .from('project_members')
+    .select('id')
+    .eq('project_id', projectId)
+    .eq('member_id', profile.id)
+    .maybeSingle();
+
+  if (!membership) {
+    throw new Response(
+      JSON.stringify({ error: 'Not a member of this project' }),
+      { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+    );
+  }
+}
+
+/**
  * Validates auth AND verifies the user_id in the body matches the authenticated user.
  * Prevents users from impersonating others in API calls.
  */

@@ -20,7 +20,7 @@
 > | FASE 9 — Contenido y playbooks | ✅ CERRADA v1 8/8 + 2 v2 pendientes | |
 > | FASE 10 — Strategic Reset | ✅ CERRADA v1 5/5 + 2 v2 pendientes | |
 > | FASE 11 — Features por fase | ✅ CERRADA v1 10/10 + 2 v2 pendientes | PostHog instalado, VITE_POSTHOG_KEY pendiente |
-> | FASE 12 — Sistemas avanzados | ⏸ POST-MVP 0/8 | No bloquea lanzamiento |
+> | FASE 12 — Sistemas avanzados | ✅ CERRADA 8/8 | Pausar/archivar, timeline, member removal |
 > | FASE 13 — Edge Cases | ✅ CERRADA v1 8/10 + 2 v2 pendientes | EC13.5 + EC13.9 diferidos con criterio |
 > | FASE 14 — Monetización | ⏸ POST-VALIDACIÓN 0/5 + 1 v2 pendiente | Solo tras usuarios validados |
 > | FASE 15 — Integraciones y agentes | ✅ CERRADA v1 (2026-03-18) + 2 v2 pendientes | 4 providers · 4 agentes · motor writes en prod |

@@ -112,11 +112,11 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       />
 
       {/* Layout: Sidebar + Main Content */}
-      <div className="grid grid-cols-12 gap-6">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Content */}
-        <div className="col-span-9 space-y-6">
+        <div className="lg:col-span-9 space-y-6">
           {/* Stats Grid — F19.C.5: adaptadas por fase (no mostrar €0 en fases tempranas) */}
-          <div className="grid grid-cols-5 gap-4">
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {phaseStats.includes('total_obvs' as PhaseStatKey) && (
               <StatCard icon={FileCheck} value={totalOBVs} label="OBVs" progress={0} color="#6366F1" delay={1} />
             )}
@@ -258,7 +258,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         </div>
 
         {/* Sidebar */}
-        <div className="col-span-3 space-y-4">
+        <div className="lg:col-span-3 space-y-4">
           <ProjectEnginePanel
             projectId={project.id}
             engineData={engineData}

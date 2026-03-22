@@ -41,6 +41,10 @@ export interface Project {
   icon: string;
   color: string;
   created_at: string;
+  created_by?: string | null;
+  paused_at?: string | null;
+  archived_at?: string | null;
+  deleted_at?: string | null;
 }
 
 export interface ProjectMemberWithProfile {
