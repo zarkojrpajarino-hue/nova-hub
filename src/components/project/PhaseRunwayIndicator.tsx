@@ -5,8 +5,8 @@
  * Integrado en PhaseRoadmap (sección expandida).
  */
 
-import { Clock, TrendingUp, AlertTriangle, CheckCircle2 } from 'lucide-react';
-import { estimatePhaseRunway, type PhaseRunwayInput, type PhaseRunwayEstimate } from '@/lib/phase-runway-estimator';
+import { Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
+import { estimatePhaseRunway, type PhaseRunwayInput } from '@/lib/phase-runway-estimator';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
 interface PhaseRunwayIndicatorProps {

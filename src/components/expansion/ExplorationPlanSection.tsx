@@ -5,8 +5,7 @@
  * Día a día: actividades, coste, hipótesis a validar.
  */
 
-import { X, MapPin, Calendar, Lightbulb } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { MapPin, Calendar, Lightbulb } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import type { ExpansionMarket } from './ExpansionMarketCard';
 

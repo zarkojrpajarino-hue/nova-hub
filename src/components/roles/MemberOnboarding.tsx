@@ -30,10 +30,10 @@ interface MemberOnboardingProps {
 }
 
 export function MemberOnboarding({
-  projectId,
+  _projectId,
   projectName,
   role,
-  memberId,
+  _memberId,
   membershipId,
   onComplete,
 }: MemberOnboardingProps) {

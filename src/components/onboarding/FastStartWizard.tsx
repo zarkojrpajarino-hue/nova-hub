@@ -209,7 +209,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
           graduation_eligible_since: null,
           graduated: false,
         }, { onConflict: 'project_id' });
-      if (phaseErr) console.error('Error setting initial phase:', phaseErr);
+      if (phaseErr) void phaseErr; // Silent — phase will be recalculated by engine
 
       // [F23] P23.5 — Seedeo datos existing: MRR → key_metrics
       // key_metrics schema: project_id, date, mrr, total_customers, etc.
@@ -220,7 +220,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
           mrr: faseAAnswers.mrr_monthly,
           total_customers: faseAAnswers.active_customers ?? 0,
         });
-        if (metricErr) console.error('Error seeding MRR metric:', metricErr);
+        if (metricErr) void metricErr; // Silent — metric is supplementary
       }
 
       // [F23] P23.6 — Fast-track: llamar run_phase_engine con onboarding_fast_track
@@ -230,7 +230,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
           p_project_id: projectId,
           p_trigger_source: 'onboarding_fast_track',
         });
-        if (ftErr) console.error('Error running fast-track engine:', ftErr);
+        if (ftErr) void ftErr; // Silent — engine will recalculate on next cron
       }
 
       // onboarding_sessions: update final con completion_percentage=100

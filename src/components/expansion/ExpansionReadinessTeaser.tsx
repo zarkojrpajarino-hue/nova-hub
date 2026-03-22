@@ -9,7 +9,6 @@
 import { CheckCircle2, Circle, Globe, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useExpansionReadiness } from '@/hooks/useExpansionReadiness';
-import type { ExpansionReadinessState } from '@/lib/expansion-readiness-engine';
 
 interface ExpansionReadinessTeaserProps {
   projectId: string;

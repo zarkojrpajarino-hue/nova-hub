@@ -1,6 +1,7 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { TaskCompletionDialog } from './TaskCompletionDialog';
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -8,12 +9,20 @@ vi.mock('@/integrations/supabase/client', () => ({
     functions: {
       invoke: vi.fn(() => Promise.resolve({ data: null, error: null })),
     },
+    from: () => ({
+      select: () => ({ eq: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }), order: () => ({ limit: () => ({ maybeSingle: () => Promise.resolve({ data: null, error: null }) }) }) }) }),
+      insert: () => Promise.resolve({ data: null, error: null }),
+      update: () => ({ eq: () => Promise.resolve({ data: null, error: null }) }),
+    }),
+    auth: { getSession: () => Promise.resolve({ data: { session: null } }) },
   },
 }));
 
 vi.mock('sonner', () => ({
   toast: { success: vi.fn(), error: vi.fn() },
 }));
+
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
 describe('TaskCompletionDialog', () => {
   const mockTask = {
@@ -24,6 +33,7 @@ describe('TaskCompletionDialog', () => {
   };
 
   const renderComponent = () => render(
+    <QueryClientProvider client={queryClient}>
     <MemoryRouter>
       <TaskCompletionDialog
         open={true}
@@ -32,6 +42,7 @@ describe('TaskCompletionDialog', () => {
         onComplete={vi.fn()}
       />
     </MemoryRouter>
+    </QueryClientProvider>
   );
 
   it('renders dialog title', () => {
