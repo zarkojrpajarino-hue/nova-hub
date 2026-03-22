@@ -34,6 +34,18 @@ export async function validateAuth(req: Request): Promise<AuthResult> {
   const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
   const serviceRoleKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
+  // Check if the caller is using the service_role key (cron/internal calls)
+  const token = authHeader.replace('Bearer ', '');
+  if (token === serviceRoleKey) {
+    const serviceClient = createClient(supabaseUrl, serviceRoleKey);
+    // Service role calls use a synthetic user with id 'service_role'
+    return {
+      user: { id: 'service_role', email: 'cron@internal' },
+      supabaseClient: serviceClient,
+      serviceClient,
+    };
+  }
+
   // Client using user's JWT (respects RLS)
   const supabaseClient = createClient(supabaseUrl, supabaseAnonKey, {
     global: { headers: { Authorization: authHeader } },

@@ -57,7 +57,18 @@ Deno.serve(async (req) => {
   let sync_run_id: string | null = null
 
   try {
-    await validateAuth(req)
+    // Allow service_role key for cron/internal calls
+    // Decode JWT payload to check role claim instead of comparing raw keys
+    const authToken = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    let isServiceRole = false
+    try {
+      const payload = JSON.parse(atob(authToken.split('.')[1] ?? ''))
+      isServiceRole = payload?.role === 'service_role'
+    } catch { /* not a valid JWT — will fail validateAuth below */ }
+
+    if (!isServiceRole) {
+      await validateAuth(req)
+    }
     const { project_id, connection_id } = await req.json()
 
     if (!project_id || !connection_id) {
