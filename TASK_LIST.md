@@ -1304,7 +1304,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 16 — ADQUISICIÓN Y VALIDACIÓN CON USUARIOS REALES 🔄 ACTIVA 0/6
+## FASE 16 — ADQUISICIÓN Y VALIDACIÓN CON USUARIOS REALES 🔄 ACTIVA 3/6
 > **Esta es la fase activa real a 2026-03-18.**
 > El producto está construido y validado técnicamente. El siguiente bloqueo no es de código — es de datos.
 > Sin usuarios reales no se puede calibrar notificaciones, validar onboarding, ni activar PostHog/Sentry.
@@ -1314,17 +1314,14 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque A — Infraestructura de observabilidad (hacer antes de conseguir usuarios)
 
-- [~] **U16.1** Activar PostHog con key real
-  > **Código listo** (main.tsx: init condicional a VITE_POSTHOG_KEY, 13+ eventos instrumentados).
-  > **Pendiente:** `VITE_POSTHOG_KEY` no está en ningún .env. Crear proyecto en posthog.com → añadir key.
+- [x] **U16.1** Activar PostHog con key real
+  > ✅ Key en `.env`: `phc_S1tWyeIgWkkp19IecJtsu8ZjREQiY53S1zg7CK25DYx`. Verificar en Vercel/hosting.
 
-- [~] **U16.2** Activar Sentry con DSN real
-  > **Código listo** (main.tsx: Sentry.init con VITE_SENTRY_DSN).
-  > **Pendiente:** `VITE_SENTRY_DSN` no está en ningún .env. Crear proyecto en sentry.io → añadir DSN.
+- [x] **U16.2** Activar Sentry con DSN real
+  > ✅ DSN en `.env`: `623a114c...sentry.io/4511076487659600`. Verificar en Vercel/hosting.
 
-- [~] **U16.3** Configurar Resend para emails críticos
-  > **Código listo** (send-critical-notifications/index.ts).
-  > **Pendiente:** `RESEND_API_KEY` no está en Supabase vault. Ejecutar `supabase secrets set`.
+- [x] **U16.3** Configurar Resend para emails críticos
+  > ✅ Configurado en Supabase secrets: RESEND_API_KEY + NOTIFICATION_FROM_EMAIL + NOTIFICATION_FROM_NAME + APP_URL.
 
 ### Bloque B — Adquisición y observación (core de la fase)
 

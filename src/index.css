@@ -1,4 +1,4 @@
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@500;600;700;800&family=Inter:wght@300;400;500;600;700&display=swap');
 @import './styles/enterprise.css';
 
 @tailwind base;
@@ -7,41 +7,48 @@
 
 @layer base {
   :root {
-    --background: 240 6% 6%;
-    --foreground: 0 0% 98%;
+    /* Optimus-K Brand Palette (from Canva identity)
+       #0D0A1A → deep violet-black (background)
+       #2E1065 → violet-950 (cards, sidebar)
+       #7C3AED → violet-600 (primary)
+       #C4B5FD → violet-300 (muted text, badges)
+       #F5F3FF → violet-50 (light surfaces) */
 
-    --card: 240 5% 10%;
-    --card-foreground: 0 0% 98%;
+    --background: 252 33% 7%;
+    --foreground: 257 100% 98%;
 
-    --popover: 240 5% 10%;
-    --popover-foreground: 0 0% 98%;
+    --card: 260 40% 12%;
+    --card-foreground: 257 100% 98%;
 
-    --primary: 239 84% 67%;
+    --popover: 260 40% 12%;
+    --popover-foreground: 257 100% 98%;
+
+    --primary: 263 70% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 240 4% 16%;
-    --secondary-foreground: 0 0% 98%;
+    --secondary: 260 30% 16%;
+    --secondary-foreground: 257 100% 98%;
 
-    --muted: 240 4% 16%;
-    --muted-foreground: 240 5% 55%;
+    --muted: 260 25% 18%;
+    --muted-foreground: 263 53% 85%;
 
-    --accent: 240 4% 16%;
-    --accent-foreground: 0 0% 98%;
+    --accent: 260 30% 16%;
+    --accent-foreground: 257 100% 98%;
 
     --destructive: 0 72% 51%;
     --destructive-foreground: 0 0% 98%;
 
-    --border: 240 4% 16%;
-    --input: 240 4% 16%;
-    --ring: 239 84% 67%;
+    --border: 260 25% 18%;
+    --input: 260 25% 18%;
+    --ring: 263 70% 58%;
 
-    --radius: 0.75rem;
+    --radius: 0.625rem;
 
-    /* Nova Design System */
-    --nova-gradient: linear-gradient(135deg, hsl(239 84% 67%) 0%, hsl(270 91% 65%) 100%);
-    --nova-gradient-subtle: linear-gradient(135deg, hsl(239 84% 67% / 0.15) 0%, hsl(270 91% 65% / 0.1) 100%);
-    --nova-glow: 0 0 30px hsl(239 84% 67% / 0.3);
-    
+    /* Optimus-K Design System */
+    --nova-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%);
+    --nova-gradient-subtle: linear-gradient(135deg, hsl(263 70% 58% / 0.12) 0%, hsl(280 70% 60% / 0.08) 100%);
+    --nova-glow: 0 0 24px hsl(263 70% 58% / 0.25);
+
     /* Status Colors */
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
@@ -49,24 +56,24 @@
     --warning-foreground: 0 0% 0%;
     --info: 217 91% 60%;
     --info-foreground: 0 0% 100%;
-    
+
     /* Role Colors */
     --role-sales: 0 72% 51%;
     --role-finance: 38 92% 50%;
     --role-tech: 217 91% 60%;
     --role-marketing: 330 81% 60%;
     --role-operations: 142 71% 45%;
-    --role-strategy: 270 91% 65%;
+    --role-strategy: 263 70% 58%;
 
     /* Sidebar */
-    --sidebar-background: 240 5% 8%;
-    --sidebar-foreground: 0 0% 98%;
-    --sidebar-primary: 239 84% 67%;
+    --sidebar-background: 252 40% 5%;
+    --sidebar-foreground: 257 100% 98%;
+    --sidebar-primary: 263 70% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 4% 14%;
-    --sidebar-accent-foreground: 0 0% 98%;
-    --sidebar-border: 240 4% 14%;
-    --sidebar-ring: 239 84% 67%;
+    --sidebar-accent: 260 30% 14%;
+    --sidebar-accent-foreground: 257 100% 98%;
+    --sidebar-border: 260 25% 14%;
+    --sidebar-ring: 263 70% 58%;
   }
 }
 
@@ -78,6 +85,13 @@
   body {
     @apply bg-background text-foreground font-sans antialiased;
     font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  h1, h2, h3, h4, .font-display {
+    font-family: 'Plus Jakarta Sans', 'Inter', sans-serif;
+    letter-spacing: -0.025em;
   }
 
   /* Custom scrollbar */
@@ -113,7 +127,7 @@
   }
 
   .nova-border {
-    border: 1px solid hsl(239 84% 67% / 0.3);
+    border: 1px solid hsl(263 70% 58% / 0.25);
   }
 
   .glass {
@@ -133,8 +147,8 @@
   }
 
   @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px hsl(239 84% 67% / 0.2); }
-    50% { box-shadow: 0 0 40px hsl(239 84% 67% / 0.4); }
+    0%, 100% { box-shadow: 0 0 20px hsl(263 70% 58% / 0.2); }
+    50% { box-shadow: 0 0 40px hsl(263 70% 58% / 0.35); }
   }
 
   .animate-fade-in {
