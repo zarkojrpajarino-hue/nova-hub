@@ -17,6 +17,7 @@ import {
   type TaskEntityRow,
   type ExecutionInsightData,
 } from '@/lib/execution-agent'
+import { hasSignificantValueChange, extractSignalValue } from '@/lib/agent-antispam'
 
 export interface RunExecutionAgentResult {
   insights_emitted:      number
@@ -99,24 +100,54 @@ export async function runExecutionAgent(
     return { insights_emitted: 0, insights_skipped_dedup: 0, insight_types: [] }
   }
 
-  // ── 4. Anti-spam: excluir tipos que aún no han expirado (§10) ───────────────
+  // ── 4. Anti-spam §10: TTL + 15% value-change threshold ─────────────────────
   const candidateTypes = candidates.map((c) => c.insight_type)
   const now = new Date().toISOString()
 
   const { data: existing } = await supabase
     .from('integration_insights')
-    .select('insight_type')
+    .select('id, insight_type, payload')
     .eq('project_id', projectId)
     .eq('agent_type', 'execution')
     .in('insight_type', candidateTypes)
     .gt('expires_at', now)
+    .order('generated_at', { ascending: false })
 
-  const existingTypes = new Set((existing ?? []).map((r: { insight_type: string }) => r.insight_type))
-  const toEmit = candidates.filter((c) => !existingTypes.has(c.insight_type))
+  const latestByType = new Map<string, { id: string; payload: Record<string, unknown> | null }>()
+  for (const row of existing ?? []) {
+    if (!latestByType.has(row.insight_type)) {
+      latestByType.set(row.insight_type, { id: row.id, payload: row.payload as Record<string, unknown> | null })
+    }
+  }
+
+  const toEmit: ExecutionInsightData[] = []
+  const idsToExpire: string[] = []
+
+  for (const candidate of candidates) {
+    const prev = latestByType.get(candidate.insight_type)
+    if (!prev) {
+      toEmit.push(candidate)
+    } else {
+      const prevValue = extractSignalValue(prev.payload)
+      const currValue = candidate.signal.current_value
+      if (prevValue !== null && hasSignificantValueChange(currValue, prevValue)) {
+        toEmit.push(candidate)
+        idsToExpire.push(prev.id)
+      }
+    }
+  }
+
   const skipped = candidates.length - toEmit.length
 
   if (toEmit.length === 0) {
     return { insights_emitted: 0, insights_skipped_dedup: skipped, insight_types: [] }
+  }
+
+  if (idsToExpire.length > 0) {
+    await supabase
+      .from('integration_insights')
+      .update({ expires_at: now })
+      .in('id', idsToExpire)
   }
 
   // ── 5. Insertar insights nuevos ──────────────────────────────────────────────

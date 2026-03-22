@@ -260,17 +260,53 @@ serve(async (req) => {
       console.error('Error updating meeting status:', updateError);
     }
 
-    // 9. M18.4 — run_phase_engine si se crearon tasks o se actualizaron OBVs
+    // 9. AUD.C.3 — Motor writes post-meeting-insights
+    // phase_engine: tasks o OBV updates (inputs directos al motor de fase)
+    // probability_engine: decisiones estratégicas validadas (engineEligible = high + no degradadas)
+    // risk_engine: blockers aplicados + decisiones estratégicas
+    const projectId = (meeting as MeetingRecord).project_id;
+
     if (results.tasks > 0 || results.obv_updates > 0) {
       try {
         await supabase.rpc('run_phase_engine', {
-          p_project_id:     (meeting as MeetingRecord).project_id,
+          p_project_id:     projectId,
           p_trigger_source: 'meeting_intelligence',
         });
         console.log('✅ run_phase_engine triggered (meeting_intelligence)');
       } catch (engineErr) {
-        // No fatal — el motor se recalcula en el próximo job semanal
-        console.error('Error triggering run_phase_engine:', engineErr);
+        console.error('run_phase_engine failed (non-fatal):', engineErr);
+      }
+    }
+
+    // Decisiones estratégicas validadas: engineEligible filtrado a type='decision'
+    // (engineEligible puede incluir blockers críticos o metrics — filtrar para no confundir triggers)
+    const strategicDecisionsEligible = engineEligible.filter(i => i.insight_type === 'decision');
+    if (strategicDecisionsEligible.length > 0) {
+      try {
+        await supabase.rpc('run_probability_engine', {
+          p_project_id:     projectId,
+          p_trigger_source: 'meeting_strategic_decision',
+        });
+        await supabase.rpc('run_risk_engine', {
+          p_project_id:     projectId,
+          p_trigger_source: 'meeting_strategic_decision',
+        });
+        console.log(`✅ run_probability + run_risk triggered (meeting_strategic_decision, ${strategicDecisionsEligible.length} high-impact decisions)`);
+      } catch (engineErr) {
+        console.error('Engine writes for strategic decision failed (non-fatal):', engineErr);
+      }
+    }
+
+    // Blockers aplicados → ejecución en riesgo → risk engine
+    if (results.blockers > 0) {
+      try {
+        await supabase.rpc('run_risk_engine', {
+          p_project_id:     projectId,
+          p_trigger_source: 'meeting_blocker_applied',
+        });
+        console.log(`✅ run_risk_engine triggered (meeting_blocker_applied, ${results.blockers} blockers)`);
+      } catch (engineErr) {
+        console.error('run_risk_engine for blockers failed (non-fatal):', engineErr);
       }
     }
 

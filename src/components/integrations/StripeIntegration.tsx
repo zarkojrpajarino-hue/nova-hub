@@ -18,8 +18,7 @@ import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 
-const FUNCTIONS_URL = 'https://zzxngvqwmnouchbulvlo.supabase.co/functions/v1'
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp6eG5ndnF3bW5vdWNoYnVsdmxvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE5MDkyNDEsImV4cCI6MjA4NzQ4NTI0MX0.u0bzjhkbHrijmuvKecdRsdxYN4qn43g1fhayP7SiOvs'
+import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 import { SyncBanner } from './SyncBanner'
 import { SyncHealthCard } from './SyncHealthCard'
 import { ApiKeyGuide } from './ApiKeyGuide'
@@ -197,7 +196,9 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
       setSyncResult(data as SyncResult)
       setHasPriorSync(true)  // I15.65: oculta el tutorial post-conexión tras primer sync exitoso
       // Invalidar query de sync_runs para que SyncHealthCard muestre el run recién completado
-      void queryClient.invalidateQueries({ queryKey: ['sync_runs', connectionId] })
+      // I15.DEBT.4: usar connId (ya resuelve overrideConnectionId) en lugar de connectionId
+      // del state (puede no estar actualizado si sync se lanza inmediatamente tras connect)
+      void queryClient.invalidateQueries({ queryKey: ['sync_runs', connId] })
       // mrr viene en CENTAVOS — dividir por 100 para mostrar en euros
       const mrrEuros = data.mrr != null ? (data.mrr / 100).toFixed(2) : '0.00'
       toast.success(`Sync completado — ${data.entities_synced} suscripciones, MRR €${mrrEuros}`)

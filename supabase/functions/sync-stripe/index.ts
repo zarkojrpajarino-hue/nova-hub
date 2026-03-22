@@ -140,7 +140,11 @@ Deno.serve(async (req) => {
     const ctx = { connection_id, sync_run_id, project_id, source_timestamp: now }
     const entityIds: string[] = []
     const acceptedEntities: ContractEntity[] = []
-    let entitiesRejected = 0
+    // I15.DEBT.2: solo entidades cuyo upsert fue exitoso contribuyen al MRR.
+    // acceptedEntities = normalizadas en memoria; persistedEntities = confirmadas en DB.
+    const persistedEntities: ContractEntity[] = []
+    let entitiesRejected = 0      // normalization failures
+    let entitiesUpsertFailed = 0  // AUD.B.7: normalizadas pero no persistidas en DB
 
     for (const raw of rawSubscriptions) {
       // Normalización pura — Stripe payload → ContractEntity
@@ -180,16 +184,20 @@ Deno.serve(async (req) => {
 
       if (!entityError && inserted) {
         entityIds.push(inserted.id)
+        persistedEntities.push(entity)  // I15.DEBT.2: solo contar si persistió en DB
+      } else if (entityError) {
+        entitiesUpsertFailed++  // AUD.B.7: contar pérdidas de DB para is_partial
       }
     }
 
     // ──────────────────────────────────────────────────────────────────────────
     // Paso 6: Finance Agent — sumar mrr_contribution (CENTAVOS/mes)
     //
-    // Usa acceptedEntities ya normalizadas en Paso 5 — sin doble cómputo.
-    // Cierra I15.DEBT.1.
+    // I15.DEBT.2 resuelto: usa persistedEntities (upsert confirmado en DB)
+    // en lugar de acceptedEntities (solo normalizadas en memoria).
+    // Esto garantiza que el MRR escrito en key_metrics ≡ entidades en integration_entities.
     // ──────────────────────────────────────────────────────────────────────────
-    const totalMrrCents = acceptedEntities.reduce(
+    const totalMrrCents = persistedEntities.reduce(
       (sum, entity) => sum + entity.payload.mrr_contribution,
       0
     )
@@ -233,7 +241,8 @@ Deno.serve(async (req) => {
     //          todavía 'running') en lugar de cliente (que no tiene acceso service_role).
     // ──────────────────────────────────────────────────────────────────────────
     // Filtrar suscripciones activas con customer_id (min 3 para que la concentración tenga sentido)
-    const activeWithCustomer = acceptedEntities.filter(
+    // I15.DEBT.2: usar persistedEntities — solo entidades confirmadas en DB
+    const activeWithCustomer = persistedEntities.filter(
       (e) => (e.payload.status === 'active' || e.payload.status === 'trialing') && e.payload.customer_id
     )
 
@@ -299,15 +308,21 @@ Deno.serve(async (req) => {
 
     // ──────────────────────────────────────────────────────────────────────────
     // Paso 11: Actualizar sync_run con resultado final
+    // AUD.B.7: is_partial = true si algún upsert falló O si el motor write falló.
+    // Esto da feedback real al usuario (SyncHealthCard muestra "Parcial") y al motor.
     // ──────────────────────────────────────────────────────────────────────────
+    const isPartial = entitiesUpsertFailed > 0
+      || (write_status !== 'written' && write_status !== 'duplicate_skipped')
+
     await serviceClient
       .from('integration_sync_runs')
       .update({
         status:             'completed',
+        is_partial:         isPartial,
         entities_processed: rawSubscriptions.length,
         entities_written:   write_status === 'written'          ? 1 : 0,
         entities_skipped:   write_status === 'duplicate_skipped' ? 1 : 0,
-        entities_rejected:  entitiesRejected,
+        entities_rejected:  entitiesRejected + entitiesUpsertFailed,
         retry_count:        retryCount,
         post_engine_snapshot: postSnapshot ?? null,
         completed_at:       new Date().toISOString(),

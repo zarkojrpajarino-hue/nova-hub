@@ -56,7 +56,7 @@ Estados: `[x]` hecho · `[~]` en curso · `[!]` diferido · `[ ]` pendiente
 
 - Leer archivos antes de modificarlos. Verificar nombres de columnas, enums y escalas en migraciones antes de escribir código.
 - **Nunca simplificar una spec en silencio.** Si el usuario especifica N condiciones y se implementan menos de N, señalarlo explícitamente antes de escribir código — no después. Toda omisión o simplificación debe ser una decisión explícita acordada, no una decisión interna.
-- **Los agujeros se arreglan, no se declaran y se olvidan.** Si al cerrar un bloque/tarea se detecta un agujero real (bug, columna asumida, comportamiento incorrecto): corregirlo en el mismo bloque. Si no es posible (requiere más contexto o es una limitación de diseño v1 consciente), anotarlo en `TASK_LIST.md` como tarea `[ ]` del **Bloque DEUDA** de la fase actual. Al final de cada fase, antes de cerrarla, existe un **Bloque DEUDA** que resuelve todos los agujeros acumulados. La fase no se cierra hasta que el Bloque DEUDA esté `[x]`.
+- **Los agujeros bloquean el avance — sin excepciones.** Al terminar cualquier tarea, si se detecta un agujero real (bug, columna incorrecta, comportamiento incorrecto, caso no cubierto): la tarea NO se marca `[x]` y NO se pasa a la siguiente hasta que el agujero esté resuelto. No existe "lo anoto y sigo". La única excepción es una limitación de diseño consciente que requiere datos o contexto aún no disponible (p.ej. "requiere usuarios reales") — en ese caso, se documenta explícitamente por qué NO puede resolverse ahora y se anota en el **Bloque DEUDA** de la fase. El Bloque DEUDA se resuelve antes de cerrar la fase. Si no se puede justificar por qué no puede resolverse ahora, se resuelve antes de continuar.
 
 ### Norma: bases de una fase
 
@@ -133,6 +133,7 @@ Estados: `[x]` hecho · `[~]` en curso · `[!]` diferido · `[ ]` pendiente
 
 Motor de fases para proyectos startup. Migraciones SQL en `supabase/migrations/`.
 Especificación autoritativa: `ENGINE_SPEC_V1.md`.
-Fuente de verdad de fase: `project_phase_state.current_phase` (SMALLINT 1–4), no `projects.fase` (ENUM legacy).
+Fuente de verdad de fase: `project_phase_state.current_phase` (SMALLINT 0–4), no `projects.fase` (ENUM legacy).
+Phase 0 = Exploración (pre-idea). Campos adicionales: `entry_mode`, `graduated`, `graduation_eligible_since`.
 Constantes de UI compartidas: `src/lib/engine.ts`.
 Hook principal con phase_state: `useProjects()` en `src/hooks/useNovaDataOptimized.ts` — queryKey `['projects', 'with-phase-state']`.

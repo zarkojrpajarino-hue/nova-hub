@@ -1,8 +1,9 @@
 /**
  * HOLDED INTEGRATION
  *
- * Componente para configurar integración con Holded
- * Conecta con edge function: auto-sync-finances
+ * Componente para configurar integración con Holded.
+ * Pendiente reescritura completa con patrón I15:
+ * connect-holded → integration_connections + pgcrypto + sync-holded → integration_entities
  */
 
 import { useState } from 'react';

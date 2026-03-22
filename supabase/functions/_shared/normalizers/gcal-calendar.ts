@@ -5,6 +5,7 @@
  * Sin efectos secundarios. Sin llamadas a DB ni a APIs externas.
  *
  * Hard rejects (antes de schema_score):
+ *   status === 'cancelled'       → null  ← I15.DEBT.3: eventos cancelados no son señal de agenda
  *   external_id ausente          → null
  *   title (summary) vacío/null   → null
  *   start.dateTime ausente       → null  ← cubre all-day events (solo tienen start.date)
@@ -134,6 +135,7 @@ interface RawGCalEvent {
 // normalizeGCalEvent — función principal exportada
 //
 // Devuelve ContractEntity o null si:
+//   - status === 'cancelled' (I15.DEBT.3 — evento cancelado no es señal de agenda)
 //   - external_id ausente
 //   - title (summary) vacío/null
 //   - start.dateTime ausente (all-day o malformado)
@@ -145,6 +147,9 @@ export function normalizeGCalEvent(
   raw: RawGCalEvent,
   ctx: SyncContext
 ): ContractEntity | null {
+  // Hard guard 0 (I15.DEBT.3): eventos cancelados no representan actividad de agenda real
+  if (raw.status === 'cancelled') return null
+
   // Hard guard 1: external_id requerido
   if (!raw.id) return null
 
