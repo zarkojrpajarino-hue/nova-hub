@@ -98,9 +98,10 @@ function getOperationalAction(monetization: MonetizationType) {
 
 interface FirstStepsPanelProps {
   projectId: string;
+  onNavigateToTab?: (tab: string) => void;
 }
 
-export function FirstStepsPanel({ projectId }: FirstStepsPanelProps) {
+export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelProps) {
   const [visible, setVisible] = useState<boolean | null>(null); // null = cargando
   const [data, setData] = useState<PanelData | null>(null);
 
@@ -178,8 +179,10 @@ export function FirstStepsPanel({ projectId }: FirstStepsPanelProps) {
           iconColor="text-amber-500"
           iconBg="bg-amber-50"
           title="Siguiente acción del motor"
-          body="El panel de activación (columna derecha) tiene tu primera acción priorizada para Fase 1. Empieza por ahí antes de explorar el resto."
+          body="Tu primera acción priorizada. Empieza por aquí."
           highlight={null}
+          ctaLabel="Ver tareas"
+          onCTA={onNavigateToTab ? () => onNavigateToTab('tareas') : undefined}
         />
 
         {/* Acción 2 — Validación por hipótesis */}
@@ -191,6 +194,8 @@ export function FirstStepsPanel({ projectId }: FirstStepsPanelProps) {
           title={validationAction.title}
           body={validationAction.body}
           highlight={validationAction.highlight}
+          ctaLabel="Crear validación"
+          onCTA={onNavigateToTab ? () => onNavigateToTab('obvs') : undefined}
         />
 
         {/* Acción 3 — Operativa por monetización */}
@@ -202,6 +207,8 @@ export function FirstStepsPanel({ projectId }: FirstStepsPanelProps) {
           title={operationalAction.title}
           body={operationalAction.body}
           highlight={null}
+          ctaLabel="Ver CRM"
+          onCTA={onNavigateToTab ? () => onNavigateToTab('crm') : undefined}
         />
       </div>
     </div>
@@ -217,9 +224,11 @@ interface ActionBlockProps {
   title: string;
   body: string;
   highlight: string | null;
+  ctaLabel?: string;
+  onCTA?: () => void;
 }
 
-function ActionBlock({ number, icon: Icon, iconColor, iconBg, title, body, highlight }: ActionBlockProps) {
+function ActionBlock({ number, icon: Icon, iconColor, iconBg, title, body, highlight, ctaLabel, onCTA }: ActionBlockProps) {
   return (
     <div className="flex flex-col gap-2.5 p-4 bg-background rounded-xl">
       <div className="flex items-center gap-2">
@@ -234,6 +243,11 @@ function ActionBlock({ number, icon: Icon, iconColor, iconBg, title, body, highl
         <p className={cn('text-xs px-2.5 py-1.5 rounded-md italic', 'bg-blue-50 text-blue-800')}>
           {highlight}
         </p>
+      )}
+      {ctaLabel && onCTA && (
+        <Button size="sm" variant="outline" className="mt-1 text-xs h-7" onClick={onCTA}>
+          {ctaLabel} →
+        </Button>
       )}
     </div>
   );

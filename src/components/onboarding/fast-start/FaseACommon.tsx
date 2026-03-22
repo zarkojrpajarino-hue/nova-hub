@@ -33,7 +33,10 @@ interface FaseACommonProps {
   onComplete: (answers: FaseAAnswers) => void;
 }
 
-const TOTAL_QUESTIONS = 10;
+const TOTAL_QUESTIONS = 8;  // [B3/U3.3] Reducido de 10: Q5(ticket) y Q6(sales_cycle) movidos a post-onboarding
+
+// Steps que se saltan en el flujo (se pueden preguntar después en FaseBPanel)
+const SKIPPED_STEPS = [4, 5];  // step 4=Q5(ticket), step 5=Q6(sales_cycle)
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Radio option component
@@ -127,16 +130,26 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
     if (currentStep === 9) {
       onComplete(answers);
     } else {
-      setCurrentStep((s) => s + 1);
+      // [B3/U3.3] Saltar steps 4-5 (ticket + sales_cycle) → post-onboarding
+      let next = currentStep + 1;
+      while (SKIPPED_STEPS.includes(next) && next < 9) next++;
+      setCurrentStep(next);
     }
   };
 
   const handleBack = () => {
-    if (currentStep > 1) setCurrentStep((s) => s - 1);
+    if (currentStep > 1) {
+      let prev = currentStep - 1;
+      while (SKIPPED_STEPS.includes(prev) && prev > 1) prev--;
+      setCurrentStep(prev);
+    }
   };
 
   // ───────────────────────────── Render helpers ───────────────────────────────
-  const questionNumber = currentStep + 1; // Q2 = step 1 → display "2"
+  // [B3/U3.3] Número visual de pregunta (sin contar las saltadas)
+  const visibleStepsBefore = Array.from({ length: currentStep }, (_, i) => i + 1)
+    .filter(s => !SKIPPED_STEPS.includes(s)).length;
+  const questionNumber = visibleStepsBefore + 1;
   const progressPct = (questionNumber / TOTAL_QUESTIONS) * 100;
 
   const renderStep = () => {

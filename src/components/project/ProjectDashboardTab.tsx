@@ -80,7 +80,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       )}
 
       {/* O5.9 — Primeros pasos (visible una vez, post-onboarding) */}
-      <FirstStepsPanel projectId={project.id} />
+      <FirstStepsPanel projectId={project.id} onNavigateToTab={onNavigateToTab} />
 
       {/* O5.10 — Completa tu proyecto (perfil estratégico + primeras acciones) */}
       <FaseBPanel
