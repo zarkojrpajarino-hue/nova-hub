@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp, Loader2 } from 'lucide-react';
+import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp, Loader2, Zap } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import confetti from '@/lib/confetti';
 import type { Json } from '@/integrations/supabase/types';
@@ -33,6 +33,7 @@ import { IdeaFastStart } from './fast-start/IdeaFastStart';
 import { ExistingFastStart } from './fast-start/ExistingFastStart';
 import { OnboardingProfileCard } from './OnboardingProfileCard';
 import type { BusinessIdea } from '@/lib/ai-generators';
+import { PHASE_LABELS } from '@/lib/engine';
 
 type OnboardingType = 'generative' | 'idea' | 'existing';
 type WizardPhase = 'loading' | 'fase-a' | 'path-specific' | 'complete';
@@ -54,6 +55,8 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   const [phase, setPhase] = useState<WizardPhase>('loading');
   const [onboardingType, setOnboardingType] = useState<OnboardingType>('idea');
   const [faseAAnswers, setFaseAAnswers] = useState<FaseAAnswers | null>(null);
+  // [P4.2] Fase detectada por fast-track para mostrar feedback al usuario
+  const [detectedPhase, setDetectedPhase] = useState<number | null>(null);
   // Cache del onboarding_data actual para writes con merge
   const [cachedOD, setCachedOD] = useState<Record<string, unknown>>({});
   // Tanda de ideas generativas guardada (para rehydración si el usuario refresca)
@@ -231,6 +234,14 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
           p_trigger_source: 'onboarding_fast_track',
         });
         if (ftErr) void ftErr; // Silent — engine will recalculate on next cron
+
+        // [P4.2] Retroactive Phase Detection — leer la fase que asignó el fast-track
+        const { data: phaseResult } = await supabase
+          .from('project_phase_state')
+          .select('current_phase')
+          .eq('project_id', projectId)
+          .single();
+        if (phaseResult) setDetectedPhase(phaseResult.current_phase);
       }
 
       // onboarding_sessions: update final con completion_percentage=100
@@ -353,6 +364,23 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
                 />
               </div>
             </div>
+
+            {/* [P4.2] Retroactive Phase Detection — mostrar fase detectada por fast-track */}
+            {detectedPhase !== null && detectedPhase > 1 && onboardingType === 'existing' && (
+              <div className="max-w-md mx-auto mb-6 w-full">
+                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
+                  <div className="flex items-center gap-2 mb-2">
+                    <Zap className="h-4 w-4 text-blue-600" />
+                    <span className="text-sm font-semibold text-blue-800">Fast-track activado</span>
+                  </div>
+                  <p className="text-sm text-blue-700">
+                    Basándonos en tus datos, hemos detectado que tu proyecto está en{' '}
+                    <strong>Fase {detectedPhase} — {PHASE_LABELS[detectedPhase] ?? ''}</strong>.
+                    {detectedPhase >= 3 && ' Has saltado las fases iniciales de validación.'}
+                  </p>
+                </div>
+              </div>
+            )}
 
             {/* O5.8 — Perfil Operativo Detectado */}
             {faseAAnswers && (

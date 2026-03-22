@@ -10,7 +10,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
 
@@ -83,7 +83,7 @@ serve(async (req) => {
   const startTime = Date.now();
 
   try {
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
 
     const input: ProjectionInput = await req.json();
     const {
@@ -106,6 +106,8 @@ serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
 
     // [B10] Cap growth_rate to reasonable bounds (max 50% monthly, min -20%)
     const cappedGrowthRate = Math.max(-20, Math.min(50, growth_rate_monthly));

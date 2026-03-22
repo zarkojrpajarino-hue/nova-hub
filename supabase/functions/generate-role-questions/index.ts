@@ -3,6 +3,10 @@ import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
+// [B6] In-memory cache by role label (survives between Deno Deploy invocations)
+const roleCache = new Map<string, { questions: unknown[]; cachedAt: number }>();
+const CACHE_TTL_MS = 24 * 60 * 60 * 1000; // 24 hours
+
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
 
@@ -65,6 +69,17 @@ Deno.serve(async (req) => {
     const roleDescription = String(role.roleDescription || role.descripcion || '').slice(0, 500);
 
     console.log('Generating questions for role:', roleLabel);
+
+    // [B6] Check cache first
+    const cacheKey = roleLabel.toLowerCase().trim();
+    const cached = roleCache.get(cacheKey);
+    if (cached && Date.now() - cached.cachedAt < CACHE_TTL_MS) {
+      console.log('Cache hit for role:', roleLabel);
+      return new Response(
+        JSON.stringify({ questions: cached.questions, cached: true }),
+        { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      );
+    }
 
     // Build members context (sanitized)
     interface RoleMember { nombre?: string; projectName?: string; }
@@ -158,11 +173,15 @@ Formato JSON (array):
         questions = JSON.parse(jsonMatch[0]);
       }
     } catch (_e) {
-          if (error instanceof Response) return error;
-console.error('Error parsing Claude response');
+      console.error('Error parsing Claude response');
     }
 
     console.log('Generated questions:', questions.length);
+
+    // [B6] Cache the result
+    if (questions.length > 0) {
+      roleCache.set(cacheKey, { questions, cachedAt: Date.now() });
+    }
 
     return new Response(
       JSON.stringify({ questions }),

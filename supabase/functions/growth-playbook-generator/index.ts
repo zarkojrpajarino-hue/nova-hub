@@ -11,7 +11,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
@@ -52,6 +52,8 @@ serve(async (req) => {
     const requestData: GrowthPlaybookRequest = await req.json();
 
         const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    await verifyProjectMembership(supabaseClient, user.id, requestData.project_id, origin);
 
     const rateLimitResult = await checkRateLimit(user.id, 'growth-playbook-generator', RateLimitPresets.AI_GENERATION);
     if (!rateLimitResult.allowed) {

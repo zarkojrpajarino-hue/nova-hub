@@ -7,7 +7,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
 
@@ -18,7 +18,7 @@ serve(async (req) => {
   }
 
   try {
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
 
     const { betaTesterId } = await req.json();
 
@@ -32,6 +32,8 @@ serve(async (req) => {
     if (error || !tester) {
       throw new Error('Beta tester not found');
     }
+
+    await verifyProjectMembership(supabaseClient, user.id, tester.project_id, origin);
 
     if (!tester.feedback) {
       throw new Error('No feedback provided yet');

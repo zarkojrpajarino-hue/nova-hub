@@ -13,7 +13,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 serve(async (req) => {
@@ -30,6 +30,8 @@ serve(async (req) => {
     }
 
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    await verifyProjectMembership(supabaseClient, user_id, project_id, origin);
 
     const rateLimitResult = await checkRateLimit(user_id, 'enrich-project-intelligence', RateLimitPresets.AI_GENERATION);
     if (!rateLimitResult.allowed) {

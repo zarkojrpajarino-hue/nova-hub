@@ -8,7 +8,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
 
@@ -39,7 +39,7 @@ serve(async (req) => {
   const startTime = Date.now();
 
   try {
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
 
     const body: LaunchChecklistRequest = await req.json();
     const { projectId, businessType, geography = 'US' } = body;
@@ -50,6 +50,8 @@ serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
 
     console.log(`Generating launch checklist for ${businessType} in ${geography}`);
 

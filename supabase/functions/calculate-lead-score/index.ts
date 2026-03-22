@@ -13,7 +13,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 interface LeadData {
@@ -75,6 +75,8 @@ serve(async (req) => {
     if (leadError || !lead) {
       throw new Error('Lead not found');
     }
+
+    await verifyProjectMembership(supabaseClient, user.id, lead.project_id, origin);
 
     // Calcular score
     const scoreResult = calculateLeadScore(lead);

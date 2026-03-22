@@ -14,7 +14,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 
@@ -87,6 +87,8 @@ serve(async (req) => {
         { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    await verifyProjectMembership(supabaseClient, user.id, exploration.project_id, origin);
 
     // 2. Obtener métricas objetivas
     const objectiveMetrics: ObjectiveMetrics = {

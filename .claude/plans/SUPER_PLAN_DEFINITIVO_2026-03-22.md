@@ -76,16 +76,16 @@
 - [x] ~~Fix O4.3 NULL query~~ FALSO POSITIVO — frontend maneja correctamente
 - [x] Fix optimus_profile thresholds: reducido 20% (>50→>35, >70→>55, >30→>25)
 
-#### B1 — Seguridad (4h) — PARCIALMENTE EJECUTADO
+#### B1 — Seguridad (4h) ✅ EJECUTADO
 - [x] Crear `verifyProjectMembership()` en `_shared/auth.ts`
-- [ ] Aplicar a las 15-20 edge functions que ESCRIBEN datos (3h) ← PENDIENTE (requiere import en cada fn)
+- [x] Aplicar a 14 edge functions que escriben datos con serviceClient
 - [x] Fix `engine_versions` USING(true) FOR ALL → solo admin write (aplicado en BD)
 - [x] INSERT policies para 6 engine history tables — N/A: engines son SECURITY DEFINER, bypasan RLS por diseño
 
 #### B6 — IA Optimización (3h) ✅ EJECUTADO
 - [x] Downgrade: hiring→Haiku, strategic-cycle→Sonnet 3.5 (advisor pendiente)
 - [x] Validación JSON robusta en 12 edge functions — `safeJsonParse()` utility + aplicado a 12 fns
-- [ ] Cache generate-role-questions por role (30 min) ← PENDIENTE
+- [x] Cache generate-role-questions por role — in-memory cache 24h + bug fix catch variable
 
 #### H7 — Housekeeping (1h) ✅ EJECUTADO
 - [x] H7.1: Regenerar types.ts
@@ -95,7 +95,7 @@
 - [x] H7.5: Lazy-load Expansion + GeneratedBusiness
 - [x] H7.6: staleTime en hooks
 - [x] H7.8: npm audit fix (8 HIGH → 1 HIGH en xlsx)
-- [ ] H7.9: Cron staggering: 14 jobs separados por 5 min (15 min) ← PENDIENTE
+- [x] H7.9: Cron staggering — pipeline 00:00→00:30 (5 min gaps), daily jobs separados
 
 ---
 
@@ -128,7 +128,7 @@
 
 #### B4 — Feedback Loops ✅ EJECUTADO (F25-F27)
 - [x] P4.1: Task→Objective linking — TaskCompletionDialog inserta en cycle_objective_progress
-- [ ] P4.2: Retroactive Phase Detection — preguntas extra onboarding existing (PENDIENTE)
+- [x] P4.2: Retroactive Phase Detection — FastStartWizard lee fase post-fast-track + feedback visual "Fast-track activado → Fase N"
 - [x] P4.3: Moment History — migration 20260327000009 + useMomentDetector persistMoment()
 - [x] P4.4: Score impact per action — build-next-action.ts señales "Crear 1 OBV sube score ~X%"
 
@@ -148,7 +148,7 @@
 - [x] F9.6: Cron staggering — crons separados + paused_at filter
 - [x] F9.10: useFounderTool invalidar project-engine — línea 124
 - [x] F9.11: notifications.action_taken_at — columna existe en BD
-- [ ] F9.14: Tests para canonical-hash, errorHandler, build-next-action (4h) ← PENDIENTE
+- [x] F9.14: Tests canonical-hash (10), errorHandler (21), build-next-action (8) — 39 tests nuevos
 
 #### B10 — IA Guardrails ✅ EJECUTADO
 - [x] Validación salary_range vs benchmarks — hiring-guidance líneas 135-147 (min 500, max 30000)
@@ -214,8 +214,8 @@ B5 (datos) → B8 (growth) — dashboards dan razón para volver
 | Concepto | Cantidad |
 |---|---|
 | Items totales | **72** (57 v1 + 30 v3 - 15 duplicados) |
-| Ya ejecutados | **59** (B0+B0v3+B1+B3+B4+B5+B6+H7+B9+B10 + parcial B2) |
-| Pendientes | **13** (B1.1 membership 15fn + B6 cache + H7.9 crons + P4.2 + F9.14 + B2.4-7 + B8×6) |
+| Ya ejecutados | **64** (B0+B0v3+B1+B3+B4+B5+B6+H7+B9+B10 + parcial B2) |
+| Pendientes | **8** (B2.4-7 monetización/growth + B8×6 business tasks) |
 | Falsos positivos filtrados | 5 |
 | Esfuerzo dev total | ~14 días |
 | Presupuesto | €3,500 |

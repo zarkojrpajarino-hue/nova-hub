@@ -17,7 +17,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 serve(async (req) => {
@@ -64,6 +64,9 @@ serve(async (req) => {
     }
 
     const projectId = preview.project_id;
+
+    await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
+
     const appliedTo: Record<string, unknown> = {};
 
     console.log('Applying generated business for project:', projectId);

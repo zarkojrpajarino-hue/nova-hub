@@ -21,7 +21,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -42,6 +42,8 @@ serve(async (req) => {
     }
 
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    await verifyProjectMembership(supabaseClient, user_id, project_id, origin);
 
     // 1. Get business context
     let businessContext: Record<string, unknown>;
