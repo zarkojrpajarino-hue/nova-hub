@@ -58,7 +58,7 @@ export function ExpansionReadinessTeaser({ projectId, onAnalyze }: ExpansionRead
           isReady ? 'bg-green-100' : 'bg-muted'
         }`}>
           <Globe className={`h-5 w-5 ${isReady ? 'text-green-600' : 'text-muted-foreground'}`} />
-        <SourceBadge type="estimated" source="motorDeExpansion" reliability={0.4} size="sm" />
+        <SourceBadge type="estimated" source={t('transparency.motorDeExpansion')} reliability={0.4} size="sm" />
         </div>
         <div>
           <h3 className="text-sm font-semibold">{t('expansion.expansionIntelligence')}</h3>

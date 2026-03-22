@@ -64,7 +64,7 @@ export function EngineIndicators({ engineData }: EngineIndicatorsProps) {
 
   return (
     <div className="flex items-center gap-5">
-      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source="motorDelProyecto" reliability={0.5} size="sm" /></div>
+      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source={t('transparency.motorDelProyecto')} reliability={0.5} size="sm" /></div>
 
       {/* Fase */}
       <div className="flex items-center gap-2">

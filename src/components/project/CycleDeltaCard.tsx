@@ -258,7 +258,7 @@ export function CycleDeltaCard({ cycleId }: CycleDeltaCardProps) {
         {/* F17 Transparency: show data source */}
         <SourceBadge
           type="declared"
-          source={t('project.tareasYObvsInternas')}
+          source={t('transparency.tareasYOBVs')}
           reliability={0.6}
           size="sm"
         />

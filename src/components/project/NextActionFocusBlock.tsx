@@ -146,7 +146,7 @@ export function NextActionFocusBlock({
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             {agentInsights.length} señales activas — resumen del sistema
           </span>
-        <SourceBadge type="inferred" source="motorYAgentesIA" reliability={0.4} size="sm" />
+        <SourceBadge type="inferred" source={t('transparency.motorYAgentesIA')} reliability={0.4} size="sm" />
         </div>
         <div className="space-y-1">
           <p className="text-lg font-semibold leading-snug">{nextAction.title}</p>

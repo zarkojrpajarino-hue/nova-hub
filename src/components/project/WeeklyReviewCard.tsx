@@ -43,7 +43,7 @@ export function WeeklyReviewCard({ projectId }: WeeklyReviewCardProps) {
         <div className="flex items-center gap-2 mb-3">
           <CalendarDays size={16} className="text-muted-foreground" />
           <h3 className="text-sm font-semibold text-muted-foreground">{t('project.resumenSemanal')}</h3>
-        <SourceBadge type="declared" source="tareasYOBVs" reliability={0.6} size="sm" />
+        <SourceBadge type="declared" source={t('transparency.tareasYOBVs')} reliability={0.6} size="sm" />
         </div>
         <p className="text-xs text-muted-foreground leading-relaxed">{t('project.aúnNoHayReview')}</p>
       </div>

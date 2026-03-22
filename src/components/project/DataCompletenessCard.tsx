@@ -107,7 +107,7 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
           <span className="absolute text-xs font-bold text-amber-700 dark:text-amber-400">
             {pct}%
           </span>
-        <SourceBadge type="estimated" source="motorDelProyecto" reliability={0.7} size="sm" />
+        <SourceBadge type="estimated" source={t('transparency.motorDelProyecto')} reliability={0.7} size="sm" />
         </div>
 
         <div className="flex-1 min-w-0">

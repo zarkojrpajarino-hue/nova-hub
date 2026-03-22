@@ -44,7 +44,7 @@ export function PhaseProgressBar({ engineData, onCTA }: PhaseProgressBarProps) {
 
   return (
     <div className="flex items-center gap-4 mb-4">
-      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source="motorDelProyecto" reliability={0.6} size="sm" /></div>
+      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source={t('transparency.motorDelProyecto')} reliability={0.6} size="sm" /></div>
       {/* Etiqueta */}
       <div className="shrink-0 w-40">
         <p className="text-sm font-semibold leading-none">Fase {phase}</p>

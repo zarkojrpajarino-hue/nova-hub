@@ -55,7 +55,7 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
         <div className="flex-1">
           <p className={`text-sm font-semibold ${titleColor}`}>{moment.title}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{moment.message}</p>
-        <SourceBadge type="inferred" source="detectorDeMomentos" reliability={0.5} size="sm" />
+        <SourceBadge type="inferred" source={t('transparency.detectorDeMomentos')} reliability={0.5} size="sm" />
         </div>
         <Button size="sm" variant="ghost" onClick={handleDismiss} className="shrink-0 h-6 w-6 p-0">
           <X className="h-3.5 w-3.5" />

@@ -6689,5 +6689,20 @@ export const es = {
     "totalValidaciones": "Total validaciones",
     "perdidas": "Perdidas",
     "usuario": "Usuario"
+  },
+  "transparency": {
+    "motorDelProyecto": "Motor del proyecto",
+    "motorDeViabilidad": "Motor de viabilidad",
+    "motorDeExpansion": "Motor de expansión",
+    "motorYAgentesIA": "Motor + agentes IA",
+    "detectorDeMomentos": "Detector de momentos",
+    "optimusIA": "Optimus IA",
+    "alertasAutomaticas": "Alertas automáticas",
+    "prediccionLineal": "Predicción lineal",
+    "iaFinanciera": "IA financiera",
+    "iaLeadScoring": "IA Lead Scoring",
+    "tareasYOBVs": "Tareas y OBVs internas",
+    "weeklyReview": "Weekly review automático",
+    "pipelineOBVs": "Pipeline de OBVs"
   }
 } as const;

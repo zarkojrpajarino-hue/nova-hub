@@ -227,7 +227,7 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
       <div className="flex items-center gap-3">
         <div className="w-12 h-12 rounded-xl bg-purple-500/10 flex items-center justify-center">
           <Brain className="w-6 h-6 text-purple-600" />
-        <SourceBadge type="inferred" source="iALeadScoring" reliability={0.4} size="sm" />
+        <SourceBadge type="inferred" source={t('transparency.iaLeadScoring')} reliability={0.4} size="sm" />
         </div>
         <div>
           <h3 className="text-xl font-semibold flex items-center gap-2">

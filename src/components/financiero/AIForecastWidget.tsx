@@ -54,7 +54,7 @@ export function AIForecastWidget() {
   if (isLoading) {
     return (
       <Card>
-      <div className="flex justify-end mb-2"><SourceBadge type="inferred" source="iAFinanciera" reliability={0.35} size="sm" /></div>
+      <div className="flex justify-end mb-2"><SourceBadge type="inferred" source={t('transparency.iaFinanciera')} reliability={0.35} size="sm" /></div>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Sparkles className="w-5 h-5 text-purple-600" />

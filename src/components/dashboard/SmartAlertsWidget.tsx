@@ -127,7 +127,7 @@ export function SmartAlertsWidget() {
         <div className="flex items-center gap-2.5 mb-4">
           <AlertTriangle size={18} className="text-warning" />
           <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
-        <SourceBadge type="inferred" source="alertasAutomáticas" reliability={0.5} size="sm" />
+        <SourceBadge type="inferred" source={t('transparency.alertasAutomaticas')} reliability={0.5} size="sm" />
         </div>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />

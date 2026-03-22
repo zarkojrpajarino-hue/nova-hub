@@ -69,7 +69,7 @@ export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
         <span className="text-[10px] text-muted-foreground ml-auto">
           {profile.total_feedbacks} feedbacks
         </span>
-        <SourceBadge type="inferred" source="optimusIA" reliability={0.4} size="sm" />
+        <SourceBadge type="inferred" source={t('transparency.optimusIA')} reliability={0.4} size="sm" />
       </div>
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">

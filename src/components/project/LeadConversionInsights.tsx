@@ -80,7 +80,7 @@ export function LeadConversionInsights({ projectId }: { projectId: string }) {
       <div className="flex items-center gap-2">
         <TrendingUp className="h-4 w-4 text-blue-500" />
         <span className="text-xs font-semibold">{t('project.velocidadDeConversión')}</span>
-        <SourceBadge type="declared" source="pipelineOBVs" reliability={0.6} size="sm" />
+        <SourceBadge type="declared" source={t('transparency.pipelineOBVs')} reliability={0.6} size="sm" />
       </div>
       <div className="space-y-1.5">
         {transitions.map((t) => {

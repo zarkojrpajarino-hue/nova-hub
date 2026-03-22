@@ -96,7 +96,7 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-red-500/10 text-red-600 border-red-500/30">
               <TrendingDown size={9} className="mr-0.5" />{t('project.alerta')}</Badge>
           )}
-        <SourceBadge type="declared" source="weeklyReview" reliability={0.6} size="sm" />
+        <SourceBadge type="declared" source={t('transparency.weeklyReview')} reliability={0.6} size="sm" />
         </div>
         <h2 className="text-2xl font-bold leading-snug">{headline}</h2>
       </div>

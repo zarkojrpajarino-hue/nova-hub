@@ -129,7 +129,7 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
               Vale la pena evaluar si este proyecto sigue siendo prioritario.
             </p>
           </div>
-        <SourceBadge type="estimated" source="motorDelProyecto" reliability={0.5} size="sm" />
+        <SourceBadge type="estimated" source={t('transparency.motorDelProyecto')} reliability={0.5} size="sm" />
         </div>
       )}
 

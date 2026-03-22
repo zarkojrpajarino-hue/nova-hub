@@ -86,7 +86,7 @@ function ProbabilityBreakdownComponent({
           <InputAuditTrigger onClick={() => setAuditOpen(true)} />
         </h3>
         <div className="flex items-center gap-2">
-          <SourceBadge type="estimated" source={t('project.motorDelProyecto')} reliability={0.5} size="sm" />
+          <SourceBadge type="estimated" source={t('transparency.motorDelProyecto')} reliability={0.5} size="sm" />
           {/* Trend */}
           {trend != null && (
             <span className={`flex items-center gap-0.5 text-xs font-semibold ${

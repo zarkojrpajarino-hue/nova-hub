@@ -104,7 +104,7 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
         <div className="flex-1 min-w-0">
           <p className="text-sm font-semibold text-warning">{copy.title}</p>
           <p className="text-sm text-muted-foreground mt-0.5">{copy.body}</p>
-        <SourceBadge type="estimated" source="motorDeViabilidad" reliability={0.5} size="sm" />
+        <SourceBadge type="estimated" source={t('transparency.motorDeViabilidad')} reliability={0.5} size="sm" />
         </div>
         <button
           onClick={handleDismiss}

@@ -43,7 +43,7 @@ export function PhaseRunwayIndicator({ engineData, scoreHistory }: PhaseRunwayIn
   if (estimate.weeksEstimate === 'ready') {
     return (
       <div className="flex items-center gap-2 text-xs text-green-600 bg-green-50 rounded-lg p-2">
-      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source="motorDelProyecto" reliability={0.4} size="sm" /></div>
+      <div className="flex justify-end mb-2"><SourceBadge type="estimated" source={t('transparency.motorDelProyecto')} reliability={0.4} size="sm" /></div>
         <CheckCircle2 className="h-4 w-4 shrink-0" />
         <span>{estimate.explanation}</span>
       </div>
