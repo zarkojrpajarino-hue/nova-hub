@@ -44,6 +44,7 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { PhaseTeaserModal } from '@/components/project/PhaseTeaserModal';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
+import { MemberOnboarding } from '@/components/roles/MemberOnboarding';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
 const GeneratedBusinessDashboard = lazy(() => import('@/components/generative/GeneratedBusinessDashboard').then(m => ({ default: m.GeneratedBusinessDashboard })));

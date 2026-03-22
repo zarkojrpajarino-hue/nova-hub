@@ -132,6 +132,20 @@ RESPONDE SOLO con JSON válido:
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
 
+    // [B10] Validate salary_range is reasonable
+    const salary = guidance?.salary_range;
+    if (salary) {
+      if (salary.min < 500 || salary.max > 30000) {
+        salary.min = Math.max(500, salary.min);
+        salary.max = Math.min(30000, salary.max);
+      }
+      if (salary.min > salary.max) {
+        const tmp = salary.min;
+        salary.min = salary.max;
+        salary.max = tmp;
+      }
+    }
+
     return new Response(JSON.stringify({ success: true, guidance }),
       { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
 

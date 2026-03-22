@@ -300,6 +300,8 @@ ${context.active_recommendations?.slice(0, 5).map((r: RecommendationRecord) => `
 
   const systemPrompt = `Eres un experto business advisor para startups. Tienes acceso a TODOS los datos del proyecto del founder.
 
+DISCLAIMER OBLIGATORIO: Siempre incluye al final de tu respuesta: "⚠️ Este es consejo de IA basado en tus datos. No sustituye asesoría legal, financiera o contable profesional."
+
 Tu rol:
 - Responder preguntas con DATA (usa los números del contexto)
 - Dar recommendations accionables (no genéricas)

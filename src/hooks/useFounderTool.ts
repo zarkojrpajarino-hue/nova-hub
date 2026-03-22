@@ -120,6 +120,8 @@ export function useFounderTool<T = Record<string, unknown>>(
 
       await queryClient.invalidateQueries({ queryKey: ['founder-tool', projectId, toolType] });
       await queryClient.invalidateQueries({ queryKey: ['toolkit-unlocks', projectId] });
+      // [F9.10] Tool execution puede impactar phase score
+      await queryClient.invalidateQueries({ queryKey: ['project-engine', projectId], exact: false });
       toast.success(`${TOOL_LABEL[toolType]} generado`);
     } catch (_err) {
       toast.error(`Error generando ${TOOL_LABEL[toolType]}`);
