@@ -137,3 +137,44 @@ Fuente de verdad de fase: `project_phase_state.current_phase` (SMALLINT 0–4), 
 Phase 0 = Exploración (pre-idea). Campos adicionales: `entry_mode`, `graduated`, `graduation_eligible_since`.
 Constantes de UI compartidas: `src/lib/engine.ts`.
 Hook principal con phase_state: `useProjects()` en `src/hooks/useNovaDataOptimized.ts` — queryKey `['projects', 'with-phase-state']`.
+
+### Norma: súper análisis y plan
+
+**Trigger:** el usuario dice "súper análisis y plan" (o variantes: "análisis completo", "los agentes", "análisis profundo").
+
+**Protocolo completo en:** `.claude/projects/C--Users-Zarko/memory/feedback_super_analysis_protocol.md`
+
+**Resumen ejecutivo del protocolo (v3, 22-25 agentes, 6 fases):**
+
+1. **FASE 1 — PRODUCTO** (6 agentes en paralelo, se lanzan PRIMERO):
+   Product Strategy (PM YC), UX Flows (Figma), AI/LLM (Anthropic), Data Model (Stripe), Competitive (CB Insights), Monetización (Superhuman).
+
+2. **FASE 2 — CÓDIGO** (6 agentes en paralelo):
+   SQL/BD (DBA), Edge Functions (Security), Frontend (Lead), Hooks/Queries (React Query), Tests/Types (QA), Arquitectura (Staff Engineer).
+
+3. **FASE 3 — OPERACIONAL** (6 agentes):
+   Deploys, Git Hygiene, Memory accuracy, Bundle Size, Specs/Docs, Supabase Types.
+
+4. **FASE 4 — DATOS EXTERNOS** (automático, sin agente):
+   `npm audit`, `npm run build`, `git log --since 30d`, `vitest run`, archivos grandes.
+
+5. **FASE 4.5 — VERIFICACIÓN** (4 agentes):
+   Devil's Advocate (cuestiona TOP 10), User Simulator (3 founders), ROI Calculator (prioriza por retorno), Future-Proofing (escalabilidad).
+
+6. **FASE 5 — CONSOLIDACIÓN:**
+   Plan fusionado en 10 bloques con ICE scores. Scorecard de salud 10 dimensiones. Kill list. 3 A/B tests. Mapa de dependencias. Riesgos de negocio. Guardar en `.claude/plans/`.
+
+**Reglas de cada agente:**
+- Evidencia obligatoria (archivo + línea). Sin evidencia = no existe.
+- Nivel de confianza: ALTA / MEDIA / BAJA.
+- ICE Score: Impact × Confidence × Ease.
+- No halagar. Kill list obligatoria.
+- Comparar con ejecución anterior (scorecard delta).
+
+**13 entregables:** Mapa de bugs, diagnóstico producto, fricción UX, plan monetización, datos sin explotar, optimización IA, plan ejecución, scorecard salud, dependencias, riesgos negocio, kill list, experimentos, user journeys.
+
+**Historial:**
+| Fecha | Agentes | Items | Scorecard |
+|---|---|---|---|
+| 2026-03-22 (v1) | 18 | 57 | 4.9/10 |
+| 2026-03-22 (v3) | 15 | 72 (fusionado) | 5.4/10 |
