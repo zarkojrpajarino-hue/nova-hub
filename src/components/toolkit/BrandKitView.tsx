@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface BrandKitOutput {
   propuesta_valor: string;
   mensajes_clave: string[];
@@ -17,12 +18,13 @@ interface BrandKitOutput {
 }
 
 export function BrandKitView({ output }: { output: BrandKitOutput }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       {/* Propuesta de valor */}
       <Card className="border-pink-200 bg-pink-50/50 dark:bg-pink-950/20">
         <CardHeader className="pb-1">
-          <CardTitle className="text-xs text-pink-600 uppercase tracking-wide">Propuesta de valor</CardTitle>
+          <CardTitle className="text-xs text-pink-600 uppercase tracking-wide">{t('toolkit.propuestaDeValor')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-lg font-semibold text-gray-900 dark:text-gray-100">{output.propuesta_valor}</p>
@@ -33,7 +35,7 @@ export function BrandKitView({ output }: { output: BrandKitOutput }) {
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <Card>
           <CardHeader className="pb-1">
-            <CardTitle className="text-xs text-gray-500 uppercase tracking-wide">Headline web</CardTitle>
+            <CardTitle className="text-xs text-gray-500 uppercase tracking-wide">{t('toolkit.headlineWeb')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-base font-bold text-gray-900 dark:text-gray-100">{output.headline_web}</p>
@@ -41,7 +43,7 @@ export function BrandKitView({ output }: { output: BrandKitOutput }) {
         </Card>
         <Card>
           <CardHeader className="pb-1">
-            <CardTitle className="text-xs text-gray-500 uppercase tracking-wide">Tagline</CardTitle>
+            <CardTitle className="text-xs text-gray-500 uppercase tracking-wide">{t('toolkit.tagline')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-base font-semibold italic text-pink-700 dark:text-pink-400">{output.tagline}</p>
@@ -53,7 +55,7 @@ export function BrandKitView({ output }: { output: BrandKitOutput }) {
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center gap-2">
-            <CardTitle className="text-sm">Mensajes clave</CardTitle>
+            <CardTitle className="text-sm">{t('toolkit.mensajesClave')}</CardTitle>
             <Badge variant="outline" className="text-xs capitalize">{output.tono}</Badge>
           </div>
         </CardHeader>
@@ -74,8 +76,7 @@ export function BrandKitView({ output }: { output: BrandKitOutput }) {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs text-green-700 uppercase tracking-wide flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5" /> Usar
-            </CardTitle>
+              <CheckCircle2 className="h-3.5 w-3.5" />{t('toolkit.usar')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-1.5">
@@ -88,8 +89,7 @@ export function BrandKitView({ output }: { output: BrandKitOutput }) {
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-xs text-red-700 uppercase tracking-wide flex items-center gap-1">
-              <XCircle className="h-3.5 w-3.5" /> Evitar
-            </CardTitle>
+              <XCircle className="h-3.5 w-3.5" />{t('toolkit.evitar')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-1.5">

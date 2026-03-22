@@ -15,6 +15,7 @@ import { Badge } from '@/components/ui/badge'
 import { Sparkles, ArrowRight, CreditCard, FileText } from 'lucide-react'
 import type { IntegrationRecommendation } from '@/lib/integration-recommendations'
 
+import { useTranslation } from 'react-i18next';
 const PROVIDER_ICON: Record<string, ReactNode> = {
   stripe: <CreditCard className="w-5 h-5 text-indigo-500" />,
   holded: <FileText className="w-5 h-5 text-cyan-500" />,
@@ -35,6 +36,7 @@ export function IntegrationRecommendationCard({
   recommendation,
   onAccept,
 }: IntegrationRecommendationCardProps) {
+  const { t } = useTranslation();
   const { provider, title, reason, impact, cta } = recommendation
   const icon = PROVIDER_ICON[provider]
   const colorClass = PROVIDER_COLOR[provider] ?? 'from-primary/10 to-primary/5 border-primary/20'
@@ -49,9 +51,7 @@ export function IntegrationRecommendationCard({
             <div className="flex items-center gap-2">
               <p className="font-semibold text-sm">{title}</p>
               <Badge variant="secondary" className="text-xs h-5 px-1.5 gap-1">
-                <Sparkles size={10} />
-                Optimus
-              </Badge>
+                <Sparkles size={10} />{t('integrations.optimus')}</Badge>
             </div>
             {/* I15.72 — reason: dato que entra / módulo / efecto */}
             <p className="text-xs text-muted-foreground leading-relaxed">{reason}</p>

@@ -2,6 +2,7 @@ import { TrendingUp, TrendingDown, Clock } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type PhaseHorizon = 'soon' | 'stable' | 'gradual' | 'correction' | 'counter_trend' | null;
@@ -34,7 +35,7 @@ export function derivePhaseHorizon(
   if (scoreDelta <= 0) return 'correction';
 
   // AUD.B.10 — contratendencia: el score avanza pero el riesgo también sube.
-  // "Fase 3 cercana pero riesgo subiendo" — la fase progresa sobre cimientos inestables.
+  // t('project.fase3CercanaPero') — la fase progresa sobre cimientos inestables.
   const riskWorsening =
     riskHistory != null &&
     riskHistory.length >= 2 &&
@@ -71,6 +72,7 @@ interface PhaseHorizonHintProps {
 }
 
 export function PhaseHorizonHint({ engineData }: PhaseHorizonHintProps) {
+  const { t } = useTranslation();
   const horizon = derivePhaseHorizon(
     engineData?.phaseState ?? null,
     engineData?.phaseHistory ?? [],

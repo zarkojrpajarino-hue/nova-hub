@@ -1,16 +1,18 @@
 import { CheckCircle2, Check, X, Loader2 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { usePendingValidations, useValidate, PendingValidation } from '@/hooks/usePendingValidations';
 import { useNavigation } from '@/contexts/NavigationContext';
 
+import { useTranslation } from 'react-i18next';
 interface ValidationCardProps {
   limit?: number;
   delay?: number;
 }
 
 const getTypeLabel = (type: string, subtype?: string) => {
+  const { t } = useTranslation();
   if (type === 'obv' && subtype) {
     const labels: Record<string, string> = {
       exploracion: '🔍',
@@ -51,9 +53,7 @@ export function ValidationCard({ limit = 3, delay = 5 }: ValidationCardProps) {
     >
       <div className="p-5 border-b border-border flex items-center justify-between">
         <h3 className="font-semibold flex items-center gap-2.5">
-          <CheckCircle2 size={18} className="text-success" />
-          Validaciones Pendientes
-        </h3>
+          <CheckCircle2 size={18} className="text-success" />{t('nova.validacionesPendientes')}</h3>
         {validations.length > 0 ? (
           <span className="text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-lg">
             {validations.length}
@@ -73,8 +73,8 @@ export function ValidationCard({ limit = 3, delay = 5 }: ValidationCardProps) {
         ) : validations.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">¡Todo validado!</p>
-            <p className="text-xs mt-1">No tienes elementos pendientes de validar</p>
+            <p className="text-sm">{t('nova.todoValidado')}</p>
+            <p className="text-xs mt-1">{t('nova.noTienesElementosPendientes')}</p>
           </div>
         ) : (
           validations.map((v) => (
@@ -102,7 +102,7 @@ export function ValidationCard({ limit = 3, delay = 5 }: ValidationCardProps) {
                   {' • '}
                   {v.created_at && formatDistanceToNow(new Date(v.created_at), {
                     addSuffix: true,
-                    locale: es,
+                    locale: getDateFnsLocale(),
                   })}
                 </p>
                 <div className="flex items-center gap-2 mt-1">
@@ -122,7 +122,7 @@ export function ValidationCard({ limit = 3, delay = 5 }: ValidationCardProps) {
                   onClick={() => handleValidate(v, true)}
                   disabled={validateMutation.isPending}
                   className="w-9 h-9 rounded-lg bg-success/15 flex items-center justify-center text-success hover:bg-success hover:text-success-foreground transition-colors disabled:opacity-50"
-                  title="Aprobar"
+                  title={t('nova.aprobar')}
                 >
                   <Check size={16} />
                 </button>
@@ -130,7 +130,7 @@ export function ValidationCard({ limit = 3, delay = 5 }: ValidationCardProps) {
                   onClick={() => handleValidate(v, false)}
                   disabled={validateMutation.isPending}
                   className="w-9 h-9 rounded-lg bg-destructive/15 flex items-center justify-center text-destructive hover:bg-destructive hover:text-destructive-foreground transition-colors disabled:opacity-50"
-                  title="Rechazar"
+                  title={t('nova.rechazar')}
                 >
                   <X size={16} />
                 </button>
@@ -145,9 +145,7 @@ export function ValidationCard({ limit = 3, delay = 5 }: ValidationCardProps) {
           <button 
             onClick={handleViewAll}
             className="w-full text-center text-sm text-primary hover:underline"
-          >
-            Ver todas las validaciones
-          </button>
+          >{t('nova.verTodasLasValidaciones')}</button>
         </div>
       )}
     </div>

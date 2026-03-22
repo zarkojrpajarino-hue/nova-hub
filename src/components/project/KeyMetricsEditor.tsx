@@ -7,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface KeyMetricRow {
@@ -22,9 +23,9 @@ interface KeyMetricRow {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Format YYYY-MM-DD to "Mes Año" in Spanish */
+/** Format YYYY-MM-DD to t('project.mesAño') in Spanish */
 function formatMonthLabel(dateStr: string): string {
-  return format(new Date(dateStr + 'T12:00:00'), 'MMMM yyyy', { locale: es });
+  return format(new Date(dateStr + 'T12:00:00'), t('project.mmmmYyyy'), { locale: getDateFnsLocale() });
 }
 
 /** First day of current month as YYYY-MM-DD */
@@ -40,6 +41,7 @@ interface KeyMetricsEditorProps {
 }
 
 export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -90,12 +92,12 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
       });
       if (error) throw error;
 
-      toast.success('Métricas registradas');
+      toast.success(t('project.métricasRegistradas'));
       invalidate();
       setShowForm(false);
       setFormData({ date: currentMonthDate(), mrr: '', burn_rate: '', cash_balance: '', total_customers: '' });
     } catch {
-      toast.error('Error al registrar métricas');
+      toast.error(t('project.errorAlRegistrarMétricas'));
     } finally {
       setIsSubmitting(false);
     }
@@ -107,23 +109,19 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold flex items-center gap-2">
-          <TrendingUp size={18} className="text-primary" />
-          Métricas mensuales
-        </h3>
+          <TrendingUp size={18} className="text-primary" />{t('project.métricasMensuales')}</h3>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setShowForm(!showForm)}
         >
-          <Plus size={14} className="mr-1" />
-          Registrar mes
-        </Button>
+          <Plus size={14} className="mr-1" />{t('project.registrarMes')}</Button>
       </div>
 
       {/* Info callout */}
       <div className="flex items-start gap-2 p-3 bg-primary/5 rounded-xl text-xs text-muted-foreground mb-4">
         <Info size={13} className="text-primary mt-0.5 shrink-0" />
-        <span>El motor usa el <strong>MRR mensual</strong> para calcular la estabilidad de ingresos (O3.1). Sin datos, O3.1 = 0.</span>
+        <span>{t('project.elMotorUsaEl')}<strong>{t('project.mrrMensual')}</strong> para calcular la estabilidad de ingresos (O3.1). Sin datos, O3.1 = 0.</span>
       </div>
 
       {/* Add form */}
@@ -145,7 +143,7 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
               <Input
                 type="number"
                 min="0"
-                placeholder="Ej: 4500"
+                placeholder={t('project.ej4500')}
                 value={formData.mrr}
                 onChange={(e) => setFormData({ ...formData, mrr: e.target.value })}
               />
@@ -155,7 +153,7 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
               <Input
                 type="number"
                 min="0"
-                placeholder="Ej: 2000"
+                placeholder={t('project.ej2000')}
                 value={formData.burn_rate}
                 onChange={(e) => setFormData({ ...formData, burn_rate: e.target.value })}
               />
@@ -165,17 +163,17 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
               <Input
                 type="number"
                 min="0"
-                placeholder="Ej: 30000"
+                placeholder={t('project.ej30000')}
                 value={formData.cash_balance}
                 onChange={(e) => setFormData({ ...formData, cash_balance: e.target.value })}
               />
             </div>
             <div>
-              <Label className="text-xs mb-1 block">Clientes activos</Label>
+              <Label className="text-xs mb-1 block">{t('project.clientesActivos')}</Label>
               <Input
                 type="number"
                 min="0"
-                placeholder="Ej: 12"
+                placeholder={t('project.ej12')}
                 value={formData.total_customers}
                 onChange={(e) => setFormData({ ...formData, total_customers: e.target.value })}
               />
@@ -189,16 +187,14 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
               className="flex-1"
               onClick={() => setShowForm(false)}
               disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
+            >{t('project.cancelar')}</Button>
             <Button
               size="sm"
               className="flex-1"
               onClick={handleAdd}
               disabled={isSubmitting}
             >
-              {isSubmitting ? 'Guardando...' : 'Guardar mes'}
+              {isSubmitting ? 'Guardando...': t('project.guardarMes')}
             </Button>
           </div>
         </div>
@@ -206,9 +202,7 @@ export function KeyMetricsEditor({ projectId }: KeyMetricsEditorProps) {
 
       {/* History */}
       {metrics.length === 0 ? (
-        <p className="text-sm text-muted-foreground text-center py-4">
-          Sin métricas registradas. Añade el primer mes para activar O3.1.
-        </p>
+        <p className="text-sm text-muted-foreground text-center py-4">{t('project.sinMétricasRegistradasAñade')}</p>
       ) : (
         <div className="space-y-2">
           {metrics.map((m) => (

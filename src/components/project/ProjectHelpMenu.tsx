@@ -35,20 +35,21 @@ import {
 import { getHelp } from '@/data/helpContent';
 import type { HelpContent } from '@/components/ui/section-help';
 
+import { useTranslation } from 'react-i18next';
 const PROJECT_SECTIONS = [
   {
     id: 'proyecto.dashboard',
-    label: 'Dashboard',
+    label: t('project.dashboard'),
     icon: LayoutDashboard,
-    description: 'Vista general del proyecto',
+    description: t('project.vistaGeneralDelProyecto'),
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/10',
   },
   {
     id: 'proyecto.equipo',
-    label: 'Equipo',
+    label: t('project.equipo'),
     icon: Users,
-    description: 'Miembros y roles',
+    description: t('project.miembrosYRoles'),
     color: 'text-green-500',
     bgColor: 'bg-green-500/10',
   },
@@ -56,39 +57,39 @@ const PROJECT_SECTIONS = [
     id: 'proyecto.crm',
     label: 'CRM',
     icon: Target,
-    description: 'Pipeline de ventas',
+    description: t('project.pipelineDeVentas'),
     color: 'text-purple-500',
     bgColor: 'bg-purple-500/10',
   },
   {
     id: 'proyecto.tareas',
-    label: 'Tareas',
+    label: t('project.tareas'),
     icon: Kanban,
-    description: 'Gestión de tareas',
+    description: t('project.gestiónDeTareas'),
     color: 'text-orange-500',
     bgColor: 'bg-orange-500/10',
   },
   {
     id: 'proyecto.obvs',
-    label: 'OBVs',
+    label: t('project.obvs'),
     icon: FileCheck,
-    description: 'Observaciones de valor',
+    description: t('project.observacionesDeValor'),
     color: 'text-amber-500',
     bgColor: 'bg-amber-500/10',
   },
   {
     id: 'proyecto.financiero',
-    label: 'Financiero',
+    label: t('project.financiero'),
     icon: TrendingUp,
-    description: 'Métricas financieras',
+    description: t('project.métricasFinancieras'),
     color: 'text-emerald-500',
     bgColor: 'bg-emerald-500/10',
   },
   {
     id: 'proyecto.onboarding',
-    label: 'Onboarding',
+    label: t('project.onboarding'),
     icon: Rocket,
-    description: 'Configuración adaptativa',
+    description: t('project.configuraciónAdaptativa'),
     color: 'text-pink-500',
     bgColor: 'bg-pink-500/10',
   },
@@ -128,7 +129,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
   <div className="space-y-1">
     <HelpSectionDisplay
       icon={HelpCircle}
-      title="Descripción"
+      title={t('project.descripción')}
       content={content.description}
       iconColor="bg-blue-500/10 text-blue-500"
     />
@@ -136,7 +137,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.howItWorks && (
       <HelpSectionDisplay
         icon={Target}
-        title="Cómo funciona"
+        title={t('project.cómoFunciona0')}
         content={content.howItWorks}
         iconColor="bg-purple-500/10 text-purple-500"
       />
@@ -145,7 +146,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.dataSource && (
       <HelpSectionDisplay
         icon={LayoutDashboard}
-        title="Origen de datos"
+        title={t('project.origenDeDatos')}
         content={content.dataSource}
         iconColor="bg-green-500/10 text-green-500"
       />
@@ -154,7 +155,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.validation && (
       <HelpSectionDisplay
         icon={FileCheck}
-        title="Proceso de validación"
+        title={t('project.procesoDeValidación')}
         content={content.validation}
         iconColor="bg-amber-500/10 text-amber-500"
       />
@@ -163,7 +164,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.tips && content.tips.length > 0 && (
       <HelpSectionDisplay
         icon={Rocket}
-        title="Consejos útiles"
+        title={t('project.consejosÚtiles')}
         content={content.tips}
         iconColor="bg-cyan-500/10 text-cyan-500"
       />
@@ -172,6 +173,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
 );
 
 export function ProjectHelpMenu() {
+  const { t } = useTranslation();
   const [selectedSection, setSelectedSection] = useState<string | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
 
@@ -189,13 +191,13 @@ export function ProjectHelpMenu() {
         <DropdownMenuTrigger asChild>
           <Button variant="outline" size="sm" className="gap-2">
             <HelpCircle size={16} />
-            <span>¿Cómo funciona?</span>
+            <span>{t('project.cómoFunciona')}</span>
           </Button>
         </DropdownMenuTrigger>
         <DropdownMenuContent align="end" className="w-72">
           <div className="px-2 py-1.5">
-            <p className="text-sm font-semibold text-foreground">Guía del Proyecto</p>
-            <p className="text-xs text-muted-foreground">Selecciona una sección para ver la ayuda</p>
+            <p className="text-sm font-semibold text-foreground">{t('project.guíaDelProyecto')}</p>
+            <p className="text-xs text-muted-foreground">{t('project.seleccionaUnaSecciónPara')}</p>
           </div>
           <DropdownMenuSeparator />
           {PROJECT_SECTIONS.map((section) => {
@@ -231,9 +233,7 @@ export function ProjectHelpMenu() {
                   </div>
                   <div>
                     <span className="text-lg">{selectedContent.title}</span>
-                    <p className="text-sm font-normal text-muted-foreground mt-0.5">
-                      Guía completa de uso
-                    </p>
+                    <p className="text-sm font-normal text-muted-foreground mt-0.5">{t('project.guíaCompletaDeUso')}</p>
                   </div>
                 </DialogTitle>
                 <DialogDescription className="sr-only">

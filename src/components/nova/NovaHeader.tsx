@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { BackButton } from '@/components/navigation/BackButton';
 import { useNavigation } from '@/contexts/NavigationContext';
 
+import { useTranslation } from 'react-i18next';
 interface NovaHeaderProps {
   title: string;
   subtitle?: string;
@@ -15,6 +16,7 @@ interface NovaHeaderProps {
 }
 
 export function NovaHeader({ title, subtitle, onNewOBV, showBackButton = false }: NovaHeaderProps) {
+  const { t } = useTranslation();
   const isMobile = useIsMobile();
   const { open: openSearch } = useSearch();
   const { goBack, canGoBack } = useNavigation();
@@ -47,7 +49,7 @@ export function NovaHeader({ title, subtitle, onNewOBV, showBackButton = false }
           className="flex items-center gap-2 bg-card border border-border rounded-xl px-3 md:px-4 py-2 hover:bg-accent transition-colors"
         >
           <Search size={16} className="text-muted-foreground" />
-          <span className="hidden md:inline text-sm text-muted-foreground">Buscar...</span>
+          <span className="hidden md:inline text-sm text-muted-foreground">{t('nova.buscar')}</span>
           <kbd className="hidden lg:inline-flex h-5 items-center gap-1 rounded border bg-muted px-1.5 text-[10px] text-muted-foreground">
             ⌘K
           </kbd>

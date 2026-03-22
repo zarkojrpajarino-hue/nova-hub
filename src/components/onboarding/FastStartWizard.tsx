@@ -35,6 +35,7 @@ import { OnboardingProfileCard } from './OnboardingProfileCard';
 import type { BusinessIdea } from '@/lib/ai-generators';
 import { PHASE_LABELS } from '@/lib/engine';
 
+import { useTranslation } from 'react-i18next';
 type OnboardingType = 'generative' | 'idea' | 'existing';
 type WizardPhase = 'loading' | 'fase-a' | 'path-specific' | 'complete';
 
@@ -51,6 +52,7 @@ function mapMarketScope(scope: FaseAAnswers['market_scope']): string {
 }
 
 export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [phase, setPhase] = useState<WizardPhase>('loading');
   const [onboardingType, setOnboardingType] = useState<OnboardingType>('idea');
@@ -74,7 +76,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
         .single();
 
       if (error) {
-        toast.error('Error al cargar el proyecto');
+        toast.error(t('onboarding.errorAlCargarEl'));
         setPhase('fase-a');
         return;
       }
@@ -148,8 +150,8 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
       setCachedOD(newOD);
       setPhase('path-specific');
     } catch (_err) {
-      toast.error('Error al guardar las respuestas', {
-        description: 'Revisa tu conexión e inténtalo de nuevo',
+      toast.error(t('onboarding.errorAlGuardarLas'), {
+        description: t('onboarding.revisaTuConexiónE'),
       });
       // No transicionar: el usuario puede reintentar
     }
@@ -180,7 +182,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
 
       // projects: update final
       const { error: projErr } = await supabase.from('projects').update({
-        nombre: (data.project_name as string) || 'Mi Proyecto',
+        nombre: (data.project_name as string) || t('onboarding.miProyecto'),
         descripcion: (data.business_description as string) || '',
         onboarding_completed: true,
         onboarding_data: newOD as Json,
@@ -269,13 +271,13 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
       trackOnboardingCompleted({ project_id: projectId });
 
       confetti({ particleCount: 100, spread: 70, origin: { y: 0.6 } });
-      toast.success('¡Onboarding completado!');
+      toast.success(t('onboarding.onboardingCompletado'));
 
       // 8s para que el usuario pueda leer el Perfil Operativo Detectado (O5.8)
       setTimeout(() => onComplete(), 8000);
     } catch (_err) {
-      toast.error('Error al guardar el progreso', {
-        description: 'Inténtalo de nuevo',
+      toast.error(t('onboarding.errorAlGuardarEl'), {
+        description: t('onboarding.inténtaloDeNuevo'),
       });
     }
   };
@@ -289,7 +291,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
         <Card className="max-w-md border-2 border-blue-200">
           <CardContent className="pt-12 pb-12 text-center">
             <Loader2 className="h-12 w-12 text-blue-600 animate-spin mx-auto mb-4" />
-            <p className="text-lg font-semibold text-gray-900">Cargando onboarding...</p>
+            <p className="text-lg font-semibold text-gray-900">{t('onboarding.cargandoOnboarding')}</p>
           </CardContent>
         </Card>
       </div>
@@ -341,16 +343,14 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
               </div>
             </div>
 
-            <h2 className="text-3xl font-bold text-gray-900 mb-3">¡Listo!</h2>
-            <p className="text-lg text-gray-700 mb-8">
-              Tu proyecto está configurado. Ahora Optimus puede empezar a trabajar contigo.
-            </p>
+            <h2 className="text-3xl font-bold text-gray-900 mb-3">{t('onboarding.listo')}</h2>
+            <p className="text-lg text-gray-700 mb-8">{t('onboarding.tuProyectoEstáConfigurado')}</p>
 
             <div className="bg-white rounded-lg p-6 max-w-md mx-auto mb-6 shadow-sm">
               <div className="flex items-center justify-between mb-4">
                 <div className="flex items-center gap-3">
                   <Sparkles className="h-6 w-6 text-blue-600" />
-                  <span className="text-gray-900 font-semibold">Configuración inicial</span>
+                  <span className="text-gray-900 font-semibold">{t('onboarding.configuraciónInicial')}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <div className="text-3xl font-bold text-green-600">100%</div>
@@ -371,7 +371,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 text-left">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap className="h-4 w-4 text-blue-600" />
-                    <span className="text-sm font-semibold text-blue-800">Fast-track activado</span>
+                    <span className="text-sm font-semibold text-blue-800">{t('onboarding.fasttrackActivado')}</span>
                   </div>
                   <p className="text-sm text-blue-700">
                     Basándonos en tus datos, hemos detectado que tu proyecto está en{' '}
@@ -385,9 +385,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
             {/* O5.8 — Perfil Operativo Detectado */}
             {faseAAnswers && (
               <div className="max-w-md mx-auto mb-8 w-full">
-                <p className="text-sm font-medium text-gray-700 mb-3 text-left">
-                  Perfil operativo detectado
-                </p>
+                <p className="text-sm font-medium text-gray-700 mb-3 text-left">{t('onboarding.perfilOperativoDetectado')}</p>
                 <OnboardingProfileCard faseAAnswers={faseAAnswers} />
               </div>
             )}
@@ -397,14 +395,10 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
               onClick={onComplete}
               className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
             >
-              <Rocket className="h-5 w-5" />
-              Ir al dashboard
-              <ArrowRight className="h-5 w-5" />
+              <Rocket className="h-5 w-5" />Ir al dashboard<ArrowRight className="h-5 w-5" />
             </Button>
 
-            <p className="text-sm text-gray-500 mt-6">
-              Redirigiendo automáticamente en 8 segundos...
-            </p>
+            <p className="text-sm text-gray-500 mt-6">{t('onboarding.redirigiendoAutomáticamenteEn8')}</p>
           </CardContent>
         </Card>
       </div>

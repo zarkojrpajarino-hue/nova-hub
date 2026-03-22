@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface OptimusFeedbackProps {
   projectId: string;
   userId: string;
@@ -31,11 +32,11 @@ interface OptimusFeedbackProps {
 }
 
 const DOWN_CATEGORIES: { id: string; label: string }[] = [
-  { id: 'too_obvious',     label: 'Ya lo sé' },
-  { id: 'wrong_context',   label: 'No aplica a mi caso' },
-  { id: 'not_actionable',  label: 'No puedo actuar sobre esto' },
-  { id: 'disagree',        label: 'No estoy de acuerdo' },
-  { id: 'other',           label: 'Otro' },
+  { id: 'too_obvious',     label: t('project.yaLoSé') },
+  { id: 'wrong_context',   label: t('project.noAplicaAMi') },
+  { id: 'not_actionable',  label: t('project.noPuedoActuarSobre') },
+  { id: 'disagree',        label: t('project.noEstoyDeAcuerdo') },
+  { id: 'other',           label: t('project.otro') },
 ];
 
 export function OptimusFeedback({
@@ -47,6 +48,7 @@ export function OptimusFeedback({
   confidence,
   onSubmit,
 }: OptimusFeedbackProps) {
+  const { t } = useTranslation();
   const [vote, setVote] = useState<'up' | 'down' | null>(null);
   const [_category, setCategory] = useState<string | null>(null);
   const [showCategories, setShowCategories] = useState(false);
@@ -104,7 +106,7 @@ export function OptimusFeedback({
           ? <ThumbsUp size={12} className="text-green-500" />
           : <ThumbsDown size={12} className="text-amber-500" />
         }
-        <span>Gracias por el feedback</span>
+        <span>{t('project.graciasPorElFeedback')}</span>
       </div>
     );
   }
@@ -113,7 +115,7 @@ export function OptimusFeedback({
     <div className="space-y-2">
       {/* Vote buttons */}
       <div className="flex items-center gap-2">
-        <span className="text-[11px] text-muted-foreground">¿Útil?</span>
+        <span className="text-[11px] text-muted-foreground">{t('project.útil')}</span>
         <button
           onClick={() => handleVote('up')}
           disabled={loading}
@@ -123,7 +125,7 @@ export function OptimusFeedback({
               ? 'text-green-600 bg-green-500/10'
               : 'text-muted-foreground hover:text-green-600 hover:bg-green-500/10',
           )}
-          aria-label="Útil"
+          aria-label={t('project.útil0')}
         >
           <ThumbsUp size={14} />
         </button>
@@ -136,7 +138,7 @@ export function OptimusFeedback({
               ? 'text-amber-600 bg-amber-500/10'
               : 'text-muted-foreground hover:text-amber-600 hover:bg-amber-500/10',
           )}
-          aria-label="No útil"
+          aria-label={t('project.noÚtil')}
         >
           <ThumbsDown size={14} />
         </button>
@@ -146,11 +148,11 @@ export function OptimusFeedback({
       {showCategories && (
         <div className="rounded-lg border border-border bg-background p-3 space-y-2 text-xs">
           <div className="flex items-center justify-between mb-1">
-            <span className="text-muted-foreground font-medium">¿Por qué no fue útil?</span>
+            <span className="text-muted-foreground font-medium">{t('project.porQuéNoFue')}</span>
             <button
               onClick={handleSkipCategory}
               className="text-muted-foreground hover:text-foreground"
-              aria-label="Omitir"
+              aria-label={t('project.omitir')}
             >
               <X size={12} />
             </button>

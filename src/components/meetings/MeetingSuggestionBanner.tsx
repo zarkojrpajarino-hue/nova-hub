@@ -15,6 +15,7 @@ import { Mic, X, AlertTriangle, Clock, TrendingDown, ChevronDown, ChevronUp } fr
 import { useMeetingTriggers, type MeetingTrigger } from '@/hooks/useMeetingTriggers';
 import { supabase } from '@/integrations/supabase/client';
 
+import { useTranslation } from 'react-i18next';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const SUGGESTED_TYPE_LABELS: Record<string, string> = {
@@ -24,6 +25,7 @@ const SUGGESTED_TYPE_LABELS: Record<string, string> = {
 };
 
 function urgencyStyles(urgency: string) {
+  const { t } = useTranslation();
   switch (urgency) {
     case 'high':   return 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30';
     case 'medium': return 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30';
@@ -95,7 +97,7 @@ async function maybeInsertMeetingSuggestedNotification(
       user_id:    user.id,
       project_id: projectId,
       tipo:       'meeting_suggested',
-      titulo:     'Reunión sugerida por el motor',
+      titulo:     t('meetings.reuniónSugeridaPorEl'),
       mensaje:    `Optimus detectó ${totalSignals} señales — puede ser buen momento para una reunión de ${typeLabel}`,
       priority:   'medium',
       metadata:   { triggers, suggested_type: suggestedType },
@@ -174,7 +176,7 @@ export function MeetingSuggestionBanner({
               onClick={() => setShowAll(v => !v)}
             >
               {showAll ? <ChevronUp className="h-3 w-3" /> : <ChevronDown className="h-3 w-3" />}
-              {showAll ? 'Ver menos' : `Ver ${items.length - 3} más`}
+              {showAll ? 'Ver menos': `Ver ${items.length - 3} más`}
             </button>
           )}
 
@@ -191,9 +193,7 @@ export function MeetingSuggestionBanner({
             <button
               className={`text-xs opacity-50 hover:opacity-75 ${urgencyTextColor(urgency)}`}
               onClick={() => setDismissed(true)}
-            >
-              Recordármelo después
-            </button>
+            >{t('meetings.recordármeloDespués')}</button>
           </div>
         </div>
 

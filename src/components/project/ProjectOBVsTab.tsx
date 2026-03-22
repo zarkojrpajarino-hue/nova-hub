@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectOBVsTabProps {
   projectId: string;
 }
@@ -53,6 +54,7 @@ interface DraftParticipant {
 }
 
 function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
 
   const { data: obvs = [], isLoading } = useQuery<OBVWithOwner[]>({
@@ -97,7 +99,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
             return {
               member_id: p.member_id,
               porcentaje: p.porcentaje ?? 0,
-              nombre: pProfile?.nombre ?? 'Desconocido',
+              nombre: pProfile?.nombre ?? t('project.desconocido'),
               color: pProfile?.color ?? '#6366F1',
             };
           });
@@ -198,10 +200,10 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
       { obvId: obv.id, projectId, participants: allParticipants },
       {
         onSuccess: () => {
-          toast.success('Crédito actualizado');
+          toast.success(t('project.créditoActualizado'));
           cancelEditing();
         },
-        onError: () => toast.error('Error al actualizar crédito'),
+        onError: () => toast.error(t('project.errorAlActualizarCrédito')),
       },
     );
   };
@@ -216,9 +218,9 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
 
   const getStatusLabel = (status: string | null) => {
     switch (status) {
-      case 'validated': return 'Validada';
-      case 'rejected': return 'Rechazada';
-      default: return 'Pendiente';
+      case 'validated': return t('project.validada');
+      case 'rejected': return t('project.rechazada');
+      default: return t('project.pendiente');
     }
   };
 
@@ -247,14 +249,12 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="p-5 border-b border-border flex items-center gap-2.5">
           <FileCheck size={18} className="text-primary" />
-          <h3 className="font-semibold">OBVs del Proyecto</h3>
+          <h3 className="font-semibold">{t('project.obvsDelProyecto')}</h3>
           <span className="ml-auto text-sm text-muted-foreground">{obvs.length} registradas</span>
         </div>
 
         {obvs.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">
-            No hay OBVs registradas en este proyecto
-          </div>
+          <div className="p-8 text-center text-muted-foreground">{t('project.noHayObvsRegistradas')}</div>
         ) : (
           <div className="divide-y divide-border">
             {obvs.map(obv => {
@@ -278,7 +278,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                       <div className="flex-1 min-w-0">
                         <p className="font-semibold truncate">{obv.titulo}</p>
                         <p className="text-sm text-muted-foreground">
-                          {obv.owner?.nombre || 'Unknown'} • {obv.fecha || 'Sin fecha'}
+                          {obv.owner?.nombre || t('project.unknown')} • {obv.fecha || t('project.sinFecha')}
                         </p>
                       </div>
 
@@ -319,9 +319,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                           className="text-xs text-muted-foreground h-7 px-2"
                           onClick={() => startEditing(obv)}
                         >
-                          <Users size={12} className="mr-1" />
-                          Compartir crédito
-                        </Button>
+                          <Users size={12} className="mr-1" />{t('project.compartirCrédito')}</Button>
                       )}
                       {isOwner && isEditing && (
                         <Button
@@ -329,9 +327,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                           variant="ghost"
                           className="text-xs text-muted-foreground h-7 px-2"
                           onClick={cancelEditing}
-                        >
-                          Cancelar
-                        </Button>
+                        >{t('project.cancelar')}</Button>
                       )}
                     </div>
 
@@ -359,9 +355,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                   {isEditing && currentOBV && (
                     <div className="px-4 pb-4 bg-muted/20 border-t border-border">
                       <div className="pt-4 space-y-3">
-                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-                          Editar reparto de crédito
-                        </p>
+                        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.editarRepartoDeCrédito')}</p>
 
                         {/* Owner row (auto-computed, read-only) */}
                         <div className="flex items-center gap-3 p-2 bg-background rounded-lg">
@@ -417,7 +411,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                               onChange={e => setSelectedMemberId(e.target.value)}
                               className="flex-1 text-sm bg-background border border-border rounded-lg px-3 py-1.5 focus:outline-none focus:ring-1 focus:ring-primary"
                             >
-                              <option value="">Añadir colaborador...</option>
+                              <option value="">{t('project.añadirColaborador')}</option>
                               {availableToAdd.map(m => (
                                 <option key={m.id} value={m.id}>{m.nombre}</option>
                               ))}
@@ -427,17 +421,13 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                               variant="outline"
                               onClick={() => addDraftParticipant(currentOBV)}
                               disabled={!selectedMemberId}
-                            >
-                              Añadir
-                            </Button>
+                            >{t('project.añadir')}</Button>
                           </div>
                         )}
 
                         {/* Validation error */}
                         {draftOtherTotal > 99 && (
-                          <p className="text-xs text-destructive">
-                            La suma de participantes supera 99%. El propietario debe conservar al menos 1%.
-                          </p>
+                          <p className="text-xs text-destructive">{t('project.laSumaDeParticipantes')}</p>
                         )}
 
                         {/* Actions */}
@@ -450,9 +440,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
                             {isSaving ? <Loader2 size={14} className="animate-spin mr-1" /> : null}
                             Guardar
                           </Button>
-                          <Button size="sm" variant="ghost" onClick={cancelEditing}>
-                            Cancelar
-                          </Button>
+                          <Button size="sm" variant="ghost" onClick={cancelEditing}>{t('project.cancelar')}</Button>
                         </div>
                       </div>
                     </div>

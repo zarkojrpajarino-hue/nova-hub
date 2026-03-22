@@ -13,6 +13,7 @@ import { CheckCircle2, AlertCircle, AlertTriangle } from 'lucide-react';
 import { ValidationResult } from '@/utils/validation';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface ValidatedInputProps {
   label: string;
   value: string;
@@ -36,6 +37,7 @@ export function ValidatedInput({
   helpText,
   debounceMs = 500,
 }: ValidatedInputProps) {
+  const { t } = useTranslation();
   const [validationResult, setValidationResult] = useState<ValidationResult>({ isValid: true });
   const [isTouched, setIsTouched] = useState(false);
   const [isValidating, setIsValidating] = useState(false);
@@ -86,7 +88,7 @@ export function ValidatedInput({
         {label}
         {required && <span className="text-red-500">*</span>}
         {isValidating && (
-          <span className="text-xs text-gray-400 animate-pulse">Validando...</span>
+          <span className="text-xs text-gray-400 animate-pulse">{t('generative.validando')}</span>
         )}
       </Label>
 

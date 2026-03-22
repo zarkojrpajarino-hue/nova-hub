@@ -2,6 +2,7 @@ import { Component, ErrorInfo, ReactNode } from 'react';
 import { AlertTriangle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+import { useTranslation } from 'react-i18next';
 interface Props {
   children: ReactNode;
 }
@@ -37,18 +38,14 @@ export class ErrorBoundary extends Component<Props, State> {
           <div className="max-w-md w-full bg-white rounded-lg shadow-lg p-6 space-y-4">
             <div className="flex items-center gap-3 text-red-600">
               <AlertTriangle className="h-8 w-8" />
-              <h1 className="text-2xl font-bold">Algo salió mal</h1>
+              <h1 className="text-2xl font-bold">{t('errorBoundary.tsx.algoSalióMal')}</h1>
             </div>
 
-            <p className="text-gray-600">
-              La aplicación ha encontrado un error inesperado. Por favor, intenta recargar la página.
-            </p>
+            <p className="text-gray-600">{t('errorBoundary.tsx.laAplicaciónHaEncontrado')}</p>
 
             {this.state.error && (
               <details className="mt-4">
-                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">
-                  Detalles técnicos
-                </summary>
+                <summary className="cursor-pointer text-sm text-gray-500 hover:text-gray-700">{t('errorBoundary.tsx.detallesTécnicos')}</summary>
                 <pre className="mt-2 text-xs bg-gray-100 p-3 rounded overflow-auto max-h-40">
                   {this.state.error.message}
                   {this.state.errorInfo?.componentStack && (
@@ -64,17 +61,13 @@ export class ErrorBoundary extends Component<Props, State> {
                 className="flex-1"
                 variant="default"
               >
-                <RefreshCw className="h-4 w-4 mr-2" />
-                Recargar página
-              </Button>
+                <RefreshCw className="h-4 w-4 mr-2" />{t('errorBoundary.tsx.recargarPágina')}</Button>
 
               <Button
                 onClick={this.handleReset}
                 className="flex-1"
                 variant="outline"
-              >
-                Intentar de nuevo
-              </Button>
+              >{t('errorBoundary.tsx.intentarDeNuevo')}</Button>
             </div>
           </div>
         </div>

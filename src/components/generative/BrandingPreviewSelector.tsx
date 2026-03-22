@@ -7,7 +7,7 @@
  * - Tipografía
  * - Tagline
  *
- * Usuario selecciona una → Click "Aplicar" → Se guarda en DB y se deploya website
+ * Usuario selecciona una → Click t('generative.aplicar') → Se guarda en DB y se deploya website
  */
 
 import { useState } from 'react';
@@ -26,6 +26,7 @@ import { useGenerativeBusiness } from '@/hooks/useGenerativeBusiness';
 import { CheckCircle2, Loader2, Sparkles, Rocket } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface BrandingOption {
   option: number;
   company_name: string;
@@ -54,6 +55,7 @@ export function BrandingPreviewSelector({
   options,
   onApprove,
 }: BrandingPreviewSelectorProps) {
+  const { t } = useTranslation();
   const [selectedOption, setSelectedOption] = useState<number>(1);
   const { approvePreview, isApprovingPreview } = useGenerativeBusiness();
 
@@ -78,10 +80,8 @@ export function BrandingPreviewSelector({
               <Sparkles className="text-white" size={24} />
             </div>
             <div>
-              <DialogTitle className="text-2xl">Elige tu Branding</DialogTitle>
-              <DialogDescription>
-                La IA generó 3 opciones. Selecciona la que más te guste.
-              </DialogDescription>
+              <DialogTitle className="text-2xl">{t('generative.eligeTuBranding')}</DialogTitle>
+              <DialogDescription>{t('generative.laIaGeneró3')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -183,15 +183,11 @@ export function BrandingPreviewSelector({
         </div>
 
         <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isApprovingPreview}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)} disabled={isApprovingPreview}>{t('generative.cancelar')}</Button>
           <Button onClick={handleApprove} disabled={isApprovingPreview} size="lg">
             {isApprovingPreview ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Aplicando y deployando...
-              </>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('generative.aplicandoYDeployando')}</>
             ) : (
               <>
                 <Rocket className="mr-2 h-4 w-4" />
@@ -206,19 +202,17 @@ export function BrandingPreviewSelector({
             <div className="space-y-2 text-sm">
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                <span className="font-semibold">Guardando en base de datos...</span>
+                <span className="font-semibold">{t('generative.guardandoEnBaseDe')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                <span className="font-semibold">Generando website HTML...</span>
+                <span className="font-semibold">{t('generative.generandoWebsiteHtml')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <Loader2 className="h-4 w-4 animate-spin text-primary" />
-                <span className="font-semibold">Deployando a Vercel...</span>
+                <span className="font-semibold">{t('generative.deployandoAVercel')}</span>
               </div>
-              <p className="text-xs text-muted-foreground mt-2">
-                Esto puede tomar 30-60 segundos. No cierres esta ventana.
-              </p>
+              <p className="text-xs text-muted-foreground mt-2">{t('generative.estoPuedeTomar3060')}</p>
             </div>
           </div>
         )}

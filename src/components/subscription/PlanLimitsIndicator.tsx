@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
@@ -28,6 +29,7 @@ export function PlanLimitsIndicator({
   compact = false,
   className,
 }: PlanLimitsIndicatorProps) {
+  const { t } = useTranslation();
   const { plan, getLimitInfo, isTrial } = useFeatureAccess(projectId);
   const availablePlans = useAvailablePlans();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -38,10 +40,10 @@ export function PlanLimitsIndicator({
   if (!plan) return null;
 
   const resources = [
-    { type: 'members' as const, label: 'Miembros', icon: Users },
-    { type: 'tasks' as const, label: 'Tareas', icon: CheckSquare },
-    { type: 'leads' as const, label: 'Leads', icon: UserPlus },
-    { type: 'obvs' as const, label: 'OBVs', icon: Target },
+    { type: 'members' as const, label: t('plans.members'), icon: Users },
+    { type: 'tasks' as const, label: t('plans.tasks'), icon: CheckSquare },
+    { type: 'leads' as const, label: t('plans.leads'), icon: UserPlus },
+    { type: 'obvs' as const, label: t('plans.obvs'), icon: Target },
   ];
 
   const handleUpgrade = () => {
@@ -68,7 +70,7 @@ export function PlanLimitsIndicator({
               <div className="flex items-center gap-2">
                 {isTrial ? (
                   <Badge variant="secondary" className="text-xs">
-                    Trial
+                    {t('plans.trial')}
                   </Badge>
                 ) : (
                   <Badge className="text-xs bg-primary">
@@ -86,7 +88,7 @@ export function PlanLimitsIndicator({
                 className="h-7 text-xs"
               >
                 <Zap className="h-3 w-3 mr-1" />
-                Upgrade
+                {t('plans.upgrade')}
               </Button>
             </div>
 
@@ -140,11 +142,9 @@ export function PlanLimitsIndicator({
       <Card className={className}>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <CardTitle className="text-lg">Plan Actual</CardTitle>
+            <CardTitle className="text-lg">{t('subscription.planActual')}</CardTitle>
             {isTrial ? (
-              <Badge variant="secondary">
-                Trial
-              </Badge>
+              <Badge variant="secondary">{t('subscription.trial')}</Badge>
             ) : plan.id === 'enterprise' ? (
               <Badge className="bg-amber-500">
                 <Crown className="h-3 w-3 mr-1" />
@@ -188,9 +188,7 @@ export function PlanLimitsIndicator({
                     />
                     {isCritical && (
                       <p className="text-xs text-red-600 flex items-center gap-1">
-                        <AlertTriangle className="h-3 w-3" />
-                        Límite alcanzado. Actualiza tu plan.
-                      </p>
+                        <AlertTriangle className="h-3 w-3" />{t('subscription.límiteAlcanzadoActualizaTu')}</p>
                     )}
                     {isWarning && !isCritical && (
                       <p className="text-xs text-orange-600 flex items-center gap-1">
@@ -218,7 +216,7 @@ export function PlanLimitsIndicator({
             className="w-full mt-4"
           >
             <Zap className="h-4 w-4 mr-2" />
-            {isTrial ? 'Seleccionar Plan' : 'Actualizar Plan'}
+            {isTrial ? 'Seleccionar Plan': t('subscription.actualizarPlan')}
           </Button>
         </CardContent>
       </Card>

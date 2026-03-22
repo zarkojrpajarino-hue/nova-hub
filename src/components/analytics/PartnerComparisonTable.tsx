@@ -5,6 +5,7 @@ import { ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { MemberStats } from '@/hooks/useNovaData';
 
+import { useTranslation } from 'react-i18next';
 interface PartnerComparisonTableProps {
   members: MemberStats[];
   onSelectPartner: (id: string) => void;
@@ -18,6 +19,7 @@ export function PartnerComparisonTable({
   onSelectPartner,
   selectedPartners 
 }: PartnerComparisonTableProps) {
+  const { t } = useTranslation();
   const [sortKey, setSortKey] = useState<SortKey>('obvs');
   const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
 
@@ -84,15 +86,15 @@ export function PartnerComparisonTable({
       <TableHeader>
         <TableRow>
           <TableHead className="w-12">
-            <span className="sr-only">Seleccionar</span>
+            <span className="sr-only">{t('analytics.seleccionar')}</span>
           </TableHead>
-          <SortHeader label="Socio" sortKeyName="nombre" />
-          <SortHeader label="OBVs" sortKeyName="obvs" />
+          <SortHeader label={t('analytics.socio')} sortKeyName="nombre" />
+          <SortHeader label={t('analytics.obvs')} sortKeyName="obvs" />
           <SortHeader label="LPs" sortKeyName="lps" />
           <SortHeader label="BPs" sortKeyName="bps" />
           <SortHeader label="CPs" sortKeyName="cps" />
-          <SortHeader label="Facturación" sortKeyName="facturacion" />
-          <SortHeader label="Margen" sortKeyName="margen" />
+          <SortHeader label={t('analytics.facturación')} sortKeyName="facturacion" />
+          <SortHeader label={t('analytics.margen')} sortKeyName="margen" />
         </TableRow>
       </TableHeader>
       <TableBody>

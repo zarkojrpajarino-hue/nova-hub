@@ -30,6 +30,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface MeetingQuestionsReviewProps {
   meetingId: string;
   meetingTitle: string;
@@ -54,6 +55,7 @@ export function MeetingQuestionsReview({
   onContinueToInsights,
   onBack,
 }: MeetingQuestionsReviewProps) {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState<AIQuestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
@@ -87,7 +89,7 @@ export function MeetingQuestionsReview({
    */
   const saveAnswer = async (questionId: string) => {
     if (!editText.trim()) {
-      toast.error('La respuesta no puede estar vacía');
+      toast.error(t('meetings.laRespuestaNoPuede'));
       return;
     }
 
@@ -112,9 +114,9 @@ export function MeetingQuestionsReview({
       );
       setEditingId(null);
       setEditText('');
-      toast.success('Respuesta guardada');
+      toast.success(t('meetings.respuestaGuardada'));
     } else {
-      toast.error('Error al guardar la respuesta');
+      toast.error(t('meetings.errorAlGuardarLa'));
     }
 
     setSaving(false);
@@ -141,7 +143,7 @@ export function MeetingQuestionsReview({
           <div className="w-12 h-12 nova-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse mx-auto mb-3">
             N
           </div>
-          <p className="text-gray-600">Cargando preguntas...</p>
+          <p className="text-gray-600">{t('meetings.cargandoPreguntas')}</p>
         </div>
       </div>
     );
@@ -152,9 +154,7 @@ export function MeetingQuestionsReview({
       {/* Header */}
       <div>
         <h2 className="text-2xl font-bold flex items-center gap-2">
-          <MessageSquare className="h-6 w-6 text-primary" />
-          Revisión de Preguntas
-        </h2>
+          <MessageSquare className="h-6 w-6 text-primary" />{t('meetings.revisiónDePreguntas')}</h2>
         <p className="text-gray-600 mt-1">{meetingTitle}</p>
       </div>
 
@@ -164,7 +164,7 @@ export function MeetingQuestionsReview({
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold">{questions.length}</div>
-              <div className="text-sm text-gray-600 mt-1">Total Preguntas</div>
+              <div className="text-sm text-gray-600 mt-1">{t('meetings.totalPreguntas')}</div>
             </div>
           </CardContent>
         </Card>
@@ -173,7 +173,7 @@ export function MeetingQuestionsReview({
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-green-700">{answeredQuestions.length}</div>
-              <div className="text-sm text-green-700 mt-1">Respondidas</div>
+              <div className="text-sm text-green-700 mt-1">{t('meetings.respondidas')}</div>
             </div>
           </CardContent>
         </Card>
@@ -182,7 +182,7 @@ export function MeetingQuestionsReview({
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-3xl font-bold text-orange-700">{pendingQuestions.length}</div>
-              <div className="text-sm text-orange-700 mt-1">Pendientes</div>
+              <div className="text-sm text-orange-700 mt-1">{t('meetings.pendientes')}</div>
             </div>
           </CardContent>
         </Card>
@@ -192,11 +192,7 @@ export function MeetingQuestionsReview({
       {questions.length === 0 && (
         <Alert className="bg-blue-50 border-blue-200">
           <HelpCircle className="h-4 w-4 text-blue-600" />
-          <AlertDescription className="text-blue-900">
-            No se generaron preguntas durante esta reunión.
-            <br />
-            Puedes continuar directamente a revisar los insights.
-          </AlertDescription>
+          <AlertDescription className="text-blue-900">{t('meetings.noSeGeneraronPreguntas')}<br />{t('meetings.puedesContinuarDirectamenteA')}</AlertDescription>
         </Alert>
       )}
 
@@ -206,9 +202,7 @@ export function MeetingQuestionsReview({
           <AlertTriangle className="h-4 w-4 text-orange-600" />
           <AlertDescription className="text-orange-900">
             Tienes {pendingQuestions.length} pregunta(s) sin responder.
-            <br />
-            Puedes responderlas ahora o continuar sin ellas.
-          </AlertDescription>
+            <br />{t('meetings.puedesResponderlasAhoraO')}</AlertDescription>
         </Alert>
       )}
 
@@ -217,10 +211,7 @@ export function MeetingQuestionsReview({
         <Alert className="bg-green-50 border-green-200">
           <CheckCircle2 className="h-4 w-4 text-green-600" />
           <AlertDescription className="text-green-900">
-            <strong>¡Excelente!</strong> Todas las preguntas han sido respondidas.
-            <br />
-            Continúa para revisar los insights extraídos por la IA.
-          </AlertDescription>
+            <strong>{t('meetings.excelente')}</strong>{t('meetings.todasLasPreguntasHan')}<br />{t('meetings.continúaParaRevisarLos')}</AlertDescription>
         </Alert>
       )}
 
@@ -276,7 +267,7 @@ export function MeetingQuestionsReview({
                             className="gap-1"
                           >
                             <Save className="h-3 w-3" />
-                            {saving ? 'Guardando...' : 'Guardar'}
+                            {saving ? 'Guardando...': t('meetings.guardar')}
                           </Button>
                           <Button
                             size="sm"
@@ -286,9 +277,7 @@ export function MeetingQuestionsReview({
                               setEditText('');
                             }}
                             disabled={saving}
-                          >
-                            Cancelar
-                          </Button>
+                          >{t('meetings.cancelar')}</Button>
                         </div>
                       </div>
                     ) : (
@@ -302,9 +291,7 @@ export function MeetingQuestionsReview({
                           onClick={() => startEditing(q)}
                           className="mt-2 gap-1 h-7 text-xs"
                         >
-                          <Edit3 className="h-3 w-3" />
-                          Editar
-                        </Button>
+                          <Edit3 className="h-3 w-3" />{t('meetings.editar')}</Button>
                       </div>
                     )}
                   </div>
@@ -321,9 +308,7 @@ export function MeetingQuestionsReview({
                   <AlertTriangle className="h-5 w-5 text-orange-600" />
                   Preguntas Pendientes ({pendingQuestions.length})
                 </CardTitle>
-                <CardDescription>
-                  Estas preguntas no fueron respondidas durante la reunión
-                </CardDescription>
+                <CardDescription>{t('meetings.estasPreguntasNoFueron')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-3">
                 {pendingQuestions.map((q) => (
@@ -354,7 +339,7 @@ export function MeetingQuestionsReview({
                         <Textarea
                           value={editText}
                           onChange={(e) => setEditText(e.target.value)}
-                          placeholder="Escribe la respuesta ahora..."
+                          placeholder={t('meetings.escribeLaRespuestaAhora')}
                           rows={3}
                           className="text-sm"
                         />
@@ -366,7 +351,7 @@ export function MeetingQuestionsReview({
                             className="gap-1"
                           >
                             <Save className="h-3 w-3" />
-                            {saving ? 'Guardando...' : 'Guardar'}
+                            {saving ? 'Guardando...': t('meetings.guardar')}
                           </Button>
                           <Button
                             size="sm"
@@ -376,9 +361,7 @@ export function MeetingQuestionsReview({
                               setEditText('');
                             }}
                             disabled={saving}
-                          >
-                            Cancelar
-                          </Button>
+                          >{t('meetings.cancelar')}</Button>
                         </div>
                       </div>
                     ) : (
@@ -388,9 +371,7 @@ export function MeetingQuestionsReview({
                         onClick={() => startEditing(q)}
                         className="mt-2 gap-1"
                       >
-                        <Edit3 className="h-3 w-3" />
-                        Responder ahora
-                      </Button>
+                        <Edit3 className="h-3 w-3" />{t('meetings.responderAhora')}</Button>
                     )}
                   </div>
                 ))}
@@ -425,15 +406,11 @@ export function MeetingQuestionsReview({
       {/* Actions */}
       <div className="flex gap-3 justify-between pt-4 border-t">
         {onBack && (
-          <Button variant="outline" onClick={onBack}>
-            Volver
-          </Button>
+          <Button variant="outline" onClick={onBack}>{t('meetings.volver')}</Button>
         )}
 
         <div className="flex gap-3 ml-auto">
-          <Button onClick={onContinueToInsights} size="lg" className="gap-2">
-            Continuar a Insights
-            <ArrowRight className="h-4 w-4" />
+          <Button onClick={onContinueToInsights} size="lg" className="gap-2">Continuar a Insights<ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>
@@ -441,9 +418,7 @@ export function MeetingQuestionsReview({
       {/* AI Badge */}
       <div className="text-center pt-2">
         <Badge variant="secondary" className="gap-1">
-          <Sparkles className="h-3 w-3" />
-          Preguntas generadas por IA durante la reunión
-        </Badge>
+          <Sparkles className="h-3 w-3" />{t('meetings.preguntasGeneradasPorIa')}</Badge>
       </div>
     </div>
   );

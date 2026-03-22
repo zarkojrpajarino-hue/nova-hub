@@ -32,8 +32,9 @@ import type { ToolType, ToolkitUnlockState } from '@/hooks/useToolkitUnlocks';
 import type { ToolUnlockInfo } from '@/lib/toolkit-unlock-engine';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 // ── Configuración de herramientas ─────────────────────────────────────────────
 
 interface ToolConfig {
@@ -45,12 +46,12 @@ interface ToolConfig {
 }
 
 const TOOL_CONFIG: ToolConfig[] = [
-  { type: 'buyer_persona',    label: 'Buyer Persona',          description: 'Perfil de tu cliente ideal basado en leads reales.',                  icon: Users,          color: 'violet' },
-  { type: 'lead_scoring',     label: 'Lead Scoring',           description: 'Criterios y puntaje de leads desde deals reales.',                    icon: BarChart2,      color: 'blue'   },
-  { type: 'sales_playbook',   label: 'Sales Playbook',         description: 'Proceso de venta desde deals ganados.',                               icon: BookOpen,       color: 'green'  },
-  { type: 'brand_kit',        label: 'Brand Kit',              description: 'Propuesta de valor, mensajes clave y tono de marca.',                 icon: Palette,        color: 'pink'   },
-  { type: 'comms_guide',      label: 'Guía de Comunicación',   description: 'Plantillas por canal listas para usar.',                              icon: MessageSquare,  color: 'amber'  },
-  { type: 'customer_journey', label: 'Customer Journey',       description: 'Mapa de etapas con datos reales de Stripe y CRM.',                   icon: Map,            color: 'teal'   },
+  { type: 'buyer_persona',    label: t('founderToolkit.buyerPersona'),          description: t('founderToolkit.perfilDeTuCliente'),                  icon: Users,          color: 'violet' },
+  { type: 'lead_scoring',     label: t('founderToolkit.leadScoring'),           description: t('founderToolkit.criteriosYPuntajeDe'),                    icon: BarChart2,      color: 'blue'   },
+  { type: 'sales_playbook',   label: t('founderToolkit.salesPlaybook'),         description: t('founderToolkit.procesoDeVentaDesde'),                               icon: BookOpen,       color: 'green'  },
+  { type: 'brand_kit',        label: t('founderToolkit.brandKit'),              description: t('founderToolkit.propuestaDeValorMensajes'),                 icon: Palette,        color: 'pink'   },
+  { type: 'comms_guide',      label: t('founderToolkit.guíaDeComunicación'),   description: t('founderToolkit.plantillasPorCanalListas'),                              icon: MessageSquare,  color: 'amber'  },
+  { type: 'customer_journey', label: t('founderToolkit.customerJourney'),       description: t('founderToolkit.mapaDeEtapasCon'),                   icon: Map,            color: 'teal'   },
 ];
 
 const COLOR_MAP: Record<string, { accent: string; bg: string; border: string; iconBg: string; iconColor: string }> = {
@@ -82,9 +83,9 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
             </div>
             <CardTitle className={cn('text-sm font-semibold', isLocked ? 'text-gray-500' : '')}>{config.label}</CardTitle>
           </div>
-          {isGenerated && <Badge className="text-[10px] bg-green-100 text-green-700 border-green-200 shrink-0"><CheckCircle2 className="h-3 w-3 mr-1" />Generado</Badge>}
-          {isAvailable && <Badge className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 shrink-0"><Sparkles className="h-3 w-3 mr-1" />Disponible</Badge>}
-          {isLocked && <Badge variant="secondary" className="text-[10px] shrink-0"><Lock className="h-3 w-3 mr-1" />Bloqueado</Badge>}
+          {isGenerated && <Badge className="text-[10px] bg-green-100 text-green-700 border-green-200 shrink-0"><CheckCircle2 className="h-3 w-3 mr-1" />{t('founderToolkit.generado')}</Badge>}
+          {isAvailable && <Badge className="text-[10px] bg-blue-100 text-blue-700 border-blue-200 shrink-0"><Sparkles className="h-3 w-3 mr-1" />{t('founderToolkit.disponible')}</Badge>}
+          {isLocked && <Badge variant="secondary" className="text-[10px] shrink-0"><Lock className="h-3 w-3 mr-1" />{t('founderToolkit.bloqueado')}</Badge>}
         </div>
       </CardHeader>
       <CardContent className="space-y-3">
@@ -115,7 +116,7 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
         )}
         {(isAvailable || isGenerated) && (
           <Button size="sm" variant={isGenerated ? 'outline' : 'default'} className="w-full gap-1.5 mt-1 text-xs h-8" onClick={onSelect}>
-            {isGenerated ? 'Ver herramienta' : `Generar ${config.label}`}
+            {isGenerated ? 'Ver herramienta': `Generar ${config.label}`}
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         )}
@@ -143,8 +144,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
       {/* Header con back */}
       <div className="flex items-center gap-3">
         <Button size="sm" variant="ghost" onClick={onBack} className="gap-1.5 -ml-1">
-          <ArrowLeft className="h-4 w-4" /> Toolkit
-        </Button>
+          <ArrowLeft className="h-4 w-4" />{t('founderToolkit.toolkit')}</Button>
         <div className="flex items-center gap-2 flex-wrap">
           <div className={cn('w-8 h-8 rounded-lg flex items-center justify-center', colors.iconBg)}>
             <Icon className={cn('h-4 w-4', colors.iconColor)} />
@@ -152,8 +152,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
           <h2 className="text-lg font-bold text-gray-900 dark:text-gray-100">{config.label}</h2>
           {toolState.isStale && (
             <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
-              <AlertTriangle className="h-3 w-3 mr-1" />TTL expirado
-            </Badge>
+              <AlertTriangle className="h-3 w-3 mr-1" />{t('founderToolkit.ttlExpirado')}</Badge>
           )}
           {unlockInfo?.has_new_data && (
             <Badge className="text-xs bg-orange-100 text-orange-700 border-orange-200">
@@ -164,7 +163,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
         <div className="ml-auto flex items-center gap-2">
           {toolState.generatedAt && (
             <p className="text-xs text-gray-500 hidden sm:block">
-              Generado {formatDistanceToNow(new Date(toolState.generatedAt), { addSuffix: true, locale: es })}
+              Generado {formatDistanceToNow(new Date(toolState.generatedAt), { addSuffix: true, locale: getDateFnsLocale() })}
             </p>
           )}
           <Button
@@ -175,10 +174,10 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
             className="gap-1.5"
           >
             {toolState.isGenerating
-              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />Generando...</>
+              ? <><Loader2 className="h-3.5 w-3.5 animate-spin" />{t('founderToolkit.generando')}</>
               : toolState.output
-                ? <><RefreshCw className="h-3.5 w-3.5" />Regenerar</>
-                : <>Generar</>
+                ? <><RefreshCw className="h-3.5 w-3.5" />{t('founderToolkit.regenerar')}</>
+                : <>{t('founderToolkit.generar')}</>
             }
           </Button>
         </div>
@@ -196,7 +195,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
       {(toolState.isLoading || toolState.isGenerating) && !toolState.output && (
         <div className="flex flex-col items-center justify-center py-16 gap-3">
           <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-          {toolState.isGenerating && <p className="text-sm text-gray-500">Generando análisis...</p>}
+          {toolState.isGenerating && <p className="text-sm text-gray-500">{t('founderToolkit.generandoAnálisis')}</p>}
         </div>
       )}
 
@@ -204,7 +203,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
       {!toolState.isLoading && !toolState.isGenerating && !toolState.output && (
         <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 rounded-xl border-2 border-dashed border-gray-200">
           <Icon className={cn('h-10 w-10', colors.iconColor, 'opacity-40')} />
-          <p className="text-gray-600 dark:text-gray-400">No hay análisis generado todavía</p>
+          <p className="text-gray-600 dark:text-gray-400">{t('founderToolkit.noHayAnálisisGenerado')}</p>
           <Button onClick={toolState.generate} disabled={toolState.isGenerating || !toolState.canRegenerate}>
             Generar {config.label}
           </Button>
@@ -240,7 +239,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
           {/* Data sources */}
           {toolState.dataSources.length > 0 && (
             <div className="rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-900 p-4">
-              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">Fuentes usadas</p>
+              <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">{t('founderToolkit.fuentesUsadas')}</p>
               <div className="flex flex-wrap gap-2">
                 {toolState.dataSources.map((src, i) => (
                   <SourceBadge key={i} type={src.type as 'observed' | 'declared' | 'estimated' | 'inferred'} source={src.name} timestamp={src.updated_at ?? undefined} />
@@ -257,6 +256,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
 // ── Página principal ──────────────────────────────────────────────────────────
 
 export default function FounderToolkitPage() {
+  const { t } = useTranslation();
   const { currentProject } = useCurrentProject();
   const { unlocks, isLoading } = useToolkitUnlocks(currentProject?.id);
   const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
@@ -266,7 +266,7 @@ export default function FounderToolkitPage() {
       <div className="container max-w-4xl mx-auto py-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>Selecciona un proyecto desde el selector en el header</AlertDescription>
+          <AlertDescription>{t('founderToolkit.seleccionaUnProyectoDesde')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -302,7 +302,7 @@ export default function FounderToolkitPage() {
   return (
     <div className="container max-w-4xl mx-auto py-8">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Founder Toolkit</h1>
+        <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('founderToolkit.founderToolkit')}</h1>
         <p className="text-sm text-gray-500 mt-1">
           6 herramientas IA que se desbloquean según la actividad real de tu negocio
         </p>

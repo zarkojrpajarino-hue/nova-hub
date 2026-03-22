@@ -4,7 +4,7 @@
  * Modal interactivo que muestra TODAS las funcionalidades de Analytics
  * con datos demo enterprise-level perfectos.
  *
- * Se activa desde el botón "Ver Sección en Acción" en HowItWorks
+ * Se activa desde el botón t('preview.verSecciónEnAcción') en HowItWorks
  */
 
 import { useState } from 'react';
@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
+import { useTranslation } from 'react-i18next';
 interface AnalyticsPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,16 +39,16 @@ interface AnalyticsPreviewModalProps {
 const SLIDES = [
   {
     id: 'intro',
-    title: 'Analytics - Tu Centro de Inteligencia de Negocio',
+    title: t('preview.analyticsTuCentroDe'),
     icon: BarChart3,
-    description: 'Análisis avanzado con IA para insights profundos sobre tu equipo, proyectos y revenue.',
+    description: t('preview.análisisAvanzadoConIa'),
     content: (
       <div className="space-y-6">
         <div className="grid grid-cols-3 gap-4">
           {/* Métricas globales impresionantes */}
           <Card className="border-primary/20">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Total Revenue</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('preview.totalRevenue')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-primary">
@@ -76,7 +77,7 @@ const SLIDES = [
 
           <Card className="border-primary/20">
             <CardHeader className="pb-3">
-              <CardTitle className="text-sm font-medium text-muted-foreground">Team Health</CardTitle>
+              <CardTitle className="text-sm font-medium text-muted-foreground">{t('preview.teamHealth')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-3xl font-bold text-green-600">
@@ -91,17 +92,15 @@ const SLIDES = [
 
         <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            ¿Qué puedes hacer con Analytics?
-          </h4>
+            <Sparkles className="w-5 h-5 text-primary" />{t('preview.quéPuedesHacerCon')}</h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Comparar performance de socios side-by-side con radar charts</span>
+              <span>{t('preview.compararPerformanceDeSocios')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Analizar evolución temporal de revenue, tasks, y team growth</span>
+              <span>{t('preview.analizarEvoluciónTemporalDe')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
@@ -109,11 +108,11 @@ const SLIDES = [
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Obtener predicciones IA de revenue futuro con recomendaciones</span>
+              <span>{t('preview.obtenerPrediccionesIaDe')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Exportar reportes a Excel/PDF para investors</span>
+              <span>{t('preview.exportarReportesAExcelpdf')}</span>
             </li>
           </ul>
         </div>
@@ -122,9 +121,9 @@ const SLIDES = [
   },
   {
     id: 'partners-comparison',
-    title: 'Comparativa de Socios',
+    title: t('preview.comparativaDeSocios'),
     icon: Users,
-    description: 'Compara performance, revenue y efficiency entre socios para identificar top performers.',
+    description: t('preview.comparaPerformanceRevenueY'),
     content: (
       <div className="space-y-4">
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
@@ -142,15 +141,15 @@ const SLIDES = [
                 <div className="absolute left-0 top-full mt-2 w-full p-3 rounded-lg bg-popover border shadow-xl z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <div className="grid grid-cols-3 gap-3 text-xs">
                     <div>
-                      <p className="text-muted-foreground">OBVs</p>
+                      <p className="text-muted-foreground">{t('preview.obvs')}</p>
                       <p className="font-semibold">{partner.obvs_creadas} / {partner.obvs_validadas}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">KPIs</p>
+                      <p className="text-muted-foreground">{t('preview.kpis')}</p>
                       <p className="font-semibold">{partner.lps} LPs, {partner.bps} BPs</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Tasks</p>
+                      <p className="text-muted-foreground">{t('preview.tasks')}</p>
                       <p className="font-semibold">{partner.tareas_completadas}</p>
                     </div>
                   </div>
@@ -180,7 +179,7 @@ const SLIDES = [
 
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg border bg-card">
-            <h4 className="text-xs font-semibold text-muted-foreground mb-2">Métricas Clave</h4>
+            <h4 className="text-xs font-semibold text-muted-foreground mb-2">{t('preview.métricasClave')}</h4>
             <ul className="space-y-1 text-xs">
               <li>✓ Facturación total</li>
               <li>✓ Margen de beneficio</li>
@@ -191,7 +190,7 @@ const SLIDES = [
             </ul>
           </div>
           <div className="p-3 rounded-lg border bg-card">
-            <h4 className="text-xs font-semibold text-muted-foreground mb-2">Visualizaciones</h4>
+            <h4 className="text-xs font-semibold text-muted-foreground mb-2">{t('preview.visualizaciones')}</h4>
             <ul className="space-y-1 text-xs">
               <li>📊 Tabla sorteable por columna</li>
               <li>📈 Radar chart comparativo</li>
@@ -206,9 +205,9 @@ const SLIDES = [
   },
   {
     id: 'projects-comparison',
-    title: 'Comparativa de Proyectos',
+    title: t('preview.comparativaDeProyectos'),
     icon: Target,
-    description: 'Analiza health score, revenue, team size y leads por proyecto.',
+    description: t('preview.analizaHealthScoreRevenue'),
     content: (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
@@ -231,7 +230,7 @@ const SLIDES = [
               </CardHeader>
               <CardContent className="space-y-2">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">Health</span>
+                  <span className="text-muted-foreground">{t('preview.health')}</span>
                   <span className="font-bold text-green-600 group-hover:scale-110 transition-transform inline-block">
                     {project.health_score}%
                   </span>
@@ -248,15 +247,15 @@ const SLIDES = [
                 </div>
                 <div className="pt-2 space-y-1 text-xs">
                   <div className="flex justify-between group-hover:bg-primary/5 p-1 rounded transition-colors">
-                    <span className="text-muted-foreground">Revenue</span>
+                    <span className="text-muted-foreground">{t('preview.revenue')}</span>
                     <span className="font-semibold">${(project.revenue / 1000).toFixed(0)}K</span>
                   </div>
                   <div className="flex justify-between group-hover:bg-primary/5 p-1 rounded transition-colors">
-                    <span className="text-muted-foreground">Team</span>
+                    <span className="text-muted-foreground">{t('preview.team')}</span>
                     <span className="font-semibold">{project.team_size} members</span>
                   </div>
                   <div className="flex justify-between group-hover:bg-primary/5 p-1 rounded transition-colors">
-                    <span className="text-muted-foreground">Leads Won</span>
+                    <span className="text-muted-foreground">{t('preview.leadsWon')}</span>
                     <span className="font-semibold text-green-600">{project.leads_ganados}/{project.leads}</span>
                   </div>
                 </div>
@@ -285,7 +284,7 @@ const SLIDES = [
         <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
           <p className="text-sm font-medium mb-2">💡 Insights Automáticos</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
-            <li>• "Enterprise SaaS Platform" tiene el health score más alto (95%)</li>
+            <li>• t('preview.enterpriseSaasPlatform') tiene el health score más alto (95%)</li>
             <li>• Revenue total combinado: $245K</li>
             <li>• Tasa de conversión promedio de leads: 51%</li>
           </ul>
@@ -295,21 +294,18 @@ const SLIDES = [
   },
   {
     id: 'temporal-evolution',
-    title: 'Evolución Temporal',
+    title: t('preview.evoluciónTemporal'),
     icon: Calendar,
-    description: 'Tracking de revenue, tasks, team growth en los últimos 6 meses.',
+    description: t('preview.trackingDeRevenueTasks'),
     content: (
       <div className="space-y-4">
         <div className="p-4 rounded-lg border bg-gradient-to-r from-green-500/10 to-blue-500/10">
           <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            Últimos 6 Meses - Tendencias Crecientes
-          </h4>
+            <TrendingUp className="w-5 h-5 text-green-600" />{t('preview.últimos6MesesTendencias')}</h4>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <p className="text-xs text-muted-foreground mb-2">
-                Revenue Growth <span className="text-[10px]">(Pasa el ratón)</span>
+              <p className="text-xs text-muted-foreground mb-2">Revenue Growth<span className="text-[10px]">(Pasa el ratón)</span>
               </p>
               <div className="flex items-baseline gap-2 h-[100px]">
                 {PREMIUM_DEMO_DATA.analytics.temporal.revenue.map((val, idx) => (
@@ -339,8 +335,7 @@ const SLIDES = [
             </div>
 
             <div>
-              <p className="text-xs text-muted-foreground mb-2">
-                Tasks Completed <span className="text-[10px]">(Pasa el ratón)</span>
+              <p className="text-xs text-muted-foreground mb-2">Tasks Completed<span className="text-[10px]">(Pasa el ratón)</span>
               </p>
               <div className="flex items-baseline gap-2 h-[100px]">
                 {PREMIUM_DEMO_DATA.analytics.temporal.tasks.map((val, idx) => (
@@ -385,15 +380,15 @@ const SLIDES = [
 
         <div className="grid grid-cols-3 gap-2 text-xs">
           <div className="p-2 rounded-lg bg-card border">
-            <p className="text-muted-foreground mb-1">OBVs Created</p>
+            <p className="text-muted-foreground mb-1">{t('preview.obvsCreated')}</p>
             <p className="text-lg font-bold">+62%</p>
           </div>
           <div className="p-2 rounded-lg bg-card border">
-            <p className="text-muted-foreground mb-1">Team Growth</p>
+            <p className="text-muted-foreground mb-1">{t('preview.teamGrowth')}</p>
             <p className="text-lg font-bold">+56%</p>
           </div>
           <div className="p-2 rounded-lg bg-card border">
-            <p className="text-muted-foreground mb-1">Satisfaction</p>
+            <p className="text-muted-foreground mb-1">{t('preview.satisfaction')}</p>
             <p className="text-lg font-bold text-green-600">4.8/5</p>
           </div>
         </div>
@@ -402,9 +397,9 @@ const SLIDES = [
   },
   {
     id: 'activity-heatmap',
-    title: 'Mapa de Actividad',
+    title: t('preview.mapaDeActividad'),
     icon: Activity,
-    description: 'Visualiza patrones de trabajo del equipo en los últimos 6 meses.',
+    description: t('preview.visualizaPatronesDeTrabajo'),
     content: (
       <div className="space-y-4">
         <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-500/10 to-pink-500/10">
@@ -457,7 +452,7 @@ const SLIDES = [
           `}</style>
 
           <div className="flex items-center justify-between mt-3 text-xs text-muted-foreground">
-            <span>Menos actividad</span>
+            <span>{t('preview.menosActividad')}</span>
             <div className="flex items-center gap-1">
               <div className="w-3 h-3 rounded-sm bg-muted" />
               <div className="w-3 h-3 rounded-sm bg-green-200" />
@@ -465,7 +460,7 @@ const SLIDES = [
               <div className="w-3 h-3 rounded-sm bg-green-600" />
               <div className="w-3 h-3 rounded-sm bg-green-800" />
             </div>
-            <span>Más actividad</span>
+            <span>{t('preview.másActividad')}</span>
           </div>
         </div>
 
@@ -494,16 +489,14 @@ const SLIDES = [
     id: 'predictions-ai',
     title: 'Predicciones IA',
     icon: Sparkles,
-    description: 'IA analiza tendencias y predice revenue futuro con recomendaciones accionables.',
+    description: t('preview.iaAnalizaTendenciasY'),
     content: (
       <div className="space-y-4">
         {/* Revenue Prediction */}
         <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-purple-500/10">
           <CardHeader>
             <CardTitle className="flex items-center gap-2 text-lg">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Predicción Revenue Próximo Mes
-            </CardTitle>
+              <Sparkles className="w-5 h-5 text-primary" />{t('preview.predicciónRevenuePróximoMes')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-center justify-between mb-4">
@@ -522,7 +515,7 @@ const SLIDES = [
                     {PREMIUM_DEMO_DATA.analytics.predictions.confidence}%
                   </span>
                 </div>
-                <p className="text-xs text-muted-foreground">Confianza</p>
+                <p className="text-xs text-muted-foreground">{t('preview.confianza')}</p>
               </div>
             </div>
           </CardContent>
@@ -554,7 +547,7 @@ const SLIDES = [
                       variant={rec.priority === 'high' ? 'destructive' : 'secondary'}
                       className="text-xs group-hover:scale-110 transition-transform"
                     >
-                      {rec.priority === 'high' ? 'Alta' : 'Media'}
+                      {rec.priority === 'high' ? 'Alta': t('preview.media')}
                     </Badge>
                   </div>
                   <p className="text-xs text-muted-foreground mb-1">{rec.description}</p>
@@ -589,9 +582,9 @@ const SLIDES = [
   },
   {
     id: 'export-reports',
-    title: 'Exportar Reportes',
+    title: t('preview.exportarReportes'),
     icon: BarChart3,
-    description: 'Genera reportes profesionales para investors, board meetings o análisis interno.',
+    description: t('preview.generaReportesProfesionalesPara'),
     content: (
       <div className="space-y-4">
         <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
@@ -617,7 +610,7 @@ const SLIDES = [
                 <div className="w-8 h-8 rounded-lg bg-red-500/10 flex items-center justify-center">
                   <span className="text-lg">📑</span>
                 </div>
-                <span className="font-semibold text-sm">PDF Report</span>
+                <span className="font-semibold text-sm">{t('preview.pdfReport')}</span>
               </div>
               <ul className="space-y-1 text-xs text-muted-foreground">
                 <li>• Diseño profesional</li>
@@ -651,6 +644,7 @@ const SLIDES = [
 ];
 
 export function AnalyticsPreviewModal({ open, onOpenChange }: AnalyticsPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -678,10 +672,8 @@ export function AnalyticsPreviewModal({ open, onOpenChange }: AnalyticsPreviewMo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden">
         <VisuallyHidden>
-          <DialogTitle>Analytics Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of analytics section
-          </DialogDescription>
+          <DialogTitle>{t('preview.analyticsPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfAnalytics')}</DialogDescription>
         </VisuallyHidden>
         {/* Header */}
         <div className="relative p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-purple-500/5">
@@ -726,9 +718,7 @@ export function AnalyticsPreviewModal({ open, onOpenChange }: AnalyticsPreviewMo
               disabled={currentSlide === 0}
               className="gap-2"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
+              <ChevronLeft className="w-4 h-4" />{t('preview.anterior')}</Button>
 
             <div className="flex gap-1">
               {SLIDES.map((_, idx) => (
@@ -749,14 +739,10 @@ export function AnalyticsPreviewModal({ open, onOpenChange }: AnalyticsPreviewMo
               className="gap-2"
             >
               {currentSlide === SLIDES.length - 1 ? (
-                <>
-                  Finalizar
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
+                <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-1" />
                 </>
               ) : (
-                <>
-                  Siguiente
-                  <ChevronRight className="w-4 h-4" />
+                <>{t('preview.siguiente')}<ChevronRight className="w-4 h-4" />
                 </>
               )}
             </Button>

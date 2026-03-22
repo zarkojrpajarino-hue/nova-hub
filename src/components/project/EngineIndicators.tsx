@@ -1,5 +1,6 @@
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 interface EngineIndicatorsProps {
   engineData: ProjectEngineData | null | undefined;
 }
@@ -35,13 +36,14 @@ function riskDotColor(status: string, level: string): string {
 
 function riskLabel(status: string, level: string): string {
   if (status !== 'active') return '—';
-  const MAP: Record<string, string> = { low: 'Bajo', medium: 'Medio', high: 'Alto', critical: 'Crítico' };
+  const MAP: Record<string, string> = { low: t('project.bajo'), medium: t('project.medio'), high: t('project.alto'), critical: t('project.crítico') };
   return MAP[level] ?? '—';
 }
 
 // ── Component ──────────────────────────────────────────────────────────────────
 
 export function EngineIndicators({ engineData }: EngineIndicatorsProps) {
+  const { t } = useTranslation();
   // Phase
   const phase       = engineData?.phaseState?.current_phase ?? 1;
   const phaseScore  = Math.round(engineData?.phaseState?.phase_score ?? 0);
@@ -87,7 +89,7 @@ export function EngineIndicators({ engineData }: EngineIndicatorsProps) {
             {probActive && probScore != null ? Math.round(probScore) : '—'}
           </span>
         </div>
-        <p className="text-[11px] text-muted-foreground">Probabilidad</p>
+        <p className="text-[11px] text-muted-foreground">{t('project.probabilidad')}</p>
       </div>
 
       <div className="w-px h-8 bg-border" />
@@ -97,7 +99,7 @@ export function EngineIndicators({ engineData }: EngineIndicatorsProps) {
         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${riskDotColor(riskStatus, riskLevel)}`} />
         <div>
           <p className="text-base font-bold leading-none">{riskLabel(riskStatus, riskLevel)}</p>
-          <p className="text-[11px] text-muted-foreground mt-0.5">Riesgo</p>
+          <p className="text-[11px] text-muted-foreground mt-0.5">{t('project.riesgo')}</p>
         </div>
       </div>
 

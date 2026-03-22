@@ -38,6 +38,7 @@ import { getHelp } from '@/data/helpContent';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { getDemoData, type DemoDataSection } from '@/data/demoData';
 
+import { useTranslation } from 'react-i18next';
 export interface HelpContent {
   title: string;
   description: string;
@@ -95,7 +96,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
   <div className="space-y-1">
     <HelpSection 
       icon={Info} 
-      title="Descripción" 
+      title={t('ui.descripción')} 
       content={content.description}
       iconColor="bg-blue-500/10 text-blue-500"
     />
@@ -103,7 +104,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.howItWorks && (
       <HelpSection 
         icon={Workflow} 
-        title="Cómo funciona" 
+        title={t('ui.cómoFunciona0')} 
         content={content.howItWorks}
         iconColor="bg-purple-500/10 text-purple-500"
       />
@@ -112,7 +113,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.dataSource && (
       <HelpSection 
         icon={Database} 
-        title="Origen de datos" 
+        title={t('ui.origenDeDatos')} 
         content={content.dataSource}
         iconColor="bg-green-500/10 text-green-500"
       />
@@ -121,7 +122,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.validation && (
       <HelpSection 
         icon={CheckCircle2} 
-        title="Proceso de validación" 
+        title={t('ui.procesoDeValidación')} 
         content={content.validation}
         iconColor="bg-amber-500/10 text-amber-500"
       />
@@ -130,7 +131,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
     {content.tips && content.tips.length > 0 && (
       <HelpSection 
         icon={Lightbulb} 
-        title="Consejos útiles" 
+        title={t('ui.consejosÚtiles')} 
         content={content.tips}
         iconColor="bg-cyan-500/10 text-cyan-500"
       />
@@ -140,6 +141,7 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
 
 // Demo Button Component
 function DemoButton({ section }: { section: string }) {
+  const { t } = useTranslation();
   const { isDemoMode, enableDemo, disableDemo, setDemoSection } = useDemoMode();
   const [showDemoDialog, setShowDemoDialog] = useState(false);
   
@@ -172,14 +174,10 @@ function DemoButton({ section }: { section: string }) {
         >
           {isDemoMode ? (
             <>
-              <Eye className="w-4 h-4" />
-              Modo Demo Activo - Clic para desactivar
-            </>
+              <Eye className="w-4 h-4" />{t('ui.modoDemoActivoClic')}</>
           ) : (
             <>
-              <Play className="w-4 h-4" />
-              Mostrar datos demo
-            </>
+              <Play className="w-4 h-4" />{t('ui.mostrarDatosDemo')}</>
           )}
         </Button>
       </DialogTrigger>
@@ -190,15 +188,13 @@ function DemoButton({ section }: { section: string }) {
               <Eye className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <span className="text-lg">Modo Demostración</span>
+              <span className="text-lg">{t('ui.modoDemostración')}</span>
               <p className="text-sm font-normal text-muted-foreground mt-0.5">
-                {isDemoMode ? 'Actualmente activo' : 'Ver funcionalidades con datos de ejemplo'}
+                {isDemoMode ? 'Actualmente activo': t('ui.verFuncionalidadesConDatos')}
               </p>
             </div>
           </DialogTitle>
-          <DialogDescription className="sr-only">
-            Activa o desactiva el modo de demostración para ver datos de ejemplo
-          </DialogDescription>
+          <DialogDescription className="sr-only">{t('ui.activaODesactivaEl')}</DialogDescription>
         </DialogHeader>
         
         <div className="space-y-4 mt-4">
@@ -214,9 +210,7 @@ function DemoButton({ section }: { section: string }) {
                 onClick={handleDisableDemo} 
                 className="w-full"
                 variant="outline"
-              >
-                Desactivar modo demo
-              </Button>
+              >{t('ui.desactivarModoDemo')}</Button>
             </>
           ) : (
             <>
@@ -226,7 +220,7 @@ function DemoButton({ section }: { section: string }) {
                     <Database className="w-4 h-4 text-primary" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium">Datos realistas</h4>
+                    <h4 className="text-sm font-medium">{t('ui.datosRealistas')}</h4>
                     <p className="text-xs text-muted-foreground">
                       9 miembros del equipo, 5 proyectos activos, OBVs, leads y más
                     </p>
@@ -238,10 +232,8 @@ function DemoButton({ section }: { section: string }) {
                     <CheckCircle2 className="w-4 h-4 text-green-500" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium">Funcionalidades completas</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Explora validaciones, rankings, CRM y todas las secciones
-                    </p>
+                    <h4 className="text-sm font-medium">{t('ui.funcionalidadesCompletas')}</h4>
+                    <p className="text-xs text-muted-foreground">{t('ui.exploraValidacionesRankingsCrm')}</p>
                   </div>
                 </div>
                 
@@ -250,10 +242,8 @@ function DemoButton({ section }: { section: string }) {
                     <Sparkles className="w-4 h-4 text-blue-500" />
                   </div>
                   <div>
-                    <h4 className="text-sm font-medium">Sin afectar tus datos</h4>
-                    <p className="text-xs text-muted-foreground">
-                      Los datos demo son solo visuales, no modifican tu información real
-                    </p>
+                    <h4 className="text-sm font-medium">{t('ui.sinAfectarTusDatos')}</h4>
+                    <p className="text-xs text-muted-foreground">{t('ui.losDatosDemoSon')}</p>
                   </div>
                 </div>
               </div>
@@ -262,9 +252,7 @@ function DemoButton({ section }: { section: string }) {
                 onClick={handleEnableDemo} 
                 className="w-full gap-2 bg-amber-500 hover:bg-amber-600"
               >
-                <Play className="w-4 h-4" />
-                Activar modo demo
-              </Button>
+                <Play className="w-4 h-4" />{t('ui.activarModoDemo')}</Button>
             </>
           )}
         </div>
@@ -289,7 +277,7 @@ function InlineHelp({ section, className }: SectionHelpProps) {
           className="gap-2 h-8 text-muted-foreground hover:text-foreground"
         >
           <HelpCircle className="w-4 h-4" />
-          <span className="text-xs">¿Cómo funciona?</span>
+          <span className="text-xs">{t('ui.cómoFunciona')}</span>
           {isOpen ? (
             <ChevronUp className="w-3 h-3" />
           ) : (
@@ -305,7 +293,7 @@ function InlineHelp({ section, className }: SectionHelpProps) {
             </div>
             <div>
               <h3 className="text-sm font-semibold text-foreground">{content.title}</h3>
-              <p className="text-xs text-muted-foreground">Guía de uso</p>
+              <p className="text-xs text-muted-foreground">{t('ui.guíaDeUso')}</p>
             </div>
           </div>
           <HelpContentDisplay content={content} />
@@ -347,7 +335,7 @@ function FloatingHelp({ section, className }: SectionHelpProps) {
             </div>
             <div>
               <span className="text-lg">{content.title}</span>
-              <p className="text-sm font-normal text-muted-foreground mt-0.5">Guía completa de la sección</p>
+              <p className="text-sm font-normal text-muted-foreground mt-0.5">{t('ui.guíaCompletaDeLa')}</p>
             </div>
           </DialogTitle>
           <DialogDescription className="sr-only">
@@ -443,7 +431,7 @@ export function HelpWidget({ section, className }: HelpWidgetProps) {
             </DialogTrigger>
           </TooltipTrigger>
           <TooltipContent side="left" className="text-xs">
-            <p>{isDemoMode ? 'Modo Demo Activo' : 'Ver ayuda'}</p>
+            <p>{isDemoMode ? 'Modo Demo Activo': t('ui.verAyuda')}</p>
           </TooltipContent>
         </Tooltip>
         <DialogContent className="sm:max-w-lg">
@@ -462,7 +450,7 @@ export function HelpWidget({ section, className }: HelpWidgetProps) {
               <div>
                 <span className="text-lg">{content.title}</span>
                 <p className="text-sm font-normal text-muted-foreground mt-0.5">
-                  {isDemoMode ? 'Modo Demo Activo' : 'Guía de uso'}
+                  {isDemoMode ? 'Modo Demo Activo': t('ui.guíaDeUso1')}
                 </p>
               </div>
             </DialogTitle>

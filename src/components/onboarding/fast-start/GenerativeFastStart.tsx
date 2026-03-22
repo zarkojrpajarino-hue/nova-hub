@@ -58,6 +58,7 @@ import { supabase } from '@/integrations/supabase/client';
 import type { Json } from '@/integrations/supabase/types';
 import type { FaseAAnswers } from './FaseACommon';
 
+import { useTranslation } from 'react-i18next';
 interface GenerativeFastStartProps {
   projectId: string;
   faseAAnswers: FaseAAnswers;
@@ -71,6 +72,7 @@ type GenPhase = 'form' | 'generating' | 'selecting';
 // ── Viability badge ───────────────────────────────────────────────────────────
 
 function ViabilityBadge({ score }: { score: number }) {
+  const { t } = useTranslation();
   if (score >= 80) {
     return (
       <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">
@@ -133,12 +135,10 @@ function IdeaCard({
         {/* Perfil económico */}
         <div className="bg-gray-50 rounded-lg p-3 space-y-2">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            <TrendingUp className="h-3.5 w-3.5" />
-            Perfil económico
-          </div>
+            <TrendingUp className="h-3.5 w-3.5" />{t('onboarding.perfilEconómico')}</div>
           <div className="grid grid-cols-1 gap-1.5 text-xs">
             <div className="flex items-center justify-between">
-              <span className="text-gray-500">Inversión inicial</span>
+              <span className="text-gray-500">{t('onboarding.inversiónInicial')}</span>
               <span className="font-medium text-gray-800">{idea.perfil_economico.inversion_inicial_estimada}</span>
             </div>
             <div className="flex items-center justify-between">
@@ -154,7 +154,7 @@ function IdeaCard({
 
         {/* Riesgos */}
         <div className="space-y-1.5">
-          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">Riesgos a tener en cuenta</div>
+          <div className="text-xs font-semibold text-gray-500 uppercase tracking-wide">{t('onboarding.riesgosATenerEn')}</div>
           <ul className="space-y-1">
             {idea.riesgos_principales.map((r, i) => (
               <li key={i} className="flex items-start gap-1.5 text-xs text-gray-600">
@@ -168,9 +168,7 @@ function IdeaCard({
         {/* Experimento 7 días */}
         <div className="bg-blue-50 rounded-lg p-3 space-y-1.5">
           <div className="flex items-center gap-1.5 text-xs font-semibold text-blue-700">
-            <FlaskConical className="h-3.5 w-3.5" />
-            Experimento esta semana
-          </div>
+            <FlaskConical className="h-3.5 w-3.5" />{t('onboarding.experimentoEstaSemana')}</div>
           <p className="text-xs text-blue-800 leading-relaxed">{idea.experimento_7_dias}</p>
         </div>
 
@@ -178,9 +176,7 @@ function IdeaCard({
         {hasWarnings && (
           <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 space-y-1.5">
             <div className="flex items-center gap-1.5 text-xs font-semibold text-amber-700">
-              <AlertTriangle className="h-3.5 w-3.5" />
-              Avisos para tu perfil
-            </div>
+              <AlertTriangle className="h-3.5 w-3.5" />{t('onboarding.avisosParaTuPerfil')}</div>
             <ul className="space-y-1">
               {idea.filter.nivel_2_flags.map((flag, i) => (
                 <li key={i} className="text-xs text-amber-800 flex items-start gap-1.5">
@@ -197,9 +193,7 @@ function IdeaCard({
           onClick={() => onSelect(idea)}
           className="w-full mt-auto bg-gradient-to-r from-amber-500 to-orange-600 hover:from-amber-600 hover:to-orange-700"
           size="sm"
-        >
-          Elegir esta idea
-          <ChevronRight className="h-4 w-4 ml-1" />
+        >{t('onboarding.elegirEstaIdea')}<ChevronRight className="h-4 w-4 ml-1" />
         </Button>
       </CardContent>
     </Card>
@@ -274,8 +268,8 @@ export function GenerativeFastStart({
       });
 
       if (generated.length === 0) {
-        toast.error('No pudimos generar ideas para tu perfil', {
-          description: 'Prueba con otra industria o ajusta tu capacidad de inversión',
+        toast.error(t('onboarding.noPudimosGenerarIdeas'), {
+          description: t('onboarding.pruebaConOtraIndustria'),
         });
         setGenPhase('form');
         return;
@@ -286,8 +280,8 @@ export function GenerativeFastStart({
       await persistTanda(generated);
       setGenPhase('selecting');
     } catch {
-      toast.error('Error al generar ideas', {
-        description: 'Inténtalo de nuevo',
+      toast.error(t('onboarding.errorAlGenerarIdeas'), {
+        description: t('onboarding.inténtaloDeNuevo'),
       });
       setGenPhase('form');
     }
@@ -320,10 +314,8 @@ export function GenerativeFastStart({
                 <Loader2 className="h-10 w-10 text-amber-600 animate-spin" />
               </div>
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold">Generando tus 3 ideas de negocio</h3>
-                <p className="text-muted-foreground max-w-md">
-                  Analizando tu perfil, industria y contexto para crear opciones personalizadas y viables
-                </p>
+                <h3 className="text-2xl font-bold">{t('onboarding.generandoTus3Ideas')}</h3>
+                <p className="text-muted-foreground max-w-md">{t('onboarding.analizandoTuPerfilIndustria')}</p>
               </div>
               <div className="flex items-center gap-2">
                 <div className="h-2 w-2 rounded-full bg-amber-600 animate-bounce" style={{ animationDelay: '0ms' }} />
@@ -342,7 +334,7 @@ export function GenerativeFastStart({
     return (
       <div className="max-w-5xl mx-auto">
         <div className="mb-6 text-center">
-          <h2 className="text-2xl font-bold text-gray-900">Elige tu idea de negocio</h2>
+          <h2 className="text-2xl font-bold text-gray-900">{t('onboarding.eligeTuIdeaDe')}</h2>
           <p className="text-gray-600 mt-1">
             3 opciones personalizadas para tu perfil. Elige la que más te convenza.
           </p>
@@ -378,9 +370,7 @@ export function GenerativeFastStart({
               setGenPhase('form');
             }}
             className="text-sm text-gray-500 hover:text-gray-700 underline underline-offset-2"
-          >
-            Volver a generar con otros parámetros
-          </button>
+          >{t('onboarding.volverAGenerarCon')}</button>
         </div>
       </div>
     );
@@ -410,8 +400,7 @@ export function GenerativeFastStart({
           <Alert className="bg-amber-50 border-amber-200">
             <Sparkles className="h-4 w-4 text-amber-600" />
             <AlertDescription className="text-amber-900">
-              <strong>Fast Start:</strong> Generamos 3 ideas adaptadas a tu perfil, industria y capacidad de inversión. Cada idea viene con validación y un experimento de 7 días.
-            </AlertDescription>
+              <strong>Fast Start:</strong>{t('onboarding.generamos3IdeasAdaptadas')}</AlertDescription>
           </Alert>
 
           {/* Q1: Industry (required) */}
@@ -422,26 +411,24 @@ export function GenerativeFastStart({
                 1. ¿En qué industria te interesa emprender? <span className="text-red-600">*</span>
               </Label>
             </div>
-            <p className="text-sm text-gray-700 ml-7">
-              Selecciona el sector donde quieres explorar oportunidades de negocio
-            </p>
+            <p className="text-sm text-gray-700 ml-7">{t('onboarding.seleccionaElSectorDonde')}</p>
             <Select
               value={formData.industry}
               onValueChange={(v) => setFormData({ ...formData, industry: v })}
             >
               <SelectTrigger className="w-full bg-white">
-                <SelectValue placeholder="Selecciona una industria" />
+                <SelectValue placeholder={t('onboarding.seleccionaUnaIndustria')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="saas">SaaS / Software</SelectItem>
-                <SelectItem value="ecommerce">E-commerce / Retail</SelectItem>
-                <SelectItem value="health">Salud y bienestar</SelectItem>
-                <SelectItem value="education">Educación / EdTech</SelectItem>
-                <SelectItem value="fintech">FinTech</SelectItem>
-                <SelectItem value="marketplace">Marketplace / Plataforma</SelectItem>
-                <SelectItem value="food">Alimentación y restauración</SelectItem>
-                <SelectItem value="services">Servicios profesionales</SelectItem>
-                <SelectItem value="other">Otra industria</SelectItem>
+                <SelectItem value="saas">{t('onboarding.saasSoftware')}</SelectItem>
+                <SelectItem value="ecommerce">{t('onboarding.ecommerceRetail')}</SelectItem>
+                <SelectItem value="health">{t('onboarding.saludYBienestar')}</SelectItem>
+                <SelectItem value="education">{t('onboarding.educaciónEdtech')}</SelectItem>
+                <SelectItem value="fintech">{t('onboarding.fintech')}</SelectItem>
+                <SelectItem value="marketplace">{t('onboarding.marketplacePlataforma')}</SelectItem>
+                <SelectItem value="food">{t('onboarding.alimentaciónYRestauración')}</SelectItem>
+                <SelectItem value="services">{t('onboarding.serviciosProfesionales')}</SelectItem>
+                <SelectItem value="other">{t('onboarding.otraIndustria')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -456,12 +443,12 @@ export function GenerativeFastStart({
               </Label>
             </div>
             <p className="text-sm text-gray-600 ml-7">
-              Ej: "Marketing", "Ingeniería de software", "Ventas B2B", "Diseño"
+              Ej: t('onboarding.marketing'), t('onboarding.ingenieríaDeSoftware'), "Ventas B2B", t('onboarding.diseño')
             </p>
             <Input
               id="skills"
               type="text"
-              placeholder="Tu background profesional"
+              placeholder={t('onboarding.tuBackgroundProfesional')}
               value={formData.skills}
               onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
               className="ml-7"
@@ -482,7 +469,7 @@ export function GenerativeFastStart({
               onValueChange={(v) => setFormData({ ...formData, investment_capacity: v })}
             >
               <SelectTrigger className="w-full ml-7">
-                <SelectValue placeholder="Selecciona tu rango de inversión" />
+                <SelectValue placeholder={t('onboarding.seleccionaTuRangoDe')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="0-5k">€0 – €5.000 (Bootstrap)</SelectItem>
@@ -507,7 +494,7 @@ export function GenerativeFastStart({
               onValueChange={(v) => setFormData({ ...formData, time_commitment: v })}
             >
               <SelectTrigger className="w-full ml-7">
-                <SelectValue placeholder="Selecciona tu disponibilidad" />
+                <SelectValue placeholder={t('onboarding.seleccionaTuDisponibilidad')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="side-project">Proyecto lateral (5–10 h/semana)</SelectItem>
@@ -533,13 +520,11 @@ export function GenerativeFastStart({
             {!canGenerate() && (
               <div className="flex items-center gap-2 text-sm text-amber-700 mt-3 justify-center bg-amber-50 py-2 px-4 rounded-md">
                 <AlertCircle className="h-4 w-4" />
-                <span>Selecciona una industria para continuar</span>
+                <span>{t('onboarding.seleccionaUnaIndustriaPara')}</span>
               </div>
             )}
 
-            <p className="text-xs text-center text-gray-500 mt-4">
-              Cada idea incluye validación contextual y un experimento de 7 días para testarla.
-            </p>
+            <p className="text-xs text-center text-gray-500 mt-4">{t('onboarding.cadaIdeaIncluyeValidación')}</p>
           </div>
         </CardContent>
       </Card>

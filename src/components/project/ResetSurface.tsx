@@ -31,6 +31,7 @@ import { trackRitualCompleted } from '@/lib/analytics';
 import { useAuth } from '@/hooks/useAuth';
 import { OptimusFeedback } from '@/components/project/OptimusFeedback';
 
+import { useTranslation } from 'react-i18next';
 // =============================================================================
 // Types
 // =============================================================================
@@ -91,21 +92,22 @@ interface ResetSurfaceProps {
 // =============================================================================
 
 function cycleEvalConfig(evaluation: string) {
+  const { t } = useTranslation();
   switch (evaluation) {
     case 'progress':
-      return { label: 'Ciclo de avance', color: 'text-green-600', bg: 'bg-green-500/10', border: 'border-green-500/30', icon: TrendingUp };
+      return { label: t('project.cicloDeAvance'), color: 'text-green-600', bg: 'bg-green-500/10', border: 'border-green-500/30', icon: TrendingUp };
     case 'regression':
-      return { label: 'Ciclo en regresión', color: 'text-red-600', bg: 'bg-red-500/10', border: 'border-red-500/30', icon: AlertTriangle };
+      return { label: t('project.cicloEnRegresión'), color: 'text-red-600', bg: 'bg-red-500/10', border: 'border-red-500/30', icon: AlertTriangle };
     default: // stagnation
-      return { label: 'Ciclo estancado', color: 'text-amber-600', bg: 'bg-amber-500/10', border: 'border-amber-500/30', icon: RefreshCw };
+      return { label: t('project.cicloEstancado'), color: 'text-amber-600', bg: 'bg-amber-500/10', border: 'border-amber-500/30', icon: RefreshCw };
   }
 }
 
 function confidenceLabel(confidence: string) {
   switch (confidence) {
-    case 'high':   return { label: 'Alta confianza',  color: 'text-green-600' };
-    case 'low':    return { label: 'Baja confianza',  color: 'text-amber-600' };
-    default:       return { label: 'Confianza media', color: 'text-muted-foreground' };
+    case 'high':   return { label: t('project.altaConfianza'),  color: 'text-green-600' };
+    case 'low':    return { label: t('project.bajaConfianza'),  color: 'text-amber-600' };
+    default:       return { label: t('project.confianzaMedia'), color: 'text-muted-foreground' };
   }
 }
 
@@ -160,23 +162,21 @@ function RitualForm({
       <div className="space-y-2">
         <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <RefreshCw size={15} />
-          <span>Ritual de cierre de ciclo</span>
+          <span>{t('project.ritualDeCierreDe')}</span>
         </div>
-        <h2 className="text-2xl font-bold leading-snug">Revisión estratégica del ciclo</h2>
-        <p className="text-sm text-muted-foreground">
-          El ciclo ha cerrado. Antes de continuar, evalúa lo que pasó y define la apuesta del próximo ciclo.
-        </p>
+        <h2 className="text-2xl font-bold leading-snug">{t('project.revisiónEstratégicaDelCiclo')}</h2>
+        <p className="text-sm text-muted-foreground">{t('project.elCicloHaCerrado')}</p>
       </div>
 
       {/* Q1 — evidence_progress */}
       <FieldBlock
-        label="¿Qué señal observable mejoró este ciclo?"
+        label={t('project.quéSeñalObservableMejoró')}
         sublabel="O 'ninguna' si no hay evidencia de avance."
       >
         <Textarea
           value={responses.evidence_progress}
           onChange={e => onChange('evidence_progress', e.target.value)}
-          placeholder="Ej: Conseguimos 3 entrevistas cualitativas y 1 cliente de pago"
+          placeholder={t('project.ejConseguimos3Entrevistas')}
           rows={3}
           disabled={isSubmitting}
         />
@@ -184,13 +184,13 @@ function RitualForm({
 
       {/* Q2 — broken_hypothesis */}
       <FieldBlock
-        label="¿Qué hipótesis resultó falsa?"
-        sublabel="La suposición en la que más confiabais y que los datos no confirmaron."
+        label={t('project.quéHipótesisResultóFalsa')}
+        sublabel={t('project.laSuposiciónEnLa')}
       >
         <Textarea
           value={responses.broken_hypothesis}
           onChange={e => onChange('broken_hypothesis', e.target.value)}
-          placeholder="Ej: Creíamos que los usuarios pagarían por X, pero el bloqueo era Y"
+          placeholder={t('project.ejCreíamosQueLos')}
           rows={3}
           disabled={isSubmitting}
         />
@@ -198,13 +198,13 @@ function RitualForm({
 
       {/* Q3 — main_bottleneck */}
       <FieldBlock
-        label="¿Cuál fue el cuello de botella principal?"
-        sublabel="El único factor que más frenó el ciclo."
+        label={t('project.cuálFueElCuello')}
+        sublabel={t('project.elÚnicoFactorQue')}
       >
         <Textarea
           value={responses.main_bottleneck}
           onChange={e => onChange('main_bottleneck', e.target.value)}
-          placeholder="Ej: Falta de canal de distribución validado"
+          placeholder={t('project.ejFaltaDeCanal')}
           rows={3}
           disabled={isSubmitting}
         />
@@ -212,13 +212,13 @@ function RitualForm({
 
       {/* Q4 — stop_doing */}
       <FieldBlock
-        label="¿Qué dejáis de hacer en el próximo ciclo?"
-        sublabel="Una actividad concreta, no una intención genérica."
+        label={t('project.quéDejáisDeHacer')}
+        sublabel={t('project.unaActividadConcretaNo')}
       >
         <Textarea
           value={responses.stop_doing}
           onChange={e => onChange('stop_doing', e.target.value)}
-          placeholder="Ej: Dejar de iterar sobre el producto sin validación externa"
+          placeholder={t('project.ejDejarDeIterar')}
           rows={2}
           disabled={isSubmitting}
         />
@@ -227,43 +227,43 @@ function RitualForm({
       {/* Q5 — three-part block */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-5">
         <div>
-          <p className="text-sm font-semibold">La apuesta del próximo ciclo</p>
-          <p className="text-xs text-muted-foreground">Define la dirección y sus condiciones de validación.</p>
+          <p className="text-sm font-semibold">{t('project.laApuestaDelPróximo')}</p>
+          <p className="text-xs text-muted-foreground">{t('project.defineLaDirecciónY')}</p>
         </div>
 
         <FieldBlock
-          label="¿Cuál es la apuesta?"
-          sublabel="Una sola apuesta, específica."
+          label={t('project.cuálEsLaApuesta')}
+          sublabel={t('project.unaSolaApuestaEspecífica')}
         >
           <Textarea
             value={responses.next_bet}
             onChange={e => onChange('next_bet', e.target.value)}
-            placeholder="Ej: Conseguir 5 clientes de pago antes de semana 4"
+            placeholder={t('project.ejConseguir5Clientes')}
             rows={2}
             disabled={isSubmitting}
           />
         </FieldBlock>
 
         <FieldBlock
-          label="¿Qué señal del engine confirmaría éxito?"
-          sublabel="Referencia a una métrica observable del sistema."
+          label={t('project.quéSeñalDelEngine')}
+          sublabel={t('project.referenciaAUnaMétrica')}
         >
           <Input
             value={responses.success_signal}
             onChange={e => onChange('success_signal', e.target.value)}
-            placeholder="Ej: Probabilidad > 0.50 o al menos 2 OBVs de cliente de pago"
+            placeholder={t('project.ejProbabilidad050O')}
             disabled={isSubmitting}
           />
         </FieldBlock>
 
         <FieldBlock
-          label="¿Cuándo descartaríais esta apuesta antes de 4 semanas?"
-          sublabel="Condición medible con plazo."
+          label={t('project.cuándoDescartaríaisEstaApuesta')}
+          sublabel={t('project.condiciónMedibleConPlazo')}
         >
           <Input
             value={responses.invalidation_condition}
             onChange={e => onChange('invalidation_condition', e.target.value)}
-            placeholder="Ej: Si en 2 semanas no hay ningún pago, la apuesta es falsa"
+            placeholder={t('project.ejSiEn2')}
             disabled={isSubmitting}
           />
         </FieldBlock>
@@ -271,13 +271,13 @@ function RitualForm({
 
       {/* Q6 — key_meeting_decisions (SR10.V2.2 — opcional) */}
       <FieldBlock
-        label="¿Qué decisiones clave tomasteis en reuniones este ciclo?"
-        sublabel="Opcional. Solo si registráis reuniones en el sistema."
+        label={t('project.quéDecisionesClaveTomasteis')}
+        sublabel={t('project.opcionalSoloSiRegistráis')}
       >
         <Textarea
           value={responses.key_meeting_decisions}
           onChange={e => onChange('key_meeting_decisions', e.target.value)}
-          placeholder="Ej: Decidimos pausar el canal X y doblar en canal Y tras revisar la tasa de conversión"
+          placeholder={t('project.ejDecidimosPausarEl')}
           rows={2}
           disabled={isSubmitting}
         />
@@ -294,9 +294,7 @@ function RitualForm({
       {/* Actions */}
       <div className="flex items-center justify-between pt-2">
         {onSkip && (
-          <Button variant="ghost" size="sm" onClick={onSkip} className="text-muted-foreground text-xs">
-            Volver al estado actual
-          </Button>
+          <Button variant="ghost" size="sm" onClick={onSkip} className="text-muted-foreground text-xs">{t('project.volverAlEstadoActual')}</Button>
         )}
         <div className="ml-auto">
           <Button
@@ -306,13 +304,9 @@ function RitualForm({
           >
             {isSubmitting ? (
               <>
-                <Loader2 size={15} className="animate-spin" />
-                Procesando...
-              </>
+                <Loader2 size={15} className="animate-spin" />{t('project.procesando')}</>
             ) : (
-              <>
-                Completar ritual
-                <ArrowRight size={15} />
+              <>{t('project.completarRitual')}<ArrowRight size={15} />
               </>
             )}
           </Button>
@@ -330,9 +324,7 @@ function RitualLoading() {
   return (
     <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
       <Loader2 size={32} className="mx-auto animate-spin text-primary" />
-      <p className="text-sm text-muted-foreground">
-        Cerrando el ciclo e interpretando los resultados...
-      </p>
+      <p className="text-sm text-muted-foreground">{t('project.cerrandoElCicloE')}</p>
     </div>
   );
 }
@@ -363,7 +355,7 @@ function RitualOutput({
       {/* Header — cycle_evaluation badge */}
       <div className="flex items-center gap-2">
         <RefreshCw size={15} className="text-muted-foreground" />
-        <span className="text-muted-foreground text-sm">Ciclo cerrado</span>
+        <span className="text-muted-foreground text-sm">{t('project.cicloCerrado')}</span>
         <Badge
           variant="outline"
           className={cn('gap-1 ml-1', evalCfg.bg, evalCfg.color, evalCfg.border)}
@@ -377,9 +369,7 @@ function RitualOutput({
         <>
           {/* ① next_bet — la decisión, arriba */}
           <div className={cn('rounded-2xl border p-5 space-y-2', evalCfg.bg, evalCfg.border)}>
-            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              La apuesta del próximo ciclo
-            </p>
+            <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('project.laApuestaDelPróximo')}</p>
             <p className="text-lg font-bold leading-snug">{optimus.next_bet}</p>
             <div className="pt-1 space-y-1 text-xs text-muted-foreground">
               <p>
@@ -399,18 +389,14 @@ function RitualOutput({
           {/* ③ main_learning */}
           <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <Lightbulb size={12} />
-              Aprendizaje principal
-            </div>
+              <Lightbulb size={12} />{t('project.aprendizajePrincipal')}</div>
             <p className="text-sm leading-relaxed">{optimus.main_learning}</p>
           </div>
 
           {/* ④ key_bottleneck */}
           <div className="bg-card border border-border rounded-2xl p-4 space-y-1">
             <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-              <ShieldAlert size={12} />
-              Bloqueo principal del próximo ciclo
-            </div>
+              <ShieldAlert size={12} />{t('project.bloqueoPrincipalDelPróximo')}</div>
             <p className="text-sm leading-relaxed">{optimus.key_bottleneck}</p>
           </div>
 
@@ -418,9 +404,7 @@ function RitualOutput({
           <div className="bg-card border border-border rounded-2xl p-4 space-y-2">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-                <Target size={12} />
-                Acción recomendada
-              </div>
+                <Target size={12} />{t('project.acciónRecomendada')}</div>
               {conf && (
                 <span className={cn('text-xs', conf.color)}>{conf.label}</span>
               )}
@@ -433,11 +417,9 @@ function RitualOutput({
         <div className="bg-card border border-border rounded-2xl p-5 space-y-2">
           <div className="flex items-center gap-2">
             <CheckCircle size={16} className="text-muted-foreground" />
-            <p className="text-sm font-medium">Ciclo completado</p>
+            <p className="text-sm font-medium">{t('project.cicloCompletado')}</p>
           </div>
-          <p className="text-sm text-muted-foreground">
-            El ciclo ha sido cerrado correctamente. La interpretación de Optimus no está disponible en este momento.
-          </p>
+          <p className="text-sm text-muted-foreground">{t('project.elCicloHaSido')}</p>
         </div>
       )}
 
@@ -520,13 +502,13 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
       setPhase('output');
     } catch (err) {
       const msg = (err as Error).message ?? '';
-      // EC13.1d — doble submit desde otra pestaña: el guard SQL emite "No cycle available".
+      // EC13.1d — doble submit desde otra pestaña: el guard SQL emite t('project.noCycleAvailable').
       // El ciclo ya está cerrado correctamente — el usuario puede continuar sin bloqueo.
-      if (msg.includes('No cycle available') || msg.includes('ritual already submitted') || msg.includes('cycle already closed')) {
+      if (msg.includes(t('project.noCycleAvailable')) || msg.includes('ritual already submitted') || msg.includes('cycle already closed')) {
         setAlreadyCompleted(true);
         setPhase('form'); // vuelve al form pero muestra el banner de "ya completado"
       } else {
-        setSubmitError(msg || 'Error al completar el ritual');
+        setSubmitError(msg || t('project.errorAlCompletarEl'));
         setPhase('form');
       }
     }
@@ -553,13 +535,9 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
     return (
       <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
         <CheckCircle size={32} className="mx-auto text-green-500" />
-        <h2 className="text-xl font-bold">El ritual ya fue completado</h2>
-        <p className="text-sm text-muted-foreground">
-          El ciclo se cerró correctamente en otra sesión. Puedes continuar al nuevo ciclo.
-        </p>
-        <Button onClick={onComplete} className="gap-2">
-          Ir al nuevo ciclo
-          <ArrowRight size={15} />
+        <h2 className="text-xl font-bold">{t('project.elRitualYaFue')}</h2>
+        <p className="text-sm text-muted-foreground">{t('project.elCicloSeCerró')}</p>
+        <Button onClick={onComplete} className="gap-2">{t('project.irAlNuevoCiclo')}<ArrowRight size={15} />
         </Button>
       </div>
     );

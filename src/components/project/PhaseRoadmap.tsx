@@ -5,7 +5,7 @@
  * - Fase actual resaltada con anillo pulsante
  * - Fases completadas con check verde
  * - Fases futuras en gris con popover de desbloqueo
- * - Si graduated: badge "Graduado" al final
+ * - Si graduated: badge t('project.graduado') al final
  *
  * Incluye:
  * - V24.2: PhaseExplainer (por qué estás en esta fase)
@@ -14,6 +14,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ChevronDown, ChevronUp, Lock, GraduationCap } from 'lucide-react';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS, PHASE_METHODOLOGY } from '@/lib/engine';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
@@ -21,18 +22,16 @@ import { PhaseRunwayIndicator } from './PhaseRunwayIndicator';
 
 // ── Phase Explainer texts (V24.2) ────────────────────────────────────────────
 
-function getPhaseExplainerText(phase: number, score: number, hardSignal: boolean): string {
-  const scoreText = `Score actual: ${Math.round(score)}%`;
-  const signalText = hardSignal ? 'Señal dura cumplida.' : 'Falta señal dura.';
+function getPhaseExplainerText(t: (key: string, opts?: Record<string, unknown>) => string, phase: number, score: number, hardSignal: boolean): string {
+  const scoreText = t('phases.currentScore', { score: Math.round(score) });
+  const signalText = hardSignal ? 'hardSignalMet': t('phases.hardSignalMissing');
 
-  switch (phase) {
-    case 0: return `Estás explorando ideas y problemas. ${scoreText}. ${signalText}`;
-    case 1: return `Estás validando que el problema es real. ${scoreText}. ${signalText}`;
-    case 2: return `Estás validando que tu solución genera demanda. ${scoreText}. ${signalText}`;
-    case 3: return `Tu modelo está operando. Demuestra ingresos sostenibles. ${scoreText}. ${signalText}`;
-    case 4: return `Modelo validado, consolidando y escalando. ${scoreText}. ${signalText}`;
-    default: return scoreText;
+  const explainerKey = `phases.explainer.${phase}`;
+  const explainer = t(explainerKey);
+  if (explainer !== explainerKey) {
+    return `${explainer} ${scoreText}. ${signalText}`;
   }
+  return scoreText;
 }
 
 // ── Unlock conditions per phase transition (V24.3) ───────────────────────────
@@ -47,42 +46,33 @@ interface UnlockItem {
 // Para evitar engañar al usuario (todo check o todo lock), mostramos:
 // - Score ≥ 75% → verificable con dato real
 // - Velocity ≥ 2 → verificable con dato real
-// - "Señal dura" como agrupación → refleja hard_signal_met directamente
+// - t('project.señalDura') como agrupación → refleja hard_signal_met directamente
 // Mejora futura: endpoint SQL que retorne cada sub-condición individualmente.
-function getUnlockChecklist(nextPhase: number, score: number, hardSignal: boolean): UnlockItem[] {
+function getUnlockChecklist(t: (key: string) => string, nextPhase: number, score: number, hardSignal: boolean): UnlockItem[] {
   const scoreMet = score >= 75;
 
-  switch (nextPhase) {
-    case 1: return [
-      { label: 'Score ≥ 75%', met: scoreMet },
-      { label: 'Señal dura: idea seleccionada + segmento definido', met: hardSignal },
+  const hardSignalKey = `phases.unlock.hardSignal${nextPhase - 1}` as const;
+
+  if (nextPhase >= 1 && nextPhase <= 4) {
+    return [
+      { label: t('phases.unlock.score75'), met: scoreMet },
+      { label: t(hardSignalKey), met: hardSignal },
     ];
-    case 2: return [
-      { label: 'Score ≥ 75%', met: scoreMet },
-      { label: 'Señal dura: ≥10 entrevistas, ≥30% dolor, estrategia definida', met: hardSignal },
-    ];
-    case 3: return [
-      { label: 'Score ≥ 75%', met: scoreMet },
-      { label: 'Señal dura: primer pago + revenue momentum ≥ 40', met: hardSignal },
-    ];
-    case 4: return [
-      { label: 'Score ≥ 75%', met: scoreMet },
-      { label: 'Señal dura: 3 meses estables + ≥3 tareas en 28 días', met: hardSignal },
-    ];
-    default: return [];
   }
+  return [];
 }
 
 // ── Score Bar (V24.4) ────────────────────────────────────────────────────────
 
 function PhaseScoreBar({ score, status }: { score: number; status: string }) {
+  const { t } = useTranslation();
   const color = status === 'healthy' ? 'bg-green-500' : status === 'friction' ? 'bg-yellow-500' : 'bg-red-500';
   const rounded = Math.round(score);
 
   return (
     <div className="mt-3">
       <div className="flex justify-between text-xs text-muted-foreground mb-1">
-        <span>Score de fase</span>
+        <span>{t('phases.scoreLabel')}</span>
         <span className="font-semibold tabular-nums">{rounded}%</span>
       </div>
       <div className="relative h-2.5 bg-muted rounded-full overflow-hidden">
@@ -90,7 +80,7 @@ function PhaseScoreBar({ score, status }: { score: number; status: string }) {
         <div
           className="absolute top-0 bottom-0 w-px bg-gray-400 z-10"
           style={{ left: '75%' }}
-          title="Umbral de avance: 75%"
+          title={t('phases.advanceThreshold')}
         />
         <div
           className={`h-full rounded-full transition-all duration-700 ${color}`}
@@ -113,6 +103,7 @@ interface PhaseRoadmapProps {
 }
 
 export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
+  const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
   if (!engineData?.phaseState) return null;
@@ -173,7 +164,7 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
             <div className="w-9 h-9 rounded-full bg-amber-500 text-white flex items-center justify-center">
               <GraduationCap className="h-5 w-5" />
             </div>
-            <span className="text-[11px] mt-1.5 font-semibold text-amber-600">Graduado</span>
+            <span className="text-[11px] mt-1.5 font-semibold text-amber-600">{t('phases.graduation')}</span>
           </div>
         )}
       </div>
@@ -185,7 +176,7 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
         className="w-full flex items-center justify-center gap-1 mt-3 text-xs text-muted-foreground hover:text-foreground transition-colors"
       >
         {expanded ? <ChevronUp className="h-3.5 w-3.5" /> : <ChevronDown className="h-3.5 w-3.5" />}
-        {expanded ? 'Ocultar detalle' : 'Ver progreso y requisitos'}
+        {expanded ? 'hideDetail': t('phases.showDetail')}
       </button>
 
       {/* Expanded content: V24.2 + V24.3 + V24.4 */}
@@ -205,7 +196,7 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
               {PHASE_DESCRIPTIONS[currentPhase]}
             </p>
             <p className="text-xs text-muted-foreground mt-1">
-              {getPhaseExplainerText(currentPhase, score, hardSignal)}
+              {getPhaseExplainerText(t, currentPhase, score, hardSignal)}
             </p>
           </div>
 
@@ -224,10 +215,10 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
           {currentPhase < 4 && (
             <div>
               <h4 className="text-sm font-semibold mb-2">
-                Para avanzar a Fase {currentPhase + 1} — {PHASE_LABELS[currentPhase + 1]}
+                {t('phases.toAdvance', { phase: currentPhase + 1 })} — {PHASE_LABELS[currentPhase + 1]}
               </h4>
               <div className="space-y-1.5">
-                {getUnlockChecklist(currentPhase + 1, score, hardSignal).map((item) => (
+                {getUnlockChecklist(t, currentPhase + 1, score, hardSignal).map((item) => (
                   <div key={item.label} className="flex items-center gap-2 text-sm">
                     {item.met ? (
                       <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
@@ -246,12 +237,12 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
           {/* Graduation status for Phase 4 */}
           {currentPhase === 4 && !graduated && (
             <div>
-              <h4 className="text-sm font-semibold mb-1">Graduación</h4>
+              <h4 className="text-sm font-semibold mb-1">{t('phases.graduation')}</h4>
               <p className="text-xs text-muted-foreground">
-                Mantén tu score ≥ 75% durante 28 días consecutivos para graduarte y entrar en Ciclos Estratégicos.
+                {t('phases.graduationDesc')}
                 {engineData.phaseState.graduation_eligible_since
-                  ? ` Elegible desde: ${new Date(engineData.phaseState.graduation_eligible_since).toLocaleDateString()}`
-                  : ' Aún no elegible — necesitas score ≥ 75%.'}
+                  ? ` ${t('phases.eligibleSince', { date: new Date(engineData.phaseState.graduation_eligible_since).toLocaleDateString() })}`
+                  : ` ${t('phases.notEligible')}`}
               </p>
             </div>
           )}

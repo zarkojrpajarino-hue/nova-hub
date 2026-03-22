@@ -16,7 +16,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { trackProjectCreated } from '@/lib/analytics';
 
+import { useTranslation } from 'react-i18next';
 export function SelectOnboardingTypePage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile } = useAuth();
   const { userProjects, isLoading: projectsLoading } = useCurrentProject();
@@ -40,39 +42,39 @@ export function SelectOnboardingTypePage() {
     {
       id: 'generative',
       icon: Lightbulb,
-      title: '¿Quieres emprender pero no tienes idea?',
-      subtitle: 'IA te genera 3 opciones de negocio personalizadas según tu perfil, skills y ubicación',
+      title: t('selectOnboardingType.quieresEmprenderPeroNo'),
+      subtitle: t('selectOnboardingType.iaTeGenera3'),
       features: [
         'Geo-intelligence (competidores, inversores locales)',
         '3 business options con fit score',
-        'Proyecciones financieras realistas',
-        'Learning path personalizado'
+        t('selectOnboardingType.proyeccionesFinancierasRealistas'),
+        t('selectOnboardingType.learningPathPersonalizado')
       ],
       color: 'from-amber-500 to-orange-600',
     },
     {
       id: 'idea',
       icon: Rocket,
-      title: 'Tengo una idea y quiero emprenderla',
-      subtitle: 'Análisis SWOT competitivo con market gaps y estrategia de diferenciación',
+      title: t('selectOnboardingType.tengoUnaIdeaY'),
+      subtitle: t('selectOnboardingType.análisisSwotCompetitivoCon'),
       features: [
-        'SWOT matrix vs competidores',
-        'Market gaps con opportunity scores',
-        'Estrategia de Go-to-Market',
-        'Roadmap de validación con experimentos'
+        t('selectOnboardingType.swotMatrixVsCompetidores'),
+        t('selectOnboardingType.marketGapsConOpportunity'),
+        t('selectOnboardingType.estrategiaDeGotomarket'),
+        t('selectOnboardingType.roadmapDeValidaciónCon')
       ],
       color: 'from-blue-600 to-purple-600',
     },
     {
       id: 'existing',
       icon: Building2,
-      title: 'Tengo una startup existente',
-      subtitle: 'Growth diagnostic con truth-o-meter: detecta bottlenecks reales y plan de acción',
+      title: t('selectOnboardingType.tengoUnaStartupExistente'),
+      subtitle: t('selectOnboardingType.growthDiagnosticConTruthometer'),
       features: [
-        'Health score + diagnóstico honesto',
-        'Benchmarking vs industria',
+        t('selectOnboardingType.healthScoreDiagnósticoHonesto'),
+        t('selectOnboardingType.benchmarkingVsIndustria'),
         '3 escenarios (status quo, fix, growth)',
-        'Action plan priorizado + quick wins'
+        t('selectOnboardingType.actionPlanPriorizadoQuick')
       ],
       color: 'from-purple-600 to-pink-600',
     },
@@ -80,7 +82,7 @@ export function SelectOnboardingTypePage() {
 
   const handleSelectType = async (typeId: string) => {
     if (!profile) {
-      toast.error('Debes estar autenticado para crear un proyecto');
+      toast.error(t('selectOnboardingType.debesEstarAutenticadoPara'));
       return;
     }
 
@@ -91,7 +93,7 @@ export function SelectOnboardingTypePage() {
       // Verify token is valid with a server round-trip (forces refresh if expired)
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
       if (userError || !currentUser) {
-        toast.error('Sesión expirada. Por favor, recarga la página e inicia sesión de nuevo.');
+        toast.error(t('selectOnboardingType.sesiónExpiradaPorFavor'));
         setIsCreating(false);
         setSelectedType(null);
         return;
@@ -101,8 +103,8 @@ export function SelectOnboardingTypePage() {
       const { data: newProject, error } = await supabase
         .from('projects')
         .insert({
-          nombre: 'Nuevo Proyecto',
-          descripcion: 'Proyecto en configuración',
+          nombre: t('selectOnboardingType.nuevoProyecto'),
+          descripcion: t('selectOnboardingType.proyectoEnConfiguración'),
           created_by: profile.id,
           onboarding_data: {
             onboarding_type: typeId
@@ -130,7 +132,7 @@ export function SelectOnboardingTypePage() {
       }
 
     } catch (_err) {
-      toast.error('Error al crear el proyecto');
+      toast.error(t('selectOnboardingType.errorAlCrearEl'));
       setIsCreating(false);
       setSelectedType(null);
     }
@@ -165,19 +167,15 @@ export function SelectOnboardingTypePage() {
             {userProjects.length === 0 ? (
               <>¡Bienvenid@ {displayName}!</>
             ) : (
-              <>Crear Nuevo Proyecto</>
+              <>{t('selectOnboardingType.crearNuevoProyecto')}</>
             )}
           </h1>
           <p className="text-base md:text-lg text-gray-300 max-w-2xl mx-auto">
             {userProjects.length === 0 ? (
-              <>
-                Crea tu primer proyecto con nuestro onboarding inteligente.
-                <span className="block text-cyan-300 font-semibold mt-1">Selecciona el tipo que mejor describa tu situación</span>
+              <>{t('selectOnboardingType.creaTuPrimerProyecto')}<span className="block text-cyan-300 font-semibold mt-1">{t('selectOnboardingType.seleccionaElTipoQue')}</span>
               </>
             ) : (
-              <>
-                Selecciona qué tipo de proyecto quieres crear.
-                <span className="block text-cyan-300 font-semibold mt-1">Cada onboarding está personalizado para tu situación</span>
+              <>{t('selectOnboardingType.seleccionaQuéTipoDe')}<span className="block text-cyan-300 font-semibold mt-1">{t('selectOnboardingType.cadaOnboardingEstáPersonalizado')}</span>
               </>
             )}
           </p>
@@ -212,7 +210,7 @@ export function SelectOnboardingTypePage() {
                   <div className="flex-1 mb-4">
                     <div className="flex items-center gap-2 mb-2">
                       <div className="w-6 h-0.5 bg-gradient-to-r from-purple-500 to-transparent" />
-                      <p className="text-xs font-black text-gray-900 uppercase tracking-wide">Lo que haremos</p>
+                      <p className="text-xs font-black text-gray-900 uppercase tracking-wide">{t('selectOnboardingType.loQueHaremos')}</p>
                     </div>
                     <ul className="space-y-2">
                       {type.features.map((feature, idx) => (
@@ -233,11 +231,11 @@ export function SelectOnboardingTypePage() {
                     {isCreating && selectedType === type.id ? (
                       <>
                         <Loader2 className="mr-2 h-4 w-4 text-white animate-spin" />
-                        <span className="text-white">Creando...</span>
+                        <span className="text-white">{t('selectOnboardingType.creando')}</span>
                       </>
                     ) : (
                       <>
-                        <span className="text-white">Seleccionar</span>
+                        <span className="text-white">{t('selectOnboardingType.seleccionar')}</span>
                         <ArrowRight className="ml-2 h-4 w-4 text-white group-hover:translate-x-1 transition-transform" />
                       </>
                     )}
@@ -266,7 +264,7 @@ export function SelectOnboardingTypePage() {
           <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2">
             <p className="text-sm text-white font-medium flex items-center gap-2 justify-center">
               <span className="text-lg">💡</span>
-              <span>No te preocupes, podrás ajustar la configuración en cualquier momento</span>
+              <span>{t('selectOnboardingType.noTePreocupesPodrás')}</span>
             </p>
           </div>
         </div>

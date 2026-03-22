@@ -6,22 +6,24 @@ import { Check, X, Clock, ArrowLeftRight } from 'lucide-react';
 import { RoleRotationRequest, useRespondToRotation, useCancelRotationRequest } from '@/hooks/useRoleRotation';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface MyRotationRequestsProps {
   requests: RoleRotationRequest[];
 }
 
 const roleLabels: Record<string, string> = {
-  sales: 'Ventas',
-  finance: 'Finanzas',
-  ai_tech: 'AI/Tech',
-  marketing: 'Marketing',
-  operations: 'Operaciones',
-  strategy: 'Estrategia',
+  sales: t('rotation.ventas'),
+  finance: t('rotation.finanzas'),
+  ai_tech: t('rotation.aitech'),
+  marketing: t('rotation.marketing'),
+  operations: t('rotation.operaciones'),
+  strategy: t('rotation.estrategia'),
 };
 
 export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const respondMutation = useRespondToRotation();
   const cancelMutation = useCancelRotationRequest();
@@ -56,7 +58,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <ArrowLeftRight className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium mb-2">No tienes solicitudes de rotación</p>
+          <p className="text-lg font-medium mb-2">{t('rotation.noTienesSolicitudesDe')}</p>
           <p className="text-muted-foreground text-center max-w-md">
             Crea una nueva solicitud para intercambiar roles con otro miembro del equipo
             y desarrollar nuevas habilidades.
@@ -72,9 +74,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
       {pendingRequests.length > 0 && (
         <div className="space-y-4">
           <h3 className="text-lg font-semibold flex items-center gap-2">
-            <Clock className="h-5 w-5" />
-            Pendientes de Respuesta
-          </h3>
+            <Clock className="h-5 w-5" />{t('rotation.pendientesDeRespuesta')}</h3>
 
           {pendingRequests.map((request) => {
             const isRequester = request.requester_id === profile?.id;
@@ -94,7 +94,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                       </Avatar>
                       <div>
                         <CardTitle className="text-lg">
-                          {isRequester ? 'Tu solicitud a' : 'Solicitud de'} {otherPerson?.nombre}
+                          {isRequester ? 'Tu solicitud a': t('rotation.solicitudDe')} {otherPerson?.nombre}
                         </CardTitle>
                         <CardDescription>
                           Intercambiar {roleLabels[myCurrentRole || ''] || myCurrentRole} ↔ {roleLabels[theirCurrentRole || ''] || theirCurrentRole}
@@ -103,9 +103,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                     </div>
 
                     {needsMyAction && (
-                      <Badge variant="default" className="bg-primary">
-                        Requiere tu acción
-                      </Badge>
+                      <Badge variant="default" className="bg-primary">{t('rotation.requiereTuAcción')}</Badge>
                     )}
                   </div>
                 </CardHeader>
@@ -115,7 +113,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                   {request.compatibility_analysis?.score && (
                     <div className="flex items-center gap-4 p-3 bg-muted rounded-lg">
                       <div className="flex-1">
-                        <p className="text-sm font-medium">Análisis de Compatibilidad</p>
+                        <p className="text-sm font-medium">{t('rotation.análisisDeCompatibilidad')}</p>
                         <div className="flex items-center gap-4 mt-1 text-sm text-muted-foreground">
                           <span>Score: {Math.round(request.compatibility_analysis.score)}%</span>
                           <span>Tu rendimiento: {request.compatibility_analysis.user1_performance?.toFixed(0) || 50}%</span>
@@ -137,7 +135,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                       ) : (
                         <Clock className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span>{request.requester?.nombre}: {request.requester_accepted ? 'Aceptó' : 'Pendiente'}</span>
+                      <span>{request.requester?.nombre}: {request.requester_accepted ? t('rotation.aceptó') : t('rotation.pendiente')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       {request.target_accepted ? (
@@ -145,14 +143,14 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                       ) : (
                         <Clock className="h-4 w-4 text-muted-foreground" />
                       )}
-                      <span>{request.target_user?.nombre}: {request.target_accepted ? 'Aceptó' : 'Pendiente'}</span>
+                      <span>{request.target_user?.nombre}: {request.target_accepted ? t('rotation.aceptó') : t('rotation.pendiente')}</span>
                     </div>
                   </div>
 
                   {/* Actions */}
                   <div className="flex items-center justify-between pt-2 border-t">
                     <span className="text-xs text-muted-foreground">
-                      {formatDistanceToNow(new Date(request.created_at), { addSuffix: true, locale: es })}
+                      {formatDistanceToNow(new Date(request.created_at), { addSuffix: true, locale: getDateFnsLocale() })}
                     </span>
 
                     <div className="flex items-center gap-2">
@@ -162,9 +160,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                           size="sm"
                           onClick={() => handleCancel(request.id)}
                           disabled={cancelMutation.isPending}
-                        >
-                          Cancelar
-                        </Button>
+                        >{t('rotation.cancelar')}</Button>
                       )}
 
                       {needsMyAction && (
@@ -175,17 +171,13 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                             onClick={() => handleReject(request)}
                             disabled={respondMutation.isPending}
                           >
-                            <X className="h-4 w-4 mr-1" />
-                            Rechazar
-                          </Button>
+                            <X className="h-4 w-4 mr-1" />{t('rotation.rechazar')}</Button>
                           <Button 
                             size="sm"
                             onClick={() => handleAccept(request)}
                             disabled={respondMutation.isPending}
                           >
-                            <Check className="h-4 w-4 mr-1" />
-                            Aceptar
-                          </Button>
+                            <Check className="h-4 w-4 mr-1" />{t('rotation.aceptar')}</Button>
                         </>
                       )}
                     </div>
@@ -200,17 +192,17 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
       {/* Other Requests */}
       {otherRequests.length > 0 && (
         <div className="space-y-4">
-          <h3 className="text-lg font-semibold">Historial de Solicitudes</h3>
+          <h3 className="text-lg font-semibold">{t('rotation.historialDeSolicitudes')}</h3>
 
           {otherRequests.map((request) => {
             const isRequester = request.requester_id === profile?.id;
             const otherPerson = isRequester ? request.target_user : request.requester;
 
             const statusBadge = {
-              completed: { label: 'Completada', variant: 'default' as const },
-              rejected: { label: 'Rechazada', variant: 'destructive' as const },
-              cancelled: { label: 'Cancelada', variant: 'outline' as const },
-              accepted: { label: 'Aceptada', variant: 'secondary' as const },
+              completed: { label: t('rotation.completada'), variant: 'default' as const },
+              rejected: { label: t('rotation.rechazada'), variant: 'destructive' as const },
+              cancelled: { label: t('rotation.cancelada'), variant: 'outline' as const },
+              accepted: { label: t('rotation.aceptada'), variant: 'secondary' as const },
             }[request.status] || { label: request.status, variant: 'outline' as const };
 
             return (
@@ -224,10 +216,10 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                       </Avatar>
                       <div>
                         <p className="font-medium">
-                          {isRequester ? 'Solicitud a' : 'Solicitud de'} {otherPerson?.nombre}
+                          {isRequester ? 'Solicitud a': t('rotation.solicitudDe')} {otherPerson?.nombre}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(request.created_at), { addSuffix: true, locale: es })}
+                          {formatDistanceToNow(new Date(request.created_at), { addSuffix: true, locale: getDateFnsLocale() })}
                         </p>
                       </div>
                     </div>

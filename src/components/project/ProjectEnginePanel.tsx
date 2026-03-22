@@ -14,15 +14,17 @@ import { trackEngineViewed, trackNextActionClicked } from '@/lib/analytics';
 import { useAgentContext } from '@/hooks/useAgentContext';
 import { EvidenceBadge } from '@/components/evidence/EvidenceBadge';
 
+import { useTranslation } from 'react-i18next';
 // =============================================================================
 // Phase status
 // =============================================================================
 
 function phaseStatusConfig(status: string) {
+  const { t } = useTranslation();
   switch (status) {
-    case 'healthy':  return { label: 'Saludable', color: 'text-success',      bg: 'bg-success/10' };
-    case 'critical': return { label: 'Crítico',   color: 'text-destructive',  bg: 'bg-destructive/10' };
-    default:         return { label: 'Fricción',  color: 'text-warning',      bg: 'bg-warning/10' };
+    case 'healthy':  return { label: t('project.saludable'), color: 'text-success',      bg: 'bg-success/10' };
+    case 'critical': return { label: t('project.crítico'),   color: 'text-destructive',  bg: 'bg-destructive/10' };
+    default:         return { label: t('project.fricción'),  color: 'text-warning',      bg: 'bg-warning/10' };
   }
 }
 
@@ -92,7 +94,7 @@ function probMessage(
   if (status === 'low_confidence') return `Confianza baja (${conf}%)`;
   // active — label por score
   const s = score ?? 0;
-  const label = s > 60 ? 'Señal fuerte' : s > 30 ? 'Señal media' : 'Señal débil';
+  const label = s > 60 ? t('project.señalFuerte') : s > 30 ? t('project.señalMedia') : t('project.señalDébil');
   return `${label} · Confianza ${conf}%`;
 }
 
@@ -101,15 +103,15 @@ function riskMessage(
   level: string,
   completeness: number
 ): string {
-  if (status === 'insufficient_data') return 'Datos insuficientes';
+  if (status === 'insufficient_data') return t('project.datosInsuficientes');
   const conf = Math.round(completeness);
   if (status === 'low_confidence') return `Datos insuficientes · Confianza ${conf}%`;
   // active — label por risk_level
   const label =
-    level === 'critical' ? 'Acción inmediata'   :
-    level === 'high'     ? 'Atención requerida' :
-    level === 'medium'   ? 'Riesgo moderado'    :
-                           'Sin alertas';
+    level === 'critical' ? t('project.acciónInmediata')   :
+    level === 'high'     ? t('project.atenciónRequerida') :
+    level === 'medium'   ? 'Riesgo moderado':
+                           t('project.sinAlertas');
   return `${label} · Confianza ${conf}%`;
 }
 
@@ -171,9 +173,9 @@ const AGENT_DRIVER_LABELS: Record<string, string> = {
 // =============================================================================
 
 const COVERAGE_LABELS: Record<string, string> = {
-  demand:   'Demanda',
-  delivery: 'Entrega',
-  cash:     'Caja',
+  demand:   t('project.demanda'),
+  delivery: t('project.entrega'),
+  cash:     t('project.caja'),
 };
 
 const COVERAGE_ORDER = ['demand', 'delivery', 'cash'];
@@ -183,13 +185,13 @@ const COVERAGE_ORDER = ['demand', 'delivery', 'cash'];
 // =============================================================================
 
 const MEETING_TYPE_LABELS: Record<string, string> = {
-  weekly:        'Semanal',
-  strategic:     'Estratégica',
-  sales:         'Ventas',
-  retrospective: 'Retro',
-  investor:      'Inversores',
-  team:          'Equipo',
-  kickoff:       'Kickoff',
+  weekly:        t('project.semanal'),
+  strategic:     t('project.estratégica'),
+  sales:         t('project.ventas'),
+  retrospective: t('project.retro'),
+  investor:      t('project.inversores'),
+  team:          t('project.equipo'),
+  kickoff:       t('project.kickoff'),
   one_on_one:    '1:1',
 };
 
@@ -252,14 +254,12 @@ function LastMeetingWidget({ projectId }: { projectId: string }) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <Mic size={11} className="text-muted-foreground" />
-          <span className="text-xs text-muted-foreground font-medium">Última reunión</span>
+          <span className="text-xs text-muted-foreground font-medium">{t('project.últimaReunión')}</span>
         </div>
         <button
           onClick={() => navigate(`/proyecto/${routeProjectId}/meetings`)}
           className="flex items-center gap-0.5 text-xs text-primary hover:underline"
-        >
-          Ver todas
-          <ExternalLink size={10} />
+        >{t('project.verTodas')}<ExternalLink size={10} />
         </button>
       </div>
 
@@ -370,14 +370,12 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
     return (
       <div className="bg-card border border-border rounded-2xl p-4 space-y-4">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Activity size={15} className="text-primary" />
-          Motor del proyecto
-        </h3>
+          <Activity size={15} className="text-primary" />{t('project.motorDelProyecto')}</h3>
         <p className="text-xs text-muted-foreground leading-relaxed">
           Antes de analizar tu proyecto, el motor necesita conocer tres piezas básicas:
         </p>
         <ul className="space-y-1.5">
-          {['Problema principal', 'Cliente objetivo', 'Propuesta de valor'].map(item => (
+          {[t('project.problemaPrincipal'), t('project.clienteObjetivo'), t('project.propuestaDeValor')].map(item => (
             <li key={item} className="flex items-center gap-2 text-xs text-muted-foreground">
               <div className="w-1 h-1 rounded-full bg-muted-foreground/40 shrink-0" />
               {item}
@@ -388,9 +386,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
           <button
             onClick={onNavigateToOnboarding}
             className="flex items-center gap-1 text-xs text-primary hover:underline font-medium"
-          >
-            Completar configuración inicial
-            <ArrowRight size={11} />
+          >{t('project.completarConfiguraciónInicial')}<ArrowRight size={11} />
           </button>
         )}
       </div>
@@ -442,14 +438,10 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
       {/* Header */}
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Activity size={15} className="text-primary" />
-          Motor del proyecto
-        </h3>
+          <Activity size={15} className="text-primary" />{t('project.motorDelProyecto')}</h3>
         {hardSignal && (
           <span className="text-xs text-success bg-success/10 px-2 py-0.5 rounded-md flex items-center gap-1">
-            <CheckCircle2 size={11} />
-            Señal activa
-          </span>
+            <CheckCircle2 size={11} />{t('project.señalActiva')}</span>
         )}
       </div>
 
@@ -477,7 +469,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
       {/* T17.23 — Estado real */}
       <div className="flex items-center gap-1.5">
         <BarChart2 size={11} className="text-muted-foreground" />
-        <span className="text-xs text-muted-foreground font-medium">Estado real</span>
+        <span className="text-xs text-muted-foreground font-medium">{t('project.estadoReal')}</span>
       </div>
 
       {/* Probability + Risk */}
@@ -487,7 +479,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
         <div className={`flex-1 rounded-xl p-2.5 ${probCfg.bg}`}>
           <div className="flex items-center gap-1 mb-0.5">
             <TrendingUp size={11} className={probCfg.color} />
-            <span className="text-xs text-muted-foreground">Prob.</span>
+            <span className="text-xs text-muted-foreground">{t('project.prob')}</span>
           </div>
           <p className={`text-sm font-bold ${probCfg.color}`}>
             {probScore != null ? `${Math.round(probScore)}%` : '—'}
@@ -501,7 +493,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
         <div className={`flex-1 rounded-xl p-2.5 ${riskCfg.bg}`}>
           <div className="flex items-center gap-1 mb-0.5">
             <Shield size={11} className={riskCfg.color} />
-            <span className="text-xs text-muted-foreground">Riesgo</span>
+            <span className="text-xs text-muted-foreground">{t('project.riesgo')}</span>
           </div>
           <div className="flex items-baseline gap-1.5">
             <p className={`text-sm font-bold ${riskCfg.color}`}>
@@ -535,7 +527,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
       <div>
         <div className="flex items-center gap-1.5 mb-2">
           <Layers size={11} className="text-muted-foreground" />
-          <span className="text-xs text-muted-foreground font-medium">Cobertura</span>
+          <span className="text-xs text-muted-foreground font-medium">{t('project.cobertura')}</span>
         </div>
         <div className="space-y-2">
           {sortedCoverage.map(c => {
@@ -548,7 +540,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
                     className={`w-1.5 h-1.5 rounded-full shrink-0 ${
                       hasOwner ? 'bg-success' : 'bg-muted-foreground/40'
                     }`}
-                    title={hasOwner ? 'Con responsable' : 'Sin responsable'}
+                    title={hasOwner ? 'Con responsable': t('project.sinResponsable')}
                   />
                 )}
                 <span className={`text-xs text-muted-foreground shrink-0 ${ownerKnown ? 'w-11' : 'w-12'}`}>
@@ -569,9 +561,9 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
                   c.coverage_level === 'basic'  ? 'text-warning' :
                   'text-muted-foreground'
                 }`}>
-                  {c.coverage_level === 'strong' ? 'Fuerte' :
-                   c.coverage_level === 'basic'  ? 'Básica' :
-                   'Ninguna'}
+                  {c.coverage_level === 'strong' ? 'Fuerte':
+                   c.coverage_level === 'basic'  ? t('project.básica') :
+                   t('project.ninguna')}
                 </span>
               </div>
             );
@@ -582,7 +574,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
         {hasStructuralGap && probStatus !== 'inactive' && (
           <div className="flex items-center gap-1.5 mt-2 px-2 py-1.5 rounded-lg bg-destructive/10">
             <div className="w-1.5 h-1.5 rounded-full bg-destructive shrink-0" />
-            <span className="text-xs text-destructive font-medium">Gap estructural detectado</span>
+            <span className="text-xs text-destructive font-medium">{t('project.gapEstructuralDetectado')}</span>
           </div>
         )}
       </div>
@@ -599,7 +591,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
       <div className="border-t border-border pt-3 space-y-2">
         <div className="flex items-center gap-1.5">
           <ChevronRight size={11} className="text-muted-foreground" />
-          <span className="text-xs text-muted-foreground font-medium">Next Action</span>
+          <span className="text-xs text-muted-foreground font-medium">{t('project.nextAction')}</span>
         </div>
         {nextAction ? (
           <>
@@ -623,9 +615,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
             )}
           </>
         ) : (
-          <p className="text-xs text-muted-foreground">
-            El sistema aún no tiene suficiente información para recomendar el siguiente paso.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('project.elSistemaAúnNo')}</p>
         )}
 
         {/* T17.23 — Señales / T17.22 — fiabilidad + evidencia */}
@@ -633,7 +623,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
           <div className="pt-1 space-y-1">
             <div className="flex items-center gap-1.5 pb-0.5">
               <Radio size={10} className="text-muted-foreground" />
-              <span className="text-xs text-muted-foreground font-medium">Señales</span>
+              <span className="text-xs text-muted-foreground font-medium">{t('project.señales')}</span>
             </div>
             {agentInsights.map((insight) => (
               <div

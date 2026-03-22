@@ -7,6 +7,7 @@ import { PHASE_LABELS } from '@/lib/engine';
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface GlobalSearchProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -24,18 +25,19 @@ interface SearchResult {
 }
 
 const views = [
-  { id: 'dashboard', label: 'Dashboard', icon: '📊' },
-  { id: 'mi-espacio', label: 'Mi Espacio', icon: '👤' },
-  { id: 'proyectos', label: 'Proyectos', icon: '📁' },
-  { id: 'obvs', label: 'Centro OBVs', icon: '✅' },
-  { id: 'crm', label: 'CRM Global', icon: '📞' },
-  { id: 'financiero', label: 'Financiero', icon: '💰' },
-  { id: 'kpis', label: 'Otros KPIs', icon: '📚' },
-  { id: 'analytics', label: 'Analytics', icon: '📈' },
-  { id: 'settings', label: 'Configuración', icon: '⚙️' },
+  { id: 'dashboard', label: t('search.dashboard'), icon: '📊' },
+  { id: 'mi-espacio', label: t('search.miEspacio'), icon: '👤' },
+  { id: 'proyectos', label: t('search.proyectos'), icon: '📁' },
+  { id: 'obvs', label: t('search.centroObvs'), icon: '✅' },
+  { id: 'crm', label: t('search.crmGlobal'), icon: '📞' },
+  { id: 'financiero', label: t('search.financiero'), icon: '💰' },
+  { id: 'kpis', label: t('search.otrosKpis'), icon: '📚' },
+  { id: 'analytics', label: t('search.analytics'), icon: '📈' },
+  { id: 'settings', label: t('search.configuración'), icon: '⚙️' },
 ];
 
 export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
+  const { t } = useTranslation();
   const [query, setQuery] = useState('');
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { data: projects = [] } = useProjects();
@@ -129,13 +131,13 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
 
   // Keyboard navigation
   const handleKeyDown = (e: React.KeyboardEvent) => {
-    if (e.key === 'ArrowDown') {
+    if (e.key === t('search.arrowdown')) {
       e.preventDefault();
       setSelectedIndex(i => Math.min(i + 1, results.length - 1));
-    } else if (e.key === 'ArrowUp') {
+    } else if (e.key === t('search.arrowup')) {
       e.preventDefault();
       setSelectedIndex(i => Math.max(i - 1, 0));
-    } else if (e.key === 'Enter' && results[selectedIndex]) {
+    } else if (e.key === t('search.enter') && results[selectedIndex]) {
       e.preventDefault();
       results[selectedIndex].action();
     }
@@ -153,7 +155,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
               setSelectedIndex(0);
             }}
             onKeyDown={handleKeyDown}
-            placeholder="Buscar proyectos, vistas, miembros..."
+            placeholder={t('search.buscarProyectosVistasMiembros')}
             className="border-0 focus-visible:ring-0 h-12 text-base"
             autoFocus
           />
@@ -164,9 +166,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
 
         <div className="max-h-80 overflow-y-auto p-2">
           {results.length === 0 ? (
-            <div className="py-8 text-center text-muted-foreground text-sm">
-              No se encontraron resultados
-            </div>
+            <div className="py-8 text-center text-muted-foreground text-sm">{t('search.noSeEncontraronResultados')}</div>
           ) : (
             <div className="space-y-1">
               {results.map((result, i) => (
@@ -188,9 +188,9 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
                     )}
                   </div>
                   <span className="text-[10px] text-muted-foreground uppercase">
-                    {result.type === 'view' && 'Vista'}
-                    {result.type === 'project' && 'Proyecto'}
-                    {result.type === 'member' && 'Miembro'}
+                    {result.type === 'view' && t('search.vista')}
+                    {result.type === 'project' && t('search.proyecto')}
+                    {result.type === 'member' && t('search.miembro')}
                   </span>
                 </button>
               ))}

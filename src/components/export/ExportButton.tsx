@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import { useExcelExport } from '@/hooks/useExcelExport';
 
+import { useTranslation } from 'react-i18next';
 interface ExportOption {
   label: string;
   type: string;
@@ -34,6 +35,7 @@ export function ExportButton({
   size = 'default',
   showLabel = true,
 }: ExportButtonProps) {
+  const { t } = useTranslation();
   const { exportToExcel, isExporting } = useExcelExport();
 
   if (options.length === 1) {
@@ -51,7 +53,7 @@ export function ExportButton({
         ) : (
           <FileSpreadsheet className="w-4 h-4 mr-2" />
         )}
-        {showLabel && (isExporting ? 'Exportando...' : 'Exportar a Excel')}
+        {showLabel && (isExporting ? 'Exportando...': t('export.exportarAExcel0'))}
       </Button>
     );
   }
@@ -66,14 +68,12 @@ export function ExportButton({
           ) : (
             <Download className="w-4 h-4 mr-2" />
           )}
-          {showLabel && (isExporting ? 'Exportando...' : 'Exportar')}
+          {showLabel && (isExporting ? 'Exportando...': t('export.exportar'))}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-56">
         <DropdownMenuLabel className="flex items-center gap-2">
-          <FileSpreadsheet className="w-4 h-4" />
-          Exportar a Excel
-        </DropdownMenuLabel>
+          <FileSpreadsheet className="w-4 h-4" />{t('export.exportarAExcel')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {options.map((option, index) => (
           <DropdownMenuItem

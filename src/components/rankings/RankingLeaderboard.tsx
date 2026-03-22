@@ -6,6 +6,7 @@ import { Progress } from '@/components/ui/progress';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface EnrichedRanking {
   id: string;
   role_name: string;
@@ -38,6 +39,7 @@ const POSITION_STYLES = {
 };
 
 export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboardProps) {
+  const { t } = useTranslation();
   const getPositionChange = (current: number, previous: number | null) => {
     if (previous === null) return null;
     const change = previous - current;
@@ -51,10 +53,8 @@ export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboa
       <Card className="border-dashed">
         <CardContent className="py-10 text-center">
           <Trophy size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="font-semibold mb-2">Sin rankings disponibles</h3>
-          <p className="text-sm text-muted-foreground">
-            Los rankings se calculan automáticamente basados en el rendimiento
-          </p>
+          <h3 className="font-semibold mb-2">{t('rankings.sinRankingsDisponibles')}</h3>
+          <p className="text-sm text-muted-foreground">{t('rankings.losRankingsSeCalculan')}</p>
         </CardContent>
       </Card>
     );
@@ -149,7 +149,7 @@ export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboa
                       {/* Score */}
                       <div className="w-24">
                         <div className="flex items-center justify-between mb-1">
-                          <span className="text-xs text-muted-foreground">Score</span>
+                          <span className="text-xs text-muted-foreground">{t('rankings.score')}</span>
                           <span className="text-sm font-bold">{Number(ranking.score).toFixed(0)}%</span>
                         </div>
                         <Progress value={Number(ranking.score)} className="h-1.5" />
@@ -160,15 +160,15 @@ export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboa
                         <div className="hidden lg:flex items-center gap-4 text-xs">
                           <div className="text-center">
                             <p className="font-semibold">{ranking.performance.task_completion_rate}%</p>
-                            <p className="text-muted-foreground">Tareas</p>
+                            <p className="text-muted-foreground">{t('rankings.tareas')}</p>
                           </div>
                           <div className="text-center">
                             <p className="font-semibold">{ranking.performance.validated_obvs}</p>
-                            <p className="text-muted-foreground">OBVs</p>
+                            <p className="text-muted-foreground">{t('rankings.obvs')}</p>
                           </div>
                           <div className="text-center">
                             <p className="font-semibold">{ranking.performance.lead_conversion_rate}%</p>
-                            <p className="text-muted-foreground">Leads</p>
+                            <p className="text-muted-foreground">{t('rankings.leads')}</p>
                           </div>
                         </div>
                       )}

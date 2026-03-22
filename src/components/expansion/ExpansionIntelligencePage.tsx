@@ -16,11 +16,13 @@ import { useExpansionReadiness } from '@/hooks/useExpansionReadiness';
 import { ExpansionReadinessTeaser } from './ExpansionReadinessTeaser';
 import { ExpansionMarketCard, type ExpansionMarket } from './ExpansionMarketCard';
 
+import { useTranslation } from 'react-i18next';
 interface ExpansionIntelligencePageProps {
   projectId: string;
 }
 
 export function ExpansionIntelligencePage({ projectId }: ExpansionIntelligencePageProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { data: readiness, isLoading: readinessLoading } = useExpansionReadiness(projectId);
   const [showTransparency, setShowTransparency] = useState(false);
@@ -54,10 +56,10 @@ export function ExpansionIntelligencePage({ projectId }: ExpansionIntelligencePa
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['expansion-analysis', projectId] });
-      toast.success('Análisis de expansión generado');
+      toast.success(t('expansion.análisisDeExpansiónGenerado'));
     },
     onError: () => {
-      toast.error('Error al generar análisis');
+      toast.error(t('expansion.errorAlGenerarAnálisis'));
     },
   });
 
@@ -108,9 +110,9 @@ export function ExpansionIntelligencePage({ projectId }: ExpansionIntelligencePa
         <div className="flex items-center gap-3">
           <Globe className="h-6 w-6 text-blue-500" />
           <div>
-            <h2 className="text-lg font-semibold">Expansion Intelligence</h2>
+            <h2 className="text-lg font-semibold">{t('expansion.expansionIntelligence')}</h2>
             <p className="text-xs text-muted-foreground">
-              {analysis ? `Generado: ${new Date(analysis.generated_at).toLocaleDateString()}` : 'Cargando...'}
+              {analysis ? `Generado: ${new Date(analysis.generated_at).toLocaleDateString()}` : t('expansion.cargando')}
             </p>
           </div>
         </div>
@@ -121,9 +123,7 @@ export function ExpansionIntelligencePage({ projectId }: ExpansionIntelligencePa
           disabled={generateAnalysis.isPending}
           className="gap-1"
         >
-          <RefreshCw className={`h-3.5 w-3.5 ${generateAnalysis.isPending ? 'animate-spin' : ''}`} />
-          Regenerar
-        </Button>
+          <RefreshCw className={`h-3.5 w-3.5 ${generateAnalysis.isPending ? 'animate-spin' : ''}`} />{t('expansion.regenerar')}</Button>
       </div>
 
       {/* F22.9 — Transparency Panel */}
@@ -139,7 +139,7 @@ export function ExpansionIntelligencePage({ projectId }: ExpansionIntelligencePa
       {showTransparency && (
         <div className="bg-muted/30 rounded-lg p-4 space-y-3 text-sm">
           <div>
-            <p className="font-medium text-xs mb-1">Datos del negocio usados</p>
+            <p className="font-medium text-xs mb-1">{t('expansion.datosDelNegocioUsados')}</p>
             <ul className="text-xs text-muted-foreground space-y-0.5">
               <li>País actual: {String(inputSnapshot.country ?? 'N/A')}</li>
               <li>Sector: {String(inputSnapshot.sector ?? 'N/A')}</li>

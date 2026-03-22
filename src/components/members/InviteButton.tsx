@@ -15,6 +15,7 @@ import { InviteMemberWizard } from '@/components/roles/InviteMemberWizard';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface InviteButtonProps {
   variant?: 'default' | 'outline' | 'ghost';
   size?: 'default' | 'sm' | 'lg' | 'icon';
@@ -30,6 +31,7 @@ export function InviteButton({
   children,
   onSuccess,
 }: InviteButtonProps) {
+  const { t } = useTranslation();
   const { currentProject } = useCurrentProject();
   const { getLimitInfo } = useFeatureAccess(currentProject?.id);
   const { data: availablePlans = [] } = useAvailablePlans();
@@ -42,7 +44,7 @@ export function InviteButton({
 
   const handleClick = () => {
     if (!currentProject) {
-      toast.error('Selecciona un proyecto primero');
+      toast.error(t('members.seleccionaUnProyectoPrimero'));
       return;
     }
 
@@ -59,12 +61,12 @@ export function InviteButton({
   const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
     setShowUpgradeModal(false);
-    toast.success('¡Plan actualizado! Ya puedes invitar más miembros.');
+    toast.success(t('members.planActualizadoYaPuedes'));
   };
 
   const handleInviteSuccess = () => {
     setShowInviteWizard(false);
-    toast.success('Invitación enviada exitosamente');
+    toast.success(t('members.invitaciónEnviadaExitosamente'));
     onSuccess?.();
   };
 
@@ -84,7 +86,7 @@ export function InviteButton({
         ) : (
           <UserPlus className="h-4 w-4 mr-2" />
         )}
-        {children || 'Invitar Miembro'}
+        {children || t('members.invitarMiembro')}
       </Button>
 
       {/* Invite Wizard */}

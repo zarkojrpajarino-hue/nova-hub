@@ -26,21 +26,23 @@ import { useProjects } from '@/hooks/useNovaData';
 import { useProjectMembers, useProfiles } from '@/hooks/useNovaData';
 import { useCreateRotationRequest, useCalculateCompatibility, CompatibilityAnalysis } from '@/hooks/useRoleRotation';
 
+import { useTranslation } from 'react-i18next';
 interface CreateRotationDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 const roleLabels: Record<string, string> = {
-  sales: 'Ventas',
-  finance: 'Finanzas',
-  ai_tech: 'AI/Tech',
-  marketing: 'Marketing',
-  operations: 'Operaciones',
-  strategy: 'Estrategia',
+  sales: t('rotation.ventas'),
+  finance: t('rotation.finanzas'),
+  ai_tech: t('rotation.aitech'),
+  marketing: t('rotation.marketing'),
+  operations: t('rotation.operaciones'),
+  strategy: t('rotation.estrategia'),
 };
 
 export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialogProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: projects = [] } = useProjects();
   const { data: allMembers = [] } = useProjectMembers();
@@ -125,22 +127,22 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
 
   const recommendationConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
     highly_recommended: { 
-      label: 'Muy Recomendado', 
+      label: t('rotation.muyRecomendado'), 
       color: 'text-green-600 bg-green-50 border-green-200',
       icon: <CheckCircle2 className="h-4 w-4" />
     },
     recommended: { 
-      label: 'Recomendado', 
+      label: t('rotation.recomendado'), 
       color: 'text-blue-600 bg-blue-50 border-blue-200',
       icon: <CheckCircle2 className="h-4 w-4" />
     },
     neutral: { 
-      label: 'Neutral', 
+      label: t('rotation.neutral'), 
       color: 'text-yellow-600 bg-yellow-50 border-yellow-200',
       icon: <AlertCircle className="h-4 w-4" />
     },
     not_recommended: { 
-      label: 'No Recomendado', 
+      label: t('rotation.noRecomendado'), 
       color: 'text-red-600 bg-red-50 border-red-200',
       icon: <AlertCircle className="h-4 w-4" />
     },
@@ -151,21 +153,17 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <ArrowLeftRight className="h-5 w-5" />
-            Nueva Solicitud de Rotación
-          </DialogTitle>
-          <DialogDescription>
-            Solicita intercambiar tu rol con otro miembro del equipo
-          </DialogDescription>
+            <ArrowLeftRight className="h-5 w-5" />{t('rotation.nuevaSolicitudDeRotación')}</DialogTitle>
+          <DialogDescription>{t('rotation.solicitaIntercambiarTuRol')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
           {/* Select Project */}
           <div className="space-y-2">
-            <Label>Tu proyecto y rol actual</Label>
+            <Label>{t('rotation.tuProyectoYRol')}</Label>
             <Select value={selectedProjectId} onValueChange={setSelectedProjectId}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona tu proyecto" />
+                <SelectValue placeholder={t('rotation.seleccionaTuProyecto')} />
               </SelectTrigger>
               <SelectContent>
                 {myMemberships.map((membership) => {
@@ -192,10 +190,10 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
           {/* Select Target User */}
           {selectedProjectId && (
             <div className="space-y-2">
-              <Label>Intercambiar con</Label>
+              <Label>{t('rotation.intercambiarCon')}</Label>
               <Select value={selectedTargetUserId} onValueChange={setSelectedTargetUserId}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecciona un miembro" />
+                  <SelectValue placeholder={t('rotation.seleccionaUnMiembro')} />
                 </SelectTrigger>
                 <SelectContent>
                   {uniqueTargetUsers.map((target) => (
@@ -226,7 +224,7 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
           {compatibilityMutation.isPending && (
             <div className="flex items-center justify-center p-4">
               <Loader2 className="h-5 w-5 animate-spin mr-2" />
-              <span className="text-sm text-muted-foreground">Analizando compatibilidad...</span>
+              <span className="text-sm text-muted-foreground">{t('rotation.analizandoCompatibilidad')}</span>
             </div>
           )}
 
@@ -245,11 +243,11 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
 
                 <div className="grid grid-cols-2 gap-4 text-sm">
                   <div>
-                    <p className="text-muted-foreground">Tu rendimiento</p>
+                    <p className="text-muted-foreground">{t('rotation.tuRendimiento')}</p>
                     <p className="font-medium">{compatibility.user1_performance?.toFixed(0) || 50}%</p>
                   </div>
                   <div>
-                    <p className="text-muted-foreground">Su rendimiento</p>
+                    <p className="text-muted-foreground">{t('rotation.suRendimiento')}</p>
                     <p className="font-medium">{compatibility.user2_performance?.toFixed(0) || 50}%</p>
                   </div>
                 </div>
@@ -276,16 +274,14 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
             <Textarea
               value={reason}
               onChange={(e) => setReason(e.target.value)}
-              placeholder="¿Por qué quieres hacer este intercambio?"
+              placeholder={t('rotation.porQuéQuieresHacer')}
               rows={3}
             />
           </div>
         </div>
 
         <DialogFooter>
-          <Button variant="outline" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={() => onOpenChange(false)}>{t('rotation.cancelar')}</Button>
           <Button 
             onClick={handleSubmit}
             disabled={!selectedProjectId || !selectedTargetUserId || createMutation.isPending}

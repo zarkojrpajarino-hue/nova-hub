@@ -10,7 +10,7 @@
  * - action_hint: solo si es obvio — no inventado
  * - severity badge: info=azul, attention=ámbar, warning=rojo, critical=rojo oscuro
  *
- * El badge "Execution Agent" identifica la fuente (§4 — no texto generado por UI directamente).
+ * El badge t('integrations.executionAgent0') identifica la fuente (§4 — no texto generado por UI directamente).
  */
 
 import { useQuery } from '@tanstack/react-query'
@@ -22,6 +22,7 @@ import { EvidenceBadge } from '@/components/evidence/EvidenceBadge'
 import { SourcesPanel } from '@/components/evidence/SourcesPanel'
 import type { EvidenceType, SourceUsed, SourceDiscarded, ProviderSlug } from '@/lib/evidence'
 
+import { useTranslation } from 'react-i18next';
 interface InsightPayload {
   signal: { metric_name: string; current_value: number; data_points: number }
   content: {
@@ -40,6 +41,7 @@ const SEVERITY_CONFIG = {
 } as const
 
 function SeverityBadge({ severity }: { severity: keyof typeof SEVERITY_CONFIG }) {
+  const { t } = useTranslation();
   const cfg = SEVERITY_CONFIG[severity] ?? SEVERITY_CONFIG.info
   return (
     <span className={`inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-medium ${cfg.badge}`}>
@@ -65,9 +67,7 @@ export function ExecutionInsightsCard({ projectId }: ExecutionInsightsCardProps)
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-        <Loader2 size={14} className="animate-spin" />
-        Analizando datos de ejecución...
-      </div>
+        <Loader2 size={14} className="animate-spin" />{t('integrations.analizandoDatosDeEjecución')}</div>
     )
   }
   if (!insights || insights.length === 0) return null
@@ -76,11 +76,7 @@ export function ExecutionInsightsCard({ projectId }: ExecutionInsightsCardProps)
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
-          <CheckSquare size={15} className="text-pink-500" />
-          Análisis de ejecución
-          <Badge variant="secondary" className="text-xs h-5 px-1.5 font-normal">
-            Execution Agent
-          </Badge>
+          <CheckSquare size={15} className="text-pink-500" />{t('integrations.análisisDeEjecución')}<Badge variant="secondary" className="text-xs h-5 px-1.5 font-normal">{t('integrations.executionAgent')}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">

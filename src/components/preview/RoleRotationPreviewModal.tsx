@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -71,136 +72,136 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
   const activeRotations: ActiveRotation[] = [
     {
       id: '1',
-      name: 'Sarah Chen',
+      name: t('preview.sarahChen'),
       avatar: 'SC',
-      currentRole: 'Software Engineer',
-      rotationRole: 'Product Manager',
-      department: 'Product',
+      currentRole: t('preview.softwareEngineer'),
+      rotationRole: t('preview.productManager'),
+      department: t('preview.product'),
       progress: 60,
       startDate: '2025-12-01',
       endDate: '2026-03-01',
-      mentor: 'Michael Rodriguez',
+      mentor: t('preview.michaelRodriguez'),
     },
     {
       id: '2',
-      name: 'James Wilson',
+      name: t('preview.jamesWilson'),
       avatar: 'JW',
-      currentRole: 'Data Analyst',
-      rotationRole: 'Data Science Lead',
-      department: 'Analytics',
+      currentRole: t('preview.dataAnalyst'),
+      rotationRole: t('preview.dataScienceLead'),
+      department: t('preview.analytics'),
       progress: 35,
       startDate: '2026-01-15',
       endDate: '2026-04-15',
-      mentor: 'Emily Parker',
+      mentor: t('preview.emilyParker'),
     },
     {
       id: '3',
-      name: 'Maria Garcia',
+      name: t('preview.mariaGarcia'),
       avatar: 'MG',
-      currentRole: 'UX Designer',
-      rotationRole: 'Design Systems Lead',
-      department: 'Design',
+      currentRole: t('preview.uxDesigner'),
+      rotationRole: t('preview.designSystemsLead'),
+      department: t('preview.design'),
       progress: 80,
       startDate: '2025-11-01',
       endDate: '2026-02-01',
-      mentor: 'David Kim',
+      mentor: t('preview.davidKim'),
     },
     {
       id: '4',
-      name: 'Alex Thompson',
+      name: t('preview.alexThompson'),
       avatar: 'AT',
-      currentRole: 'Backend Engineer',
-      rotationRole: 'DevOps Engineer',
-      department: 'Infrastructure',
+      currentRole: t('preview.backendEngineer'),
+      rotationRole: t('preview.devopsEngineer'),
+      department: t('preview.infrastructure'),
       progress: 45,
       startDate: '2025-12-15',
       endDate: '2026-03-15',
-      mentor: 'Rachel Foster',
+      mentor: t('preview.rachelFoster'),
     },
     {
       id: '5',
-      name: 'Nina Patel',
+      name: t('preview.ninaPatel'),
       avatar: 'NP',
-      currentRole: 'Marketing Manager',
-      rotationRole: 'Growth Lead',
-      department: 'Growth',
+      currentRole: t('preview.marketingManager'),
+      rotationRole: t('preview.growthLead'),
+      department: t('preview.growth'),
       progress: 70,
       startDate: '2025-11-15',
       endDate: '2026-02-15',
-      mentor: 'Tom Bradley',
+      mentor: t('preview.tomBradley'),
     },
     {
       id: '6',
-      name: 'Robert Lee',
+      name: t('preview.robertLee'),
       avatar: 'RL',
-      currentRole: 'Sales Rep',
-      rotationRole: 'Account Executive',
-      department: 'Sales',
+      currentRole: t('preview.salesRep'),
+      rotationRole: t('preview.accountExecutive'),
+      department: t('preview.sales'),
       progress: 25,
       startDate: '2026-01-01',
       endDate: '2026-04-01',
-      mentor: 'Lisa Chang',
+      mentor: t('preview.lisaChang'),
     },
   ];
 
   const rotationHistory: RotationHistory[] = [
     {
       id: '1',
-      name: 'Emily Chen',
-      role: 'Engineering Manager',
-      department: 'Engineering',
+      name: t('preview.emilyChen'),
+      role: t('preview.engineeringManager'),
+      department: t('preview.engineering'),
       duration: '3 months',
-      outcome: 'Promoted to permanent role',
+      outcome: t('preview.promotedToPermanentRole'),
       date: '2024-08-15',
       status: 'completed',
     },
     {
       id: '2',
-      name: 'Marcus Johnson',
-      role: 'Product Designer',
-      department: 'Design',
+      name: t('preview.marcusJohnson'),
+      role: t('preview.productDesigner'),
+      department: t('preview.design'),
       duration: '3 months',
-      outcome: 'Returned with new skills',
+      outcome: t('preview.returnedWithNewSkills'),
       date: '2024-10-01',
       status: 'completed',
     },
     {
       id: '3',
-      name: 'Sophie Anderson',
-      role: 'Business Analyst',
-      department: 'Strategy',
+      name: t('preview.sophieAnderson'),
+      role: t('preview.businessAnalyst'),
+      department: t('preview.strategy'),
       duration: '2 months',
-      outcome: 'Created cross-team initiative',
+      outcome: t('preview.createdCrossteamInitiative'),
       date: '2025-01-15',
       status: 'completed',
     },
     {
       id: '4',
-      name: 'David Martinez',
-      role: 'Technical Writer',
-      department: 'Documentation',
+      name: t('preview.davidMartinez'),
+      role: t('preview.technicalWriter'),
+      department: t('preview.documentation'),
       duration: '3 months',
-      outcome: 'Built new documentation system',
+      outcome: t('preview.builtNewDocumentationSystem'),
       date: '2025-03-01',
       status: 'completed',
     },
     {
       id: '5',
-      name: 'Rachel Kim',
-      role: 'QA Lead',
-      department: 'Quality',
+      name: t('preview.rachelKim'),
+      role: t('preview.qaLead'),
+      department: t('preview.quality'),
       duration: '3 months',
-      outcome: 'Improved testing processes',
+      outcome: t('preview.improvedTestingProcesses'),
       date: '2025-05-15',
       status: 'completed',
     },
     {
       id: '6',
-      name: 'Tom Wilson',
-      role: 'Solutions Architect',
-      department: 'Architecture',
+      name: t('preview.tomWilson'),
+      role: t('preview.solutionsArchitect'),
+      department: t('preview.architecture'),
       duration: '4 months',
-      outcome: 'Led migration project',
+      outcome: t('preview.ledMigrationProject'),
       date: '2025-07-01',
       status: 'completed',
     },
@@ -211,6 +212,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
   const totalSlides = 6;
 
   const handleNext = () => {
+  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }
@@ -239,7 +241,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
             <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-500 rounded-full flex items-center justify-center mb-6">
               <RefreshCw className="w-10 h-10 text-white" />
             </div>
-            <h2 className="text-3xl font-bold mb-4">Role Rotation Program</h2>
+            <h2 className="text-3xl font-bold mb-4">{t('preview.roleRotationProgram')}</h2>
             <p className="text-lg text-muted-foreground mb-8 max-w-2xl">
               Explore different roles, gain new skills, and accelerate your career growth
               through our structured rotation program
@@ -248,17 +250,17 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
               <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
                 <Users className="w-8 h-8 text-purple-500 mb-2" />
                 <div className="text-2xl font-bold">6</div>
-                <div className="text-sm text-muted-foreground">Active Rotations</div>
+                <div className="text-sm text-muted-foreground">{t('preview.activeRotations')}</div>
               </div>
               <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
                 <Calendar className="w-8 h-8 text-blue-500 mb-2" />
                 <div className="text-2xl font-bold">18</div>
-                <div className="text-sm text-muted-foreground">Months of Data</div>
+                <div className="text-sm text-muted-foreground">{t('preview.monthsOfData')}</div>
               </div>
               <div className="flex flex-col items-center p-4 bg-muted/50 rounded-lg">
                 <TrendingUp className="w-8 h-8 text-green-500 mb-2" />
                 <div className="text-2xl font-bold">85%</div>
-                <div className="text-sm text-muted-foreground">Success Rate</div>
+                <div className="text-sm text-muted-foreground">{t('preview.successRate')}</div>
               </div>
             </div>
           </div>
@@ -267,53 +269,41 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
       case 1:
         return (
           <div className="py-8 px-6">
-            <h2 className="text-2xl font-bold mb-6">Rotation Program Overview</h2>
+            <h2 className="text-2xl font-bold mb-6">{t('preview.rotationProgramOverview')}</h2>
             <div className="space-y-6">
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Award className="w-5 h-5 text-yellow-500" />
-                  Benefits
-                </h3>
+                  <Award className="w-5 h-5 text-yellow-500" />{t('preview.benefits')}</h3>
                 <div className="grid grid-cols-2 gap-4">
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="font-semibold mb-1">Skill Development</div>
-                    <div className="text-sm text-muted-foreground">
-                      Learn new competencies and broaden your expertise
-                    </div>
+                    <div className="font-semibold mb-1">{t('preview.skillDevelopment')}</div>
+                    <div className="text-sm text-muted-foreground">{t('preview.learnNewCompetenciesAnd')}</div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="font-semibold mb-1">Career Growth</div>
-                    <div className="text-sm text-muted-foreground">
-                      Explore career paths and expand opportunities
-                    </div>
+                    <div className="font-semibold mb-1">{t('preview.careerGrowth')}</div>
+                    <div className="text-sm text-muted-foreground">{t('preview.exploreCareerPathsAnd')}</div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="font-semibold mb-1">Network Building</div>
-                    <div className="text-sm text-muted-foreground">
-                      Connect with new teams and build relationships
-                    </div>
+                    <div className="font-semibold mb-1">{t('preview.networkBuilding')}</div>
+                    <div className="text-sm text-muted-foreground">{t('preview.connectWithNewTeams')}</div>
                   </div>
                   <div className="p-4 bg-muted/50 rounded-lg">
-                    <div className="font-semibold mb-1">Fresh Perspective</div>
-                    <div className="text-sm text-muted-foreground">
-                      Bring new ideas back to your home team
-                    </div>
+                    <div className="font-semibold mb-1">{t('preview.freshPerspective')}</div>
+                    <div className="text-sm text-muted-foreground">{t('preview.bringNewIdeasBack')}</div>
                   </div>
                 </div>
               </div>
 
               <div>
                 <h3 className="text-lg font-semibold mb-4 flex items-center gap-2">
-                  <Target className="w-5 h-5 text-blue-500" />
-                  Program Structure
-                </h3>
+                  <Target className="w-5 h-5 text-blue-500" />{t('preview.programStructure')}</h3>
                 <div className="space-y-3">
                   <div className="flex items-start gap-3 p-3 bg-muted/50 rounded-lg">
                     <div className="w-8 h-8 bg-primary text-primary-foreground rounded-full flex items-center justify-center flex-shrink-0 font-semibold">
                       1
                     </div>
                     <div>
-                      <div className="font-semibold">Application & Approval</div>
+                      <div className="font-semibold">{t('preview.applicationApproval')}</div>
                       <div className="text-sm text-muted-foreground">
                         Submit request and get manager approval (1-2 weeks)
                       </div>
@@ -324,7 +314,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
                       2
                     </div>
                     <div>
-                      <div className="font-semibold">Rotation Period</div>
+                      <div className="font-semibold">{t('preview.rotationPeriod')}</div>
                       <div className="text-sm text-muted-foreground">
                         Work in new role with assigned mentor (2-4 months)
                       </div>
@@ -335,7 +325,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
                       3
                     </div>
                     <div>
-                      <div className="font-semibold">Review & Transition</div>
+                      <div className="font-semibold">{t('preview.reviewTransition')}</div>
                       <div className="text-sm text-muted-foreground">
                         Evaluate experience and decide next steps (1 week)
                       </div>
@@ -350,7 +340,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
       case 2:
         return (
           <div className="py-8 px-6">
-            <h2 className="text-2xl font-bold mb-2">Active Rotations</h2>
+            <h2 className="text-2xl font-bold mb-2">{t('preview.activeRotations')}</h2>
             <p className="text-muted-foreground mb-6">
               {activeRotations.length} team members currently exploring new roles
             </p>
@@ -397,7 +387,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
 
                   <div>
                     <div className="flex justify-between text-sm mb-1">
-                      <span className="text-muted-foreground">Progress</span>
+                      <span className="text-muted-foreground">{t('preview.progress')}</span>
                       <span className="font-semibold">{rotation.progress}%</span>
                     </div>
                     <div className="w-full bg-muted rounded-full h-2">
@@ -416,7 +406,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
       case 3:
         return (
           <div className="py-8 px-6">
-            <h2 className="text-2xl font-bold mb-2">Rotation Details</h2>
+            <h2 className="text-2xl font-bold mb-2">{t('preview.rotationDetails')}</h2>
             <p className="text-muted-foreground mb-6">
               Deep dive into {selectedRotation.name}'s rotation
             </p>
@@ -443,7 +433,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <Calendar className="w-4 h-4 text-blue-500" />
-                    <div className="font-semibold">Schedule</div>
+                    <div className="font-semibold">{t('preview.schedule')}</div>
                   </div>
                   <div className="space-y-1 text-sm">
                     <div className="flex justify-between">
@@ -476,7 +466,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
                 <div className="p-4 border rounded-lg">
                   <div className="flex items-center gap-2 mb-2">
                     <User className="w-4 h-4 text-purple-500" />
-                    <div className="font-semibold">Mentor</div>
+                    <div className="font-semibold">{t('preview.mentor')}</div>
                   </div>
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 bg-gradient-to-br from-orange-500 to-red-500 rounded-full flex items-center justify-center text-white font-semibold">
@@ -491,35 +481,31 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
                     </div>
                   </div>
                   <Button variant="outline" size="sm" className="w-full mt-3">
-                    <Mail className="w-3 h-3 mr-2" />
-                    Contact
-                  </Button>
+                    <Mail className="w-3 h-3 mr-2" />{t('preview.contact')}</Button>
                 </div>
               </div>
 
               <div className="p-4 border rounded-lg">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="w-4 h-4 text-green-500" />
-                  <div className="font-semibold">Rotation Goals</div>
+                  <div className="font-semibold">{t('preview.rotationGoals')}</div>
                 </div>
                 <div className="space-y-2">
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Lead product discovery for Q1 features</span>
+                    <span className="text-sm">{t('preview.leadProductDiscoveryFor')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-500 mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">
-                      Conduct user research and synthesize insights
-                    </span>
+                    <span className="text-sm">{t('preview.conductUserResearchAnd')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <CircleDot className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Create product roadmap for new vertical</span>
+                    <span className="text-sm">{t('preview.createProductRoadmapFor')}</span>
                   </div>
                   <div className="flex items-start gap-2">
                     <CircleDot className="w-4 h-4 text-muted-foreground mt-0.5 flex-shrink-0" />
-                    <span className="text-sm">Present to executive team</span>
+                    <span className="text-sm">{t('preview.presentToExecutiveTeam')}</span>
                   </div>
                 </div>
               </div>
@@ -545,10 +531,8 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
       case 4:
         return (
           <div className="py-8 px-6">
-            <h2 className="text-2xl font-bold mb-2">Rotation History</h2>
-            <p className="text-muted-foreground mb-6">
-              Track record of successful rotations over the past 18 months
-            </p>
+            <h2 className="text-2xl font-bold mb-2">{t('preview.rotationHistory')}</h2>
+            <p className="text-muted-foreground mb-6">{t('preview.trackRecordOfSuccessful')}</p>
 
             <div className="relative">
               <div className="absolute left-8 top-0 bottom-0 w-0.5 bg-border" />
@@ -612,36 +596,32 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
       case 5:
         return (
           <div className="py-8 px-6">
-            <h2 className="text-2xl font-bold mb-2">Request a Rotation</h2>
-            <p className="text-muted-foreground mb-6">
-              Submit your rotation request and we'll get back to you within 1-2 weeks
-            </p>
+            <h2 className="text-2xl font-bold mb-2">{t('preview.requestARotation')}</h2>
+            <p className="text-muted-foreground mb-6">{t('preview.submitYourRotationRequest')}</p>
 
             <div className="space-y-4 max-h-[500px] overflow-y-auto pr-2">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Desired Role</label>
+                <label className="text-sm font-medium mb-1.5 block">{t('preview.desiredRole')}</label>
                 <Input
                   name="desiredRole"
-                  placeholder="e.g. Product Manager, Data Scientist"
+                  placeholder={t('preview.egProductManagerData')}
                   value={formData.desiredRole}
                   onChange={handleInputChange}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Department</label>
+                <label className="text-sm font-medium mb-1.5 block">{t('preview.department')}</label>
                 <Input
                   name="department"
-                  placeholder="e.g. Product, Engineering, Design"
+                  placeholder={t('preview.egProductEngineeringDesign')}
                   value={formData.department}
                   onChange={handleInputChange}
                 />
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">
-                  Preferred Duration
-                </label>
+                <label className="text-sm font-medium mb-1.5 block">{t('preview.preferredDuration')}</label>
                 <div className="grid grid-cols-3 gap-2">
                   <Button
                     variant={formData.duration === '2 months' ? 'default' : 'outline'}
@@ -668,12 +648,10 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">
-                  Why This Rotation?
-                </label>
+                <label className="text-sm font-medium mb-1.5 block">{t('preview.whyThisRotation')}</label>
                 <Textarea
                   name="reason"
-                  placeholder="Explain your motivation and how this rotation aligns with your career goals..."
+                  placeholder={t('preview.explainYourMotivationAnd')}
                   value={formData.reason}
                   onChange={handleInputChange}
                   rows={4}
@@ -681,10 +659,10 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
               </div>
 
               <div>
-                <label className="text-sm font-medium mb-1.5 block">Learning Goals</label>
+                <label className="text-sm font-medium mb-1.5 block">{t('preview.learningGoals')}</label>
                 <Textarea
                   name="goals"
-                  placeholder="What specific skills or experiences do you hope to gain?..."
+                  placeholder={t('preview.whatSpecificSkillsOr')}
                   value={formData.goals}
                   onChange={handleInputChange}
                   rows={4}
@@ -694,17 +672,15 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
               <div className="p-4 bg-muted/50 rounded-lg space-y-2">
                 <div className="font-semibold text-sm">Next Steps:</div>
                 <ul className="text-sm text-muted-foreground space-y-1 list-disc list-inside">
-                  <li>Your manager will review and approve the request</li>
-                  <li>HR will match you with a suitable rotation opportunity</li>
-                  <li>You'll be assigned a mentor from the destination team</li>
-                  <li>A kickoff meeting will be scheduled to set expectations</li>
+                  <li>{t('preview.yourManagerWillReview')}</li>
+                  <li>{t('preview.hrWillMatchYou')}</li>
+                  <li>{t('preview.youllBeAssignedA')}</li>
+                  <li>{t('preview.aKickoffMeetingWill')}</li>
                 </ul>
               </div>
 
               <Button className="w-full" size="lg">
-                <RefreshCw className="w-4 h-4 mr-2" />
-                Submit Rotation Request
-              </Button>
+                <RefreshCw className="w-4 h-4 mr-2" />{t('preview.submitRotationRequest')}</Button>
             </div>
           </div>
         );
@@ -718,7 +694,7 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
-          <DialogTitle>Role Rotation Preview</DialogTitle>
+          <DialogTitle>{t('preview.roleRotationPreview')}</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-hidden">{renderSlide()}</div>
@@ -743,23 +719,17 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
               onClick={handlePrev}
               disabled={currentSlide === 0}
             >
-              <ChevronLeft className="w-4 h-4 mr-1" />
-              Previous
-            </Button>
+              <ChevronLeft className="w-4 h-4 mr-1" />{t('preview.previous')}</Button>
             <Button
               variant="outline"
               size="sm"
               onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : handleNext}
             >
               {currentSlide === totalSlides - 1 ? (
-                <>
-                  Finalizar
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
+                <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-1" />
                 </>
               ) : (
-                <>
-                  Next
-                  <ChevronRight className="w-4 h-4 ml-1" />
+                <>{t('preview.next')}<ChevronRight className="w-4 h-4 ml-1" />
                 </>
               )}
             </Button>

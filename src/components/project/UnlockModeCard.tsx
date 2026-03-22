@@ -4,6 +4,7 @@ import type { NextAction } from '@/lib/next-action';
 import { deriveCostOfIgnoring } from './CostOfIgnoring';
 import { deriveRegression } from './RegressionBanner';
 
+import { useTranslation } from 'react-i18next';
 // ── Derivation ────────────────────────────────────────────────────────────────
 // Activa cuando cualquiera de estas condiciones se cumple:
 //   1. viability_status === 'critical'
@@ -42,7 +43,7 @@ export function deriveUnlockMode(
   if (nextAction) {
     return {
       mainAction:    nextAction.title,
-      consequences:  cost?.consequences ?? ['Puede reducirse la capacidad de avanzar de fase'],
+      consequences:  cost?.consequences ?? [t('project.puedeReducirseLaCapacidad')],
       ctaActionType: nextAction.actionType,
     };
   }
@@ -50,27 +51,27 @@ export function deriveUnlockMode(
   // Sin nextAction — condición de viabilidad o riesgo puro
   if (isViabilityCritical) {
     return {
-      mainAction:   'Revisa el estado de viabilidad del proyecto',
+      mainAction:   t('project.revisaElEstadoDe'),
       consequences: [
-        'El estado actual bloquea el avance normal',
-        'Actuar ahora reduce el riesgo de mayor retroceso',
+        t('project.elEstadoActualBloquea'),
+        t('project.actuarAhoraReduceEl'),
       ],
     };
   }
 
   if (isRiskCritical) {
     return {
-      mainAction:   'Reduce el riesgo crítico del proyecto',
+      mainAction:   t('project.reduceElRiesgoCrítico'),
       consequences: [
-        'El riesgo crítico puede invalidar el progreso actual',
-        'El proyecto puede entrar en corrección si no se actúa',
+        t('project.elRiesgoCríticoPuede'),
+        t('project.elProyectoPuedeEntrar'),
       ],
     };
   }
 
   return {
-    mainAction:   'Resuelve el bloqueo principal antes de avanzar',
-    consequences: ['El proyecto no puede avanzar en su estado actual'],
+    mainAction:   t('project.resuelveElBloqueoPrincipal'),
+    consequences: [t('project.elProyectoNoPuede')],
   };
 }
 
@@ -84,6 +85,7 @@ interface UnlockModeCardProps {
 }
 
 export function UnlockModeCard({ engineData, nextAction, viabilityStatus, onCTA }: UnlockModeCardProps) {
+  const { t } = useTranslation();
   const info = deriveUnlockMode(engineData, nextAction, viabilityStatus);
   if (!info) return null;
 
@@ -93,28 +95,22 @@ export function UnlockModeCard({ engineData, nextAction, viabilityStatus, onCTA 
         {/* Header */}
         <div className="flex items-center gap-1.5">
           <Unlock className="h-3.5 w-3.5 text-destructive shrink-0" />
-          <span className="text-xs font-semibold text-destructive">Modo Desbloqueo</span>
+          <span className="text-xs font-semibold text-destructive">{t('project.modoDesbloqueo')}</span>
         </div>
 
         {/* Body */}
-        <p className="text-xs text-muted-foreground leading-snug">
-          Hay un bloqueo que conviene resolver antes de seguir avanzando.
-        </p>
+        <p className="text-xs text-muted-foreground leading-snug">{t('project.hayUnBloqueoQue')}</p>
 
         {/* Main action */}
         <div className="space-y-1">
-          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
-            Empieza por esto
-          </p>
+          <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{t('project.empiezaPorEsto')}</p>
           <p className="text-xs font-medium leading-snug">{info.mainAction}</p>
         </div>
 
         {/* Consequences */}
         {info.consequences.length > 0 && (
           <div className="space-y-0.5">
-            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">
-              Por qué importa
-            </p>
+            <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-wide">{t('project.porQuéImporta')}</p>
             {info.consequences.map((c, i) => (
               <p key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
                 <span className="mt-1.5 h-1 w-1 rounded-full bg-muted-foreground/50 shrink-0" />
@@ -129,9 +125,7 @@ export function UnlockModeCard({ engineData, nextAction, viabilityStatus, onCTA 
           <button
             onClick={() => onCTA(info.ctaActionType!)}
             className="flex items-center gap-1 text-xs font-medium text-destructive hover:underline pt-0.5"
-          >
-            Ir a resolverlo
-            <ArrowRight className="h-3 w-3" />
+          >{t('project.irAResolverlo')}<ArrowRight className="h-3 w-3" />
           </button>
         )}
       </div>

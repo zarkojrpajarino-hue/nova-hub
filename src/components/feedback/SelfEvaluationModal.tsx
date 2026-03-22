@@ -18,6 +18,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { CheckCircle2, XCircle } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface SelfEvaluationModalProps {
   open: boolean;
   onClose: () => void;
@@ -35,6 +36,7 @@ export function SelfEvaluationModal({
   exploration,
   projectName,
 }: SelfEvaluationModalProps) {
+  const { t } = useTranslation();
   const [confidence, setConfidence] = useState(0);
   const [enjoyment, setEnjoyment] = useState(0);
   const [strengths, setStrengths] = useState('');
@@ -46,7 +48,7 @@ export function SelfEvaluationModal({
 
   const handleSubmit = async () => {
     if (!canSubmit) {
-      toast.error('Por favor completa todos los campos obligatorios');
+      toast.error(t('feedback.porFavorCompletaTodos'));
       return;
     }
 
@@ -75,7 +77,7 @@ export function SelfEvaluationModal({
 
       if (error) throw error;
 
-      toast.success('¡Auto-evaluación completada!');
+      toast.success(t('feedback.autoevaluaciónCompletada'));
 
       // Llamar a la edge function para calcular fit score
       try {
@@ -88,7 +90,7 @@ export function SelfEvaluationModal({
 
       onClose();
     } catch (_error) {
-      toast.error('Error al guardar la auto-evaluación');
+      toast.error(t('feedback.errorAlGuardarLa'));
     } finally {
       setIsSubmitting(false);
     }
@@ -107,8 +109,8 @@ export function SelfEvaluationModal({
         <div className="space-y-6 py-4">
           {/* Confidence Rating */}
           <FeedbackStarRating
-            label="¿Qué tan seguro te sientes en este rol?"
-            description="Tu nivel de confianza realizando las tareas de este rol"
+            label={t('feedback.quéTanSeguroTe')}
+            description={t('feedback.tuNivelDeConfianza')}
             value={confidence}
             onChange={setConfidence}
             required
@@ -116,8 +118,8 @@ export function SelfEvaluationModal({
 
           {/* Enjoyment Rating */}
           <FeedbackStarRating
-            label="¿Cuánto disfrutaste este rol?"
-            description="Qué tan satisfecho estás trabajando en este rol"
+            label={t('feedback.cuántoDisfrutasteEsteRol')}
+            description={t('feedback.quéTanSatisfechoEstás')}
             value={enjoyment}
             onChange={setEnjoyment}
             required
@@ -133,7 +135,7 @@ export function SelfEvaluationModal({
               id="strengths"
               value={strengths}
               onChange={(e) => setStrengths(e.target.value)}
-              placeholder="Ejemplo: Me sentí muy cómodo liderando reuniones, tuve buenas ideas creativas..."
+              placeholder={t('feedback.ejemploMeSentíMuy')}
               rows={4}
               required
             />
@@ -144,14 +146,12 @@ export function SelfEvaluationModal({
 
           {/* Challenges */}
           <div className="space-y-2">
-            <Label htmlFor="challenges">
-              ¿Qué te resultó difícil? ¿Qué desafíos enfrentaste?
-            </Label>
+            <Label htmlFor="challenges">{t('feedback.quéTeResultóDifícil')}</Label>
             <Textarea
               id="challenges"
               value={challenges}
               onChange={(e) => setChallenges(e.target.value)}
-              placeholder="Ejemplo: Me costó organizar el tiempo, necesité más conocimiento técnico..."
+              placeholder={t('feedback.ejemploMeCostóOrganizar')}
               rows={4}
             />
           </div>
@@ -167,20 +167,16 @@ export function SelfEvaluationModal({
               <Label htmlFor="continue" className="text-base font-medium cursor-pointer">
                 {wantsToContinue ? (
                   <span className="flex items-center gap-2 text-green-600">
-                    <CheckCircle2 size={20} />
-                    Quiero continuar en este rol
-                  </span>
+                    <CheckCircle2 size={20} />{t('feedback.quieroContinuarEnEste')}</span>
                 ) : (
                   <span className="flex items-center gap-2 text-red-600">
-                    <XCircle size={20} />
-                    Prefiero probar otro rol
-                  </span>
+                    <XCircle size={20} />{t('feedback.prefieroProbarOtroRol')}</span>
                 )}
               </Label>
               <p className="text-sm text-muted-foreground mt-1">
                 {wantsToContinue
-                  ? 'Serás considerado para este rol de forma permanente'
-                  : 'Te ayudaremos a encontrar un rol que encaje mejor contigo'}
+                  ? t('feedback.serásConsideradoParaEste')
+                  : t('feedback.teAyudaremosAEncontrar')}
               </p>
             </div>
           </div>
@@ -199,11 +195,9 @@ export function SelfEvaluationModal({
 
           {/* Actions */}
           <div className="flex gap-3 pt-4">
-            <Button variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={onClose} className="flex-1" disabled={isSubmitting}>{t('feedback.cancelar')}</Button>
             <Button onClick={handleSubmit} className="flex-1" disabled={!canSubmit || isSubmitting}>
-              {isSubmitting ? 'Guardando...' : 'Completar Evaluación'}
+              {isSubmitting ? 'Guardando...': t('feedback.completarEvaluación')}
             </Button>
           </div>
         </div>

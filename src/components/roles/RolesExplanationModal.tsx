@@ -12,6 +12,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Sparkles, CheckCircle, User, Briefcase, Target, Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectRole {
   id: string;
   role_name: string;
@@ -31,10 +32,10 @@ interface RolesExplanationModalProps {
 }
 
 const EXPERIENCE_LABELS = {
-  entry: { label: 'Junior', color: 'bg-green-100 text-green-800' },
+  entry: { label: t('roles.junior'), color: 'bg-green-100 text-green-800' },
   mid: { label: 'Mid', color: 'bg-blue-100 text-blue-800' },
-  senior: { label: 'Senior', color: 'bg-purple-100 text-purple-800' },
-  expert: { label: 'Expert', color: 'bg-amber-100 text-amber-800' },
+  senior: { label: t('roles.senior'), color: 'bg-purple-100 text-purple-800' },
+  expert: { label: t('roles.expert'), color: 'bg-amber-100 text-amber-800' },
 };
 
 export function RolesExplanationModal({
@@ -43,6 +44,7 @@ export function RolesExplanationModal({
   roles,
   onContinue,
 }: RolesExplanationModalProps) {
+  const { t } = useTranslation();
   // Ordenar roles: críticos primero, luego por display_order
   const sortedRoles = [...roles].sort((a, b) => {
     if (a.is_critical && !b.is_critical) return -1;
@@ -112,7 +114,7 @@ export function RolesExplanationModal({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Target className="h-4 w-4 text-gray-600" />
-                    <h4 className="font-semibold text-sm">Responsabilidades</h4>
+                    <h4 className="font-semibold text-sm">{t('roles.responsabilidades')}</h4>
                   </div>
                   <ul className="space-y-1">
                     {role.responsibilities.map((resp, idx) => (
@@ -131,7 +133,7 @@ export function RolesExplanationModal({
                 <div>
                   <div className="flex items-center gap-2 mb-2">
                     <Briefcase className="h-4 w-4 text-gray-600" />
-                    <h4 className="font-semibold text-sm">Habilidades Requeridas</h4>
+                    <h4 className="font-semibold text-sm">{t('roles.habilidadesRequeridas')}</h4>
                   </div>
                   <div className="flex flex-wrap gap-2">
                     {role.required_skills.map((skill, idx) => (
@@ -164,9 +166,7 @@ export function RolesExplanationModal({
           <div className="flex items-start gap-3">
             <User className="h-5 w-5 text-blue-600 shrink-0 mt-0.5" />
             <div className="flex-1">
-              <h4 className="font-semibold text-sm text-blue-900 mb-1">
-                ¿Cómo funcionan estos roles?
-              </h4>
+              <h4 className="font-semibold text-sm text-blue-900 mb-1">{t('roles.cómoFuncionanEstosRoles')}</h4>
               <p className="text-sm text-blue-800">
                 Estos roles son sugerencias personalizadas según tu proyecto.
                 Puedes invitar miembros a tu equipo y asignarles roles de forma flexible.
@@ -182,9 +182,7 @@ export function RolesExplanationModal({
             onClick={onContinue}
             size="lg"
             className="min-w-[200px]"
-          >
-            Entendido, Continuar
-          </Button>
+          >{t('roles.entendidoContinuar')}</Button>
         </div>
       </DialogContent>
     </Dialog>

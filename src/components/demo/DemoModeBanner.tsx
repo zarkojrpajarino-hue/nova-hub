@@ -2,7 +2,9 @@ import { Eye, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 
+import { useTranslation } from 'react-i18next';
 export function DemoModeBanner() {
+  const { t } = useTranslation();
   const { isDemoMode, disableDemo } = useDemoMode();
 
   if (!isDemoMode) return null;
@@ -15,10 +17,8 @@ export function DemoModeBanner() {
             <Eye className="w-4 h-4" />
           </div>
           <div>
-            <span className="font-semibold text-sm">Modo Demostración Activo</span>
-            <span className="text-amber-100 text-xs ml-2 hidden sm:inline">
-              Estás viendo datos de ejemplo para explorar las funcionalidades
-            </span>
+            <span className="font-semibold text-sm">{t('demo.modoDemostraciónActivo')}</span>
+            <span className="text-amber-100 text-xs ml-2 hidden sm:inline">{t('demo.estásViendoDatosDe')}</span>
           </div>
         </div>
         <Button
@@ -28,7 +28,7 @@ export function DemoModeBanner() {
           className="text-white hover:bg-white/20 hover:text-white gap-1"
         >
           <X className="w-4 h-4" />
-          <span className="hidden sm:inline">Salir</span>
+          <span className="hidden sm:inline">{t('demo.salir')}</span>
         </Button>
       </div>
     </div>

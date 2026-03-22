@@ -3,13 +3,15 @@ import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { useIsBlocked, useMyPendingValidations } from '@/hooks/useValidationSystem';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface BlockedBannerProps {
   onNavigateToValidations?: () => void;
 }
 
 export function BlockedBanner({ onNavigateToValidations }: BlockedBannerProps) {
+  const { t } = useTranslation();
   const { data: isBlocked } = useIsBlocked();
   const { data: pendingValidations } = useMyPendingValidations();
 
@@ -47,17 +49,17 @@ export function BlockedBanner({ onNavigateToValidations }: BlockedBannerProps) {
                     >
                       {pv.owner_nombre?.charAt(0) || '?'}
                     </div>
-                    <span className="text-sm font-medium">{pv.titulo || 'Sin título'}</span>
+                    <span className="text-sm font-medium">{pv.titulo || t('validation.sinTítulo')}</span>
                   </div>
                   <div className="flex items-center gap-2 text-xs">
                     <Clock size={12} />
                     {isOverdue ? (
                       <span className="text-destructive font-bold">
-                        Vencido hace {formatDistanceToNow(new Date(pv.deadline), { locale: es })}
+                        Vencido hace {formatDistanceToNow(new Date(pv.deadline), { locale: getDateFnsLocale() })}
                       </span>
                     ) : (
                       <span>
-                        Vence {formatDistanceToNow(new Date(pv.deadline), { locale: es, addSuffix: true })}
+                        Vence {formatDistanceToNow(new Date(pv.deadline), { locale: getDateFnsLocale(), addSuffix: true })}
                       </span>
                     )}
                   </div>
@@ -73,9 +75,7 @@ export function BlockedBanner({ onNavigateToValidations }: BlockedBannerProps) {
             size="sm"
             onClick={onNavigateToValidations}
             className="mt-2"
-          >
-            Ir a validar ahora
-            <ArrowRight size={14} className="ml-2" />
+          >{t('validation.irAValidarAhora')}<ArrowRight size={14} className="ml-2" />
           </Button>
         )}
       </AlertDescription>

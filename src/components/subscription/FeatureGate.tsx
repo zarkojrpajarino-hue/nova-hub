@@ -27,6 +27,7 @@ import { DemoBanner } from './DemoBanner';
 import type { SubscriptionPlan } from '@/hooks/useSubscription';
 import { isPaymentsEnabled } from '@/config/features';
 
+import { useTranslation } from 'react-i18next';
 // Features que se pueden gatear
 type GateableFeature = keyof Pick<
   SubscriptionPlan,
@@ -94,52 +95,52 @@ const FEATURE_INFO: Record<
 > = {
   ai_role_generation: {
     name: 'Generación de Roles con IA',
-    description: 'Crea roles de equipo automáticamente basados en tu modelo de negocio usando inteligencia artificial',
+    description: t('subscription.creaRolesDeEquipo'),
     requiredPlan: 'starter',
   },
   ai_task_generation: {
     name: 'Generación de Tareas con IA',
-    description: 'Genera tareas inteligentes y estructuradas para tu equipo automáticamente',
+    description: t('subscription.generaTareasInteligentesY'),
     requiredPlan: 'pro',
   },
   ai_logo_generation: {
     name: 'Generación de Logo con IA',
-    description: 'Crea logos profesionales y únicos para tu proyecto con inteligencia artificial',
+    description: t('subscription.creaLogosProfesionalesY'),
     requiredPlan: 'pro',
   },
   ai_buyer_persona: {
     name: 'Buyer Persona con IA',
-    description: 'Análisis inteligente de tu mercado objetivo y perfiles de cliente ideal detallados',
+    description: t('subscription.análisisInteligenteDeTu'),
     requiredPlan: 'pro',
   },
   advanced_analytics: {
-    name: 'Analytics Avanzados',
-    description: 'Dashboards detallados con métricas avanzadas, reportes personalizados y exportación de datos',
+    name: t('subscription.analyticsAvanzados'),
+    description: t('subscription.dashboardsDetalladosConMétricas'),
     requiredPlan: 'advanced',
   },
   custom_branding: {
-    name: 'Branding Personalizado',
-    description: 'Personaliza colores, logos y toda la apariencia de tu espacio de trabajo',
+    name: t('subscription.brandingPersonalizado'),
+    description: t('subscription.personalizaColoresLogosY'),
     requiredPlan: 'advanced',
   },
   api_access: {
     name: 'Acceso a API',
-    description: 'Integra Nova Hub con tus herramientas favoritas a través de nuestra API REST completa',
+    description: t('subscription.integraNovaHubCon'),
     requiredPlan: 'advanced',
   },
   priority_support: {
-    name: 'Soporte Prioritario',
-    description: 'Respuestas garantizadas en menos de 2 horas y canal de soporte dedicado',
+    name: t('subscription.soportePrioritario'),
+    description: t('subscription.respuestasGarantizadasEnMenos'),
     requiredPlan: 'advanced',
   },
   white_label: {
-    name: 'White Label',
-    description: 'Elimina toda marca de Nova Hub y presenta la plataforma con tu propia identidad corporativa',
+    name: t('subscription.whiteLabel'),
+    description: t('subscription.eliminaTodaMarcaDe'),
     requiredPlan: 'enterprise',
   },
   custom_domain: {
-    name: 'Dominio Personalizado',
-    description: 'Usa tu propio dominio personalizado (ej: hub.tuempresa.com) para acceder a la plataforma',
+    name: t('subscription.dominioPersonalizado'),
+    description: t('subscription.usaTuPropioDominio'),
     requiredPlan: 'enterprise',
   },
 };
@@ -163,6 +164,7 @@ export function FeatureGate({
   className,
   showLoadingSkeleton = false,
 }: FeatureGateProps) {
+  const { t } = useTranslation();
   // Hook must be called unconditionally before any early returns
   const { canUseFeature, isLoading, plan } = useFeatureAccess(projectId);
 

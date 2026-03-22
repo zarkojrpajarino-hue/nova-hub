@@ -17,8 +17,9 @@ import type { WeeklyReview } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface WeeklyReviewDetailProps {
   review: WeeklyReview;
   open: boolean;
@@ -26,10 +27,11 @@ interface WeeklyReviewDetailProps {
 }
 
 export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewDetailProps) {
+  const { t } = useTranslation();
   const summary = review.summary_json;
 
   const weekLabel = review.week_start_date && review.week_end_date
-    ? `${format(parseISO(review.week_start_date), "d 'de' MMMM", { locale: es })} – ${format(parseISO(review.week_end_date), "d 'de' MMMM", { locale: es })}`
+    ? `${format(parseISO(review.week_start_date), "d 'de' MMMM", { locale: getDateFnsLocale() })} – ${format(parseISO(review.week_end_date), "d 'de' MMMM", { locale: getDateFnsLocale() })}`
     : '';
 
   const phaseLabel = review.phase ? (PHASE_LABELS[review.phase] ?? `Fase ${review.phase}`) : null;
@@ -39,9 +41,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <CalendarDays size={18} className="text-primary" />
-            Resumen semanal
-          </DialogTitle>
+            <CalendarDays size={18} className="text-primary" />{t('project.resumenSemanal')}</DialogTitle>
           <p className="text-sm text-muted-foreground">{weekLabel}</p>
         </DialogHeader>
 
@@ -51,15 +51,11 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
             <div className="flex gap-2">
               {review.has_transition && (
                 <Badge variant="outline" className="bg-green-500/10 text-green-600 border-green-500/30 gap-1">
-                  <TrendingUp size={12} />
-                  Avance de fase
-                </Badge>
+                  <TrendingUp size={12} />{t('project.avanceDeFase')}</Badge>
               )}
               {review.has_regression && (
                 <Badge variant="outline" className="bg-red-500/10 text-red-600 border-red-500/30 gap-1">
-                  <TrendingDown size={12} />
-                  Regresión de fase
-                </Badge>
+                  <TrendingDown size={12} />{t('project.regresiónDeFase')}</Badge>
               )}
             </div>
           )}
@@ -73,15 +69,12 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
 
           {/* Snapshot de estado */}
           <div>
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-              Estado al cierre
-            </h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t('project.estadoAlCierre')}</h4>
             <div className="grid grid-cols-2 gap-2">
               {phaseLabel && (
                 <div className="p-3 bg-muted/20 rounded-lg">
                   <p className="text-[11px] text-muted-foreground mb-0.5 flex items-center gap-1">
-                    <Target size={11} /> Fase
-                  </p>
+                    <Target size={11} />{t('project.fase')}</p>
                   <p className="text-sm font-medium">
                     {review.phase} — {phaseLabel}
                   </p>
@@ -108,7 +101,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
                   'p-3 rounded-lg',
                   review.runway_months < 3 ? 'bg-red-500/10' : 'bg-muted/20'
                 )}>
-                  <p className="text-[11px] text-muted-foreground mb-0.5">Runway</p>
+                  <p className="text-[11px] text-muted-foreground mb-0.5">{t('project.runway')}</p>
                   <p className={cn(
                     'text-sm font-medium',
                     review.runway_months < 3 && 'text-red-600'
@@ -122,9 +115,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
 
           {/* Actividad de la semana */}
           <div>
-            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">
-              Actividad de la semana
-            </h4>
+            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-3">{t('project.actividadDeLaSemana')}</h4>
             <div className="grid grid-cols-3 gap-2">
               <div className="p-3 bg-muted/20 rounded-lg text-center">
                 <CheckSquare size={14} className="mx-auto mb-1 text-blue-500" />
@@ -136,7 +127,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
               <div className="p-3 bg-muted/20 rounded-lg text-center">
                 <FileCheck size={14} className="mx-auto mb-1 text-amber-500" />
                 <p className="text-lg font-bold">{review.obvs_count}</p>
-                <p className="text-[11px] text-muted-foreground">OBVs</p>
+                <p className="text-[11px] text-muted-foreground">{t('project.obvs')}</p>
               </div>
               <div className="p-3 bg-muted/20 rounded-lg text-center">
                 <ShoppingCart size={14} className="mx-auto mb-1 text-green-500" />
@@ -151,9 +142,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
           {/* Highlights */}
           {summary.highlights.length > 0 && (
             <div>
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Destacados
-              </h4>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('project.destacados')}</h4>
               <ul className="space-y-1">
                 {summary.highlights.map((h, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
@@ -168,9 +157,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
           {/* Warnings */}
           {summary.warnings.length > 0 && (
             <div>
-              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">
-                Alertas
-              </h4>
+              <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2">{t('project.alertas')}</h4>
               <ul className="space-y-1">
                 {summary.warnings.map((w, i) => (
                   <li key={i} className="flex items-start gap-2 text-sm">
@@ -184,9 +171,7 @@ export function WeeklyReviewDetail({ review, open, onOpenChange }: WeeklyReviewD
 
           {/* Next step */}
           <div className="p-3 bg-primary/5 border border-primary/20 rounded-xl">
-            <p className="text-[11px] text-primary font-semibold uppercase tracking-wide mb-1">
-              Próximo paso
-            </p>
+            <p className="text-[11px] text-primary font-semibold uppercase tracking-wide mb-1">{t('project.próximoPaso')}</p>
             <p className="text-sm">{summary.next_step}</p>
           </div>
         </div>

@@ -15,8 +15,9 @@ import {
   TooltipTrigger,
 } from '@/components/ui/tooltip';
 import { format, eachDayOfInterval, startOfWeek, endOfWeek, subWeeks } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface ActivityHeatmapProps {
   data: Array<{
     date: string; // YYYY-MM-DD
@@ -26,13 +27,14 @@ interface ActivityHeatmapProps {
 }
 
 export function ActivityHeatmap({ data, weeks = 12 }: ActivityHeatmapProps) {
+  const { t } = useTranslation();
   // Generate last N weeks
   const endDate = new Date();
   const startDate = subWeeks(endDate, weeks);
 
   const allDays = eachDayOfInterval({
-    start: startOfWeek(startDate, { locale: es }),
-    end: endOfWeek(endDate, { locale: es }),
+    start: startOfWeek(startDate, { locale: getDateFnsLocale() }),
+    end: endOfWeek(endDate, { locale: getDateFnsLocale() }),
   });
 
   // Create map for quick lookup
@@ -90,7 +92,7 @@ export function ActivityHeatmap({ data, weeks = 12 }: ActivityHeatmapProps) {
             <Calendar className="w-5 h-5 text-purple-600" />
           </div>
           <div>
-            <CardTitle>Heatmap de Actividad</CardTitle>
+            <CardTitle>{t('dashboard.heatmapDeActividad')}</CardTitle>
             <p className="text-sm text-muted-foreground mt-1">
               Últimas {weeks} semanas - {data.length} días con actividad
             </p>
@@ -122,7 +124,7 @@ export function ActivityHeatmap({ data, weeks = 12 }: ActivityHeatmapProps) {
                           </TooltipTrigger>
                           <TooltipContent side="top">
                             <p className="text-xs font-medium">
-                              {format(day, "d 'de' MMMM, yyyy", { locale: es })}
+                              {format(day, "d 'de' MMMM, yyyy", { locale: getDateFnsLocale() })}
                             </p>
                             <p className="text-xs text-muted-foreground">
                               {count} {count === 1 ? 'actividad' : 'actividades'}
@@ -139,7 +141,7 @@ export function ActivityHeatmap({ data, weeks = 12 }: ActivityHeatmapProps) {
 
           {/* Legend */}
           <div className="flex items-center justify-between text-xs text-muted-foreground">
-            <span>Menos</span>
+            <span>{t('dashboard.menos')}</span>
             <div className="flex items-center gap-1">
               {[0, 1, 2, 3, 4].map((level) => (
                 <div
@@ -148,22 +150,22 @@ export function ActivityHeatmap({ data, weeks = 12 }: ActivityHeatmapProps) {
                 />
               ))}
             </div>
-            <span>Más</span>
+            <span>{t('dashboard.más')}</span>
           </div>
 
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 pt-3 border-t">
             <div className="text-center">
               <p className="text-2xl font-bold">{data.length}</p>
-              <p className="text-xs text-muted-foreground">Días activos</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.díasActivos')}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">{data.reduce((sum, d) => sum + d.count, 0)}</p>
-              <p className="text-xs text-muted-foreground">Total actividades</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.totalActividades')}</p>
             </div>
             <div className="text-center">
               <p className="text-2xl font-bold">{(data.length / (weeks * 7) * 100).toFixed(0)}%</p>
-              <p className="text-xs text-muted-foreground">Tasa de actividad</p>
+              <p className="text-xs text-muted-foreground">{t('dashboard.tasaDeActividad')}</p>
             </div>
           </div>
         </div>

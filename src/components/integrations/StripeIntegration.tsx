@@ -27,6 +27,7 @@ import type { EngineSnapshot } from '@/lib/engine-delta'
 import { runFinanceAgent } from '@/services/financeAgentService'
 import type { Session } from '@supabase/supabase-js'
 
+import { useTranslation } from 'react-i18next';
 // Obtiene el token más fresco posible.
 // Intenta getSession() (siempre devuelve el token actual) con un timeout de 2s.
 // Si tarda más de 2s (lock retenido por fetchProfile), cae al session del contexto.
@@ -57,6 +58,7 @@ interface SyncResult {
 }
 
 export function StripeIntegration({ projectId }: StripeIntegrationProps) {
+  const { t } = useTranslation();
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [apiKey, setApiKey] = useState('')
@@ -89,14 +91,14 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
           // I15.65: si last_sync_at existe → ya hubo al menos un sync → no mostrar tutorial post-conexión
           if (data.last_sync_at) setHasPriorSync(true)
         } else if (data.status === 'error') {
-          setConnectionError(data.error_message ?? 'La conexión anterior falló. Vuelve a conectar.')
+          setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
   }, [projectId])
 
   const handleConnect = async () => {
     if (!projectId) {
-      toast.error('No hay proyecto activo')
+      toast.error(t('integrations.noHayProyectoActivo'))
       return
     }
     if (!apiKey.startsWith('sk_')) {
@@ -108,7 +110,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -134,7 +136,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
       if (!res.ok) throw new Error(data?.message ?? `HTTP ${res.status}`)
       if (!data?.ok) {
         const msg = data?.reason === 'invalid_key'
-          ? 'API Key inválida — verifica que sea correcta en Stripe Dashboard'
+          ? t('integrations.apiKeyInválidaVerifica')
           : `Error al conectar: ${data?.reason ?? 'desconocido'}`
         toast.error(msg)
         return
@@ -143,7 +145,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
       setConnectionId(data.connection_id)
       setIsConnected(true)
       setApiKey('')
-      toast.success('Stripe conectado — haz clic en "Sincronizar Ahora" para importar tus datos')
+      toast.success('Stripe conectado — haz clic en Sincronizar Ahora para importar tus datos')
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -154,7 +156,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
   const handleSync = async (overrideConnectionId?: string) => {
     const connId = overrideConnectionId ?? connectionId
     if (!projectId || !connId) {
-      toast.error('Conexión no disponible')
+      toast.error(t('integrations.conexiónNoDisponible'))
       return
     }
 
@@ -163,7 +165,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -243,23 +245,15 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
                     stroke="#635BFF"
                     strokeWidth="2"
                   />
-                </svg>
-                Stripe
-              </CardTitle>
-              <CardDescription>
-                Importa suscripciones activas para calcular MRR automáticamente
-              </CardDescription>
+                </svg>{t('integrations.stripe')}</CardTitle>
+              <CardDescription>{t('integrations.importaSuscripcionesActivasPara')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
-                <CheckCircle2 size={12} className="mr-1" />
-                Conectado
-              </Badge>
+                <CheckCircle2 size={12} className="mr-1" />{t('integrations.conectado')}</Badge>
             ) : (
               <Badge variant="outline">
-                <AlertCircle size={12} className="mr-1" />
-                Desconectado
-              </Badge>
+                <AlertCircle size={12} className="mr-1" />{t('integrations.desconectado')}</Badge>
             )}
           </div>
         </CardHeader>
@@ -271,7 +265,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Conexión interrumpida.</strong> {connectionError}
+                    <strong>{t('integrations.conexiónInterrumpida')}</strong> {connectionError}
                   </AlertDescription>
                 </Alert>
               )}
@@ -283,9 +277,7 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    Stripe Dashboard
-                    <ExternalLink size={12} />
+                  >{t('integrations.stripeDashboard')}<ExternalLink size={12} />
                   </a>
                 </AlertDescription>
               </Alert>
@@ -298,14 +290,12 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
                 <Input
                   id="stripe-key"
                   type="password"
-                  placeholder="sk_live_..."
+                  placeholder={t('integrations.sklive')}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Tu API Key se cifra con AES-256 y nunca se expone al cliente.
-                </p>
+                <p className="text-xs text-muted-foreground">{t('integrations.tuApiKeySe')}</p>
               </div>
 
               <Button
@@ -315,25 +305,19 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Conectando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.conectando')}</>
                 ) : connectionError ? (
-                  'Reconectar Stripe'
+                  t('integrations.reconectarStripe')
                 ) : (
-                  'Conectar Stripe'
+                  t('integrations.conectarStripe')
                 )}
               </Button>
             </>
           ) : (
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-                  Integración activa
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Las suscripciones se sincronizan manualmente o al actualizar la página.
-                </p>
+                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.lasSuscripcionesSeSincronizan')}</p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
                     Última sincronización: {lastSync}
@@ -349,14 +333,10 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
               >
                 {isSyncing ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sincronizando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.sincronizando')}</>
                 ) : (
                   <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Sincronizar Ahora
-                  </>
+                    <RefreshCw className="mr-2 h-4 w-4" />{t('integrations.sincronizarAhora')}</>
                 )}
               </Button>
             </div>
@@ -369,37 +349,33 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
         <Card className="border-indigo-500/20 bg-indigo-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-green-500" />
-              Stripe conectado — qué pasará a continuación
-            </CardTitle>
+              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.stripeConectadoQuéPasará')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-sm">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
                 <div>
-                  <p className="font-medium">Pulsa "Sincronizar Ahora"</p>
-                  <p className="text-xs text-muted-foreground">Optimus pedirá a Stripe la lista de suscripciones con <span className="font-mono">status=active</span>.</p>
+                  <p className="font-medium">Pulsa t('integrations.sincronizarAhora6')</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.optimusPediráAStripe')}<span className="font-mono">status=active</span>.</p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
                 <div>
-                  <p className="font-medium">MRR se escribe en <span className="font-mono text-xs">key_metrics</span></p>
-                  <p className="text-xs text-muted-foreground">El total de suscripciones activas (en centavos) se agrega y se guarda. Verás el número actualizado en tu Dashboard financiero.</p>
+                  <p className="font-medium">MRR se escribe en<span className="font-mono text-xs">key_metrics</span></p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.elTotalDeSuscripciones')}</p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
                 <div>
-                  <p className="font-medium">Financial Engine recalcula</p>
-                  <p className="text-xs text-muted-foreground">Probability, fase y riesgo se recalculan con el MRR real. Si el MRR era 0 antes, verás la evaluación cambiar en el banner de resultados.</p>
+                  <p className="font-medium">{t('integrations.financialEngineRecalcula')}</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.probabilityFaseYRiesgo')}</p>
                 </div>
               </li>
             </ol>
-            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/40">
-              Si no tienes suscripciones activas en Stripe, el MRR quedará en 0 — es el dato correcto, no un error.
-            </p>
+            <p className="text-xs text-muted-foreground mt-3 pt-3 border-t border-border/40">{t('integrations.siNoTienesSuscripciones')}</p>
           </CardContent>
         </Card>
       )}
@@ -417,68 +393,66 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
       {/* I15.64 — Qué dato entra, qué módulo hidrata, qué cambia en Optimus */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Qué entra · Dónde va · Qué cambia</CardTitle>
+          <CardTitle className="text-base">{t('integrations.quéEntraDóndeVa')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-0 divide-y divide-border/50">
             {/* Fila 1 */}
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
-                <p className="font-medium">Suscripciones activas</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.suscripcionesActivas')}</p>
                 <p className="text-muted-foreground">status=active en Stripe</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Módulo en Optimus</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.móduloEnOptimus')}</p>
                 <p className="font-medium font-mono">key_metrics.mrr</p>
                 <p className="text-muted-foreground">suma de precios en centavos</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Efecto</p>
-                <p className="font-medium">Financial Engine</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.efecto')}</p>
+                <p className="font-medium">{t('integrations.financialEngine')}</p>
                 <p className="text-muted-foreground">peso 15% en probability</p>
               </div>
             </div>
             {/* Fila 2 */}
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
                 <p className="font-medium">Precio × 12</p>
                 <p className="text-muted-foreground">calculado al escribir</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Módulo en Optimus</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.móduloEnOptimus')}</p>
                 <p className="font-medium font-mono">key_metrics.arr</p>
                 <p className="text-muted-foreground">mrr × 12, automático</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Efecto</p>
-                <p className="font-medium">Dashboard financiero</p>
-                <p className="text-muted-foreground">ARR actualizado</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.efecto')}</p>
+                <p className="font-medium">{t('integrations.dashboardFinanciero')}</p>
+                <p className="text-muted-foreground">{t('integrations.arrActualizado')}</p>
               </div>
             </div>
             {/* Fila 3 */}
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
-                <p className="font-medium">Núm. suscripciones</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.númSuscripciones')}</p>
                 <p className="text-muted-foreground">count de aceptadas</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Módulo en Optimus</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.móduloEnOptimus')}</p>
                 <p className="font-medium font-mono">key_metrics.total_customers</p>
                 <p className="text-muted-foreground">clientes activos</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Efecto</p>
-                <p className="font-medium">Rankings · Team</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.efecto')}</p>
+                <p className="font-medium">{t('integrations.rankingsTeam')}</p>
                 <p className="text-muted-foreground">base de clientes real</p>
               </div>
             </div>
           </div>
-          <p className="text-xs text-muted-foreground pt-2 border-t border-border/50">
-            No se sincronizan: historial de pagos, facturas sueltas, métodos de pago, clientes sin suscripción activa.
-          </p>
+          <p className="text-xs text-muted-foreground pt-2 border-t border-border/50">{t('integrations.noSeSincronizanHistorial')}</p>
         </CardContent>
       </Card>
     </div>

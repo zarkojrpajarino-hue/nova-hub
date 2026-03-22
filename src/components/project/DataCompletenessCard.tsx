@@ -4,7 +4,7 @@
  * Indicador de completitud de datos visible ANTES de los engine scores.
  * Solo aparece si data_completeness_score < 0.7 (< 7/10 inputs disponibles).
  *
- * Muestra: donut "X/10 inputs disponibles" + lista de inputs faltantes (máx 3)
+ * Muestra: donut t('project.x10InputsDisponibles') + lista de inputs faltantes (máx 3)
  * + CTA por input para llevar al fundador a completarlos.
  *
  * Por qué existe: sin este card, un fundador Día 1 interpreta un score bajo
@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 interface DataCompletenessCardProps {
   engineData: ProjectEngineData | null | undefined;
   onNavigateToTab?: (tab: string) => void;
@@ -36,22 +37,23 @@ interface InputDef {
 
 // Los 10 inputs del motor (5 prob + 5 riesgo)
 const PROB_INPUTS: InputDef[] = [
-  { id: 'phase_score_input',          label: 'Score de fase',          tab: 'obvs',        ctaLabel: 'Añadir OBVs' },
-  { id: 'execution_rate_input',       label: 'Tasa de ejecución',      tab: 'tareas',      ctaLabel: 'Ver tareas' },
-  { id: 'validation_strength_input',  label: 'Validaciones',           tab: 'obvs',        ctaLabel: 'Añadir validaciones' },
-  { id: 'revenue_momentum_input',     label: 'Momentum de ingresos',   tab: 'financiero',  ctaLabel: 'Conectar ingresos' },
-  { id: 'capacity_health_input',      label: 'Capacidad del equipo',   tab: 'financiero',  ctaLabel: 'Ver Mi Modelo' },
+  { id: 'phase_score_input',          label: t('project.scoreDeFase'),          tab: 'obvs',        ctaLabel: t('project.añadirObvs') },
+  { id: 'execution_rate_input',       label: t('project.tasaDeEjecución'),      tab: 'tareas',      ctaLabel: t('project.verTareas') },
+  { id: 'validation_strength_input',  label: t('project.validaciones'),           tab: 'obvs',        ctaLabel: t('project.añadirValidaciones') },
+  { id: 'revenue_momentum_input',     label: t('project.momentumDeIngresos'),   tab: 'financiero',  ctaLabel: t('project.conectarIngresos') },
+  { id: 'capacity_health_input',      label: t('project.capacidadDelEquipo'),   tab: 'financiero',  ctaLabel: t('project.verMiModelo') },
 ];
 
 const RISK_INPUTS: InputDef[] = [
-  { id: 'runway_factor_input',         label: 'Runway financiero',      tab: 'financiero',  ctaLabel: 'Añadir runway' },
-  { id: 'execution_drop_input',        label: 'Caída de ejecución',     tab: 'tareas',      ctaLabel: 'Ver tareas' },
-  { id: 'validation_weakness_input',   label: 'Debilidad de validación',tab: 'obvs',        ctaLabel: 'Añadir OBVs' },
-  { id: 'revenue_concentration_input', label: 'Concentración de ingresos', tab: 'financiero', ctaLabel: 'Ver financiero' },
-  { id: 'bottleneck_severity_input',   label: 'Cuellos de botella',     tab: 'tareas',      ctaLabel: 'Revisar tareas' },
+  { id: 'runway_factor_input',         label: t('project.runwayFinanciero'),      tab: 'financiero',  ctaLabel: t('project.añadirRunway') },
+  { id: 'execution_drop_input',        label: t('project.caídaDeEjecución'),     tab: 'tareas',      ctaLabel: t('project.verTareas') },
+  { id: 'validation_weakness_input',   label: t('project.debilidadDeValidación'),tab: 'obvs',        ctaLabel: t('project.añadirObvs') },
+  { id: 'revenue_concentration_input', label: t('project.concentraciónDeIngresos'), tab: 'financiero', ctaLabel: t('project.verFinanciero') },
+  { id: 'bottleneck_severity_input',   label: t('project.cuellosDeBotella'),     tab: 'tareas',      ctaLabel: t('project.revisarTareas') },
 ];
 
 export function DataCompletenessCard({ engineData, onNavigateToTab }: DataCompletenessCardProps) {
+  const { t } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
 
   if (dismissed) return null;
@@ -109,14 +111,12 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
             <button
               onClick={() => setDismissed(true)}
               className="text-amber-500 hover:text-amber-700 dark:text-amber-500 dark:hover:text-amber-300"
-              aria-label="Cerrar"
+              aria-label={t('project.cerrar')}
             >
               <X size={14} />
             </button>
           </div>
-          <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">
-            Los scores del motor son aproximados. Con más datos mejorarán la precisión.
-          </p>
+          <p className="text-xs text-amber-700 dark:text-amber-400 mb-2">{t('project.losScoresDelMotor')}</p>
 
           {/* Top 3 inputs faltantes */}
           {missingInputs.length > 0 && (

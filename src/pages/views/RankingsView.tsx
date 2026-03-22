@@ -15,7 +15,9 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { RankingsPreviewModal } from '@/components/preview/RankingsPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 export function RankingsView() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
 
   // Only real data - no demo mode
@@ -53,10 +55,10 @@ export function RankingsView() {
       
       return {
         ...ranking,
-        userName: userProfile?.nombre || 'Usuario',
+        userName: userProfile?.nombre || t('rankings.usuario'),
         userAvatar: userProfile?.avatar,
         userColor: userProfile?.color || '#6366F1',
-        projectName: project?.nombre || 'Proyecto',
+        projectName: project?.nombre || t('rankings.proyecto'),
         projectColor: project?.color || '#6366F1',
         performance,
       };
@@ -94,28 +96,28 @@ export function RankingsView() {
   return (
     <>
       <NovaHeader
-        title="Rankings"
-        subtitle="Leaderboards en tiempo real de performance por rol en cada proyecto"
+        title={t('rankings.rankings')}
+        subtitle={t('rankings.leaderboardsEnTiempoReal')}
         showBackButton={true}
       />
 
       <div className="p-8">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Sistema de clasificación transparente basado en performance objetiva"
-          whatIsIt="Leaderboards públicos que rankean a cada persona por su performance en cada rol (CEO, CTO, CMO, etc.) dentro de cada proyecto. El ranking se calcula automáticamente cada semana basado en métricas objetivas: Fit Score promedio, tareas completadas a tiempo (%), peer feedback recibido, OBVs validadas, y resultados financieros. Top 3 en cada rol pueden desafiar al Master en Camino a Master."
+          title={t('rankings.cómoFunciona')}
+          description={t('rankings.sistemaDeClasificaciónTransparente')}
+          whatIsIt={t('rankings.leaderboardsPúblicosQueRankean')}
           dataInputs={[
             {
-              from: 'Exploración de Roles',
+              from: t('rankings.exploraciónDeRoles'),
               items: [
-                'Tu Fit Score en cada rol explorado',
+                t('rankings.tuFitScoreEn'),
                 'Performance Score calculado por IA',
                 'Ranking position actual y anterior (para ver tendencias)',
               ],
             },
             {
-              from: 'Proyectos',
+              from: t('rankings.proyectos'),
               items: [
                 'Tareas completadas vs asignadas (% de cumplimiento)',
                 'Tareas completadas a tiempo (puntualidad)',
@@ -123,48 +125,48 @@ export function RankingsView() {
               ],
             },
             {
-              from: 'Centro OBVs',
+              from: t('rankings.centroObvs'),
               items: [
-                'OBVs validadas por el equipo',
-                'Quality score de tus OBVs',
+                t('rankings.obvsValidadasPorEl'),
+                t('rankings.qualityScoreDeTus'),
               ],
             },
             {
               from: 'Equipo (Peer Feedback)',
               items: [
-                'Feedback positivos vs negativos',
-                'Rating promedio del equipo',
+                t('rankings.feedbackPositivosVsNegativos'),
+                t('rankings.ratingPromedioDelEquipo'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Mi posición actual',
+              to: t('rankings.miPosiciónActual'),
               items: [
-                'Ranking position (#1, #2, #3, etc.) en cada rol',
-                'Score numérico (0-100%) que te compara con otros',
-                'Tendencia: ↑ subiste, ↓ bajaste, - igual',
+                t('rankings.rankingPosition12'),
+                t('rankings.scoreNumérico0100Que'),
+                t('rankings.tendenciaSubisteBajasteIgual'),
               ],
             },
             {
-              to: 'Camino a Master',
+              to: t('rankings.caminoAMaster'),
               items: [
-                'Si estás Top 3 en un rol, calificas para desafiar al Master',
-                'Requisitos claros para challenge',
+                t('rankings.siEstásTop3'),
+                t('rankings.requisitosClarosParaChallenge'),
               ],
             },
             {
-              to: 'Insights',
+              to: t('rankings.insights'),
               items: [
-                'Qué necesitas mejorar para subir posiciones',
-                'Comparativa con el #1 del rol',
-                'Brecha de performance vs top performer',
+                t('rankings.quéNecesitasMejorarPara'),
+                t('rankings.comparativaConEl1'),
+                t('rankings.brechaDePerformanceVs'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Revisa tu ranking → Identifica áreas de mejora → Trabaja en subir score',
-            destination: 'Si llegas Top 3, ve a Camino a Master para desafiar al Master actual',
+            action: t('rankings.revisaTuRankingIdentifica'),
+            destination: t('rankings.siLlegasTop3'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -178,7 +180,7 @@ export function RankingsView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.totalParticipants}</p>
-                <p className="text-sm text-muted-foreground">Participantes</p>
+                <p className="text-sm text-muted-foreground">{t('rankings.participantes')}</p>
               </div>
             </CardContent>
           </Card>
@@ -190,7 +192,7 @@ export function RankingsView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.rolesWithRankings}</p>
-                <p className="text-sm text-muted-foreground">Roles Rankeados</p>
+                <p className="text-sm text-muted-foreground">{t('rankings.rolesRankeados')}</p>
               </div>
             </CardContent>
           </Card>
@@ -202,7 +204,7 @@ export function RankingsView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.avgScore.toFixed(0)}%</p>
-                <p className="text-sm text-muted-foreground">Score Promedio</p>
+                <p className="text-sm text-muted-foreground">{t('rankings.scorePromedio')}</p>
               </div>
             </CardContent>
           </Card>
@@ -214,7 +216,7 @@ export function RankingsView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{myRankings.length}</p>
-                <p className="text-sm text-muted-foreground">Mis Rankings</p>
+                <p className="text-sm text-muted-foreground">{t('rankings.misRankings')}</p>
               </div>
             </CardContent>
           </Card>
@@ -224,9 +226,7 @@ export function RankingsView() {
         {myRankings.length > 0 && (
           <div className="mb-8">
             <h3 className="font-semibold mb-4 flex items-center gap-2">
-              <Trophy size={18} className="text-amber-500" />
-              Mis Posiciones
-            </h3>
+              <Trophy size={18} className="text-amber-500" />{t('rankings.misPosiciones')}</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
               {myRankings.map(ranking => {
                 const project = projects.find(p => p.id === ranking.project_id);
@@ -234,7 +234,7 @@ export function RankingsView() {
                   <MyRankingCard 
                     key={ranking.id} 
                     ranking={ranking}
-                    projectName={project?.nombre || 'Proyecto'}
+                    projectName={project?.nombre || t('rankings.proyecto')}
                     projectColor={project?.color || '#6366F1'}
                   />
                 );
@@ -248,22 +248,18 @@ export function RankingsView() {
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="leaderboard" className="gap-2">
-                <Trophy size={16} />
-                Leaderboard
-              </TabsTrigger>
+                <Trophy size={16} />{t('rankings.leaderboard')}</TabsTrigger>
               <TabsTrigger value="trends" className="gap-2">
-                <TrendingUp size={16} />
-                Tendencias
-              </TabsTrigger>
+                <TrendingUp size={16} />{t('rankings.tendencias')}</TabsTrigger>
             </TabsList>
 
             <div className="flex gap-3">
               <Select value={selectedRole} onValueChange={setSelectedRole}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Filtrar rol" />
+                  <SelectValue placeholder={t('rankings.filtrarRol')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos los roles</SelectItem>
+                  <SelectItem value="all">{t('rankings.todosLosRoles')}</SelectItem>
                   {allRoles.map(role => (
                     <SelectItem key={role} value={role}>
                       {ROLE_CONFIG[role]?.label || role}
@@ -274,10 +270,10 @@ export function RankingsView() {
 
               <Select value={selectedProject} onValueChange={setSelectedProject}>
                 <SelectTrigger className="w-40">
-                  <SelectValue placeholder="Filtrar proyecto" />
+                  <SelectValue placeholder={t('rankings.filtrarProyecto')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos los proyectos</SelectItem>
+                  <SelectItem value="all">{t('rankings.todosLosProyectos')}</SelectItem>
                   {projects.map(project => (
                     <SelectItem key={project.id} value={project.id}>
                       {project.icon} {project.nombre}

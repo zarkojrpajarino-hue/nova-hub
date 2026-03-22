@@ -5,7 +5,7 @@
  * Mismo patrón que FinanceInsightsCard / SalesInsightsCard.
  *
  * Lee de integration_insights[agent_type='meeting'] (persiste entre reloads).
- * Badge "Meeting Agent" en azul oscuro.
+ * Badge t('integrations.meetingAgent0') en azul oscuro.
  */
 
 import { useQuery } from '@tanstack/react-query'
@@ -17,6 +17,7 @@ import { EvidenceBadge } from '@/components/evidence/EvidenceBadge'
 import { SourcesPanel } from '@/components/evidence/SourcesPanel'
 import type { ProviderSlug } from '@/lib/evidence'
 
+import { useTranslation } from 'react-i18next';
 interface InsightPayload {
   signal:  { metric_name: string; current_value: number; data_points: number }
   content: {
@@ -35,6 +36,7 @@ const SEVERITY_CONFIG = {
 } as const
 
 function SeverityBadge({ severity }: { severity: keyof typeof SEVERITY_CONFIG }) {
+  const { t } = useTranslation();
   const cfg = SEVERITY_CONFIG[severity] ?? SEVERITY_CONFIG.info
   return (
     <span className={`inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-medium ${cfg.badge}`}>
@@ -60,9 +62,7 @@ export function MeetingInsightsCard({ projectId }: MeetingInsightsCardProps) {
   if (isLoading) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
-        <Loader2 size={14} className="animate-spin" />
-        Analizando reuniones...
-      </div>
+        <Loader2 size={14} className="animate-spin" />{t('integrations.analizandoReuniones')}</div>
     )
   }
   if (!insights || insights.length === 0) return null
@@ -71,11 +71,7 @@ export function MeetingInsightsCard({ projectId }: MeetingInsightsCardProps) {
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
-          <Video size={15} className="text-blue-700 dark:text-blue-400" />
-          Inteligencia de reuniones
-          <Badge variant="secondary" className="text-xs h-5 px-1.5 font-normal">
-            Meeting Agent
-          </Badge>
+          <Video size={15} className="text-blue-700 dark:text-blue-400" />Inteligencia de reuniones<Badge variant="secondary" className="text-xs h-5 px-1.5 font-normal">{t('integrations.meetingAgent')}</Badge>
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">

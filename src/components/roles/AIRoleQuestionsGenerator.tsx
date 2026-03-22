@@ -8,6 +8,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { MeetingQuestionViewer } from '@/components/meetings/MeetingQuestionViewer';
 
+import { useTranslation } from 'react-i18next';
 interface SimpleQuestion {
   pregunta: string;
   objetivo: string;
@@ -51,6 +52,7 @@ interface AIRoleQuestionsGeneratorProps {
 }
 
 export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGeneratorProps) {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [simpleQuestions, setSimpleQuestions] = useState<SimpleQuestion[]>([]);
   const [detailedQuestions, setDetailedQuestions] = useState<DetailedQuestion[]>([]);
@@ -71,7 +73,7 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
     try {
       const endpoint = version === 'detailed' ? 'generate-role-questions-v2' : 'generate-role-questions';
       const body = version === 'detailed'
-        ? { role: role.role, meetingType: 'Reunión mensual de rol', duracionMinutos: 60 }
+        ? { role: role.role, meetingType: t('roles.reuniónMensualDeRol'), duracionMinutos: 60 }
         : { role };
 
       const { data, error: funcError } = await supabase.functions.invoke(endpoint, { body });
@@ -79,11 +81,11 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
       if (funcError) {
         const errorMessage = funcError.message || '';
         if (errorMessage.includes('429') || funcError.context?.status === 429) {
-          setError('Has excedido el límite de solicitudes. Espera unos minutos.');
+          setError(t('roles.hasExcedidoElLímite'));
           return;
         }
         if (errorMessage.includes('402') || funcError.context?.status === 402) {
-          setError('Créditos de IA agotados. Contacta al administrador.');
+          setError(t('roles.créditosDeIaAgotados'));
           return;
         }
         throw funcError;
@@ -104,10 +106,10 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
       }
 
       if ((data?.questions || []).length === 0) {
-        setError('No se pudieron generar preguntas. Inténtalo de nuevo.');
+        setError(t('roles.noSePudieronGenerar'));
       }
     } catch (_err) {
-      setError('Error al conectar con el servicio de IA. Inténtalo de nuevo.');
+      setError(t('roles.errorAlConectarCon'));
     } finally {
       setIsGenerating(false);
     }
@@ -116,14 +118,14 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
   const handleCopy = async (text: string, index: number) => {
     await navigator.clipboard.writeText(text);
     setCopiedIndex(index);
-    toast.success('Pregunta copiada');
+    toast.success(t('roles.preguntaCopiada'));
     setTimeout(() => setCopiedIndex(null), 2000);
   };
 
   const handleCopyAll = async () => {
     const allQuestions = questions.map((q, i) => `${i + 1}. ${q.pregunta}`).join('\n\n');
     await navigator.clipboard.writeText(allQuestions);
-    toast.success('Todas las preguntas copiadas');
+    toast.success(t('roles.todasLasPreguntasCopiadas'));
   };
 
   // Auto-generate when opened
@@ -152,15 +154,13 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
             </div>
             Preguntas para {role?.roleLabel}
           </DialogTitle>
-          <DialogDescription>
-            Preguntas generadas por IA para facilitar la reunión de rol
-          </DialogDescription>
+          <DialogDescription>{t('roles.preguntasGeneradasPorIa')}</DialogDescription>
         </DialogHeader>
 
         <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'simple' | 'detailed')} className="flex-1 flex flex-col overflow-hidden">
           <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="detailed">Con Guías de Facilitación</TabsTrigger>
-            <TabsTrigger value="simple">Preguntas Simples</TabsTrigger>
+            <TabsTrigger value="detailed">{t('roles.conGuíasDeFacilitación')}</TabsTrigger>
+            <TabsTrigger value="simple">{t('roles.preguntasSimples')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="detailed" className="flex-1 overflow-y-auto mt-4">
@@ -172,21 +172,17 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
                   </div>
                   <Loader2 className="w-6 h-6 absolute -bottom-1 -right-1 animate-spin text-indigo-500" />
                 </div>
-                <p className="mt-4 font-medium">Generando preguntas con guías...</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Analizando contexto y creando facilitación detallada
-                </p>
+                <p className="mt-4 font-medium">{t('roles.generandoPreguntasConGuías')}</p>
+                <p className="text-sm text-muted-foreground mt-1">{t('roles.analizandoContextoYCreando')}</p>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
                   <MessageCircle className="w-8 h-8 text-destructive" />
                 </div>
-                <p className="mt-4 font-medium text-destructive">Error</p>
+                <p className="mt-4 font-medium text-destructive">{t('roles.error')}</p>
                 <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
-                <Button variant="outline" className="mt-4" onClick={() => handleGenerate('detailed')}>
-                  Reintentar
-                </Button>
+                <Button variant="outline" className="mt-4" onClick={() => handleGenerate('detailed')}>{t('roles.reintentar')}</Button>
               </div>
             ) : detailedQuestions.length > 0 ? (
               <MeetingQuestionViewer
@@ -206,21 +202,17 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
                   </div>
                   <Loader2 className="w-6 h-6 absolute -bottom-1 -right-1 animate-spin text-indigo-500" />
                 </div>
-                <p className="mt-4 font-medium">Generando preguntas...</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Analizando el contexto del rol
-                </p>
+                <p className="mt-4 font-medium">{t('roles.generandoPreguntas')}</p>
+                <p className="text-sm text-muted-foreground mt-1">{t('roles.analizandoElContextoDel')}</p>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
                   <MessageCircle className="w-8 h-8 text-destructive" />
                 </div>
-                <p className="mt-4 font-medium text-destructive">Error</p>
+                <p className="mt-4 font-medium text-destructive">{t('roles.error')}</p>
                 <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
-                <Button variant="outline" className="mt-4" onClick={() => handleGenerate('simple')}>
-                  Reintentar
-                </Button>
+                <Button variant="outline" className="mt-4" onClick={() => handleGenerate('simple')}>{t('roles.reintentar')}</Button>
               </div>
             ) : simpleQuestions.length > 0 ? (
               <div className="space-y-4">
@@ -263,11 +255,9 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center py-12 text-center">
-                <p className="text-muted-foreground mb-4">No hay preguntas simples generadas</p>
+                <p className="text-muted-foreground mb-4">{t('roles.noHayPreguntasSimples')}</p>
                 <Button onClick={() => handleGenerate('simple')}>
-                  <Zap className="w-4 h-4 mr-2" />
-                  Generar preguntas simples
-                </Button>
+                  <Zap className="w-4 h-4 mr-2" />{t('roles.generarPreguntasSimples')}</Button>
               </div>
             )}
           </TabsContent>
@@ -280,17 +270,13 @@ export function AIRoleQuestionsGenerator({ role, onClose }: AIRoleQuestionsGener
               className="flex-1"
               onClick={() => handleGenerate(activeTab)}
             >
-              <Zap className="w-4 h-4 mr-2" />
-              Regenerar
-            </Button>
+              <Zap className="w-4 h-4 mr-2" />{t('roles.regenerar')}</Button>
             {activeTab === 'simple' && simpleQuestions.length > 0 && (
               <Button
                 className="flex-1"
                 onClick={handleCopyAll}
               >
-                <Copy className="w-4 h-4 mr-2" />
-                Copiar Todas
-              </Button>
+                <Copy className="w-4 h-4 mr-2" />{t('roles.copiarTodas')}</Button>
             )}
           </div>
         )}

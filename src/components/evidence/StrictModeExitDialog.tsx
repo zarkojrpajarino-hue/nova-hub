@@ -17,6 +17,7 @@ import { AlertTriangle, Search, FileQuestion, X } from 'lucide-react';
 import { Progress } from '@/components/ui/progress';
 import type { StrictModeExitOptions } from '@/lib/evidence/types';
 
+import { useTranslation } from 'react-i18next';
 interface StrictModeExitDialogProps {
   open: boolean;
   options: StrictModeExitOptions;
@@ -28,6 +29,7 @@ export function StrictModeExitDialog({
   options,
   onAction,
 }: StrictModeExitDialogProps) {
+  const { t } = useTranslation();
   const coveragePercent = Math.round(
     (options.current_coverage / options.required_coverage) * 100
   );
@@ -41,14 +43,14 @@ export function StrictModeExitDialog({
               <AlertTriangle className="h-6 w-6 text-yellow-500" />
             </div>
             <div>
-              <AlertDialogTitle>Strict Mode: Evidence Requirements Not Met</AlertDialogTitle>
+              <AlertDialogTitle>{t('evidence.strictModeEvidenceRequirements')}</AlertDialogTitle>
               <AlertDialogDescription>
                 {options.reason === 'insufficient_sources' &&
-                  'Not enough evidence sources found'}
+                  t('evidence.notEnoughEvidenceSources')}
                 {options.reason === 'conflicting_evidence' &&
-                  'Sources provide conflicting information'}
+                  t('evidence.sourcesProvideConflictingInformation')}
                 {options.reason === 'no_tier_1_or_2' &&
-                  'Requires at least one user document or official API source'}
+                  t('evidence.requiresAtLeastOne')}
               </AlertDialogDescription>
             </div>
           </div>
@@ -59,7 +61,7 @@ export function StrictModeExitDialog({
           <div className="space-y-3">
             <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="font-medium">Evidence Coverage</span>
+                <span className="font-medium">{t('evidence.evidenceCoverage')}</span>
                 <span className="text-muted-foreground">
                   {options.current_coverage}% / {options.required_coverage}% required
                 </span>
@@ -78,14 +80,14 @@ export function StrictModeExitDialog({
                 <p className="text-2xl font-bold text-yellow-600">
                   {options.required_coverage - options.current_coverage}%
                 </p>
-                <p className="text-xs text-muted-foreground">Coverage gap</p>
+                <p className="text-xs text-muted-foreground">{t('evidence.coverageGap')}</p>
               </div>
             </div>
           </div>
 
           {/* Options */}
           <div className="space-y-2">
-            <p className="text-sm font-semibold">What would you like to do?</p>
+            <p className="text-sm font-semibold">{t('evidence.whatWouldYouLike')}</p>
 
             {options.options.map((option, idx) => (
               <button

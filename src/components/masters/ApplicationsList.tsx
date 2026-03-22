@@ -10,9 +10,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { useVoteOnApplication, useMasterVotes, type MasterApplication } from '@/hooks/useMasters';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface ApplicationsListProps {
   applications: MasterApplication[];
   profiles: Array<{ id: string; nombre: string; avatar: string | null; color: string }>;
@@ -20,14 +21,15 @@ interface ApplicationsListProps {
 }
 
 const STATUS_CONFIG = {
-  pending: { label: 'Pendiente', color: 'bg-muted text-muted-foreground' },
-  voting: { label: 'En Votación', color: 'bg-amber-500/10 text-amber-500' },
-  approved: { label: 'Aprobada', color: 'bg-success/10 text-success' },
-  rejected: { label: 'Rechazada', color: 'bg-destructive/10 text-destructive' },
-  expired: { label: 'Expirada', color: 'bg-muted text-muted-foreground' },
+  pending: { label: t('masters.pendiente'), color: 'bg-muted text-muted-foreground' },
+  voting: { label: t('masters.enVotación'), color: 'bg-amber-500/10 text-amber-500' },
+  approved: { label: t('masters.aprobada'), color: 'bg-success/10 text-success' },
+  rejected: { label: t('masters.rechazada'), color: 'bg-destructive/10 text-destructive' },
+  expired: { label: t('masters.expirada'), color: 'bg-muted text-muted-foreground' },
 };
 
 export function ApplicationsList({ applications, profiles, currentUserId }: ApplicationsListProps) {
+  const { t } = useTranslation();
   const voteOnApplication = useVoteOnApplication();
   const parentRef = useRef<HTMLDivElement>(null);
 
@@ -43,10 +45,8 @@ export function ApplicationsList({ applications, profiles, currentUserId }: Appl
       <Card className="border-dashed">
         <CardContent className="py-10 text-center">
           <Clock size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="font-semibold mb-2">Sin aplicaciones pendientes</h3>
-          <p className="text-sm text-muted-foreground">
-            No hay aplicaciones en votación actualmente
-          </p>
+          <h3 className="font-semibold mb-2">{t('masters.sinAplicacionesPendientes')}</h3>
+          <p className="text-sm text-muted-foreground">{t('masters.noHayAplicacionesEn')}</p>
         </CardContent>
       </Card>
     );
@@ -109,7 +109,7 @@ interface ApplicationCardProps {
   isOwnApplication: boolean;
   votesProgress: number;
   currentUserId?: string;
-  onVote: (vote: { application_id: string; voter_id: string; vote: boolean; comentario?: string }) => Promise<unknown>;
+  onVote: (vote: { application_id: string; voter_id: string; vote: boolean; comentario?: string }) =>Promise<unknown>;
   isVoting: boolean;
 }
 
@@ -140,10 +140,10 @@ const ApplicationCard = memo(function ApplicationCard({
         vote,
         comentario: comment || undefined,
       });
-      toast.success(vote ? 'Voto a favor registrado' : 'Voto en contra registrado');
+      toast.success(vote ? 'Voto a favor registrado': t('masters.votoEnContraRegistrado'));
       setComment('');
     } catch (_error) {
-      toast.error('Error al votar');
+      toast.error(t('masters.errorAlVotar'));
     }
   };
 
@@ -161,8 +161,8 @@ const ApplicationCard = memo(function ApplicationCard({
             
             <div>
               <div className="flex items-center gap-2">
-                <CardTitle className="text-base">{applicant?.nombre || 'Usuario'}</CardTitle>
-                {isOwnApplication && <Badge variant="outline">Tu aplicación</Badge>}
+                <CardTitle className="text-base">{applicant?.nombre || t('masters.usuario')}</CardTitle>
+                {isOwnApplication && <Badge variant="outline">{t('masters.tuAplicación')}</Badge>}
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary" className={statusConfig.color}>
@@ -179,7 +179,7 @@ const ApplicationCard = memo(function ApplicationCard({
           </div>
           
           <span className="text-xs text-muted-foreground">
-            {formatDistanceToNow(new Date(application.created_at), { addSuffix: true, locale: es })}
+            {formatDistanceToNow(new Date(application.created_at), { addSuffix: true, locale: getDateFnsLocale() })}
           </span>
         </div>
       </CardHeader>
@@ -187,14 +187,14 @@ const ApplicationCard = memo(function ApplicationCard({
       <CardContent className="space-y-4">
         {/* Motivation */}
         <div>
-          <p className="text-sm font-medium mb-1">Motivación</p>
+          <p className="text-sm font-medium mb-1">{t('masters.motivación')}</p>
           <p className="text-sm text-muted-foreground">{application.motivation}</p>
         </div>
         
         {/* Achievements */}
         {application.achievements && application.achievements.length > 0 && (
           <div>
-            <p className="text-sm font-medium mb-2">Logros destacados</p>
+            <p className="text-sm font-medium mb-2">{t('masters.logrosDestacados')}</p>
             <div className="space-y-1">
               {application.achievements.map((achievement, i) => (
                 <div key={i} className="text-sm bg-muted/50 rounded p-2">
@@ -211,7 +211,7 @@ const ApplicationCard = memo(function ApplicationCard({
         {/* Voting Progress */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Progreso de Votación</span>
+            <span className="text-sm font-medium">{t('masters.progresoDeVotación')}</span>
             <span className="text-xs text-muted-foreground">
               {application.votes_for + application.votes_against}/8 votos ({application.votes_required} requeridos)
             </span>
@@ -233,7 +233,7 @@ const ApplicationCard = memo(function ApplicationCard({
         {application.status === 'voting' && !isOwnApplication && !hasVoted && currentUserId && (
           <div className="border-t pt-4 space-y-3">
             <Textarea
-              placeholder="Añade un comentario (opcional)..."
+              placeholder={t('masters.añadeUnComentarioOpcional')}
               value={comment}
               onChange={e => setComment(e.target.value)}
               rows={2}
@@ -264,9 +264,7 @@ const ApplicationCard = memo(function ApplicationCard({
         {hasVoted && (
           <div className="border-t pt-4">
             <Badge variant="secondary" className="gap-1">
-              <CheckCircle2 size={14} />
-              Ya has votado
-            </Badge>
+              <CheckCircle2 size={14} />{t('masters.yaHasVotado')}</Badge>
           </div>
         )}
       </CardContent>

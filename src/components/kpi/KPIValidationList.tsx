@@ -9,14 +9,15 @@ import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { EvidenceViewer } from '@/components/evidence/EvidenceViewer';
 
+import { useTranslation } from 'react-i18next';
 interface KPIValidationListProps {
   type: 'lp' | 'bp' | 'cp';
 }
 
 const TYPE_LABELS = {
-  lp: 'Learning Path',
-  bp: 'Book Point',
-  cp: 'Community Point',
+  lp: t('kpi.learningPath'),
+  bp: t('kpi.bookPoint'),
+  cp: t('kpi.communityPoint'),
 };
 
 interface KPIWithOwner {
@@ -85,8 +86,7 @@ const KPICard = memo(function KPICard({
             )}
           </div>
 
-          <p className="text-sm text-muted-foreground mb-2">
-            Por <span className="font-medium">{kpi.owner.nombre}</span>
+          <p className="text-sm text-muted-foreground mb-2">Por<span className="font-medium">{kpi.owner.nombre}</span>
           </p>
 
           {kpi.descripcion && (
@@ -128,7 +128,7 @@ const KPICard = memo(function KPICard({
               <Textarea
                 value={comment}
                 onChange={(e) => onCommentChange(e.target.value)}
-                placeholder="Comentario opcional..."
+                placeholder={t('kpi.comentarioOpcional')}
                 rows={2}
               />
               <div className="flex gap-2">
@@ -137,9 +137,7 @@ const KPICard = memo(function KPICard({
                   size="sm"
                   onClick={onCancelVoting}
                   disabled={isSubmitting}
-                >
-                  Cancelar
-                </Button>
+                >{t('kpi.cancelar')}</Button>
                 <Button
                   variant="destructive"
                   size="sm"
@@ -165,9 +163,7 @@ const KPICard = memo(function KPICard({
               size="sm"
               onClick={onStartVoting}
             >
-              <MessageSquare className="w-4 h-4 mr-2" />
-              Validar
-            </Button>
+              <MessageSquare className="w-4 h-4 mr-2" />{t('kpi.validar')}</Button>
           )}
         </div>
       </div>
@@ -176,6 +172,7 @@ const KPICard = memo(function KPICard({
 });
 
 export function KPIValidationList({ type }: KPIValidationListProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [votingId, setVotingId] = useState<string | null>(null);
@@ -236,7 +233,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
               validator_id: v.validator_id,
               approved: v.approved || false,
               comentario: v.comentario,
-              validator_nombre: validatorsMap.get(v.validator_id) || 'Desconocido',
+              validator_nombre: validatorsMap.get(v.validator_id) || t('kpi.desconocido'),
             }));
           
           return {
@@ -249,7 +246,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
             created_at: kpi.created_at || '',
             owner: {
               id: owner?.id || kpi.owner_id,
-              nombre: owner?.nombre || 'Desconocido',
+              nombre: owner?.nombre || t('kpi.desconocido'),
               color: owner?.color || '#6366F1',
             },
             validations: kpiValidations,
@@ -277,14 +274,14 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
 
       if (error) throw error;
 
-      toast.success(approved ? 'KPI aprobado' : 'KPI rechazado');
+      toast.success(approved ? 'KPI aprobado': t('kpi.kpiRechazado'));
       queryClient.invalidateQueries({ queryKey: ['pending_kpis'] });
       queryClient.invalidateQueries({ queryKey: ['member_stats'] });
 
       setVotingId(null);
       setComment('');
     } catch (_error) {
-      toast.error('Error al registrar el voto');
+      toast.error(t('kpi.errorAlRegistrarEl'));
     } finally {
       setIsSubmitting(false);
     }

@@ -28,6 +28,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface GenerativeOnboardingPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,50 +39,50 @@ const demoCompanyData = {
   name: 'TechVision AI',
   industry: 'Artificial Intelligence & SaaS',
   goals: [
-    'Launch MVP in 3 months',
-    'Build core AI features',
-    'Acquire first 100 customers',
+    t('preview.launchMvpIn3'),
+    t('preview.buildCoreAiFeatures'),
+    t('preview.acquireFirst100Customers'),
   ],
 };
 
 const generatedRoles = [
   {
     id: 1,
-    name: 'Chief Executive Officer',
-    department: 'Executive',
+    name: t('preview.chiefExecutiveOfficer'),
+    department: t('preview.executive'),
     color: 'bg-purple-500',
     icon: Award,
     competencies: [
-      'Strategic Planning',
-      'Leadership',
-      'Investor Relations',
-      'Vision Setting',
+      t('preview.strategicPlanning'),
+      t('preview.leadership'),
+      t('preview.investorRelations'),
+      t('preview.visionSetting'),
     ],
   },
   {
     id: 2,
-    name: 'Chief Technology Officer',
-    department: 'Engineering',
+    name: t('preview.chiefTechnologyOfficer'),
+    department: t('preview.engineering'),
     color: 'bg-blue-500',
     icon: Brain,
     competencies: [
-      'AI/ML Architecture',
-      'System Design',
-      'Technical Strategy',
-      'Team Leadership',
+      t('preview.aimlArchitecture'),
+      t('preview.systemDesign'),
+      t('preview.technicalStrategy'),
+      t('preview.teamLeadership'),
     ],
   },
   {
     id: 3,
-    name: 'Chief Marketing Officer',
-    department: 'Marketing',
+    name: t('preview.chiefMarketingOfficer'),
+    department: t('preview.marketing'),
     color: 'bg-pink-500',
     icon: TrendingUp,
     competencies: [
-      'Go-to-Market Strategy',
-      'Brand Development',
-      'Customer Acquisition',
-      'Content Strategy',
+      t('preview.gotomarketStrategy'),
+      t('preview.brandDevelopment'),
+      t('preview.customerAcquisition'),
+      t('preview.contentStrategy'),
     ],
   },
 ];
@@ -91,27 +92,27 @@ const generatedTasks = [
     role: 'CEO',
     tasks: [
       {
-        title: 'Define company vision and mission statement',
+        title: t('preview.defineCompanyVisionAnd'),
         priority: 'high',
         duration: '2 days',
       },
       {
-        title: 'Create investor pitch deck',
+        title: t('preview.createInvestorPitchDeck'),
         priority: 'high',
         duration: '3 days',
       },
       {
-        title: 'Set up legal entity and banking',
+        title: t('preview.setUpLegalEntity'),
         priority: 'medium',
         duration: '5 days',
       },
       {
-        title: 'Establish company culture and values',
+        title: t('preview.establishCompanyCultureAnd'),
         priority: 'medium',
         duration: '3 days',
       },
       {
-        title: 'Schedule weekly executive meetings',
+        title: t('preview.scheduleWeeklyExecutiveMeetings'),
         priority: 'low',
         duration: '1 day',
       },
@@ -121,7 +122,7 @@ const generatedTasks = [
     role: 'CTO',
     tasks: [
       {
-        title: 'Design AI model architecture',
+        title: t('preview.designAiModelArchitecture'),
         priority: 'high',
         duration: '5 days',
       },
@@ -131,17 +132,17 @@ const generatedTasks = [
         duration: '3 days',
       },
       {
-        title: 'Implement CI/CD pipeline',
+        title: t('preview.implementCicdPipeline'),
         priority: 'medium',
         duration: '4 days',
       },
       {
-        title: 'Create technical documentation',
+        title: t('preview.createTechnicalDocumentation'),
         priority: 'medium',
         duration: '2 days',
       },
       {
-        title: 'Hire senior engineers',
+        title: t('preview.hireSeniorEngineers'),
         priority: 'high',
         duration: '7 days',
       },
@@ -151,22 +152,22 @@ const generatedTasks = [
     role: 'CMO',
     tasks: [
       {
-        title: 'Develop go-to-market strategy',
+        title: t('preview.developGotomarketStrategy'),
         priority: 'high',
         duration: '4 days',
       },
       {
-        title: 'Create brand identity and guidelines',
+        title: t('preview.createBrandIdentityAnd'),
         priority: 'high',
         duration: '5 days',
       },
       {
-        title: 'Launch company website and blog',
+        title: t('preview.launchCompanyWebsiteAnd'),
         priority: 'medium',
         duration: '7 days',
       },
       {
-        title: 'Set up social media presence',
+        title: t('preview.setUpSocialMedia'),
         priority: 'medium',
         duration: '2 days',
       },
@@ -183,6 +184,7 @@ export function GenerativeOnboardingPreviewModal({
   open,
   onOpenChange,
 }: GenerativeOnboardingPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const totalSlides = 6;
@@ -217,17 +219,13 @@ export function GenerativeOnboardingPreviewModal({
           <div className="flex items-start justify-between">
             <div className="space-y-1.5">
               <DialogTitle className="text-2xl flex items-center gap-2">
-                <Sparkles className="w-6 h-6 text-purple-500" />
-                Generative Onboarding
-              </DialogTitle>
+                <Sparkles className="w-6 h-6 text-purple-500" />{t('preview.generativeOnboarding')}</DialogTitle>
               <p className="text-sm text-muted-foreground">
                 Create enterprise-ready projects in 5 minutes with AI
               </p>
             </div>
             <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-              <Zap className="w-3 h-3 mr-1" />
-              Starter Plan Required
-            </Badge>
+              <Zap className="w-3 h-3 mr-1" />{t('preview.starterPlanRequired')}</Badge>
           </div>
           <div className="pt-4 space-y-2">
             <Progress value={progress} className="h-2" />
@@ -261,9 +259,7 @@ export function GenerativeOnboardingPreviewModal({
             onClick={prevSlide}
             disabled={currentSlide === 0 || isGenerating}
           >
-            <ChevronLeft className="w-4 h-4 mr-2" />
-            Previous
-          </Button>
+            <ChevronLeft className="w-4 h-4 mr-2" />{t('preview.previous')}</Button>
           <div className="flex gap-1.5">
             {Array.from({ length: totalSlides }).map((_, index) => (
               <button
@@ -283,14 +279,10 @@ export function GenerativeOnboardingPreviewModal({
             disabled={isGenerating}
           >
             {currentSlide === totalSlides - 1 ? (
-              <>
-                Finalizar
-                <CheckCircle2 className="w-4 h-4 ml-2" />
+              <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-2" />
               </>
             ) : (
-              <>
-                Next
-                <ChevronRight className="w-4 h-4 ml-2" />
+              <>{t('preview.next')}<ChevronRight className="w-4 h-4 ml-2" />
               </>
             )}
           </Button>
@@ -322,9 +314,7 @@ function IntroSlide() {
       <div
         className="space-y-4"
       >
-        <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-          Create Projects in 5 Minutes
-        </h2>
+        <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{t('preview.createProjectsIn5')}</h2>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
           Our AI-powered wizard automatically generates roles, competencies, and initial tasks
           tailored to your company's needs.
@@ -337,20 +327,20 @@ function IntroSlide() {
         {[
           {
             icon: Brain,
-            title: 'AI-Powered',
-            description: 'Smart role and task generation',
+            title: t('preview.aipowered'),
+            description: t('preview.smartRoleAndTask'),
             color: 'text-purple-500',
           },
           {
             icon: Zap,
-            title: 'Fast Setup',
-            description: 'Complete in under 5 minutes',
+            title: t('preview.fastSetup'),
+            description: t('preview.completeInUnder5'),
             color: 'text-yellow-500',
           },
           {
             icon: Briefcase,
-            title: 'Enterprise Ready',
-            description: 'Professional project structure',
+            title: t('preview.enterpriseReady'),
+            description: t('preview.professionalProjectStructure'),
             color: 'text-blue-500',
           },
         ].map((feature) => (
@@ -376,10 +366,8 @@ function Step1BasicInfo() {
     >
       <div className="text-center space-y-2">
         <Badge className="bg-purple-100 text-purple-700 mb-2">Step 1 of 4</Badge>
-        <h2 className="text-3xl font-bold">Tell us about your company</h2>
-        <p className="text-muted-foreground">
-          Provide basic information to help our AI understand your needs
-        </p>
+        <h2 className="text-3xl font-bold">{t('preview.tellUsAboutYour')}</h2>
+        <p className="text-muted-foreground">{t('preview.provideBasicInformationTo')}</p>
       </div>
 
       <div className="space-y-6 pt-6">
@@ -391,7 +379,7 @@ function Step1BasicInfo() {
               <Building2 className="w-6 h-6 text-purple-600" />
             </div>
             <div className="flex-1 space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Company Name</label>
+              <label className="text-sm font-medium text-muted-foreground">{t('preview.companyName')}</label>
               <div className="text-xl font-semibold">{demoCompanyData.name}</div>
             </div>
           </div>
@@ -405,7 +393,7 @@ function Step1BasicInfo() {
               <Briefcase className="w-6 h-6 text-blue-600" />
             </div>
             <div className="flex-1 space-y-2">
-              <label className="text-sm font-medium text-muted-foreground">Industry</label>
+              <label className="text-sm font-medium text-muted-foreground">{t('preview.industry')}</label>
               <div className="text-xl font-semibold">{demoCompanyData.industry}</div>
             </div>
           </div>
@@ -419,7 +407,7 @@ function Step1BasicInfo() {
               <Target className="w-6 h-6 text-pink-600" />
             </div>
             <div className="flex-1 space-y-3">
-              <label className="text-sm font-medium text-muted-foreground">Initial Goals</label>
+              <label className="text-sm font-medium text-muted-foreground">{t('preview.initialGoals')}</label>
               <div className="space-y-2">
                 {demoCompanyData.goals.map((goal) => (
                   <div
@@ -447,10 +435,8 @@ function Step2GeneratingRoles({ isGenerating: _isGenerating }: { isGenerating: b
     >
       <div className="space-y-2">
         <Badge className="bg-blue-100 text-blue-700 mb-2">Step 2 of 4</Badge>
-        <h2 className="text-3xl font-bold">AI is generating roles</h2>
-        <p className="text-muted-foreground">
-          Analyzing your industry and goals to create the perfect team structure
-        </p>
+        <h2 className="text-3xl font-bold">{t('preview.aiIsGeneratingRoles')}</h2>
+        <p className="text-muted-foreground">{t('preview.analyzingYourIndustryAnd')}</p>
       </div>
 
       <div className="relative py-12">
@@ -468,13 +454,13 @@ function Step2GeneratingRoles({ isGenerating: _isGenerating }: { isGenerating: b
         >
           <div className="flex items-center justify-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin text-purple-500" />
-            <span className="text-lg font-medium">Analyzing company requirements...</span>
+            <span className="text-lg font-medium">{t('preview.analyzingCompanyRequirements')}</span>
           </div>
         </div>
       </div>
 
       <div className="grid grid-cols-3 gap-4">
-        {['Executive Roles', 'Technical Roles', 'Business Roles'].map((item) => (
+        {[t('preview.executiveRoles'), t('preview.technicalRoles'), t('preview.businessRoles')].map((item) => (
           <div
             key={item}
             className="p-4 rounded-xl border-2 border-dashed bg-muted/30"
@@ -498,10 +484,8 @@ function Step3GeneratedRoles() {
     >
       <div className="text-center space-y-2">
         <Badge className="bg-green-100 text-green-700 mb-2">
-          <CheckCircle2 className="w-3 h-3 mr-1" />
-          Roles Generated
-        </Badge>
-        <h2 className="text-3xl font-bold">Your AI-generated team structure</h2>
+          <CheckCircle2 className="w-3 h-3 mr-1" />{t('preview.rolesGenerated')}</Badge>
+        <h2 className="text-3xl font-bold">{t('preview.yourAigeneratedTeamStructure')}</h2>
         <p className="text-muted-foreground">3 executive roles with tailored competencies</p>
       </div>
 
@@ -526,11 +510,11 @@ function Step3GeneratedRoles() {
                       {role.department}
                     </Badge>
                   </div>
-                  <p className="text-sm text-muted-foreground">AI-generated role</p>
+                  <p className="text-sm text-muted-foreground">{t('preview.aigeneratedRole')}</p>
                 </div>
 
                 <div className="space-y-2">
-                  <p className="text-sm font-medium text-muted-foreground">Core Competencies</p>
+                  <p className="text-sm font-medium text-muted-foreground">{t('preview.coreCompetencies')}</p>
                   <div className="flex flex-wrap gap-2">
                     {role.competencies.map((competency) => (
                       <div
@@ -565,10 +549,8 @@ function Step4GeneratingTasks({ isGenerating: _isGenerating }: { isGenerating: b
     >
       <div className="space-y-2">
         <Badge className="bg-orange-100 text-orange-700 mb-2">Step 3 of 4</Badge>
-        <h2 className="text-3xl font-bold">Creating initial tasks</h2>
-        <p className="text-muted-foreground">
-          Generating role-specific tasks to kickstart your project
-        </p>
+        <h2 className="text-3xl font-bold">{t('preview.creatingInitialTasks')}</h2>
+        <p className="text-muted-foreground">{t('preview.generatingRolespecificTasksTo')}</p>
       </div>
 
       <div className="relative py-12">
@@ -588,7 +570,7 @@ function Step4GeneratingTasks({ isGenerating: _isGenerating }: { isGenerating: b
         >
           <div className="flex items-center justify-center gap-2">
             <Loader2 className="w-5 h-5 animate-spin text-orange-500" />
-            <span className="text-lg font-medium">Generating tasks for each role...</span>
+            <span className="text-lg font-medium">{t('preview.generatingTasksForEach')}</span>
           </div>
         </div>
       </div>
@@ -604,7 +586,7 @@ function Step4GeneratingTasks({ isGenerating: _isGenerating }: { isGenerating: b
             </div>
             <div className="flex-1 text-left">
               <p className="font-medium">{role.name}</p>
-              <p className="text-sm text-muted-foreground">Generating 5 initial tasks...</p>
+              <p className="text-sm text-muted-foreground">{t('preview.generating5InitialTasks')}</p>
             </div>
             <div
             >
@@ -631,7 +613,7 @@ function Step5FinalResult() {
         >
           <CheckCircle2 className="w-10 h-10 text-white" />
         </div>
-        <h2 className="text-3xl font-bold">Project created successfully!</h2>
+        <h2 className="text-3xl font-bold">{t('preview.projectCreatedSuccessfully')}</h2>
         <p className="text-muted-foreground">
           Your enterprise-ready project with {totalTasks} tasks is ready to go
         </p>
@@ -643,7 +625,7 @@ function Step5FinalResult() {
         >
           <Users className="w-10 h-10 text-purple-600 mx-auto mb-3" />
           <div className="text-3xl font-bold text-purple-600">{generatedRoles.length}</div>
-          <p className="text-sm text-muted-foreground mt-1">Roles Created</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('preview.rolesCreated')}</p>
         </div>
 
         <div
@@ -651,7 +633,7 @@ function Step5FinalResult() {
         >
           <ListTodo className="w-10 h-10 text-blue-600 mx-auto mb-3" />
           <div className="text-3xl font-bold text-blue-600">{totalTasks}</div>
-          <p className="text-sm text-muted-foreground mt-1">Tasks Generated</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('preview.tasksGenerated')}</p>
         </div>
 
         <div
@@ -659,12 +641,12 @@ function Step5FinalResult() {
         >
           <Clock className="w-10 h-10 text-green-600 mx-auto mb-3" />
           <div className="text-3xl font-bold text-green-600">~5m</div>
-          <p className="text-sm text-muted-foreground mt-1">Setup Time</p>
+          <p className="text-sm text-muted-foreground mt-1">{t('preview.setupTime')}</p>
         </div>
       </div>
 
       <div className="space-y-4">
-        <h3 className="text-lg font-semibold">Generated Tasks Preview</h3>
+        <h3 className="text-lg font-semibold">{t('preview.generatedTasksPreview')}</h3>
         {generatedTasks.map((roleData, roleIndex) => (
           <div
             key={roleData.role}

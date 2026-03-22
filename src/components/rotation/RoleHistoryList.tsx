@@ -5,32 +5,34 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowRight, History, UserPlus, ArrowLeftRight, TrendingUp, RotateCcw } from 'lucide-react';
 import { RoleHistory } from '@/hooks/useRoleRotation';
 import { formatDistanceToNow, format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface RoleHistoryListProps {
   history: RoleHistory[];
 }
 
 // Move constants outside component for better performance
 const changeTypeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  assignment: { label: 'Asignación', icon: <UserPlus className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
-  swap: { label: 'Intercambio', icon: <ArrowLeftRight className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
-  transfer: { label: 'Transferencia', icon: <ArrowRight className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },
-  rotation: { label: 'Rotación', icon: <RotateCcw className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
-  promotion: { label: 'Promoción', icon: <TrendingUp className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-800' },
+  assignment: { label: t('rotation.asignación'), icon: <UserPlus className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
+  swap: { label: t('rotation.intercambio'), icon: <ArrowLeftRight className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
+  transfer: { label: t('rotation.transferencia'), icon: <ArrowRight className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },
+  rotation: { label: t('rotation.rotación'), icon: <RotateCcw className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
+  promotion: { label: t('rotation.promoción'), icon: <TrendingUp className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-800' },
 };
 
 const roleLabels: Record<string, string> = {
-  sales: 'Ventas',
-  finance: 'Finanzas',
-  ai_tech: 'AI/Tech',
-  marketing: 'Marketing',
-  operations: 'Operaciones',
-  strategy: 'Estrategia',
+  sales: t('rotation.ventas'),
+  finance: t('rotation.finanzas'),
+  ai_tech: t('rotation.aitech'),
+  marketing: t('rotation.marketing'),
+  operations: t('rotation.operaciones'),
+  strategy: t('rotation.estrategia'),
 };
 
 // Memoized history item card
 const HistoryCard = memo(function HistoryCard({ item }: { item: RoleHistory }) {
+  const { t } = useTranslation();
   const typeConfig = changeTypeConfig[item.change_type] || changeTypeConfig.assignment;
 
   return (
@@ -86,7 +88,7 @@ const HistoryCard = memo(function HistoryCard({ item }: { item: RoleHistory }) {
           {/* Performance score change */}
           {item.previous_performance_score !== null && (
             <div className="text-right">
-              <p className="text-xs text-muted-foreground">Score anterior</p>
+              <p className="text-xs text-muted-foreground">{t('rotation.scoreAnterior')}</p>
               <p className="font-medium">{item.previous_performance_score?.toFixed(0)}%</p>
             </div>
           )}
@@ -95,7 +97,7 @@ const HistoryCard = memo(function HistoryCard({ item }: { item: RoleHistory }) {
           <div className="text-right text-sm text-muted-foreground">
             {formatDistanceToNow(new Date(item.created_at), {
               addSuffix: true,
-              locale: es
+              locale: getDateFnsLocale()
             })}
           </div>
         </div>
@@ -122,10 +124,8 @@ export function RoleHistoryList({ history }: RoleHistoryListProps) {
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <History className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-lg font-medium mb-2">Sin historial de cambios</p>
-          <p className="text-muted-foreground text-center max-w-md">
-            Los cambios de rol se registrarán aquí automáticamente.
-          </p>
+          <p className="text-lg font-medium mb-2">{t('rotation.sinHistorialDeCambios')}</p>
+          <p className="text-muted-foreground text-center max-w-md">{t('rotation.losCambiosDeRol')}</p>
         </CardContent>
       </Card>
     );
@@ -136,7 +136,7 @@ export function RoleHistoryList({ history }: RoleHistoryListProps) {
       {Object.entries(groupedHistory).map(([date, items]) => (
         <div key={date} className="space-y-3">
           <h4 className="text-sm font-medium text-muted-foreground sticky top-0 bg-background py-2">
-            {format(new Date(date), "d 'de' MMMM, yyyy", { locale: es })}
+            {format(new Date(date), "d 'de' MMMM, yyyy", { locale: getDateFnsLocale() })}
           </h4>
 
           <div className="space-y-2">

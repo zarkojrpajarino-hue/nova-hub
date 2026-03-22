@@ -5,6 +5,7 @@
  * Usa datos de project_phase_history, decision_events, strategic_cycles.
  */
 
+import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { CheckCircle2, ArrowRight, Flag, Sparkles, Calendar, Loader2 } from 'lucide-react';
@@ -19,7 +20,7 @@ interface TimelineEvent {
   icon: 'phase' | 'decision' | 'cycle' | 'milestone';
 }
 
-function useProjectTimeline(projectId: string | undefined) {
+function useProjectTimeline(projectId: string | undefined, t: (key: string) => string) {
   return useQuery({
     queryKey: ['project-timeline', projectId],
     queryFn: async (): Promise<TimelineEvent[]> => {
@@ -49,10 +50,7 @@ function useProjectTimeline(projectId: string | undefined) {
 
       // Phase changes
       for (const ph of phaseResult.data ?? []) {
-        const reason = ph.change_reason === 'threshold_met' ? 'Avance'
-          : ph.change_reason === 'regression' ? 'Regresión'
-          : ph.change_reason === 'onboarding_fast_track' ? 'Fast-track'
-          : ph.change_reason;
+        const reason = ph.change_reason === 'threshold_met' ? 'advance': ph.change_reason === 'regression' ? 'regression': ph.change_reason === 'onboarding_fast_track' ? 'fastTrack': ph.change_reason;
         events.push({
           id: ph.id,
           type: 'phase_change',
@@ -80,7 +78,7 @@ function useProjectTimeline(projectId: string | undefined) {
         events.push({
           id: c.id,
           type: 'cycle',
-          title: `Ciclo ${c.cycle_index}: ${c.title ?? 'Sin título'}`,
+          title: `Ciclo ${c.cycle_index}: ${c.title ?? t('project.sinTítulo')}`,
           description: `${c.status} — Score: ${Math.round(c.cycle_score)}%`,
           date: c.start_date,
           icon: 'cycle',
@@ -116,7 +114,8 @@ interface ProjectTimelineProps {
 }
 
 export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
-  const { data: events, isLoading } = useProjectTimeline(projectId);
+  const { t } = useTranslation();
+  const { data: events, isLoading } = useProjectTimeline(projectId, t);
 
   if (isLoading) {
     return (
@@ -130,14 +129,14 @@ export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
     return (
       <div className="text-center py-8 text-sm text-muted-foreground">
         <Calendar className="h-8 w-8 mx-auto mb-2 text-muted-foreground/50" />
-        No hay eventos en el timeline aún.
+        {t('timeline.empty')}
       </div>
     );
   }
 
   return (
     <div className="space-y-3">
-      <h3 className="text-sm font-semibold">Timeline del proyecto</h3>
+      <h3 className="text-sm font-semibold">{t('timeline.title')}</h3>
       <div className="relative">
         {/* Vertical line */}
         <div className="absolute left-4 top-2 bottom-2 w-px bg-border" />

@@ -24,11 +24,13 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Badge } from '@/components/ui/badge';
 import { GenerativeOnboardingPreviewModal } from '@/components/preview/GenerativeOnboardingPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectsViewProps {
   onNewOBV?: () => void;
 }
 
 export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
+  const { t } = useTranslation();
   const _navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('projects');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -77,8 +79,8 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
   return (
     <>
       <NovaHeader
-        title="Proyectos"
-        subtitle="Punto de inicio de tu startup. Crea, valida y escala tu idea."
+        title={t('projects.proyectos')}
+        subtitle={t('projects.puntoDeInicioDe')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -86,35 +88,35 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
       <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Proyectos es el corazón de Nova Hub donde defines tu startup"
-          whatIsIt="Aquí creas tu proyecto/startup y generas TODOS los recursos necesarios: branding, productos, estrategia de validación, y más. Todo generado con IA en minutos."
+          title={t('projects.cómoFunciona')}
+          description={t('projects.proyectosEsElCorazón')}
+          whatIsIt={t('projects.aquíCreasTuProyectostartup')}
           onViewPreview={() => setShowPreviewModal(true)}
           dataOutputs={[
             {
-              to: 'Validaciones',
+              to: t('projects.validaciones'),
               items: [
-                'Experimentos Lean Startup sugeridos',
-                'Hipótesis a testear',
-                'Criterios de éxito',
+                t('projects.experimentosLeanStartupSugeridos'),
+                t('projects.hipótesisATestear'),
+                t('projects.criteriosDeÉxito'),
               ],
             },
             {
-              to: 'CRM Global',
+              to: t('projects.crmGlobal'),
               items: [
                 'Buyer Personas (cliente ideal)',
                 'Value Propositions (por qué comprar)',
-                'Battle cards vs competidores',
+                t('projects.battleCardsVsCompetidores'),
               ],
             },
             {
-              to: 'Financiero',
-              items: ['Productos con pricing', 'Modelo de monetización', 'Revenue forecast'],
+              to: t('projects.financiero'),
+              items: [t('projects.productosConPricing'), t('projects.modeloDeMonetización'), t('projects.revenueForecast')],
             },
           ]}
           nextStep={{
-            action: 'Una vez creado tu proyecto',
-            destination: 'Ve a VALIDACIONES para testear tu idea con clientes reales',
+            action: t('projects.unaVezCreadoTu'),
+            destination: t('projects.veAValidacionesPara'),
           }}
           defaultExpanded={projects.length === 0}
         />
@@ -134,14 +136,10 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
             <TabsTrigger value="ai" className="gap-2">
               <Sparkles className="h-4 w-4" />
               Crear con IA
-              <Badge variant="default" className="ml-1 bg-gradient-to-r from-primary to-purple-500">
-                Nuevo
-              </Badge>
+              <Badge variant="default" className="ml-1 bg-gradient-to-r from-primary to-purple-500">{t('projects.nuevo')}</Badge>
             </TabsTrigger>
             <TabsTrigger value="manual" className="gap-2">
-              <Plus className="h-4 w-4" />
-              Crear Manual
-            </TabsTrigger>
+              <Plus className="h-4 w-4" />{t('projects.crearManual')}</TabsTrigger>
           </TabsList>
 
           {/* Tab 1: Mis Proyectos */}
@@ -150,13 +148,13 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
               <div>
                 <h3 className="text-lg font-semibold">
                   {projects.length === 0
-                    ? 'Aún no tienes proyectos'
-                    : `${projects.length} ${projects.length === 1 ? 'Proyecto' : 'Proyectos'}`}
+                    ? t('projects.aúnNoTienesProyectos')
+                    : `${projects.length} ${projects.length === 1 ? Proyecto : Proyectos}`}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {projects.length === 0
                     ? 'Crea tu primer proyecto con IA en el tab "Crear con IA"'
-                    : 'Click en un proyecto para ver detalles y métricas'}
+                    : t('projects.clickEnUnProyecto')}
                 </p>
               </div>
               <div className="flex items-center gap-3">
@@ -167,15 +165,15 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
             {projects.length === 0 ? (
               <EmptyState
                 icon={Rocket}
-                title="¡Comienza tu viaje emprendedor!"
-                description="Crea tu primer proyecto con IA. En menos de 10 minutos tendrás: branding completo, productos con pricing, buyer personas, y website deployado."
+                title={t('projects.comienzaTuViajeEmprendedor')}
+                description={t('projects.creaTuPrimerProyecto')}
                 action={{
                   label: 'Crear con IA',
                   onClick: () => setActiveTab('ai'),
                   variant: 'default',
                 }}
                 secondaryAction={{
-                  label: 'Crear manual',
+                  label: t('projects.crearManual0'),
                   onClick: () => setActiveTab('manual'),
                 }}
                 variant="card"
@@ -210,20 +208,18 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
           <TabsContent value="manual" className="mt-6 space-y-6">
             <div className="max-w-2xl mx-auto">
               <div className="text-center mb-6">
-                <h3 className="text-lg font-semibold mb-2">Crear Proyecto Manual</h3>
-                <p className="text-sm text-muted-foreground">
-                  Define tu proyecto paso a paso con el formulario tradicional
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('projects.crearProyectoManual')}</h3>
+                <p className="text-sm text-muted-foreground">{t('projects.defineTuProyectoPaso')}</p>
               </div>
 
               <CreateProjectDialog
                 trigger={
                   <EmptyState
                     icon={Plus}
-                    title="Formulario de Creación Manual"
-                    description="Si prefieres definir tu proyecto manualmente sin usar IA, usa este formulario. Podrás añadir: nombre, descripción, industria, target customer, etc."
+                    title={t('projects.formularioDeCreaciónManual')}
+                    description={t('projects.siPrefieresDefinirTu')}
                     action={{
-                      label: 'Abrir Formulario',
+                      label: t('projects.abrirFormulario'),
                       onClick: () => {},
                       variant: 'outline',
                     }}
@@ -240,9 +236,7 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
                 <div className="flex items-start gap-3">
                   <Sparkles className="h-5 w-5 text-blue-500 flex-shrink-0 mt-0.5" />
                   <div>
-                    <h4 className="font-semibold text-sm text-blue-600 mb-1">
-                      ¿Por qué usar IA en lugar de manual?
-                    </h4>
+                    <h4 className="font-semibold text-sm text-blue-600 mb-1">{t('projects.porQuéUsarIa')}</h4>
                     <ul className="text-xs text-muted-foreground space-y-1">
                       <li>• Genera branding completo en 2 minutos (logo, colores, tipografía)</li>
                       <li>• Crea 5 productos con pricing estratégico</li>
@@ -251,9 +245,7 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
                       <li>• Sugiere experimentos de validación</li>
                       <li>• Deploya website automáticamente</li>
                     </ul>
-                    <p className="text-xs mt-2 text-blue-600 font-semibold">
-                      Todo lo anterior te tomaría semanas hacerlo manual. Con IA: 10 minutos.
-                    </p>
+                    <p className="text-xs mt-2 text-blue-600 font-semibold">{t('projects.todoLoAnteriorTe')}</p>
                   </div>
                 </div>
               </div>

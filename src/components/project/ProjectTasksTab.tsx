@@ -7,6 +7,7 @@ import { KanbanBoard } from '@/components/tasks/KanbanBoard';
 import { AITaskGenerator } from '@/components/tasks/AITaskGenerator';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectTasksTabProps {
   projectId: string;
   project?: {
@@ -19,6 +20,7 @@ interface ProjectTasksTabProps {
 }
 
 function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) {
+  const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
   const { data: engineData } = useProjectEngineData(projectId);
 
@@ -77,7 +79,7 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
     const profile = profiles.find(p => p.id === pm.member_id);
     return {
       id: pm.member_id,
-      nombre: profile?.nombre || 'Desconocido',
+      nombre: profile?.nombre || t('project.desconocido'),
       color: profile?.color || '#6366F1',
       role: pm.role,
     };
@@ -118,7 +120,7 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
     <div className="space-y-6 animate-fade-in">
       {/* Header with AI button */}
       <div className="flex items-center justify-between">
-        <h3 className="font-semibold">Tareas del Proyecto</h3>
+        <h3 className="font-semibold">{t('project.tareasDelProyecto')}</h3>
         {aiProjectContext && (
           <AITaskGenerator project={aiProjectContext} />
         )}

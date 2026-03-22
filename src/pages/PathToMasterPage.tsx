@@ -32,7 +32,9 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { CaminoMasterPreviewModal } from '@/components/preview/CaminoMasterPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 export function PathToMasterPage() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { goBack, canGoBack } = useNavigation();
   const [activeExploration, setActiveExploration] = useState<Record<string, unknown> | null>(null);
@@ -71,7 +73,7 @@ export function PathToMasterPage() {
 
       if (!member) return;
 
-      // Cargar exploración activa "Camino a Master"
+      // Cargar exploración activa t('pathToMaster.caminoAMaster0')
       const { data: exploration } = await supabase
         .from('path_to_master_active')
         .select('*')
@@ -127,7 +129,7 @@ export function PathToMasterPage() {
   };
 
   if (loading) {
-    return <div className="p-6">Cargando...</div>;
+    return <div className="p-6">{t('pathToMaster.cargando')}</div>;
   }
 
   return (
@@ -145,72 +147,70 @@ export function PathToMasterPage() {
           </div>
           <div>
             <h1 className="text-4xl font-bold">🚀 Camino a Master</h1>
-            <p className="text-muted-foreground">
-              Domina cualquier rol, desafía al Master actual y gana tu badge
-            </p>
+            <p className="text-muted-foreground">{t('pathToMaster.dominaCualquierRolDesafía')}</p>
           </div>
         </div>
       </div>
 
       {/* How it works */}
       <HowItWorks
-        title="Cómo funciona"
-        description="Sistema de maestría en roles con competencia meritocrática"
-        whatIsIt="Programa avanzado donde puedes convertirte en MASTER de cualquier rol (CEO, CTO, CMO, etc.) después de completar Exploración de Roles. Requiere cumplir 6 requisitos objetivos (Fit Score 4.2+, 4+ semanas experiencia, Top 3 ranking, 80%+ tareas a tiempo, 3+ feedback positivos, 2+ OBVs validados). Una vez cumplidos, desafías al Master actual en una competencia pública de 1-3 semanas."
+        title={t('pathToMaster.cómoFunciona1')}
+        description={t('pathToMaster.sistemaDeMaestríaEn')}
+        whatIsIt={t('pathToMaster.programaAvanzadoDondePuedes')}
         dataInputs={[
           {
-            from: 'Exploración de Roles',
+            from: t('pathToMaster.exploraciónDeRoles'),
             items: [
-              'Tu Fit Score promedio en el rol que quieres masterizar',
-              'Semanas acumuladas explorando ese rol',
-              'Ranking actual en el leaderboard del rol',
+              t('pathToMaster.tuFitScorePromedio'),
+              t('pathToMaster.semanasAcumuladasExplorandoEse'),
+              t('pathToMaster.rankingActualEnEl'),
             ],
           },
           {
-            from: 'Proyectos',
+            from: t('pathToMaster.proyectos'),
             items: [
               'Tareas completadas a tiempo (% de cumplimiento)',
-              'OBVs validadas relacionadas con el rol',
-              'Performance en proyectos con ese rol',
+              t('pathToMaster.obvsValidadasRelacionadasCon'),
+              t('pathToMaster.performanceEnProyectosCon'),
             ],
           },
           {
             from: 'Equipo (Peer Feedback)',
             items: [
-              'Feedback positivos recibidos del equipo',
-              'Validación de soft skills por peers',
+              t('pathToMaster.feedbackPositivosRecibidosDel'),
+              t('pathToMaster.validaciónDeSoftSkills'),
             ],
           },
         ]}
         dataOutputs={[
           {
-            to: 'Badge de Master',
+            to: t('pathToMaster.badgeDeMaster'),
             items: [
               'Si ganas el desafío, recibes badge público de "Master of [Rol]"',
-              'Apareces en Rankings como Master actual',
-              'Tu nombre aparece en Masters Hall of Fame',
+              t('pathToMaster.aparecesEnRankingsComo'),
+              t('pathToMaster.tuNombreApareceEn'),
             ],
           },
           {
-            to: 'Mi Desarrollo',
+            to: t('pathToMaster.miDesarrollo'),
             items: [
-              'Master Role se convierte en tu rol destacado',
-              'Playbooks avanzados de Master disponibles',
-              'Insights IA específicos para mantener/mejorar maestría',
+              t('pathToMaster.masterRoleSeConvierte'),
+              t('pathToMaster.playbooksAvanzadosDeMaster'),
+              t('pathToMaster.insightsIaEspecíficosPara'),
             ],
           },
           {
-            to: 'Oportunidades',
+            to: t('pathToMaster.oportunidades'),
             items: [
-              'Prioridad en proyectos que necesiten ese rol',
-              'Posibilidad de mentorear a otros en ese rol',
-              'Credibilidad profesional validada objetivamente',
+              t('pathToMaster.prioridadEnProyectosQue'),
+              t('pathToMaster.posibilidadDeMentorearA'),
+              t('pathToMaster.credibilidadProfesionalValidadaObjetivamente'),
             ],
           },
         ]}
         nextStep={{
-          action: 'Completa exploración → Cumple 6 requisitos → Desafía Master → Gana competencia',
-          destination: 'Ve a Mi Progreso para ver requisitos, Desafíos para lanzar challenge',
+          action: t('pathToMaster.completaExploraciónCumple6'),
+          destination: t('pathToMaster.veAMiProgreso'),
         }}
         onViewPreview={() => setShowPreviewModal(true)}
       />
@@ -218,21 +218,13 @@ export function PathToMasterPage() {
       <Tabs defaultValue={activeExploration ? 'mi-progreso' : 'que-es'} className="space-y-6">
         <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="que-es" className="gap-2">
-            <BookOpen size={16} />
-            ¿Qué es?
-          </TabsTrigger>
+            <BookOpen size={16} />{t('pathToMaster.quéEs')}</TabsTrigger>
           <TabsTrigger value="mi-progreso" className="gap-2">
-            <Target size={16} />
-            Mi Progreso
-          </TabsTrigger>
+            <Target size={16} />{t('pathToMaster.miProgreso')}</TabsTrigger>
           <TabsTrigger value="explorar" className="gap-2">
-            <Rocket size={16} />
-            Explorar Rol
-          </TabsTrigger>
+            <Rocket size={16} />{t('pathToMaster.explorarRol')}</TabsTrigger>
           <TabsTrigger value="desafios" className="gap-2">
-            <Trophy size={16} />
-            Desafíos
-          </TabsTrigger>
+            <Trophy size={16} />{t('pathToMaster.desafíos')}</TabsTrigger>
           <TabsTrigger value="faq" className="gap-2">
             <HelpCircle size={16} />
             FAQ
@@ -243,11 +235,11 @@ export function PathToMasterPage() {
         <TabsContent value="que-es" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>📖 ¿Qué es "Camino a Master"?</CardTitle>
+              <CardTitle>📖 ¿Qué es t('pathToMaster.caminoAMaster0')?</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <p className="text-base">
-                <strong>Camino a Master</strong> es un sistema que te permite{' '}
+                <strong>{t('pathToMaster.caminoAMaster')}</strong> es un sistema que te permite{' '}
                 <strong>explorar y dominar CUALQUIER rol</strong> de la empresa, incluso si
                 ya tienes roles asignados en Fase 3.
               </p>
@@ -265,7 +257,7 @@ export function PathToMasterPage() {
                 </ul>
               </div>
 
-              <h4 className="font-semibold text-lg mt-6">¿Cómo funciona?</h4>
+              <h4 className="font-semibold text-lg mt-6">{t('pathToMaster.cómoFunciona')}</h4>
 
               <div className="space-y-4">
                 {/* Paso 1 */}
@@ -274,7 +266,7 @@ export function PathToMasterPage() {
                     1
                   </div>
                   <div className="flex-1">
-                    <h5 className="font-semibold">Selecciona un Rol</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.seleccionaUnRol')}</h5>
                     <p className="text-muted-foreground text-sm">
                       Elige cualquier rol que quieras aprender (Sales, Finance, AI Tech,
                       Marketing, etc.)
@@ -316,7 +308,7 @@ export function PathToMasterPage() {
                     4
                   </div>
                   <div className="flex-1">
-                    <h5 className="font-semibold">Desafía al Master</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.desafíaAlMaster')}</h5>
                     <p className="text-muted-foreground text-sm">
                       Si cumples TODOS los requisitos, puedes desafiar al Master actual del
                       rol en una competencia directa.
@@ -340,55 +332,55 @@ export function PathToMasterPage() {
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
                     <TrendingUp size={18} className="text-primary" />
-                    <h5 className="font-semibold">Fit Score</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.fitScore')}</h5>
                   </div>
                   <p className="text-2xl font-bold">4.2+</p>
-                  <p className="text-xs text-muted-foreground">Promedio de tus exploraciones</p>
+                  <p className="text-xs text-muted-foreground">{t('pathToMaster.promedioDeTusExploraciones')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
                     <Clock size={18} className="text-primary" />
-                    <h5 className="font-semibold">Experiencia</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.experiencia')}</h5>
                   </div>
                   <p className="text-2xl font-bold">4+ semanas</p>
-                  <p className="text-xs text-muted-foreground">Mínimo en el rol</p>
+                  <p className="text-xs text-muted-foreground">{t('pathToMaster.mínimoEnElRol')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
                     <Trophy size={18} className="text-primary" />
-                    <h5 className="font-semibold">Ranking</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.ranking')}</h5>
                   </div>
                   <p className="text-2xl font-bold">Top 3</p>
-                  <p className="text-xs text-muted-foreground">Del leaderboard</p>
+                  <p className="text-xs text-muted-foreground">{t('pathToMaster.delLeaderboard')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
                     <Target size={18} className="text-primary" />
-                    <h5 className="font-semibold">Tareas a Tiempo</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.tareasATiempo')}</h5>
                   </div>
                   <p className="text-2xl font-bold">80%+</p>
-                  <p className="text-xs text-muted-foreground">Consistencia en entregas</p>
+                  <p className="text-xs text-muted-foreground">{t('pathToMaster.consistenciaEnEntregas')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
                     <Users size={18} className="text-primary" />
-                    <h5 className="font-semibold">Feedback</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.feedback')}</h5>
                   </div>
                   <p className="text-2xl font-bold">3+ positivos</p>
-                  <p className="text-xs text-muted-foreground">Validación del equipo</p>
+                  <p className="text-xs text-muted-foreground">{t('pathToMaster.validaciónDelEquipo')}</p>
                 </div>
 
                 <div className="p-4 rounded-lg bg-muted/50">
                   <div className="flex items-center gap-2 mb-2">
                     <Zap size={18} className="text-primary" />
-                    <h5 className="font-semibold">OBVs</h5>
+                    <h5 className="font-semibold">{t('pathToMaster.obvs')}</h5>
                   </div>
                   <p className="text-2xl font-bold">2+ validados</p>
-                  <p className="text-xs text-muted-foreground">Objetivos completados</p>
+                  <p className="text-xs text-muted-foreground">{t('pathToMaster.objetivosCompletados')}</p>
                 </div>
               </div>
             </CardContent>
@@ -402,9 +394,7 @@ export function PathToMasterPage() {
             <CardContent className="space-y-4">
               <div className="p-4 rounded-lg border-2">
                 <h5 className="font-bold mb-2">1️⃣ Performance Battle (2 semanas)</h5>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Competencia directa en métricas objetivas: tasks, OBVs, feedback, etc.
-                </p>
+                <p className="text-sm text-muted-foreground mb-2">{t('pathToMaster.competenciaDirectaEnMétricas')}</p>
                 <p className="text-sm">
                   <strong>Ganador:</strong> Quien tenga mayor puntuación (fórmula
                   transparente)
@@ -413,19 +403,14 @@ export function PathToMasterPage() {
 
               <div className="p-4 rounded-lg border-2">
                 <h5 className="font-bold mb-2">2️⃣ Project Showdown (3 semanas)</h5>
-                <p className="text-sm text-muted-foreground mb-2">
-                  Ambos lideran un proyecto y el equipo vota por el mejor
-                </p>
+                <p className="text-sm text-muted-foreground mb-2">{t('pathToMaster.ambosLideranUnProyecto')}</p>
                 <p className="text-sm">
-                  <strong>Ganador:</strong> Quien tenga mayor % de votos del equipo
-                </p>
+                  <strong>Ganador:</strong>{t('pathToMaster.quienTengaMayorDe')}</p>
               </div>
 
               <div className="p-4 rounded-lg border-2">
                 <h5 className="font-bold mb-2">3️⃣ Peer Vote (1 semana)</h5>
-                <p className="text-sm text-muted-foreground mb-2">
-                  El equipo vota directamente sin competencia activa
-                </p>
+                <p className="text-sm text-muted-foreground mb-2">{t('pathToMaster.elEquipoVotaDirectamente')}</p>
                 <p className="text-sm">
                   <strong>Ganador:</strong> Master necesita 51%, Retador necesita 60%
                 </p>
@@ -450,17 +435,15 @@ export function PathToMasterPage() {
               totalTasks={(activeExploration.tasks_completed || 0) + 2}
               positiveFeedback={5}
               obvsValidated={activeExploration.obvs_validated || 0}
-              masterName="Pedro"
+              masterName={t('pathToMaster.pedro')}
               masterFitScore={4.7}
             />
           ) : (
             <Card className="border-dashed">
               <CardContent className="p-12 text-center">
                 <Rocket size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground mb-4">
-                  No tienes ninguna exploración activa
-                </p>
-                <Button onClick={() => {}}>Comenzar Exploración</Button>
+                <p className="text-muted-foreground mb-4">{t('pathToMaster.noTienesNingunaExploración')}</p>
+                <Button onClick={() => {}}>{t('pathToMaster.comenzarExploración')}</Button>
               </CardContent>
             </Card>
           )}
@@ -484,7 +467,7 @@ export function PathToMasterPage() {
               {/* Selector de Rol */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Selecciona un rol para ver requisitos de desafío</CardTitle>
+                  <CardTitle>{t('pathToMaster.seleccionaUnRolPara')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex gap-2 flex-wrap">
@@ -514,9 +497,7 @@ export function PathToMasterPage() {
               <Card className="border-dashed">
                 <CardContent className="p-12 text-center">
                   <Trophy size={48} className="mx-auto text-muted-foreground mb-4" />
-                  <p className="text-muted-foreground">
-                    Sistema de desafíos temporalmente deshabilitado mientras se arregla un error
-                  </p>
+                  <p className="text-muted-foreground">{t('pathToMaster.sistemaDeDesafíosTemporalmente')}</p>
                 </CardContent>
               </Card>
             </>
@@ -527,32 +508,32 @@ export function PathToMasterPage() {
         <TabsContent value="faq" className="space-y-4">
           {[
             {
-              q: '¿Puedo explorar varios roles a la vez?',
-              a: 'No, solo puedes tener UNA exploración "Camino a Master" activa a la vez. Termina la actual antes de empezar otra.',
+              q: t('pathToMaster.puedoExplorarVariosRoles'),
+              a: 'No, solo puedes tener UNA exploración Camino a Master activa a la vez. Termina la actual antes de empezar otra.',
             },
             {
-              q: '¿Qué pasa si no cumplo los requisitos a tiempo?',
-              a: 'Puedes extender la exploración 1-2 semanas más, o simplemente intentarlo de nuevo más adelante. No hay penalización.',
+              q: t('pathToMaster.quéPasaSiNo'),
+              a: t('pathToMaster.puedesExtenderLaExploración'),
             },
             {
-              q: '¿Puedo desafiar al mismo Master varias veces?',
+              q: t('pathToMaster.puedoDesafiarAlMismo'),
               a: 'Sí, pero el Master tiene un "cooldown" de 3 meses entre desafíos. Si lo desafiaste hace 2 meses, debes esperar 1 mes más.',
             },
             {
-              q: '¿Qué pasa si gano el desafío?',
+              q: t('pathToMaster.quéPasaSiGano'),
               a: 'Te conviertes en el nuevo Master del rol, ganas un badge especial, y ese rol puede convertirse en tu "rol estrella" si quieres.',
             },
             {
-              q: '¿Qué pasa si pierdo el desafío?',
-              a: 'Nada malo. Puedes intentarlo de nuevo después del cooldown. No pierdes tu fit score ni tu progreso.',
+              q: t('pathToMaster.quéPasaSiPierdo'),
+              a: t('pathToMaster.nadaMaloPuedesIntentarlo'),
             },
             {
-              q: '¿Los requisitos son negociables?',
-              a: 'No. Son objetivos y públicos para mantener la meritocracia. TODOS deben cumplir los mismos requisitos.',
+              q: t('pathToMaster.losRequisitosSonNegociables'),
+              a: t('pathToMaster.noSonObjetivosY'),
             },
             {
-              q: '¿Puedo ver el progreso de otros?',
-              a: 'Sí, todo es público y transparente. Puedes ver el fit score, ranking y progreso de cualquier persona.',
+              q: t('pathToMaster.puedoVerElProgreso'),
+              a: t('pathToMaster.síTodoEsPúblico'),
             },
           ].map((faq, idx) => (
             <Card key={idx}>

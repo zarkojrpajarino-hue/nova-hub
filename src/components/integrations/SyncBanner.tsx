@@ -9,6 +9,7 @@ import { X, TrendingUp, TrendingDown, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { computeEngineDelta, type EngineSnapshot, type EngineDeltaItem } from '@/lib/engine-delta'
 
+import { useTranslation } from 'react-i18next';
 interface SyncBannerProps {
   pre: EngineSnapshot | null
   post: EngineSnapshot
@@ -16,6 +17,7 @@ interface SyncBannerProps {
 }
 
 function DirectionArrow({ item }: { item: EngineDeltaItem }) {
+  const { t } = useTranslation();
   if (item.direction === 'new') {
     return <Sparkles size={14} className="text-blue-500" />
   }
@@ -36,15 +38,13 @@ export function SyncBanner({ pre, post, onDismiss }: SyncBannerProps) {
   return (
     <div className="rounded-lg bg-muted/30 border border-border p-4 space-y-3">
       <div className="flex items-start justify-between gap-2">
-        <p className="text-sm font-medium">
-          Sync completado — Optimus recalculó tu evaluación
-        </p>
+        <p className="text-sm font-medium">{t('integrations.syncCompletadoOptimusRecalculó')}</p>
         <Button
           variant="ghost"
           size="icon"
           className="h-6 w-6 shrink-0"
           onClick={onDismiss}
-          aria-label="Cerrar"
+          aria-label={t('integrations.cerrar')}
         >
           <X size={14} />
         </Button>

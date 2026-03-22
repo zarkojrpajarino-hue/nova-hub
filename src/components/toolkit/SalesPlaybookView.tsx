@@ -7,6 +7,7 @@ import { ChevronDown, ChevronRight, Copy, Check } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface Paso {
   numero: number;
   nombre: string;
@@ -28,6 +29,7 @@ interface SalesPlaybookOutput {
 }
 
 export function SalesPlaybookView({ output }: { output: SalesPlaybookOutput }) {
+  const { t } = useTranslation();
   const [expandedPaso, setExpandedPaso] = useState<number | null>(0);
   const [copied, setCopied] = useState(false);
 
@@ -46,13 +48,13 @@ export function SalesPlaybookView({ output }: { output: SalesPlaybookOutput }) {
       <Card>
         <CardHeader className="pb-2">
           <div className="flex items-center justify-between">
-            <CardTitle className="text-sm">Proceso de venta</CardTitle>
+            <CardTitle className="text-sm">{t('toolkit.procesoDeVenta')}</CardTitle>
             <button
               onClick={handleCopy}
               className="flex items-center gap-1.5 text-xs text-gray-500 hover:text-gray-700 transition-colors"
             >
               {copied ? <Check className="h-3.5 w-3.5 text-green-500" /> : <Copy className="h-3.5 w-3.5" />}
-              {copied ? 'Copiado' : 'Copiar'}
+              {copied ? 'Copiado': t('toolkit.copiar')}
             </button>
           </div>
         </CardHeader>
@@ -92,7 +94,7 @@ export function SalesPlaybookView({ output }: { output: SalesPlaybookOutput }) {
       {output.objeciones?.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Objeciones y respuestas</CardTitle>
+            <CardTitle className="text-sm">{t('toolkit.objecionesYRespuestas')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {output.objeciones.map((obj, i) => (
@@ -108,7 +110,7 @@ export function SalesPlaybookView({ output }: { output: SalesPlaybookOutput }) {
       {/* Cierre */}
       <Card className="border-blue-200 bg-blue-50/50 dark:bg-blue-950/20">
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-blue-700 dark:text-blue-400">Momento de cierre</CardTitle>
+          <CardTitle className="text-sm text-blue-700 dark:text-blue-400">{t('toolkit.momentoDeCierre')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <p className="text-sm text-gray-700 dark:text-gray-300">{output.momento_cierre}</p>

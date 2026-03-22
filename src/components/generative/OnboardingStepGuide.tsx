@@ -8,6 +8,7 @@
 import { Check, Circle, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 type OnboardingType = 'sin_idea' | 'tengo_idea' | 'startup_funcionando';
 
 interface Step {
@@ -28,122 +29,122 @@ const STEPS_BY_TYPE: Record<OnboardingType, Step[]> = {
   sin_idea: [
     {
       id: 'sin-idea-situation',
-      label: 'Tu situación actual',
-      description: '¿Qué haces ahora?',
+      label: t('generative.tuSituaciónActual'),
+      description: t('generative.quéHacesAhora'),
     },
     {
       id: 'sin-idea-frustrations',
-      label: 'Tus frustraciones',
+      label: t('generative.tusFrustraciones'),
       description: '3-5 pain points',
     },
     {
       id: 'sin-idea-time',
-      label: 'Tiempo disponible',
-      description: 'Full-time o part-time',
+      label: t('generative.tiempoDisponible'),
+      description: t('generative.fulltimeOParttime'),
     },
     {
       id: 'sin-idea-capital',
-      label: 'Capital inicial',
-      description: '¿Cuánto puedes invertir?',
+      label: t('generative.capitalInicial'),
+      description: t('generative.cuántoPuedesInvertir'),
     },
     {
       id: 'sin-idea-type',
-      label: 'Tipo de negocio',
-      description: 'Producto, servicio, app...',
+      label: t('generative.tipoDeNegocio'),
+      description: t('generative.productoServicioApp'),
     },
     {
       id: 'ideas-list',
-      label: 'Seleccionar idea',
-      description: 'IA genera 5-10 ideas',
+      label: t('generative.seleccionarIdea'),
+      description: t('generative.iaGenera510Ideas'),
     },
     {
       id: 'generating-business',
       label: 'Generación IA',
-      description: 'Creando negocio completo',
+      description: t('generative.creandoNegocioCompleto'),
     },
     {
       id: 'preview-ready',
-      label: 'Revisar y aprobar',
-      description: 'Branding, productos, web',
+      label: t('generative.revisarYAprobar'),
+      description: t('generative.brandingProductosWeb'),
     },
   ],
   tengo_idea: [
     {
       id: 'tengo-idea-sentence',
-      label: 'Tu idea en 1 frase',
-      description: 'Describe tu proyecto',
+      label: t('generative.tuIdeaEn1'),
+      description: t('generative.describeTuProyecto'),
     },
     {
       id: 'tengo-idea-target',
-      label: 'Cliente objetivo',
-      description: 'Buyer persona',
+      label: t('generative.clienteObjetivo'),
+      description: t('generative.buyerPersona'),
     },
     {
       id: 'tengo-idea-monetization',
-      label: 'Monetización',
-      description: 'Modelo de negocio',
+      label: t('generative.monetización'),
+      description: t('generative.modeloDeNegocio'),
     },
     {
       id: 'tengo-idea-built',
-      label: 'Lo que has construido',
-      description: 'Web, prototipo, social',
+      label: t('generative.loQueHasConstruido'),
+      description: t('generative.webPrototipoSocial'),
     },
     {
       id: 'tengo-idea-competitors',
-      label: 'Competencia',
-      description: 'Análisis de mercado',
+      label: t('generative.competencia'),
+      description: t('generative.análisisDeMercado'),
     },
     {
       id: 'tengo-idea-resources',
-      label: 'Tus recursos',
-      description: 'Budget, tiempo, skills',
+      label: t('generative.tusRecursos'),
+      description: t('generative.budgetTiempoSkills'),
     },
     {
       id: 'generating-business',
       label: 'Generación IA',
-      description: 'Creando negocio completo',
+      description: t('generative.creandoNegocioCompleto'),
     },
     {
       id: 'preview-ready',
-      label: 'Revisar y aprobar',
-      description: 'Branding, productos, web',
+      label: t('generative.revisarYAprobar'),
+      description: t('generative.brandingProductosWeb'),
     },
   ],
   startup_funcionando: [
     {
       id: 'startup-web',
-      label: 'Web de tu startup',
+      label: t('generative.webDeTuStartup'),
       description: 'URL para análisis IA',
     },
     {
       id: 'startup-social',
-      label: 'Redes sociales',
-      description: 'Perfiles sociales',
+      label: t('generative.redesSociales'),
+      description: t('generative.perfilesSociales'),
     },
     {
       id: 'startup-tools',
-      label: 'Herramientas que usas',
-      description: 'Stack tecnológico',
+      label: t('generative.herramientasQueUsas'),
+      description: t('generative.stackTecnológico'),
     },
     {
       id: 'startup-metrics',
-      label: 'Métricas clave',
-      description: 'MRR, CAC, Churn...',
+      label: t('generative.métricasClave'),
+      description: t('generative.mrrCacChurn'),
     },
     {
       id: 'startup-challenge',
-      label: 'Desafío principal',
-      description: '¿Qué quieres mejorar?',
+      label: t('generative.desafíoPrincipal'),
+      description: t('generative.quéQuieresMejorar'),
     },
     {
       id: 'generating-business',
       label: 'Análisis IA',
-      description: 'Audit completo',
+      description: t('generative.auditCompleto'),
     },
     {
       id: 'preview-ready',
-      label: 'Plan de crecimiento',
-      description: 'Estrategia personalizada',
+      label: t('generative.planDeCrecimiento'),
+      description: t('generative.estrategiaPersonalizada'),
     },
   ],
 };
@@ -154,6 +155,7 @@ export function OnboardingStepGuide({
   completedSteps,
   className,
 }: OnboardingStepGuideProps) {
+  const { t } = useTranslation();
   const steps = STEPS_BY_TYPE[type];
 
   const getCurrentStepIndex = () => {
@@ -180,7 +182,7 @@ export function OnboardingStepGuide({
       <div className="mb-8">
         <div className="flex items-center gap-2 mb-2">
           <Sparkles className="h-5 w-5 text-primary" />
-          <h3 className="font-bold text-lg">Tu progreso</h3>
+          <h3 className="font-bold text-lg">{t('generative.tuProgreso')}</h3>
         </div>
         <p className="text-sm text-muted-foreground">
           {completedSteps.length} de {steps.length} pasos completados

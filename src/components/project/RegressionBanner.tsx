@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { TrendingDown, X, ChevronRight } from 'lucide-react';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export interface RegressionInfo {
@@ -53,12 +54,12 @@ export function deriveRegression(
 
 const COPY: Record<RegressionInfo['type'], { title: string; body: string }> = {
   phase_drop: {
-    title: 'El proyecto ha retrocedido de fase',
-    body:  'La fase actual se ha ajustado por falta de señales suficientes. Lo importante ahora es recuperar la base, no acelerar.',
+    title: t('project.elProyectoHaRetrocedido'),
+    body:  t('project.laFaseActualSe'),
   },
   score_drop: {
-    title: 'Se detectó una pérdida de tracción',
-    body:  'Algunas señales del proyecto se han debilitado. No implica fracaso, pero sí conviene corregir antes de seguir avanzando.',
+    title: t('project.seDetectóUnaPérdida'),
+    body:  t('project.algunasSeñalesDelProyecto'),
   },
 };
 
@@ -73,6 +74,7 @@ interface RegressionBannerProps {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function RegressionBanner({ engineData, projectId, onCTA }: RegressionBannerProps) {
+  const { t } = useTranslation();
   const regression = deriveRegression(engineData?.phaseHistory ?? []);
 
   const dKey = regression
@@ -107,15 +109,13 @@ export function RegressionBanner({ engineData, projectId, onCTA }: RegressionBan
           <button
             onClick={onCTA}
             className="mt-2 flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-          >
-            Ver qué recuperar
-            <ChevronRight className="h-3.5 w-3.5" />
+          >{t('project.verQuéRecuperar')}<ChevronRight className="h-3.5 w-3.5" />
           </button>
         )}
       </div>
       <button
         onClick={handleDismiss}
-        aria-label="Cerrar aviso de regresión"
+        aria-label={t('project.cerrarAvisoDeRegresión')}
         className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
       >
         <X className="h-4 w-4" />

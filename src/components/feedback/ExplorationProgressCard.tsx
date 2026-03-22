@@ -23,6 +23,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface ExplorationProgressCardProps {
   exploration: {
     id: string;
@@ -48,6 +49,7 @@ export function ExplorationProgressCard({
   onSelfEvaluate,
   onViewFeedback,
 }: ExplorationProgressCardProps) {
+  const { t } = useTranslation();
   const [daysRemaining, setDaysRemaining] = useState(0);
   const [hoursRemaining, setHoursRemaining] = useState(0);
   const [isExpired, setIsExpired] = useState(false);
@@ -100,9 +102,7 @@ export function ExplorationProgressCard({
               {exploration.role}
               {isCompeting && (
                 <Badge variant="secondary" className="bg-purple-500/10 text-purple-600">
-                  <Users size={12} className="mr-1" />
-                  En Competencia
-                </Badge>
+                  <Users size={12} className="mr-1" />{t('feedback.enCompetencia')}</Badge>
               )}
             </CardTitle>
             <CardDescription>{projectName}</CardDescription>
@@ -116,7 +116,7 @@ export function ExplorationProgressCard({
             <div className={cn('flex items-center gap-1 text-sm font-bold', urgencyColor)}>
               <Clock size={14} />
               {isExpired ? (
-                <span>Finalizado</span>
+                <span>{t('feedback.finalizado')}</span>
               ) : daysRemaining === 0 ? (
                 <span>{hoursRemaining}h</span>
               ) : (
@@ -124,7 +124,7 @@ export function ExplorationProgressCard({
               )}
             </div>
             <span className="text-xs text-muted-foreground">
-              {isExpired ? 'Requiere evaluación' : 'restantes'}
+              {isExpired ? t('feedback.requiereEvaluación') : 'restantes'}
             </span>
           </div>
         </div>
@@ -136,7 +136,7 @@ export function ExplorationProgressCard({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <CheckCircle2 size={16} />
-              <span>Tareas</span>
+              <span>{t('feedback.tareas')}</span>
             </div>
             <p className="text-2xl font-bold">{exploration.tasks_completed}</p>
           </div>
@@ -144,7 +144,7 @@ export function ExplorationProgressCard({
           <div className="space-y-2">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Target size={16} />
-              <span>OBVs</span>
+              <span>{t('feedback.obvs')}</span>
             </div>
             <p className="text-2xl font-bold">{exploration.obvs_completed}</p>
           </div>
@@ -156,7 +156,7 @@ export function ExplorationProgressCard({
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm font-medium">
                 <TrendingUp size={16} className="text-primary" />
-                <span>Fit Score Actual</span>
+                <span>{t('feedback.fitScoreActual')}</span>
               </div>
               <span className="text-2xl font-bold text-primary">
                 {exploration.fit_score.toFixed(1)}
@@ -177,7 +177,7 @@ export function ExplorationProgressCard({
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
               <Users size={16} className={hasMinimalFeedback ? 'text-yellow-600' : 'text-green-600'} />
-              <span className="text-sm font-medium">Feedback Recibido</span>
+              <span className="text-sm font-medium">{t('feedback.feedbackRecibido')}</span>
             </div>
             <Badge variant={hasMinimalFeedback ? 'secondary' : 'default'}>
               {exploration.peer_feedback_count} evaluaciones
@@ -196,8 +196,8 @@ export function ExplorationProgressCard({
           <div className="flex items-start gap-2 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
             <AlertTriangle size={16} className="text-yellow-600 mt-0.5" />
             <div className="flex-1 text-sm">
-              <p className="font-medium text-yellow-600">Acción requerida</p>
-              <p className="text-muted-foreground">Completa tu auto-evaluación para finalizar el período</p>
+              <p className="font-medium text-yellow-600">{t('feedback.acciónRequerida')}</p>
+              <p className="text-muted-foreground">{t('feedback.completaTuAutoevaluaciónPara')}</p>
             </div>
           </div>
         )}
@@ -205,9 +205,7 @@ export function ExplorationProgressCard({
         {/* Actions */}
         <div className="flex gap-2">
           {needsSelfEval && onSelfEvaluate && (
-            <Button onClick={onSelfEvaluate} className="flex-1" size="sm">
-              Completar Auto-Evaluación
-            </Button>
+            <Button onClick={onSelfEvaluate} className="flex-1" size="sm">{t('feedback.completarAutoevaluación')}</Button>
           )}
 
           {onViewFeedback && exploration.peer_feedback_count > 0 && (

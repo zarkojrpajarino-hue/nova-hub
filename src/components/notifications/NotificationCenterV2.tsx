@@ -3,7 +3,7 @@
  *
  * Cambios vs versión anterior:
  * - G9.1: unread count correcto (read=false + archived=false)
- * - G9.2: paginación con "Cargar más"
+ * - G9.2: paginación con t('notifications.cargarMás0')
  * - Filtros simplificados: 4 tabs (Todas / Sin leer / Actividad / Sistema)
  * - Prioridad visual mejorada: borde izquierdo de color + badge
  * - Empty state descriptivo
@@ -37,8 +37,9 @@ import type {
 import { NOTIFICATION_CONFIG, PRIORITY_CONFIG } from '@/types/notifications';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 // ── Tipos de actividad vs sistema ────────────────────────────────────────────
 
 const ACTIVITY_TYPES = new Set([
@@ -62,10 +63,10 @@ const SYSTEM_TYPES = new Set([
 type FilterTab = 'all' | 'unread' | 'activity' | 'system';
 
 const FILTER_TABS: { id: FilterTab; label: string }[] = [
-  { id: 'all',      label: 'Todas'      },
-  { id: 'unread',   label: 'Sin leer'   },
-  { id: 'activity', label: 'Actividad'  },
-  { id: 'system',   label: 'Sistema'    },
+  { id: 'all',      label: t('notifications.todas')      },
+  { id: 'unread',   label: t('notifications.sinLeer')   },
+  { id: 'activity', label: t('notifications.actividad')  },
+  { id: 'system',   label: t('notifications.sistema')    },
 ];
 
 function tabToFilters(tab: FilterTab): NotificationFilters {
@@ -95,6 +96,7 @@ interface NotificationItemProps {
 }
 
 function NotificationItem({ notification, onRead, onArchive }: NotificationItemProps) {
+  const { t } = useTranslation();
   const config         = NOTIFICATION_CONFIG[notification.type] ?? NOTIFICATION_CONFIG['welcome'];
   const priorityConfig = PRIORITY_CONFIG[notification.priority];
   const borderClass    = PRIORITY_BORDER[notification.priority] ?? PRIORITY_BORDER.medium;
@@ -151,7 +153,7 @@ function NotificationItem({ notification, onRead, onArchive }: NotificationItemP
 
           <div className="flex items-center justify-between gap-2">
             <span className="text-[11px] text-muted-foreground">
-              {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: es })}
+              {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: getDateFnsLocale() })}
             </span>
 
             <div className="flex items-center gap-1">
@@ -167,7 +169,7 @@ function NotificationItem({ notification, onRead, onArchive }: NotificationItemP
                   size="sm"
                   variant="ghost"
                   className="h-6 px-2"
-                  title="Marcar como leída"
+                  title={t('notifications.marcarComoLeída')}
                   onClick={() => onRead(notification.id)}
                 >
                   <CheckCheck size={13} />
@@ -178,7 +180,7 @@ function NotificationItem({ notification, onRead, onArchive }: NotificationItemP
                 size="sm"
                 variant="ghost"
                 className="h-6 px-2"
-                title="Archivar"
+                title={t('notifications.archivar')}
                 onClick={() => onArchive(notification.id)}
               >
                 <Archive size={13} />
@@ -237,9 +239,9 @@ export function NotificationCenterV2() {
         <DialogHeader className="px-5 py-4 border-b shrink-0">
           <div className="flex items-center justify-between">
             <div>
-              <DialogTitle className="text-lg">Notificaciones</DialogTitle>
+              <DialogTitle className="text-lg">{t('notifications.notificaciones')}</DialogTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {unreadCount > 0 ? `${unreadCount} sin leer` : 'Todo al día'}
+                {unreadCount > 0 ? `${unreadCount} sin leer` : t('notifications.todoAlDía')}
               </p>
             </div>
 
@@ -251,9 +253,7 @@ export function NotificationCenterV2() {
                 onClick={() => markAllRead.mutate()}
                 disabled={markAllRead.isPending}
               >
-                <CheckCheck size={13} className="mr-1.5" />
-                Marcar todas leídas
-              </Button>
+                <CheckCheck size={13} className="mr-1.5" />{t('notifications.marcarTodasLeídas')}</Button>
             )}
           </div>
         </DialogHeader>
@@ -290,10 +290,8 @@ export function NotificationCenterV2() {
               <div className="w-14 h-14 rounded-2xl bg-muted flex items-center justify-center mb-4">
                 <Bell size={28} className="text-muted-foreground" />
               </div>
-              <p className="text-sm font-medium mb-1">No hay notificaciones recientes</p>
-              <p className="text-xs text-muted-foreground max-w-56 leading-relaxed">
-                Cuando el sistema detecte cambios del proyecto, aparecerán aquí.
-              </p>
+              <p className="text-sm font-medium mb-1">{t('notifications.noHayNotificacionesRecientes')}</p>
+              <p className="text-xs text-muted-foreground max-w-56 leading-relaxed">{t('notifications.cuandoElSistemaDetecte')}</p>
             </div>
           ) : (
             <div className="space-y-5 py-4">
@@ -324,9 +322,7 @@ export function NotificationCenterV2() {
                     className="text-xs text-muted-foreground gap-1"
                     onClick={handleLoadMore}
                   >
-                    <ChevronDown size={14} />
-                    Cargar más
-                  </Button>
+                    <ChevronDown size={14} />{t('notifications.cargarMás')}</Button>
                 </div>
               )}
             </div>

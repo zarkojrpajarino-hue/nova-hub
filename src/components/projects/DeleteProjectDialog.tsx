@@ -24,6 +24,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useTranslation } from 'react-i18next';
 interface DeleteProjectDialogProps {
   projectId: string;
   projectName: string;
@@ -35,6 +36,7 @@ export function DeleteProjectDialog({
   projectName,
   trigger,
 }: DeleteProjectDialogProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -56,7 +58,7 @@ export function DeleteProjectDialog({
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('No autenticado');
+        toast.error(t('projects.noAutenticado'));
         setIsDeleting(false);
         return;
       }
@@ -69,7 +71,7 @@ export function DeleteProjectDialog({
         .single();
 
       if (!profile) {
-        toast.error('Perfil no encontrado');
+        toast.error(t('projects.perfilNoEncontrado'));
         setIsDeleting(false);
         return;
       }
@@ -83,7 +85,7 @@ export function DeleteProjectDialog({
 
       if (error) throw error;
 
-      toast.success('Proyecto movido a eliminados. Puedes restaurarlo desde el historial.');
+      toast.success(t('projects.proyectoMovidoAEliminados'));
 
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -95,7 +97,7 @@ export function DeleteProjectDialog({
       // Navigate to projects view
       navigate('/proyectos');
     } catch (_error) {
-      toast.error(error instanceof Error ? error.message : 'Error al eliminar el proyecto');
+      toast.error(error instanceof Error ? error.message : t('projects.errorAlEliminarEl'));
     } finally {
       setIsDeleting(false);
     }
@@ -106,9 +108,7 @@ export function DeleteProjectDialog({
       <DialogTrigger asChild>
         {trigger || (
           <Button variant="destructive" size="sm" className="gap-2">
-            <Trash2 size={16} />
-            Eliminar Proyecto
-          </Button>
+            <Trash2 size={16} />{t('projects.eliminarProyecto')}</Button>
         )}
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
@@ -118,11 +118,10 @@ export function DeleteProjectDialog({
               <AlertTriangle className="w-5 h-5 text-destructive" />
             </div>
             <div>
-              <DialogTitle>Eliminar Proyecto</DialogTitle>
+              <DialogTitle>{t('projects.eliminarProyecto')}</DialogTitle>
             </div>
           </div>
-          <DialogDescription>
-            Esta acción es <span className="font-bold text-destructive">irreversible</span>.
+          <DialogDescription>{t('projects.estaAcciónEs')}<span className="font-bold text-destructive">irreversible</span>.
           </DialogDescription>
         </DialogHeader>
 
@@ -134,7 +133,7 @@ export function DeleteProjectDialog({
             </p>
             <p className="text-sm text-muted-foreground">
               El proyecto será movido al historial de eliminados. Podrás restaurarlo en cualquier
-              momento desde el botón "Historial de Eliminados" en la vista de proyectos.
+              momento desde el botón t('projects.historialDeEliminados') en la vista de proyectos.
             </p>
           </div>
 
@@ -155,7 +154,7 @@ export function DeleteProjectDialog({
             <Label htmlFor="reason">Razón de eliminación (opcional)</Label>
             <Input
               id="reason"
-              placeholder="Ej: Proyecto cancelado, finalizado, etc."
+              placeholder={t('projects.ejProyectoCanceladoFinalizado')}
               value={reason}
               onChange={(e) => setReason(e.target.value)}
               className="mt-2"
@@ -166,12 +165,11 @@ export function DeleteProjectDialog({
 
           {/* Confirmation input */}
           <div>
-            <Label htmlFor="confirm">
-              Escribe <span className="font-bold text-destructive">ELIMINAR</span> para confirmar
+            <Label htmlFor="confirm">Escribe<span className="font-bold text-destructive">ELIMINAR</span> para confirmar
             </Label>
             <Input
               id="confirm"
-              placeholder="ELIMINAR"
+              placeholder={t('projects.eliminar')}
               value={confirmText}
               onChange={(e) => setConfirmText(e.target.value.toUpperCase())}
               className="mt-2 font-mono"
@@ -186,9 +184,7 @@ export function DeleteProjectDialog({
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={isDeleting}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={isDeleting}>{t('projects.cancelar')}</Button>
           <Button
             variant="destructive"
             onClick={handleDelete}
@@ -196,14 +192,10 @@ export function DeleteProjectDialog({
           >
             {isDeleting ? (
               <>
-                <Loader2 size={16} className="mr-2 animate-spin" />
-                Eliminando...
-              </>
+                <Loader2 size={16} className="mr-2 animate-spin" />{t('projects.eliminando')}</>
             ) : (
               <>
-                <Trash2 size={16} className="mr-2" />
-                Eliminar Definitivamente
-              </>
+                <Trash2 size={16} className="mr-2" />{t('projects.eliminarDefinitivamente')}</>
             )}
           </Button>
         </div>

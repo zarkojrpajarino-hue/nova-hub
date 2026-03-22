@@ -8,6 +8,7 @@
 import { Star } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface FeedbackStarRatingProps {
   value: number;
   onChange: (value: number) => void;
@@ -25,6 +26,7 @@ export function FeedbackStarRating({
   disabled = false,
   required = false,
 }: FeedbackStarRatingProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-2">
       <div className="flex items-center justify-between">
@@ -70,7 +72,7 @@ export function FeedbackStarRating({
       </div>
 
       {!disabled && value === 0 && required && (
-        <p className="text-xs text-red-500">Este campo es obligatorio</p>
+        <p className="text-xs text-red-500">{t('feedback.esteCampoEsObligatorio')}</p>
       )}
     </div>
   );

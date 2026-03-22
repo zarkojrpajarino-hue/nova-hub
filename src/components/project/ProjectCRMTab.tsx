@@ -6,6 +6,7 @@ import { useProfiles } from '@/hooks/useNovaData';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
 import type { Database } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectCRMTabProps {
   projectId: string;
   projectName: string;
@@ -31,6 +32,7 @@ export interface Lead {
 }
 
 function ProjectCRMTabComponent({ projectId, projectName }: ProjectCRMTabProps) {
+  const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
 
   // Fetch project leads

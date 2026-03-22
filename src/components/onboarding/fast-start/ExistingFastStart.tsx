@@ -31,6 +31,7 @@ import { toast } from 'sonner';
 import { generateAllArtifacts } from '@/lib/ai-generators';
 import type { FaseAAnswers } from './FaseACommon';
 
+import { useTranslation } from 'react-i18next';
 interface ExistingFastStartProps {
   projectId: string;
   faseAAnswers: FaseAAnswers;
@@ -38,6 +39,7 @@ interface ExistingFastStartProps {
 }
 
 export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: ExistingFastStartProps) {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
   const [showDataIntegration, setShowDataIntegration] = useState(false);
   const [formData, setFormData] = useState({
@@ -87,12 +89,12 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
         fase_a: faseAAnswers,
       });
 
-      toast.success('Business analyzed!', {
-        description: 'Your growth diagnostic is ready'
+      toast.success(t('onboarding.businessAnalyzed'), {
+        description: t('onboarding.yourGrowthDiagnosticIs')
       });
     } catch (_error) {
-      toast.error('Failed to analyze business', {
-        description: 'Please try again or contact support'
+      toast.error(t('onboarding.failedToAnalyzeBusiness'), {
+        description: t('onboarding.pleaseTryAgainOr')
       });
       setIsGenerating(false);
     }
@@ -111,12 +113,8 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold">
-                  AI is analyzing your business
-                </h3>
-                <p className="text-muted-foreground max-w-md">
-                  Creating Health Score, Growth Diagnostic, Competitive Benchmarking, and 3 future scenarios
-                </p>
+                <h3 className="text-2xl font-bold">{t('onboarding.aiIsAnalyzingYour')}</h3>
+                <p className="text-muted-foreground max-w-md">{t('onboarding.creatingHealthScoreGrowth')}</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -125,9 +123,7 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
                 <div className="h-2 w-2 rounded-full bg-purple-600 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
 
-              <p className="text-sm text-muted-foreground">
-                This will take approximately 20-25 seconds
-              </p>
+              <p className="text-sm text-muted-foreground">{t('onboarding.thisWillTakeApproximately')}</p>
             </div>
           </CardContent>
         </Card>
@@ -147,9 +143,7 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
               <CardTitle className="text-2xl md:text-3xl">
                 Analyze Your Business with AI
               </CardTitle>
-              <CardDescription className="text-base mt-1">
-                Share your key metrics and get a complete growth diagnostic
-              </CardDescription>
+              <CardDescription className="text-base mt-1">{t('onboarding.shareYourKeyMetrics')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -159,8 +153,7 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
           <Alert className="bg-purple-50 border-purple-200">
             <Sparkles className="h-4 w-4 text-purple-600" />
             <AlertDescription className="text-purple-900">
-              <strong>Fast Start:</strong> We'll analyze your business in ~20 seconds. You can integrate your data sources later in Deep Setup (optional).
-            </AlertDescription>
+              <strong>Fast Start:</strong>{t('onboarding.wellAnalyzeYourBusiness')}</AlertDescription>
           </Alert>
 
           {/* Question 1: Company Name (REQUIRED) */}
@@ -171,13 +164,11 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
                 1. Company name <span className="text-red-600">*</span>
               </Label>
             </div>
-            <p className="text-sm text-gray-700 ml-7">
-              What's the name of your company or startup?
-            </p>
+            <p className="text-sm text-gray-700 ml-7">{t('onboarding.whatsTheNameOf')}</p>
             <Input
               id="project_name"
               type="text"
-              placeholder="e.g., Acme Inc, TechFlow, GrowthLabs"
+              placeholder={t('onboarding.egAcmeIncTechflow')}
               value={formData.project_name}
               onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
               className="ml-7 bg-white"
@@ -185,7 +176,7 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
             {formData.project_name.trim().length >= 3 && (
               <div className="flex items-center gap-1 text-xs text-green-600 ml-7">
                 <CheckCircle2 className="h-3 w-3" />
-                <span>Looks good!</span>
+                <span>{t('onboarding.looksGood')}</span>
               </div>
             )}
           </div>
@@ -203,7 +194,7 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
             </p>
             <Textarea
               id="description"
-              placeholder="Example: B2B SaaS platform for project management targeting small marketing agencies. We help teams collaborate better with integrated workflows..."
+              placeholder={t('onboarding.exampleB2bSaasPlatform')}
               rows={4}
               value={formData.business_description}
               onChange={(e) => setFormData({ ...formData, business_description: e.target.value })}
@@ -216,7 +207,7 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
               {formData.business_description.length >= 30 && (
                 <div className="flex items-center gap-1 text-xs text-green-600">
                   <CheckCircle2 className="h-3 w-3" />
-                  <span>Perfect!</span>
+                  <span>{t('onboarding.perfect')}</span>
                 </div>
               )}
             </div>
@@ -233,22 +224,19 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
             <Alert className="bg-pink-50 border-pink-200">
               <Info className="h-4 w-4 text-pink-600" />
               <AlertDescription className="text-pink-900">
-                <strong>Save 30-35 minutes:</strong> Data Integration can automatically import your metrics from Stripe, Google Analytics, Mixpanel, and more.
-              </AlertDescription>
+                <strong>Save 30-35 minutes:</strong>{t('onboarding.dataIntegrationCanAutomatically')}</AlertDescription>
             </Alert>
             <Button
               variant="outline"
               onClick={() => setShowDataIntegration(!showDataIntegration)}
               className="w-full border-pink-300 hover:bg-pink-50"
             >
-              {showDataIntegration ? 'Hide Data Integration Options' : 'Show Data Integration Options'}
+              {showDataIntegration ? 'Hide Data Integration Options': t('onboarding.showDataIntegrationOptions')}
             </Button>
 
             {showDataIntegration && (
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-600 mb-3">
-                  Data Integration will be available in Deep Setup. For now, continue with your manual input.
-                </p>
+                <p className="text-sm text-gray-600 mb-3">{t('onboarding.dataIntegrationWillBe')}</p>
                 <p className="text-xs text-gray-500">
                   💡 After completing Fast Start, you can connect: Stripe, Google Analytics, Mixpanel, LinkedIn, Twitter, and more to auto-populate your data.
                 </p>
@@ -266,14 +254,10 @@ export function ExistingFastStart({ projectId, faseAAnswers, onComplete }: Exist
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Analyzing business...
-                </>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />{t('onboarding.analyzingBusiness')}</>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Analyze Business and Generate Diagnostic
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <Sparkles className="mr-2 h-5 w-5" />Analyze Business and Generate Diagnostic<ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
             </Button>

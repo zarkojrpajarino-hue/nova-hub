@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Json } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 interface MemberOnboardingProps {
   projectId: string;
   projectName: string;
@@ -37,6 +38,7 @@ export function MemberOnboarding({
   membershipId,
   onComplete,
 }: MemberOnboardingProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0);
   const [experienceLevel, setExperienceLevel] = useState('mid');
   const [skills, setSkills] = useState('');
@@ -69,7 +71,7 @@ export function MemberOnboarding({
       if (error) throw error;
       setStep(2);
     } catch {
-      toast.error('Error al guardar perfil');
+      toast.error(t('roles.errorAlGuardarPerfil'));
     } finally {
       setSaving(false);
     }
@@ -82,14 +84,12 @@ export function MemberOnboarding({
           <CardContent className="pt-8 pb-8 text-center">
             <Users className="h-12 w-12 text-blue-600 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">¡Bienvenido a {projectName}!</h2>
-            <p className="text-sm text-muted-foreground mb-4">
-              Te han invitado como <strong>{roleConfig?.label ?? role}</strong>.
+            <p className="text-sm text-muted-foreground mb-4">{t('roles.teHanInvitadoComo')}<strong>{roleConfig?.label ?? role}</strong>.
             </p>
             {roleConfig?.desc && (
               <p className="text-xs text-muted-foreground mb-6">{roleConfig.desc}</p>
             )}
-            <Button onClick={() => setStep(1)} className="gap-2">
-              Configurar mi perfil <ArrowRight className="h-4 w-4" />
+            <Button onClick={() => setStep(1)} className="gap-2">Configurar mi perfil<ArrowRight className="h-4 w-4" />
             </Button>
           </CardContent>
         </Card>
@@ -104,11 +104,11 @@ export function MemberOnboarding({
           <CardContent className="pt-8 pb-8 space-y-4">
             <div className="text-center mb-4">
               <Briefcase className="h-10 w-10 text-blue-600 mx-auto mb-2" />
-              <h2 className="text-lg font-bold">Tu perfil profesional</h2>
+              <h2 className="text-lg font-bold">{t('roles.tuPerfilProfesional')}</h2>
             </div>
 
             <div className="space-y-1.5">
-              <Label>Nivel de experiencia</Label>
+              <Label>{t('roles.nivelDeExperiencia')}</Label>
               <Select value={experienceLevel} onValueChange={setExperienceLevel}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -122,7 +122,7 @@ export function MemberOnboarding({
             <div className="space-y-1.5">
               <Label>Skills principales (separados por coma)</Label>
               <Input
-                placeholder="ej. Excel, Ventas B2B, CRM"
+                placeholder={t('roles.ejExcelVentasB2b')}
                 value={skills}
                 onChange={(e) => setSkills(e.target.value)}
               />
@@ -131,14 +131,14 @@ export function MemberOnboarding({
             <div className="space-y-1.5">
               <Label>Herramientas que dominas (separados por coma)</Label>
               <Input
-                placeholder="ej. HubSpot, Slack, Notion"
+                placeholder={t('roles.ejHubspotSlackNotion')}
                 value={tools}
                 onChange={(e) => setTools(e.target.value)}
               />
             </div>
 
             <div className="space-y-1.5">
-              <Label>Horas disponibles por semana</Label>
+              <Label>{t('roles.horasDisponiblesPorSemana')}</Label>
               <Input
                 type="number"
                 min={1}
@@ -153,7 +153,7 @@ export function MemberOnboarding({
               onClick={handleSaveProfile}
               disabled={saving}
             >
-              {saving ? 'Guardando...' : 'Guardar y continuar'}
+              {saving ? 'Guardando...': t('roles.guardarYContinuar')}
             </Button>
           </CardContent>
         </Card>
@@ -166,12 +166,9 @@ export function MemberOnboarding({
       <Card>
         <CardContent className="pt-8 pb-8 text-center">
           <Rocket className="h-12 w-12 text-green-500 mx-auto mb-4" />
-          <h2 className="text-xl font-bold mb-2">¡Listo!</h2>
-          <p className="text-sm text-muted-foreground mb-6">
-            Tu perfil está configurado. Ahora puedes empezar a trabajar en el proyecto.
-          </p>
-          <Button onClick={onComplete} className="gap-2">
-            Ir a mi dashboard <ArrowRight className="h-4 w-4" />
+          <h2 className="text-xl font-bold mb-2">{t('roles.listo')}</h2>
+          <p className="text-sm text-muted-foreground mb-6">{t('roles.tuPerfilEstáConfigurado')}</p>
+          <Button onClick={onComplete} className="gap-2">Ir a mi dashboard<ArrowRight className="h-4 w-4" />
           </Button>
         </CardContent>
       </Card>

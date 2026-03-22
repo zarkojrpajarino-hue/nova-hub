@@ -2,33 +2,35 @@ import { useState, useEffect } from 'react';
 import { AlertTriangle, X, ChevronDown, ChevronUp } from 'lucide-react';
 import type { ViabilityStateData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 // ── Copy por trigger_type ─────────────────────────────────────────────────────
 
 const YELLOW_COPY: Record<string, { title: string; body: string }> = {
-  stagnation:      { title: 'Proyecto sin avance',          body: 'El proyecto lleva varios ciclos sin progresar. Revisa si hay bloqueos activos o tareas sin completar.' },
-  margin_risk:     { title: 'Señal de riesgo financiero',   body: 'El flujo de caja muestra señales de alerta. Revisa tus métricas financieras.' },
-  overload:        { title: 'Sobrecarga operativa',         body: 'La carga de tareas puede estar limitando el avance. Considera redistribuir o priorizar.' },
-  weak_validation: { title: 'Validación externa débil',     body: 'El proyecto tiene pocas señales del mercado. Busca más feedback externo.' },
+  stagnation:      { title: t('project.proyectoSinAvance'),          body: t('project.elProyectoLlevaVarios') },
+  margin_risk:     { title: t('project.señalDeRiesgoFinanciero'),   body: t('project.elFlujoDeCaja') },
+  overload:        { title: t('project.sobrecargaOperativa'),         body: t('project.laCargaDeTareas') },
+  weak_validation: { title: t('project.validaciónExternaDébil'),     body: t('project.elProyectoTienePocas') },
 };
 
 const RED_COPY: Record<string, { title: string; body: string }> = {
-  stagnation:      { title: 'Bloqueo crítico',              body: 'El proyecto lleva demasiados ciclos sin avanzar. Se necesita acción inmediata.' },
-  margin_risk:     { title: 'Riesgo de caja crítico',       body: 'El flujo de caja en negativo puede comprometer la continuidad del proyecto.' },
-  overload:        { title: 'Sobrecarga crítica',           body: 'La carga operativa impide el avance. Prioriza desbloquear los cuellos de botella.' },
-  weak_validation: { title: 'Validación críticamente débil', body: 'Sin señal del mercado, el proyecto no puede avanzar a la siguiente fase.' },
+  stagnation:      { title: t('project.bloqueoCrítico'),              body: t('project.elProyectoLlevaDemasiados') },
+  margin_risk:     { title: t('project.riesgoDeCajaCrítico'),       body: t('project.elFlujoDeCaja0') },
+  overload:        { title: t('project.sobrecargaCrítica'),           body: t('project.laCargaOperativaImpide') },
+  weak_validation: { title: t('project.validaciónCríticamenteDébil'), body: t('project.sinSeñalDelMercado') },
 };
 
 const T2_COPY = {
-  title: 'Flujo de caja negativo',
-  body:  'El flujo de caja ha estado en negativo más de 2 meses con alta confianza. Prioridad máxima.',
+  title: t('project.flujoDeCajaNegativo'),
+  body:  t('project.elFlujoDeCaja1'),
 };
 
-const FALLBACK_YELLOW = { title: 'Señales de alerta activas', body: 'El proyecto muestra señales de alerta. Revisa el estado general.' };
-const FALLBACK_RED    = { title: 'Estado crítico',            body: 'El proyecto está en estado crítico. Se requiere acción inmediata.' };
+const FALLBACK_YELLOW = { title: t('project.señalesDeAlertaActivas'), body: t('project.elProyectoMuestraSeñales') };
+const FALLBACK_RED    = { title: t('project.estadoCrítico'),            body: t('project.elProyectoEstáEn') };
 
 // ── sessionStorage helpers ────────────────────────────────────────────────────
 
 function dismissKey(projectId: string, status: string, trigger: string | null) {
+  const { t } = useTranslation();
   return `viability:${projectId}:${status}:${trigger ?? 'none'}:dismissed`;
 }
 
@@ -103,7 +105,7 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
         </div>
         <button
           onClick={handleDismiss}
-          aria-label="Cerrar alerta"
+          aria-label={t('project.cerrarAlerta')}
           className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
           <X className="h-4 w-4" />
@@ -120,7 +122,7 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
         <p className="flex-1 text-sm font-semibold text-destructive">{copy.title}</p>
         <button
           onClick={handleToggleCollapse}
-          aria-label="Expandir alerta crítica"
+          aria-label={t('project.expandirAlertaCrítica')}
           className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
         >
           <ChevronDown className="h-4 w-4" />
@@ -138,7 +140,7 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
       </div>
       <button
         onClick={handleToggleCollapse}
-        aria-label="Colapsar alerta crítica"
+        aria-label={t('project.colapsarAlertaCrítica')}
         className="text-muted-foreground hover:text-foreground transition-colors shrink-0"
       >
         <ChevronUp className="h-4 w-4" />

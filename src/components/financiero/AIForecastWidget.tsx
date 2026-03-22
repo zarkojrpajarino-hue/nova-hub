@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface ForecastData {
   proyeccion_hot: number;
   proyeccion_propuesta: number;
@@ -24,6 +25,7 @@ interface ForecastData {
 }
 
 export function AIForecastWidget() {
+  const { t } = useTranslation();
   const { data: forecast, isLoading } = useQuery({
     queryKey: ['forecast_ingresos'],
     queryFn: async () => {
@@ -58,7 +60,7 @@ export function AIForecastWidget() {
         </CardHeader>
         <CardContent>
           <div className="flex items-center justify-center py-8">
-            <div className="animate-pulse text-muted-foreground">Calculando proyecciones...</div>
+            <div className="animate-pulse text-muted-foreground">{t('financiero.calculandoProyecciones')}</div>
           </div>
         </CardContent>
       </Card>
@@ -86,7 +88,7 @@ export function AIForecastWidget() {
       icon: '🔥',
     },
     {
-      name: 'Propuesta',
+      name: t('financiero.propuesta'),
       value: proyeccionPropuesta,
       probability: probPropuesta,
       color: 'from-purple-500 to-pink-500',
@@ -95,7 +97,7 @@ export function AIForecastWidget() {
       icon: '📝',
     },
     {
-      name: 'Negociación',
+      name: t('financiero.negociación'),
       value: proyeccionNegociacion,
       probability: probNegociacion,
       color: 'from-blue-500 to-cyan-500',
@@ -124,9 +126,7 @@ export function AIForecastWidget() {
               <div className="flex items-center gap-2">
                 Proyección de Ingresos con IA
                 <Badge variant="outline" className="text-xs">
-                  <Sparkles className="w-3 h-3 mr-1" />
-                  Beta
-                </Badge>
+                  <Sparkles className="w-3 h-3 mr-1" />{t('financiero.beta')}</Badge>
               </div>
               <p className="text-sm font-normal text-muted-foreground">
                 Próximos 30 días basado en pipeline CRM
@@ -156,9 +156,7 @@ export function AIForecastWidget() {
 
         {/* Desglose por Etapa */}
         <div className="space-y-4">
-          <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">
-            Desglose por Etapa del Pipeline
-          </h4>
+          <h4 className="font-semibold text-sm text-muted-foreground uppercase tracking-wide">{t('financiero.desglosePorEtapaDel')}</h4>
 
           {stages.map((stage) => (
             <div key={stage.name} className="space-y-2">
@@ -209,11 +207,11 @@ export function AIForecastWidget() {
               <p className="font-medium mb-1">💡 Análisis Predictivo</p>
               <p className="text-muted-foreground">
                 {totalProyectado === 0 ? (
-                  "No hay leads activos en el pipeline para proyectar ingresos."
+                  t('financiero.noHayLeadsActivos')
                 ) : valorPonderado > 0 ? (
                   `Basado en probabilidades históricas, se espera cerrar aproximadamente €${valorPonderado.toLocaleString('es-ES')} de los €${totalProyectado.toLocaleString('es-ES')} proyectados en los próximos 30 días.`
                 ) : (
-                  "Proyección calculada en base al pipeline actual de CRM."
+                  t('financiero.proyecciónCalculadaEnBase')
                 )}
               </p>
             </div>
@@ -224,8 +222,7 @@ export function AIForecastWidget() {
         <div className="flex items-start gap-2 p-3 rounded-lg bg-blue-500/5 border border-blue-500/20 text-xs">
           <AlertCircle className="w-4 h-4 text-blue-600 flex-shrink-0 mt-0.5" />
           <p className="text-muted-foreground">
-            <span className="font-medium text-blue-600">Nota:</span> Las proyecciones se calculan multiplicando el valor de cada lead por su probabilidad de cierre según la etapa del pipeline (Hot: 30%, Propuesta: 50%, Negociación: 75%).
-          </p>
+            <span className="font-medium text-blue-600">Nota:</span>{t('financiero.lasProyeccionesSeCalculan')}</p>
         </div>
       </CardContent>
     </Card>

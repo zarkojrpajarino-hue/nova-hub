@@ -24,6 +24,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid } from 'recharts';
 
+import { useTranslation } from 'react-i18next';
 interface MetricCardProps {
   title: string;
   value: string | number;
@@ -34,6 +35,7 @@ interface MetricCardProps {
 }
 
 function MetricCard({ title, value, change, icon, trend, alert }: MetricCardProps) {
+  const { t } = useTranslation();
   const trendColor = trend === 'up' ? 'text-green-600' : trend === 'down' ? 'text-red-600' : 'text-gray-600';
   const TrendIcon = trend === 'up' ? TrendingUp : trend === 'down' ? TrendingDown : null;
 
@@ -129,13 +131,13 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
   }, [projectId]);
 
   if (loading) {
-    return <div className="p-8 text-center">Loading metrics...</div>;
+    return <div className="p-8 text-center">{t('startupOs.loadingMetrics')}</div>;
   }
 
   if (!metrics) {
     return (
       <div className="p-8 text-center">
-        <p className="text-gray-600">No metrics data yet. Start tracking your business metrics!</p>
+        <p className="text-gray-600">{t('startupOs.noMetricsDataYet')}</p>
       </div>
     );
   }
@@ -166,7 +168,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
       {/* Key Metrics Cards */}
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         <MetricCard
-          title="MRR"
+          title={t('startupOs.mrr')}
           value={`$${metrics.mrr.toLocaleString()}`}
           change={mrrChange}
           icon={<DollarSign className="h-4 w-4 text-muted-foreground" />}
@@ -174,7 +176,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
         />
 
         <MetricCard
-          title="Total Customers"
+          title={t('startupOs.totalCustomers')}
           value={metrics.total_customers}
           change={customerChange}
           icon={<Users className="h-4 w-4 text-muted-foreground" />}
@@ -182,7 +184,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
         />
 
         <MetricCard
-          title="Churn Rate"
+          title={t('startupOs.churnRate')}
           value={`${metrics.churn_rate.toFixed(1)}%`}
           icon={<TrendingDown className="h-4 w-4 text-muted-foreground" />}
           trend={metrics.churn_rate > 5 ? 'down' : 'neutral'}
@@ -190,11 +192,11 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
         />
 
         <MetricCard
-          title="Runway"
+          title={t('startupOs.runway')}
           value={`${metrics.runway_months} months`}
           icon={<Calendar className="h-4 w-4 text-muted-foreground" />}
           trend={metrics.runway_months < 6 ? 'down' : 'neutral'}
-          alert={metrics.runway_months < 6 ? 'Runway <6 months - start fundraising now' : undefined}
+          alert={metrics.runway_months < 6 ? 'Runway <6 months - start fundraising now': undefined}
         />
       </div>
 
@@ -206,7 +208,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${metrics.cac}</div>
-            <p className="text-xs text-muted-foreground mt-1">Customer Acquisition Cost</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('startupOs.customerAcquisitionCost')}</p>
           </CardContent>
         </Card>
 
@@ -216,13 +218,13 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">${metrics.ltv}</div>
-            <p className="text-xs text-muted-foreground mt-1">Lifetime Value</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('startupOs.lifetimeValue')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader>
-            <CardTitle className="text-sm font-medium">LTV / CAC Ratio</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('startupOs.ltvCacRatio')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{metrics.ltv_cac_ratio.toFixed(1)}x</div>
@@ -236,7 +238,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
       {/* MRR Growth Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>MRR Growth</CardTitle>
+          <CardTitle>{t('startupOs.mrrGrowth')}</CardTitle>
         </CardHeader>
         <CardContent>
           <ResponsiveContainer width="100%" height={300}>
@@ -260,19 +262,19 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
       {/* Quick Actions */}
       <Card>
         <CardHeader>
-          <CardTitle>Quick Actions</CardTitle>
+          <CardTitle>{t('startupOs.quickActions')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-2">
           <button className="w-full text-left p-3 hover:bg-gray-50 rounded-md border">
             <div className="flex items-center gap-2">
               <Target className="h-4 w-4" />
-              <span className="font-medium">Update this week's metrics</span>
+              <span className="font-medium">{t('startupOs.updateThisWeeksMetrics')}</span>
             </div>
           </button>
           <button className="w-full text-left p-3 hover:bg-gray-50 rounded-md border">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4" />
-              <span className="font-medium">Ask AI Advisor a question</span>
+              <span className="font-medium">{t('startupOs.askAiAdvisorA')}</span>
             </div>
           </button>
         </CardContent>

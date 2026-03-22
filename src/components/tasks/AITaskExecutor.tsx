@@ -20,6 +20,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface AIExecutionCallbackResult {
   error?: string;
   content?: TaskResult;
@@ -39,6 +40,7 @@ interface TaskResult {
 }
 
 export function AITaskExecutor() {
+  const { t } = useTranslation();
   const { user, profile } = useAuth();
   const { currentProject } = useCurrentProject();
   const [isSaving, setIsSaving] = useState(false);
@@ -54,7 +56,7 @@ export function AITaskExecutor() {
     }
 
     setTaskResult(result.content);
-    toast.success('Tarea ejecutada exitosamente');
+    toast.success(t('tasks.tareaEjecutadaExitosamente'));
   };
 
   const handleExecutionError = (error: Error) => {
@@ -64,7 +66,7 @@ export function AITaskExecutor() {
   const handleCopyResult = () => {
     if (!taskResult) return;
     navigator.clipboard.writeText(taskResult.output);
-    toast.success('Resultado copiado al portapapeles');
+    toast.success(t('tasks.resultadoCopiadoAlPortapapeles'));
   };
 
   const handleDownloadResult = () => {
@@ -76,7 +78,7 @@ export function AITaskExecutor() {
     a.download = `ai-task-result-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Resultado descargado');
+    toast.success(t('tasks.resultadoDescargado'));
   };
 
   const handleSaveAsOBV = async () => {
@@ -101,7 +103,7 @@ export function AITaskExecutor() {
 
       toast.success('Resultado guardado como OBV');
     } catch (_error) {
-      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : t('tasks.errorDesconocido')));
     } finally {
       setIsSaving(false);
     }
@@ -110,9 +112,9 @@ export function AITaskExecutor() {
   const exampleTasks = [
     'Analizar las tendencias de mercado en IA para 2026',
     'Generar un plan de marketing para lanzar un producto SaaS',
-    'Crear un checklist de validación para startups early-stage',
-    'Investigar competidores en el sector de e-learning',
-    'Redactar 10 headlines para una campaña de email marketing',
+    t('tasks.crearUnChecklistDe'),
+    t('tasks.investigarCompetidoresEnEl'),
+    t('tasks.redactar10HeadlinesPara'),
   ];
 
   return (
@@ -125,10 +127,8 @@ export function AITaskExecutor() {
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle>AI Task Executor</CardTitle>
-              <CardDescription>
-                Ejecuta tareas complejas automáticamente con IA y obtén resultados detallados
-              </CardDescription>
+              <CardTitle>{t('tasks.aiTaskExecutor')}</CardTitle>
+              <CardDescription>{t('tasks.ejecutaTareasComplejasAutomáticamente')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -137,10 +137,8 @@ export function AITaskExecutor() {
       {/* Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Describe la tarea</CardTitle>
-          <CardDescription>
-            Explica qué quieres que la IA haga. Cuanto más específico, mejor será el resultado.
-          </CardDescription>
+          <CardTitle className="text-base">{t('tasks.describeLaTarea')}</CardTitle>
+          <CardDescription>{t('tasks.explicaQuéQuieresQue')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Task Input */}
@@ -148,7 +146,7 @@ export function AITaskExecutor() {
             <Label htmlFor="taskInput">Tarea a ejecutar *</Label>
             <Textarea
               id="taskInput"
-              placeholder="Ej: Analizar las 5 principales tendencias en IA generativa y explicar cómo pueden aplicarse a mi startup SaaS..."
+              placeholder={t('tasks.ejAnalizarLas5')}
               value={taskInput}
               onChange={(e) => setTaskInput(e.target.value)}
               rows={6}
@@ -180,7 +178,7 @@ export function AITaskExecutor() {
           {/* Configuration */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="detailLevel">Nivel de detalle</Label>
+              <Label htmlFor="detailLevel">{t('tasks.nivelDeDetalle')}</Label>
               <Select
                 value={detailLevel}
                 onValueChange={setDetailLevel}
@@ -197,7 +195,7 @@ export function AITaskExecutor() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="outputFormat">Formato de salida</Label>
+              <Label htmlFor="outputFormat">{t('tasks.formatoDeSalida')}</Label>
               <Select
                 value={outputFormat}
                 onValueChange={setOutputFormat}
@@ -206,10 +204,10 @@ export function AITaskExecutor() {
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="texto">Texto plano</SelectItem>
-                  <SelectItem value="markdown">Markdown</SelectItem>
-                  <SelectItem value="lista">Lista con bullets</SelectItem>
-                  <SelectItem value="tabla">Tabla comparativa</SelectItem>
+                  <SelectItem value="texto">{t('tasks.textoPlano')}</SelectItem>
+                  <SelectItem value="markdown">{t('tasks.markdown')}</SelectItem>
+                  <SelectItem value="lista">{t('tasks.listaConBullets')}</SelectItem>
+                  <SelectItem value="tabla">{t('tasks.tablaComparativa')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -221,7 +219,7 @@ export function AITaskExecutor() {
             evidenceProfile="tasks"
             projectId={currentProject?.id || ''}
             userId={user?.id || ''}
-            buttonLabel="Ejecutar tarea"
+            buttonLabel={t('tasks.ejecutarTarea')}
             buttonSize="lg"
             buttonClassName="w-full"
             additionalParams={{
@@ -244,22 +242,18 @@ export function AITaskExecutor() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <CardTitle className="text-base">Resultado de la tarea</CardTitle>
+                <CardTitle className="text-base">{t('tasks.resultadoDeLaTarea')}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
                 <Button onClick={handleCopyResult} variant="outline" size="sm" className="gap-2">
-                  <Copy size={14} />
-                  Copiar
-                </Button>
+                  <Copy size={14} />{t('tasks.copiar')}</Button>
                 <Button
                   onClick={handleDownloadResult}
                   variant="outline"
                   size="sm"
                   className="gap-2"
                 >
-                  <Download size={14} />
-                  Descargar
-                </Button>
+                  <Download size={14} />{t('tasks.descargar')}</Button>
                 <Button
                   onClick={handleSaveAsOBV}
                   disabled={isSaving}

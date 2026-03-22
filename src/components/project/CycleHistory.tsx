@@ -9,18 +9,20 @@ import { useState } from 'react';
 import { ChevronDown, ChevronUp, CheckCircle2, XCircle, PauseCircle } from 'lucide-react';
 import { useCycleHistory, type StrategicCycle } from '@/hooks/useStrategicCycles';
 
+import { useTranslation } from 'react-i18next';
 interface CycleHistoryProps {
   projectId: string;
 }
 
 const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle2; label: string; color: string }> = {
-  completed:  { icon: CheckCircle2, label: 'Completado', color: 'text-green-500' },
-  revised:    { icon: PauseCircle,  label: 'Revisado',   color: 'text-blue-500' },
-  abandoned:  { icon: XCircle,      label: 'Abandonado', color: 'text-red-500' },
-  paused:     { icon: PauseCircle,  label: 'Pausado',    color: 'text-orange-500' },
+  completed:  { icon: CheckCircle2, label: t('project.completado'), color: 'text-green-500' },
+  revised:    { icon: PauseCircle,  label: t('project.revisado'),   color: 'text-blue-500' },
+  abandoned:  { icon: XCircle,      label: t('project.abandonado'), color: 'text-red-500' },
+  paused:     { icon: PauseCircle,  label: t('project.pausado'),    color: 'text-orange-500' },
 };
 
 function CycleCard({ cycle }: { cycle: StrategicCycle }) {
+  const { t } = useTranslation();
   const config = STATUS_CONFIG[cycle.status] ?? STATUS_CONFIG.completed;
   const Icon = config.icon;
   const score = Math.round(cycle.cycle_score);

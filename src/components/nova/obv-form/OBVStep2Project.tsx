@@ -3,6 +3,7 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -23,14 +24,13 @@ export const OBVStep2Project = memo(function OBVStep2Project({
   userProjects,
   onUpdate
 }: OBVStep2ProjectProps) {
+  const { t } = useTranslation();
   return (
     <>
-      <h4 className="text-lg font-semibold text-center mb-6">
-        Paso 2: Selecciona el proyecto
-      </h4>
+      <h4 className="text-lg font-semibold text-center mb-6">{t('obv.paso2SeleccionaEl')}</h4>
       <div className="max-w-md mx-auto space-y-4 mb-8">
         {userProjects.length === 0 ? (
-          <p className="text-center text-muted-foreground">No estás asignado a ningún proyecto</p>
+          <p className="text-center text-muted-foreground">{t('obv.noEstásAsignadoA')}</p>
         ) : (
           <div className="grid gap-3">
             {userProjects.map(project => (
@@ -53,7 +53,7 @@ export const OBVStep2Project = memo(function OBVStep2Project({
                 <div className="flex-1">
                   <p className="font-semibold">{project.nombre}</p>
                   <p className="text-sm text-muted-foreground">
-                    Fase {project.phase_state?.current_phase ?? '?'} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                    Fase {project.phase_state?.current_phase ?? '?'} • {project.tipo === 'operacion' ? t('obv.enOperación') : t('obv.enValidación')}
                   </p>
                 </div>
                 {formData.projectId === project.id && (

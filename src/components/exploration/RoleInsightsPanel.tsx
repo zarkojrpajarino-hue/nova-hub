@@ -11,8 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface RoleInsight {
   id: string;
   user_id: string;
@@ -33,14 +34,15 @@ interface RoleInsightsPanelProps {
 }
 
 const TIPO_CONFIG = {
-  aprendizaje: { icon: '📚', color: 'bg-blue-500/10 text-blue-700 dark:text-blue-300', label: 'Aprendizaje' },
-  reflexion: { icon: '💭', color: 'bg-amber-500/10 text-amber-700 dark:text-amber-300', label: 'Reflexión' },
-  error: { icon: '⚠️', color: 'bg-red-500/10 text-red-700 dark:text-red-300', label: 'Error' },
-  exito: { icon: '🎉', color: 'bg-green-500/10 text-green-700 dark:text-green-300', label: 'Éxito' },
-  idea: { icon: '💡', color: 'bg-purple-500/10 text-purple-700 dark:text-purple-300', label: 'Idea' },
+  aprendizaje: { icon: '📚', color: 'bg-blue-500/10 text-blue-700 dark:text-blue-300', label: t('exploration.aprendizaje') },
+  reflexion: { icon: '💭', color: 'bg-amber-500/10 text-amber-700 dark:text-amber-300', label: t('exploration.reflexión') },
+  error: { icon: '⚠️', color: 'bg-red-500/10 text-red-700 dark:text-red-300', label: t('exploration.error') },
+  exito: { icon: '🎉', color: 'bg-green-500/10 text-green-700 dark:text-green-300', label: t('exploration.éxito') },
+  idea: { icon: '💡', color: 'bg-purple-500/10 text-purple-700 dark:text-purple-300', label: t('exploration.idea') },
 };
 
 export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsightsPanelProps) {
+  const { t } = useTranslation();
   const myInsights = insights.filter((i) => i.user_id === currentUserId);
   const _othersInsights = insights.filter((i) => i.user_id !== currentUserId);
 
@@ -81,13 +83,9 @@ export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsight
       <Tabs defaultValue="recent" className="space-y-4">
         <TabsList>
           <TabsTrigger value="recent">
-            <TrendingUp size={14} className="mr-2" />
-            Recientes
-          </TabsTrigger>
+            <TrendingUp size={14} className="mr-2" />{t('exploration.recientes')}</TabsTrigger>
           <TabsTrigger value="top">
-            <Trophy size={14} className="mr-2" />
-            Top Performance
-          </TabsTrigger>
+            <Trophy size={14} className="mr-2" />{t('exploration.topPerformance')}</TabsTrigger>
           {myInsights.length > 0 && (
             <TabsTrigger value="mine">
               Mis Insights ({myInsights.length})
@@ -101,9 +99,7 @@ export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsight
             <Card className="border-dashed">
               <CardContent className="p-12 text-center">
                 <Lightbulb size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground">
-                  No hay insights compartidos para este rol aún
-                </p>
+                <p className="text-muted-foreground">{t('exploration.noHayInsightsCompartidos')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -119,9 +115,7 @@ export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsight
             <Card className="border-dashed">
               <CardContent className="p-12 text-center">
                 <Trophy size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                <p className="text-muted-foreground">
-                  No hay insights con fit scores disponibles aún
-                </p>
+                <p className="text-muted-foreground">{t('exploration.noHayInsightsCon')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -175,7 +169,7 @@ function InsightCard({ insight, isOwn, showFitScore }: InsightCardProps) {
               <p className="text-xs text-muted-foreground">
                 {formatDistanceToNow(new Date(insight.created_at), {
                   addSuffix: true,
-                  locale: es,
+                  locale: getDateFnsLocale(),
                 })}
               </p>
             </div>
@@ -184,7 +178,7 @@ function InsightCard({ insight, isOwn, showFitScore }: InsightCardProps) {
           {showFitScore && insight.fit_score && (
             <div className="text-right flex-shrink-0">
               <div className="text-lg font-bold text-primary">{insight.fit_score.toFixed(1)}</div>
-              <div className="text-xs text-muted-foreground">Fit Score</div>
+              <div className="text-xs text-muted-foreground">{t('exploration.fitScore')}</div>
             </div>
           )}
         </div>

@@ -6,44 +6,46 @@ import { Button } from '@/components/ui/button';
 import { toast } from 'sonner';
 import { useUserSettings, useUpdateUserSettings, type NotificationSettings } from '@/hooks/useSettings';
 
+import { useTranslation } from 'react-i18next';
 const NOTIFICATION_OPTIONS = [
   {
     key: 'nuevas_obvs' as const,
-    label: 'Nuevas OBVs',
-    description: 'Notificar cuando alguien suba una OBV para validar',
+    label: t('settings.nuevasObvs'),
+    description: t('settings.notificarCuandoAlguienSuba'),
     icon: FileCheck,
     color: 'text-amber-500',
     bgColor: 'bg-amber-500/15',
   },
   {
     key: 'validaciones' as const,
-    label: 'Validaciones',
-    description: 'Notificar cuando validen o rechacen mis OBVs/KPIs',
+    label: t('settings.validaciones'),
+    description: t('settings.notificarCuandoValidenO'),
     icon: Check,
     color: 'text-green-500',
     bgColor: 'bg-green-500/15',
   },
   {
     key: 'tareas' as const,
-    label: 'Tareas Asignadas',
-    description: 'Notificar cuando me asignen una nueva tarea',
+    label: t('settings.tareasAsignadas'),
+    description: t('settings.notificarCuandoMeAsignen'),
     icon: ClipboardList,
     color: 'text-primary',
     bgColor: 'bg-primary/15',
   },
   {
     key: 'resumen_semanal' as const,
-    label: 'Resumen Semanal',
-    description: 'Recibir resumen por email cada lunes',
+    label: t('settings.resumenSemanal'),
+    description: t('settings.recibirResumenPorEmail'),
     icon: Mail,
     color: 'text-blue-500',
     bgColor: 'bg-blue-500/15',
     disabled: true,
-    badge: 'Próximamente',
+    badge: t('settings.próximamente'),
   },
 ];
 
 export function NotificationSettings() {
+  const { t } = useTranslation();
   const { data: settings, isLoading } = useUserSettings();
   const updateSettings = useUpdateUserSettings();
   
@@ -71,9 +73,9 @@ export function NotificationSettings() {
   const handleSave = async () => {
     try {
       await updateSettings.mutateAsync(notifications);
-      toast.success('Preferencias guardadas');
+      toast.success(t('settings.preferenciasGuardadas'));
     } catch (_error) {
-      toast.error('Error al guardar');
+      toast.error(t('settings.errorAlGuardar'));
     }
   };
 
@@ -90,14 +92,10 @@ export function NotificationSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Bell size={20} />
-            Preferencias de Notificaciones
-          </CardTitle>
+            <Bell size={20} />{t('settings.preferenciasDeNotificaciones')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-6">
-            Configura qué notificaciones quieres recibir
-          </p>
+          <p className="text-sm text-muted-foreground mb-6">{t('settings.configuraQuéNotificacionesQuieres')}</p>
 
           <div className="space-y-4">
             {NOTIFICATION_OPTIONS.map(option => (
@@ -138,9 +136,9 @@ export function NotificationSettings() {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={updateSettings.isPending}>
           {updateSettings.isPending ? (
-            <><Loader2 size={16} className="mr-2 animate-spin" /> Guardando...</>
+            <><Loader2 size={16} className="mr-2 animate-spin" />{t('settings.guardando')}</>
           ) : (
-            'Guardar preferencias'
+            t('settings.guardarPreferencias')
           )}
         </Button>
       </div>

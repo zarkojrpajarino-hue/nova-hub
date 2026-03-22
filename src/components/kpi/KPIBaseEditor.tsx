@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface KPIBaseEditorProps {
   memberId: string;
   memberName: string;
@@ -22,6 +23,7 @@ interface KPIBaseEditorProps {
 }
 
 export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEditorProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [saving, setSaving] = useState(false);
@@ -51,12 +53,12 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
 
       if (error) throw error;
 
-      toast.success('KPIs actualizados correctamente');
+      toast.success(t('kpi.kpisActualizadosCorrectamente'));
       await queryClient.invalidateQueries({ queryKey: ['member_stats'] });
       await queryClient.refetchQueries({ queryKey: ['member_stats'] });
       setOpen(false);
     } catch (_error) {
-      toast.error('Error al actualizar KPIs');
+      toast.error(t('kpi.errorAlActualizarKpis'));
     } finally {
       setSaving(false);
     }
@@ -66,9 +68,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" size="sm">
-          <Edit2 size={14} className="mr-1" />
-          Editar KPIs
-        </Button>
+          <Edit2 size={14} className="mr-1" />{t('kpi.editarKpis')}</Button>
       </DialogTrigger>
       <DialogContent className="max-w-md">
         <DialogHeader>
@@ -76,7 +76,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
         </DialogHeader>
         <div className="grid grid-cols-2 gap-4 py-4">
           <div>
-            <Label>OBVs</Label>
+            <Label>{t('kpi.obvs')}</Label>
             <Input
               type="number"
               value={values.obvs}
@@ -84,7 +84,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
             />
           </div>
           <div>
-            <Label>Learning Paths</Label>
+            <Label>{t('kpi.learningPaths')}</Label>
             <Input
               type="number"
               value={values.lps}
@@ -92,7 +92,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
             />
           </div>
           <div>
-            <Label>Book Points</Label>
+            <Label>{t('kpi.bookPoints')}</Label>
             <Input
               type="number"
               value={values.bps}
@@ -100,7 +100,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
             />
           </div>
           <div>
-            <Label>Community Points</Label>
+            <Label>{t('kpi.communityPoints')}</Label>
             <Input
               type="number"
               value={values.cps}
@@ -128,9 +128,7 @@ export function KPIBaseEditor({ memberId, memberName, currentStats }: KPIBaseEdi
         </div>
         <div className="flex gap-2 justify-end">
           <Button variant="outline" onClick={() => setOpen(false)}>
-            <X size={14} className="mr-1" />
-            Cancelar
-          </Button>
+            <X size={14} className="mr-1" />{t('kpi.cancelar')}</Button>
           <Button onClick={handleSave} disabled={saving}>
             {saving ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Save size={14} className="mr-1" />}
             Guardar

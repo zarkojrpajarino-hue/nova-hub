@@ -19,6 +19,7 @@ import {
 import { downloadCSV, downloadExcel, downloadPDF, downloadJSON, sanitizeFilename } from '@/utils/exportData';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 type ExportFormat = 'csv' | 'excel' | 'pdf' | 'json';
 
 interface ExportButtonProps {
@@ -61,11 +62,12 @@ export function ExportButton({
   variant = 'outline',
   size = 'default',
 }: ExportButtonProps) {
+  const { t } = useTranslation();
   const [isExporting, setIsExporting] = useState(false);
 
   const handleExport = async (format: ExportFormat) => {
     if (data.length === 0) {
-      toast.error('No hay datos para exportar');
+      toast.error(t('common.noHayDatosPara'));
       return;
     }
 
@@ -76,17 +78,17 @@ export function ExportButton({
       switch (format) {
         case 'csv':
           downloadCSV(data, sanitizedFilename, csvHeaders);
-          toast.success('CSV descargado correctamente');
+          toast.success(t('common.csvDescargadoCorrectamente'));
           break;
 
         case 'excel':
           await downloadExcel(data, sanitizedFilename);
-          toast.success('Excel descargado correctamente');
+          toast.success(t('common.excelDescargadoCorrectamente'));
           break;
 
         case 'pdf':
           if (!pdfConfig) {
-            toast.error('Configuración de PDF no especificada');
+            toast.error(t('common.configuraciónDePdfNo'));
             return;
           }
           await downloadPDF(
@@ -95,16 +97,16 @@ export function ExportButton({
             pdfConfig.columns,
             sanitizedFilename
           );
-          toast.success('PDF descargado correctamente');
+          toast.success(t('common.pdfDescargadoCorrectamente'));
           break;
 
         case 'json':
           downloadJSON(data, sanitizedFilename);
-          toast.success('JSON descargado correctamente');
+          toast.success(t('common.jsonDescargadoCorrectamente'));
           break;
       }
     } catch (_error) {
-      toast.error('Error al exportar los datos');
+      toast.error(t('common.errorAlExportarLos'));
     } finally {
       setIsExporting(false);
     }
@@ -120,11 +122,11 @@ export function ExportButton({
           className="gap-2"
         >
           <Download size={16} />
-          {size !== 'icon' && <span>{isExporting ? 'Exportando...' : 'Exportar'}</span>}
+          {size !== 'icon' && <span>{isExporting ? 'Exportando...': t('common.exportar')}</span>}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-48">
-        <DropdownMenuLabel>Exportar como</DropdownMenuLabel>
+        <DropdownMenuLabel>{t('common.exportarComo')}</DropdownMenuLabel>
         <DropdownMenuSeparator />
         {formats.map((format) => {
           const Icon = FORMAT_ICONS[format];

@@ -39,6 +39,7 @@ import type { Json } from '@/integrations/supabase/types';
 import type { BusinessIdea } from '@/lib/ai-generators';
 import type { FaseAAnswers } from '@/components/onboarding/fast-start/FaseACommon';
 
+import { useTranslation } from 'react-i18next';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type OnboardingType = 'generative' | 'idea' | 'existing';
@@ -57,17 +58,17 @@ interface PageData {
 
 const MARKET_SCOPE_LABELS: Record<string, string> = {
   local: 'Local (ciudad / región)',
-  nacional: 'Nacional',
-  national: 'Nacional',
+  nacional: t('primerInicio.nacional'),
+  national: t('primerInicio.nacional'),
   global: 'Global (varios países)',
   international: 'Global (varios países)',
 };
 
 const MONETIZATION_LABELS: Record<string, string> = {
-  transaccional: 'Venta única',
-  suscripcion: 'Suscripción recurrente',
-  ticket_alto: 'Ticket alto / servicio',
-  contrato: 'Contrato / proyecto',
+  transaccional: t('primerInicio.ventaÚnica'),
+  suscripcion: t('primerInicio.suscripciónRecurrente'),
+  ticket_alto: t('primerInicio.ticketAltoServicio'),
+  contrato: t('primerInicio.contratoProyecto'),
 };
 
 // ── Optimus suggestion ────────────────────────────────────────────────────────
@@ -83,27 +84,27 @@ function getOptimusSuggestion(phase: number): OptimusSuggestion {
   if (phase <= 1) {
     return {
       emoji: '🔍',
-      titulo: 'Te propongo tu primera entrevista de descubrimiento',
+      titulo: t('primerInicio.tePropongoTuPrimera'),
       detalle:
-        'Habla con 5 personas de tu cliente objetivo. Valida si el problema que describes es real y urgente para ellas. Una conversación de 20 minutos bien preparada vale más que semanas de desarrollo.',
-      obvLabel: 'Crear OBV de exploración',
+        t('primerInicio.hablaCon5Personas'),
+      obvLabel: t('primerInicio.crearObvDeExploración'),
     };
   }
   if (phase === 2) {
     return {
       emoji: '💰',
-      titulo: 'Veo que tienes clientes. Documentemos tu primera validación de revenue',
+      titulo: t('primerInicio.veoQueTienesClientes'),
       detalle:
-        'Registra una conversación de venta o un cierre reciente. Documenta qué funcionó, qué objeciones aparecieron y cuánto pagaron. Es tu primera prueba de sistema de ventas.',
-      obvLabel: 'Crear OBV de validación',
+        t('primerInicio.registraUnaConversaciónDe'),
+      obvLabel: t('primerInicio.crearObvDeValidación'),
     };
   }
   return {
     emoji: '⚙️',
-    titulo: 'Empecemos con tu primera OBV de sistema operacional',
+    titulo: t('primerInicio.empecemosConTuPrimera'),
     detalle:
-      'Define el proceso más crítico de tu operación actual. Documenta cómo lo vas a mejorar este mes y qué métrica usarás para medir el progreso.',
-    obvLabel: 'Crear OBV de sistema',
+      t('primerInicio.defineElProcesoMás'),
+    obvLabel: t('primerInicio.crearObvDeSistema'),
   };
 }
 
@@ -118,6 +119,7 @@ function InfoCard({
   label: string;
   value: string;
 }) {
+  const { t } = useTranslation();
   return (
     <div className="bg-white rounded-xl border border-gray-200 p-4 flex items-start gap-3">
       <div className="w-8 h-8 bg-blue-50 rounded-lg flex items-center justify-center flex-shrink-0">
@@ -170,7 +172,7 @@ export function PrimerInicioPage() {
       const currentPhase = phaseState?.current_phase ?? 1;
 
       setData({
-        projectName: project.nombre ?? 'Mi Proyecto',
+        projectName: project.nombre ?? t('primerInicio.miProyecto'),
         projectDescription: project.descripcion ?? null,
         onboardingType: (od.onboarding_type as OnboardingType | undefined) ?? 'idea',
         selectedIdea: (od.selected_idea as BusinessIdea | undefined) ?? null,
@@ -227,9 +229,9 @@ export function PrimerInicioPage() {
 
   if (data.selectedIdea) {
     // Generative path — rich data from idea selection
-    cards.push({ icon: Sparkles, label: 'Tu idea de negocio', value: data.selectedIdea.nombre });
-    cards.push({ icon: Users, label: 'Cliente objetivo', value: data.selectedIdea.cliente_objetivo });
-    cards.push({ icon: DollarSign, label: 'Modelo de monetización', value: data.selectedIdea.monetizacion });
+    cards.push({ icon: Sparkles, label: t('primerInicio.tuIdeaDeNegocio'), value: data.selectedIdea.nombre });
+    cards.push({ icon: Users, label: t('primerInicio.clienteObjetivo'), value: data.selectedIdea.cliente_objetivo });
+    cards.push({ icon: DollarSign, label: t('primerInicio.modeloDeMonetización'), value: data.selectedIdea.monetizacion });
     cards.push({
       icon: TrendingUp,
       label: 'MRR potencial (6 meses)',
@@ -237,27 +239,27 @@ export function PrimerInicioPage() {
     });
     cards.push({
       icon: Rocket,
-      label: 'Tiempo al primer ingreso',
+      label: t('primerInicio.tiempoAlPrimerIngreso'),
       value: data.selectedIdea.perfil_economico.tiempo_primer_ingreso,
     });
   } else {
     // Idea / existing path — use project name + fase_a data
-    cards.push({ icon: Sparkles, label: 'Tu proyecto', value: data.projectName });
+    cards.push({ icon: Sparkles, label: t('primerInicio.tuProyecto'), value: data.projectName });
     if (data.projectDescription) {
-      cards.push({ icon: MessageSquare, label: 'Descripción', value: data.projectDescription });
+      cards.push({ icon: MessageSquare, label: t('primerInicio.descripción'), value: data.projectDescription });
     }
     if (fa?.monetization_type) {
       cards.push({
         icon: DollarSign,
-        label: 'Modelo de monetización',
+        label: t('primerInicio.modeloDeMonetización'),
         value: MONETIZATION_LABELS[fa.monetization_type] ?? fa.monetization_type,
       });
     }
     if (fa?.active_customers != null && fa.active_customers > 0) {
-      cards.push({ icon: Users, label: 'Clientes actuales', value: String(fa.active_customers) });
+      cards.push({ icon: Users, label: t('primerInicio.clientesActuales'), value: String(fa.active_customers) });
     }
     if (fa?.mrr_monthly != null && fa.mrr_monthly > 0) {
-      cards.push({ icon: TrendingUp, label: 'MRR actual', value: `€${fa.mrr_monthly.toLocaleString()}/mes` });
+      cards.push({ icon: TrendingUp, label: t('primerInicio.mrrActual'), value: `€${fa.mrr_monthly.toLocaleString()}/mes` });
     }
   }
 
@@ -265,15 +267,15 @@ export function PrimerInicioPage() {
   if (fa?.market_scope) {
     cards.push({
       icon: Globe,
-      label: 'Alcance de mercado',
+      label: t('primerInicio.alcanceDeMercado'),
       value: MARKET_SCOPE_LABELS[fa.market_scope] ?? fa.market_scope,
     });
   }
   if (fa?.location_country) {
-    cards.push({ icon: MapPin, label: 'País de operación', value: fa.location_country });
+    cards.push({ icon: MapPin, label: t('primerInicio.paísDeOperación'), value: fa.location_country });
   }
   if (fa?.goal_90d) {
-    cards.push({ icon: Target, label: 'Objetivo 90 días', value: fa.goal_90d });
+    cards.push({ icon: Target, label: t('primerInicio.objetivo90Días'), value: fa.goal_90d });
   }
 
   return (
@@ -290,7 +292,7 @@ export function PrimerInicioPage() {
                 OPTIMUS-K
               </span>
             </h1>
-            <p className="text-xs text-gray-500">Primer inicio · Configuración completada</p>
+            <p className="text-xs text-gray-500">{t('primerInicio.primerInicioConfiguraciónCompletada')}</p>
           </div>
           <div className="ml-auto">
             <Badge className="bg-green-100 text-green-800 border-green-200 gap-1">
@@ -305,10 +307,8 @@ export function PrimerInicioPage() {
 
         {/* Hero */}
         <div className="text-center space-y-2">
-          <h2 className="text-3xl font-bold text-gray-900">Tu perfil está listo</h2>
-          <p className="text-lg text-gray-600">
-            Esto es lo que Optimus detectó de tu negocio
-          </p>
+          <h2 className="text-3xl font-bold text-gray-900">{t('primerInicio.tuPerfilEstáListo')}</h2>
+          <p className="text-lg text-gray-600">{t('primerInicio.estoEsLoQue')}</p>
         </div>
 
         {/* Sección 1: Modelo Estratégico v1 */}
@@ -317,9 +317,7 @@ export function PrimerInicioPage() {
             <div className="flex items-center gap-2 mb-5">
               <Sparkles className="h-5 w-5 text-blue-600" />
               <h3 className="text-base font-bold text-gray-900">Modelo Estratégico v1</h3>
-              <Badge variant="outline" className="text-xs text-blue-600 border-blue-200 ml-auto">
-                Generado desde tu onboarding
-              </Badge>
+              <Badge variant="outline" className="text-xs text-blue-600 border-blue-200 ml-auto">{t('primerInicio.generadoDesdeTuOnboarding')}</Badge>
             </div>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {cards.map((card, i) => (
@@ -336,9 +334,7 @@ export function PrimerInicioPage() {
               <div className="text-3xl flex-shrink-0">{suggestion.emoji}</div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">
-                    Optimus sugiere
-                  </span>
+                  <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t('primerInicio.optimusSugiere')}</span>
                   <Badge className="bg-purple-100 text-purple-800 border-purple-200 text-xs">
                     Fase {data.currentPhase}
                   </Badge>
@@ -373,15 +369,11 @@ export function PrimerInicioPage() {
             onClick={() => handleCTA(`/proyecto/${projectId}`)}
             disabled={saving}
             className="sm:w-auto gap-2 h-13"
-          >
-            Ir al dashboard
-            <ArrowRight className="h-4 w-4" />
+          >{t('primerInicio.irAlDashboard')}<ArrowRight className="h-4 w-4" />
           </Button>
         </div>
 
-        <p className="text-xs text-center text-gray-400">
-          Puedes volver a tu Modelo Estratégico en cualquier momento desde el panel de proyecto.
-        </p>
+        <p className="text-xs text-center text-gray-400">{t('primerInicio.puedesVolverATu')}</p>
       </div>
     </div>
   );

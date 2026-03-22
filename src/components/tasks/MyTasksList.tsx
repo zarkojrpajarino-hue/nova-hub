@@ -15,6 +15,7 @@ import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import type { Database } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 interface TaskWithProject {
   id: string;
   titulo: string;
@@ -33,12 +34,13 @@ interface TaskWithProject {
 }
 
 const PRIORITY_CONFIG: Record<number, { label: string; color: string }> = {
-  1: { label: 'Alta', color: '#EF4444' },
-  2: { label: 'Media', color: '#F59E0B' },
-  3: { label: 'Baja', color: '#22C55E' },
+  1: { label: t('tasks.alta'), color: '#EF4444' },
+  2: { label: t('tasks.media'), color: '#F59E0B' },
+  3: { label: t('tasks.baja'), color: '#22C55E' },
 };
 
 export function MyTasksList() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: projects = [] } = useProjects();
   const queryClient = useQueryClient();
@@ -105,10 +107,10 @@ export function MyTasksList() {
 
       if (error) throw error;
       
-      toast.success('¡Tarea completada!');
+      toast.success(t('tasks.tareaCompletada'));
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
     } catch (_error) {
-      toast.error('Error al completar tarea');
+      toast.error(t('tasks.errorAlCompletarTarea'));
     }
   };
 
@@ -195,19 +197,19 @@ export function MyTasksList() {
             <SelectValue />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="today">Hoy</SelectItem>
-            <SelectItem value="pending">Pendientes</SelectItem>
-            <SelectItem value="all">Todas</SelectItem>
+            <SelectItem value="today">{t('tasks.hoy')}</SelectItem>
+            <SelectItem value="pending">{t('tasks.pendientes')}</SelectItem>
+            <SelectItem value="all">{t('tasks.todas')}</SelectItem>
           </SelectContent>
         </Select>
 
         <Select value={filterProject} onValueChange={setFilterProject}>
           <SelectTrigger className="w-[180px]">
             <Filter size={14} className="mr-2" />
-            <SelectValue placeholder="Proyecto" />
+            <SelectValue placeholder={t('tasks.proyecto')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">Todos los proyectos</SelectItem>
+            <SelectItem value="all">{t('tasks.todosLosProyectos')}</SelectItem>
             {projects.map(p => (
               <SelectItem key={p.id} value={p.id}>
                 {p.icon} {p.nombre}
@@ -220,8 +222,8 @@ export function MyTasksList() {
       {filteredTasks.length === 0 ? (
         <div className="text-center py-8 text-muted-foreground">
           <CheckCircle2 className="w-12 h-12 mx-auto mb-3 opacity-30" />
-          <p className="font-medium">No hay tareas pendientes</p>
-          <p className="text-sm">¡Buen trabajo!</p>
+          <p className="font-medium">{t('tasks.noHayTareasPendientes')}</p>
+          <p className="text-sm">{t('tasks.buenTrabajo')}</p>
         </div>
       ) : (
         <div className="space-y-6">

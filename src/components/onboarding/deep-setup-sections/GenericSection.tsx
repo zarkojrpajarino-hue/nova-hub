@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowRight, CheckCircle2, LucideIcon } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface GenericSectionProps {
   projectId: string;
   sectionId: string;
@@ -44,6 +45,7 @@ export function GenericSection({
   onComplete,
   onCancel,
 }: GenericSectionProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState<Record<string, string>>({});
 
@@ -112,7 +114,7 @@ export function GenericSection({
       </Card>
 
       <div className="flex items-center justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
         <div className="flex items-center gap-3">
           <Badge variant="outline">+{progressValue}%</Badge>
           <Button
@@ -120,9 +122,7 @@ export function GenericSection({
             disabled={!canSubmit()}
             className={`bg-gradient-to-r ${gradientFrom} ${gradientTo}`}
           >
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            Complete Section
-            <ArrowRight className="h-4 w-4 ml-2" />
+            <CheckCircle2 className="h-4 w-4 mr-2" />Complete Section<ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
       </div>

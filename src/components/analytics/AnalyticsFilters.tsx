@@ -2,6 +2,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
 import type { MemberStats } from '@/hooks/useNovaData';
 
+import { useTranslation } from 'react-i18next';
 interface AnalyticsFiltersProps {
   members: MemberStats[];
   selectedPartners: string[];
@@ -13,6 +14,7 @@ export function AnalyticsFilters({
   selectedPartners, 
   onPartnersChange 
 }: AnalyticsFiltersProps) {
+  const { t } = useTranslation();
   const togglePartner = (id: string) => {
     if (selectedPartners.includes(id)) {
       onPartnersChange(selectedPartners.filter(p => p !== id));
@@ -37,16 +39,12 @@ export function AnalyticsFilters({
           <button 
             onClick={selectAll}
             className="text-xs text-primary hover:underline"
-          >
-            Seleccionar todos
-          </button>
+          >{t('analytics.seleccionarTodos')}</button>
           <span className="text-muted-foreground">|</span>
           <button 
             onClick={clearAll}
             className="text-xs text-primary hover:underline"
-          >
-            Limpiar
-          </button>
+          >{t('analytics.limpiar')}</button>
         </div>
       </div>
       

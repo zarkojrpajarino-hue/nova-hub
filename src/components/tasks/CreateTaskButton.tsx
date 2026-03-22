@@ -14,6 +14,7 @@ import { PlanSelectionModal } from '@/components/subscription/PlanSelectionModal
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface CreateTaskButtonProps {
   onCreateTask?: () => void;
   variant?: 'default' | 'outline' | 'ghost';
@@ -29,6 +30,7 @@ export function CreateTaskButton({
   className,
   children,
 }: CreateTaskButtonProps) {
+  const { t } = useTranslation();
   const { currentProject } = useCurrentProject();
   const { getLimitInfo } = useFeatureAccess(currentProject?.id);
   const { data: availablePlans = [] } = useAvailablePlans();
@@ -40,7 +42,7 @@ export function CreateTaskButton({
 
   const handleClick = () => {
     if (!currentProject) {
-      toast.error('Selecciona un proyecto primero');
+      toast.error(t('tasks.seleccionaUnProyectoPrimero'));
       return;
     }
 
@@ -57,7 +59,7 @@ export function CreateTaskButton({
   const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
     setShowUpgradeModal(false);
-    toast.success('¡Plan actualizado! Ya puedes crear más tareas.');
+    toast.success(t('tasks.planActualizadoYaPuedes'));
   };
 
   return (
@@ -76,7 +78,7 @@ export function CreateTaskButton({
         ) : (
           <Plus className="h-4 w-4 mr-2" />
         )}
-        {children || 'Nueva Tarea'}
+        {children || t('tasks.nuevaTarea')}
       </Button>
 
       {/* Upgrade Modal */}

@@ -34,11 +34,13 @@ import {
 import { z } from 'zod';
 import { mapAuthError, logError } from '@/lib/errorMapper';
 
-const emailSchema = z.string().email('Email inválido');
-const passwordSchema = z.string().min(8, 'Mínimo 8 caracteres');
-const nameSchema = z.string().min(2, 'Nombre muy corto').max(50, 'Nombre muy largo');
+import { useTranslation } from 'react-i18next';
+const emailSchema = z.string().email(t('auth.emailInválido'));
+const passwordSchema = z.string().min(8, t('auth.mínimo8Caracteres'));
+const nameSchema = z.string().min(2, t('auth.nombreMuyCorto')).max(50, t('auth.nombreMuyLargo'));
 
 export default function AuthPage() {
+  const { t } = useTranslation();
   const [_searchParams] = useSearchParams();
   const navigate = useNavigate();
 
@@ -133,13 +135,13 @@ export default function AuthPage() {
       });
 
       if (error) {
-        logError('Auth.signIn', error);
+        logError(t('auth.authsignin'), error);
         toast.error(mapAuthError(error));
       } else {
-        toast.success('¡Bienvenido de vuelta!');
+        toast.success(t('auth.bienvenidoDeVuelta'));
       }
     } catch (_error) {
-      toast.error('Error de conexión');
+      toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
     }
@@ -162,12 +164,12 @@ export default function AuthPage() {
     }
 
     if (password !== confirmPassword) {
-      toast.error('Las contraseñas no coinciden');
+      toast.error(t('auth.lasContraseñasNoCoinciden4'));
       return;
     }
 
     if (passwordStrength === 'weak') {
-      toast.error('Contraseña muy débil. Añade mayúsculas, números o símbolos.');
+      toast.error(t('auth.contraseñaMuyDébilAñade'));
       return;
     }
 
@@ -185,14 +187,14 @@ export default function AuthPage() {
       });
 
       if (error) {
-        logError('Auth.signUp', error);
+        logError(t('auth.authsignup'), error);
         toast.error(mapAuthError(error));
       } else if (data?.user) {
         setEmailSent(true);
-        toast.success('Cuenta creada! Revisa tu email para confirmar.');
+        toast.success(t('auth.cuentaCreadaRevisaTu'));
       }
     } catch (_error) {
-      toast.error('Error de conexión');
+      toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
     }
@@ -219,14 +221,14 @@ export default function AuthPage() {
       });
 
       if (error) {
-        logError('Auth.resetPassword', error);
+        logError(t('auth.authresetpassword'), error);
         toast.error(mapAuthError(error));
       } else {
         setEmailSent(true);
-        toast.success('Email enviado! Revisa tu bandeja de entrada.');
+        toast.success(t('auth.emailEnviadoRevisaTu'));
       }
     } catch (_error) {
-      toast.error('Error de conexión');
+      toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
     }
@@ -249,15 +251,15 @@ export default function AuthPage() {
     };
 
     const labels = {
-      weak: 'Débil',
-      medium: 'Media',
-      strong: 'Fuerte',
+      weak: t('auth.débil'),
+      medium: t('auth.media'),
+      strong: t('auth.fuerte'),
     };
 
     return (
       <div className="mt-2">
         <div className="flex items-center gap-2 mb-1">
-          <div className="flex-1 h-1.5 bg-gray-200 rounded-full overflow-hidden">
+          <div className="flex-1 h-1.5 bg-[#2E1065] rounded-full overflow-hidden">
             <div className={`h-full ${colors[passwordStrength]} ${widths[passwordStrength]} transition-all duration-300`} />
           </div>
           <span className={`text-xs font-semibold ${
@@ -268,9 +270,7 @@ export default function AuthPage() {
             {labels[passwordStrength]}
           </span>
         </div>
-        <p className="text-xs text-gray-500">
-          Usa mayúsculas, minúsculas, números y símbolos
-        </p>
+        <p className="text-xs text-[#C4B5FD]/50">{t('auth.usaMayúsculasMinúsculasNúmeros')}</p>
       </div>
     );
   };
@@ -278,27 +278,26 @@ export default function AuthPage() {
   // Email sent confirmation view
   if (emailSent) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0D0A1A] flex items-center justify-center p-4">
         <div className="w-full max-w-md text-center">
-          <div className="bg-white/95 backdrop-blur border-2 border-white/20 rounded-2xl p-8">
-            <div className="w-20 h-20 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl">
+          <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-[#2E1065] rounded-xl p-8">
+            <div className="w-20 h-20 bg-[#7C3AED] rounded-full flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="h-10 w-10 text-white" />
             </div>
 
-            <h2 className="text-2xl font-bold mb-3 text-gray-900">
-              {mode === 'forgot' ? '📧 Email Enviado' : '✅ Cuenta Creada'}
+            <h2 className="text-2xl font-bold mb-3 text-white">
+              {mode === 'forgot' ? 'Email Enviado': t('auth.cuentaCreada')}
             </h2>
 
-            <p className="text-gray-700 mb-6 leading-relaxed">
+            <p className="text-[#C4B5FD] mb-6 leading-relaxed">
               {mode === 'forgot'
-                ? 'Hemos enviado un link de recuperación a tu email. Revisa tu bandeja de entrada y spam.'
-                : 'Te hemos enviado un email de confirmación. Por favor, verifica tu email antes de iniciar sesión.'
+                ? 'Hemos enviado un link de recuperación a tu email. Revisa tu bandeja de entrada y spam.': t('auth.teHemosEnviadoUn')
               }
             </p>
 
-            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-              <p className="text-sm text-blue-800">
-                📬 Email enviado a: <strong>{email}</strong>
+            <div className="bg-[#2E1065]/50 border border-[#7C3AED]/30 rounded-lg p-4 mb-6">
+              <p className="text-sm text-[#C4B5FD]">
+                Email enviado a: <strong className="text-white">{email}</strong>
               </p>
             </div>
 
@@ -312,9 +311,7 @@ export default function AuthPage() {
               className="w-full"
               variant="outline"
             >
-              <ArrowLeft className="mr-2 h-4 w-4" />
-              Volver al login
-            </Button>
+              <ArrowLeft className="mr-2 h-4 w-4" />{t('auth.volverAlLogin')}</Button>
           </div>
         </div>
       </div>
@@ -324,54 +321,38 @@ export default function AuthPage() {
   // Forgot password view
   if (mode === 'forgot') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+      <div className="min-h-screen bg-[#0D0A1A] flex items-center justify-center p-4">
         <div className="w-full max-w-md">
           {/* Logo */}
           <div className="text-center mb-8">
-            <div className="inline-flex items-center gap-3 mb-4">
-              <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center font-bold text-2xl text-white shadow-2xl shadow-purple-500/50">
-                O
-              </div>
-              <div>
-                <span className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                  OPTIMUS-K
-                </span>
-                <span className="ml-2 text-xs bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg">
-                  BETA
-                </span>
-              </div>
-            </div>
+            <h1 className="text-3xl font-extrabold tracking-tight text-white">
+              OPTIMUS-K
+            </h1>
           </div>
 
           {/* Form Card */}
-          <div className="bg-white/95 backdrop-blur border-2 border-white/20 rounded-2xl p-8">
+          <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-[#2E1065] rounded-xl p-8">
             <div className="mb-6">
               <Button
                 variant="ghost"
                 onClick={() => setMode('login')}
                 className="mb-4"
               >
-                <ArrowLeft className="mr-2 h-4 w-4" />
-                Volver
-              </Button>
+                <ArrowLeft className="mr-2 h-4 w-4" />{t('auth.volver')}</Button>
 
-              <h2 className="text-2xl font-bold text-gray-900">
-                ¿Olvidaste tu contraseña?
-              </h2>
-              <p className="text-sm text-gray-600 mt-2">
-                Ingresa tu email y te enviaremos un link para recuperarla
-              </p>
+              <h2 className="text-2xl font-bold text-white">{t('auth.olvidasteTuContraseña')}</h2>
+              <p className="text-sm text-[#C4B5FD]/70 mt-2">{t('auth.ingresaTuEmailY')}</p>
             </div>
 
             <form onSubmit={handleForgotPassword} className="space-y-4">
               <div className="space-y-2">
-                <Label htmlFor="email">Email</Label>
+                <Label htmlFor="email">{t('auth.email')}</Label>
                 <div className="relative">
-                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                   <Input
                     id="email"
                     type="email"
-                    placeholder="tu@email.com"
+                    placeholder={t('auth.tuemailcom')}
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className="pl-10 pr-10"
@@ -391,19 +372,15 @@ export default function AuthPage() {
 
               <Button
                 type="submit"
-                className="w-full bg-gradient-to-r from-purple-600 to-blue-600 hover:from-purple-700 hover:to-blue-700 text-white font-semibold shadow-lg"
+                className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold"
                 disabled={loading || !emailValid}
               >
                 {loading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Enviando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('auth.enviando')}</>
                 ) : (
                   <>
-                    <Mail className="mr-2 h-4 w-4" />
-                    Enviar Link de Recuperación
-                  </>
+                    <Mail className="mr-2 h-4 w-4" />{t('auth.enviarLinkDeRecuperación')}</>
                 )}
               </Button>
             </form>
@@ -415,47 +392,31 @@ export default function AuthPage() {
 
   // Main login/signup view
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-[#0D0A1A] flex items-center justify-center p-4">
       <div className="w-full max-w-md">
         {/* Logo */}
-        <div className="text-center mb-8">
-          <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-16 h-16 bg-gradient-to-br from-cyan-400 via-blue-500 to-purple-600 rounded-xl flex items-center justify-center font-bold text-2xl text-white shadow-2xl shadow-purple-500/50">
-              O
-            </div>
-            <div>
-              <span className="text-4xl font-bold tracking-tight bg-gradient-to-r from-cyan-400 via-blue-400 to-purple-400 bg-clip-text text-transparent">
-                OPTIMUS-K
-              </span>
-              <span className="ml-2 text-xs bg-gradient-to-r from-cyan-500 to-blue-500 text-white px-2 py-0.5 rounded-full font-bold shadow-lg">
-                BETA
-              </span>
-            </div>
-          </div>
-          <p className="text-gray-300 text-sm">
-            Plataforma de gestión estratégica para emprendedores
-          </p>
+        <div className="text-center mb-10">
+          <h1 className="text-4xl font-extrabold tracking-tight text-white mb-2">
+            OPTIMUS-K
+          </h1>
+          <p className="text-[#C4B5FD] text-sm">{t('auth.gestionaElFuturoDe')}</p>
         </div>
 
         {/* Form Card with Tabs */}
-        <div className="bg-white/95 backdrop-blur border-2 border-white/20 rounded-2xl p-8">
+        <div className="bg-[#1a1333]/80 backdrop-blur-xl border border-[#2E1065] rounded-xl p-8">
           <Tabs defaultValue="login" className="w-full" onValueChange={(v) => setMode(v as 'login' | 'signup')}>
             <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="login" className="font-semibold">
-                Iniciar Sesión
-              </TabsTrigger>
-              <TabsTrigger value="signup" className="font-semibold">
-                Crear Cuenta
-              </TabsTrigger>
+              <TabsTrigger value="login" className="font-semibold">{t('auth.iniciarSesión')}</TabsTrigger>
+              <TabsTrigger value="signup" className="font-semibold">{t('auth.crearCuenta')}</TabsTrigger>
             </TabsList>
 
             {/* LOGIN TAB */}
             <TabsContent value="login">
               <form onSubmit={handleLogin} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="login-email">Email</Label>
+                  <Label htmlFor="login-email">{t('auth.email')}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                     <Input
                       id="login-email"
                       type="email"
@@ -479,17 +440,15 @@ export default function AuthPage() {
 
                 <div className="space-y-2">
                   <div className="flex items-center justify-between">
-                    <Label htmlFor="login-password">Contraseña</Label>
+                    <Label htmlFor="login-password">{t('auth.contraseña')}</Label>
                     <button
                       type="button"
                       onClick={() => setMode('forgot')}
-                      className="text-xs text-blue-600 hover:text-blue-700 font-medium"
-                    >
-                      ¿Olvidaste tu contraseña?
-                    </button>
+                      className="text-xs text-[#C4B5FD] hover:text-[#7C3AED] font-medium"
+                    >{t('auth.olvidasteTuContraseña')}</button>
                   </div>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                     <Input
                       id="login-password"
                       type={showPassword ? 'text' : 'password'}
@@ -502,7 +461,7 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C4B5FD]/40 hover:text-[#C4B5FD]/70"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -515,19 +474,14 @@ export default function AuthPage() {
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white font-semibold shadow-lg"
+                  className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold"
                   disabled={loading}
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Entrando...
-                    </>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('auth.entrando')}</>
                   ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Entrar
-                    </>
+                    t('auth.entrar')
                   )}
                 </Button>
               </form>
@@ -537,13 +491,13 @@ export default function AuthPage() {
             <TabsContent value="signup">
               <form onSubmit={handleSignUp} className="space-y-4">
                 <div className="space-y-2">
-                  <Label htmlFor="signup-nombre">Nombre</Label>
+                  <Label htmlFor="signup-nombre">{t('auth.nombre')}</Label>
                   <div className="relative">
-                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                     <Input
                       id="signup-nombre"
                       type="text"
-                      placeholder="Tu nombre"
+                      placeholder={t('auth.tuNombre')}
                       value={nombre}
                       onChange={(e) => setNombre(e.target.value)}
                       className="pl-10"
@@ -553,9 +507,9 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="signup-email">Email</Label>
+                  <Label htmlFor="signup-email">{t('auth.email')}</Label>
                   <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                     <Input
                       id="signup-email"
                       type="email"
@@ -578,13 +532,13 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="signup-password">Contraseña</Label>
+                  <Label htmlFor="signup-password">{t('auth.contraseña')}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                     <Input
                       id="signup-password"
                       type={showPassword ? 'text' : 'password'}
-                      placeholder="Mínimo 8 caracteres"
+                      placeholder={t('auth.mínimo8Caracteres')}
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
                       className="pl-10 pr-10"
@@ -593,7 +547,7 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={() => setShowPassword(!showPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C4B5FD]/40 hover:text-[#C4B5FD]/70"
                     >
                       {showPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -606,13 +560,13 @@ export default function AuthPage() {
                 </div>
 
                 <div className="space-y-2">
-                  <Label htmlFor="signup-confirm">Confirmar Contraseña</Label>
+                  <Label htmlFor="signup-confirm">{t('auth.confirmarContraseña')}</Label>
                   <div className="relative">
-                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                    <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-[#C4B5FD]/40" />
                     <Input
                       id="signup-confirm"
                       type={showConfirmPassword ? 'text' : 'password'}
-                      placeholder="Repite tu contraseña"
+                      placeholder={t('auth.repiteTuContraseña')}
                       value={confirmPassword}
                       onChange={(e) => setConfirmPassword(e.target.value)}
                       className="pl-10 pr-10"
@@ -621,7 +575,7 @@ export default function AuthPage() {
                     <button
                       type="button"
                       onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                      className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-[#C4B5FD]/40 hover:text-[#C4B5FD]/70"
                     >
                       {showConfirmPassword ? (
                         <EyeOff className="h-4 w-4" />
@@ -631,39 +585,32 @@ export default function AuthPage() {
                     </button>
                   </div>
                   {confirmPassword && password !== confirmPassword && (
-                    <p className="text-xs text-red-600">Las contraseñas no coinciden</p>
+                    <p className="text-xs text-red-600">{t('auth.lasContraseñasNoCoinciden')}</p>
                   )}
                 </div>
 
                 <Button
                   type="submit"
-                  className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white font-semibold shadow-lg"
+                  className="w-full bg-[#7C3AED] hover:bg-[#6D28D9] text-white font-semibold"
                   disabled={loading}
                 >
                   {loading ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Creando cuenta...
-                    </>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('auth.creandoCuenta')}</>
                   ) : (
-                    <>
-                      <Sparkles className="mr-2 h-4 w-4" />
-                      Crear Cuenta
-                    </>
+                    t('auth.crearCuenta5')
                   )}
                 </Button>
 
-                <p className="text-xs text-gray-500 text-center mt-4">
-                  Al registrarte, aceptas nuestros términos y condiciones
-                </p>
+                <p className="text-xs text-[#C4B5FD]/50 text-center mt-4">{t('auth.alRegistrarteAceptasNuestros')}</p>
               </form>
             </TabsContent>
           </Tabs>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-gray-400 mt-6">
-          Programa LEINN • Mondragón Team Academy
+        <p className="text-center text-xs text-[#C4B5FD]/50 mt-6">
+          optimusk.com
         </p>
       </div>
     </div>

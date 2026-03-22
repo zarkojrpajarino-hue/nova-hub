@@ -33,11 +33,13 @@ import { StrategyEditor } from '@/components/engine-inputs/StrategyEditor';
 import { EconomicProfileForm } from '@/components/engine-inputs/EconomicProfileForm';
 import { ProcessArtifactEditor } from '@/components/engine-inputs/ProcessArtifactEditor';
 
+import { useTranslation } from 'react-i18next';
 interface StartupOSDashboardProps {
   projectId: string;
 }
 
 export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
+  const { t } = useTranslation();
   const [activeView, setActiveView] = useState<'overview' | 'strategy' | 'execution' | 'metrics' | 'intelligence' | 'inputs'>(
     'overview'
   );
@@ -49,16 +51,14 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold">Startup OS</h1>
-            <p className="text-gray-600 mt-1">Your complete operating system for building and scaling</p>
+            <p className="text-gray-600 mt-1">{t('startupOs.yourCompleteOperatingSystem')}</p>
           </div>
           <div className="flex items-center gap-2">
             <Badge variant="outline" className="text-green-600 border-green-600">
               Health: 85%
             </Badge>
             <Button variant="outline" size="sm">
-              <Sparkles className="h-4 w-4 mr-2" />
-              Ask AI Advisor
-            </Button>
+              <Sparkles className="h-4 w-4 mr-2" />{t('startupOs.askAiAdvisor')}</Button>
           </div>
         </div>
       </div>
@@ -68,29 +68,17 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
         <div className="border-b bg-gray-50 px-6">
           <TabsList className="bg-transparent">
             <TabsTrigger value="overview" className="gap-2">
-              <LayoutDashboard className="h-4 w-4" />
-              Overview
-            </TabsTrigger>
+              <LayoutDashboard className="h-4 w-4" />{t('startupOs.overview')}</TabsTrigger>
             <TabsTrigger value="strategy" className="gap-2">
-              <Target className="h-4 w-4" />
-              Strategy
-            </TabsTrigger>
+              <Target className="h-4 w-4" />{t('startupOs.strategy')}</TabsTrigger>
             <TabsTrigger value="execution" className="gap-2">
-              <Rocket className="h-4 w-4" />
-              Execution
-            </TabsTrigger>
+              <Rocket className="h-4 w-4" />{t('startupOs.execution')}</TabsTrigger>
             <TabsTrigger value="metrics" className="gap-2">
-              <BarChart3 className="h-4 w-4" />
-              Metrics
-            </TabsTrigger>
+              <BarChart3 className="h-4 w-4" />{t('startupOs.metrics')}</TabsTrigger>
             <TabsTrigger value="intelligence" className="gap-2">
-              <Sparkles className="h-4 w-4" />
-              Intelligence
-            </TabsTrigger>
+              <Sparkles className="h-4 w-4" />{t('startupOs.intelligence')}</TabsTrigger>
             <TabsTrigger value="inputs" className="gap-2">
-              <Database className="h-4 w-4" />
-              Inputs
-            </TabsTrigger>
+              <Database className="h-4 w-4" />{t('startupOs.inputs')}</TabsTrigger>
           </TabsList>
         </div>
 
@@ -98,28 +86,28 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
         <TabsContent value="overview" className="p-6 space-y-6">
           <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
             <QuickStatCard
-              title="MRR"
+              title={t('startupOs.mrr')}
               value="$12,450"
               change="+18%"
               icon={<DollarSign className="h-4 w-4" />}
               trend="up"
             />
             <QuickStatCard
-              title="Active OKRs"
+              title={t('startupOs.activeOkrs')}
               value="4"
-              subtitle="2 on track"
+              subtitle={t('startupOs.2OnTrack')}
               icon={<Target className="h-4 w-4" />}
             />
             <QuickStatCard
-              title="Launch Progress"
+              title={t('startupOs.launchProgress')}
               value="67%"
-              subtitle="24 of 36 items"
+              subtitle={t('startupOs.24Of36Items')}
               icon={<CheckSquare className="h-4 w-4" />}
             />
             <QuickStatCard
-              title="AI Recommendations"
+              title={t('startupOs.aiRecommendations0')}
               value="3"
-              subtitle="2 high priority"
+              subtitle={t('startupOs.2HighPriority')}
               icon={<Sparkles className="h-4 w-4" />}
             />
           </div>
@@ -127,25 +115,25 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
           {/* Quick Actions Grid */}
           <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-3">
             <ActionCard
-              title="Update Weekly Metrics"
+              title={t('startupOs.updateWeeklyMetrics')}
               description="Log this week's MRR, customers, and churn"
               icon={<TrendingUp />}
-              action="Update Now"
+              action={t('startupOs.updateNow')}
               onClick={() => {}}
             />
             <ActionCard
-              title="Review AI Recommendations"
+              title={t('startupOs.reviewAiRecommendations')}
               description="3 new strategic recommendations"
               icon={<Sparkles />}
-              action="Review"
+              action={t('startupOs.review')}
               badge="3 new"
               onClick={() => setActiveView('intelligence')}
             />
             <ActionCard
-              title="Content Calendar"
+              title={t('startupOs.contentCalendar1')}
               description="5 posts scheduled this week"
               icon={<Calendar />}
-              action="View Calendar"
+              action={t('startupOs.viewCalendar')}
               onClick={() => setActiveView('execution')}
             />
           </div>
@@ -153,26 +141,26 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
           {/* Recent Activity */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Activity</CardTitle>
+              <CardTitle>{t('startupOs.recentActivity')}</CardTitle>
             </CardHeader>
             <CardContent>
               <div className="space-y-3">
                 <ActivityItem
                   icon={<AlertCircle className="h-4 w-4 text-yellow-600" />}
-                  title="Competitor pricing change detected"
-                  subtitle="Notion increased Pro plan from $8 to $10/user"
+                  title={t('startupOs.competitorPricingChangeDetected')}
+                  subtitle={t('startupOs.notionIncreasedProPlan')}
                   time="2 hours ago"
                 />
                 <ActivityItem
                   icon={<Users className="h-4 w-4 text-green-600" />}
-                  title="New beta tester feedback"
-                  subtitle="Sarah from TechCorp rated 5/5"
+                  title={t('startupOs.newBetaTesterFeedback')}
+                  subtitle={t('startupOs.sarahFromTechcorpRated')}
                   time="5 hours ago"
                 />
                 <ActivityItem
                   icon={<FileText className="h-4 w-4 text-blue-600" />}
-                  title="Blog post published"
-                  subtitle='"How to Validate Your SaaS Idea in 48 Hours"'
+                  title={t('startupOs.blogPostPublished')}
+                  subtitle='How to Validate Your SaaS Idea in 48 Hours'
                   time="1 day ago"
                 />
               </div>
@@ -186,20 +174,20 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
             <Card>
               <CardHeader>
                 <CardTitle>OKRs (Objectives & Key Results)</CardTitle>
-                <CardDescription>Track your quarterly objectives</CardDescription>
+                <CardDescription>{t('startupOs.trackYourQuarterlyObjectives')}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">OKRs component here</p>
+                <p className="text-gray-600">{t('startupOs.okrsComponentHere')}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Competitor Intelligence</CardTitle>
-                <CardDescription>Automated weekly tracking of your competitors</CardDescription>
+                <CardTitle>{t('startupOs.competitorIntelligence')}</CardTitle>
+                <CardDescription>{t('startupOs.automatedWeeklyTrackingOf')}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Competitor tracking component here</p>
+                <p className="text-gray-600">{t('startupOs.competitorTrackingComponentHere')}</p>
               </CardContent>
             </Card>
           </div>
@@ -210,21 +198,21 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>Content Calendar</CardTitle>
+                <CardTitle>{t('startupOs.contentCalendar')}</CardTitle>
                 <CardDescription>50 SEO-optimized content ideas for the next 6 months</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Content calendar component here</p>
+                <p className="text-gray-600">{t('startupOs.contentCalendarComponentHere')}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>Launch Checklist</CardTitle>
+                <CardTitle>{t('startupOs.launchChecklist')}</CardTitle>
                 <CardDescription>36 items to complete before launch</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">Launch checklist component here</p>
+                <p className="text-gray-600">{t('startupOs.launchChecklistComponentHere')}</p>
               </CardContent>
             </Card>
           </div>
@@ -239,10 +227,8 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
         <TabsContent value="inputs" className="p-6">
           <div className="space-y-6 max-w-4xl">
             <div>
-              <h2 className="text-lg font-semibold">Datos para los motores</h2>
-              <p className="text-sm text-gray-600 mt-1">
-                Estrategia, perfil económico y procesos documentados. Alimentan los motores de probabilidad, riesgo y viabilidad.
-              </p>
+              <h2 className="text-lg font-semibold">{t('startupOs.datosParaLosMotores')}</h2>
+              <p className="text-sm text-gray-600 mt-1">{t('startupOs.estrategiaPerfilEconómicoY')}</p>
             </div>
             <StrategyEditor projectId={projectId} />
             <EconomicProfileForm projectId={projectId} />
@@ -255,21 +241,21 @@ export function StartupOSDashboard({ projectId }: StartupOSDashboardProps) {
           <div className="space-y-6">
             <Card>
               <CardHeader>
-                <CardTitle>AI Recommendations</CardTitle>
-                <CardDescription>Strategic recommendations based on your data</CardDescription>
+                <CardTitle>{t('startupOs.aiRecommendations')}</CardTitle>
+                <CardDescription>{t('startupOs.strategicRecommendationsBasedOn')}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">AI recommendations component here</p>
+                <p className="text-gray-600">{t('startupOs.aiRecommendationsComponentHere')}</p>
               </CardContent>
             </Card>
 
             <Card>
               <CardHeader>
-                <CardTitle>AI Business Advisor</CardTitle>
-                <CardDescription>Chat with AI about your business</CardDescription>
+                <CardTitle>{t('startupOs.aiBusinessAdvisor')}</CardTitle>
+                <CardDescription>{t('startupOs.chatWithAiAbout')}</CardDescription>
               </CardHeader>
               <CardContent>
-                <p className="text-gray-600">AI chat component here</p>
+                <p className="text-gray-600">{t('startupOs.aiChatComponentHere')}</p>
               </CardContent>
             </Card>
           </div>

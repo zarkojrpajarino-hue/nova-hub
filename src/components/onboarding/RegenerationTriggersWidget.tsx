@@ -23,11 +23,13 @@ import { ContextAggregator } from '@/lib/context-aggregator';
 import { toast } from 'sonner';
 import confetti from '@/lib/confetti';
 
+import { useTranslation } from 'react-i18next';
 interface RegenerationTriggersWidgetProps {
   projectId: string;
 }
 
 export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWidgetProps) {
+  const { t } = useTranslation();
   const [triggerProgress, setTriggerProgress] = useState<Record<string, unknown>[]>([]);
   const [qualityScore, setQualityScore] = useState(0);
   const [isRegenerating, setIsRegenerating] = useState(false);
@@ -66,15 +68,15 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
         origin: { y: 0.6 }
       });
 
-      toast.success('Artifact regenerated!', {
+      toast.success(t('onboarding.artifactRegenerated'), {
         description: `${artifactType} updated with latest context`
       });
 
       // Reload data
       await loadTriggerData();
     } catch (_error) {
-      toast.error('Regeneration failed', {
-        description: 'Please try again'
+      toast.error(t('onboarding.regenerationFailed'), {
+        description: t('onboarding.pleaseTryAgain')
       });
     } finally {
       setIsRegenerating(false);
@@ -105,16 +107,14 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
               <Sparkles className="h-5 w-5 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">AI Regeneration Opportunities</CardTitle>
-              <CardDescription>
-                Update your artifacts with accumulated real-world data
-              </CardDescription>
+              <CardTitle className="text-lg">{t('onboarding.aiRegenerationOpportunities')}</CardTitle>
+              <CardDescription>{t('onboarding.updateYourArtifactsWith')}</CardDescription>
             </div>
           </div>
 
           <div className="text-right">
             <div className="text-2xl font-bold text-purple-600">{qualityScore}%</div>
-            <div className="text-xs text-gray-600">Context Quality</div>
+            <div className="text-xs text-gray-600">{t('onboarding.contextQuality')}</div>
           </div>
         </div>
       </CardHeader>
@@ -126,8 +126,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
             <Alert className="bg-green-50 border-green-200">
               <CheckCircle2 className="h-4 w-4 text-green-600" />
               <AlertDescription className="text-green-900">
-                <strong>{readyTriggers.length} regeneration{readyTriggers.length > 1 ? 's' : ''} available!</strong> Click to update with latest data.
-              </AlertDescription>
+                <strong>{readyTriggers.length} regeneration{readyTriggers.length > 1 ? 's' : ''} available!</strong>{t('onboarding.clickToUpdateWith')}</AlertDescription>
             </Alert>
 
             {readyTriggers.map(({ trigger, current, threshold }) => (
@@ -145,9 +144,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
                             {current} / {threshold}
                           </Badge>
                           <Badge className="bg-green-600 gap-1">
-                            <CheckCircle2 className="h-3 w-3" />
-                            Ready
-                          </Badge>
+                            <CheckCircle2 className="h-3 w-3" />{t('onboarding.ready')}</Badge>
                         </div>
                       </div>
                     </div>
@@ -158,14 +155,10 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
                     >
                       {isRegenerating ? (
                         <>
-                          <RefreshCw className="h-4 w-4 animate-spin" />
-                          Regenerating...
-                        </>
+                          <RefreshCw className="h-4 w-4 animate-spin" />{t('onboarding.regenerating')}</>
                       ) : (
                         <>
-                          <Sparkles className="h-4 w-4" />
-                          Regenerate
-                        </>
+                          <Sparkles className="h-4 w-4" />{t('onboarding.regenerate')}</>
                       )}
                     </Button>
                   </div>
@@ -179,9 +172,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
         {inProgressTriggers.length > 0 && (
           <div className="space-y-3">
             <h4 className="text-sm font-semibold text-gray-700 flex items-center gap-2">
-              <Clock className="h-4 w-4" />
-              Building Context
-            </h4>
+              <Clock className="h-4 w-4" />{t('onboarding.buildingContext')}</h4>
 
             {inProgressTriggers.map(({ trigger, current, threshold, percentage }) => (
               <div key={trigger.id} className="p-3 bg-gray-50 rounded-lg">
@@ -205,7 +196,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
         {readyTriggers.length === 0 && inProgressTriggers.length === 0 && (
           <div className="text-center py-8">
             <div className="text-4xl mb-3">🎯</div>
-            <h4 className="font-semibold text-gray-900 mb-2">Start Building Context</h4>
+            <h4 className="font-semibold text-gray-900 mb-2">{t('onboarding.startBuildingContext')}</h4>
             <p className="text-sm text-gray-600 max-w-md mx-auto">
               As you conduct customer interviews, close deals, and gather data,
               AI will offer to regenerate your strategic documents with real insights.
@@ -218,16 +209,14 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
           <div className="flex items-center justify-between text-sm">
             <div className="flex items-center gap-2">
               <Zap className="h-4 w-4 text-purple-600" />
-              <span className="text-gray-700">Context Quality Score</span>
+              <span className="text-gray-700">{t('onboarding.contextQualityScore')}</span>
             </div>
             <div className="flex items-center gap-2">
               <Progress value={qualityScore} className="w-24 h-2" />
               <span className="font-semibold text-purple-600">{qualityScore}%</span>
             </div>
           </div>
-          <p className="text-xs text-gray-500 mt-2">
-            Higher quality context = More accurate AI insights. Keep adding real data!
-          </p>
+          <p className="text-xs text-gray-500 mt-2">{t('onboarding.higherQualityContextMore')}</p>
         </div>
       </CardContent>
     </Card>

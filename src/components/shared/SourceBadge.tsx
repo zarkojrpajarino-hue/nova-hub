@@ -15,13 +15,14 @@ import { Badge } from '@/components/ui/badge'
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip'
 import { cn } from '@/lib/utils'
 import { formatDistanceToNow } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { getDateFnsLocale } from '@/i18n'
 
+import { useTranslation } from 'react-i18next';
 export type SourceType = 'observed' | 'declared' | 'estimated' | 'inferred'
 
 export interface SourceBadgeProps {
   type: SourceType
-  source?: string       // "Stripe" | "HubSpot" | "manual" | "sistema" | etc.
+  source?: string       // t('shared.stripe') | t('shared.hubspot') | "manual" | "sistema" | etc.
   reliability?: number  // 0-1 → muestra como % en tooltip
   timestamp?: string    // ISO string → "hace 3 días"
   label?: string        // override del texto del badge
@@ -30,10 +31,10 @@ export interface SourceBadgeProps {
 }
 
 const TYPE_CONFIG: Record<SourceType, { label: string; className: string; dot: string }> = {
-  observed:  { label: 'Observado',  className: 'bg-green-100  text-green-800  border-green-200',  dot: 'bg-green-500'  },
-  declared:  { label: 'Declarado',  className: 'bg-blue-100   text-blue-800   border-blue-200',   dot: 'bg-blue-500'   },
-  estimated: { label: 'Estimado',   className: 'bg-orange-100 text-orange-800 border-orange-200', dot: 'bg-orange-500' },
-  inferred:  { label: 'Inferido',   className: 'bg-gray-100   text-gray-700   border-gray-200',   dot: 'bg-gray-400'   },
+  observed:  { label: t('shared.observado'),  className: 'bg-green-100  text-green-800  border-green-200',  dot: 'bg-green-500'  },
+  declared:  { label: t('shared.declarado'),  className: 'bg-blue-100   text-blue-800   border-blue-200',   dot: 'bg-blue-500'   },
+  estimated: { label: t('shared.estimado'),   className: 'bg-orange-100 text-orange-800 border-orange-200', dot: 'bg-orange-500' },
+  inferred:  { label: t('shared.inferido'),   className: 'bg-gray-100   text-gray-700   border-gray-200',   dot: 'bg-gray-400'   },
 }
 
 function buildTooltip(props: SourceBadgeProps): string | null {
@@ -50,7 +51,7 @@ function buildTooltip(props: SourceBadgeProps): string | null {
     try {
       const relative = formatDistanceToNow(new Date(props.timestamp), {
         addSuffix: true,
-        locale: es,
+        locale: getDateFnsLocale(),
       })
       lines.push(`Actualizado ${relative}`)
     } catch {
@@ -70,6 +71,7 @@ export function SourceBadge({
   size = 'default',
   className,
 }: SourceBadgeProps) {
+  const { t } = useTranslation();
   const config = TYPE_CONFIG[type]
   const displayLabel = label ?? config.label
   const tooltip = buildTooltip({ type, source, reliability, timestamp })

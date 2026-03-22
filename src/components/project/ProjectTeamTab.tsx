@@ -6,6 +6,7 @@ import type { Project } from '@/hooks/useNovaData';
 import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
 import { ProjectLifecycleActions } from './ProjectLifecycleActions';
 
+import { useTranslation } from 'react-i18next';
 interface TeamMemberDisplay {
   id: string;
   nombre: string;
@@ -24,6 +25,7 @@ interface ProjectTeamTabProps {
 }
 
 function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) {
+  const { t } = useTranslation();
   const [showInvite, setShowInvite] = useState(false);
 
   const membersByRole = teamMembers.reduce((acc: Record<string, TeamMemberDisplay[]>, member: TeamMemberDisplay) => {
@@ -42,9 +44,7 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
           </div>
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" className="gap-1" onClick={() => setShowInvite(true)}>
-              <UserPlus className="h-3.5 w-3.5" />
-              Invitar
-            </Button>
+              <UserPlus className="h-3.5 w-3.5" />{t('project.invitar')}</Button>
             <ProjectLifecycleActions
               projectId={project.id}
               isPaused={!!project.paused_at}
@@ -104,15 +104,15 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
                   <div className="grid grid-cols-3 gap-3 mt-4 pt-4 border-t border-border">
                     <div className="text-center">
                       <p className="font-bold">{member.obvs || 0}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('project.obvs')}</p>
                     </div>
                     <div className="text-center">
                       <p className="font-bold">€{Number(member.facturacion || 0).toFixed(0)}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase">Fact.</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('project.fact')}</p>
                     </div>
                     <div className="text-center">
                       <p className="font-bold text-success">€{Number(member.margen || 0).toFixed(0)}</p>
-                      <p className="text-[10px] text-muted-foreground uppercase">Margen</p>
+                      <p className="text-[10px] text-muted-foreground uppercase">{t('project.margen')}</p>
                     </div>
                   </div>
                 </div>
@@ -124,7 +124,7 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
 
       {/* Roles Legend */}
       <div className="bg-card border border-border rounded-2xl p-6">
-        <h3 className="font-semibold mb-4">Roles del Equipo</h3>
+        <h3 className="font-semibold mb-4">{t('project.rolesDelEquipo')}</h3>
         <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
           {Object.entries(ROLE_CONFIG).map(([key, config]) => {
             const count = membersByRole[key]?.length || 0;

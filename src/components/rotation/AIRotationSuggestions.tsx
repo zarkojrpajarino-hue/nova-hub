@@ -7,6 +7,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useProfiles, useProjectMembers } from '@/hooks/useNovaData';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface Suggestion {
   user1_id: string;
   user2_id: string;
@@ -20,15 +21,16 @@ interface Suggestion {
 }
 
 const ROLE_LABELS: Record<string, string> = {
-  sales: 'Sales',
-  finance: 'Finance',
-  ai_tech: 'IA/Tech',
-  marketing: 'Marketing',
-  operations: 'Operations',
-  strategy: 'Strategy',
+  sales: t('rotation.sales'),
+  finance: t('rotation.finance'),
+  ai_tech: t('rotation.iatech'),
+  marketing: t('rotation.marketing'),
+  operations: t('rotation.operations'),
+  strategy: t('rotation.strategy'),
 };
 
 export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
+  const { t } = useTranslation();
   const [suggestions, setSuggestions] = useState<Suggestion[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,7 +102,7 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
       newSuggestions.sort((a, b) => b.score - a.score);
       setSuggestions(newSuggestions.slice(0, 5));
     } catch (_e) {
-      setError('Error al generar sugerencias');
+      setError(t('rotation.errorAlGenerarSugerencias'));
     } finally {
       setLoading(false);
     }
@@ -126,18 +128,18 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
 
   const getRecommendationLabel = (rec: string) => {
     switch (rec) {
-      case 'highly_recommended': return 'Muy recomendado';
-      case 'recommended': return 'Recomendado';
-      case 'neutral': return 'Neutral';
-      default: return 'No recomendado';
+      case 'highly_recommended': return t('rotation.muyRecomendado');
+      case 'recommended': return t('rotation.recomendado');
+      case 'neutral': return t('rotation.neutral');
+      default: return t('rotation.noRecomendado');
     }
   };
 
   const getUserName = (id: string) => 
-    profiles.find(p => p.id === id)?.nombre || 'Usuario';
+    profiles.find(p => p.id === id)?.nombre || t('rotation.usuario');
 
   const handleProposeSuggestion = async (_suggestion: Suggestion) => {
-    toast.info('Para proponer este intercambio, usa el botón "Nueva Solicitud" y selecciona al compañero.');
+    toast.info('Para proponer este intercambio, usa el botón Nueva Solicitud y selecciona al compañero.');
   };
 
   if (loading) {
@@ -145,7 +147,7 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
       <Card>
         <CardContent className="py-8 text-center">
           <Sparkles className="w-8 h-8 mx-auto animate-pulse text-primary mb-2" />
-          <p className="text-sm text-muted-foreground">Analizando compatibilidades...</p>
+          <p className="text-sm text-muted-foreground">{t('rotation.analizandoCompatibilidades')}</p>
           <Loader2 className="w-4 h-4 mx-auto mt-2 animate-spin text-muted-foreground" />
         </CardContent>
       </Card>
@@ -159,9 +161,7 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
           <AlertCircle className="w-8 h-8 mx-auto text-destructive/50 mb-2" />
           <p className="text-sm text-muted-foreground">{error}</p>
           <Button variant="outline" size="sm" className="mt-4" onClick={generateSuggestions}>
-            <RefreshCw className="w-4 h-4 mr-2" />
-            Reintentar
-          </Button>
+            <RefreshCw className="w-4 h-4 mr-2" />{t('rotation.reintentar')}</Button>
         </CardContent>
       </Card>
     );
@@ -172,12 +172,8 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
       <Card>
         <CardContent className="py-8 text-center">
           <AlertCircle className="w-8 h-8 mx-auto text-muted-foreground/50 mb-2" />
-          <p className="text-sm text-muted-foreground">
-            No hay sugerencias de rotación en este momento
-          </p>
-          <p className="text-xs text-muted-foreground mt-1">
-            Las sugerencias aparecen cuando hay miembros con roles aceptados
-          </p>
+          <p className="text-sm text-muted-foreground">{t('rotation.noHaySugerenciasDe')}</p>
+          <p className="text-xs text-muted-foreground mt-1">{t('rotation.lasSugerenciasAparecenCuando')}</p>
         </CardContent>
       </Card>
     );
@@ -236,9 +232,7 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
               variant="outline" 
               className="w-full"
               onClick={() => handleProposeSuggestion(s)}
-            >
-              Proponer Intercambio
-            </Button>
+            >{t('rotation.proponerIntercambio')}</Button>
           </div>
         ))}
       </CardContent>

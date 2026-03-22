@@ -18,11 +18,13 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { MiEspacioPreviewModal } from '@/components/preview/MiEspacioPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface MiEspacioViewProps {
   onNewOBV?: () => void;
 }
 
 export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const navigate = useNavigate();
   const { data: currentUserStats, isLoading: loadingStats } = useCurrentMemberStats(profile?.email);
@@ -83,8 +85,8 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
   return (
     <>
       <NovaHeader
-        title="Mi Espacio"
-        subtitle="Tu dashboard personal con KPIs, proyectos, tareas y validaciones pendientes"
+        title={t('miEspacio.miEspacio')}
+        subtitle={t('miEspacio.tuDashboardPersonalCon')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -92,35 +94,35 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
       <div className="p-8">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Tu vista personal consolidada de todo lo que haces en Nova Hub"
-          whatIsIt="Dashboard individual que muestra TUS KPIs personales (OBVs completadas, Learning Paths, facturación generada, etc.), proyectos en los que participas con tu rol, tareas asignadas, y validaciones pendientes de revisar. Todo lo que necesitas ver para tu día a día."
+          title={t('miEspacio.cómoFunciona')}
+          description={t('miEspacio.tuVistaPersonalConsolidada')}
+          whatIsIt={t('miEspacio.dashboardIndividualQueMuestra')}
           dataInputs={[
             {
-              from: 'Centro OBVs',
+              from: t('miEspacio.centroObvs'),
               items: [
                 'TUS OBVs completadas (por tipo: exploración, validación, venta)',
-                'OBVs que necesitan tu validación',
+                t('miEspacio.obvsQueNecesitanTu'),
               ],
             },
             {
-              from: 'Proyectos',
+              from: t('miEspacio.proyectos'),
               items: [
-                'Proyectos en los que estás asignado',
-                'Tu rol en cada proyecto',
-                'Tareas pendientes por proyecto',
+                t('miEspacio.proyectosEnLosQue'),
+                t('miEspacio.tuRolEnCada'),
+                t('miEspacio.tareasPendientesPorProyecto'),
               ],
             },
             {
-              from: 'KPIs',
+              from: t('miEspacio.kpis'),
               items: [
-                'TUS Learning Paths completados',
-                'TUS Book Points acumulados',
-                'TUS Community Points',
+                t('miEspacio.tusLearningPathsCompletados'),
+                t('miEspacio.tusBookPointsAcumulados'),
+                t('miEspacio.tusCommunityPoints'),
               ],
             },
             {
-              from: 'Financiero',
+              from: t('miEspacio.financiero'),
               items: [
                 'Facturación generada por TI',
                 'Margen generado por TI',
@@ -129,28 +131,28 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           ]}
           dataOutputs={[
             {
-              to: 'Tu productividad',
+              to: t('miEspacio.tuProductividad'),
               items: [
-                'Qué tan cerca estás de tus objetivos mensuales',
-                'Qué tareas tienes pendientes hoy',
-                'Qué validaciones necesitan tu review',
+                t('miEspacio.quéTanCercaEstás'),
+                t('miEspacio.quéTareasTienesPendientes'),
+                t('miEspacio.quéValidacionesNecesitanTu'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Revisa tus KPIs → Completa tareas pendientes → Valida OBVs del equipo',
-            destination: 'Ve a Centro OBVs para subir nuevas OBVs, o a Proyectos para ver detalles',
+            action: t('miEspacio.revisaTusKpisCompleta'),
+            destination: t('miEspacio.veACentroObvs'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
 
         {/* Personal Stats */}
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold">Mis KPIs</h2>
+          <h2 className="text-lg font-semibold">{t('miEspacio.misKpis')}</h2>
           {profile?.id && (
             <KPIBaseEditor 
               memberId={profile.id} 
-              memberName={profile.nombre || 'Usuario'}
+              memberName={profile.nombre || t('miEspacio.usuario')}
               currentStats={stats}
             />
           )}
@@ -159,7 +161,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <StatCard 
             icon={FileCheck} 
             value={stats.obvs} 
-            label="Mis OBVs" 
+            label={t('miEspacio.misObvs')} 
             progress={(stats.obvs / objectivesMap.obvs) * 100}
             target={objectivesMap.obvs}
             color="#6366F1"
@@ -168,7 +170,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <StatCard 
             icon={BookOpen} 
             value={stats.lps} 
-            label="Mis LPs" 
+            label={t('miEspacio.misLps')} 
             progress={(stats.lps / objectivesMap.lps) * 100}
             target={objectivesMap.lps}
             color="#F59E0B"
@@ -177,7 +179,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <StatCard 
             icon={Trophy} 
             value={stats.bps} 
-            label="Mis BPs" 
+            label={t('miEspacio.misBps')} 
             progress={(stats.bps / objectivesMap.bps) * 100}
             target={objectivesMap.bps}
             color="#22C55E"
@@ -186,7 +188,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <StatCard 
             icon={Users} 
             value={stats.cps} 
-            label="Mis CPs" 
+            label={t('miEspacio.misCps')} 
             progress={(stats.cps / objectivesMap.cps) * 100}
             target={objectivesMap.cps}
             color="#EC4899"
@@ -195,7 +197,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <StatCard 
             icon={TrendingUp} 
             value={`€${stats.facturacion.toFixed(0)}`} 
-            label="Mi Facturación" 
+            label={t('miEspacio.miFacturación')} 
             progress={(stats.facturacion / objectivesMap.facturacion) * 100}
             target={`€${objectivesMap.facturacion}`}
             color="#3B82F6"
@@ -204,7 +206,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <StatCard 
             icon={Wallet} 
             value={`€${stats.margen.toFixed(0)}`} 
-            label="Mi Margen" 
+            label={t('miEspacio.miMargen')} 
             progress={(stats.margen / objectivesMap.margen) * 100}
             target={`€${objectivesMap.margen}`}
             color="#22C55E"
@@ -216,13 +218,13 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
         <div className="bg-card border border-border rounded-2xl overflow-hidden mb-6 animate-fade-in delay-2" style={{ opacity: 0 }}>
           <div className="p-5 border-b border-border flex items-center gap-2.5">
             <FolderKanban size={18} className="text-primary" />
-            <h3 className="font-semibold">Mis Proyectos y Roles</h3>
+            <h3 className="font-semibold">{t('miEspacio.misProyectosYRoles')}</h3>
           </div>
           
           <div className="p-6">
             {userProjects.length === 0 ? (
               <div className="text-center py-10">
-                <p className="text-muted-foreground">No estás asignado a ningún proyecto</p>
+                <p className="text-muted-foreground">{t('miEspacio.noEstásAsignadoA')}</p>
               </div>
             ) : (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
@@ -264,7 +266,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
                       
                       <h4 className="font-bold text-base mb-1">{project.nombre}</h4>
                       <p className="text-sm text-muted-foreground mb-4">
-                        Fase {project.phase_state?.current_phase ?? 1} — {PHASE_LABELS[project.phase_state?.current_phase ?? 1]} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                        Fase {project.phase_state?.current_phase ?? 1} — {PHASE_LABELS[project.phase_state?.current_phase ?? 1]} • {project.tipo === 'operacion' ? t('miEspacio.enOperación') : t('miEspacio.enValidación')}
                       </p>
                       
                       <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
@@ -274,15 +276,15 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
                             <>
                               <div className="text-center">
                                 <p className="font-bold">{stats?.total_obvs || 0}</p>
-                                <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">{t('miEspacio.obvs')}</p>
                               </div>
                               <div className="text-center">
                                 <p className="font-bold">{stats?.num_members || 0}</p>
-                                <p className="text-[10px] text-muted-foreground uppercase">Miembros</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">{t('miEspacio.miembros')}</p>
                               </div>
                               <div className="text-center">
                                 <p className="font-bold">{stats?.total_leads || 0}</p>
-                                <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
+                                <p className="text-[10px] text-muted-foreground uppercase">{t('miEspacio.leads')}</p>
                               </div>
                             </>
                           );
@@ -312,18 +314,14 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
           <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in delay-3" style={{ opacity: 0 }}>
             <div className="p-5 border-b border-border flex items-center justify-between">
               <h3 className="font-semibold flex items-center gap-2.5">
-                <CheckCircle2 size={18} className="text-success" />
-                Mis Tareas
-              </h3>
+                <CheckCircle2 size={18} className="text-success" />{t('miEspacio.misTareas')}</h3>
               <Button 
                 variant="outline" 
                 size="sm"
                 onClick={() => setShowTaskForm(true)}
                 disabled={!firstProject}
               >
-                <Plus size={14} className="mr-1" />
-                Añadir
-              </Button>
+                <Plus size={14} className="mr-1" />{t('miEspacio.añadir')}</Button>
             </div>
             <div className="p-6">
               <MyTasksList />

@@ -11,8 +11,9 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface MemberBadge {
   id: string;
   badge_key: string;
@@ -40,13 +41,14 @@ interface BadgesListProps {
 }
 
 const CATEGORY_CONFIG = {
-  challenge: { label: 'Desafíos', color: 'text-red-500', icon: Trophy },
-  phase: { label: 'Fases', color: 'text-blue-500', icon: Star },
-  contribution: { label: 'Contribución', color: 'text-green-500', icon: Zap },
-  achievement: { label: 'Logros', color: 'text-purple-500', icon: Trophy },
+  challenge: { label: t('exploration.desafíos'), color: 'text-red-500', icon: Trophy },
+  phase: { label: t('exploration.fases'), color: 'text-blue-500', icon: Star },
+  contribution: { label: t('exploration.contribución'), color: 'text-green-500', icon: Zap },
+  achievement: { label: t('exploration.logros'), color: 'text-purple-500', icon: Trophy },
 };
 
 export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
+  const { t } = useTranslation();
   const earnedKeys = new Set(earnedBadges.map((b) => b.badge_key));
   const totalPoints = earnedBadges.reduce((sum, b) => {
     const def = allBadges.find((d) => d.badge_key === b.badge_key);
@@ -71,7 +73,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
           <CardContent className="p-4 text-center">
             <Trophy className="w-8 h-8 mx-auto text-amber-500 mb-2" />
             <p className="text-2xl font-bold">{earnedBadges.length}</p>
-            <p className="text-sm text-muted-foreground">Badges</p>
+            <p className="text-sm text-muted-foreground">{t('exploration.badges')}</p>
           </CardContent>
         </Card>
 
@@ -79,7 +81,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
           <CardContent className="p-4 text-center">
             <Star className="w-8 h-8 mx-auto text-blue-500 mb-2" />
             <p className="text-2xl font-bold">{totalPoints}</p>
-            <p className="text-sm text-muted-foreground">Puntos</p>
+            <p className="text-sm text-muted-foreground">{t('exploration.puntos')}</p>
           </CardContent>
         </Card>
 
@@ -87,7 +89,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
           <CardContent className="p-4 text-center">
             <Zap className="w-8 h-8 mx-auto text-purple-500 mb-2" />
             <p className="text-2xl font-bold">{Math.round(completionPercent)}%</p>
-            <p className="text-sm text-muted-foreground">Completado</p>
+            <p className="text-sm text-muted-foreground">{t('exploration.completado')}</p>
           </CardContent>
         </Card>
       </div>
@@ -95,7 +97,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
       {/* Progress */}
       <div className="space-y-2">
         <div className="flex items-center justify-between text-sm">
-          <span className="text-muted-foreground">Progreso general</span>
+          <span className="text-muted-foreground">{t('exploration.progresoGeneral')}</span>
           <span className="font-medium">
             {earnedBadges.length} / {allBadges.length}
           </span>
@@ -176,7 +178,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
                           <p className="text-xs text-success">
                             {formatDistanceToNow(new Date(earned.earned_at), {
                               addSuffix: true,
-                              locale: es,
+                              locale: getDateFnsLocale(),
                             })}
                           </p>
                         )}
@@ -200,9 +202,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
         <Card className="border-dashed">
           <CardContent className="p-6">
             <h3 className="font-semibold mb-3 flex items-center gap-2">
-              <Trophy className="text-amber-500" />
-              Próximos Logros
-            </h3>
+              <Trophy className="text-amber-500" />{t('exploration.próximosLogros')}</h3>
             <div className="space-y-2 text-sm">
               {allBadges
                 .filter((b) => !earnedKeys.has(b.badge_key))

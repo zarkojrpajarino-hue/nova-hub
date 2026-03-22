@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
+import { useTranslation } from 'react-i18next';
 interface Etapa {
   orden: number;
   nombre: string;
@@ -31,6 +32,7 @@ const ETAPA_COLORS = [
 ];
 
 export function CustomerJourneyView({ output }: { output: CustomerJourneyOutput }) {
+  const { t } = useTranslation();
   const etapas = output.etapas ?? [];
 
   return (
@@ -66,15 +68,15 @@ export function CustomerJourneyView({ output }: { output: CustomerJourneyOutput 
               <CardContent>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
                   <div className="space-y-0.5">
-                    <p className="font-semibold text-gray-500 uppercase tracking-wide text-[10px]">Emoción</p>
+                    <p className="font-semibold text-gray-500 uppercase tracking-wide text-[10px]">{t('toolkit.emoción')}</p>
                     <p className="text-gray-700 dark:text-gray-300">{etapa.emocion_cliente}</p>
                   </div>
                   <div className="space-y-0.5">
-                    <p className="font-semibold text-red-500 uppercase tracking-wide text-[10px]">Fricción</p>
+                    <p className="font-semibold text-red-500 uppercase tracking-wide text-[10px]">{t('toolkit.fricción')}</p>
                     <p className="text-gray-700 dark:text-gray-300">{etapa.friccion_principal}</p>
                   </div>
                   <div className="space-y-0.5">
-                    <p className="font-semibold text-green-600 uppercase tracking-wide text-[10px]">Acción del equipo</p>
+                    <p className="font-semibold text-green-600 uppercase tracking-wide text-[10px]">{t('toolkit.acciónDelEquipo')}</p>
                     <p className="text-gray-700 dark:text-gray-300">{etapa.accion_equipo}</p>
                   </div>
                 </div>

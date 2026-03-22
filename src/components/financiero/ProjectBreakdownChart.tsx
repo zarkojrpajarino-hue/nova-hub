@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { PieChart as PieChartIcon } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   PieChart,
   Pie,
@@ -21,6 +22,7 @@ interface ProjectBreakdownChartProps {
 }
 
 export function ProjectBreakdownChart({ data }: ProjectBreakdownChartProps) {
+  const { t } = useTranslation();
   const chartData = useMemo(() => {
     // Group by project
     const projectTotals = new Map<string, { name: string; value: number; color: string }>();
@@ -52,13 +54,9 @@ export function ProjectBreakdownChart({ data }: ProjectBreakdownChartProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <PieChartIcon className="w-5 h-5 text-purple-500" />
-            Por Proyecto
-          </CardTitle>
+            <PieChartIcon className="w-5 h-5 text-purple-500" />{t('financiero.porProyecto')}</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-          No hay datos por proyecto
-        </CardContent>
+        <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">{t('financiero.noHayDatosPor')}</CardContent>
       </Card>
     );
   }
@@ -67,9 +65,7 @@ export function ProjectBreakdownChart({ data }: ProjectBreakdownChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <PieChartIcon className="w-5 h-5 text-purple-500" />
-          Por Proyecto
-        </CardTitle>
+          <PieChartIcon className="w-5 h-5 text-purple-500" />{t('financiero.porProyecto')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={250}>

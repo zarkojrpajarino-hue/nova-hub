@@ -5,7 +5,9 @@ import { Progress } from '@/components/ui/progress';
 import { useAllValidatorStats } from '@/hooks/useValidationSystem';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { useTranslation } from 'react-i18next';
 export function ValidatorRankingCard() {
+  const { t } = useTranslation();
   const { data: stats, isLoading } = useAllValidatorStats();
 
   if (isLoading) {
@@ -13,9 +15,7 @@ export function ValidatorRankingCard() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Shield size={18} className="text-primary" />
-            Ranking de Validadores
-          </CardTitle>
+            <Shield size={18} className="text-primary" />{t('rankings.rankingDeValidadores')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -43,9 +43,7 @@ export function ValidatorRankingCard() {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <Shield size={18} className="text-primary" />
-          Ranking de Validadores
-        </CardTitle>
+          <Shield size={18} className="text-primary" />{t('rankings.rankingDeValidadores')}</CardTitle>
       </CardHeader>
       <CardContent>
         <div className="space-y-3">
@@ -59,7 +57,7 @@ export function ValidatorRankingCard() {
             
             const isTop3 = index < 3;
             const profileColor = (stat.profile as { color?: string } | null)?.color || '#6366F1';
-            const profileName = (stat.profile as { nombre?: string } | null)?.nombre || 'Usuario';
+            const profileName = (stat.profile as { nombre?: string } | null)?.nombre || t('rankings.usuario');
             
             return (
               <div 
@@ -96,9 +94,7 @@ export function ValidatorRankingCard() {
                     </p>
                     {stat.is_blocked && (
                       <Badge variant="destructive" className="text-xs">
-                        <AlertTriangle size={10} className="mr-1" />
-                        Bloqueado
-                      </Badge>
+                        <AlertTriangle size={10} className="mr-1" />{t('rankings.bloqueado')}</Badge>
                     )}
                   </div>
                   <div className="flex items-center gap-2 mt-1">
@@ -134,9 +130,7 @@ export function ValidatorRankingCard() {
           })}
 
           {sortedStats.length === 0 && (
-            <p className="text-center text-muted-foreground py-4">
-              No hay datos de validación aún
-            </p>
+            <p className="text-center text-muted-foreground py-4">{t('rankings.noHayDatosDe')}</p>
           )}
         </div>
       </CardContent>

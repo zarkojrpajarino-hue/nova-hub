@@ -18,6 +18,7 @@ import { toast } from 'sonner';
 import { PIPELINE_STAGES } from './pipeline-stages';
 import type { Database } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 interface Lead {
   id: string;
   nombre: string;
@@ -65,6 +66,7 @@ interface LeadDetailProps {
 }
 
 export function LeadDetail({ lead, open, onOpenChange, members, projectName, onCreateOBV }: LeadDetailProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isEditing, setIsEditing] = useState(false);
@@ -96,7 +98,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
       
       return data.map(h => ({
         ...h,
-        changer_nombre: h.changed_by ? profilesMap.get(h.changed_by) || 'Desconocido' : 'Sistema',
+        changer_nombre: h.changed_by ? profilesMap.get(h.changed_by) || 'Desconocido': t('crm.sistema'),
       }));
     },
     enabled: !!lead?.id && open,
@@ -151,7 +153,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
           empresa: editData.empresa,
           email: editData.email,
           telefono: editData.telefono,
-          status: editData.status as Database["public"]["Enums"]["lead_status"],
+          status: editData.status as Database["public"]['Enums']["lead_status"],
           valor_potencial: editData.valor_potencial,
           notas: editData.notas,
           proxima_accion: editData.proxima_accion,
@@ -163,12 +165,12 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
 
       if (error) throw error;
 
-      toast.success('Lead actualizado');
+      toast.success(t('crm.leadActualizado'));
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
       queryClient.invalidateQueries({ queryKey: ['project_leads'] });
       setIsEditing(false);
     } catch (_error) {
-      toast.error('Error al actualizar el lead');
+      toast.error(t('crm.errorAlActualizarEl'));
     } finally {
       setIsSaving(false);
     }
@@ -199,9 +201,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
             <div className="flex items-center gap-2">
               {!isEditing ? (
                 <Button variant="outline" size="sm" onClick={startEditing}>
-                  <Edit2 size={14} className="mr-1" />
-                  Editar
-                </Button>
+                  <Edit2 size={14} className="mr-1" />{t('crm.editar')}</Button>
               ) : (
                 <Button size="sm" onClick={handleSave} disabled={isSaving}>
                   {isSaving ? <Loader2 size={14} className="mr-1 animate-spin" /> : <Save size={14} className="mr-1" />}
@@ -232,8 +232,8 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
 
         <Tabs defaultValue="info" className="mt-4">
           <TabsList className="grid w-full grid-cols-3">
-            <TabsTrigger value="info">Información</TabsTrigger>
-            <TabsTrigger value="history">Historial</TabsTrigger>
+            <TabsTrigger value="info">{t('crm.información')}</TabsTrigger>
+            <TabsTrigger value="history">{t('crm.historial')}</TabsTrigger>
             <TabsTrigger value="obvs">OBVs ({linkedOBVs.length})</TabsTrigger>
           </TabsList>
 
@@ -242,14 +242,14 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
               <>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Nombre</Label>
+                    <Label>{t('crm.nombre')}</Label>
                     <Input
                       value={editData.nombre || ''}
                       onChange={(e) => setEditData({ ...editData, nombre: e.target.value })}
                     />
                   </div>
                   <div>
-                    <Label>Empresa</Label>
+                    <Label>{t('crm.empresa')}</Label>
                     <Input
                       value={editData.empresa || ''}
                       onChange={(e) => setEditData({ ...editData, empresa: e.target.value })}
@@ -259,7 +259,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Email</Label>
+                    <Label>{t('crm.email')}</Label>
                     <Input
                       type="email"
                       value={editData.email || ''}
@@ -267,7 +267,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                     />
                   </div>
                   <div>
-                    <Label>Teléfono</Label>
+                    <Label>{t('crm.teléfono')}</Label>
                     <Input
                       value={editData.telefono || ''}
                       onChange={(e) => setEditData({ ...editData, telefono: e.target.value })}
@@ -277,7 +277,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Estado</Label>
+                    <Label>{t('crm.estado')}</Label>
                     <Select 
                       value={editData.status} 
                       onValueChange={(v) => setEditData({ ...editData, status: v })}
@@ -303,7 +303,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                 </div>
 
                 <div>
-                  <Label>Responsable</Label>
+                  <Label>{t('crm.responsable')}</Label>
                   <Select 
                     value={editData.responsable_id || ''} 
                     onValueChange={(v) => setEditData({ ...editData, responsable_id: v })}
@@ -321,14 +321,14 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label>Próxima acción</Label>
+                    <Label>{t('crm.próximaAcción')}</Label>
                     <Input
                       value={editData.proxima_accion || ''}
                       onChange={(e) => setEditData({ ...editData, proxima_accion: e.target.value })}
                     />
                   </div>
                   <div>
-                    <Label>Fecha</Label>
+                    <Label>{t('crm.fecha')}</Label>
                     <Input
                       type="date"
                       value={editData.proxima_accion_fecha || ''}
@@ -338,7 +338,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                 </div>
 
                 <div>
-                  <Label>Notas</Label>
+                  <Label>{t('crm.notas')}</Label>
                   <Textarea
                     value={editData.notas || ''}
                     onChange={(e) => setEditData({ ...editData, notas: e.target.value })}
@@ -381,7 +381,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                     </div>
                     <div>
                       <p className="text-sm font-medium">{responsable.nombre}</p>
-                      <p className="text-xs text-muted-foreground">Responsable</p>
+                      <p className="text-xs text-muted-foreground">{t('crm.responsable')}</p>
                     </div>
                   </div>
                 )}
@@ -390,9 +390,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                 {(lead.proxima_accion || lead.proxima_accion_fecha) && (
                   <div className="p-3 bg-warning/10 border border-warning/20 rounded-xl">
                     <p className="text-sm font-medium flex items-center gap-2">
-                      <Calendar size={14} className="text-warning" />
-                      Próxima acción
-                    </p>
+                      <Calendar size={14} className="text-warning" />{t('crm.próximaAcción')}</p>
                     {lead.proxima_accion && (
                       <p className="text-sm mt-1">{lead.proxima_accion}</p>
                     )}
@@ -412,9 +410,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                 {lead.notas && (
                   <div>
                     <p className="text-sm font-medium mb-2 flex items-center gap-2">
-                      <FileText size={14} />
-                      Notas
-                    </p>
+                      <FileText size={14} />{t('crm.notas')}</p>
                     <p className="text-sm text-muted-foreground whitespace-pre-wrap">{lead.notas}</p>
                   </div>
                 )}
@@ -422,9 +418,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
                 {/* Crear OBV button */}
                 {onCreateOBV && (
                   <Button className="w-full" onClick={() => onCreateOBV(lead)}>
-                    <Plus size={16} className="mr-2" />
-                    Crear OBV desde este lead
-                  </Button>
+                    <Plus size={16} className="mr-2" />{t('crm.crearObvDesdeEste')}</Button>
                 )}
               </>
             )}
@@ -434,7 +428,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
             {history.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <History className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>Sin cambios de estado registrados</p>
+                <p>{t('crm.sinCambiosDeEstado')}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -487,7 +481,7 @@ export function LeadDetail({ lead, open, onOpenChange, members, projectName, onC
             {linkedOBVs.length === 0 ? (
               <div className="text-center py-8 text-muted-foreground">
                 <FileText className="w-12 h-12 mx-auto mb-2 opacity-30" />
-                <p>No hay OBVs vinculadas a este lead</p>
+                <p>{t('crm.noHayObvsVinculadas')}</p>
                 {onCreateOBV && (
                   <Button variant="outline" className="mt-4" onClick={() => onCreateOBV(lead)}>
                     <Plus size={16} className="mr-2" />

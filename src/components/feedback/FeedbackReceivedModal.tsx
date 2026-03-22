@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Star, TrendingUp, Users, MessageSquare, ThumbsUp } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface FeedbackReceivedModalProps {
   open: boolean;
   onClose: () => void;
@@ -47,6 +48,7 @@ export function FeedbackReceivedModal({
   explorationPeriodId,
   role,
 }: FeedbackReceivedModalProps) {
+  const { t } = useTranslation();
   const [feedback, setFeedback] = useState<PeerFeedback[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
@@ -72,7 +74,7 @@ export function FeedbackReceivedModal({
 
       setFeedback(data || []);
     } catch (_error) {
-      toast.error('Error al cargar el feedback');
+      toast.error(t('feedback.errorAlCargarEl'));
     } finally {
       setIsLoading(false);
     }
@@ -124,9 +126,7 @@ export function FeedbackReceivedModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl flex items-center gap-2">
-            <MessageSquare className="text-primary" />
-            Feedback Recibido
-          </DialogTitle>
+            <MessageSquare className="text-primary" />{t('feedback.feedbackRecibido')}</DialogTitle>
           <DialogDescription className="capitalize">
             {role} • {feedback.length} evaluaciones
           </DialogDescription>
@@ -135,16 +135,14 @@ export function FeedbackReceivedModal({
         {feedback.length === 0 ? (
           <div className="text-center py-12">
             <Users size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-semibold mb-2">Sin feedback aún</h3>
-            <p className="text-muted-foreground">
-              Tus compañeros aún no han enviado evaluaciones
-            </p>
+            <h3 className="text-lg font-semibold mb-2">{t('feedback.sinFeedbackAún')}</h3>
+            <p className="text-muted-foreground">{t('feedback.tusCompañerosAúnNo')}</p>
           </div>
         ) : (
           <Tabs defaultValue="summary" className="space-y-6">
             <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="summary">Resumen</TabsTrigger>
-              <TabsTrigger value="individual">Comentarios Individuales</TabsTrigger>
+              <TabsTrigger value="summary">{t('feedback.resumen')}</TabsTrigger>
+              <TabsTrigger value="individual">{t('feedback.comentariosIndividuales')}</TabsTrigger>
             </TabsList>
 
             {/* Summary Tab */}
@@ -153,13 +151,11 @@ export function FeedbackReceivedModal({
               <Card>
                 <CardHeader>
                   <CardTitle className="flex items-center gap-2">
-                    <TrendingUp className="text-primary" />
-                    Puntuación General
-                  </CardTitle>
+                    <TrendingUp className="text-primary" />{t('feedback.puntuaciónGeneral')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex items-center justify-between mb-4">
-                    <span className="text-sm text-muted-foreground">Promedio Total</span>
+                    <span className="text-sm text-muted-foreground">{t('feedback.promedioTotal')}</span>
                     <span className="text-4xl font-bold text-primary">
                       {averages!.overall.toFixed(1)}/5.0
                     </span>
@@ -171,15 +167,15 @@ export function FeedbackReceivedModal({
               {/* Category Averages */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Promedios por Categoría</CardTitle>
+                  <CardTitle>{t('feedback.promediosPorCategoría')}</CardTitle>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {[
-                    { key: 'collaboration', label: 'Colaboración', value: averages!.collaboration },
-                    { key: 'quality', label: 'Calidad de Trabajo', value: averages!.quality },
-                    { key: 'communication', label: 'Comunicación', value: averages!.communication },
-                    { key: 'initiative', label: 'Iniciativa/Liderazgo', value: averages!.initiative },
-                    { key: 'technical', label: 'Habilidades Técnicas', value: averages!.technical },
+                    { key: 'collaboration', label: t('feedback.colaboración'), value: averages!.collaboration },
+                    { key: 'quality', label: t('feedback.calidadDeTrabajo'), value: averages!.quality },
+                    { key: 'communication', label: t('feedback.comunicación'), value: averages!.communication },
+                    { key: 'initiative', label: t('feedback.iniciativaliderazgo'), value: averages!.initiative },
+                    { key: 'technical', label: t('feedback.habilidadesTécnicas'), value: averages!.technical },
                   ].map((category) => (
                     <div key={category.key} className="space-y-2">
                       <div className="flex items-center justify-between">
@@ -216,7 +212,7 @@ export function FeedbackReceivedModal({
                     <div className="text-center">
                       <Users size={32} className="mx-auto text-primary mb-2" />
                       <div className="text-3xl font-bold">{feedback.length}</div>
-                      <div className="text-sm text-muted-foreground">Evaluaciones</div>
+                      <div className="text-sm text-muted-foreground">{t('feedback.evaluaciones')}</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -226,9 +222,7 @@ export function FeedbackReceivedModal({
                     <div className="text-center">
                       <ThumbsUp size={32} className="mx-auto text-green-600 mb-2" />
                       <div className="text-3xl font-bold">{wouldWorkAgainCount}</div>
-                      <div className="text-sm text-muted-foreground">
-                        Trabajarían contigo otra vez
-                      </div>
+                      <div className="text-sm text-muted-foreground">{t('feedback.trabajaríanContigoOtraVez')}</div>
                     </div>
                   </CardContent>
                 </Card>
@@ -242,7 +236,7 @@ export function FeedbackReceivedModal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">
-                        {item.is_anonymous ? '🎭 Anónimo' : item.from_member?.nombre || 'Usuario'}
+                        {item.is_anonymous ? '🎭 Anónimo' : item.from_member?.nombre || t('feedback.usuario')}
                       </CardTitle>
                       <Badge variant={item.would_work_again ? 'default' : 'secondary'}>
                         {item.would_work_again ? '✅ Trabajaría otra vez' : ''}

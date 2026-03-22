@@ -21,6 +21,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface OneOnOneAgenda {
   member_name: string;
   meeting_date: string;
@@ -43,6 +44,7 @@ interface OneOnOneAgenda {
 }
 
 export function OneOnOnePrep() {
+  const { t } = useTranslation();
   const { user, profile } = useAuth();
   const { currentProject } = useCurrentProject();
   const [selectedMember, setSelectedMember] = useState('');
@@ -71,7 +73,7 @@ export function OneOnOnePrep() {
     }
 
     setAgenda(result.content?.agenda || result.content);
-    toast.success('Agenda generada exitosamente');
+    toast.success(t('team.agendaGeneradaExitosamente'));
   };
 
   const handleGenerationError = (error: Error) => {
@@ -101,7 +103,7 @@ export function OneOnOnePrep() {
     });
 
     navigator.clipboard.writeText(text);
-    toast.success('Agenda copiada al portapapeles');
+    toast.success(t('team.agendaCopiadaAlPortapapeles'));
   };
 
   const handleDownload = () => {
@@ -137,7 +139,7 @@ export function OneOnOnePrep() {
     a.download = `1on1-${agenda.member_name.replace(/\s+/g, '-')}-${Date.now()}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Agenda descargada');
+    toast.success(t('team.agendaDescargada'));
   };
 
   const getPriorityColor = (priority: string) => {
@@ -156,11 +158,11 @@ export function OneOnOnePrep() {
   const getPriorityLabel = (priority: string) => {
     switch (priority) {
       case 'high':
-        return 'Alta';
+        return t('team.alta');
       case 'medium':
-        return 'Media';
+        return t('team.media');
       case 'low':
-        return 'Baja';
+        return t('team.baja');
       default:
         return priority;
     }
@@ -190,9 +192,7 @@ export function OneOnOnePrep() {
             </div>
             <div>
               <CardTitle>Preparación de 1-on-1</CardTitle>
-              <CardDescription>
-                Genera agendas personalizadas con IA basadas en performance reciente
-              </CardDescription>
+              <CardDescription>{t('team.generaAgendasPersonalizadasCon')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -201,10 +201,8 @@ export function OneOnOnePrep() {
       {/* Setup Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Configuración de la reunión</CardTitle>
-          <CardDescription>
-            Selecciona el miembro del equipo y proporciona contexto adicional si lo deseas
-          </CardDescription>
+          <CardTitle className="text-base">{t('team.configuraciónDeLaReunión')}</CardTitle>
+          <CardDescription>{t('team.seleccionaElMiembroDel')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Member Selection */}
@@ -212,7 +210,7 @@ export function OneOnOnePrep() {
             <Label htmlFor="member">Miembro del equipo *</Label>
             <Select value={selectedMember} onValueChange={setSelectedMember} disabled={isGenerating}>
               <SelectTrigger id="member">
-                <SelectValue placeholder="Selecciona un miembro" />
+                <SelectValue placeholder={t('team.seleccionaUnMiembro')} />
               </SelectTrigger>
               <SelectContent>
                 {teamMembers.map((member) => (
@@ -230,9 +228,7 @@ export function OneOnOnePrep() {
                 ))}
               </SelectContent>
             </Select>
-            <p className="text-xs text-muted-foreground">
-              La IA analizará su performance reciente, tareas, OBVs y progreso
-            </p>
+            <p className="text-xs text-muted-foreground">{t('team.laIaAnalizaráSu')}</p>
           </div>
 
           {/* Optional Context */}
@@ -240,15 +236,13 @@ export function OneOnOnePrep() {
             <Label htmlFor="context">Contexto adicional (opcional)</Label>
             <Textarea
               id="context"
-              placeholder="Ej: Revisar progreso en nuevo rol de Product Lead, discutir feedback del último sprint..."
+              placeholder={t('team.ejRevisarProgresoEn')}
               value={meetingContext}
               onChange={(e) => setMeetingContext(e.target.value)}
               disabled={isGenerating}
               rows={3}
             />
-            <p className="text-xs text-muted-foreground">
-              Añade temas específicos que quieras cubrir en la reunión
-            </p>
+            <p className="text-xs text-muted-foreground">{t('team.añadeTemasEspecíficosQue')}</p>
           </div>
 
           {/* Generate Button */}
@@ -286,13 +280,9 @@ export function OneOnOnePrep() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Button onClick={handleCopy} variant="outline" size="sm" className="gap-2">
-                    <Copy size={14} />
-                    Copiar
-                  </Button>
+                    <Copy size={14} />{t('team.copiar')}</Button>
                   <Button onClick={handleDownload} variant="outline" size="sm" className="gap-2">
-                    <Download size={14} />
-                    Descargar
-                  </Button>
+                    <Download size={14} />{t('team.descargar')}</Button>
                 </div>
               </div>
             </CardHeader>
@@ -302,18 +292,15 @@ export function OneOnOnePrep() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <TrendingUp size={18} />
-                Resumen de Performance
-                <Badge
+                <TrendingUp size={18} />{t('team.resumenDePerformance')}<Badge
                   variant="outline"
                   className={`ml-auto ${getPriorityColor(agenda.performance_summary.mood_indicator)}`}
                 >
                   {getMoodEmoji(agenda.performance_summary.mood_indicator)} Estado:{' '}
                   {agenda.performance_summary.mood_indicator === 'positive'
-                    ? 'Positivo'
-                    : agenda.performance_summary.mood_indicator === 'concern'
-                    ? 'Requiere atención'
-                    : 'Neutral'}
+                    ? 'Positivo': agenda.performance_summary.mood_indicator === 'concern'
+                    ? t('team.requiereAtención')
+                    : t('team.neutral')}
                 </Badge>
               </CardTitle>
             </CardHeader>
@@ -386,10 +373,8 @@ export function OneOnOnePrep() {
           <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-blue-500/5">
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <MessageCircle size={18} />
-                Puntos clave de conversación
-              </CardTitle>
-              <CardDescription>Temas importantes que deberías mencionar</CardDescription>
+                <MessageCircle size={18} />{t('team.puntosClaveDeConversación')}</CardTitle>
+              <CardDescription>{t('team.temasImportantesQueDeberías')}</CardDescription>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">
@@ -409,9 +394,7 @@ export function OneOnOnePrep() {
           <Card>
             <CardHeader>
               <CardTitle className="text-base flex items-center gap-2">
-                <CheckCircle2 size={18} />
-                Acciones de seguimiento sugeridas
-              </CardTitle>
+                <CheckCircle2 size={18} />{t('team.accionesDeSeguimientoSugeridas')}</CardTitle>
             </CardHeader>
             <CardContent>
               <ul className="space-y-2">

@@ -10,6 +10,7 @@ import { Button } from '@/components/ui/button';
 import { PHASE_LABELS, PHASE_METHODOLOGY } from '@/lib/engine';
 import type { PhaseTransitionState } from '@/hooks/usePhaseTransitionNotification';
 
+import { useTranslation } from 'react-i18next';
 interface PhaseTransitionModalProps {
   state: PhaseTransitionState;
   onClose: () => void;
@@ -26,13 +27,14 @@ const PHASE_EMOJI: Record<number, string> = {
 
 // [V24.8] Tabs que se desbloquean al entrar en esta fase
 const PHASE_UNLOCKED_TABS: Record<number, string[]> = {
-  1: ['OBVs'],
+  1: [t('nova.obvs')],
   2: ['CRM'],
-  3: ['Financiero'],
+  3: [t('nova.financiero')],
   4: ['Negocio IA'],
 };
 
 export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalProps) {
+  const { t } = useTranslation();
   const { open, newPhase } = state;
   const prevPhase = newPhase - 1;
 
@@ -65,12 +67,8 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
               style={{ animationDuration: '3s' }}
             />
           </div>
-          <DialogTitle className="text-white text-xl font-bold">
-            ¡Nueva fase desbloqueada!
-          </DialogTitle>
-          <DialogDescription className="text-white/80 text-sm">
-            El motor ha confirmado el avance de tu proyecto
-          </DialogDescription>
+          <DialogTitle className="text-white text-xl font-bold">{t('nova.nuevaFaseDesbloqueada')}</DialogTitle>
+          <DialogDescription className="text-white/80 text-sm">{t('nova.elMotorHaConfirmado')}</DialogDescription>
         </div>
 
         {/* Body */}
@@ -90,18 +88,16 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
           <div className="space-y-1">
             <p className="text-3xl">{emoji}</p>
             <p className="text-lg font-semibold">{label}</p>
-            <p className="text-sm text-muted-foreground">
-              Tu equipo ha alcanzado los criterios de validación necesarios para avanzar.
-            </p>
+            <p className="text-sm text-muted-foreground">{t('nova.tuEquipoHaAlcanzado')}</p>
           </div>
 
           {/* [V24.8] Metodología + tabs desbloqueados */}
           <div className="text-left space-y-2 bg-muted/50 rounded-lg p-3">
-            <p className="text-xs font-medium text-muted-foreground">Metodología activa</p>
+            <p className="text-xs font-medium text-muted-foreground">{t('nova.metodologíaActiva')}</p>
             <p className="text-sm font-semibold">{PHASE_METHODOLOGY[newPhase]}</p>
             {PHASE_UNLOCKED_TABS[newPhase] && PHASE_UNLOCKED_TABS[newPhase].length > 0 && (
               <>
-                <p className="text-xs font-medium text-muted-foreground mt-2">Nuevos tabs disponibles</p>
+                <p className="text-xs font-medium text-muted-foreground mt-2">{t('nova.nuevosTabsDisponibles')}</p>
                 <div className="flex gap-1.5">
                   {PHASE_UNLOCKED_TABS[newPhase].map((tab) => (
                     <span key={tab} className="text-xs px-2 py-0.5 rounded-full bg-green-100 text-green-700 font-medium">
@@ -113,9 +109,7 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
             )}
           </div>
 
-          <Button onClick={onClose} className="w-full nova-gradient text-white">
-            Continuar
-          </Button>
+          <Button onClick={onClose} className="w-full nova-gradient text-white">{t('nova.continuar')}</Button>
         </div>
       </DialogContent>
     </Dialog>

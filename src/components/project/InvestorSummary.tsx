@@ -13,6 +13,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { FileText, Copy, Check, Lock, TrendingUp, Users, Target, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -30,6 +31,7 @@ interface InvestorSummaryProps {
 }
 
 function InvestorSummaryContent({ projectId, projectName, engineData }: InvestorSummaryProps) {
+  const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
 
   // Fetch metrics for summary
@@ -73,7 +75,7 @@ INVESTOR SUMMARY — ${projectName}
 Generated: ${new Date().toISOString().split('T')[0]}
 
 ━━ BUSINESS SNAPSHOT ━━
-Phase: ${phase} — ${PHASE_LABELS[phase] ?? 'Unknown'} (Score: ${score}%)
+Phase: ${phase} — ${PHASE_LABELS[phase] ?? t('project.unknown')} (Score: ${score}%)
 MRR: €${Math.round(currentMrr).toLocaleString()}
 Customers: ${customers}
 Team: ${metrics?.teamSize ?? 1} members
@@ -82,11 +84,11 @@ Validated experiments: ${metrics?.validatedObvs ?? 0}
 ━━ TRACTION ━━
 ${metrics?.mrrHistory?.map((m: { mrr?: number; date?: string }) =>
   `${m.date}: €${Math.round(m.mrr ?? 0).toLocaleString()} MRR`
-).join('\n') || 'No MRR data yet'}
+).join('\n') || t('project.noMrrDataYet')}
 
 ━━ RISK ━━
 Risk Level: ${riskLevel}
-Phase Progress: ${score >= 75 ? 'Ready to advance' : score >= 50 ? 'On track' : 'Needs attention'}
+Phase Progress: ${score >= 75 ? 'Ready to advance': score >= 50 ? 'On track': t('project.needsAttention')}
 
 ━━ METHODOLOGY ━━
 Nova Hub Phase Engine — data-driven startup validation across 5 phases.
@@ -104,9 +106,9 @@ Nova Hub Phase Engine — data-driven startup validation across 5 phases.
         <div className="flex items-center justify-between">
           <CardTitle className="text-sm flex items-center gap-2">
             <FileText className="h-4 w-4" />
-            Investor Summary
+            {t('investor.title')}
           </CardTitle>
-          <Badge variant="secondary" className="text-xs">Pro</Badge>
+          <Badge variant="secondary" className="text-xs">{t('project.pro')}</Badge>
         </div>
       </CardHeader>
       <CardContent className="space-y-4">
@@ -115,7 +117,7 @@ Nova Hub Phase Engine — data-driven startup validation across 5 phases.
           <div className="bg-muted/50 rounded-lg p-3">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
               <Target className="h-3 w-3" />
-              Fase
+              {t('investor.phase')}
             </div>
             <div className="font-semibold text-sm">
               {phase} — {PHASE_LABELS[phase]}
@@ -126,25 +128,25 @@ Nova Hub Phase Engine — data-driven startup validation across 5 phases.
           <div className="bg-muted/50 rounded-lg p-3">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
               <TrendingUp className="h-3 w-3" />
-              MRR
+              {t('investor.mrr')}
             </div>
             <div className="font-semibold text-sm">€{Math.round(currentMrr).toLocaleString()}</div>
-            <div className="text-xs text-muted-foreground">{customers} clientes</div>
+            <div className="text-xs text-muted-foreground">{customers} {t('investor.customers')}</div>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-3">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
               <Users className="h-3 w-3" />
-              Equipo
+              {t('investor.team')}
             </div>
             <div className="font-semibold text-sm">{metrics?.teamSize ?? 1}</div>
-            <div className="text-xs text-muted-foreground">{metrics?.validatedObvs ?? 0} OBVs validadas</div>
+            <div className="text-xs text-muted-foreground">{metrics?.validatedObvs ?? 0} {t('investor.validatedObvs')}</div>
           </div>
 
           <div className="bg-muted/50 rounded-lg p-3">
             <div className="flex items-center gap-1.5 text-xs text-muted-foreground mb-1">
               <AlertTriangle className="h-3 w-3" />
-              Riesgo
+              {t('investor.risk')}
             </div>
             <div className="font-semibold text-sm capitalize">{riskLevel}</div>
           </div>
@@ -157,7 +159,7 @@ Nova Hub Phase Engine — data-driven startup validation across 5 phases.
           onClick={handleCopy}
         >
           {copied ? <Check className="h-3.5 w-3.5" /> : <Copy className="h-3.5 w-3.5" />}
-          {copied ? 'Copiado' : 'Copiar resumen para inversores'}
+          {copied ? 'copied': t('investor.copyForInvestors')}
         </Button>
       </CardContent>
     </Card>
@@ -169,7 +171,7 @@ export function InvestorSummary(props: InvestorSummaryProps) {
     <FeatureGate
       feature="advanced_analytics"
       projectId={props.projectId}
-      featureName="Investor Summary"
+      featureName={t('project.investorSummary')}
       mode="replace"
     >
       <InvestorSummaryContent {...props} />

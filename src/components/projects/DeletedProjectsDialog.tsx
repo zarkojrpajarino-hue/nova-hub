@@ -29,8 +29,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface DeletedProject {
   id: string;
   nombre: string;
@@ -45,6 +46,7 @@ interface DeletedProject {
 }
 
 export function DeletedProjectsDialog() {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [deletedProjects, setDeletedProjects] = useState<DeletedProject[]>([]);
@@ -62,7 +64,7 @@ export function DeletedProjectsDialog() {
       if (error) throw error;
       setDeletedProjects(data || []);
     } catch (_error) {
-      toast.error('Error al cargar proyectos eliminados');
+      toast.error(t('projects.errorAlCargarProyectos'));
     } finally {
       setIsLoading(false);
     }
@@ -75,7 +77,7 @@ export function DeletedProjectsDialog() {
       // Get current user profile
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('No autenticado');
+        toast.error(t('projects.noAutenticado'));
         return;
       }
 
@@ -86,7 +88,7 @@ export function DeletedProjectsDialog() {
         .single();
 
       if (!profile) {
-        toast.error('Perfil no encontrado');
+        toast.error(t('projects.perfilNoEncontrado'));
         return;
       }
 
@@ -107,7 +109,7 @@ export function DeletedProjectsDialog() {
       // Refresh list
       fetchDeletedProjects();
     } catch (_error) {
-      toast.error(error instanceof Error ? error.message : 'Error al restaurar el proyecto');
+      toast.error(error instanceof Error ? error.message : t('projects.errorAlRestaurarEl'));
     } finally {
       setRestoringId(null);
     }
@@ -124,9 +126,7 @@ export function DeletedProjectsDialog() {
     <Dialog open={open} onOpenChange={handleOpen}>
       <DialogTrigger asChild>
         <Button variant="outline" className="gap-2">
-          <History size={16} />
-          Historial de Eliminados
-        </Button>
+          <History size={16} />{t('projects.historialDeEliminados')}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-4xl max-h-[80vh] overflow-hidden flex flex-col">
         <DialogHeader>
@@ -135,10 +135,8 @@ export function DeletedProjectsDialog() {
               <History className="w-5 h-5 text-amber-500" />
             </div>
             <div>
-              <DialogTitle>Proyectos Eliminados</DialogTitle>
-              <DialogDescription>
-                Historial de proyectos eliminados con opción de restaurar
-              </DialogDescription>
+              <DialogTitle>{t('projects.proyectosEliminados')}</DialogTitle>
+              <DialogDescription>{t('projects.historialDeProyectosEliminados')}</DialogDescription>
             </div>
           </div>
         </DialogHeader>
@@ -153,21 +151,19 @@ export function DeletedProjectsDialog() {
               <div className="w-16 h-16 rounded-full bg-muted mx-auto mb-4 flex items-center justify-center">
                 <History className="w-8 h-8 text-muted-foreground" />
               </div>
-              <p className="text-lg font-medium mb-2">No hay proyectos eliminados</p>
-              <p className="text-sm text-muted-foreground">
-                Los proyectos que elimines aparecerán aquí
-              </p>
+              <p className="text-lg font-medium mb-2">{t('projects.noHayProyectosEliminados')}</p>
+              <p className="text-sm text-muted-foreground">{t('projects.losProyectosQueElimines')}</p>
             </div>
           ) : (
             <div className="rounded-lg border">
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Proyecto</TableHead>
-                    <TableHead>Tipo</TableHead>
-                    <TableHead>Eliminado</TableHead>
-                    <TableHead>Razón</TableHead>
-                    <TableHead className="text-right">Acción</TableHead>
+                    <TableHead>{t('projects.proyecto')}</TableHead>
+                    <TableHead>{t('projects.tipo')}</TableHead>
+                    <TableHead>{t('projects.eliminado')}</TableHead>
+                    <TableHead>{t('projects.razón')}</TableHead>
+                    <TableHead className="text-right">{t('projects.acción')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -201,7 +197,7 @@ export function DeletedProjectsDialog() {
                           <div className="flex items-center gap-1.5 text-muted-foreground mb-1">
                             <Calendar size={12} />
                             <span>
-                              {format(new Date(project.deleted_at), "d 'de' MMMM, yyyy", { locale: es })}
+                              {format(new Date(project.deleted_at), "d 'de' MMMM, yyyy", { locale: getDateFnsLocale() })}
                             </span>
                           </div>
                           <div className="flex items-center gap-1.5 text-muted-foreground">
@@ -219,7 +215,7 @@ export function DeletedProjectsDialog() {
                             </p>
                           </div>
                         ) : (
-                          <span className="text-xs text-muted-foreground">Sin razón</span>
+                          <span className="text-xs text-muted-foreground">{t('projects.sinRazón')}</span>
                         )}
                       </TableCell>
                       <TableCell className="text-right">
@@ -232,14 +228,10 @@ export function DeletedProjectsDialog() {
                         >
                           {restoringId === project.id ? (
                             <>
-                              <Loader2 size={14} className="animate-spin" />
-                              Restaurando...
-                            </>
+                              <Loader2 size={14} className="animate-spin" />{t('projects.restaurando')}</>
                           ) : (
                             <>
-                              <RotateCcw size={14} />
-                              Restaurar
-                            </>
+                              <RotateCcw size={14} />{t('projects.restaurar')}</>
                           )}
                         </Button>
                       </TableCell>

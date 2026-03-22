@@ -21,7 +21,9 @@ import { Badge } from '@/components/ui/badge';
 import { ChevronDown, Plus, Check, Folder } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 export function ProjectSelector() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { currentProject, userProjects, switchProject } = useCurrentProject();
   const [isOpen, setIsOpen] = useState(false);
@@ -48,9 +50,7 @@ export function ProjectSelector() {
         variant="outline"
         size="sm"
       >
-        <Plus className="h-4 w-4 mr-2" />
-        Crear Proyecto
-      </Button>
+        <Plus className="h-4 w-4 mr-2" />{t('projects.crearProyecto')}</Button>
     );
   }
 
@@ -61,9 +61,7 @@ export function ProjectSelector() {
         variant="outline"
         size="sm"
       >
-        <Folder className="h-4 w-4 mr-2" />
-        Seleccionar Proyecto
-      </Button>
+        <Folder className="h-4 w-4 mr-2" />{t('projects.seleccionarProyecto')}</Button>
     );
   }
 
@@ -163,18 +161,14 @@ export function ProjectSelector() {
           onClick={handleCreateProject}
           className="cursor-pointer text-primary font-medium"
         >
-          <Plus className="h-4 w-4 mr-2" />
-          Crear Nuevo Proyecto
-        </DropdownMenuItem>
+          <Plus className="h-4 w-4 mr-2" />{t('projects.crearNuevoProyecto')}</DropdownMenuItem>
 
         {userProjects.length > 3 && (
           <DropdownMenuItem
             onClick={handleViewAllProjects}
             className="cursor-pointer"
           >
-            <Folder className="h-4 w-4 mr-2" />
-            Ver Todos los Proyectos
-          </DropdownMenuItem>
+            <Folder className="h-4 w-4 mr-2" />{t('projects.verTodosLosProyectos')}</DropdownMenuItem>
         )}
       </DropdownMenuContent>
     </DropdownMenu>
@@ -183,10 +177,10 @@ export function ProjectSelector() {
 
 function WorkModeBadge({ workMode }: { workMode: string }) {
   const labels = {
-    individual: { text: 'Individual', color: 'bg-blue-100 text-blue-800' },
-    team_small: { text: 'Equipo', color: 'bg-green-100 text-green-800' },
-    team_established: { text: 'Empresa', color: 'bg-purple-100 text-purple-800' },
-    no_roles: { text: 'Sin Roles', color: 'bg-gray-100 text-gray-800' },
+    individual: { text: t('projects.individual'), color: 'bg-blue-100 text-blue-800' },
+    team_small: { text: t('projects.equipo'), color: 'bg-green-100 text-green-800' },
+    team_established: { text: t('projects.empresa'), color: 'bg-purple-100 text-purple-800' },
+    no_roles: { text: t('projects.sinRoles'), color: 'bg-gray-100 text-gray-800' },
   };
 
   const config = labels[workMode as keyof typeof labels] || labels.team_small;

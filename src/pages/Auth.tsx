@@ -9,10 +9,12 @@ import { Loader2, Mail, Lock } from 'lucide-react';
 import { z } from 'zod';
 import { mapAuthError, logError } from '@/lib/errorMapper';
 
-const emailSchema = z.string().email('Email inválido');
-const passwordSchema = z.string().min(8, 'Mínimo 8 caracteres');
+import { useTranslation } from 'react-i18next';
+const emailSchema = z.string().email(t('auth.emailInválido'));
+const passwordSchema = z.string().min(8, t('auth.mínimo8Caracteres'));
 
 export default function Auth() {
+  const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -55,13 +57,13 @@ export default function Auth() {
         password,
       });
       if (error) {
-        logError('Auth.signIn', error);
+        logError(t('auth.authsignin'), error);
         toast.error(mapAuthError(error));
       } else {
-        toast.success('¡Bienvenido de vuelta!');
+        toast.success(t('auth.bienvenidoDeVuelta'));
       }
     } catch (_error) {
-      toast.error('Error de conexión');
+      toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
     }
@@ -78,28 +80,22 @@ export default function Auth() {
             </div>
             <span className="text-3xl font-bold tracking-tight">OPTIMUS-K</span>
           </div>
-          <p className="text-muted-foreground">
-            Plataforma de gestión estratégica para emprendedores
-          </p>
+          <p className="text-muted-foreground">{t('auth.plataformaDeGestiónEstratégica')}</p>
         </div>
 
         {/* Form Card */}
         <div className="bg-card border border-border rounded-2xl p-8">
-          <h2 className="text-xl font-bold mb-6 text-center">
-            Iniciar Sesión
-          </h2>
+          <h2 className="text-xl font-bold mb-6 text-center">{t('auth.iniciarSesión')}</h2>
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="email" className="text-sm font-medium">
-                Email
-              </Label>
+              <Label htmlFor="email" className="text-sm font-medium">{t('auth.email')}</Label>
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
                   id="email"
                   type="email"
-                  placeholder="tu@nova.com"
+                  placeholder={t('auth.tunovacom')}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="pl-10"
@@ -109,9 +105,7 @@ export default function Auth() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password" className="text-sm font-medium">
-                Contraseña
-              </Label>
+              <Label htmlFor="password" className="text-sm font-medium">{t('auth.contraseña')}</Label>
               <div className="relative">
                 <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
@@ -133,24 +127,18 @@ export default function Auth() {
             >
               {loading ? (
                 <>
-                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Cargando...
-                </>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('auth.cargando')}</>
               ) : (
-                'Entrar'
+                t('auth.entrar')
               )}
             </Button>
           </form>
 
-          <p className="mt-6 text-center text-xs text-muted-foreground">
-            Acceso para emprendedores estratégicos
-          </p>
+          <p className="mt-6 text-center text-xs text-muted-foreground">{t('auth.accesoParaEmprendedoresEstratégicos')}</p>
         </div>
 
         {/* Footer */}
-        <p className="text-center text-xs text-muted-foreground mt-6">
-          Programa LEINN • Mondragón Team Academy
-        </p>
+        <p className="text-center text-xs text-muted-foreground mt-6">{t('auth.programaLeinnMondragónTeam')}</p>
       </div>
     </div>
   );

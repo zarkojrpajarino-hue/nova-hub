@@ -11,12 +11,14 @@ import { Progress } from '@/components/ui/progress';
 import { useDocumentUpload } from '@/hooks/useDocumentUpload';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface DocumentUploadProps {
   projectId: string;
   onUploadComplete?: () => void;
 }
 
 export function DocumentUpload({ projectId, onUploadComplete }: DocumentUploadProps) {
+  const { t } = useTranslation();
   const [isDragging, setIsDragging] = useState(false);
   const { uploads, isUploading, uploadDocuments, clearUploads } = useDocumentUpload(projectId);
 
@@ -91,11 +93,9 @@ export function DocumentUpload({ projectId, onUploadComplete }: DocumentUploadPr
 
           <div className="space-y-2">
             <h3 className="text-lg font-semibold">
-              {isDragging ? 'Drop files here' : 'Upload Documents'}
+              {isDragging ? 'Drop files here': t('evidence.uploadDocuments')}
             </h3>
-            <p className="text-sm text-muted-foreground">
-              Drag & drop your documents or click to browse
-            </p>
+            <p className="text-sm text-muted-foreground">{t('evidence.dragDropYourDocuments')}</p>
             <p className="text-xs text-muted-foreground">
               Supported: PDF, CSV, XLSX, TXT (max 10MB each)
             </p>
@@ -116,9 +116,7 @@ export function DocumentUpload({ projectId, onUploadComplete }: DocumentUploadPr
             disabled={isUploading}
             onClick={() => document.getElementById('file-upload')?.click()}
           >
-            <FileText className="mr-2 h-4 w-4" />
-            Choose Files
-          </Button>
+            <FileText className="mr-2 h-4 w-4" />{t('evidence.chooseFiles')}</Button>
         </div>
       </Card>
 
@@ -126,7 +124,7 @@ export function DocumentUpload({ projectId, onUploadComplete }: DocumentUploadPr
       {uploads.length > 0 && (
         <Card className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-sm">Uploading Documents</h4>
+            <h4 className="font-semibold text-sm">{t('evidence.uploadingDocuments')}</h4>
             <Button
               variant="ghost"
               size="sm"
@@ -155,11 +153,11 @@ export function DocumentUpload({ projectId, onUploadComplete }: DocumentUploadPr
                   </div>
 
                   <span className="text-xs text-muted-foreground capitalize ml-2">
-                    {upload.status === 'uploading' && 'Uploading...'}
-                    {upload.status === 'extracting' && 'Extracting text...'}
-                    {upload.status === 'indexing' && 'Indexing...'}
-                    {upload.status === 'complete' && 'Complete'}
-                    {upload.status === 'error' && 'Failed'}
+                    {upload.status === 'uploading' && t('evidence.uploading')}
+                    {upload.status === 'extracting' && t('evidence.extractingText')}
+                    {upload.status === 'indexing' && t('evidence.indexing')}
+                    {upload.status === 'complete' && t('evidence.complete')}
+                    {upload.status === 'error' && t('evidence.failed')}
                   </span>
                 </div>
 

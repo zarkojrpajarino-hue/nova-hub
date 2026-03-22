@@ -8,7 +8,7 @@
  * las keys una vez creadas y el flujo de "girar clave" no es obvio.
  *
  * Estructura:
- * - Botón trigger: "¿Dónde está mi API Key?" junto al input
+ * - Botón trigger: t('integrations.dóndeEstáMiApi0') junto al input
  * - Modal con: zona de GIF (placeholder hasta que exista el asset) + instrucciones texto
  *
  * GIF_PLACEHOLDER: reemplazar el bloque marcado con <img src="...gif" /> cuando
@@ -25,6 +25,7 @@ import {
 import { Button } from '@/components/ui/button'
 import { ExternalLink, HelpCircle } from 'lucide-react'
 
+import { useTranslation } from 'react-i18next';
 interface Step {
   n: number
   title: string
@@ -45,64 +46,64 @@ interface ProviderGuide {
 const GUIDES: Record<string, ProviderGuide> = {
   stripe: {
     provider: 'stripe',
-    title: 'Cómo obtener tu Secret Key de Stripe',
+    title: t('integrations.cómoObtenerTuSecret'),
     url: 'https://dashboard.stripe.com/apikeys',
     urlLabel: 'dashboard.stripe.com/apikeys',
     steps: [
       {
         n: 1,
-        title: 'Ve a la sección API Keys',
-        detail: 'En tu Dashboard de Stripe, ve a Developers → API Keys. O usa el enlace directo de arriba.',
+        title: t('integrations.veALaSección'),
+        detail: t('integrations.enTuDashboardDe'),
       },
       {
         n: 2,
-        title: 'Localiza la "Secret key"',
-        detail: 'Verás dos claves: una Publishable key (empieza con pk_) y una Secret key (empieza con sk_). Necesitas la Secret key.',
+        title: t('integrations.localizaLaSecretKey'),
+        detail: t('integrations.verásDosClavesUna'),
         code: 'sk_live_... o sk_test_...',
       },
       {
         n: 3,
-        title: 'Revela y copia la clave',
-        detail: 'Haz clic en "Reveal live key" (o "Reveal test key" si usas el entorno de test). La clave aparecerá por unos segundos — cópiala inmediatamente.',
-        warning: 'Stripe solo muestra la clave una vez después de "Reveal". Si cierras antes de copiarla, tendrás que generar una nueva en "Roll key".',
+        title: t('integrations.revelaYCopiaLa'),
+        detail: t('integrations.hazClicEnReveal'),
+        warning: t('integrations.stripeSoloMuestra'),
       },
       {
         n: 4,
-        title: 'Pega la clave en Optimus',
-        detail: 'Vuelve a esta pantalla, pega la clave en el campo "Secret Key (sk_...)" y pulsa Conectar Stripe.',
+        title: t('integrations.pegaLaClaveEn'),
+        detail: t('integrations.vuelveAPantallaPegaStripe'),
       },
     ],
-    warning: 'Usa la clave de test (sk_test_...) durante pruebas. Solo pasa a la clave live (sk_live_...) cuando quieras datos reales de producción.',
+    warning: t('integrations.usaLaClaveDe'),
   },
   holded: {
     provider: 'holded',
-    title: 'Cómo obtener tu API Key de Holded',
+    title: t('integrations.cómoObtenerTuApi'),
     url: 'https://app.holded.com/settings/api',
     urlLabel: 'app.holded.com/settings/api',
     steps: [
       {
         n: 1,
-        title: 'Ve a Configuración → API',
-        detail: 'En Holded, accede al menú de usuario (esquina superior derecha) → Configuración → API.',
+        title: t('integrations.veAConfiguracionApi'),
+        detail: t('integrations.enHoldedAccedeAl'),
       },
       {
         n: 2,
-        title: 'Genera una nueva API Key',
-        detail: 'Haz clic en "Generar nueva API Key". Holded creará una clave única para tu cuenta.',
+        title: t('integrations.generaUnaNuevaApi'),
+        detail: t('integrations.hazClicEnGenerar'),
       },
       {
         n: 3,
-        title: 'Copia la clave generada',
-        detail: 'La clave aparece en pantalla. Cópiala antes de salir — Holded no la mostrará de nuevo.',
-        warning: 'Guarda la clave en un lugar seguro. Si la pierdes, tendrás que generar otra (la antigua quedará inactiva).',
+        title: t('integrations.copiaLaClaveGenerada'),
+        detail: t('integrations.laClaveApareceEn'),
+        warning: t('integrations.guardaLaClaveEn'),
       },
       {
         n: 4,
-        title: 'Pega la clave en Optimus',
-        detail: 'Vuelve a esta pantalla, pega la clave en el campo "API Key" y pulsa Conectar Holded.',
+        title: t('integrations.pegaLaClaveEn'),
+        detail: t('integrations.vuelveAPantallaPegaHolded'),
       },
     ],
-    warning: 'La API Key de Holded da acceso completo a tu facturación. Trátala como una contraseña — no la compartas.',
+    warning: t('integrations.laApiKeyDe'),
   },
 }
 
@@ -111,6 +112,7 @@ interface ApiKeyGuideProps {
 }
 
 export function ApiKeyGuide({ provider }: ApiKeyGuideProps) {
+  const { t } = useTranslation();
   const guide = GUIDES[provider]
   if (!guide) return null
 
@@ -118,9 +120,7 @@ export function ApiKeyGuide({ provider }: ApiKeyGuideProps) {
     <Dialog>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm" className="h-7 px-2 text-xs text-muted-foreground hover:text-foreground gap-1">
-          <HelpCircle size={13} />
-          ¿Dónde está mi API Key?
-        </Button>
+          <HelpCircle size={13} />{t('integrations.dóndeEstáMiApi')}</Button>
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
@@ -130,8 +130,8 @@ export function ApiKeyGuide({ provider }: ApiKeyGuideProps) {
         {/* GIF_PLACEHOLDER — reemplazar con <img> cuando exista el asset */}
         <div className="rounded-lg bg-muted/50 border border-dashed border-border/60 h-36 flex items-center justify-center">
           <div className="text-center space-y-1">
-            <p className="text-sm text-muted-foreground font-medium">GIF próximamente</p>
-            <p className="text-xs text-muted-foreground">Screencast de ~15s mostrando los pasos</p>
+            <p className="text-sm text-muted-foreground font-medium">{t('integrations.gifPróximamente')}</p>
+            <p className="text-xs text-muted-foreground">{t('integrations.screencastDe15sMostrando')}</p>
           </div>
         </div>
         {/* END GIF_PLACEHOLDER */}

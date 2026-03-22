@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
 
+import { useTranslation } from 'react-i18next';
 interface Document {
   id: string;
   name: string;
@@ -27,6 +28,7 @@ interface DocumentListProps {
 }
 
 export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
+  const { t } = useTranslation();
   const [documents, setDocuments] = useState<Document[]>([]);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState('');
@@ -50,7 +52,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
       if (error) throw error;
       setDocuments(data || []);
     } catch (_error) {
-      toast.error('Failed to load documents');
+      toast.error(t('evidence.failedToLoadDocuments'));
     } finally {
       setLoading(false);
     }
@@ -74,7 +76,7 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
       if (error) throw error;
       setSearchResults(data || []);
     } catch (_error) {
-      toast.error('Search failed');
+      toast.error(t('evidence.searchFailed'));
     } finally {
       setSearching(false);
     }
@@ -92,11 +94,11 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
 
       if (error) throw error;
 
-      toast.success('Document deleted');
+      toast.success(t('evidence.documentDeleted'));
       loadDocuments();
       setSearchResults([]);
     } catch (_error) {
-      toast.error('Failed to delete document');
+      toast.error(t('evidence.failedToDeleteDocument'));
     }
   }
 
@@ -140,10 +142,10 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
         <Card className="p-4">
           <div className="flex gap-2">
             <Input
-              placeholder="Search in your documents..."
+              placeholder={t('evidence.searchInYourDocuments')}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSearch()}
+              onKeyDown={(e) => e.key === t('evidence.enter') && handleSearch()}
             />
             <Button onClick={handleSearch} disabled={searching}>
               <Search className="h-4 w-4" />
@@ -184,8 +186,8 @@ export function DocumentList({ projectId, refreshTrigger }: DocumentListProps) {
         {documents.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <FileText className="h-12 w-12 mx-auto mb-2 opacity-50" />
-            <p>No documents uploaded yet</p>
-            <p className="text-xs mt-1">Upload documents to use as evidence sources</p>
+            <p>{t('evidence.noDocumentsUploadedYet')}</p>
+            <p className="text-xs mt-1">{t('evidence.uploadDocumentsToUse')}</p>
           </div>
         ) : (
           <div className="space-y-2">

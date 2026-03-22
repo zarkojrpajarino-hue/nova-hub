@@ -22,6 +22,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Info, Plus, X } from 'lucide-react';
 import { StrategicQuestions, STRATEGIC_QUESTIONS_CONFIG } from '@/types/strategic-questions';
 
+import { useTranslation } from 'react-i18next';
 interface FieldOption {
   value: string;
   label: string;
@@ -52,6 +53,7 @@ export function StrategicQuestionsStep({
   onBack,
   section,
 }: StrategicQuestionsStepProps) {
+  const { t } = useTranslation();
   const config = STRATEGIC_QUESTIONS_CONFIG[section];
   const [sectionData, setSectionData] = useState<Record<string, unknown>>(data[section] as Record<string, unknown> || {});
   const [arrayInputs, setArrayInputs] = useState<Record<string, string>>({});
@@ -151,7 +153,7 @@ export function StrategicQuestionsStep({
         return (
           <Select value={value || ''} onValueChange={(val) => handleFieldChange(field.name, val)}>
             <SelectTrigger>
-              <SelectValue placeholder="Seleccionar..." />
+              <SelectValue placeholder={t('generative.seleccionar')} />
             </SelectTrigger>
             <SelectContent>
               {(Array.isArray(field.options) ? field.options : []).map((option: string | FieldOption) => {
@@ -200,7 +202,7 @@ export function StrategicQuestionsStep({
                 }
                 placeholder={field.placeholder}
                 onKeyDown={(e) => {
-                  if (e.key === 'Enter') {
+                  if (e.key === t('generative.enter')) {
                     e.preventDefault();
                     handleArrayAdd(field.name);
                   }
@@ -271,12 +273,8 @@ export function StrategicQuestionsStep({
       </div>
 
       <div className="flex justify-between pt-4 border-t">
-        <Button type="button" variant="outline" onClick={onBack}>
-          Anterior
-        </Button>
-        <Button type="button" onClick={onNext}>
-          Siguiente
-        </Button>
+        <Button type="button" variant="outline" onClick={onBack}>{t('generative.anterior')}</Button>
+        <Button type="button" onClick={onNext}>{t('generative.siguiente')}</Button>
       </div>
     </div>
   );

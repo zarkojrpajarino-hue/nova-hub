@@ -3,6 +3,7 @@ import { Sparkles, X, ArrowRight } from 'lucide-react';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS } from '@/lib/engine';
 
+import { useTranslation } from 'react-i18next';
 const TRANSITION_DURATION_MS = 4000;
 
 // ── Hook ──────────────────────────────────────────────────────────────────────
@@ -58,6 +59,7 @@ interface PhaseTransitionToastProps {
 }
 
 export function PhaseTransitionToast({ engineData, projectId, onViewDetails }: PhaseTransitionToastProps) {
+  const { t } = useTranslation();
   const { visible, info, dismiss } = usePhaseTransition(
     engineData?.phaseHistory ?? [],
     projectId,
@@ -97,14 +99,12 @@ export function PhaseTransitionToast({ engineData, projectId, onViewDetails }: P
               <p className="text-sm font-semibold leading-tight">
                 Proyecto avanzó a Fase {info.toPhase}
               </p>
-              <p className="text-xs text-muted-foreground mt-0.5">
-                El sistema detectó suficientes señales para avanzar.
-              </p>
+              <p className="text-xs text-muted-foreground mt-0.5">{t('project.elSistemaDetectóSuficientes')}</p>
             </div>
           </div>
           <button
             onClick={dismiss}
-            aria-label="Cerrar"
+            aria-label={t('project.cerrar')}
             className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mt-0.5"
           >
             <X className="h-4 w-4" />
@@ -124,16 +124,12 @@ export function PhaseTransitionToast({ engineData, projectId, onViewDetails }: P
           <button
             onClick={handleViewDetails}
             className="flex items-center gap-1 text-xs font-medium text-primary hover:underline"
-          >
-            Ver qué cambia
-            <ArrowRight className="h-3.5 w-3.5" />
+          >{t('project.verQuéCambia')}<ArrowRight className="h-3.5 w-3.5" />
           </button>
           <button
             onClick={dismiss}
             className="text-xs text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Continuar
-          </button>
+          >{t('project.continuar')}</button>
         </div>
       </div>
     </div>

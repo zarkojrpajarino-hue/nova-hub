@@ -16,6 +16,7 @@ import {
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Button } from '@/components/ui/button';
+import { useTranslation } from 'react-i18next';
 import {
   Collapsible,
   CollapsibleContent,
@@ -65,6 +66,7 @@ export function EvidenceReport({
   conflicts,
   searchDurationMs,
 }: EvidenceReportProps) {
+  const { t } = useTranslation();
   const [expandedClaim, setExpandedClaim] = useState<string | null>(null);
   const [_expandedSource, _setExpandedSource] = useState<string | null>(null);
 
@@ -76,14 +78,14 @@ export function EvidenceReport({
           color: 'text-green-500',
           bg: 'bg-green-500/10',
           icon: CheckCircle2,
-          label: 'Evidence Backed',
+          label: t('evidence.evidenceBacked'),
         };
       case 'partial_evidence':
         return {
           color: 'text-yellow-500',
           bg: 'bg-yellow-500/10',
           icon: AlertTriangle,
-          label: 'Partial Evidence',
+          label: t('evidence.partialEvidence'),
         };
       case 'no_evidence':
         return {
@@ -97,7 +99,7 @@ export function EvidenceReport({
           color: 'text-red-500',
           bg: 'bg-red-500/10',
           icon: AlertTriangle,
-          label: 'Conflicting Evidence',
+          label: t('evidence.conflictingEvidence'),
         };
     }
   }
@@ -146,7 +148,7 @@ export function EvidenceReport({
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle>Evidence Report</CardTitle>
+              <CardTitle>{t('evidence.evidenceReport')}</CardTitle>
               <CardDescription>
                 Generation ID: {generationId.slice(0, 8)}... • Search completed in{' '}
                 {(searchDurationMs / 1000).toFixed(1)}s
@@ -164,7 +166,7 @@ export function EvidenceReport({
           {/* Coverage */}
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="font-medium">Evidence Coverage</span>
+              <span className="font-medium">{t('evidence.evidenceCoverage')}</span>
               <span className="text-muted-foreground">{coveragePercentage}%</span>
             </div>
             <Progress value={coveragePercentage} className="h-2" />
@@ -174,19 +176,19 @@ export function EvidenceReport({
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 pt-2">
             <div className="text-center p-3 bg-muted rounded-lg">
               <p className="text-2xl font-bold">{sourcesFound}</p>
-              <p className="text-xs text-muted-foreground">Sources Found</p>
+              <p className="text-xs text-muted-foreground">{t('evidence.sourcesFound')}</p>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <p className="text-2xl font-bold text-green-600">{claimsSupported}</p>
-              <p className="text-xs text-muted-foreground">Supported</p>
+              <p className="text-xs text-muted-foreground">{t('evidence.supported')}</p>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <p className="text-2xl font-bold text-yellow-600">{claimsWeak}</p>
-              <p className="text-xs text-muted-foreground">Weak</p>
+              <p className="text-xs text-muted-foreground">{t('evidence.weak')}</p>
             </div>
             <div className="text-center p-3 bg-muted rounded-lg">
               <p className="text-2xl font-bold text-gray-600">{claimsUnsupported}</p>
-              <p className="text-xs text-muted-foreground">Unsupported</p>
+              <p className="text-xs text-muted-foreground">{t('evidence.unsupported')}</p>
             </div>
           </div>
         </CardContent>
@@ -196,7 +198,7 @@ export function EvidenceReport({
       <Card>
         <CardHeader>
           <CardTitle>Claims ({claims.length})</CardTitle>
-          <CardDescription>Evidence-backed claims from generation</CardDescription>
+          <CardDescription>{t('evidence.evidencebackedClaimsFromGeneration')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-3">
           {claims.map((claim) => (
@@ -273,9 +275,7 @@ export function EvidenceReport({
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-primary hover:underline inline-flex items-center gap-1"
-                              >
-                                View source
-                                <ExternalLink className="h-3 w-3" />
+                              >{t('evidence.viewSource')}<ExternalLink className="h-3 w-3" />
                               </a>
                               {citation.location.page && (
                                 <span className="text-muted-foreground">
@@ -304,7 +304,7 @@ export function EvidenceReport({
       <Card>
         <CardHeader>
           <CardTitle>Sources ({sources.length})</CardTitle>
-          <CardDescription>All sources used in this generation</CardDescription>
+          <CardDescription>{t('evidence.allSourcesUsedIn')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-2">
           {sources.map((source) => (
@@ -327,9 +327,7 @@ export function EvidenceReport({
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-xs text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    View
-                    <ExternalLink className="h-3 w-3" />
+                  >{t('evidence.view')}<ExternalLink className="h-3 w-3" />
                   </a>
                 </div>
               </div>
@@ -342,8 +340,8 @@ export function EvidenceReport({
       {conflicts.length > 0 && (
         <Card className="border-yellow-500/50">
           <CardHeader>
-            <CardTitle className="text-yellow-700">Conflicts Detected</CardTitle>
-            <CardDescription>Sources provide conflicting information</CardDescription>
+            <CardTitle className="text-yellow-700">{t('evidence.conflictsDetected')}</CardTitle>
+            <CardDescription>{t('evidence.sourcesProvideConflictingInformation')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
             {conflicts.map((conflict, idx) => (

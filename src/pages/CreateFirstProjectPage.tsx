@@ -15,7 +15,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { trackProjectCreated } from '@/lib/analytics';
 
+import { useTranslation } from 'react-i18next';
 export function CreateFirstProjectPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const typeParam = searchParams.get('type') || 'generacion-ideas';
@@ -34,24 +36,24 @@ export function CreateFirstProjectPage() {
   const typeContent = {
     'generative': {
       title: '💡 IA te genera 3 opciones de negocio',
-      subtitle: 'Basadas en tu perfil, skills y ubicación',
+      subtitle: t('createFirstProject.basadasEnTuPerfil'),
       icon: Sparkles,
     },
     'idea': {
       title: '🎯 Análisis competitivo SWOT',
-      subtitle: 'Validación estratégica de tu idea',
+      subtitle: t('createFirstProject.validaciónEstratégicaDeTu'),
       icon: Rocket,
     },
     'existing': {
       title: '📈 Growth Diagnostic',
-      subtitle: 'Detecta bottlenecks reales y plan de acción',
+      subtitle: t('createFirstProject.detectaBottlenecksRealesY'),
       icon: Building2,
     },
   };
 
   const handleStartOnboarding = async () => {
     if (!profile) {
-      toast.error('Debes estar autenticado para crear un proyecto');
+      toast.error(t('createFirstProject.debesEstarAutenticadoPara'));
       return;
     }
 
@@ -64,8 +66,8 @@ export function CreateFirstProjectPage() {
       const { data: newProject, error } = await supabase
         .from('projects')
         .insert({
-          nombre: 'Nuevo Proyecto',
-          descripcion: 'Proyecto en configuración',
+          nombre: t('createFirstProject.nuevoProyecto'),
+          descripcion: t('createFirstProject.proyectoEnConfiguración'),
           created_by: profile.id,
           onboarding_data: {
             onboarding_type: onboardingType
@@ -89,7 +91,7 @@ export function CreateFirstProjectPage() {
       navigate(`/onboarding/${newProject.id}`);
 
     } catch (_error) {
-      toast.error('Error al crear el proyecto');
+      toast.error(t('createFirstProject.errorAlCrearEl'));
       setIsCreatingProject(false);
     }
   };
@@ -114,9 +116,7 @@ export function CreateFirstProjectPage() {
 
         <CardContent className="space-y-6">
           <div className="text-center py-8">
-            <p className="text-muted-foreground mb-6">
-              Vamos a guiarte a través de nuestro onboarding inteligente que te ayudará a estructurar tu proyecto con IA.
-            </p>
+            <p className="text-muted-foreground mb-6">{t('createFirstProject.vamosAGuiarteA')}</p>
             <Button
               onClick={handleStartOnboarding}
               size="lg"
@@ -125,14 +125,10 @@ export function CreateFirstProjectPage() {
             >
               {isCreatingProject ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Preparando onboarding...
-                </>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />{t('createFirstProject.preparandoOnboarding')}</>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Comenzar Onboarding
-                </>
+                  <Sparkles className="mr-2 h-5 w-5" />{t('createFirstProject.comenzarOnboarding')}</>
               )}
             </Button>
           </div>

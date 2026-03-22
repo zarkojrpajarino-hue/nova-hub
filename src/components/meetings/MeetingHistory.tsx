@@ -46,9 +46,11 @@ import { getMeetingPatterns } from '@/services/meetingAgentService';
 import { MeetingDecisionTimeline } from './MeetingDecisionTimeline';
 import { MeetingSuggestionBanner } from './MeetingSuggestionBanner';
 
+import { useTranslation } from 'react-i18next';
 // ── M18.24: useMeetingKPIs ────────────────────────────────────────────────────
 
 function useMeetingKPIs(projectId: string, meetings: Meeting[]) {
+  const { t } = useTranslation();
   // Tasks from meetings (generated + completed)
   const { data: taskData } = useQuery({
     queryKey:  ['meeting_tasks_kpi', projectId],
@@ -321,9 +323,7 @@ function RecurringPatternsPanel({
           {/* Lista de blockers recurrentes */}
           {data.recurring_topics.length > 0 && (
             <div className="space-y-2">
-              <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wide">
-                Blockers recurrentes
-              </p>
+              <p className="text-xs font-medium text-amber-800 dark:text-amber-300 uppercase tracking-wide">{t('meetings.blockersRecurrentes')}</p>
               <ul className="space-y-1.5">
                 {data.recurring_topics.map((topic, i) => (
                   <li key={i} className="flex items-center justify-between gap-2">
@@ -340,9 +340,7 @@ function RecurringPatternsPanel({
                 ))}
               </ul>
               {data.blocker_threshold_met && (
-                <p className="text-xs text-amber-600 dark:text-amber-400">
-                  Bloqueadores detectados en 3+ reuniones registrados como bloqueos estratégicos.
-                </p>
+                <p className="text-xs text-amber-600 dark:text-amber-400">{t('meetings.bloqueadoresDetectadosEn3')}</p>
               )}
             </div>
           )}
@@ -365,13 +363,13 @@ interface MeetingHistoryProps {
 }
 
 const STATUS_CONFIG = {
-  configuring: { label: 'Configurando', color: 'gray', icon: Calendar },
-  recording: { label: 'Grabando', color: 'red', icon: Mic },
-  processing_audio: { label: 'Procesando', color: 'blue', icon: Loader2 },
-  transcribing: { label: 'Transcribiendo', color: 'blue', icon: FileText },
-  analyzing: { label: 'Analizando', color: 'purple', icon: Target },
-  ready_for_review: { label: 'Listo para revisar', color: 'orange', icon: AlertCircle },
-  completed: { label: 'Completado', color: 'green', icon: CheckCircle2 },
+  configuring: { label: t('meetings.configurando'), color: 'gray', icon: Calendar },
+  recording: { label: t('meetings.grabando0'), color: 'red', icon: Mic },
+  processing_audio: { label: t('meetings.procesando'), color: 'blue', icon: Loader2 },
+  transcribing: { label: t('meetings.transcribiendo1'), color: 'blue', icon: FileText },
+  analyzing: { label: t('meetings.analizando2'), color: 'purple', icon: Target },
+  ready_for_review: { label: t('meetings.listoParaRevisar3'), color: 'orange', icon: AlertCircle },
+  completed: { label: t('meetings.completado'), color: 'green', icon: CheckCircle2 },
 };
 
 export function MeetingHistory({
@@ -462,10 +460,8 @@ export function MeetingHistory({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Historial de Reuniones</h2>
-          <p className="text-gray-600 mt-1">
-            Todas las reuniones de este proyecto
-          </p>
+          <h2 className="text-2xl font-bold">{t('meetings.historialDeReuniones')}</h2>
+          <p className="text-gray-600 mt-1">{t('meetings.todasLasReunionesDe')}</p>
         </div>
         <div className="flex items-center gap-2">
           {stats.completed >= 2 && (
@@ -475,14 +471,10 @@ export function MeetingHistory({
               onClick={() => setShowTimeline(true)}
               className="gap-2"
             >
-              <GitBranch className="h-4 w-4" />
-              Timeline
-            </Button>
+              <GitBranch className="h-4 w-4" />{t('meetings.timeline')}</Button>
           )}
           <Button onClick={onStartNewMeeting} className="gap-2">
-            <Mic className="h-4 w-4" />
-            Nueva Reunión
-          </Button>
+            <Mic className="h-4 w-4" />{t('meetings.nuevaReunión')}</Button>
         </div>
       </div>
 
@@ -493,7 +485,7 @@ export function MeetingHistory({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground font-medium">Este mes</span>
+              <span className="text-xs text-muted-foreground font-medium">{t('meetings.esteMes')}</span>
             </div>
             <div className="text-2xl font-bold">{kpis.thisMonth}</div>
             <div className="text-xs text-muted-foreground">{stats.completed} completadas</div>
@@ -505,7 +497,7 @@ export function MeetingHistory({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <Clock className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground font-medium">Horas en reuniones</span>
+              <span className="text-xs text-muted-foreground font-medium">{t('meetings.horasEnReuniones')}</span>
             </div>
             <div className="text-2xl font-bold">{kpis.totalHours}</div>
             <div className="text-xs text-muted-foreground">de reuniones completadas</div>
@@ -517,7 +509,7 @@ export function MeetingHistory({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <ListTodo className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground font-medium">Compromisos</span>
+              <span className="text-xs text-muted-foreground font-medium">{t('meetings.compromisos')}</span>
             </div>
             <div className="text-2xl font-bold">
               {kpis.tasksCompleted}
@@ -536,7 +528,7 @@ export function MeetingHistory({
           <CardContent className="pt-5 pb-4">
             <div className="flex items-center gap-2 mb-1">
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
-              <span className="text-xs text-muted-foreground font-medium">Alignment medio</span>
+              <span className="text-xs text-muted-foreground font-medium">{t('meetings.alignmentMedio')}</span>
             </div>
             <div className={`text-2xl font-bold ${
               kpis.avgAlignment === null ? 'text-muted-foreground' :
@@ -567,7 +559,7 @@ export function MeetingHistory({
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
               <Input
-                placeholder="Buscar reuniones..."
+                placeholder={t('meetings.buscarReuniones')}
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10"
@@ -577,25 +569,25 @@ export function MeetingHistory({
             {/* Filtro por estado */}
             <Select value={filterStatus} onValueChange={setFilterStatus}>
               <SelectTrigger>
-                <SelectValue placeholder="Filtrar por estado" />
+                <SelectValue placeholder={t('meetings.filtrarPorEstado')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
-                <SelectItem value="completed">Completadas</SelectItem>
-                <SelectItem value="ready_for_review">Listo para revisar</SelectItem>
-                <SelectItem value="analyzing">Analizando</SelectItem>
-                <SelectItem value="transcribing">Transcribiendo</SelectItem>
-                <SelectItem value="recording">Grabando</SelectItem>
+                <SelectItem value="all">{t('meetings.todosLosEstados')}</SelectItem>
+                <SelectItem value="completed">{t('meetings.completadas')}</SelectItem>
+                <SelectItem value="ready_for_review">{t('meetings.listoParaRevisar')}</SelectItem>
+                <SelectItem value="analyzing">{t('meetings.analizando')}</SelectItem>
+                <SelectItem value="transcribing">{t('meetings.transcribiendo')}</SelectItem>
+                <SelectItem value="recording">{t('meetings.grabando')}</SelectItem>
               </SelectContent>
             </Select>
 
             {/* Filtro por tipo */}
             <Select value={filterType} onValueChange={setFilterType}>
               <SelectTrigger>
-                <SelectValue placeholder="Filtrar por tipo" />
+                <SelectValue placeholder={t('meetings.filtrarPorTipo')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los tipos</SelectItem>
+                <SelectItem value="all">{t('meetings.todosLosTipos')}</SelectItem>
                 {meetingTypes.map((type) => (
                   <SelectItem key={type} value={type}>
                     {type.replace(/_/g, ' ')}
@@ -614,14 +606,11 @@ export function MeetingHistory({
             <Calendar className="h-12 w-12 mx-auto text-gray-400 mb-3" />
             <p className="text-gray-600">
               {searchTerm || filterStatus !== 'all' || filterType !== 'all'
-                ? 'No se encontraron reuniones con esos filtros'
-                : 'No hay reuniones aún'}
+                ? 'No se encontraron reuniones con esos filtros': t('meetings.noHayReunionesAún')}
             </p>
             {!searchTerm && filterStatus === 'all' && filterType === 'all' && (
               <Button onClick={onStartNewMeeting} className="mt-4 gap-2">
-                <Mic className="h-4 w-4" />
-                Crear Primera Reunión
-              </Button>
+                <Mic className="h-4 w-4" />{t('meetings.crearPrimeraReunión')}</Button>
             )}
           </CardContent>
         </Card>
@@ -652,7 +641,7 @@ export function MeetingHistory({
         <Dialog open={showTimeline} onOpenChange={setShowTimeline}>
           <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
             <DialogHeader>
-              <DialogTitle className="sr-only">Timeline de Decisiones</DialogTitle>
+              <DialogTitle className="sr-only">{t('meetings.timelineDeDecisiones')}</DialogTitle>
             </DialogHeader>
             <MeetingDecisionTimeline
               projectId={projectId}
@@ -743,9 +732,7 @@ function MeetingCard({ meeting, onViewDetails, onReviewInsights }: MeetingCardPr
               onClick={() => onViewDetails(meeting.id)}
               className="gap-2"
             >
-              <Eye className="h-4 w-4" />
-              Ver Detalles
-            </Button>
+              <Eye className="h-4 w-4" />{t('meetings.verDetalles')}</Button>
 
             {meeting.status === 'ready_for_review' && (
               <Button
@@ -753,9 +740,7 @@ function MeetingCard({ meeting, onViewDetails, onReviewInsights }: MeetingCardPr
                 onClick={() => onReviewInsights(meeting.id)}
                 className="gap-2"
               >
-                <AlertCircle className="h-4 w-4" />
-                Revisar Insights
-              </Button>
+                <AlertCircle className="h-4 w-4" />{t('meetings.revisarInsights')}</Button>
             )}
           </div>
         </div>
@@ -840,7 +825,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
           {/* Objetivos */}
           {meeting.objectives && (
             <div>
-              <h4 className="font-semibold mb-2">Objetivos</h4>
+              <h4 className="font-semibold mb-2">{t('meetings.objetivos')}</h4>
               <p className="text-sm text-gray-700">{meeting.objectives}</p>
             </div>
           )}
@@ -848,7 +833,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
           {/* Resumen */}
           {meeting.summary && (
             <div>
-              <h4 className="font-semibold mb-2">Resumen</h4>
+              <h4 className="font-semibold mb-2">{t('meetings.resumen')}</h4>
               <p className="text-sm text-gray-700">{meeting.summary}</p>
             </div>
           )}
@@ -856,7 +841,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
           {/* Key Points */}
           {meeting.key_points && meeting.key_points.length > 0 && (
             <div>
-              <h4 className="font-semibold mb-2">Puntos Clave</h4>
+              <h4 className="font-semibold mb-2">{t('meetings.puntosClave')}</h4>
               <ul className="list-disc list-inside space-y-1 text-sm text-gray-700">
                 {meeting.key_points.map((point: string, i: number) => (
                   <li key={i}>{point}</li>
@@ -868,7 +853,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
           {/* Transcripción */}
           {meeting.transcript && (
             <div>
-              <h4 className="font-semibold mb-2">Transcripción Completa</h4>
+              <h4 className="font-semibold mb-2">{t('meetings.transcripciónCompleta')}</h4>
               <div className="bg-gray-50 border rounded-lg p-4 max-h-64 overflow-y-auto">
                 <p className="text-sm text-gray-700 whitespace-pre-wrap">
                   {meeting.transcript}
@@ -896,11 +881,9 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
                     <div className="space-y-2">
                       {typeInsights.slice(0, 3).map((insight: MeetingInsightEntry) => (
                         <div key={insight.id} className="text-sm text-gray-700 pl-6">
-                          • {insight.content.title || insight.content.name || 'Sin título'}
+                          • {insight.content.title || insight.content.name || t('meetings.sinTítulo')}
                           {insight.applied && (
-                            <Badge variant="secondary" className="ml-2 text-xs">
-                              Aplicado
-                            </Badge>
+                            <Badge variant="secondary" className="ml-2 text-xs">{t('meetings.aplicado')}</Badge>
                           )}
                         </div>
                       ))}
@@ -922,9 +905,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
                   }}
                   className="w-full mt-4 gap-2"
                 >
-                  <AlertCircle className="h-4 w-4" />
-                  Revisar y Aprobar Insights
-                </Button>
+                  <AlertCircle className="h-4 w-4" />{t('meetings.revisarYAprobarInsights')}</Button>
               )}
             </div>
           )}

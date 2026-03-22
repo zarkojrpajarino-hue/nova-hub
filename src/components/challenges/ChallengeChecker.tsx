@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface ChallengeCheckerProps {
   role: string;
   currentUserId: string;
@@ -44,6 +45,7 @@ interface RequirementCheck {
 }
 
 export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: ChallengeCheckerProps) {
+  const { t } = useTranslation();
   const [requirements, setRequirements] = useState<RequirementCheck[]>([]);
   const [canChallenge, setCanChallenge] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -72,7 +74,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         {
           id: 'fit_score',
           label: 'Fit Score ≥ 4.2',
-          description: 'Necesitas un Fit Score mínimo de 4.2/5.0 en este rol',
+          description: t('challenges.necesitasUnFitScore'),
           icon: TrendingUp,
           met: result.fit_score >= 4.2,
           current: result.fit_score?.toFixed(1) || '0.0',
@@ -81,8 +83,8 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         },
         {
           id: 'weeks',
-          label: 'Experiencia ≥ 4 semanas',
-          description: 'Debes haber explorado este rol durante al menos 4 semanas',
+          label: t('challenges.experiencia4Semanas'),
+          description: t('challenges.debesHaberExploradoEste'),
           icon: Clock,
           met: result.weeks_explored >= 4,
           current: result.weeks_explored || 0,
@@ -91,8 +93,8 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         },
         {
           id: 'ranking',
-          label: 'Top 3 Ranking',
-          description: 'Debes estar en el Top 3 del ranking de este rol',
+          label: t('challenges.top3Ranking'),
+          description: t('challenges.debesEstarEnEl'),
           icon: Trophy,
           met: result.ranking > 0 && result.ranking <= 3,
           current: result.ranking > 0 ? `#${result.ranking}` : 'N/A',
@@ -102,7 +104,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         {
           id: 'tasks_on_time',
           label: 'Tareas a tiempo ≥ 80%',
-          description: 'Al menos 80% de tus tareas deben completarse a tiempo',
+          description: t('challenges.alMenos80De'),
           icon: Target,
           met: result.tasks_on_time_rate >= 0.8,
           current: `${((result.tasks_on_time_rate || 0) * 100).toFixed(0)}%`,
@@ -112,7 +114,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         {
           id: 'feedback',
           label: 'Feedback positivo ≥ 3',
-          description: 'Necesitas al menos 3 feedbacks positivos de tus compañeros',
+          description: t('challenges.necesitasAlMenos3'),
           icon: MessageSquare,
           met: result.positive_feedback >= 3,
           current: result.positive_feedback || 0,
@@ -122,7 +124,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         {
           id: 'obvs',
           label: 'OBVs validadas ≥ 2',
-          description: 'Debes tener al menos 2 OBVs validadas en este rol',
+          description: t('challenges.debesTenerAlMenos'),
           icon: FileCheck,
           met: result.obvs_validated >= 2,
           current: result.obvs_validated || 0,
@@ -132,7 +134,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         {
           id: 'projects',
           label: 'Proyectos diferentes ≥ 2',
-          description: 'Debes haber trabajado en al menos 2 proyectos diferentes',
+          description: t('challenges.debesHaberTrabajadoEn'),
           icon: FolderKanban,
           met: result.different_projects >= 2,
           current: result.different_projects || 0,
@@ -142,7 +144,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         {
           id: 'consistency',
           label: 'Consistencia (varianza < 0.5)',
-          description: 'Tu desempeño debe ser consistente a lo largo del tiempo',
+          description: t('challenges.tuDesempeñoDebeSer'),
           icon: BarChart3,
           met: result.fit_score_variance < 0.5,
           current: result.fit_score_variance?.toFixed(2) || '0.00',
@@ -170,7 +172,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         }
       }
     } catch (_error) {
-      toast.error('Error al verificar los requisitos');
+      toast.error(t('challenges.errorAlVerificarLos'));
     } finally {
       setIsLoading(false);
     }
@@ -203,8 +205,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
               </CardTitle>
               <CardDescription>
                 {canChallenge
-                  ? '¡Cumples todos los requisitos! Puedes lanzar tu desafío.'
-                  : `Cumples ${metCount} de ${totalCount} requisitos. Sigue trabajando para desbloquear el desafío.`}
+                  ? '¡Cumples todos los requisitos! Puedes lanzar tu desafío.': `Cumples ${metCount} de ${totalCount} requisitos. Sigue trabajando para desbloquear el desafío.`}
               </CardDescription>
             </div>
             {currentMaster && (
@@ -219,7 +220,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span>Progreso General</span>
+              <span>{t('challenges.progresoGeneral')}</span>
               <span className="font-bold">
                 {metCount}/{totalCount} completados
               </span>
@@ -229,9 +230,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
 
           {canChallenge && (
             <Button onClick={() => setShowChallengeDialog(true)} className="w-full mt-4" size="lg">
-              <Trophy className="mr-2" />
-              Lanzar Desafío al Master
-            </Button>
+              <Trophy className="mr-2" />{t('challenges.lanzarDesafíoAlMaster')}</Button>
           )}
         </CardContent>
       </Card>

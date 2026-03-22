@@ -2,7 +2,7 @@
  * OP28.5 — OptimusProfileCard
  *
  * Muestra perfil personalizado de Optimus al founder.
- * Si no hay perfil: "Da feedback para personalizar."
+ * Si no hay perfil: t('project.daFeedbackParaPersonalizar')
  * Si hay: muestra preferencias derivadas.
  */
 
@@ -10,30 +10,32 @@ import { Brain, ThumbsUp } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+import { useTranslation } from 'react-i18next';
 interface OptimusProfileCardProps {
   projectId: string;
 }
 
 const DEPTH_LABELS: Record<string, string> = {
-  conciso: 'Respuestas concisas y directas',
-  equilibrado: 'Balance entre detalle y brevedad',
-  detallado: 'Respuestas detalladas con contexto',
+  conciso: t('project.respuestasConcisasYDirectas'),
+  equilibrado: t('project.balanceEntreDetalleY'),
+  detallado: t('project.respuestasDetalladasConContexto'),
 };
 
 const RISK_LABELS: Record<string, string> = {
-  conservador: 'Conservador — prefiere seguridad',
-  moderado: 'Moderado — equilibra riesgo y oportunidad',
-  agresivo: 'Agresivo — abierto a apuestas fuertes',
+  conservador: t('project.conservadorPrefiereSeguridad'),
+  moderado: t('project.moderadoEquilibraRiesgoY'),
+  agresivo: t('project.agresivoAbiertoAApuestas'),
 };
 
 const STYLE_LABELS: Record<string, string> = {
-  default: 'Estándar',
-  'más específico': 'Específico — quiere pasos concretos',
-  'más estratégico': 'Estratégico — quiere visión de alto nivel',
-  'más motivacional': 'Motivacional — quiere empuje y energía',
+  default: t('project.estándar'),
+  'más específico': t('project.específicoQuierePasosConcretos'),
+  'más estratégico': t('project.estratégicoQuiereVisiónDe'),
+  'más motivacional': t('project.motivacionalQuiereEmpujeY'),
 };
 
 export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
+  const { t } = useTranslation();
   const { data: profile } = useQuery({
     queryKey: ['optimus-profile', projectId],
     queryFn: async () => {
@@ -51,10 +53,8 @@ export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
     return (
       <div className="bg-muted/30 rounded-lg p-3 text-center">
         <Brain className="h-6 w-6 text-muted-foreground mx-auto mb-1.5" />
-        <p className="text-xs font-medium">Optimus está aprendiendo</p>
-        <p className="text-[11px] text-muted-foreground mt-0.5">
-          Da feedback (👍/👎) en las recomendaciones para personalizar.
-        </p>
+        <p className="text-xs font-medium">{t('project.optimusEstáAprendiendo')}</p>
+        <p className="text-[11px] text-muted-foreground mt-0.5">{t('project.daFeedbackEnLas')}</p>
       </div>
     );
   }
@@ -63,7 +63,7 @@ export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
     <div className="bg-card border rounded-lg p-3 space-y-2">
       <div className="flex items-center gap-2">
         <Brain className="h-4 w-4 text-blue-500" />
-        <span className="text-xs font-semibold">Optimus te conoce</span>
+        <span className="text-xs font-semibold">{t('project.optimusTeConoce')}</span>
         <span className="text-[10px] text-muted-foreground ml-auto">
           {profile.total_feedbacks} feedbacks
         </span>

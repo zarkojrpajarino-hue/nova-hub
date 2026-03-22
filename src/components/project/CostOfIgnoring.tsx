@@ -2,6 +2,7 @@ import { AlertTriangle } from 'lucide-react';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import type { NextAction } from '@/lib/next-action';
 
+import { useTranslation } from 'react-i18next';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 export type IgnoreSeverity = 'low' | 'medium' | 'high';
@@ -36,8 +37,8 @@ export function deriveCostOfIgnoring(
     return {
       severity: 'high',
       consequences: [
-        'El riesgo estructural puede empeorar',
-        'El proyecto puede entrar en corrección o rescate',
+        t('project.elRiesgoEstructuralPuede'),
+        t('project.elProyectoPuedeEntrar'),
       ],
     };
   }
@@ -47,8 +48,8 @@ export function deriveCostOfIgnoring(
     return {
       severity: 'high',
       consequences: [
-        'Crecerás sobre una base operativa frágil',
-        'Aumentará el riesgo de regresión',
+        t('project.crecerásSobreUnaBase'),
+        t('project.aumentaráElRiesgoDe'),
       ],
     };
   }
@@ -58,8 +59,8 @@ export function deriveCostOfIgnoring(
     return {
       severity: 'high',
       consequences: [
-        'Seguirás sin evidencia para avanzar de fase',
-        'La probabilidad se mantendrá débil',
+        t('project.seguirásSinEvidenciaPara'),
+        t('project.laProbabilidadSeMantendrá'),
       ],
     };
   }
@@ -69,8 +70,8 @@ export function deriveCostOfIgnoring(
     return {
       severity: 'medium',
       consequences: [
-        'El sistema seguirá operando con baja confianza',
-        'Será más difícil priorizar bien',
+        t('project.elSistemaSeguiráOperando'),
+        t('project.seráMásDifícilPriorizar'),
       ],
     };
   }
@@ -80,8 +81,8 @@ export function deriveCostOfIgnoring(
     return {
       severity: 'medium',
       consequences: [
-        'La adquisición seguirá sin estructura',
-        'El proyecto puede estancarse en validación',
+        t('project.laAdquisiciónSeguiráSin'),
+        t('project.elProyectoPuedeEstancarse'),
       ],
     };
   }
@@ -89,7 +90,7 @@ export function deriveCostOfIgnoring(
   // 6. nextAction sin actionType (recomendación solo textual)
   return {
     severity: 'medium',
-    consequences: ['Puede reducirse la capacidad de avanzar de fase'],
+    consequences: [t('project.puedeReducirseLaCapacidad')],
   };
 }
 
@@ -99,9 +100,9 @@ const SEVERITY_CONFIG: Record<IgnoreSeverity, {
   badgeClass: string;
   label: string;
 }> = {
-  low:    { badgeClass: 'text-muted-foreground bg-muted/40',           label: 'Bajo'  },
-  medium: { badgeClass: 'text-warning bg-warning/10',                  label: 'Medio' },
-  high:   { badgeClass: 'text-destructive bg-destructive/10',          label: 'Alto'  },
+  low:    { badgeClass: 'text-muted-foreground bg-muted/40',           label: t('project.bajo')  },
+  medium: { badgeClass: 'text-warning bg-warning/10',                  label: t('project.medio') },
+  high:   { badgeClass: 'text-destructive bg-destructive/10',          label: t('project.alto')  },
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -112,6 +113,7 @@ interface CostOfIgnoringProps {
 }
 
 export function CostOfIgnoring({ engineData, nextAction }: CostOfIgnoringProps) {
+  const { t } = useTranslation();
   const cost = deriveCostOfIgnoring(engineData, nextAction);
   if (!cost) return null;
 
@@ -122,7 +124,7 @@ export function CostOfIgnoring({ engineData, nextAction }: CostOfIgnoringProps) 
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-1.5">
           <AlertTriangle className="h-3 w-3 text-muted-foreground" />
-          <span className="text-xs text-muted-foreground font-medium">Coste de ignorarlo</span>
+          <span className="text-xs text-muted-foreground font-medium">{t('project.costeDeIgnorarlo')}</span>
         </div>
         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${cfg.badgeClass}`}>
           {cfg.label}

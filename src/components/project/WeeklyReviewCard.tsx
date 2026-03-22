@@ -13,13 +13,15 @@ import { useLatestWeeklyReview } from '@/hooks/useNovaDataOptimized';
 import { WeeklyReviewDetail } from './WeeklyReviewDetail';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface WeeklyReviewCardProps {
   projectId: string;
 }
 
 export function WeeklyReviewCard({ projectId }: WeeklyReviewCardProps) {
+  const { t } = useTranslation();
   const { data: review, isLoading } = useLatestWeeklyReview(projectId);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -38,18 +40,16 @@ export function WeeklyReviewCard({ projectId }: WeeklyReviewCardProps) {
       <div className="bg-card border border-border rounded-2xl p-5">
         <div className="flex items-center gap-2 mb-3">
           <CalendarDays size={16} className="text-muted-foreground" />
-          <h3 className="text-sm font-semibold text-muted-foreground">Resumen semanal</h3>
+          <h3 className="text-sm font-semibold text-muted-foreground">{t('project.resumenSemanal')}</h3>
         </div>
-        <p className="text-xs text-muted-foreground leading-relaxed">
-          Aún no hay review semanal. Se genera automáticamente cada domingo.
-        </p>
+        <p className="text-xs text-muted-foreground leading-relaxed">{t('project.aúnNoHayReview')}</p>
       </div>
     );
   }
 
   const summary = review.summary_json;
   const weekLabel = review.week_start_date && review.week_end_date
-    ? `${format(parseISO(review.week_start_date), 'd MMM', { locale: es })} – ${format(parseISO(review.week_end_date), 'd MMM', { locale: es })}`
+    ? `${format(parseISO(review.week_start_date), 'd MMM', { locale: getDateFnsLocale() })} – ${format(parseISO(review.week_end_date), 'd MMM', { locale: getDateFnsLocale() })}`
     : '';
 
   return (
@@ -59,20 +59,16 @@ export function WeeklyReviewCard({ projectId }: WeeklyReviewCardProps) {
         <div className="flex items-start justify-between gap-2 mb-3">
           <div className="flex items-center gap-2">
             <CalendarDays size={16} className="text-primary" />
-            <h3 className="text-sm font-semibold">Resumen semanal</h3>
+            <h3 className="text-sm font-semibold">{t('project.resumenSemanal')}</h3>
           </div>
           <div className="flex items-center gap-2">
             {review.has_transition && (
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-green-500/10 text-green-600 border-green-500/30">
-                <TrendingUp size={9} className="mr-0.5" />
-                Avance
-              </Badge>
+                <TrendingUp size={9} className="mr-0.5" />{t('project.avance')}</Badge>
             )}
             {review.has_regression && (
               <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-red-500/10 text-red-600 border-red-500/30">
-                <TrendingDown size={9} className="mr-0.5" />
-                Alerta
-              </Badge>
+                <TrendingDown size={9} className="mr-0.5" />{t('project.alerta')}</Badge>
             )}
             <span className="text-[11px] text-muted-foreground">{weekLabel}</span>
           </div>
@@ -103,7 +99,7 @@ export function WeeklyReviewCard({ projectId }: WeeklyReviewCardProps) {
                 key={i}
                 className={cn(
                   'text-[11px] px-2 py-0.5 rounded-full',
-                  w.includes('Regresión') || w.includes('crítico')
+                  w.includes(t('project.regresión')) || w.includes('crítico')
                     ? 'bg-red-500/10 text-red-700 dark:text-red-400'
                     : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
                 )}
@@ -125,9 +121,7 @@ export function WeeklyReviewCard({ projectId }: WeeklyReviewCardProps) {
           size="sm"
           className="h-6 px-2 text-[11px] text-muted-foreground gap-1 -ml-2"
           onClick={() => setDetailOpen(true)}
-        >
-          Ver detalle
-          <ChevronRight size={12} />
+        >{t('project.verDetalle')}<ChevronRight size={12} />
         </Button>
       </div>
 

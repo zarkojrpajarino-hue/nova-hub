@@ -7,6 +7,7 @@ import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 
+import { useTranslation } from 'react-i18next';
 interface PendingItem {
   id: string;
   type: 'obv' | 'bp' | 'lp' | 'cp';
@@ -19,6 +20,7 @@ interface PendingItem {
 }
 
 export function PendingValidationsWidget() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: profiles = [] } = useProfiles();
   const queryClient = useQueryClient();
@@ -81,7 +83,7 @@ export function PendingValidationsWidget() {
           type: 'obv' as const,
           titulo: obv.titulo,
           owner_id: obv.owner_id,
-          owner_nombre: owner?.nombre || 'Desconocido',
+          owner_nombre: owner?.nombre || t('dashboard.desconocido'),
           owner_color: owner?.color || '#6366F1',
           project_nombre: obv.project_id ? projectsMap.get(obv.project_id) : undefined,
           created_at: obv.created_at || '',
@@ -96,7 +98,7 @@ export function PendingValidationsWidget() {
           type: kpi.type as 'bp' | 'lp' | 'cp',
           titulo: kpi.titulo,
           owner_id: kpi.owner_id,
-          owner_nombre: owner?.nombre || 'Desconocido',
+          owner_nombre: owner?.nombre || t('dashboard.desconocido'),
           owner_color: owner?.color || '#6366F1',
           created_at: kpi.created_at || '',
         });
@@ -130,12 +132,12 @@ export function PendingValidationsWidget() {
         if (error) throw error;
       }
 
-      toast.success(approved ? 'Aprobado' : 'Rechazado');
+      toast.success(approved ? 'Aprobado': t('dashboard.rechazado'));
       queryClient.invalidateQueries({ queryKey: ['pending_validations_dashboard'] });
       queryClient.invalidateQueries({ queryKey: ['pending_obvs_for_validation'] });
       queryClient.invalidateQueries({ queryKey: ['pending_kpis'] });
     } catch (_error) {
-      toast.error('Error al validar');
+      toast.error(t('dashboard.errorAlValidar'));
     }
   };
 
@@ -145,9 +147,7 @@ export function PendingValidationsWidget() {
     <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in">
       <div className="p-5 border-b border-border flex items-center justify-between">
         <h3 className="font-semibold flex items-center gap-2.5">
-          <CheckCircle2 size={18} className="text-success" />
-          Validaciones Pendientes
-        </h3>
+          <CheckCircle2 size={18} className="text-success" />{t('dashboard.validacionesPendientes')}</h3>
         {totalPending > 0 && (
           <span className="text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-lg">
             {totalPending}
@@ -163,7 +163,7 @@ export function PendingValidationsWidget() {
         ) : pendingItems.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <CheckCircle2 className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">¡Todo validado!</p>
+            <p className="text-sm">{t('dashboard.todoValidado')}</p>
           </div>
         ) : (
           pendingItems.map((item) => (

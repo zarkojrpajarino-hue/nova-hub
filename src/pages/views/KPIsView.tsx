@@ -12,11 +12,13 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { KPIsPreviewModal } from '@/components/preview/KPIsPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface KPIsViewProps {
   onNewOBV?: () => void;
 }
 
 export function KPIsView({ onNewOBV }: KPIsViewProps) {
+  const { t } = useTranslation();
   const { data: members = [], isLoading } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
   const [activeTab, setActiveTab] = useState('lp');
@@ -73,8 +75,8 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
   return (
     <>
       <NovaHeader
-        title="Otros KPIs"
-        subtitle="Trackea aprendizaje, lectura y participación del equipo en tiempo real"
+        title={t('kPIs.otrosKpis')}
+        subtitle={t('kPIs.trackeaAprendizajeLecturaY')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -82,20 +84,20 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
       <div className="p-8">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Sistema de métricas que trackea el crecimiento del equipo"
-          whatIsIt="Dashboard de KPIs de desarrollo personal y equipo que mide Learning Paths (cursos completados), Book Points (libros leídos), y Community Points (participación en eventos). Se actualiza automáticamente cuando el equipo completa OBVs de tipo aprendizaje o participación."
+          title={t('kPIs.cómoFunciona')}
+          description={t('kPIs.sistemaDeMétricasQue')}
+          whatIsIt={t('kPIs.dashboardDeKpisDe')}
           dataInputs={[
             {
-              from: 'Centro OBVs',
+              from: t('kPIs.centroObvs'),
               items: [
                 'OBVs de tipo "validación" generan Learning Paths',
-                'OBVs con evidencia de lectura generan Book Points',
-                'OBVs de eventos/networking generan Community Points',
+                t('kPIs.obvsConEvidenciaDe'),
+                t('kPIs.obvsDeEventosnetworkingGeneran'),
               ],
             },
             {
-              from: 'Mi Desarrollo',
+              from: t('kPIs.miDesarrollo'),
               items: [
                 'Cursos completados (Learning Paths)',
                 'Libros leídos (Book Points)',
@@ -105,33 +107,33 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
           ]}
           dataOutputs={[
             {
-              to: 'Dashboard',
+              to: t('kPIs.dashboard'),
               items: [
-                'KPIs consolidados del equipo',
-                'Progreso hacia objetivos mensuales',
-                'Vista general de desarrollo',
+                t('kPIs.kpisConsolidadosDelEquipo'),
+                t('kPIs.progresoHaciaObjetivosMensuales'),
+                t('kPIs.vistaGeneralDeDesarrollo'),
               ],
             },
             {
-              to: 'Analytics',
+              to: t('kPIs.analytics'),
               items: [
-                'Tendencias de aprendizaje por persona',
-                'Correlación entre aprendizaje y performance',
-                'ROI de formación',
+                t('kPIs.tendenciasDeAprendizajePor'),
+                t('kPIs.correlaciónEntreAprendizajeY'),
+                t('kPIs.roiDeFormación'),
               ],
             },
             {
-              to: 'Equipo',
+              to: t('kPIs.equipo'),
               items: [
-                'Rankings de desarrollo',
-                'Identificar top learners',
-                'Gaps de conocimiento del equipo',
+                t('kPIs.rankingsDeDesarrollo'),
+                t('kPIs.identificarTopLearners'),
+                t('kPIs.gapsDeConocimientoDel'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Monitorea progreso del equipo → Identifica necesidades de formación',
-            destination: 'Usa Analytics para correlaciones, Equipo para ver perfiles individuales',
+            action: t('kPIs.monitoreaProgresoDelEquipo'),
+            destination: t('kPIs.usaAnalyticsParaCorrelaciones'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -148,7 +150,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalLPs}</p>
-                <p className="text-sm text-muted-foreground">Learning Paths</p>
+                <p className="text-sm text-muted-foreground">{t('kPIs.learningPaths')}</p>
               </div>
             </div>
             <div className="h-1 bg-muted rounded-full overflow-hidden">
@@ -169,7 +171,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalBPs}</p>
-                <p className="text-sm text-muted-foreground">Book Points</p>
+                <p className="text-sm text-muted-foreground">{t('kPIs.bookPoints')}</p>
               </div>
             </div>
             <div className="h-1 bg-muted rounded-full overflow-hidden">
@@ -190,7 +192,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
               </div>
               <div>
                 <p className="text-2xl font-bold">{totalCPs}</p>
-                <p className="text-sm text-muted-foreground">Community Points</p>
+                <p className="text-sm text-muted-foreground">{t('kPIs.communityPoints')}</p>
               </div>
             </div>
             <div className="h-1 bg-muted rounded-full overflow-hidden">
@@ -209,17 +211,11 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mb-8">
           <TabsList className="grid w-full max-w-md grid-cols-3">
             <TabsTrigger value="lp" className="flex items-center gap-2">
-              <BookOpen className="w-4 h-4" />
-              Learning Paths
-            </TabsTrigger>
+              <BookOpen className="w-4 h-4" />{t('kPIs.learningPaths')}</TabsTrigger>
             <TabsTrigger value="bp" className="flex items-center gap-2">
-              <Trophy className="w-4 h-4" />
-              Book Points
-            </TabsTrigger>
+              <Trophy className="w-4 h-4" />{t('kPIs.bookPoints')}</TabsTrigger>
             <TabsTrigger value="cp" className="flex items-center gap-2">
-              <Users className="w-4 h-4" />
-              Community
-            </TabsTrigger>
+              <Users className="w-4 h-4" />{t('kPIs.community')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="lp" className="mt-6">
@@ -240,7 +236,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <ValidationOrderCard />
           <RankingCard
-            title="Ranking Learning Paths"
+            title={t('kPIs.rankingLearningPaths')}
             icon={Crown}
             iconColor="#F59E0B"
             members={sortedByLPs}
@@ -249,7 +245,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             delay={4}
           />
           <RankingCard
-            title="Ranking Book Points"
+            title={t('kPIs.rankingBookPoints')}
             icon={Diamond}
             iconColor="#22C55E"
             members={sortedByBPs}
@@ -258,7 +254,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
             delay={5}
           />
           <RankingCard
-            title="Ranking Community Points"
+            title={t('kPIs.rankingCommunityPoints')}
             icon={Award}
             iconColor="#EC4899"
             members={sortedByCPs}

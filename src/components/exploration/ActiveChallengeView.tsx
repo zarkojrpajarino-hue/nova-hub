@@ -13,6 +13,7 @@ import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { Clock, Trophy, Target, TrendingUp, CheckCircle2, Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface ChallengeMetrics {
   tasks_completed: number;
   tasks_on_time_percent: number;
@@ -49,6 +50,7 @@ export function ActiveChallengeView({
   challengerMetrics,
   votingProgress,
 }: ActiveChallengeViewProps) {
+  const { t } = useTranslation();
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [masterScore, setMasterScore] = useState<number>(0);
   const [challengerScore, setChallengerScore] = useState<number>(0);
@@ -61,7 +63,7 @@ export function ActiveChallengeView({
       const diff = end.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setTimeRemaining('¡Desafío finalizado!');
+        setTimeRemaining(t('exploration.desafíoFinalizado'));
         return;
       }
 
@@ -99,7 +101,7 @@ export function ActiveChallengeView({
   const renderPerformanceBattle = () => {
     const metrics = [
       {
-        label: 'Tasks completadas',
+        label: t('exploration.tasksCompletadas'),
         weight: '30%',
         masterValue: masterMetrics.tasks_completed,
         challengerValue: challengerMetrics.tasks_completed,
@@ -107,7 +109,7 @@ export function ActiveChallengeView({
         icon: <CheckCircle2 size={16} />,
       },
       {
-        label: 'Tasks a tiempo',
+        label: t('exploration.tasksATiempo'),
         weight: '20%',
         masterValue: masterMetrics.tasks_on_time_percent,
         challengerValue: challengerMetrics.tasks_on_time_percent,
@@ -116,7 +118,7 @@ export function ActiveChallengeView({
         suffix: '%',
       },
       {
-        label: 'OBVs validados',
+        label: t('exploration.obvsValidados'),
         weight: '20%',
         masterValue: masterMetrics.obvs_validated,
         challengerValue: challengerMetrics.obvs_validated,
@@ -124,7 +126,7 @@ export function ActiveChallengeView({
         icon: <Target size={16} />,
       },
       {
-        label: 'Feedback score',
+        label: t('exploration.feedbackScore'),
         weight: '20%',
         masterValue: masterMetrics.feedback_score,
         challengerValue: challengerMetrics.feedback_score,
@@ -133,7 +135,7 @@ export function ActiveChallengeView({
         decimals: 1,
       },
       {
-        label: 'Iniciativa',
+        label: t('exploration.iniciativa'),
         weight: '10%',
         masterValue: masterMetrics.initiative,
         challengerValue: challengerMetrics.initiative,
@@ -211,7 +213,7 @@ export function ActiveChallengeView({
                   </AvatarFallback>
                 </Avatar>
                 <p className="font-semibold">{masterName}</p>
-                <p className="text-xs text-muted-foreground mb-2">Master Actual</p>
+                <p className="text-xs text-muted-foreground mb-2">{t('exploration.masterActual')}</p>
                 <div className="text-3xl font-bold text-amber-500">
                   {masterScore.toFixed(0)}
                 </div>
@@ -230,7 +232,7 @@ export function ActiveChallengeView({
                   </AvatarFallback>
                 </Avatar>
                 <p className="font-semibold">{challengerName}</p>
-                <p className="text-xs text-muted-foreground mb-2">Retador</p>
+                <p className="text-xs text-muted-foreground mb-2">{t('exploration.retador')}</p>
                 <div className="text-3xl font-bold text-primary">
                   {challengerScore.toFixed(0)}
                 </div>
@@ -241,7 +243,7 @@ export function ActiveChallengeView({
 
           {/* Ganador actual */}
           <div className="mt-4 p-4 rounded-lg bg-muted/50 text-center">
-            <p className="text-sm text-muted-foreground mb-1">Ganador Actual</p>
+            <p className="text-sm text-muted-foreground mb-1">{t('exploration.ganadorActual')}</p>
             <p className="text-xl font-bold">
               {masterScore > challengerScore
                 ? `👑 ${masterName}`
@@ -283,7 +285,7 @@ export function ActiveChallengeView({
               <p className="text-sm text-muted-foreground">
                 {votingPercent < 100
                   ? `Faltan ${votingProgress.total_voters - votingProgress.votes_cast} personas por votar`
-                  : 'Todos han votado - Resultados se revelan al finalizar'}
+                  : t('exploration.todosHanVotadoResultados')}
               </p>
             </div>
           </CardContent>
@@ -315,9 +317,7 @@ export function ActiveChallengeView({
                 </div>
               </div>
               <div className="mt-3 p-2 rounded bg-amber-500/10 text-center">
-                <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">
-                  Necesita: 51% de votos
-                </p>
+                <p className="text-xs font-semibold text-amber-700 dark:text-amber-300">{t('exploration.necesita51DeVotos')}</p>
               </div>
             </CardContent>
           </Card>
@@ -348,7 +348,7 @@ export function ActiveChallengeView({
                 </div>
               </div>
               <div className="mt-3 p-2 rounded bg-primary/10 text-center">
-                <p className="text-xs font-semibold text-primary">Necesita: 60% de votos</p>
+                <p className="text-xs font-semibold text-primary">{t('exploration.necesita60DeVotos')}</p>
               </div>
             </CardContent>
           </Card>
@@ -377,10 +377,8 @@ export function ActiveChallengeView({
               <h3 className="text-2xl font-bold">
                 ⚔️ Desafío Activo:{' '}
                 {challengeType === 'performance'
-                  ? 'Performance Battle'
-                  : challengeType === 'project'
-                  ? 'Project Showdown'
-                  : 'Peer Vote'}
+                  ? 'Performance Battle': challengeType === 'project'
+                  ? 'Project Showdown': t('exploration.peerVote')}
               </h3>
               <p className="text-sm text-muted-foreground font-normal">
                 Rol: {role}
@@ -392,7 +390,7 @@ export function ActiveChallengeView({
               <Clock size={20} />
               {timeRemaining}
             </div>
-            <p className="text-xs text-muted-foreground">Tiempo restante</p>
+            <p className="text-xs text-muted-foreground">{t('exploration.tiempoRestante')}</p>
           </div>
         </CardTitle>
       </CardHeader>
@@ -400,9 +398,7 @@ export function ActiveChallengeView({
         {challengeType === 'performance' && renderPerformanceBattle()}
         {challengeType === 'peer_vote' && renderPeerVote()}
         {challengeType === 'project' && (
-          <div className="text-center p-8 text-muted-foreground">
-            Project Showdown en progreso - Los resultados se evaluarán al finalizar
-          </div>
+          <div className="text-center p-8 text-muted-foreground">{t('exploration.projectShowdownEnProgreso')}</div>
         )}
       </CardContent>
     </Card>

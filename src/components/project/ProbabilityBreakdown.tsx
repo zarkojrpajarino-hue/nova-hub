@@ -4,6 +4,7 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { EngineEmptyState } from './EngineEmptyState';
 import { InputAuditModal, InputAuditTrigger } from './InputAuditModal';
 
+import { useTranslation } from 'react-i18next';
 interface ProbabilityBreakdownProps {
   probability: ProjectEngineData['probability'];
   probabilityHistory: ProjectEngineData['probabilityHistory'];
@@ -17,11 +18,11 @@ const INPUTS: {
   key: keyof NonNullable<ProjectEngineData['probability']>;
   label: string;
 }[] = [
-  { key: 'phase_score_input',         label: 'Avance de fase'    },
-  { key: 'execution_rate_input',      label: 'Ejecución'         },
-  { key: 'validation_strength_input', label: 'Validación'        },
-  { key: 'revenue_momentum_input',    label: 'Revenue'           },
-  { key: 'capacity_health_input',     label: 'Equipo'            },
+  { key: 'phase_score_input',         label: t('project.avanceDeFase')    },
+  { key: 'execution_rate_input',      label: t('project.ejecución')         },
+  { key: 'validation_strength_input', label: t('project.validación')        },
+  { key: 'revenue_momentum_input',    label: t('project.revenue')           },
+  { key: 'capacity_health_input',     label: t('project.equipo')            },
 ];
 
 function inputBarColor(value: number): string {
@@ -49,6 +50,7 @@ function ProbabilityBreakdownComponent({
   onCTA,
   onNavigateToTab,
 }: ProbabilityBreakdownProps) {
+  const { t } = useTranslation();
   const [auditOpen, setAuditOpen] = useState(false);
   // Sin datos, inactivo o confianza baja (EC13.7: no mostrar número bajo hasta tener datos reales)
   if (!probability || probability.probability_status !== 'active') {
@@ -58,15 +60,15 @@ function ProbabilityBreakdownComponent({
         icon={TrendingUp}
         title={
           isBuilding
-            ? "El motor se está configurando con los primeros datos"
-            : "Aún no hay datos suficientes para estimar la probabilidad de avance"
+            ? t('project.elMotorSeEstá')
+            : t('project.aúnNoHayDatos')
         }
         description={
           isBuilding
-            ? "Continúa añadiendo métricas y actividad para obtener tu primera estimación."
-            : "El motor necesita más señales del proyecto para activarse."
+            ? t('project.continúaAñadiendoMétricasY')
+            : t('project.elMotorNecesitaMás')
         }
-        cta={onCTA ? { label: 'Añadir métricas', onClick: onCTA } : undefined}
+        cta={onCTA ? { label: t('project.añadirMétricas'), onClick: onCTA } : undefined}
       />
     );
   }
@@ -104,9 +106,7 @@ function ProbabilityBreakdownComponent({
           )}
           {/* Low confidence warning */}
           {isLowConf && (
-            <span className="text-[11px] text-warning bg-warning/10 px-2 py-0.5 rounded-md font-medium">
-              Confianza baja
-            </span>
+            <span className="text-[11px] text-warning bg-warning/10 px-2 py-0.5 rounded-md font-medium">{t('project.confianzaBaja')}</span>
           )}
         </div>
       </div>

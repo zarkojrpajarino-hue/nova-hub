@@ -15,6 +15,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery } from '@tanstack/react-query';
 
+import { useTranslation } from 'react-i18next';
 interface LearningPath {
   id: string;
   title: string;
@@ -35,6 +36,7 @@ interface LearningPathListProps {
 }
 
 export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathListProps) {
+  const { t } = useTranslation();
   const [isGenerating, setIsGenerating] = useState(false);
 
   // Fetch learning paths
@@ -69,10 +71,10 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
 
       if (error) throw error;
 
-      toast.success('Learning Path generado exitosamente');
+      toast.success(t('learning.learningPathGeneradoExitosamente'));
       refetch();
     } catch (_error) {
-      toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al generar: ' + (error instanceof Error ? error.message : t('learning.errorDesconocido')));
     } finally {
       setIsGenerating(false);
     }
@@ -94,11 +96,11 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
   const getDifficultyLabel = (difficulty: string) => {
     switch (difficulty) {
       case 'beginner':
-        return 'Principiante';
+        return t('learning.principiante');
       case 'intermediate':
-        return 'Intermedio';
+        return t('learning.intermedio');
       case 'advanced':
-        return 'Avanzado';
+        return t('learning.avanzado');
       default:
         return difficulty;
     }
@@ -117,7 +119,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h3 className="text-xl font-bold">Mis Learning Paths</h3>
+          <h3 className="text-xl font-bold">{t('learning.misLearningPaths')}</h3>
           <p className="text-sm text-muted-foreground">
             Planes de aprendizaje personalizados generados por IA
           </p>
@@ -131,20 +133,14 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
           >
             {isGenerating ? (
               <>
-                <Loader2 className="w-4 h-4 animate-spin" />
-                Generando...
-              </>
+                <Loader2 className="w-4 h-4 animate-spin" />{t('learning.generando')}</>
             ) : (
               <>
-                <Sparkles className="w-4 h-4" />
-                Generar Rápido
-              </>
+                <Sparkles className="w-4 h-4" />{t('learning.generarRápido')}</>
             )}
           </Button>
           <Button onClick={onGenerateNew} className="gap-2">
-            <Plus className="w-4 h-4" />
-            Nuevo Learning Path
-          </Button>
+            <Plus className="w-4 h-4" />{t('learning.nuevoLearningPath')}</Button>
         </div>
       </div>
 
@@ -155,7 +151,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
             <div className="w-16 h-16 rounded-2xl nova-gradient flex items-center justify-center mb-4 opacity-50">
               <BookOpen className="w-8 h-8 text-primary-foreground" />
             </div>
-            <h3 className="font-semibold text-lg mb-2">No tienes Learning Paths aún</h3>
+            <h3 className="font-semibold text-lg mb-2">{t('learning.noTienesLearningPaths')}</h3>
             <p className="text-sm text-muted-foreground mb-6 text-center max-w-md">
               Genera tu primer plan de aprendizaje personalizado basado en tu rol actual
               y objetivos de carrera
@@ -170,9 +166,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
                 Generar Automáticamente
               </Button>
               <Button onClick={onGenerateNew} variant="outline" className="gap-2">
-                <Plus className="w-4 h-4" />
-                Crear Personalizado
-              </Button>
+                <Plus className="w-4 h-4" />{t('learning.crearPersonalizado')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -222,7 +216,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
                 {/* Progress */}
                 <div className="space-y-1">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Progreso</span>
+                    <span className="text-muted-foreground">{t('learning.progreso')}</span>
                     <span className="font-semibold">
                       {path.completed_steps}/{path.total_steps} completados
                     </span>
@@ -234,7 +228,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
                 {path.status === 'active' && path.progress_percentage > 0 && (
                   <div className="flex items-center gap-2 text-xs">
                     <TrendingUp size={12} className="text-green-500" />
-                    <span className="text-green-500 font-medium">En progreso</span>
+                    <span className="text-green-500 font-medium">{t('learning.enProgreso')}</span>
                   </div>
                 )}
                 {path.status === 'completed' && (

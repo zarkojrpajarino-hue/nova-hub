@@ -16,7 +16,9 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { useState } from 'react';
 
+import { useTranslation } from 'react-i18next';
 export function LearningRoadmapPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { currentProject } = useCurrentProject();
   const { profile } = useAuth();
@@ -29,15 +31,9 @@ export function LearningRoadmapPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">
-              Selecciona un Proyecto
-            </h2>
-            <p className="text-gray-600 mb-6">
-              Para ver tu roadmap de aprendizaje, primero selecciona un proyecto
-            </p>
-            <Button onClick={() => navigate('/select-project')}>
-              Ver Proyectos
-            </Button>
+            <h2 className="text-2xl font-bold mb-2">{t('learningRoadmap.seleccionaUnProyecto')}</h2>
+            <p className="text-gray-600 mb-6">{t('learningRoadmap.paraVerTuRoadmap')}</p>
+            <Button onClick={() => navigate('/select-project')}>{t('learningRoadmap.verProyectos')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -50,17 +46,13 @@ export function LearningRoadmapPage() {
         <Card>
           <CardContent className="p-12 text-center">
             <BookOpen className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-            <h2 className="text-2xl font-bold mb-2">
-              Roadmap No Disponible
-            </h2>
+            <h2 className="text-2xl font-bold mb-2">{t('learningRoadmap.roadmapNoDisponible')}</h2>
             <p className="text-gray-600 mb-6">
               El roadmap de aprendizaje solo está disponible para proyectos en modo individual.
               Este proyecto está configurado en modo: <strong>{currentProject.work_mode}</strong>
             </p>
             <Button onClick={() => navigate('/dashboard')}>
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al Dashboard
-            </Button>
+              <ArrowLeft className="h-4 w-4 mr-2" />{t('learningRoadmap.volverAlDashboard')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -77,14 +69,14 @@ export function LearningRoadmapPage() {
         project_id: currentProject.id,
         member_id: profile?.id || '',
         project_name: currentProject.nombre,
-        industry: currentProject.industry || 'General',
+        industry: currentProject.industry || t('learningRoadmap.general'),
         business_idea: currentProject.descripcion || currentProject.nombre,
       });
 
       setHasRoadmap(true);
-      toast.success('¡Roadmap generado exitosamente!');
+      toast.success(t('learningRoadmap.roadmapGeneradoExitosamente'));
     } catch (_error) {
-      toast.error(error instanceof Error ? error.message : 'Error al generar roadmap');
+      toast.error(error instanceof Error ? error.message : t('learningRoadmap.errorAlGenerarRoadmap'));
     }
   };
 
@@ -98,19 +90,13 @@ export function LearningRoadmapPage() {
           onClick={() => navigate('/dashboard')}
           className="mb-4"
         >
-          <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver al Dashboard
-        </Button>
+          <ArrowLeft className="h-4 w-4 mr-2" />{t('learningRoadmap.volverAlDashboard')}</Button>
 
         <div className="flex items-center justify-between">
           <div>
             <h1 className="text-3xl font-bold mb-2 flex items-center gap-3">
-              <BookOpen className="h-8 w-8 text-primary" />
-              Mi Roadmap de Aprendizaje
-            </h1>
-            <p className="text-gray-600">
-              Aprende todos los roles de tu proyecto de forma secuencial
-            </p>
+              <BookOpen className="h-8 w-8 text-primary" />{t('learningRoadmap.miRoadmapDeAprendizaje')}</h1>
+            <p className="text-gray-600">{t('learningRoadmap.aprendeTodosLosRoles')}</p>
           </div>
 
           <Button
@@ -119,7 +105,7 @@ export function LearningRoadmapPage() {
             variant="outline"
           >
             <Sparkles className="h-4 w-4 mr-2" />
-            {generateRoadmap.isPending ? 'Generando...' : 'Regenerar Roadmap'}
+            {generateRoadmap.isPending ? 'Generando...': t('learningRoadmap.regenerarRoadmap')}
           </Button>
         </div>
       </div>

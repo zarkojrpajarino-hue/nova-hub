@@ -9,6 +9,7 @@ import React from 'react';
 import { Lightbulb, Info } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+import { useTranslation } from 'react-i18next';
 interface Example {
   good?: string;
   bad?: string;
@@ -24,71 +25,72 @@ interface ContextualExampleProps {
 const EXAMPLES: Record<string, Example> = {
   // Problem statements
   'problem-saas': {
-    good: 'Los Product Managers en startups de 10-50 personas pierden 15 horas por semana haciendo roadmaps en Excel porque Jira es demasiado complejo para equipos pequeños',
-    bad: 'Es difícil gestionar proyectos',
-    tip: 'Incluye: quién sufre, cuánto tiempo pierden, por qué las soluciones actuales fallan',
+    good: t('generative.losProductManagersEn'),
+    bad: t('generative.esDifícilGestionarProyectos'),
+    tip: t('generative.incluyeQuiénSufreCuánto'),
   },
   'problem-ecommerce': {
     good: 'Tiendas Shopify con <$50K MRR pierden 30% de ventas porque checkout toma 4 pasos (promedio industria: 2 pasos)',
-    bad: 'El checkout es lento',
-    tip: 'Cuantifica el problema con números: % perdido, tiempo desperdiciado, dinero que cuesta',
+    bad: t('generative.elCheckoutEsLento'),
+    tip: t('generative.cuantificaElProblemaCon'),
   },
   'problem-service': {
-    good: 'Diseñadores freelance gastan 20h/semana buscando clientes en Upwork/Fiverr donde la comisión es 20% y hay competencia de 100+ personas por proyecto',
-    bad: 'Es difícil conseguir clientes',
-    tip: 'Menciona plataformas actuales, sus problemas específicos (comisión, competencia), y impacto en tiempo/dinero',
+    good: t('generative.diseñadoresFreelanceGastan20hsemana'),
+    bad: t('generative.esDifícilConseguirClientes'),
+    tip: t('generative.mencionaPlataformasActualesSus'),
   },
 
   // Business ideas
   'idea-saas': {
-    good: 'Una herramienta de roadmapping con setup de 1 minuto que genera roadmaps automáticamente con IA, diseñada para equipos de 5-20 personas',
-    bad: 'Una app de gestión de proyectos',
-    tip: 'Especifica: qué hace único, para quién es, qué problema resuelve',
+    good: t('generative.unaHerramientaDeRoadmapping'),
+    bad: t('generative.unaAppDeGestión'),
+    tip: t('generative.especificaQuéHaceÚnico'),
   },
   'idea-marketplace': {
-    good: 'Un marketplace que conecta diseñadores freelance con empresas locales (50km radio) usando geolocalización, sin comisión en primeros 3 meses',
-    bad: 'Una plataforma para freelancers',
-    tip: 'Explica: qué conectas, cómo te diferencias, qué región/nicho atacas',
+    good: t('generative.unMarketplaceQueConecta'),
+    bad: t('generative.unaPlataformaParaFreelancers'),
+    tip: t('generative.explicaQuéConectasCómo'),
   },
 
   // Target customer
   'customer-b2b': {
-    good: 'CTOs y VP Engineering en startups Series A-B (50-200 empleados) que usan Jira pero su equipo se queja de complejidad',
-    bad: 'Startups que necesitan PM tools',
-    tip: 'Sé específico: rol exacto, stage de empresa, tamaño, pain point actual',
+    good: t('generative.ctosYVpEngineering'),
+    bad: t('generative.startupsQueNecesitanPm'),
+    tip: t('generative.séEspecíficoRolExacto'),
   },
   'customer-b2c': {
-    good: 'Diseñadores gráficos freelance de 25-35 años, con 2-5 años de experiencia, que usan Fiverr/Upwork y quieren clientes recurrentes locales',
-    bad: 'Freelancers',
-    tip: 'Incluye: edad, experiencia, herramientas actuales, qué buscan que no tienen',
+    good: t('generative.diseñadoresGráficosFreelanceDe'),
+    bad: t('generative.freelancers'),
+    tip: t('generative.incluyeEdadExperienciaHerramientas'),
   },
 
   // Monetization
   'monetization-saas': {
     good: 'Freemium: Free hasta 3 proyectos, $29/mo para equipos hasta 10 personas, $99/mo para 50+ (inspirado en Figma pricing)',
-    bad: 'Vamos a cobrar una suscripción',
+    bad: t('generative.vamosACobrarUna'),
     tip: 'Define: free tier límites, precio de paid plans, por qué ese pricing (benchmark)',
   },
   'monetization-marketplace': {
-    good: 'Comisión 10% en primeros 3 meses (vs 20% de Upwork), luego 5% si eres cliente recurrente. Freelancers pagan $0, empresas pagan comisión',
-    bad: 'Comisión por transacción',
+    good: t('generative.comisión10EnPrimeros'),
+    bad: t('generative.comisiónPorTransacción'),
     tip: 'Especifica: % exacto, quién paga, incentivos (descuentos, loyalty)',
   },
 
   // Go-to-market
   'gtm-b2b': {
-    good: 'Outreach directo en LinkedIn a 100 CTOs de startups Series A (filtro: company size 50-200, funded last 12mo). Mensaje: "Jira frustration?" + link a 2min demo video',
-    bad: 'Marketing en redes sociales',
+    good: 'Outreach directo en LinkedIn a 100 CTOs de startups Series A (filtro: company size 50-200, funded last 12mo). Mensaje: Jira frustration? + link a 2min demo video',
+    bad: t('generative.marketingEnRedesSociales'),
     tip: 'Sé táctico: canal exacto, target preciso, mensaje específico, volumen (ej: 100 alcances)',
   },
   'gtm-b2c': {
-    good: 'Post en r/web_design (2.1M members) + r/freelance (500K) con título "Tired of Upwork 20% fees?" link a landing. Objetivo: 50 signups en 1 semana',
-    bad: 'Postear en Reddit',
-    tip: 'Define: subreddits exactos, headline del post, CTA, métrica de éxito',
+    good: 'Post en r/web_design (2.1M members) + r/freelance (500K) con título Tired of Upwork 20% fees? link a landing. Objetivo: 50 signups en 1 semana',
+    bad: t('generative.postearEnReddit'),
+    tip: t('generative.defineSubredditsExactosHeadline'),
   },
 };
 
 export function ContextualExample({ fieldType, industry, businessType }: ContextualExampleProps) {
+  const { t } = useTranslation();
   // Build example key based on field + context
   let exampleKey = fieldType;
 

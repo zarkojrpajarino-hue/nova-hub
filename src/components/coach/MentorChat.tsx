@@ -17,6 +17,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 
+import { useTranslation } from 'react-i18next';
 interface Message {
   id: string;
   role: 'user' | 'assistant';
@@ -30,6 +31,7 @@ interface MentorChatProps {
 }
 
 export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
+  const { t } = useTranslation();
   const { user: _user } = useAuth();
   const [messages, setMessages] = useState<Message[]>([]);
   const [input, setInput] = useState('');
@@ -125,13 +127,13 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
         setSessionId(data.sessionId);
       }
     } catch (_error) {
-      toast.error('Error al consultar al coach: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al consultar al coach: ' + (error instanceof Error ? error.message : t('coach.errorDesconocido')));
 
       // Add error message
       const errorMessage: Message = {
         id: `error-${Date.now()}`,
         role: 'assistant',
-        content: 'Lo siento, hubo un error al procesar tu mensaje. Por favor intenta de nuevo.',
+        content: t('coach.loSientoHuboUn'),
         timestamp: new Date(),
       };
       setMessages((prev) => [...prev, errorMessage]);
@@ -141,17 +143,17 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
+    if (e.key === t('coach.enter') && !e.shiftKey) {
       e.preventDefault();
       handleSend();
     }
   };
 
   const suggestedQuestions = [
-    '¿Cómo puedo mejorar mi fit score?',
-    '¿Qué habilidades debería desarrollar?',
-    '¿Estoy listo para un rol más senior?',
-    'Dame feedback sobre mi progreso',
+    t('coach.cómoPuedoMejorarMi'),
+    t('coach.quéHabilidadesDeberíaDesarrollar'),
+    t('coach.estoyListoParaUn'),
+    t('coach.dameFeedbackSobreMi'),
   ];
 
   return (
@@ -164,15 +166,11 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle className="flex items-center gap-2">
-                Coach AI de Carrera
-                <Badge variant="secondary" className="text-xs">
+              <CardTitle className="flex items-center gap-2">Coach AI de Carrera<Badge variant="secondary" className="text-xs">
                   Powered by GPT-4
                 </Badge>
               </CardTitle>
-              <CardDescription>
-                Mentor personal que te ayuda a crecer en tu rol y desarrollar tu carrera
-              </CardDescription>
+              <CardDescription>{t('coach.mentorPersonalQueTe')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -189,7 +187,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
                   <Bot className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <div>
-                  <h3 className="font-semibold text-lg mb-2">¡Hola! Soy tu Coach de Carrera</h3>
+                  <h3 className="font-semibold text-lg mb-2">{t('coach.holaSoyTuCoach')}</h3>
                   <p className="text-sm text-muted-foreground max-w-md">
                     Estoy aquí para ayudarte a desarrollar tus habilidades, mejorar en tu rol actual,
                     y planear tu crecimiento profesional. ¿En qué puedo ayudarte hoy?
@@ -273,7 +271,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
           <div className="border-t p-4">
             <div className="flex gap-2">
               <Input
-                placeholder="Escribe tu pregunta..."
+                placeholder={t('coach.escribeTuPregunta')}
                 value={input}
                 onChange={(e) => setInput(e.target.value)}
                 onKeyPress={handleKeyPress}
@@ -292,9 +290,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
                 )}
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground mt-2 text-center">
-              El Coach AI tiene contexto de tu rol actual, fit score, y progreso reciente
-            </p>
+            <p className="text-[10px] text-muted-foreground mt-2 text-center">{t('coach.elCoachAiTiene')}</p>
           </div>
         </CardContent>
       </Card>

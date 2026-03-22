@@ -12,6 +12,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useCloseCycleForPivot } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 interface StrategyEditorProps {
   projectId: string;
 }
@@ -19,6 +20,7 @@ interface StrategyEditorProps {
 const MIN_CHARS = 10;
 
 function fieldStatus(value: string) {
+  const { t } = useTranslation();
   if (!value.trim()) return 'empty';
   if (value.trim().length < MIN_CHARS) return 'short';
   return 'ok';
@@ -83,7 +85,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
     const v = form.valueProp.trim();
 
     if (!s || !p || !v) {
-      toast.error('Los tres campos son obligatorios');
+      toast.error(t('engineInputs.losTresCamposSon'));
       return;
     }
     if (s.length < MIN_CHARS || p.length < MIN_CHARS || v.length < MIN_CHARS) {
@@ -102,7 +104,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
       if ((current?.value_prop_text ?? '') !== v) changedFields.value_prop_text = { old: current?.value_prop_text ?? null, new: v };
 
       if (Object.keys(changedFields).length === 0) {
-        toast.info('Sin cambios para guardar');
+        toast.info(t('engineInputs.sinCambiosParaGuardar'));
         setIsSaving(false);
         return;
       }
@@ -137,7 +139,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
 
       if (versionError) throw versionError;
 
-      toast.success('Estrategia guardada');
+      toast.success(t('engineInputs.estrategiaGuardada'));
       queryClient.invalidateQueries({ queryKey: ['strategy', projectId] });
       queryClient.invalidateQueries({ queryKey: ['strategy_versions_count', projectId] });
 
@@ -150,7 +152,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
         setShowPivotPrompt(true);
       }
     } catch {
-      toast.error('Error al guardar la estrategia');
+      toast.error(t('engineInputs.errorAlGuardarLa'));
     } finally {
       setIsSaving(false);
     }
@@ -159,11 +161,11 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
   const handleArchiveCycle = () => {
     closeForPivot(projectId, {
       onSuccess: () => {
-        toast.success('Ciclo cerrado. El siguiente ciclo comienza con tu nuevo modelo.');
+        toast.success(t('engineInputs.cicloCerradoElSiguiente'));
         setShowPivotPrompt(false);
       },
       onError: () => {
-        toast.error('Error al cerrar el ciclo');
+        toast.error(t('engineInputs.errorAlCerrarEl'));
       },
     });
   };
@@ -181,21 +183,21 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
   const fields = [
     {
       key: 'segment' as const,
-      label: 'Segmento objetivo',
-      placeholder: 'Ej: Fundadores de startups B2B en etapa early con 1–5 empleados...',
+      label: t('engineInputs.segmentoObjetivo'),
+      placeholder: t('engineInputs.ejFundadoresDeStartups'),
       description: 'El cliente específico al que te diriges (quién, dónde, qué características)',
     },
     {
       key: 'problem' as const,
-      label: 'Problema que resuelves',
-      placeholder: 'Ej: Los fundadores pierden semanas construyendo features que nadie usa por no validar antes...',
-      description: 'El dolor concreto y cuantificable que experimentan',
+      label: t('engineInputs.problemaQueResuelves'),
+      placeholder: t('engineInputs.ejLosFundadoresPierden'),
+      description: t('engineInputs.elDolorConcretoY'),
     },
     {
       key: 'valueProp' as const,
-      label: 'Propuesta de valor',
-      placeholder: 'Ej: Metodología + herramientas para validar en 48h con clientes reales, sin código...',
-      description: 'Cómo resuelves el problema mejor que las alternativas',
+      label: t('engineInputs.propuestaDeValor'),
+      placeholder: t('engineInputs.ejMetodologíaHerramientasPara'),
+      description: t('engineInputs.cómoResuelvesElProblema'),
     },
   ];
 
@@ -206,10 +208,8 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
       <CardHeader>
         <div className="flex items-start justify-between">
           <div>
-            <CardTitle className="text-base">Modelo estratégico actual</CardTitle>
-            <CardDescription>
-              Segmento, problema y propuesta de valor. Alimenta el motor de completitud de datos (D5).
-            </CardDescription>
+            <CardTitle className="text-base">{t('engineInputs.modeloEstratégicoActual')}</CardTitle>
+            <CardDescription>{t('engineInputs.segmentoProblemaYPropuesta')}</CardDescription>
           </div>
           <div className="flex items-center gap-2">
             {typeof versionCount === 'number' && versionCount > 0 && (
@@ -220,9 +220,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
             )}
             {allOk && (
               <Badge variant="outline" className="gap-1 text-green-600 border-green-600">
-                <CheckCircle2 className="w-3 h-3" />
-                D5 activo
-              </Badge>
+                <CheckCircle2 className="w-3 h-3" />{t('engineInputs.d5Activo')}</Badge>
             )}
           </div>
         </div>
@@ -281,7 +279,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
             <div className="flex items-start gap-2">
               <GitBranch className="w-4 h-4 text-warning mt-0.5 shrink-0" />
               <div>
-                <p className="text-sm font-semibold">Pivot completo detectado</p>
+                <p className="text-sm font-semibold">{t('engineInputs.pivotCompletoDetectado')}</p>
                 <p className="text-xs text-muted-foreground mt-1">
                   Has cambiado los tres pilares de tu modelo de negocio. El ciclo estratégico
                   actual se construyó sobre la hipótesis anterior. ¿Quieres cerrarlo y comenzar
@@ -295,9 +293,7 @@ export function StrategyEditor({ projectId }: StrategyEditorProps) {
                 variant="outline"
                 onClick={() => setShowPivotPrompt(false)}
                 disabled={isArchivingCycle}
-              >
-                Mantener ciclo
-              </Button>
+              >{t('engineInputs.mantenerCiclo')}</Button>
               <Button
                 size="sm"
                 onClick={handleArchiveCycle}

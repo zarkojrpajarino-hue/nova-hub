@@ -23,7 +23,9 @@ import { useMeetingMode } from '@/hooks/useMeetingMode';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 export default function MeetingIntelligencePage() {
+  const { t } = useTranslation();
   // State
   const [showModal, setShowModal] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
@@ -68,7 +70,7 @@ export default function MeetingIntelligencePage() {
    */
   const handleStartMeeting = async (config: Record<string, unknown> & { title: string; meeting_type: string; description?: string; objectives?: string; estimated_duration_min?: number; strategic_context?: Record<string, unknown>; participants: string[]; assignable_members?: string[]; ai_config: { enable_questions: boolean; enable_proactive_guidance: boolean; enable_context_detection: boolean; enable_time_alerts: boolean } }) => {
     if (!currentProject) {
-      toast.error('Selecciona un proyecto primero');
+      toast.error(t('meetingIntelligence.seleccionaUnProyectoPrimero'));
       return;
     }
 
@@ -88,7 +90,7 @@ export default function MeetingIntelligencePage() {
 
       setShowModal(false);
       setCurrentMeeting(meeting);
-      toast.success('¡Reunión creada! Ahora puedes grabar o subir el audio');
+      toast.success(t('meetingIntelligence.reuniónCreadaAhoraPuedes'));
     } catch (_error) {
       // intentionally empty
     }
@@ -120,7 +122,7 @@ export default function MeetingIntelligencePage() {
    */
   const handleCancelQuestionsReview = () => {
     setQuestionsReviewMeeting(null);
-    toast.info('Revisión de preguntas cancelada');
+    toast.info(t('meetingIntelligence.revisiónDePreguntasCancelada'));
   };
 
   /**
@@ -128,7 +130,7 @@ export default function MeetingIntelligencePage() {
    */
   const handleCancelRecording = () => {
     setCurrentMeeting(null);
-    toast.info('Grabación cancelada');
+    toast.info(t('meetingIntelligence.grabaciónCancelada'));
   };
 
   // Validación de proyecto
@@ -137,9 +139,7 @@ export default function MeetingIntelligencePage() {
       <div className="container max-w-4xl mx-auto py-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Por favor selecciona un proyecto desde el selector en el header
-          </AlertDescription>
+          <AlertDescription>{t('meetingIntelligence.porFavorSeleccionaUn')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -181,9 +181,7 @@ export default function MeetingIntelligencePage() {
       {/* M18.0.6 — Banner solo mode */}
       {meetingMode?.mode === 'solo' && (
         <div className="mb-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
-          <Users className="h-4 w-4 shrink-0" />
-          Invita a tu equipo para activar colaboración en reuniones — asignación automática de tareas y seguimiento de compromisos.
-        </div>
+          <Users className="h-4 w-4 shrink-0" />{t('meetingIntelligence.invitaATuEquipo')}</div>
       )}
 
       <MeetingHistory

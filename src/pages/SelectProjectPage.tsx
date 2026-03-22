@@ -13,9 +13,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Plus, ArrowRight, Clock, Crown, Zap } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 export function SelectProjectPage() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { userProjects, isLoading, setCurrentProject } = useCurrentProject();
 
@@ -47,7 +49,7 @@ export function SelectProjectPage() {
       <div className="max-w-6xl mx-auto">
         {/* Header */}
         <div className="mb-8">
-          <h1 className="text-4xl font-bold mb-2">Selecciona un Proyecto</h1>
+          <h1 className="text-4xl font-bold mb-2">{t('selectProject.seleccionaUnProyecto')}</h1>
           <p className="text-gray-600">
             Tienes {userProjects.length} proyecto{userProjects.length > 1 ? 's' : ''}
           </p>
@@ -72,10 +74,8 @@ export function SelectProjectPage() {
               <div className="rounded-full bg-primary/10 p-4 mb-4">
                 <Plus className="h-8 w-8 text-primary" />
               </div>
-              <h3 className="font-semibold text-lg mb-2">Crear Nuevo Proyecto</h3>
-              <p className="text-sm text-gray-600 text-center">
-                Empieza un nuevo proyecto desde cero
-              </p>
+              <h3 className="font-semibold text-lg mb-2">{t('selectProject.crearNuevoProyecto')}</h3>
+              <p className="text-sm text-gray-600 text-center">{t('selectProject.empiezaUnNuevoProyecto')}</p>
             </CardContent>
           </Card>
         </div>
@@ -96,9 +96,7 @@ function ProjectCard({ project, onSelect }: { project: Record<string, unknown> &
     if (isExpired) {
       return (
         <Badge variant="destructive" className="mb-2">
-          <Clock className="h-3 w-3 mr-1" />
-          Expirado
-        </Badge>
+          <Clock className="h-3 w-3 mr-1" />{t('selectProject.expirado')}</Badge>
       );
     }
 
@@ -140,10 +138,10 @@ function ProjectCard({ project, onSelect }: { project: Record<string, unknown> &
 
   const getWorkModeLabel = () => {
     const labels = {
-      individual: 'Individual',
-      team_small: 'Equipo Pequeño',
-      team_established: 'Equipo Establecido',
-      no_roles: 'Sin Roles',
+      individual: t('selectProject.individual'),
+      team_small: t('selectProject.equipoPequeño'),
+      team_established: t('selectProject.equipoEstablecido'),
+      no_roles: t('selectProject.sinRoles'),
     };
     return labels[project.work_mode as keyof typeof labels] || project.work_mode;
   };
@@ -197,7 +195,7 @@ function ProjectCard({ project, onSelect }: { project: Record<string, unknown> &
             <span>
               {formatDistanceToNow(new Date(project.updated_at), {
                 addSuffix: true,
-                locale: es
+                locale: getDateFnsLocale()
               })}
             </span>
           </div>
@@ -207,9 +205,7 @@ function ProjectCard({ project, onSelect }: { project: Record<string, unknown> &
         <Button
           className="w-full group-hover:bg-primary group-hover:text-white transition-colors"
           variant="outline"
-        >
-          Abrir Proyecto
-          <ArrowRight className="h-4 w-4 ml-2" />
+        >{t('selectProject.abrirProyecto')}<ArrowRight className="h-4 w-4 ml-2" />
         </Button>
       </CardContent>
     </Card>

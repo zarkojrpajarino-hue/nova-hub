@@ -6,6 +6,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -56,13 +57,13 @@ interface OBV {
 const DEMO_OBVS: OBV[] = [
   {
     id: 'OBV-001',
-    title: 'Aumentar tasa de conversión de leads',
-    description: 'Incrementar la conversión de leads calificados del 12% al 18% mediante optimización del funnel de ventas',
-    owner: 'Sarah Chen',
+    title: t('preview.aumentarTasaDeConversión'),
+    description: t('preview.incrementarLaConversiónDe'),
+    owner: t('preview.sarahChen'),
     ownerAvatar: 'SC',
     status: 'completed',
     progress: 100,
-    project: 'Sales Excellence',
+    project: t('preview.salesExcellence21'),
     startDate: '2025-01-01',
     endDate: '2025-01-31',
     impact: 'high',
@@ -74,31 +75,31 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-002',
-    title: 'Reducir tiempo de onboarding',
-    description: 'Disminuir el tiempo de onboarding de clientes de 45 días a 25 días',
-    owner: 'Marcus Rodriguez',
+    title: t('preview.reducirTiempoDeOnboarding'),
+    description: t('preview.disminuirElTiempoDe'),
+    owner: t('preview.marcusRodriguez'),
     ownerAvatar: 'MR',
     status: 'in-progress',
     progress: 68,
-    project: 'Customer Success',
+    project: t('preview.customerSuccess22'),
     startDate: '2025-01-15',
     endDate: '2025-03-15',
     impact: 'high',
     revenue: 280000,
-    keyResults: ['Promedio actual: 31 días', 'NPS +12 puntos', '89% satisfacción'],
+    keyResults: [t('preview.promedioActual31Días'), t('preview.nps12Puntos'), '89% satisfacción'],
     evidence: 5,
     comments: 18,
     team: ['MR', 'LK', 'TC'],
   },
   {
     id: 'OBV-003',
-    title: 'Lanzar plataforma de analytics',
-    description: 'Desarrollar y lanzar módulo de analytics avanzado con IA predictiva',
-    owner: 'Jennifer Davis',
+    title: t('preview.lanzarPlataformaDeAnalytics'),
+    description: t('preview.desarrollarYLanzarMódulo'),
+    owner: t('preview.jenniferDavis'),
     ownerAvatar: 'JD',
     status: 'in-progress',
     progress: 45,
-    project: 'Product Innovation',
+    project: t('preview.productInnovation23'),
     startDate: '2025-01-10',
     endDate: '2025-04-30',
     impact: 'high',
@@ -111,12 +112,12 @@ const DEMO_OBVS: OBV[] = [
   {
     id: 'OBV-004',
     title: 'Expandir operaciones LATAM',
-    description: 'Establecer presencia en 5 países de LATAM con equipos locales',
-    owner: 'Laura Kim',
+    description: t('preview.establecerPresenciaEn5'),
+    owner: t('preview.lauraKim'),
     ownerAvatar: 'LK',
     status: 'in-progress',
     progress: 30,
-    project: 'International Growth',
+    project: t('preview.internationalGrowth'),
     startDate: '2025-02-01',
     endDate: '2025-06-30',
     impact: 'high',
@@ -128,13 +129,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-005',
-    title: 'Optimizar costos operativos',
-    description: 'Reducir costos operativos en 15% sin afectar calidad del servicio',
-    owner: 'Thomas Cooper',
+    title: t('preview.optimizarCostosOperativos'),
+    description: t('preview.reducirCostosOperativosEn'),
+    owner: t('preview.thomasCooper'),
     ownerAvatar: 'TC',
     status: 'completed',
     progress: 100,
-    project: 'Operations',
+    project: t('preview.operations24'),
     startDate: '2024-11-01',
     endDate: '2025-01-31',
     impact: 'medium',
@@ -146,13 +147,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-006',
-    title: 'Implementar programa de referidos',
-    description: 'Crear programa de referidos que genere 20% de nuevos leads',
-    owner: 'Amanda King',
+    title: t('preview.implementarProgramaDeReferidos'),
+    description: t('preview.crearProgramaDeReferidos'),
+    owner: t('preview.amandaKing'),
     ownerAvatar: 'AK',
     status: 'in-progress',
     progress: 55,
-    project: 'Marketing Growth',
+    project: t('preview.marketingGrowth25'),
     startDate: '2025-01-20',
     endDate: '2025-03-31',
     impact: 'medium',
@@ -164,13 +165,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-007',
-    title: 'Mejorar engagement del producto',
-    description: 'Aumentar DAU/MAU ratio de 0.35 a 0.50 mediante nuevas features',
-    owner: 'Brian Walker',
+    title: t('preview.mejorarEngagementDelProducto'),
+    description: t('preview.aumentarDaumauRatioDe'),
+    owner: t('preview.brianWalker'),
     ownerAvatar: 'BW',
     status: 'at-risk',
     progress: 25,
-    project: 'Product Innovation',
+    project: t('preview.productInnovation23'),
     startDate: '2025-01-05',
     endDate: '2025-02-28',
     impact: 'high',
@@ -183,66 +184,66 @@ const DEMO_OBVS: OBV[] = [
   {
     id: 'OBV-008',
     title: 'Certificación ISO 27001',
-    description: 'Obtener certificación de seguridad ISO 27001 para expansión enterprise',
-    owner: 'Nina Kumar',
+    description: t('preview.obtenerCertificaciónDeSeguridad'),
+    owner: t('preview.ninaKumar'),
     ownerAvatar: 'NK',
     status: 'in-progress',
     progress: 72,
-    project: 'Security & Compliance',
+    project: t('preview.securityCompliance'),
     startDate: '2024-12-01',
     endDate: '2025-03-31',
     impact: 'high',
     revenue: 650000,
-    keyResults: ['Auditoría fase 2 completada', '94% controles implementados', 'Certificación marzo'],
+    keyResults: [t('preview.auditoríaFase2Completada'), '94% controles implementados', t('preview.certificaciónMarzo')],
     evidence: 11,
     comments: 19,
     team: ['NK', 'TC', 'RP'],
   },
   {
     id: 'OBV-009',
-    title: 'Desarrollar app móvil nativa',
-    description: 'Crear apps nativas iOS y Android con funcionalidades core',
-    owner: 'Samuel Martinez',
+    title: t('preview.desarrollarAppMóvilNativa'),
+    description: t('preview.crearAppsNativasIos'),
+    owner: t('preview.samuelMartinez'),
     ownerAvatar: 'SM',
     status: 'in-progress',
     progress: 40,
-    project: 'Product Innovation',
+    project: t('preview.productInnovation23'),
     startDate: '2025-01-15',
     endDate: '2025-05-31',
     impact: 'high',
     revenue: 580000,
-    keyResults: ['iOS beta lista', 'Android 60% completado', '200 beta testers'],
+    keyResults: ['iOS beta lista', t('preview.android60Completado'), '200 beta testers'],
     evidence: 7,
     comments: 34,
     team: ['SM', 'BW', 'MH'],
   },
   {
     id: 'OBV-010',
-    title: 'Partnership estratégico con Salesforce',
-    description: 'Establecer partnership oficial e integración nativa con Salesforce',
-    owner: 'Rachel Park',
+    title: t('preview.partnershipEstratégicoConSalesforce'),
+    description: t('preview.establecerPartnershipOficialE'),
+    owner: t('preview.rachelPark'),
     ownerAvatar: 'RP',
     status: 'pending',
     progress: 10,
-    project: 'Strategic Partnerships',
+    project: t('preview.strategicPartnerships'),
     startDate: '2025-02-15',
     endDate: '2025-06-30',
     impact: 'high',
     revenue: 950000,
-    keyResults: ['Conversaciones iniciadas', 'Technical discovery completado', 'Propuesta enviada'],
+    keyResults: [t('preview.conversacionesIniciadas'), t('preview.technicalDiscoveryCompletado'), t('preview.propuestaEnviada')],
     evidence: 2,
     comments: 8,
     team: ['RP', 'LK'],
   },
   {
     id: 'OBV-011',
-    title: 'Lanzar academy de capacitación',
-    description: 'Crear plataforma de capacitación online con certificaciones',
-    owner: 'Diana Lopez',
+    title: t('preview.lanzarAcademyDeCapacitación'),
+    description: t('preview.crearPlataformaDeCapacitación'),
+    owner: t('preview.dianaLopez'),
     ownerAvatar: 'DL',
     status: 'in-progress',
     progress: 58,
-    project: 'Customer Success',
+    project: t('preview.customerSuccess22'),
     startDate: '2025-01-10',
     endDate: '2025-03-31',
     impact: 'medium',
@@ -254,31 +255,31 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-012',
-    title: 'Implementar AI copilot',
-    description: 'Integrar asistente AI para automatizar tareas repetitivas',
-    owner: 'Carlos Martinez',
+    title: t('preview.implementarAiCopilot'),
+    description: t('preview.integrarAsistenteAiPara'),
+    owner: t('preview.carlosMartinez'),
     ownerAvatar: 'CM',
     status: 'in-progress',
     progress: 35,
-    project: 'AI Innovation',
+    project: t('preview.aiInnovation'),
     startDate: '2025-01-20',
     endDate: '2025-04-30',
     impact: 'high',
     revenue: 480000,
-    keyResults: ['3 casos de uso activos', 'Ahorro 120h/mes', 'Adopción 45%'],
+    keyResults: ['3 casos de uso activos', t('preview.ahorro120hmes'), 'Adopción 45%'],
     evidence: 5,
     comments: 38,
     team: ['CM', 'JD', 'BW'],
   },
   {
     id: 'OBV-013',
-    title: 'Rediseñar experiencia de checkout',
+    title: t('preview.rediseñarExperienciaDeCheckout'),
     description: 'Optimizar proceso de checkout reduciendo abandono del 28% al 15%',
-    owner: 'Maria Hernandez',
+    owner: t('preview.mariaHernandez'),
     ownerAvatar: 'MH',
     status: 'completed',
     progress: 100,
-    project: 'E-commerce',
+    project: t('preview.ecommerce'),
     startDate: '2024-12-15',
     endDate: '2025-01-31',
     impact: 'high',
@@ -290,13 +291,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-014',
-    title: 'Programa de diversity & inclusion',
-    description: 'Aumentar diversidad en leadership del 20% al 40% en 6 meses',
-    owner: 'Alex Johnson',
+    title: t('preview.programaDeDiversityInclusion'),
+    description: t('preview.aumentarDiversidadEnLeadership'),
+    owner: t('preview.alexJohnson'),
     ownerAvatar: 'AJ',
     status: 'in-progress',
     progress: 50,
-    project: 'People & Culture',
+    project: t('preview.peopleCulture'),
     startDate: '2025-01-01',
     endDate: '2025-06-30',
     impact: 'medium',
@@ -308,13 +309,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-015',
-    title: 'Migración a arquitectura cloud-native',
-    description: 'Migrar infraestructura legacy a microservicios en Kubernetes',
-    owner: 'Kevin Zhang',
+    title: t('preview.migraciónAArquitecturaCloudnative'),
+    description: t('preview.migrarInfraestructuraLegacyA'),
+    owner: t('preview.kevinZhang'),
     ownerAvatar: 'KZ',
     status: 'in-progress',
     progress: 65,
-    project: 'Infrastructure',
+    project: t('preview.infrastructure'),
     startDate: '2024-11-01',
     endDate: '2025-03-31',
     impact: 'high',
@@ -327,30 +328,30 @@ const DEMO_OBVS: OBV[] = [
   {
     id: 'OBV-016',
     title: 'Expansion canal B2B2C',
-    description: 'Lanzar estrategia B2B2C con 10 partners distribuidores',
-    owner: 'Emma White',
+    description: t('preview.lanzarEstrategiaB2b2cCon'),
+    owner: t('preview.emmaWhite'),
     ownerAvatar: 'EW',
     status: 'pending',
     progress: 5,
-    project: 'Business Development',
+    project: t('preview.businessDevelopment'),
     startDate: '2025-03-01',
     endDate: '2025-08-31',
     impact: 'high',
     revenue: 740000,
-    keyResults: ['Pipeline inicial: $1.2M', '4 partners en conversación', 'Modelo definido'],
+    keyResults: ['Pipeline inicial: $1.2M', '4 partners en conversación', t('preview.modeloDefinido')],
     evidence: 1,
     comments: 6,
     team: ['EW', 'RP'],
   },
   {
     id: 'OBV-017',
-    title: 'Optimizar SEO y contenido',
-    description: 'Aumentar tráfico orgánico 150% mediante estrategia SEO agresiva',
-    owner: 'Oliver Brown',
+    title: t('preview.optimizarSeoYContenido'),
+    description: t('preview.aumentarTráficoOrgánico150'),
+    owner: t('preview.oliverBrown'),
     ownerAvatar: 'OB',
     status: 'in-progress',
     progress: 48,
-    project: 'Marketing Growth',
+    project: t('preview.marketingGrowth25'),
     startDate: '2025-01-05',
     endDate: '2025-04-30',
     impact: 'medium',
@@ -362,13 +363,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-018',
-    title: 'Implementar programa de feedback continuo',
-    description: 'Sistema 360° de feedback trimestral para toda la organización',
-    owner: 'Sophia Turner',
+    title: t('preview.implementarProgramaDeFeedback'),
+    description: t('preview.sistema360DeFeedback'),
+    owner: t('preview.sophiaTurner'),
     ownerAvatar: 'ST',
     status: 'completed',
     progress: 100,
-    project: 'People & Culture',
+    project: t('preview.peopleCulture'),
     startDate: '2024-12-01',
     endDate: '2025-01-31',
     impact: 'medium',
@@ -380,13 +381,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-019',
-    title: 'Desarrollar marketplace de integraciones',
-    description: 'Crear marketplace con 50+ integraciones pre-built',
-    owner: 'David Lee',
+    title: t('preview.desarrollarMarketplaceDeIntegraciones'),
+    description: t('preview.crearMarketplaceCon50'),
+    owner: t('preview.davidLee'),
     ownerAvatar: 'DL2',
     status: 'in-progress',
     progress: 42,
-    project: 'Product Innovation',
+    project: t('preview.productInnovation23'),
     startDate: '2025-01-15',
     endDate: '2025-05-31',
     impact: 'high',
@@ -398,13 +399,13 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-020',
-    title: 'Lanzar programa de customer advocacy',
-    description: 'Crear comunidad de advocates con 100 clientes evangelistas',
-    owner: 'Isabella Garcia',
+    title: t('preview.lanzarProgramaDeCustomer'),
+    description: t('preview.crearComunidadDeAdvocates'),
+    owner: t('preview.isabellaGarcia'),
     ownerAvatar: 'IG',
     status: 'in-progress',
     progress: 38,
-    project: 'Customer Success',
+    project: t('preview.customerSuccess22'),
     startDate: '2025-01-20',
     endDate: '2025-04-30',
     impact: 'medium',
@@ -416,67 +417,67 @@ const DEMO_OBVS: OBV[] = [
   },
   {
     id: 'OBV-021',
-    title: 'Implementar predictive analytics',
-    description: 'Sistema de ML para predecir churn con 85% accuracy',
-    owner: 'Ryan Mitchell',
+    title: t('preview.implementarPredictiveAnalytics'),
+    description: t('preview.sistemaDeMlPara'),
+    owner: t('preview.ryanMitchell'),
     ownerAvatar: 'RM',
     status: 'in-progress',
     progress: 52,
-    project: 'AI Innovation',
+    project: t('preview.aiInnovation'),
     startDate: '2025-01-10',
     endDate: '2025-03-31',
     impact: 'high',
     revenue: 320000,
-    keyResults: ['Accuracy actual: 81%', 'Churn prevenido: 12 cuentas', 'ROI +240%'],
+    keyResults: ['Accuracy actual: 81%', t('preview.churnPrevenido12Cuentas'), 'ROI +240%'],
     evidence: 7,
     comments: 30,
     team: ['RM', 'CM', 'JD'],
   },
   {
     id: 'OBV-022',
-    title: 'Rediseñar sistema de pricing',
+    title: t('preview.rediseñarSistemaDePricing'),
     description: 'Nuevo modelo de pricing value-based aumentando ACV 25%',
-    owner: 'Victoria Chen',
+    owner: t('preview.victoriaChen'),
     ownerAvatar: 'VC',
     status: 'at-risk',
     progress: 30,
-    project: 'Business Development',
+    project: t('preview.businessDevelopment'),
     startDate: '2025-01-15',
     endDate: '2025-02-28',
     impact: 'high',
     revenue: 890000,
-    keyResults: ['Modelo definido', 'Testing con 15 clientes', 'Feedback mixto'],
+    keyResults: [t('preview.modeloDefinido'), t('preview.testingCon15Clientes'), t('preview.feedbackMixto')],
     evidence: 4,
     comments: 37,
     team: ['VC', 'SC', 'RP'],
   },
   {
     id: 'OBV-023',
-    title: 'Establecer programa de sostenibilidad',
-    description: 'Alcanzar carbon neutrality y certificación B Corp',
-    owner: 'Nathan Green',
+    title: t('preview.establecerProgramaDeSostenibilidad'),
+    description: t('preview.alcanzarCarbonNeutralityY'),
+    owner: t('preview.nathanGreen'),
     ownerAvatar: 'NG',
     status: 'in-progress',
     progress: 44,
-    project: 'Corporate Responsibility',
+    project: t('preview.corporateResponsibility'),
     startDate: '2025-01-01',
     endDate: '2025-12-31',
     impact: 'low',
     revenue: 0,
-    keyResults: ['Emisiones -28%', 'Auditoría B Corp iniciada', '100% energía renovable'],
+    keyResults: ['Emisiones -28%', t('preview.auditoríaBCorpIniciada'), '100% energía renovable'],
     evidence: 6,
     comments: 11,
     team: ['NG', 'TC'],
   },
   {
     id: 'OBV-024',
-    title: 'Lanzar enterprise tier',
-    description: 'Crear plan enterprise con features avanzados y soporte dedicado',
-    owner: 'Patricia Wilson',
+    title: t('preview.lanzarEnterpriseTier'),
+    description: t('preview.crearPlanEnterpriseCon'),
+    owner: t('preview.patriciaWilson'),
     ownerAvatar: 'PW',
     status: 'in-progress',
     progress: 70,
-    project: 'Product Innovation',
+    project: t('preview.productInnovation23'),
     startDate: '2024-12-01',
     endDate: '2025-02-28',
     impact: 'high',
@@ -489,6 +490,7 @@ const DEMO_OBVS: OBV[] = [
 ];
 
 const getStatusIcon = (status: OBVStatus) => {
+  const { t } = useTranslation();
   switch (status) {
     case 'completed':
       return <CheckCircle2 className="h-4 w-4" />;
@@ -585,35 +587,29 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
             <div className="bg-gradient-to-br from-purple-500 to-blue-600 p-6 rounded-2xl">
               <Target className="h-20 w-20 text-white" />
             </div>
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-              Centro OBVs
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl">
-              Hub central de Objetivos y Resultados Clave
-            </p>
+            <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{t('preview.centroObvs')}</h2>
+            <p className="text-xl text-gray-600 max-w-2xl">{t('preview.hubCentralDeObjetivos')}</p>
             <div className="grid grid-cols-4 gap-6 mt-8 w-full max-w-3xl">
               <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
                 <div className="text-3xl font-bold text-green-700">{stats.total}</div>
-                <div className="text-sm text-green-600 mt-1">OBVs Totales</div>
+                <div className="text-sm text-green-600 mt-1">{t('preview.obvsTotales')}</div>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
                 <div className="text-3xl font-bold text-blue-700">{stats.inProgress}</div>
-                <div className="text-sm text-blue-600 mt-1">En Progreso</div>
+                <div className="text-sm text-blue-600 mt-1">{t('preview.enProgreso')}</div>
               </div>
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200">
                 <div className="text-3xl font-bold text-purple-700">{stats.completionRate}%</div>
-                <div className="text-sm text-purple-600 mt-1">Completion Rate</div>
+                <div className="text-sm text-purple-600 mt-1">{t('preview.completionRate')}</div>
               </div>
               <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200">
                 <div className="text-3xl font-bold text-orange-700">
                   ${(stats.totalRevenue / 1000000).toFixed(1)}M
                 </div>
-                <div className="text-sm text-orange-600 mt-1">Revenue Impact</div>
+                <div className="text-sm text-orange-600 mt-1">{t('preview.revenueImpact')}</div>
               </div>
             </div>
-            <p className="text-sm text-gray-500 mt-8">
-              Gestiona objetivos, mide impacto y alinea equipos en tiempo real
-            </p>
+            <p className="text-sm text-gray-500 mt-8">{t('preview.gestionaObjetivosMideImpacto')}</p>
           </div>
         );
 
@@ -622,9 +618,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
           <div className="overflow-auto p-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Target className="h-6 w-6 text-purple-600" />
-                Vista General - Grid de OBVs
-              </h2>
+                <Target className="h-6 w-6 text-purple-600" />{t('preview.vistaGeneralGridDe')}</h2>
               <p className="text-gray-600">
                 {filteredOBVs.length} OBVs activas en la organización
               </p>
@@ -634,7 +628,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="bg-green-50 p-4 rounded-lg border border-green-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-green-600">Completadas</div>
+                    <div className="text-sm text-green-600">{t('preview.completadas')}</div>
                     <div className="text-2xl font-bold text-green-700">{stats.completed}</div>
                   </div>
                   <CheckCircle2 className="h-8 w-8 text-green-600" />
@@ -643,7 +637,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="bg-blue-50 p-4 rounded-lg border border-blue-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-blue-600">En Progreso</div>
+                    <div className="text-sm text-blue-600">{t('preview.enProgreso')}</div>
                     <div className="text-2xl font-bold text-blue-700">{stats.inProgress}</div>
                   </div>
                   <Clock className="h-8 w-8 text-blue-600" />
@@ -652,7 +646,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="bg-gray-50 p-4 rounded-lg border border-gray-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-gray-600">Pendientes</div>
+                    <div className="text-sm text-gray-600">{t('preview.pendientes')}</div>
                     <div className="text-2xl font-bold text-gray-700">{stats.pending}</div>
                   </div>
                   <AlertCircle className="h-8 w-8 text-gray-600" />
@@ -661,7 +655,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="bg-red-50 p-4 rounded-lg border border-red-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-red-600">En Riesgo</div>
+                    <div className="text-sm text-red-600">{t('preview.enRiesgo')}</div>
                     <div className="text-2xl font-bold text-red-700">{stats.atRisk}</div>
                   </div>
                   <AlertCircle className="h-8 w-8 text-red-600" />
@@ -703,7 +697,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
                   <div className="mb-3">
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-gray-600">Progreso</span>
+                      <span className="text-gray-600">{t('preview.progreso')}</span>
                       <span className="font-semibold">{obv.progress}%</span>
                     </div>
                     <div className="w-full bg-gray-200 rounded-full h-2">
@@ -743,17 +737,15 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
           <div className="overflow-auto p-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Filter className="h-6 w-6 text-purple-600" />
-                Filtros Avanzados
-              </h2>
-              <p className="text-gray-600">Filtra y encuentra OBVs específicas</p>
+                <Filter className="h-6 w-6 text-purple-600" />{t('preview.filtrosAvanzados')}</h2>
+              <p className="text-gray-600">{t('preview.filtraYEncuentraObvs')}</p>
             </div>
 
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-200 mb-6">
               <div className="relative mb-6">
                 <Search className="absolute left-3 top-3 h-5 w-5 text-gray-400" />
                 <Input
-                  placeholder="Buscar OBVs por título..."
+                  placeholder={t('preview.buscarObvsPorTítulo')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 bg-white"
@@ -762,42 +754,42 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
               <div className="grid grid-cols-2 gap-4">
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Estado</Label>
+                  <Label className="text-sm font-medium mb-2 block">{t('preview.estado')}</Label>
                   <select
                     value={filters.status}
                     onChange={(e) => setFilters({ ...filters, status: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="all">Todos los estados</option>
-                    <option value="completed">Completadas</option>
-                    <option value="in-progress">En Progreso</option>
-                    <option value="pending">Pendientes</option>
-                    <option value="at-risk">En Riesgo</option>
+                    <option value="all">{t('preview.todosLosEstados')}</option>
+                    <option value="completed">{t('preview.completadas')}</option>
+                    <option value="in-progress">{t('preview.enProgreso')}</option>
+                    <option value="pending">{t('preview.pendientes')}</option>
+                    <option value="at-risk">{t('preview.enRiesgo')}</option>
                   </select>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Impacto</Label>
+                  <Label className="text-sm font-medium mb-2 block">{t('preview.impacto')}</Label>
                   <select
                     value={filters.impact}
                     onChange={(e) => setFilters({ ...filters, impact: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="all">Todos los impactos</option>
-                    <option value="high">Alto</option>
-                    <option value="medium">Medio</option>
-                    <option value="low">Bajo</option>
+                    <option value="all">{t('preview.todosLosImpactos')}</option>
+                    <option value="high">{t('preview.alto')}</option>
+                    <option value="medium">{t('preview.medio')}</option>
+                    <option value="low">{t('preview.bajo')}</option>
                   </select>
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Owner</Label>
+                  <Label className="text-sm font-medium mb-2 block">{t('preview.owner')}</Label>
                   <select
                     value={filters.owner}
                     onChange={(e) => setFilters({ ...filters, owner: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="all">Todos los owners</option>
+                    <option value="all">{t('preview.todosLosOwners')}</option>
                     {Array.from(new Set(DEMO_OBVS.map((o) => o.owner))).map((owner) => (
                       <option key={owner} value={owner}>
                         {owner}
@@ -807,13 +799,13 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 </div>
 
                 <div>
-                  <Label className="text-sm font-medium mb-2 block">Proyecto</Label>
+                  <Label className="text-sm font-medium mb-2 block">{t('preview.proyecto')}</Label>
                   <select
                     value={filters.project}
                     onChange={(e) => setFilters({ ...filters, project: e.target.value })}
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500"
                   >
-                    <option value="all">Todos los proyectos</option>
+                    <option value="all">{t('preview.todosLosProyectos')}</option>
                     {Array.from(new Set(DEMO_OBVS.map((o) => o.project))).map((project) => (
                       <option key={project} value={project}>
                         {project}
@@ -834,9 +826,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                     setFilters({ status: 'all', owner: 'all', project: 'all', impact: 'all' });
                     setSearchQuery('');
                   }}
-                >
-                  Limpiar filtros
-                </Button>
+                >{t('preview.limpiarFiltros')}</Button>
               </div>
             </div>
 
@@ -887,9 +877,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 onClick={() => setCurrentSlide(1)}
                 className="mb-4"
               >
-                <ChevronLeft className="h-4 w-4 mr-1" />
-                Volver al grid
-              </Button>
+                <ChevronLeft className="h-4 w-4 mr-1" />{t('preview.volverAlGrid')}</Button>
               <div className="flex items-start justify-between">
                 <div>
                   <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
@@ -907,7 +895,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-4 rounded-lg border border-purple-200">
-                <div className="text-sm text-purple-600 mb-1">Progreso</div>
+                <div className="text-sm text-purple-600 mb-1">{t('preview.progreso')}</div>
                 <div className="text-3xl font-bold text-purple-700">{obvToShow.progress}%</div>
                 <div className="w-full bg-purple-200 rounded-full h-2 mt-2">
                   <div
@@ -917,38 +905,34 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 </div>
               </div>
               <div className="bg-gradient-to-br from-green-50 to-green-100 p-4 rounded-lg border border-green-200">
-                <div className="text-sm text-green-600 mb-1">Revenue Impact</div>
+                <div className="text-sm text-green-600 mb-1">{t('preview.revenueImpact')}</div>
                 <div className="text-3xl font-bold text-green-700">
                   ${(obvToShow.revenue / 1000).toFixed(0)}K
                 </div>
               </div>
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-4 rounded-lg border border-blue-200">
-                <div className="text-sm text-blue-600 mb-1">Impacto</div>
+                <div className="text-sm text-blue-600 mb-1">{t('preview.impacto')}</div>
                 <div className="text-3xl font-bold text-blue-700 capitalize">{obvToShow.impact}</div>
               </div>
             </div>
 
             <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <Target className="h-5 w-5 text-purple-600" />
-                Descripción
-              </h3>
+                <Target className="h-5 w-5 text-purple-600" />{t('preview.descripción')}</h3>
               <p className="text-gray-700">{obvToShow.description}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6 mb-6">
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Users className="h-5 w-5 text-purple-600" />
-                  Owner & Team
-                </h3>
+                  <Users className="h-5 w-5 text-purple-600" />{t('preview.ownerTeam')}</h3>
                 <div className="flex items-center gap-3 mb-4">
                   <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-blue-500 rounded-full flex items-center justify-center text-white font-bold">
                     {obvToShow.ownerAvatar}
                   </div>
                   <div>
                     <div className="font-semibold">{obvToShow.owner}</div>
-                    <div className="text-sm text-gray-500">Owner</div>
+                    <div className="text-sm text-gray-500">{t('preview.owner')}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
@@ -966,9 +950,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Calendar className="h-5 w-5 text-purple-600" />
-                  Timeline
-                </h3>
+                  <Calendar className="h-5 w-5 text-purple-600" />{t('preview.timeline')}</h3>
                 <div className="space-y-2">
                   <div className="flex items-center justify-between text-sm">
                     <span className="text-gray-600">Inicio:</span>
@@ -988,9 +970,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
             <div className="bg-white border border-gray-200 rounded-lg p-6 mb-6">
               <h3 className="font-semibold mb-3 flex items-center gap-2">
-                <CheckCircle2 className="h-5 w-5 text-green-600" />
-                Key Results
-              </h3>
+                <CheckCircle2 className="h-5 w-5 text-green-600" />{t('preview.keyResults')}</h3>
               <div className="space-y-2">
                 {obvToShow.keyResults.map((kr, idx) => (
                   <div key={idx} className="flex items-start gap-2">
@@ -1005,7 +985,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-lg border border-blue-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-blue-600 mb-1">Evidencias</div>
+                    <div className="text-sm text-blue-600 mb-1">{t('preview.evidencias')}</div>
                     <div className="text-3xl font-bold text-blue-700">{obvToShow.evidence}</div>
                   </div>
                   <Paperclip className="h-8 w-8 text-blue-600" />
@@ -1014,7 +994,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-lg border border-purple-200">
                 <div className="flex items-center justify-between">
                   <div>
-                    <div className="text-sm text-purple-600 mb-1">Comentarios</div>
+                    <div className="text-sm text-purple-600 mb-1">{t('preview.comentarios')}</div>
                     <div className="text-3xl font-bold text-purple-700">{obvToShow.comments}</div>
                   </div>
                   <MessageSquare className="h-8 w-8 text-purple-600" />
@@ -1031,25 +1011,23 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
           <div className="overflow-auto p-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <Calendar className="h-6 w-6 text-purple-600" />
-                Timeline de OBVs
-              </h2>
-              <p className="text-gray-600">Evolución temporal de objetivos</p>
+                <Calendar className="h-6 w-6 text-purple-600" />{t('preview.timelineDeObvs')}</h2>
+              <p className="text-gray-600">{t('preview.evoluciónTemporalDeObjetivos')}</p>
             </div>
 
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-6 rounded-xl border border-purple-200 mb-6">
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
                   <div className="text-3xl font-bold text-purple-700">Q1 2025</div>
-                  <div className="text-sm text-purple-600 mt-1">Período actual</div>
+                  <div className="text-sm text-purple-600 mt-1">{t('preview.períodoActual')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-blue-700">{stats.inProgress}</div>
-                  <div className="text-sm text-blue-600 mt-1">OBVs activas</div>
+                  <div className="text-sm text-blue-600 mt-1">{t('preview.obvsActivas')}</div>
                 </div>
                 <div className="text-center">
                   <div className="text-3xl font-bold text-green-700">{stats.avgProgress}%</div>
-                  <div className="text-sm text-green-600 mt-1">Progreso promedio</div>
+                  <div className="text-sm text-green-600 mt-1">{t('preview.progresoPromedio')}</div>
                 </div>
               </div>
             </div>
@@ -1106,16 +1084,14 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
           <div className="overflow-auto p-6">
             <div className="mb-6">
               <h2 className="text-2xl font-bold mb-2 flex items-center gap-2">
-                <BarChart3 className="h-6 w-6 text-purple-600" />
-                Analytics de OBVs
-              </h2>
-              <p className="text-gray-600">Métricas de impacto y rendimiento</p>
+                <BarChart3 className="h-6 w-6 text-purple-600" />{t('preview.analyticsDeObvs')}</h2>
+              <p className="text-gray-600">{t('preview.métricasDeImpactoY')}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="bg-gradient-to-br from-green-50 to-green-100 p-6 rounded-xl border border-green-200">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm text-green-600">Completion Rate</div>
+                  <div className="text-sm text-green-600">{t('preview.completionRate')}</div>
                   <CheckCircle2 className="h-6 w-6 text-green-600" />
                 </div>
                 <div className="text-4xl font-bold text-green-700">{stats.completionRate}%</div>
@@ -1124,16 +1100,16 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
               <div className="bg-gradient-to-br from-purple-50 to-purple-100 p-6 rounded-xl border border-purple-200">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm text-purple-600">Progreso Promedio</div>
+                  <div className="text-sm text-purple-600">{t('preview.progresoPromedio10')}</div>
                   <TrendingUp className="h-6 w-6 text-purple-600" />
                 </div>
                 <div className="text-4xl font-bold text-purple-700">{stats.avgProgress}%</div>
-                <div className="text-xs text-purple-600 mt-1">En tiempo estimado</div>
+                <div className="text-xs text-purple-600 mt-1">{t('preview.enTiempoEstimado')}</div>
               </div>
 
               <div className="bg-gradient-to-br from-blue-50 to-blue-100 p-6 rounded-xl border border-blue-200">
                 <div className="flex items-center justify-between mb-2">
-                  <div className="text-sm text-blue-600">OBVs Activas</div>
+                  <div className="text-sm text-blue-600">{t('preview.obvsActivas11')}</div>
                   <Zap className="h-6 w-6 text-blue-600" />
                 </div>
                 <div className="text-4xl font-bold text-blue-700">{stats.inProgress}</div>
@@ -1144,26 +1120,22 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
             <div className="bg-gradient-to-br from-orange-50 to-orange-100 p-6 rounded-xl border border-orange-200 mb-6">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="font-semibold text-lg flex items-center gap-2">
-                  <DollarSign className="h-5 w-5 text-orange-600" />
-                  Revenue Impact
-                </h3>
+                  <DollarSign className="h-5 w-5 text-orange-600" />{t('preview.revenueImpact')}</h3>
                 <Badge className="bg-orange-500 text-white">Q1 2025</Badge>
               </div>
               <div className="text-5xl font-bold text-orange-700 mb-2">
                 ${(stats.totalRevenue / 1000000).toFixed(2)}M
               </div>
-              <div className="text-sm text-orange-600">
-                Impacto total en revenue de OBVs activas
-              </div>
+              <div className="text-sm text-orange-600">{t('preview.impactoTotalEnRevenue')}</div>
               <div className="mt-4 grid grid-cols-2 gap-4">
                 <div className="bg-white/50 p-3 rounded-lg">
-                  <div className="text-xs text-orange-600">Completadas</div>
+                  <div className="text-xs text-orange-600">{t('preview.completadas')}</div>
                   <div className="text-xl font-bold text-orange-700">
                     ${(DEMO_OBVS.filter(o => o.status === 'completed').reduce((sum, o) => sum + o.revenue, 0) / 1000000).toFixed(2)}M
                   </div>
                 </div>
                 <div className="bg-white/50 p-3 rounded-lg">
-                  <div className="text-xs text-orange-600">En progreso</div>
+                  <div className="text-xs text-orange-600">{t('preview.enProgreso14')}</div>
                   <div className="text-xl font-bold text-orange-700">
                     ${(DEMO_OBVS.filter(o => o.status === 'in-progress').reduce((sum, o) => sum + o.revenue, 0) / 1000000).toFixed(2)}M
                   </div>
@@ -1174,11 +1146,9 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
             <div className="grid grid-cols-2 gap-6">
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Users className="h-5 w-5 text-purple-600" />
-                  Top Performers
-                </h3>
+                  <Users className="h-5 w-5 text-purple-600" />{t('preview.topPerformers')}</h3>
                 <div className="space-y-3">
-                  {['Sarah Chen', 'Marcus Rodriguez', 'Jennifer Davis', 'Patricia Wilson'].map((name, idx) => {
+                  {[t('preview.sarahChen'), t('preview.marcusRodriguez'), t('preview.jenniferDavis'), t('preview.patriciaWilson')].map((name, idx) => {
                     const obvCount = DEMO_OBVS.filter(o => o.owner === name).length;
                     const completed = DEMO_OBVS.filter(o => o.owner === name && o.status === 'completed').length;
                     return (
@@ -1200,9 +1170,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
               <div className="bg-white border border-gray-200 rounded-lg p-6">
                 <h3 className="font-semibold mb-4 flex items-center gap-2">
-                  <Target className="h-5 w-5 text-purple-600" />
-                  Por Proyecto
-                </h3>
+                  <Target className="h-5 w-5 text-purple-600" />{t('preview.porProyecto')}</h3>
                 <div className="space-y-3">
                   {Array.from(new Set(DEMO_OBVS.map(o => o.project))).slice(0, 4).map((project, idx) => {
                     const obvCount = DEMO_OBVS.filter(o => o.project === project).length;
@@ -1236,7 +1204,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 <Plus className="h-6 w-6 text-purple-600" />
                 Crear Nueva OBV
               </h2>
-              <p className="text-gray-600">Define un nuevo objetivo y resultados clave</p>
+              <p className="text-gray-600">{t('preview.defineUnNuevoObjetivo')}</p>
             </div>
 
             <div className="bg-gradient-to-br from-purple-50 to-blue-50 p-8 rounded-xl border border-purple-200">
@@ -1247,7 +1215,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                   </Label>
                   <Input
                     id="title"
-                    placeholder="Ej: Aumentar tasa de conversión en 25%"
+                    placeholder={t('preview.ejAumentarTasaDe')}
                     value={newOBV.title}
                     onChange={(e) => setNewOBV({ ...newOBV, title: e.target.value })}
                     className="bg-white"
@@ -1255,12 +1223,10 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 </div>
 
                 <div>
-                  <Label htmlFor="description" className="text-sm font-medium mb-2 block">
-                    Descripción
-                  </Label>
+                  <Label htmlFor="description" className="text-sm font-medium mb-2 block">{t('preview.descripción')}</Label>
                   <Textarea
                     id="description"
-                    placeholder="Describe el objetivo, contexto y beneficios esperados..."
+                    placeholder={t('preview.describeElObjetivoContexto')}
                     value={newOBV.description}
                     onChange={(e) => setNewOBV({ ...newOBV, description: e.target.value })}
                     rows={4}
@@ -1270,37 +1236,33 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="project" className="text-sm font-medium mb-2 block">
-                      Proyecto
-                    </Label>
+                    <Label htmlFor="project" className="text-sm font-medium mb-2 block">{t('preview.proyecto')}</Label>
                     <select
                       id="project"
                       value={newOBV.project}
                       onChange={(e) => setNewOBV({ ...newOBV, project: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
                     >
-                      <option value="">Seleccionar proyecto</option>
-                      <option value="Sales Excellence">Sales Excellence</option>
-                      <option value="Customer Success">Customer Success</option>
-                      <option value="Product Innovation">Product Innovation</option>
-                      <option value="Marketing Growth">Marketing Growth</option>
-                      <option value="Operations">Operations</option>
+                      <option value="">{t('preview.seleccionarProyecto')}</option>
+                      <option value={t('preview.salesExcellence21')}>{t('preview.salesExcellence')}</option>
+                      <option value={t('preview.customerSuccess22')}>{t('preview.customerSuccess')}</option>
+                      <option value={t('preview.productInnovation23')}>{t('preview.productInnovation')}</option>
+                      <option value={t('preview.marketingGrowth25')}>{t('preview.marketingGrowth')}</option>
+                      <option value={t('preview.operations24')}>{t('preview.operations')}</option>
                     </select>
                   </div>
 
                   <div>
-                    <Label htmlFor="impact" className="text-sm font-medium mb-2 block">
-                      Impacto Esperado
-                    </Label>
+                    <Label htmlFor="impact" className="text-sm font-medium mb-2 block">{t('preview.impactoEsperado')}</Label>
                     <select
                       id="impact"
                       value={newOBV.impact}
                       onChange={(e) => setNewOBV({ ...newOBV, impact: e.target.value })}
                       className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
                     >
-                      <option value="high">Alto</option>
-                      <option value="medium">Medio</option>
-                      <option value="low">Bajo</option>
+                      <option value="high">{t('preview.alto')}</option>
+                      <option value="medium">{t('preview.medio')}</option>
+                      <option value="low">{t('preview.bajo')}</option>
                     </select>
                   </div>
                 </div>
@@ -1311,21 +1273,17 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                     Key Results (Resultados Clave)
                   </h4>
                   <div className="space-y-2">
-                    <Input placeholder="Key Result 1" className="text-sm" />
-                    <Input placeholder="Key Result 2" className="text-sm" />
-                    <Input placeholder="Key Result 3" className="text-sm" />
+                    <Input placeholder={t('preview.keyResult1')} className="text-sm" />
+                    <Input placeholder={t('preview.keyResult2')} className="text-sm" />
+                    <Input placeholder={t('preview.keyResult3')} className="text-sm" />
                   </div>
                   <Button variant="outline" size="sm" className="mt-2">
-                    <Plus className="h-4 w-4 mr-1" />
-                    Agregar Key Result
-                  </Button>
+                    <Plus className="h-4 w-4 mr-1" />{t('preview.agregarKeyResult')}</Button>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <Label htmlFor="startDate" className="text-sm font-medium mb-2 block">
-                      Fecha de Inicio
-                    </Label>
+                    <Label htmlFor="startDate" className="text-sm font-medium mb-2 block">{t('preview.fechaDeInicio')}</Label>
                     <Input
                       id="startDate"
                       type="date"
@@ -1333,9 +1291,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                     />
                   </div>
                   <div>
-                    <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">
-                      Fecha de Fin
-                    </Label>
+                    <Label htmlFor="endDate" className="text-sm font-medium mb-2 block">{t('preview.fechaDeFin')}</Label>
                     <Input
                       id="endDate"
                       type="date"
@@ -1345,14 +1301,12 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 </div>
 
                 <div>
-                  <Label htmlFor="owner" className="text-sm font-medium mb-2 block">
-                    Owner
-                  </Label>
+                  <Label htmlFor="owner" className="text-sm font-medium mb-2 block">{t('preview.owner')}</Label>
                   <select
                     id="owner"
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500 bg-white"
                   >
-                    <option value="">Seleccionar owner</option>
+                    <option value="">{t('preview.seleccionarOwner')}</option>
                     {Array.from(new Set(DEMO_OBVS.map((o) => o.owner))).map((owner) => (
                       <option key={owner} value={owner}>
                         {owner}
@@ -1366,9 +1320,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                     <Plus className="h-4 w-4 mr-2" />
                     Crear OBV
                   </Button>
-                  <Button variant="outline" className="flex-1">
-                    Cancelar
-                  </Button>
+                  <Button variant="outline" className="flex-1">{t('preview.cancelar')}</Button>
                 </div>
               </div>
             </div>
@@ -1377,9 +1329,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
               <div className="flex items-start gap-3">
                 <Zap className="h-5 w-5 text-blue-600 mt-0.5" />
                 <div>
-                  <div className="font-semibold text-blue-900 text-sm mb-1">
-                    Tips para crear OBVs efectivas
-                  </div>
+                  <div className="font-semibold text-blue-900 text-sm mb-1">{t('preview.tipsParaCrearObvs')}</div>
                   <ul className="text-sm text-blue-700 space-y-1">
                     <li>• Define objetivos específicos y medibles</li>
                     <li>• Establece key results cuantificables</li>
@@ -1401,10 +1351,8 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl h-[90vh] p-0 gap-0">
         <VisuallyHidden>
-          <DialogTitle>Centro OBVs Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of the Centro OBVs section with enterprise-level demo data
-          </DialogDescription>
+          <DialogTitle>{t('preview.centroObvsPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfThe')}</DialogDescription>
         </VisuallyHidden>
         <div className="flex flex-col h-full">
           <div className="flex-1 overflow-hidden max-h-[calc(90vh-180px)]">{renderSlide()}</div>
@@ -1417,9 +1365,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 disabled={currentSlide === 0}
                 className="gap-2"
               >
-                <ChevronLeft className="h-4 w-4" />
-                Anterior
-              </Button>
+                <ChevronLeft className="h-4 w-4" />{t('preview.anterior')}</Button>
 
               <div className="flex items-center gap-2">
                 {Array.from({ length: totalSlides }).map((_, idx) => (
@@ -1440,7 +1386,7 @@ export function OBVCenterPreviewModal({ open, onOpenChange }: OBVCenterPreviewMo
                 onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : nextSlide}
                 className="gap-2"
               >
-                {currentSlide === totalSlides - 1 ? 'Finalizar' : 'Siguiente'}
+                {currentSlide === totalSlides - 1 ? 'Finalizar': t('preview.siguiente')}
                 {currentSlide === totalSlides - 1 ? <CheckCircle2 className="h-4 w-4" /> : <ChevronRight className="h-4 w-4" />}
               </Button>
             </div>

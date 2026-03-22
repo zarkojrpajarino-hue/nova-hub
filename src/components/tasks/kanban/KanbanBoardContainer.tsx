@@ -26,6 +26,7 @@ import { TaskPlaybookViewer } from '../TaskPlaybookViewer';
 import { TaskCompletionDialog } from '../TaskCompletionDialog';
 import type { Json } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 interface Member {
   id: string;
   nombre: string;
@@ -39,6 +40,7 @@ interface KanbanBoardContainerProps {
 }
 
 export function KanbanBoardContainer({ projectId, projectMembers, currentPhase = 1 }: KanbanBoardContainerProps) {
+  const { t } = useTranslation();
   const {
     tasks,
     isLoading,
@@ -91,7 +93,7 @@ export function KanbanBoardContainer({ projectId, projectMembers, currentPhase =
           {taskLimitReached && (
             <div className="flex items-center gap-1 text-sm text-destructive">
               <AlertCircle size={14} />
-              <span>Límite alcanzado</span>
+              <span>{t('tasks.límiteAlcanzado')}</span>
             </div>
           )}
         </div>
@@ -106,15 +108,13 @@ export function KanbanBoardContainer({ projectId, projectMembers, currentPhase =
                   size="sm"
                   disabled={taskLimitReached}
                 >
-                  <Plus size={14} className="mr-2" />
-                  Manual
-                </Button>
+                  <Plus size={14} className="mr-2" />{t('tasks.manual')}</Button>
               </div>
             </TooltipTrigger>
             {taskLimitReached && (
               <TooltipContent>
-                <p>Máximo 5 tareas activas por proyecto.</p>
-                <p>Completa una tarea antes de crear otra.</p>
+                <p>{t('tasks.máximo5TareasActivas')}</p>
+                <p>{t('tasks.completaUnaTareaAntes')}</p>
               </TooltipContent>
             )}
           </Tooltip>
@@ -162,9 +162,7 @@ export function KanbanBoardContainer({ projectId, projectMembers, currentPhase =
         <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
-              <BookOpen className="w-5 h-5 text-primary" />
-              Playbook de la tarea
-            </DialogTitle>
+              <BookOpen className="w-5 h-5 text-primary" />{t('tasks.playbookDeLaTarea')}</DialogTitle>
           </DialogHeader>
           {selectedTaskForPlaybook?.playbook && (
             <TaskPlaybookViewer
@@ -200,19 +198,19 @@ export function KanbanBoardContainer({ projectId, projectMembers, currentPhase =
       <AlertDialog open={!!taskToDelete} onOpenChange={(open) => !open && setTaskToDelete(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>¿Eliminar tarea?</AlertDialogTitle>
+            <AlertDialogTitle>{t('tasks.eliminarTarea')}</AlertDialogTitle>
             <AlertDialogDescription>
               Esta acción no se puede deshacer. Se eliminará permanentemente la tarea "{taskToDelete?.titulo}".
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel disabled={isDeleting}>Cancelar</AlertDialogCancel>
+            <AlertDialogCancel disabled={isDeleting}>{t('tasks.cancelar')}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteTask}
               disabled={isDeleting}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
-              {isDeleting ? 'Eliminando...' : 'Eliminar'}
+              {isDeleting ? 'Eliminando...': t('tasks.eliminar')}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

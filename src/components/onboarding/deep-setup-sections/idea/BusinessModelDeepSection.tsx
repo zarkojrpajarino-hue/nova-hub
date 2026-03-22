@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface BusinessModelDeepSectionProps {
   projectId: string;
   onComplete: (data: Record<string, unknown>) => void;
@@ -42,74 +43,74 @@ interface BusinessModelDeepSectionProps {
 const BMC_BLOCKS = [
   {
     id: 'customer_segments',
-    name: 'Customer Segments',
+    name: t('onboarding.customerSegments'),
     icon: Users,
     color: 'bg-blue-500',
-    question: 'Who are your most important customers? Describe each segment.',
+    question: t('onboarding.whoAreYourMost'),
     placeholder: 'e.g., Small businesses (10-50 employees) in retail sector, tech-savvy millennials, enterprise companies...',
   },
   {
     id: 'value_propositions',
-    name: 'Value Propositions',
+    name: t('onboarding.valuePropositions'),
     icon: Heart,
     color: 'bg-red-500',
-    question: 'What value do you deliver to each customer segment? What problems do you solve?',
+    question: t('onboarding.whatValueDoYou'),
     placeholder: 'e.g., Save 10 hours/week on manual tasks, reduce costs by 30%, provide peace of mind...',
   },
   {
     id: 'channels',
-    name: 'Channels',
+    name: t('onboarding.channels'),
     icon: MessageSquare,
     color: 'bg-green-500',
-    question: 'How do you reach and deliver value to your customers?',
+    question: t('onboarding.howDoYouReach'),
     placeholder: 'e.g., Direct sales, website, mobile app, retail stores, partnerships...',
   },
   {
     id: 'customer_relationships',
-    name: 'Customer Relationships',
+    name: t('onboarding.customerRelationships'),
     icon: Handshake,
     color: 'bg-purple-500',
-    question: 'What type of relationship do you establish with each segment?',
+    question: t('onboarding.whatTypeOfRelationship'),
     placeholder: 'e.g., Personal assistance, self-service, automated, communities...',
   },
   {
     id: 'revenue_streams',
-    name: 'Revenue Streams',
+    name: t('onboarding.revenueStreams'),
     icon: DollarSign,
     color: 'bg-yellow-500',
-    question: 'How do you make money from each customer segment?',
+    question: t('onboarding.howDoYouMake'),
     placeholder: 'e.g., Subscription $99/mo, transaction fees 3%, one-time license $500...',
   },
   {
     id: 'key_resources',
-    name: 'Key Resources',
+    name: t('onboarding.keyResources'),
     icon: Boxes,
     color: 'bg-orange-500',
-    question: 'What key resources do you need to deliver your value proposition?',
+    question: t('onboarding.whatKeyResourcesDo'),
     placeholder: 'e.g., Technology platform, brand, intellectual property, human resources...',
   },
   {
     id: 'key_activities',
-    name: 'Key Activities',
+    name: t('onboarding.keyActivities'),
     icon: Zap,
     color: 'bg-pink-500',
-    question: 'What key activities must you perform to deliver your value proposition?',
+    question: t('onboarding.whatKeyActivitiesMust'),
     placeholder: 'e.g., Software development, customer support, marketing, supply chain...',
   },
   {
     id: 'key_partnerships',
-    name: 'Key Partnerships',
+    name: t('onboarding.keyPartnerships'),
     icon: Network,
     color: 'bg-indigo-500',
-    question: 'Who are your key partners and suppliers?',
+    question: t('onboarding.whoAreYourKey'),
     placeholder: 'e.g., Cloud providers (AWS), payment processors (Stripe), strategic alliances...',
   },
   {
     id: 'cost_structure',
-    name: 'Cost Structure',
+    name: t('onboarding.costStructure'),
     icon: TrendingUp,
     color: 'bg-cyan-500',
-    question: 'What are your most important costs?',
+    question: t('onboarding.whatAreYourMost'),
     placeholder: 'e.g., Salaries $50k/mo, cloud infrastructure $5k/mo, marketing $10k/mo...',
   },
 ];
@@ -119,6 +120,7 @@ export function BusinessModelDeepSection({
   onComplete,
   onCancel,
 }: BusinessModelDeepSectionProps) {
+  const { t } = useTranslation();
   const [currentBlock, setCurrentBlock] = useState(0);
   const [bmcData, setBmcData] = useState<Record<string, string>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -152,15 +154,15 @@ export function BusinessModelDeepSection({
         section_id: 'business-model-deep',
         bmc_data: bmcData,
         analysis_completed: true,
-        unlocked_tools: ['BMC Editor', 'Value Prop Designer'],
+        unlocked_tools: [t('onboarding.bmcEditor'), t('onboarding.valuePropDesigner')],
       });
 
-      toast.success('Business Model completed!', {
-        description: 'BMC Editor and Value Prop Designer unlocked'
+      toast.success(t('onboarding.businessModelCompleted'), {
+        description: t('onboarding.bmcEditorAndValue')
       });
     } catch (_error) {
-      toast.error('Failed to save', {
-        description: 'Please try again'
+      toast.error(t('onboarding.failedToSave'), {
+        description: t('onboarding.pleaseTryAgain')
       });
       setIsAnalyzing(false);
     }
@@ -183,12 +185,8 @@ export function BusinessModelDeepSection({
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">
-                Analyzing your Business Model Canvas
-              </h3>
-              <p className="text-muted-foreground max-w-md">
-                Creating strategic insights, identifying gaps, and generating recommendations
-              </p>
+              <h3 className="text-2xl font-bold">{t('onboarding.analyzingYourBusinessModel')}</h3>
+              <p className="text-muted-foreground max-w-md">{t('onboarding.creatingStrategicInsightsIdentifying')}</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -212,7 +210,7 @@ export function BusinessModelDeepSection({
               <Icon className="h-6 w-6 text-white" />
             </div>
             <div className="flex-1">
-              <CardTitle className="text-2xl">Business Model Canvas</CardTitle>
+              <CardTitle className="text-2xl">{t('onboarding.businessModelCanvas')}</CardTitle>
               <CardDescription className="text-base">
                 Block {currentBlock + 1} of {BMC_BLOCKS.length}: {currentBlockData.name}
               </CardDescription>
@@ -284,7 +282,7 @@ export function BusinessModelDeepSection({
             {canProceed() && (
               <div className="flex items-center gap-1 text-xs text-green-600">
                 <CheckCircle2 className="h-3 w-3" />
-                <span>Looks good!</span>
+                <span>{t('onboarding.looksGood')}</span>
               </div>
             )}
           </div>
@@ -292,9 +290,7 @@ export function BusinessModelDeepSection({
           {!canProceed() && (
             <Alert className="bg-blue-50 border-blue-200">
               <Sparkles className="h-4 w-4 text-blue-600" />
-              <AlertDescription className="text-blue-900 text-sm">
-                Provide at least 20 characters to describe this block of your business model
-              </AlertDescription>
+              <AlertDescription className="text-blue-900 text-sm">{t('onboarding.provideAtLeast20')}</AlertDescription>
             </Alert>
           )}
         </CardContent>
@@ -306,12 +302,12 @@ export function BusinessModelDeepSection({
           variant="outline"
           onClick={currentBlock === 0 ? onCancel : handleBack}
         >
-          {currentBlock === 0 ? 'Cancel' : 'Back'}
+          {currentBlock === 0 ? 'Cancel': t('onboarding.back')}
         </Button>
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-sm text-gray-600">Section Progress</p>
+            <p className="text-sm text-gray-600">{t('onboarding.sectionProgress')}</p>
             <p className="text-lg font-bold text-blue-600">+10%</p>
           </div>
           <Button
@@ -326,9 +322,7 @@ export function BusinessModelDeepSection({
                 Complete BMC
               </>
             ) : (
-              <>
-                Next Block
-                <ArrowRight className="h-4 w-4" />
+              <>{t('onboarding.nextBlock')}<ArrowRight className="h-4 w-4" />
               </>
             )}
           </Button>

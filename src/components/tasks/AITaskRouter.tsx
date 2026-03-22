@@ -20,6 +20,7 @@ import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface AIRoutingCallbackResult {
   error?: string;
   content?: TaskRoutingResult;
@@ -44,6 +45,7 @@ interface TaskRoutingResult {
 }
 
 export function AITaskRouter() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currentProject } = useCurrentProject();
   const [taskDescription, setTaskDescription] = useState('');
@@ -70,7 +72,7 @@ export function AITaskRouter() {
     }
 
     setRoutingResult(result.content);
-    toast.success('Tarea ruteada exitosamente');
+    toast.success(t('tasks.tareaRuteadaExitosamente'));
   };
 
   const handleRoutingError = (error: Error) => {
@@ -96,7 +98,7 @@ export function AITaskRouter() {
       setTaskDescription('');
       setRoutingResult(null);
     } catch (_error) {
-      toast.error('Error al asignar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al asignar: ' + (error instanceof Error ? error.message : t('tasks.errorDesconocido')));
     }
   };
 
@@ -110,10 +112,8 @@ export function AITaskRouter() {
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle>AI Task Router</CardTitle>
-              <CardDescription>
-                Rutea automáticamente tareas al miembro más adecuado del equipo
-              </CardDescription>
+              <CardTitle>{t('tasks.aiTaskRouter')}</CardTitle>
+              <CardDescription>{t('tasks.ruteaAutomáticamenteTareasAl')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -122,7 +122,7 @@ export function AITaskRouter() {
       {/* Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Describe la tarea</CardTitle>
+          <CardTitle className="text-base">{t('tasks.describeLaTarea')}</CardTitle>
           <CardDescription>
             La IA analizará skills, workload actual y experiencia de cada miembro para recomendar a
             quién asignarla
@@ -133,7 +133,7 @@ export function AITaskRouter() {
             <Label htmlFor="taskDescription">Descripción de la tarea *</Label>
             <Textarea
               id="taskDescription"
-              placeholder="Ej: Diseñar el nuevo landing page para la campaña de Black Friday. Necesita conocimientos de UX/UI y experiencia con herramientas de diseño..."
+              placeholder={t('tasks.ejDiseñarElNuevo')}
               value={taskDescription}
               onChange={(e) => setTaskDescription(e.target.value)}
               rows={5}
@@ -164,12 +164,10 @@ export function AITaskRouter() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <CardTitle className="text-base">Recomendación de asignación</CardTitle>
+                <CardTitle className="text-base">{t('tasks.recomendaciónDeAsignación')}</CardTitle>
               </div>
               <Button onClick={handleAssign} className="gap-2">
-                <Target size={14} />
-                Asignar tarea
-              </Button>
+                <Target size={14} />{t('tasks.asignarTarea')}</Button>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">

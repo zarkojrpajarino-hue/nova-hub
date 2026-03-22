@@ -32,6 +32,7 @@ import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
 import { trackProjectCreated } from '@/lib/analytics';
 
+import { useTranslation } from 'react-i18next';
 const ICONS = ['🚀', '💡', '🎯', '⚡', '🔥', '✨', '🌟', '💎', '🎨', '🏆', '📊', '💼'];
 const COLORS = [
   '#3B82F6', // blue
@@ -45,6 +46,7 @@ const COLORS = [
 ];
 
 export function CreateProjectDialog() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
@@ -60,12 +62,12 @@ export function CreateProjectDialog() {
   const handleCreate = async () => {
     // Validations
     if (!nombre.trim()) {
-      toast.error('El nombre del proyecto es requerido');
+      toast.error(t('projects.elNombreDelProyecto'));
       return;
     }
 
     if (nombre.length < 3) {
-      toast.error('El nombre debe tener al menos 3 caracteres');
+      toast.error(t('projects.elNombreDebeTener'));
       return;
     }
 
@@ -75,7 +77,7 @@ export function CreateProjectDialog() {
       // Get current user
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) {
-        toast.error('No autenticado');
+        toast.error(t('projects.noAutenticado'));
         setIsCreating(false);
         return;
       }
@@ -88,7 +90,7 @@ export function CreateProjectDialog() {
         .single();
 
       if (!profile) {
-        toast.error('Perfil no encontrado');
+        toast.error(t('projects.perfilNoEncontrado'));
         setIsCreating(false);
         return;
       }
@@ -113,7 +115,7 @@ export function CreateProjectDialog() {
 
       trackProjectCreated({ project_id: newProject.id });
 
-      toast.success('¡Proyecto creado! Completando onboarding...');
+      toast.success(t('projects.proyectoCreadoCompletandoOnboarding'));
 
       // Invalidate queries
       queryClient.invalidateQueries({ queryKey: ['projects'] });
@@ -131,7 +133,7 @@ export function CreateProjectDialog() {
       // Navigate to project page (will show onboarding wizard)
       navigate(`/proyecto/${newProject.id}`);
     } catch (_error) {
-      toast.error('Error al crear el proyecto');
+      toast.error(t('projects.errorAlCrearEl'));
     } finally {
       setIsCreating(false);
     }
@@ -141,16 +143,12 @@ export function CreateProjectDialog() {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="gap-2">
-          <Plus size={16} />
-          Nuevo Proyecto
-        </Button>
+          <Plus size={16} />{t('projects.nuevoProyecto')}</Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[500px]">
         <DialogHeader>
-          <DialogTitle>Crear Nuevo Proyecto</DialogTitle>
-          <DialogDescription>
-            Configura los datos básicos. Después completarás el onboarding adaptativo.
-          </DialogDescription>
+          <DialogTitle>{t('projects.crearNuevoProyecto')}</DialogTitle>
+          <DialogDescription>{t('projects.configuraLosDatosBásicos')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4 py-4">
@@ -159,7 +157,7 @@ export function CreateProjectDialog() {
             <Label htmlFor="nombre">Nombre del Proyecto *</Label>
             <Input
               id="nombre"
-              placeholder="Ej: Nova AI Assistant"
+              placeholder={t('projects.ejNovaAiAssistant')}
               value={nombre}
               onChange={(e) => setNombre(e.target.value)}
               maxLength={100}
@@ -172,7 +170,7 @@ export function CreateProjectDialog() {
             <Label htmlFor="descripcion">Descripción (opcional)</Label>
             <Textarea
               id="descripcion"
-              placeholder="Breve descripción del proyecto..."
+              placeholder={t('projects.breveDescripciónDelProyecto')}
               value={descripcion}
               onChange={(e) => setDescripcion(e.target.value)}
               maxLength={500}
@@ -191,17 +189,13 @@ export function CreateProjectDialog() {
                 <SelectItem value="validacion">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">🧪 Validación</span>
-                    <span className="text-xs text-muted-foreground">
-                      Para proyectos en fase de exploración y validación
-                    </span>
+                    <span className="text-xs text-muted-foreground">{t('projects.paraProyectosEnFase')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="operacion">
                   <div className="flex flex-col items-start">
                     <span className="font-medium">🚀 Operación</span>
-                    <span className="text-xs text-muted-foreground">
-                      Para proyectos con clientes y operación establecida
-                    </span>
+                    <span className="text-xs text-muted-foreground">{t('projects.paraProyectosConClientes')}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -211,7 +205,7 @@ export function CreateProjectDialog() {
           {/* Icon & Color */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Icono</Label>
+              <Label>{t('projects.icono')}</Label>
               <div className="grid grid-cols-6 gap-2 mt-2">
                 {ICONS.map((i) => (
                   <button
@@ -231,7 +225,7 @@ export function CreateProjectDialog() {
             </div>
 
             <div>
-              <Label>Color</Label>
+              <Label>{t('projects.color')}</Label>
               <div className="grid grid-cols-4 gap-2 mt-2">
                 {COLORS.map((c) => (
                   <button
@@ -259,9 +253,9 @@ export function CreateProjectDialog() {
                 {icon}
               </div>
               <div>
-                <p className="font-semibold">{nombre || 'Nombre del proyecto'}</p>
+                <p className="font-semibold">{nombre || t('projects.nombreDelProyecto')}</p>
                 <p className="text-sm text-muted-foreground">
-                  {descripcion || 'Sin descripción'}
+                  {descripcion || t('projects.sinDescripción')}
                 </p>
               </div>
             </div>
@@ -269,20 +263,14 @@ export function CreateProjectDialog() {
         </div>
 
         <div className="flex justify-end gap-3">
-          <Button variant="outline" onClick={() => setOpen(false)} disabled={isCreating}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={() => setOpen(false)} disabled={isCreating}>{t('projects.cancelar')}</Button>
           <Button onClick={handleCreate} disabled={isCreating || !nombre.trim()}>
             {isCreating ? (
               <>
-                <Loader2 size={16} className="mr-2 animate-spin" />
-                Creando...
-              </>
+                <Loader2 size={16} className="mr-2 animate-spin" />{t('projects.creando')}</>
             ) : (
               <>
-                <Plus size={16} className="mr-2" />
-                Crear Proyecto
-              </>
+                <Plus size={16} className="mr-2" />{t('projects.crearProyecto')}</>
             )}
           </Button>
         </div>

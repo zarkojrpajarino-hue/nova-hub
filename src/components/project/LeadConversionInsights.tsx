@@ -9,6 +9,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TrendingUp, Clock } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface StageTransition {
   from_status: string;
   to_status: string;
@@ -17,6 +18,7 @@ interface StageTransition {
 }
 
 export function LeadConversionInsights({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const { data: transitions } = useQuery({
     queryKey: ['lead-conversion', projectId],
     staleTime: 10 * 60_000,
@@ -75,7 +77,7 @@ export function LeadConversionInsights({ projectId }: { projectId: string }) {
     <div className="bg-card border rounded-lg p-3 space-y-2">
       <div className="flex items-center gap-2">
         <TrendingUp className="h-4 w-4 text-blue-500" />
-        <span className="text-xs font-semibold">Velocidad de conversión</span>
+        <span className="text-xs font-semibold">{t('project.velocidadDeConversión')}</span>
       </div>
       <div className="space-y-1.5">
         {transitions.map((t) => {

@@ -26,6 +26,7 @@ import {
 } from '@/components/ui/select';
 import { TrendingUp } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface EvolutionChartProps {
   data: Array<{
     week: string;
@@ -39,14 +40,15 @@ interface EvolutionChartProps {
 type MetricType = 'obvs' | 'facturacion' | 'leads' | 'tareas' | 'all';
 
 const METRICS = [
-  { value: 'all', label: 'Todas las métricas' },
-  { value: 'obvs', label: 'OBVs', color: '#6366F1' },
-  { value: 'facturacion', label: 'Facturación', color: '#10B981' },
-  { value: 'leads', label: 'Leads', color: '#F59E0B' },
-  { value: 'tareas', label: 'Tareas', color: '#8B5CF6' },
+  { value: 'all', label: t('dashboard.todasLasMétricas') },
+  { value: 'obvs', label: t('dashboard.obvs'), color: '#6366F1' },
+  { value: 'facturacion', label: t('dashboard.facturación'), color: '#10B981' },
+  { value: 'leads', label: t('dashboard.leads'), color: '#F59E0B' },
+  { value: 'tareas', label: t('dashboard.tareas'), color: '#8B5CF6' },
 ] as const;
 
 export function EvolutionChart({ data }: EvolutionChartProps) {
+  const { t } = useTranslation();
   const [selectedMetric, setSelectedMetric] = useState<MetricType>('all');
 
   const formatYAxis = (value: number) => {
@@ -58,7 +60,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
 
   const formatTooltip = (value: number, name: string) => {
     if (name === 'facturacion') {
-      return [`€${value.toLocaleString('es-ES')}`, 'Facturación'];
+      return [`€${value.toLocaleString('es-ES')}`, t('dashboard.facturación')];
     }
     return [value, name.charAt(0).toUpperCase() + name.slice(1)];
   };
@@ -74,7 +76,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}
-            name="OBVs"
+            name={t('dashboard.obvs')}
           />
           <Line
             type="monotone"
@@ -92,7 +94,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}
-            name="Leads"
+            name={t('dashboard.leads')}
           />
           <Line
             type="monotone"
@@ -101,7 +103,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
             strokeWidth={2}
             dot={{ r: 4 }}
             activeDot={{ r: 6 }}
-            name="Tareas"
+            name={t('dashboard.tareas')}
           />
         </>
       );
@@ -132,7 +134,7 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
               <TrendingUp className="w-5 h-5 text-primary" />
             </div>
             <div>
-              <CardTitle>Evolución Semanal</CardTitle>
+              <CardTitle>{t('dashboard.evoluciónSemanal')}</CardTitle>
               <p className="text-sm text-muted-foreground mt-1">
                 Últimas {data.length} semanas
               </p>

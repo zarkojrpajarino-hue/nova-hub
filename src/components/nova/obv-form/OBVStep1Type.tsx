@@ -3,10 +3,11 @@ import { Check } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
+import { useTranslation } from 'react-i18next';
 const OBV_TYPES = [
-  { id: 'exploracion', icon: '🔍', title: 'Exploración', desc: 'Primer contacto, investigación de mercado, networking', color: '#6366F1' },
-  { id: 'validacion', icon: '✅', title: 'Validación', desc: 'Reunión, demo, propuesta enviada, seguimiento', color: '#F59E0B' },
-  { id: 'venta', icon: '💰', title: 'Venta', desc: 'Cierre confirmado con transacción económica', color: '#22C55E' },
+  { id: 'exploracion', icon: '🔍', title: t('obv.exploración'), desc: t('obv.primerContactoInvestigaciónDe'), color: '#6366F1' },
+  { id: 'validacion', icon: '✅', title: t('obv.validación'), desc: t('obv.reuniónDemoPropuestaEnviada'), color: '#F59E0B' },
+  { id: 'venta', icon: '💰', title: t('obv.venta'), desc: t('obv.cierreConfirmadoConTransacción'), color: '#22C55E' },
 ];
 
 interface OBVStep1TypeProps {
@@ -15,11 +16,10 @@ interface OBVStep1TypeProps {
 }
 
 export const OBVStep1Type = memo(function OBVStep1Type({ formData, onUpdate }: OBVStep1TypeProps) {
+  const { t } = useTranslation();
   return (
     <>
-      <h4 className="text-lg font-semibold text-center mb-6">
-        ¿Qué tipo de actividad registras?
-      </h4>
+      <h4 className="text-lg font-semibold text-center mb-6">{t('obv.quéTipoDeActividad')}</h4>
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
         {OBV_TYPES.map(type => (
           <button
@@ -44,9 +44,7 @@ export const OBVStep1Type = memo(function OBVStep1Type({ formData, onUpdate }: O
             <p className="text-sm text-muted-foreground">{type.desc}</p>
             {formData.tipo === type.id && (
               <div className="mt-3 flex items-center gap-1.5 text-primary text-sm font-medium">
-                <Check size={14} />
-                Seleccionado
-              </div>
+                <Check size={14} />{t('obv.seleccionado')}</div>
             )}
           </button>
         ))}

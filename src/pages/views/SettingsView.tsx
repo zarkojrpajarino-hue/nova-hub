@@ -15,6 +15,7 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { SettingsPreviewModal } from '@/components/preview/SettingsPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface SettingsViewProps {
   onNewOBV?: () => void;
 }
@@ -22,6 +23,7 @@ interface SettingsViewProps {
 type SettingsTab = 'profile' | 'notifications' | 'admin' | 'evidence';
 
 export function SettingsView({ onNewOBV }: SettingsViewProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { profile, signOut } = useAuth();
   const { data: userRoles = [] } = useUserRoles();
@@ -39,17 +41,17 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
   };
 
   const tabs = [
-    { id: 'profile' as const, label: 'Mi Perfil', icon: User },
-    { id: 'notifications' as const, label: 'Notificaciones', icon: Bell },
-    { id: 'evidence' as const, label: 'Fuentes de Evidencia', icon: FileText },
-    ...(isAdmin ? [{ id: 'admin' as const, label: 'Administración', icon: Shield }] : []),
+    { id: 'profile' as const, label: t('settings.miPerfil'), icon: User },
+    { id: 'notifications' as const, label: t('settings.notificaciones'), icon: Bell },
+    { id: 'evidence' as const, label: t('settings.fuentesDeEvidencia0'), icon: FileText },
+    ...(isAdmin ? [{ id: 'admin' as const, label: t('settings.administración'), icon: Shield }] : []),
   ];
 
   return (
     <>
       <NovaHeader
-        title="Configuración"
-        subtitle="Gestiona tu perfil y preferencias"
+        title={t('settings.configuración')}
+        subtitle={t('settings.gestionaTuPerfilY')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -58,32 +60,32 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
         {/* How It Works */}
         <div className="mb-6">
           <HowItWorks
-            title="Configuración del Sistema"
-            description="Personaliza tu experiencia en Nova Hub"
-            whatIsIt="Centro de configuración donde puedes gestionar tu perfil, preferencias de notificaciones y ajustes de administración. Controla cómo interactúas con la plataforma."
+            title={t('settings.configuraciónDelSistema')}
+            description={t('settings.personalizaTuExperienciaEn')}
+            whatIsIt={t('settings.centroDeConfiguraciónDonde')}
             dataInputs={[
               {
-                from: "Tu Perfil",
+                from: t('settings.tuPerfil'),
                 items: [
-                  "Nombre y datos personales",
-                  "Preferencias de idioma y zona horaria",
-                  "Configuración de privacidad"
+                  t('settings.nombreYDatosPersonales'),
+                  t('settings.preferenciasDeIdiomaY'),
+                  t('settings.configuraciónDePrivacidad')
                 ]
               }
             ]}
             dataOutputs={[
               {
-                to: "Toda la plataforma",
+                to: t('settings.todaLaPlataforma'),
                 items: [
-                  "Experiencia personalizada",
-                  "Notificaciones configuradas",
-                  "Permisos y accesos definidos"
+                  t('settings.experienciaPersonalizada'),
+                  t('settings.notificacionesConfiguradas'),
+                  t('settings.permisosYAccesosDefinidos')
                 ]
               }
             ]}
             nextStep={{
-              action: "Personaliza tu perfil y preferencias",
-              destination: "Mejora tu experiencia diaria"
+              action: t('settings.personalizaTuPerfilY'),
+              destination: t('settings.mejoraTuExperienciaDiaria')
             }}
             onViewPreview={() => setShowPreviewModal(true)}
           />
@@ -115,9 +117,7 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
               onClick={handleLogout}
               className="w-full justify-start mt-4 text-destructive border-destructive/30 hover:bg-destructive/10"
             >
-              <LogOut size={18} className="mr-3" />
-              Cerrar sesión
-            </Button>
+              <LogOut size={18} className="mr-3" />{t('settings.cerrarSesión')}</Button>
           </div>
 
           {/* Content */}
@@ -127,10 +127,8 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
             {activeTab === 'evidence' && currentProject && (
               <div className="space-y-4">
                 <div className="bg-card rounded-xl p-6 border border-border">
-                  <h3 className="text-lg font-semibold mb-2">Fuentes de Evidencia</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Sube documentos (PDFs, CSVs, XLSX) para que la IA los use como fuentes de evidencia en todas las generaciones. Los documentos se procesan automáticamente con búsqueda de texto completo.
-                  </p>
+                  <h3 className="text-lg font-semibold mb-2">{t('settings.fuentesDeEvidencia')}</h3>
+                  <p className="text-sm text-muted-foreground mb-6">{t('settings.subeDocumentosPdfsCsvs')}</p>
                   <DocumentManager projectId={currentProject.id} />
                 </div>
               </div>

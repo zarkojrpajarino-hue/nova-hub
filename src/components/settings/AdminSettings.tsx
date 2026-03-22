@@ -10,7 +10,9 @@ import { useObjectives, useProfiles } from '@/hooks/useNovaData';
 import { useUpdateObjective, useUserRoles, useUpdateUserRole } from '@/hooks/useSettings';
 import { useAuth } from '@/hooks/useAuth';
 
+import { useTranslation } from 'react-i18next';
 export function AdminSettings() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: objectives = [], isLoading: loadingObjectives } = useObjectives();
   const { data: profiles = [] } = useProfiles();
@@ -30,23 +32,23 @@ export function AdminSettings() {
 
     try {
       await updateObjective.mutateAsync({ id, target_value: value });
-      toast.success('Objetivo actualizado');
+      toast.success(t('settings.objetivoActualizado'));
       setEditedObjectives(prev => {
         const copy = { ...prev };
         delete copy[id];
         return copy;
       });
     } catch (_error) {
-      toast.error('Error al actualizar objetivo');
+      toast.error(t('settings.errorAlActualizarObjetivo'));
     }
   };
 
   const handleRoleChange = async (userId: string, role: 'admin' | 'tlt' | 'member') => {
     try {
       await updateRole.mutateAsync({ userId, role });
-      toast.success('Rol actualizado');
+      toast.success(t('settings.rolActualizado'));
     } catch (_error) {
-      toast.error('Solo los administradores pueden cambiar roles');
+      toast.error(t('settings.soloLosAdministradoresPueden'));
     }
   };
 
@@ -69,9 +71,7 @@ export function AdminSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target size={20} />
-            Objetivos Globales del Equipo
-          </CardTitle>
+            <Target size={20} />{t('settings.objetivosGlobalesDelEquipo')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-6">
@@ -120,14 +120,10 @@ export function AdminSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Users size={20} />
-            Gestión de Usuarios
-          </CardTitle>
+            <Users size={20} />{t('settings.gestiónDeUsuarios')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-6">
-            Asigna roles y permisos a los miembros del equipo
-          </p>
+          <p className="text-sm text-muted-foreground mb-6">{t('settings.asignaRolesYPermisos')}</p>
 
           <div className="space-y-3">
             {profiles.map(member => {
@@ -164,9 +160,9 @@ export function AdminSettings() {
                       <SelectValue />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="member">Miembro</SelectItem>
+                      <SelectItem value="member">{t('settings.miembro')}</SelectItem>
                       <SelectItem value="tlt">TLT</SelectItem>
-                      <SelectItem value="admin">Admin</SelectItem>
+                      <SelectItem value="admin">{t('settings.admin')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -180,19 +176,13 @@ export function AdminSettings() {
       <Card className="border-destructive/20 bg-destructive/5">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-destructive">
-            <Shield size={20} />
-            Zona de Peligro
-          </CardTitle>
+            <Shield size={20} />{t('settings.zonaDePeligro')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Acciones que no se pueden deshacer
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">{t('settings.accionesQueNoSe')}</p>
 
           <div className="flex flex-wrap gap-3">
-            <Button variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">
-              Exportar todos los datos
-            </Button>
+            <Button variant="outline" className="border-destructive/30 text-destructive hover:bg-destructive/10">{t('settings.exportarTodosLosDatos')}</Button>
           </div>
         </CardContent>
       </Card>

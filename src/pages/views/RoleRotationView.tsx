@@ -16,7 +16,9 @@ import { useNavigation } from '@/contexts/NavigationContext';
 import { BackButton } from '@/components/navigation/BackButton';
 import { RoleRotationPreviewModal } from '@/components/preview/RoleRotationPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 export default function RoleRotationView() {
+  const { t } = useTranslation();
   const { goBack, canGoBack } = useNavigation();
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -41,67 +43,63 @@ export default function RoleRotationView() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight">Rotación de Roles</h1>
-          <p className="text-muted-foreground">
-            Sistema de intercambio de roles para desarrollar habilidades cross-funcionales
-          </p>
+          <h1 className="text-3xl font-bold tracking-tight">{t('roleRotation.rotaciónDeRoles')}</h1>
+          <p className="text-muted-foreground">{t('roleRotation.sistemaDeIntercambioDe')}</p>
         </div>
         <Button onClick={() => setCreateDialogOpen(true)}>
-          <Plus className="h-4 w-4 mr-2" />
-          Nueva Solicitud
-        </Button>
+          <Plus className="h-4 w-4 mr-2" />{t('roleRotation.nuevaSolicitud')}</Button>
       </div>
 
       {/* How it works */}
       <HowItWorks
-        title="Cómo funciona"
-        description="Programa voluntario para rotar roles temporalmente y aprender nuevas skills"
-        whatIsIt="Sistema de intercambio de roles donde puedes solicitar rotar temporalmente (2-4 semanas) con otro miembro del equipo. Ejemplo: si eres CMO, puedes rotar con el CTO para aprender tech, y viceversa. IA analiza compatibilidad antes de aprobar. Rotación es 100% voluntaria y requiere aprobación de ambas partes + admin. Ideal para romper silos y construir empatía entre roles."
+        title={t('roleRotation.cómoFunciona')}
+        description={t('roleRotation.programaVoluntarioParaRotar')}
+        whatIsIt={t('roleRotation.sistemaDeIntercambioDe0')}
         dataInputs={[
           {
-            from: 'Exploración de Roles',
+            from: t('roleRotation.exploraciónDeRoles'),
             items: [
-              'Tu Fit Score en el rol que quieres explorar',
-              'Performance histórica en roles similares',
+              t('roleRotation.tuFitScoreEn'),
+              t('roleRotation.performanceHistóricaEnRoles'),
             ],
           },
           {
-            from: 'Equipo',
+            from: t('roleRotation.equipo'),
             items: [
-              'Disponibilidad de otros miembros para rotar',
-              'Compatibilidad: ¿tu skill set encaja con el rol target?',
+              t('roleRotation.disponibilidadDeOtrosMiembros'),
+              t('roleRotation.compatibilidadTuSkillSet'),
             ],
           },
         ]}
         dataOutputs={[
           {
-            to: 'Nueva experiencia',
+            to: t('roleRotation.nuevaExperiencia'),
             items: [
-              'Trabajas 2-4 semanas en el rol rotado',
-              'Aprendes skills cross-funcionales',
-              'Generas empatía con otros roles',
+              t('roleRotation.trabajas24SemanasEn'),
+              t('roleRotation.aprendesSkillsCrossfuncionales'),
+              t('roleRotation.generasEmpatíaConOtros'),
             ],
           },
           {
-            to: 'Mi Desarrollo',
+            to: t('roleRotation.miDesarrollo'),
             items: [
-              'Nuevo Fit Score calculado en el rol rotado',
-              'Si te gusta, puedes pedir cambio permanente',
-              'Playbooks del nuevo rol disponibles',
+              t('roleRotation.nuevoFitScoreCalculado'),
+              t('roleRotation.siTeGustaPuedes'),
+              t('roleRotation.playbooksDelNuevoRol'),
             ],
           },
           {
-            to: 'Insights',
+            to: t('roleRotation.insights'),
             items: [
-              'Qué aprendiste del nuevo rol',
-              'Recomendación IA: ¿deberías quedarte?',
-              'Impacto en tu perfil de habilidades',
+              t('roleRotation.quéAprendisteDelNuevo'),
+              t('roleRotation.recomendaciónIaDeberíasQuedarte'),
+              t('roleRotation.impactoEnTuPerfil'),
             ],
           },
         ]}
         nextStep={{
-          action: 'Solicita rotación → Espera aprobación → Rota 2-4 semanas → Decide si cambias permanentemente',
-          destination: 'IA sugiere rotaciones inteligentes basadas en tu fit score y necesidades del equipo',
+          action: t('roleRotation.solicitaRotaciónEsperaAprobación'),
+          destination: t('roleRotation.iaSugiereRotacionesInteligentes'),
         }}
         onViewPreview={() => setShowPreviewModal(true)}
       />
@@ -110,7 +108,7 @@ export default function RoleRotationView() {
       <div className="grid gap-4 md:grid-cols-4">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Solicitudes Pendientes</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('roleRotation.solicitudesPendientes')}</CardTitle>
             <Clock className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -123,29 +121,29 @@ export default function RoleRotationView() {
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Rotaciones Completadas</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('roleRotation.rotacionesCompletadas')}</CardTitle>
             <ArrowLeftRight className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{completedRotations.length}</div>
-            <p className="text-xs text-muted-foreground">Este período</p>
+            <p className="text-xs text-muted-foreground">{t('roleRotation.estePeríodo')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Cambios de Rol</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('roleRotation.cambiosDeRol')}</CardTitle>
             <History className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{history.length}</div>
-            <p className="text-xs text-muted-foreground">En el historial</p>
+            <p className="text-xs text-muted-foreground">{t('roleRotation.enElHistorial')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Tasa de Éxito</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('roleRotation.tasaDeÉxito')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -154,7 +152,7 @@ export default function RoleRotationView() {
                 ? Math.round((completedRotations.length / allRequests.length) * 100)
                 : 0}%
             </div>
-            <p className="text-xs text-muted-foreground">De solicitudes</p>
+            <p className="text-xs text-muted-foreground">{t('roleRotation.deSolicitudes')}</p>
           </CardContent>
         </Card>
       </div>
@@ -175,13 +173,9 @@ export default function RoleRotationView() {
             )}
           </TabsTrigger>
           <TabsTrigger value="all-requests" className="flex items-center gap-2">
-            <ArrowLeftRight className="h-4 w-4" />
-            Todas las Solicitudes
-          </TabsTrigger>
+            <ArrowLeftRight className="h-4 w-4" />{t('roleRotation.todasLasSolicitudes')}</TabsTrigger>
           <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            Historial
-          </TabsTrigger>
+            <History className="h-4 w-4" />{t('roleRotation.historial')}</TabsTrigger>
         </TabsList>
 
         <TabsContent value="my-requests">

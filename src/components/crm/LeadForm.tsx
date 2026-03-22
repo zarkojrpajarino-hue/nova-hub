@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import type { Database } from '@/integrations/supabase/types';
 import type { LeadStatus } from '@/types';
 
+import { useTranslation } from 'react-i18next';
 interface LeadFormProps {
   projectId?: string;
   projects: Array<{ id: string; nombre: string; icon: string }>;
@@ -23,6 +24,7 @@ interface LeadFormProps {
 }
 
 export function LeadForm({ projectId, projects, members, open, onOpenChange, initialStatus = 'frio' }: LeadFormProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -87,15 +89,15 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
 
   const handleSubmit = async () => {
     if (!formData.nombre_contacto?.trim()) {
-      toast.error('El nombre del contacto es obligatorio');
+      toast.error(t('crm.elNombreDelContacto'));
       return;
     }
     if (!formData.empresa?.trim()) {
-      toast.error('La empresa es obligatoria');
+      toast.error(t('crm.laEmpresaEsObligatoria'));
       return;
     }
     if (!formData.project_id) {
-      toast.error('Selecciona un proyecto');
+      toast.error(t('crm.seleccionaUnProyecto'));
       return;
     }
 
@@ -107,7 +109,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
         empresa: formData.empresa || null,
         email: formData.email_contacto || null,
         telefono: formData.telefono_contacto || null,
-        status: currentStage as Database["public"]["Enums"]["lead_status"],
+        status: currentStage as Database["public"]['Enums']["lead_status"],
         valor_potencial: formData.valor_potencial ? parseFloat(formData.valor_potencial) : null,
         notas: formData.notas || null,
         proxima_accion: formData.proxima_accion || null,
@@ -116,13 +118,13 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
         project_id: formData.project_id,
       });
 
-      toast.success('Lead creado correctamente');
+      toast.success(t('crm.leadCreadoCorrectamente'));
       queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
       queryClient.invalidateQueries({ queryKey: ['project_leads'] });
 
       onOpenChange(false);
     } catch (_error) {
-      toast.error('Error al crear el lead');
+      toast.error(t('crm.errorAlCrearEl'));
     } finally {
       setIsSubmitting(false);
     }
@@ -132,7 +134,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Nuevo Lead</DialogTitle>
+          <DialogTitle>{t('crm.nuevoLead')}</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-6 mt-4">
@@ -147,7 +149,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
                   onValueChange={(v) => handleFieldChange('project_id', v)}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar proyecto" />
+                    <SelectValue placeholder={t('crm.seleccionarProyecto')} />
                   </SelectTrigger>
                   <SelectContent>
                     {projects.map((p) => (
@@ -162,13 +164,13 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
 
             {/* Responsable */}
             <div>
-              <Label>Responsable</Label>
+              <Label>{t('crm.responsable')}</Label>
               <Select
                 value={formData.responsable_id}
                 onValueChange={(v) => handleFieldChange('responsable_id', v)}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Seleccionar responsable" />
+                  <SelectValue placeholder={t('crm.seleccionarResponsable')} />
                 </SelectTrigger>
                 <SelectContent>
                   {members.map((m) => (
@@ -205,9 +207,7 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
               className="flex-1"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
+            >{t('crm.cancelar')}</Button>
             <Button
               className="flex-1"
               onClick={handleSubmit}
@@ -215,11 +215,9 @@ export function LeadForm({ projectId, projects, members, open, onOpenChange, ini
             >
               {isSubmitting ? (
                 <>
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  Creando...
-                </>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('crm.creando')}</>
               ) : (
-                'Crear Lead'
+                t('crm.crearLead')
               )}
             </Button>
           </div>

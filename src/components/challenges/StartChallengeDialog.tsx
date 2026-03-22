@@ -19,6 +19,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { Loader2, Trophy, Users, Zap } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface StartChallengeDialogProps {
   open: boolean;
   onClose: () => void;
@@ -31,29 +32,29 @@ interface StartChallengeDialogProps {
 const CHALLENGE_TYPES = [
   {
     id: 'performance_battle',
-    name: 'Performance Battle',
+    name: t('challenges.performanceBattle'),
     icon: Zap,
     duration: '2 semanas',
-    description: 'Competencia directa en métricas objetivas: tasks, OBVs, feedback, etc.',
-    details: 'Gana quien tenga mayor puntuación calculada con fórmula transparente.',
+    description: t('challenges.competenciaDirectaEnMétricas'),
+    details: t('challenges.ganaQuienTengaMayor'),
     color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
   },
   {
     id: 'project_showdown',
-    name: 'Project Showdown',
+    name: t('challenges.projectShowdown'),
     icon: Trophy,
     duration: '3 semanas',
-    description: 'Ambos lideran un proyecto y el equipo vota por el mejor.',
-    details: 'Gana quien reciba más votos del equipo al finalizar.',
+    description: t('challenges.ambosLideranUnProyecto'),
+    details: t('challenges.ganaQuienRecibaMás'),
     color: 'from-purple-500/20 to-pink-500/20 border-purple-500/30',
   },
   {
     id: 'peer_vote',
-    name: 'Peer Vote',
+    name: t('challenges.peerVote'),
     icon: Users,
     duration: '1 semana',
-    description: 'El equipo vota directamente sin competencia activa.',
-    details: 'Master necesita 51% de votos, Retador necesita 60%.',
+    description: t('challenges.elEquipoVotaDirectamente'),
+    details: t('challenges.masterNecesita51De'),
     color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
   },
 ];
@@ -66,12 +67,13 @@ export function StartChallengeDialog({
   masterName,
   onSuccess,
 }: StartChallengeDialogProps) {
+  const { t } = useTranslation();
   const [selectedType, setSelectedType] = useState<string>('performance_battle');
   const [isLoading, setIsLoading] = useState(false);
 
   const handleStartChallenge = async () => {
     if (!selectedType) {
-      toast.error('Selecciona un tipo de desafío');
+      toast.error(t('challenges.seleccionaUnTipoDe'));
       return;
     }
 
@@ -85,7 +87,7 @@ export function StartChallengeDialog({
         .eq('auth_id', currentUserId)
         .single();
 
-      if (!member) throw new Error('Usuario no encontrado');
+      if (!member) throw new Error(t('challenges.usuarioNoEncontrado'));
 
       // Llamar a la función de inicio de desafío
       const { data, error } = await supabase.rpc('start_master_challenge', {
@@ -99,7 +101,7 @@ export function StartChallengeDialog({
       const result = data as { success: boolean; error?: string; message?: string };
 
       if (!result.success) {
-        toast.error(result.error || 'No se pudo iniciar el desafío');
+        toast.error(result.error || t('challenges.noSePudoIniciar'));
         return;
       }
 
@@ -107,7 +109,7 @@ export function StartChallengeDialog({
       onSuccess?.();
       onClose();
     } catch (_error) {
-      toast.error(error instanceof Error ? error.message : 'Error al iniciar el desafío');
+      toast.error(error instanceof Error ? error.message : t('challenges.errorAlIniciarEl'));
     } finally {
       setIsLoading(false);
     }
@@ -120,9 +122,7 @@ export function StartChallengeDialog({
       <DialogContent className="sm:max-w-2xl">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Trophy className="text-amber-500" />
-            Iniciar Desafío
-          </DialogTitle>
+            <Trophy className="text-amber-500" />{t('challenges.iniciarDesafío')}</DialogTitle>
           <DialogDescription>
             Vas a desafiar{' '}
             {masterName ? (
@@ -205,20 +205,14 @@ export function StartChallengeDialog({
 
         {/* Actions */}
         <div className="flex justify-between pt-4 border-t">
-          <Button variant="outline" onClick={onClose} disabled={isLoading}>
-            Cancelar
-          </Button>
+          <Button variant="outline" onClick={onClose} disabled={isLoading}>{t('challenges.cancelar')}</Button>
           <Button onClick={handleStartChallenge} disabled={isLoading} size="lg">
             {isLoading ? (
               <>
-                <Loader2 className="mr-2 animate-spin" size={16} />
-                Iniciando...
-              </>
+                <Loader2 className="mr-2 animate-spin" size={16} />{t('challenges.iniciando')}</>
             ) : (
               <>
-                <Trophy className="mr-2" size={16} />
-                Confirmar Desafío
-              </>
+                <Trophy className="mr-2" size={16} />{t('challenges.confirmarDesafío')}</>
             )}
           </Button>
         </div>

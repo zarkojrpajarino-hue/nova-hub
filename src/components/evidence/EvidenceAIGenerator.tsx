@@ -17,6 +17,7 @@ import { Loader2, Sparkles } from 'lucide-react';
 import { type EvidenceProfileType, inferProfileFromFunction } from '@/lib/evidence/profiles';
 import type { AIOutputWithEvidence } from '@/lib/evidence/types';
 
+import { useTranslation } from 'react-i18next';
 interface EvidenceAIGeneratorProps {
   /** Nombre de la función edge que se llamará */
   functionName: string;
@@ -65,6 +66,7 @@ export function EvidenceAIGenerator({
   buttonVariant = 'default',
   buttonClassName,
 }: EvidenceAIGeneratorProps) {
+  const { t } = useTranslation();
   const [showPreModal, setShowPreModal] = useState(false);
   const [showReport, setShowReport] = useState(false);
 
@@ -124,7 +126,7 @@ export function EvidenceAIGenerator({
         {(isSearching || isGenerating) ? (
           <>
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            {isSearching ? 'Buscando evidencias...' : 'Generando...'}
+            {isSearching ? 'Buscando evidencias...': t('evidence.generando')}
           </>
         ) : (
           <>

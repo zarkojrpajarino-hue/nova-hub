@@ -22,7 +22,9 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { MiDesarrolloPreviewModal } from '@/components/preview/MiDesarrolloPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 export function MiDesarrolloView() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
 
   // Only real data - no demo mode
@@ -138,72 +140,72 @@ export function MiDesarrolloView() {
   return (
     <>
       <NovaHeader
-        title="Mi Desarrollo"
-        subtitle="Trackea tu performance por rol, recibe insights IA, y accede a playbooks personalizados"
+        title={t('miDesarrollo.miDesarrollo')}
+        subtitle={t('miDesarrollo.trackeaTuPerformancePor')}
         showBackButton={true}
       />
 
       <div className="p-8">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Sistema de desarrollo profesional que mide tu performance por rol"
-          whatIsIt="Plataforma de growth personal que analiza tu rendimiento en CADA rol que desempeñas (CEO, CTO, CMO, etc.). Calcula tu Fit Score basado en tareas completadas, OBVs validadas, y resultados financieros. IA compara tu performance con el top 10% y sugiere acciones para mejorar. Playbooks personalizados por rol con best practices."
+          title={t('miDesarrollo.cómoFunciona')}
+          description={t('miDesarrollo.sistemaDeDesarrolloProfesional')}
+          whatIsIt={t('miDesarrollo.plataformaDeGrowthPersonal')}
           dataInputs={[
             {
-              from: 'Proyectos',
+              from: t('miDesarrollo.proyectos'),
               items: [
-                'Roles asignados en cada proyecto',
-                'Tareas completadas por rol',
-                'Resultados financieros por proyecto',
+                t('miDesarrollo.rolesAsignadosEnCada'),
+                t('miDesarrollo.tareasCompletadasPorRol'),
+                t('miDesarrollo.resultadosFinancierosPorProyecto'),
               ],
             },
             {
-              from: 'Centro OBVs',
+              from: t('miDesarrollo.centroObvs'),
               items: [
-                'OBVs completadas por ti',
+                t('miDesarrollo.obvsCompletadasPorTi'),
                 'OBVs validadas (quality score)',
-                'Objetivos cumplidos',
+                t('miDesarrollo.objetivosCumplidos'),
               ],
             },
             {
-              from: 'KPIs',
+              from: t('miDesarrollo.kpis'),
               items: [
-                'Learning Paths completados',
-                'Book Points acumulados',
-                'Community Points',
+                t('miDesarrollo.learningPathsCompletados'),
+                t('miDesarrollo.bookPointsAcumulados'),
+                t('miDesarrollo.communityPoints'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Fit Score por rol',
+              to: t('miDesarrollo.fitScorePorRol'),
               items: [
-                'Puntuación 0-100% de tu performance en cada rol',
-                'Comparativa con top performers',
-                'Ranking dentro del proyecto',
+                t('miDesarrollo.puntuación0100DeTu'),
+                t('miDesarrollo.comparativaConTopPerformers'),
+                t('miDesarrollo.rankingDentroDelProyecto'),
               ],
             },
             {
               to: 'Insights IA',
               items: [
                 'Qué estás haciendo bien (fortalezas)',
-                'Áreas de mejora específicas',
-                'Acciones recomendadas para subir tu Fit Score',
+                t('miDesarrollo.áreasDeMejoraEspecíficas'),
+                t('miDesarrollo.accionesRecomendadasParaSubir'),
               ],
             },
             {
-              to: 'Playbooks personalizados',
+              to: t('miDesarrollo.playbooksPersonalizados'),
               items: [
                 'Best practices para tu rol (ej: cómo hacer growth hacking si eres CMO)',
-                'Templates y frameworks específicos',
-                'Recursos de aprendizaje curados',
+                t('miDesarrollo.templatesYFrameworksEspecíficos'),
+                t('miDesarrollo.recursosDeAprendizajeCurados'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Revisa tu Fit Score → Lee insights → Aplica playbook → Mejora performance',
-            destination: 'Usa KPIs para trackear progreso, Mi Espacio para ver tareas',
+            action: t('miDesarrollo.revisaTuFitScore'),
+            destination: t('miDesarrollo.usaKpisParaTrackear'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -218,7 +220,7 @@ export function MiDesarrolloView() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{overallStats.avgScore.toFixed(0)}%</p>
-                  <p className="text-sm text-muted-foreground">Puntuación Promedio</p>
+                  <p className="text-sm text-muted-foreground">{t('miDesarrollo.puntuaciónPromedio')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -230,7 +232,7 @@ export function MiDesarrolloView() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{overallStats.avgTaskRate.toFixed(0)}%</p>
-                  <p className="text-sm text-muted-foreground">Completitud Tareas</p>
+                  <p className="text-sm text-muted-foreground">{t('miDesarrollo.completitudTareas')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -242,7 +244,7 @@ export function MiDesarrolloView() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{overallStats.totalOBVs}</p>
-                  <p className="text-sm text-muted-foreground">OBVs Validadas</p>
+                  <p className="text-sm text-muted-foreground">{t('miDesarrollo.obvsValidadas')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -254,7 +256,7 @@ export function MiDesarrolloView() {
                 </div>
                 <div>
                   <p className="text-2xl font-bold">{userRoles.length}</p>
-                  <p className="text-sm text-muted-foreground">Roles Activos</p>
+                  <p className="text-sm text-muted-foreground">{t('miDesarrollo.rolesActivos')}</p>
                 </div>
               </CardContent>
             </Card>
@@ -266,38 +268,28 @@ export function MiDesarrolloView() {
           <div className="flex items-center justify-between">
             <TabsList>
               <TabsTrigger value="rendimiento" className="gap-2">
-                <TrendingUp size={16} />
-                Rendimiento
-              </TabsTrigger>
+                <TrendingUp size={16} />{t('miDesarrollo.rendimiento')}</TabsTrigger>
               <TabsTrigger value="insights" className="gap-2">
-                <Lightbulb size={16} />
-                Insights
-              </TabsTrigger>
+                <Lightbulb size={16} />{t('miDesarrollo.insights')}</TabsTrigger>
               <TabsTrigger value="playbook" className="gap-2">
-                <BookOpen size={16} />
-                Playbook
-              </TabsTrigger>
+                <BookOpen size={16} />{t('miDesarrollo.playbook')}</TabsTrigger>
               <TabsTrigger value="coach" className="gap-2">
                 <Sparkles size={16} />
                 Coach IA
               </TabsTrigger>
               <TabsTrigger value="learning-paths" className="gap-2">
-                <GraduationCap size={16} />
-                Learning Paths
-              </TabsTrigger>
+                <GraduationCap size={16} />{t('miDesarrollo.learningPaths')}</TabsTrigger>
               <TabsTrigger value="logros" className="gap-2">
-                <Trophy size={16} />
-                Logros
-              </TabsTrigger>
+                <Trophy size={16} />{t('miDesarrollo.logros')}</TabsTrigger>
             </TabsList>
 
             {activeTab === 'rendimiento' && userRoles.length > 0 && (
               <Select value={selectedRole} onValueChange={setSelectedRole}>
                 <SelectTrigger className="w-48">
-                  <SelectValue placeholder="Filtrar por rol" />
+                  <SelectValue placeholder={t('miDesarrollo.filtrarPorRol')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="all">Todos los roles</SelectItem>
+                  <SelectItem value="all">{t('miDesarrollo.todosLosRoles')}</SelectItem>
                   {userRoles.map(role => (
                     <SelectItem key={role} value={role}>
                       {ROLE_CONFIG[role]?.label || role}
@@ -314,10 +306,8 @@ export function MiDesarrolloView() {
               <Card className="border-dashed">
                 <CardContent className="py-10 text-center">
                   <TrendingUp size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                  <h3 className="font-semibold mb-2">Sin datos de rendimiento</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Necesitas estar asignado a proyectos para ver tu rendimiento
-                  </p>
+                  <h3 className="font-semibold mb-2">{t('miDesarrollo.sinDatosDeRendimiento')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('miDesarrollo.necesitasEstarAsignadoA')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -350,10 +340,8 @@ export function MiDesarrolloView() {
               <Card className="border-dashed">
                 <CardContent className="py-10 text-center">
                   <BookOpen size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                  <h3 className="font-semibold mb-2">Sin roles asignados</h3>
-                  <p className="text-sm text-muted-foreground">
-                    Únete a un proyecto para obtener un playbook personalizado
-                  </p>
+                  <h3 className="font-semibold mb-2">{t('miDesarrollo.sinRolesAsignados')}</h3>
+                  <p className="text-sm text-muted-foreground">{t('miDesarrollo.úneteAUnProyecto')}</p>
                 </CardContent>
               </Card>
             ) : (
@@ -384,9 +372,7 @@ export function MiDesarrolloView() {
                   <Card className="border-dashed">
                     <CardContent className="py-10 text-center">
                       <BookOpen size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                      <p className="text-muted-foreground">
-                        Selecciona un rol para ver su playbook personalizado
-                      </p>
+                      <p className="text-muted-foreground">{t('miDesarrollo.seleccionaUnRolPara')}</p>
                     </CardContent>
                   </Card>
                 )}

@@ -9,6 +9,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -57,92 +58,92 @@ interface Achievement {
 }
 
 const MASTERS_DATA: Master[] = [
-  { id: '1', name: 'Sarah Chen', role: 'Frontend Architect', avatar: '👩‍💻', level: 10, competencies: 15, achievements: 24, specialty: 'React Ecosystem' },
-  { id: '2', name: 'Marcus Johnson', role: 'Backend Lead', avatar: '👨‍💼', level: 10, competencies: 18, achievements: 31, specialty: 'System Design' },
-  { id: '3', name: 'Elena Rodriguez', role: 'DevOps Master', avatar: '👩‍🔧', level: 10, competencies: 14, achievements: 28, specialty: 'Cloud Infrastructure' },
-  { id: '4', name: 'David Kim', role: 'Security Expert', avatar: '👨‍🔬', level: 10, competencies: 12, achievements: 22, specialty: 'Penetration Testing' },
-  { id: '5', name: 'Olivia Thompson', role: 'Data Architect', avatar: '👩‍🎓', level: 10, competencies: 16, achievements: 26, specialty: 'ML Pipeline' },
-  { id: '6', name: 'Raj Patel', role: 'Mobile Lead', avatar: '👨‍💻', level: 10, competencies: 13, achievements: 20, specialty: 'Cross-Platform' },
-  { id: '7', name: 'Sofia Martinez', role: 'UX Master', avatar: '👩‍🎨', level: 10, competencies: 11, achievements: 19, specialty: 'Design Systems' },
-  { id: '8', name: 'Chen Wei', role: 'AI Specialist', avatar: '👨‍🚀', level: 10, competencies: 17, achievements: 29, specialty: 'Deep Learning' },
+  { id: '1', name: t('preview.sarahChen'), role: t('preview.frontendArchitect'), avatar: '👩‍💻', level: 10, competencies: 15, achievements: 24, specialty: t('preview.reactEcosystem') },
+  { id: '2', name: t('preview.marcusJohnson'), role: t('preview.backendLead'), avatar: '👨‍💼', level: 10, competencies: 18, achievements: 31, specialty: t('preview.systemDesign') },
+  { id: '3', name: t('preview.elenaRodriguez'), role: t('preview.devopsMaster'), avatar: '👩‍🔧', level: 10, competencies: 14, achievements: 28, specialty: t('preview.cloudInfrastructure') },
+  { id: '4', name: t('preview.davidKim'), role: t('preview.securityExpert'), avatar: '👨‍🔬', level: 10, competencies: 12, achievements: 22, specialty: t('preview.penetrationTesting') },
+  { id: '5', name: t('preview.oliviaThompson'), role: t('preview.dataArchitect'), avatar: '👩‍🎓', level: 10, competencies: 16, achievements: 26, specialty: t('preview.mlPipeline') },
+  { id: '6', name: t('preview.rajPatel'), role: t('preview.mobileLead'), avatar: '👨‍💻', level: 10, competencies: 13, achievements: 20, specialty: t('preview.crossplatform') },
+  { id: '7', name: t('preview.sofiaMartinez'), role: t('preview.uxMaster'), avatar: '👩‍🎨', level: 10, competencies: 11, achievements: 19, specialty: t('preview.designSystems') },
+  { id: '8', name: t('preview.chenWei'), role: t('preview.aiSpecialist'), avatar: '👨‍🚀', level: 10, competencies: 17, achievements: 29, specialty: t('preview.deepLearning') },
 ];
 
 const FEATURED_MASTER = MASTERS_DATA[0];
 
 const MASTER_COMPETENCIES: Competency[] = [
-  { name: 'Advanced React Patterns', level: 100, category: 'Frontend' },
-  { name: 'TypeScript Mastery', level: 100, category: 'Languages' },
-  { name: 'Performance Optimization', level: 98, category: 'Technical' },
-  { name: 'Code Architecture', level: 100, category: 'Design' },
-  { name: 'Testing Strategies', level: 95, category: 'Quality' },
-  { name: 'Team Leadership', level: 92, category: 'Soft Skills' },
-  { name: 'Build Tools', level: 97, category: 'DevOps' },
-  { name: 'Web Security', level: 94, category: 'Security' },
-  { name: 'GraphQL', level: 100, category: 'APIs' },
-  { name: 'State Management', level: 100, category: 'Frontend' },
-  { name: 'Component Libraries', level: 98, category: 'Frontend' },
-  { name: 'Mentorship', level: 96, category: 'Soft Skills' },
+  { name: t('preview.advancedReactPatterns'), level: 100, category: t('preview.frontend') },
+  { name: t('preview.typescriptMastery'), level: 100, category: t('preview.languages') },
+  { name: t('preview.performanceOptimization'), level: 98, category: t('preview.technical') },
+  { name: t('preview.codeArchitecture'), level: 100, category: t('preview.design') },
+  { name: t('preview.testingStrategies'), level: 95, category: t('preview.quality') },
+  { name: t('preview.teamLeadership'), level: 92, category: t('preview.softSkills') },
+  { name: t('preview.buildTools'), level: 97, category: t('preview.devops') },
+  { name: t('preview.webSecurity'), level: 94, category: t('preview.security') },
+  { name: 'GraphQL', level: 100, category: t('preview.apis') },
+  { name: t('preview.stateManagement'), level: 100, category: t('preview.frontend') },
+  { name: t('preview.componentLibraries'), level: 98, category: t('preview.frontend') },
+  { name: t('preview.mentorship'), level: 96, category: t('preview.softSkills') },
 ];
 
 const MASTER_ACHIEVEMENTS: Achievement[] = [
-  { title: 'Master Certification Achieved', date: '2024-01', description: 'Completed all requirements for Master status' },
-  { title: 'Led 5 Critical Projects', date: '2024-03', description: 'Successfully delivered enterprise-level initiatives' },
-  { title: 'Mentored 15 Developers', date: '2024-06', description: 'Guided team members to advanced competency levels' },
-  { title: 'Published 8 Tech Articles', date: '2024-09', description: 'Shared knowledge with the engineering community' },
-  { title: 'Innovation Award Winner', date: '2024-11', description: 'Introduced groundbreaking architectural patterns' },
+  { title: t('preview.masterCertificationAchieved'), date: '2024-01', description: t('preview.completedAllRequirementsFor') },
+  { title: t('preview.led5CriticalProjects'), date: '2024-03', description: t('preview.successfullyDeliveredEnterpriselevelInitiatives') },
+  { title: t('preview.mentored15Developers'), date: '2024-06', description: t('preview.guidedTeamMembersTo') },
+  { title: t('preview.published8TechArticles'), date: '2024-09', description: t('preview.sharedKnowledgeWithThe') },
+  { title: t('preview.innovationAwardWinner'), date: '2024-11', description: t('preview.introducedGroundbreakingArchitecturalPatterns') },
 ];
 
 const CERTIFICATION_STEPS = [
   {
-    title: 'Expert Level',
-    description: 'Achieve Expert (Level 8+) in your primary role',
+    title: t('preview.expertLevel'),
+    description: t('preview.achieveExpertLevel8'),
     icon: Star,
-    requirements: ['Complete all core competencies', 'Pass advanced assessments', '3+ years experience'],
+    requirements: [t('preview.completeAllCoreCompetencies'), t('preview.passAdvancedAssessments'), '3+ years experience'],
   },
   {
-    title: 'Competency Mastery',
-    description: 'Master 12+ competencies in your domain',
+    title: t('preview.competencyMastery'),
+    description: t('preview.master12CompetenciesIn'),
     icon: Target,
-    requirements: ['100% proficiency in 8 core skills', '90%+ in 4 advanced skills', 'Cross-functional knowledge'],
+    requirements: ['100% proficiency in 8 core skills', '90%+ in 4 advanced skills', t('preview.crossfunctionalKnowledge')],
   },
   {
-    title: 'Leadership Impact',
-    description: 'Demonstrate significant team and project leadership',
+    title: t('preview.leadershipImpact'),
+    description: t('preview.demonstrateSignificantTeamAnd'),
     icon: Users,
-    requirements: ['Lead 3+ major projects', 'Mentor 5+ team members', 'Drive technical decisions'],
+    requirements: [t('preview.lead3MajorProjects'), t('preview.mentor5TeamMembers'), t('preview.driveTechnicalDecisions')],
   },
   {
-    title: 'Community Contribution',
-    description: 'Share knowledge and elevate team capabilities',
+    title: t('preview.communityContribution'),
+    description: t('preview.shareKnowledgeAndElevate'),
     icon: BookOpen,
-    requirements: ['Write technical documentation', 'Present at team sessions', 'Code review participation'],
+    requirements: [t('preview.writeTechnicalDocumentation'), t('preview.presentAtTeamSessions'), t('preview.codeReviewParticipation')],
   },
 ];
 
 const MASTER_BENEFITS = [
   {
-    title: 'Executive Recognition',
-    description: 'Direct acknowledgment from leadership team',
+    title: t('preview.executiveRecognition'),
+    description: t('preview.directAcknowledgmentFromLeadership'),
     icon: Crown,
-    perks: ['Quarterly leadership meetings', 'Strategic planning input', 'Company-wide announcements'],
+    perks: [t('preview.quarterlyLeadershipMeetings'), t('preview.strategicPlanningInput'), t('preview.companywideAnnouncements')],
   },
   {
-    title: 'Compensation Package',
-    description: 'Enhanced rewards and incentives',
+    title: t('preview.compensationPackage'),
+    description: t('preview.enhancedRewardsAndIncentives'),
     icon: Sparkles,
-    perks: ['20% salary increase eligibility', 'Signing bonus opportunities', 'Stock options consideration'],
+    perks: ['20% salary increase eligibility', t('preview.signingBonusOpportunities'), t('preview.stockOptionsConsideration')],
   },
   {
-    title: 'Learning Budget',
-    description: 'Unlimited professional development',
+    title: t('preview.learningBudget'),
+    description: t('preview.unlimitedProfessionalDevelopment'),
     icon: Brain,
-    perks: ['$10,000 annual learning budget', 'Conference speaker opportunities', 'Premium course access'],
+    perks: ['$10,000 annual learning budget', t('preview.conferenceSpeakerOpportunities'), t('preview.premiumCourseAccess')],
   },
   {
-    title: 'Career Acceleration',
-    description: 'Fast-track to senior positions',
+    title: t('preview.careerAcceleration'),
+    description: t('preview.fasttrackToSeniorPositions'),
     icon: Rocket,
-    perks: ['Priority for promotions', 'Cross-team project leads', 'Architecture council seat'],
+    perks: [t('preview.priorityForPromotions'), t('preview.crossteamProjectLeads'), t('preview.architectureCouncilSeat')],
   },
 ];
 
@@ -160,14 +161,13 @@ const USER_PROGRESS = {
 
 // Slide Components
 function IntroSlide() {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       <div className="text-center space-y-3">
         <Trophy className="w-16 h-16 mx-auto text-yellow-500" />
-        <h2 className="text-3xl font-bold">Masters Program</h2>
-        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">
-          The highest level of recognition for technical excellence, leadership, and impact
-        </p>
+        <h2 className="text-3xl font-bold">{t('preview.mastersProgram')}</h2>
+        <p className="text-lg text-muted-foreground max-w-2xl mx-auto">{t('preview.theHighestLevelOf')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
@@ -175,42 +175,40 @@ function IntroSlide() {
           <CardContent className="pt-6 text-center">
             <Award className="w-8 h-8 mx-auto mb-3 text-yellow-500" />
             <div className="text-2xl font-bold mb-1">8</div>
-            <div className="text-sm text-muted-foreground">Active Masters</div>
+            <div className="text-sm text-muted-foreground">{t('preview.activeMasters')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-center">
             <Star className="w-8 h-8 mx-auto mb-3 text-blue-500" />
             <div className="text-2xl font-bold mb-1">12+</div>
-            <div className="text-sm text-muted-foreground">Competencies Required</div>
+            <div className="text-sm text-muted-foreground">{t('preview.competenciesRequired')}</div>
           </CardContent>
         </Card>
         <Card>
           <CardContent className="pt-6 text-center">
             <TrendingUp className="w-8 h-8 mx-auto mb-3 text-green-500" />
             <div className="text-2xl font-bold mb-1">Level 10</div>
-            <div className="text-sm text-muted-foreground">Peak Achievement</div>
+            <div className="text-sm text-muted-foreground">{t('preview.peakAchievement')}</div>
           </CardContent>
         </Card>
       </div>
 
       <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 p-6 rounded-lg border border-yellow-500/20">
         <h3 className="font-semibold mb-2 flex items-center gap-2">
-          <Sparkles className="w-5 h-5 text-yellow-500" />
-          What Makes a Master?
-        </h3>
+          <Sparkles className="w-5 h-5 text-yellow-500" />{t('preview.whatMakesAMaster')}</h3>
         <ul className="space-y-2 text-sm text-muted-foreground">
           <li className="flex items-start gap-2">
             <Check className="w-4 h-4 mt-0.5 text-green-500 flex-shrink-0" />
-            <span>Exceptional technical expertise across multiple domains</span>
+            <span>{t('preview.exceptionalTechnicalExpertiseAcross')}</span>
           </li>
           <li className="flex items-start gap-2">
             <Check className="w-4 h-4 mt-0.5 text-green-500 flex-shrink-0" />
-            <span>Proven leadership in driving critical projects and team growth</span>
+            <span>{t('preview.provenLeadershipInDriving')}</span>
           </li>
           <li className="flex items-start gap-2">
             <Check className="w-4 h-4 mt-0.5 text-green-500 flex-shrink-0" />
-            <span>Significant contributions to engineering culture and knowledge sharing</span>
+            <span>{t('preview.significantContributionsToEngineering')}</span>
           </li>
         </ul>
       </div>
@@ -222,10 +220,8 @@ function MastersGallerySlide() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">Meet Our Masters</h2>
-        <p className="text-muted-foreground">
-          Elite engineers who shape our technical direction
-        </p>
+        <h2 className="text-2xl font-bold mb-2">{t('preview.meetOurMasters')}</h2>
+        <p className="text-muted-foreground">{t('preview.eliteEngineersWhoShape')}</p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-h-[500px] overflow-y-auto pr-2">
@@ -300,9 +296,7 @@ function MasterProfileSlide() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Award className="w-5 h-5" />
-            Recent Achievements
-          </CardTitle>
+            <Award className="w-5 h-5" />{t('preview.recentAchievements')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {MASTER_ACHIEVEMENTS.map((achievement, idx) => (
@@ -327,10 +321,8 @@ function CertificationProcessSlide() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">Path to Master Certification</h2>
-        <p className="text-muted-foreground">
-          Four key areas you must excel in to achieve Master status
-        </p>
+        <h2 className="text-2xl font-bold mb-2">{t('preview.pathToMasterCertification')}</h2>
+        <p className="text-muted-foreground">{t('preview.fourKeyAreasYou')}</p>
       </div>
 
       <div className="space-y-4">
@@ -372,10 +364,8 @@ function MasterBenefitsSlide() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">Master Benefits</h2>
-        <p className="text-muted-foreground">
-          Exclusive perks and opportunities for recognized Masters
-        </p>
+        <h2 className="text-2xl font-bold mb-2">{t('preview.masterBenefits')}</h2>
+        <p className="text-muted-foreground">{t('preview.exclusivePerksAndOpportunities')}</p>
       </div>
 
       <div className="space-y-4">
@@ -413,28 +403,28 @@ function MasterBenefitsSlide() {
 function PathToMasterySlide() {
   const progressCategories = [
     {
-      title: 'Level Requirement',
+      title: t('preview.levelRequirement'),
       current: USER_PROGRESS.currentLevel,
       required: USER_PROGRESS.requiredLevel,
       icon: Star,
       color: 'text-blue-500',
     },
     {
-      title: 'Competencies Mastered',
+      title: t('preview.competenciesMastered'),
       current: USER_PROGRESS.competenciesMastered,
       required: USER_PROGRESS.competenciesRequired,
       icon: Target,
       color: 'text-green-500',
     },
     {
-      title: 'Projects Led',
+      title: t('preview.projectsLed'),
       current: USER_PROGRESS.projectsLed,
       required: USER_PROGRESS.projectsRequired,
       icon: Rocket,
       color: 'text-purple-500',
     },
     {
-      title: 'Mentoring Hours',
+      title: t('preview.mentoringHours'),
       current: USER_PROGRESS.mentoringHours,
       required: USER_PROGRESS.mentoringRequired,
       icon: Users,
@@ -445,13 +435,13 @@ function PathToMasterySlide() {
   return (
     <div className="space-y-6">
       <div className="text-center">
-        <h2 className="text-2xl font-bold mb-2">Your Path to Master</h2>
-        <p className="text-muted-foreground mb-4">Track your progress toward Master certification</p>
+        <h2 className="text-2xl font-bold mb-2">{t('preview.yourPathToMaster')}</h2>
+        <p className="text-muted-foreground mb-4">{t('preview.trackYourProgressToward')}</p>
         <div className="inline-flex items-center gap-3 bg-gradient-to-r from-blue-500/10 to-purple-500/10 px-6 py-3 rounded-lg border border-blue-500/20">
           <Trophy className="w-6 h-6 text-yellow-500" />
           <div className="text-left">
             <div className="text-2xl font-bold">{USER_PROGRESS.overallProgress}%</div>
-            <div className="text-xs text-muted-foreground">Overall Progress</div>
+            <div className="text-xs text-muted-foreground">{t('preview.overallProgress')}</div>
           </div>
         </div>
       </div>
@@ -482,7 +472,7 @@ function PathToMasterySlide() {
                     <Progress value={percentage} className="h-2" />
                     <p className="text-xs text-muted-foreground mt-2">
                       {isComplete ? (
-                        <span className="text-green-600 font-medium">Requirement met!</span>
+                        <span className="text-green-600 font-medium">{t('preview.requirementMet')}</span>
                       ) : (
                         <span>
                           {category.required - category.current} more needed
@@ -499,9 +489,7 @@ function PathToMasterySlide() {
 
       <div className="bg-gradient-to-r from-yellow-500/10 to-orange-500/10 p-6 rounded-lg border border-yellow-500/20">
         <h3 className="font-semibold mb-2 flex items-center gap-2">
-          <Zap className="w-5 h-5 text-yellow-500" />
-          Next Steps
-        </h3>
+          <Zap className="w-5 h-5 text-yellow-500" />{t('preview.nextSteps')}</h3>
         <ul className="space-y-2 text-sm">
           {USER_PROGRESS.currentLevel < USER_PROGRESS.requiredLevel && (
             <li className="flex items-start gap-2">
@@ -572,9 +560,7 @@ export function MastersPreviewModal({ open, onOpenChange }: MastersPreviewModalP
       <DialogContent className="max-w-4xl h-[90vh] p-0 flex flex-col overflow-hidden">
         <DialogHeader className="px-6 pt-6 pb-4">
           <DialogTitle className="flex items-center gap-2">
-            <Trophy className="h-5 w-5 text-yellow-500" />
-            Masters Preview
-          </DialogTitle>
+            <Trophy className="h-5 w-5 text-yellow-500" />{t('preview.mastersPreview')}</DialogTitle>
         </DialogHeader>
 
         <div className="flex-1 overflow-y-auto px-6">
@@ -604,23 +590,17 @@ export function MastersPreviewModal({ open, onOpenChange }: MastersPreviewModalP
               onClick={prevSlide}
               disabled={currentSlide === 0}
             >
-              <ChevronLeft className="h-4 w-4 mr-1" />
-              Previous
-            </Button>
+              <ChevronLeft className="h-4 w-4 mr-1" />{t('preview.previous')}</Button>
             <Button
               variant="outline"
               size="sm"
               onClick={currentSlide === 5 ? () => onOpenChange(false) : nextSlide}
             >
               {currentSlide === 5 ? (
-                <>
-                  Finalizar
-                  <CheckCircle2 className="h-4 w-4 ml-1" />
+                <>{t('preview.finalizar')}<CheckCircle2 className="h-4 w-4 ml-1" />
                 </>
               ) : (
-                <>
-                  Next
-                  <ChevronRight className="h-4 w-4 ml-1" />
+                <>{t('preview.next')}<ChevronRight className="h-4 w-4 ml-1" />
                 </>
               )}
             </Button>

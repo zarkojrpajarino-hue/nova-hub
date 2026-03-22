@@ -24,11 +24,13 @@ import { useFinancieroData } from '@/hooks/useFinancieroData';
 import { ExportButton } from '@/components/export/ExportButton';
 import { FinancieroPreviewModal } from '@/components/preview/FinancieroPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface FinancieroViewProps {
   onNewOBV?: () => void;
 }
 
 export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
+  const { t } = useTranslation();
   const [viewMode, setViewMode] = useState<'dashboard' | 'cobros' | 'proyecciones'>('dashboard');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -63,8 +65,8 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   return (
     <>
       <NovaHeader
-        title="Financiero"
-        subtitle="Revenue, costos y rentabilidad consolidada de todos los proyectos"
+        title={t('financiero.financiero')}
+        subtitle={t('financiero.revenueCostosYRentabilidad')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -72,56 +74,56 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
       <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Centro financiero que consolida revenue de todos tus proyectos"
-          whatIsIt="Dashboard financiero que agrega automáticamente revenue de deals cerrados en CRM, multiplica por pricing de productos, y calcula márgenes. IA proyecta revenue futuro basado en pipeline actual y tendencias históricas."
+          title={t('financiero.cómoFunciona')}
+          description={t('financiero.centroFinancieroQueConsolida')}
+          whatIsIt={t('financiero.dashboardFinancieroQueAgrega')}
           dataInputs={[
             {
-              from: 'CRM Global',
+              from: t('financiero.crmGlobal'),
               items: [
                 'Deals cerrados (revenue real)',
                 'Pipeline value (revenue proyectado)',
-                'Forecast mensual',
+                t('financiero.forecastMensual'),
               ],
             },
             {
-              from: 'Proyectos',
+              from: t('financiero.proyectos'),
               items: [
-                'Productos con pricing',
-                'Modelo de monetización',
-                'Cost structure estimada',
+                t('financiero.productosConPricing'),
+                t('financiero.modeloDeMonetización'),
+                t('financiero.costStructureEstimada'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'KPIs',
+              to: t('financiero.kpis'),
               items: [
                 'MRR (Monthly Recurring Revenue)',
-                'Growth rate mensual',
-                'Burn rate y runway',
+                t('financiero.growthRateMensual'),
+                t('financiero.burnRateYRunway'),
               ],
             },
             {
-              to: 'Analytics',
+              to: t('financiero.analytics'),
               items: [
-                'Rentabilidad por proyecto',
-                'Revenue breakdown por producto',
-                'Cohort analysis',
+                t('financiero.rentabilidadPorProyecto'),
+                t('financiero.revenueBreakdownPorProducto'),
+                t('financiero.cohortAnalysis'),
               ],
             },
             {
-              to: 'Decisiones',
+              to: t('financiero.decisiones'),
               items: [
                 'Cuánto dinero queda (runway)',
-                'Proyectos más rentables',
-                '¿Necesitas fundraising?',
+                t('financiero.proyectosMásRentables'),
+                t('financiero.necesitasFundraising'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Monitorea cashflow y proyecciones',
-            destination: 'Usa KPIs para trackear crecimiento, Analytics para deep dives',
+            action: t('financiero.monitoreaCashflowYProyecciones'),
+            destination: t('financiero.usaKpisParaTrackear'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -129,17 +131,11 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
           <TabsList className="mb-6">
             <TabsTrigger value="dashboard" className="flex items-center gap-2">
-              <TrendingUp size={16} />
-              Dashboard
-            </TabsTrigger>
+              <TrendingUp size={16} />{t('financiero.dashboard')}</TabsTrigger>
             <TabsTrigger value="cobros" className="flex items-center gap-2">
-              <Receipt size={16} />
-              Gestión Cobros
-            </TabsTrigger>
+              <Receipt size={16} />{t('financiero.gestiónCobros')}</TabsTrigger>
             <TabsTrigger value="proyecciones" className="flex items-center gap-2">
-              <Target size={16} />
-              Proyecciones
-            </TabsTrigger>
+              <Target size={16} />{t('financiero.proyecciones')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="dashboard" className="space-y-8">
@@ -148,7 +144,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               <StatCard
                 icon={TrendingUp}
                 value={`€${totalFacturacion.toLocaleString('es-ES')}`}
-                label="Facturación Total"
+                label={t('financiero.facturaciónTotal')}
                 progress={(totalFacturacion / (objectivesMap.facturacion * 9)) * 100}
                 target={`€${(objectivesMap.facturacion * 9).toLocaleString('es-ES')}`}
                 color="#3B82F6"
@@ -157,7 +153,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               <StatCard
                 icon={Wallet}
                 value={`€${totalMargen.toLocaleString('es-ES')}`}
-                label="Margen Total"
+                label={t('financiero.margenTotal')}
                 progress={(totalMargen / (objectivesMap.margen * 9)) * 100}
                 target={`€${(objectivesMap.margen * 9).toLocaleString('es-ES')}`}
                 color="#22C55E"
@@ -166,7 +162,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               <StatCard
                 icon={PieChartIcon}
                 value={`${margenPromedio.toFixed(0)}%`}
-                label="Margen Promedio"
+                label={t('financiero.margenPromedio')}
                 progress={margenPromedio}
                 target="50%"
                 color="#A855F7"
@@ -175,9 +171,9 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               <StatCard
                 icon={Clock}
                 value={`€${totalPending.toLocaleString('es-ES')}`}
-                label="Pendiente de Cobro"
+                label={t('financiero.pendienteDeCobro')}
                 progress={overdueCount > 0 ? 100 : 0}
-                target={overdueCount > 0 ? `${overdueCount} vencidas` : 'Al día'}
+                target={overdueCount > 0 ? `${overdueCount} vencidas` : t('financiero.alDía')}
                 color={overdueCount > 0 ? '#EF4444' : '#22C55E'}
                 delay={4}
               />
@@ -202,7 +198,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               <div className="bg-card border border-border rounded-2xl overflow-hidden">
                 <div className="p-5 border-b border-border flex items-center gap-2.5">
                   <BarChart3 size={18} className="text-primary" />
-                  <h3 className="font-semibold">Top Facturación</h3>
+                  <h3 className="font-semibold">{t('financiero.topFacturación')}</h3>
                 </div>
                 
                 <div className="p-4 space-y-2 max-h-[300px] overflow-y-auto">
@@ -249,15 +245,13 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
             {/* Header with Export Button */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold">Control de Cobros</h3>
-                <p className="text-sm text-muted-foreground">
-                  Gestión y seguimiento de pagos
-                </p>
+                <h3 className="text-lg font-semibold">{t('financiero.controlDeCobros')}</h3>
+                <p className="text-sm text-muted-foreground">{t('financiero.gestiónYSeguimientoDe')}</p>
               </div>
               <ExportButton
                 options={[
                   {
-                    label: 'Exportar Pagos Pendientes',
+                    label: t('financiero.exportarPagosPendientes'),
                     type: 'cobros',
                     data: pendingPayments.map(p => ({
                       obv_titulo: p.titulo || p.numero_factura || '',
@@ -273,7 +267,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
                       telefono_contacto: '',
                     })),
                     metadata: {
-                      title: 'Control de Cobros',
+                      title: t('financiero.controlDeCobros0'),
                       currencyColumns: [2, 3, 4], // facturacion, cobrado, pendiente
                     },
                   },
@@ -287,7 +281,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Total Pendiente</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">{t('financiero.totalPendiente')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">€{totalPending.toLocaleString('es-ES')}</div>
@@ -295,7 +289,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               </Card>
               <Card className={overdueCount > 0 ? "border-destructive" : ""}>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Facturas Vencidas</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">{t('financiero.facturasVencidas')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className={cn("text-2xl font-bold", overdueCount > 0 && "text-destructive")}>
@@ -305,7 +299,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               </Card>
               <Card>
                 <CardHeader className="pb-2">
-                  <CardTitle className="text-sm font-medium text-muted-foreground">Próximas a Vencer</CardTitle>
+                  <CardTitle className="text-sm font-medium text-muted-foreground">{t('financiero.próximasAVencer')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{upcomingPayments.length}</div>
@@ -352,16 +346,16 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
             {/* Proyección anual */}
             <Card>
               <CardHeader>
-                <CardTitle>Proyección Anual</CardTitle>
+                <CardTitle>{t('financiero.proyecciónAnual')}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div className="flex justify-between items-end">
                   <div>
-                    <p className="text-sm text-muted-foreground">Facturación actual</p>
+                    <p className="text-sm text-muted-foreground">{t('financiero.facturaciónActual')}</p>
                     <p className="text-3xl font-bold">€{totalFacturacion.toLocaleString('es-ES')}</p>
                   </div>
                   <div className="text-right">
-                    <p className="text-sm text-muted-foreground">Meta anual</p>
+                    <p className="text-sm text-muted-foreground">{t('financiero.metaAnual')}</p>
                     <p className="text-2xl font-semibold text-muted-foreground">€{metaAnual.toLocaleString('es-ES')}</p>
                   </div>
                 </div>
@@ -373,7 +367,7 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
             {/* Proyección por socio */}
             <Card>
               <CardHeader>
-                <CardTitle>Progreso por Socio</CardTitle>
+                <CardTitle>{t('financiero.progresoPorSocio')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-4">

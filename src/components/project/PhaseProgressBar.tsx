@@ -4,6 +4,7 @@ import { PHASE_LABELS } from '@/lib/engine';
 import { deriveRegression } from './RegressionBanner';
 import { EngineEmptyState } from './EngineEmptyState';
 
+import { useTranslation } from 'react-i18next';
 interface PhaseProgressBarProps {
   engineData: ProjectEngineData | null | undefined;
   onCTA?: () => void;
@@ -18,13 +19,14 @@ function barColor(status: string): string {
 }
 
 export function PhaseProgressBar({ engineData, onCTA }: PhaseProgressBarProps) {
+  const { t } = useTranslation();
   // Sin fila de phase_state → motor sin datos aún
   if (!engineData?.phaseState) {
     return (
       <EngineEmptyState
         icon={FileCheck}
-        title="El motor aún no tiene señales suficientes"
-        description="El sistema necesita evidencia del proyecto para calcular la fase."
+        title={t('project.elMotorAúnNo')}
+        description={t('project.elSistemaNecesitaEvidencia')}
         cta={onCTA ? { label: 'Crear primer OBV', onClick: onCTA } : undefined}
       />
     );
@@ -76,8 +78,8 @@ export function PhaseProgressBar({ engineData, onCTA }: PhaseProgressBarProps) {
         hardSignal ? 'text-success' : 'text-muted-foreground'
       }`}>
         {hardSignal
-          ? <><CheckCircle2 className="h-3.5 w-3.5" />Señal dura cumplida</>
-          : <><Circle      className="h-3.5 w-3.5" />Falta señal dura</>
+          ? <><CheckCircle2 className="h-3.5 w-3.5" />{t('project.señalDuraCumplida')}</>
+          : <><Circle      className="h-3.5 w-3.5" />{t('project.faltaSeñalDura')}</>
         }
       </div>
     </div>

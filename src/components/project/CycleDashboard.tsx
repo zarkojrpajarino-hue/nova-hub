@@ -2,11 +2,12 @@
  * CE25.9 — CycleDashboard: vista del ciclo activo
  *
  * Muestra: título del ciclo, días restantes, score general, progreso por objetivo.
- * Si no hay ciclo activo: CTA "Crear nuevo ciclo estratégico".
+ * Si no hay ciclo activo: CTA t('project.crearNuevoCicloEstratégico').
  * Si ciclo expirado (end_date <= today): banner de revisión (CE25.7).
  * Si graduated=false pero hay ciclo: aviso de regresión (CE25.8).
  */
 
+import { useTranslation } from 'react-i18next';
 import { Sparkles, Clock, Target, AlertTriangle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useQuery } from '@tanstack/react-query';
@@ -44,6 +45,7 @@ function ObjectiveProgressBar({ obj }: { obj: CycleObjective }) {
 }
 
 export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
+  const { t } = useTranslation();
   const { data: cycle, isLoading } = useActiveCycle(projectId);
   const completeCycle = useCompleteCycle();
   const generateCycle = useGenerateCycle();
@@ -74,11 +76,10 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
     return (
       <div className="bg-card border rounded-lg p-6 text-center">
         <Sparkles className="h-8 w-8 text-amber-500 mx-auto mb-3" />
-        <h3 className="text-lg font-semibold mb-1">Ciclos Estratégicos</h3>
+        <h3 className="text-lg font-semibold mb-1">{t('cycles.title')}</h3>
         <p className="text-sm text-muted-foreground mb-4">
           {graduated
-            ? 'Has completado el bootcamp. Crea tu primer ciclo estratégico de 90 días.'
-            : 'Los ciclos estratégicos se desbloquean al graduarte de Fase 4.'}
+            ? 'completedBootcamp': t('cycles.lockedMessage')}
         </p>
         {graduated && (
           <Button
@@ -87,7 +88,7 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
             className="gap-2"
           >
             <Plus className="h-4 w-4" />
-            {generateCycle.isPending ? 'Generando...' : 'Crear ciclo estratégico'}
+            {generateCycle.isPending ? 'generating': t('cycles.createCycle')}
           </Button>
         )}
       </div>
@@ -114,9 +115,9 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
         <div className="flex items-start gap-3">
           <AlertTriangle className="h-5 w-5 text-orange-500 shrink-0 mt-0.5" />
           <div>
-            <h4 className="text-sm font-semibold text-orange-700">Ciclo pausado — Regresión detectada</h4>
+            <h4 className="text-sm font-semibold text-orange-700">{t('cycles.pausedRegression')}</h4>
             <p className="text-xs text-muted-foreground mt-1">
-              Tu proyecto ha vuelto al bootcamp. El ciclo "{cycle.title}" se pausará hasta que vuelvas a graduarte.
+              {t('cycles.pausedMessage', { title: cycle.title })}
             </p>
           </div>
         </div>
@@ -137,7 +138,7 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
         <div className="flex items-center gap-3 text-xs">
           <span className={`flex items-center gap-1 ${isExpired ? 'text-red-500' : 'text-muted-foreground'}`}>
             <Clock className="h-3.5 w-3.5" />
-            {isExpired ? 'Expirado' : `${daysRemaining}d restantes`}
+            {isExpired ? 'expired': t('cycles.daysRemaining', { days: daysRemaining })}
           </span>
           <span className="flex items-center gap-1 font-semibold">
             <Target className="h-3.5 w-3.5" />
@@ -149,7 +150,7 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
       {/* CE25.7 — Banner de revisión si expirado */}
       {isExpired && (
         <div className="bg-amber-50 border border-amber-200 rounded-lg p-3 text-sm">
-          <p className="font-medium text-amber-800">Tu ciclo de 90 días ha terminado.</p>
+          <p className="font-medium text-amber-800">{t('cycles.cycleEnded')}</p>
           <div className="flex gap-2 mt-2">
             <Button
               size="sm"
@@ -157,7 +158,7 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
               onClick={() => completeCycle.mutate({ cycleId: cycle.id, projectId })}
               disabled={completeCycle.isPending}
             >
-              {completeCycle.isPending ? 'Cerrando...' : 'Cerrar y crear nuevo'}
+              {completeCycle.isPending ? 'closing': t('cycles.closeAndCreate')}
             </Button>
           </div>
         </div>
@@ -183,7 +184,7 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
           onClick={() => completeCycle.mutate({ cycleId: cycle.id, projectId })}
           disabled={completeCycle.isPending}
         >
-          {completeCycle.isPending ? 'Completando...' : 'Completar ciclo y generar siguiente'}
+          {completeCycle.isPending ? 'completing': t('cycles.completeAndNext')}
         </Button>
       )}
     </div>

@@ -5,17 +5,18 @@ import { Badge } from '@/components/ui/badge';
 import { useInsights, useDeleteInsight, type UserInsight } from '@/hooks/useDevelopment';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { InsightForm } from './InsightForm';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_INSIGHTS } from '@/data/demoData';
 
+import { useTranslation } from 'react-i18next';
 const TIPO_CONFIG: Record<UserInsight['tipo'], { icon: React.ElementType; color: string; label: string }> = {
-  aprendizaje: { icon: BookOpen, color: '#3B82F6', label: 'Aprendizaje' },
-  reflexion: { icon: Lightbulb, color: '#F59E0B', label: 'Reflexión' },
-  error: { icon: AlertTriangle, color: '#EF4444', label: 'Error' },
-  exito: { icon: Trophy, color: '#22C55E', label: 'Éxito' },
-  idea: { icon: Sparkles, color: '#8B5CF6', label: 'Idea' },
+  aprendizaje: { icon: BookOpen, color: '#3B82F6', label: t('development.aprendizaje') },
+  reflexion: { icon: Lightbulb, color: '#F59E0B', label: t('development.reflexión') },
+  error: { icon: AlertTriangle, color: '#EF4444', label: t('development.error') },
+  exito: { icon: Trophy, color: '#22C55E', label: t('development.éxito') },
+  idea: { icon: Sparkles, color: '#8B5CF6', label: t('development.idea') },
 };
 
 interface InsightsListProps {
@@ -24,6 +25,7 @@ interface InsightsListProps {
 }
 
 export function InsightsList({ projectId, roleContext }: InsightsListProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { isDemoMode } = useDemoMode();
   const { data: realInsights = [], isLoading } = useInsights(profile?.id);
@@ -49,7 +51,7 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
 
   const handleDelete = async (id: string) => {
     if (isDemoMode) return; // No delete in demo mode
-    if (confirm('¿Eliminar este insight?')) {
+    if (confirm(t('development.eliminarEsteInsight'))) {
       await deleteInsight.mutateAsync(id);
     }
   };
@@ -57,7 +59,7 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
   if (isLoading && !isDemoMode) {
     return (
       <div className="flex items-center justify-center py-10">
-        <div className="animate-pulse text-muted-foreground">Cargando insights...</div>
+        <div className="animate-pulse text-muted-foreground">{t('development.cargandoInsights')}</div>
       </div>
     );
   }
@@ -68,13 +70,11 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Lightbulb className="text-amber-500" size={20} />
-          <h3 className="font-semibold">Mis Insights</h3>
+          <h3 className="font-semibold">{t('development.misInsights')}</h3>
           <Badge variant="secondary">{filteredInsights.length}</Badge>
         </div>
         <Button size="sm" onClick={() => setShowForm(true)}>
-          <Plus size={14} className="mr-1" />
-          Nuevo Insight
-        </Button>
+          <Plus size={14} className="mr-1" />{t('development.nuevoInsight')}</Button>
       </div>
 
       {/* Filters */}
@@ -83,9 +83,7 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
           variant={filterTipo === 'all' ? 'default' : 'outline'}
           size="sm"
           onClick={() => setFilterTipo('all')}
-        >
-          Todos
-        </Button>
+        >{t('development.todos')}</Button>
         {Object.entries(TIPO_CONFIG).map(([tipo, config]) => (
           <Button
             key={tipo}
@@ -104,10 +102,8 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
       {filteredInsights.length === 0 ? (
         <div className="text-center py-10 bg-muted/30 rounded-xl">
           <Lightbulb size={40} className="mx-auto text-muted-foreground/50 mb-3" />
-          <p className="text-muted-foreground">No hay insights registrados</p>
-          <p className="text-sm text-muted-foreground/70">
-            Registra tus aprendizajes, reflexiones y momentos clave
-          </p>
+          <p className="text-muted-foreground">{t('development.noHayInsightsRegistrados')}</p>
+          <p className="text-sm text-muted-foreground/70">{t('development.registraTusAprendizajesReflexiones')}</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -159,7 +155,7 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
                       <span className="text-xs text-muted-foreground ml-auto">
                         {formatDistanceToNow(new Date(insight.created_at), { 
                           addSuffix: true, 
-                          locale: es 
+                          locale: getDateFnsLocale() 
                         })}
                       </span>
                     </div>

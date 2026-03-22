@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
 import { Clock, Zap, X } from 'lucide-react';
@@ -20,6 +21,7 @@ interface TrialCountdownBannerProps {
 }
 
 export function TrialCountdownBanner({ projectId, className }: TrialCountdownBannerProps) {
+  const { t } = useTranslation();
   const { isTrial, daysLeft, isExpiringSoon: _isExpiringSoon } = useTrialStatus(projectId);
   const availablePlans = useAvailablePlans();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
@@ -50,35 +52,35 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
   const getMessage = () => {
     if (daysLeft === 0) {
       return {
-        title: 'Tu período de prueba ha terminado',
-        description: 'Actualiza ahora para recuperar acceso completo a tu proyecto',
+        title: t('trial.expired'),
+        description: t('trial.expiredSub'),
       };
     }
 
     if (daysLeft === 1) {
       return {
-        title: '¡Último día de prueba gratis!',
-        description: 'Actualiza hoy para no perder acceso a tu proyecto mañana',
+        title: t('trial.lastDay'),
+        description: t('trial.lastDaySub'),
       };
     }
 
     if (daysLeft <= 3) {
       return {
-        title: `Te quedan solo ${daysLeft} días de prueba gratis`,
-        description: 'Actualiza ahora para no perder acceso a tu proyecto',
+        title: t('trial.fewDays', { days: daysLeft }),
+        description: t('trial.fewDaysSub'),
       };
     }
 
     if (daysLeft <= 7) {
       return {
-        title: `Te quedan ${daysLeft} días de prueba gratis`,
-        description: 'Actualiza cuando quieras para desbloquear todo el potencial',
+        title: t('trial.manyDays', { days: daysLeft }),
+        description: t('trial.manyDaysSub'),
       };
     }
 
     return {
-      title: `Período de prueba: ${daysLeft} días restantes`,
-      description: 'Explora todas las funcionalidades sin compromiso',
+      title: t('trial.periodLabel', { days: daysLeft }),
+      description: t('trial.exploreSub'),
     };
   };
 
@@ -122,7 +124,7 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
               )}
             >
               <Zap className="h-4 w-4 mr-2" />
-              Ver Planes
+              {t('trial.viewPlans')}
             </Button>
 
             {/* Dismiss Button - Solo si no está por expirar */}
@@ -152,7 +154,7 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
               />
             </div>
             <p className="text-xs text-gray-600 mt-1">
-              {daysLeft} de 14 días restantes
+              {t('trial.daysOf14', { days: daysLeft })}
             </p>
           </div>
         )}

@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
+import { useTranslation } from 'react-i18next';
 interface Member {
   id: string;
   nombre: string;
@@ -32,17 +33,16 @@ export const OBVStep5SaleDetails = memo(function OBVStep5SaleDetails({
   onRemoveParticipant,
   onUpdateParticipantPercentage,
 }: OBVStep5SaleDetailsProps) {
+  const { t } = useTranslation();
   return (
     <>
-      <h4 className="text-lg font-semibold text-center mb-6">
-        Paso 5: Detalles de la Venta
-      </h4>
+      <h4 className="text-lg font-semibold text-center mb-6">{t('obv.paso5DetallesDe')}</h4>
       <div className="max-w-lg mx-auto space-y-4 mb-8">
         <div>
           <Label htmlFor="producto">Producto/Servicio *</Label>
           <Input
             id="producto"
-            placeholder="Ej: Pack de menús premium"
+            placeholder={t('obv.ejPackDeMenús')}
             value={formData.producto}
             onChange={e => onUpdateSaleCalculations({ producto: e.target.value })}
             className="h-12 text-base"
@@ -51,7 +51,7 @@ export const OBVStep5SaleDetails = memo(function OBVStep5SaleDetails({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="cantidad">Cantidad</Label>
+            <Label htmlFor="cantidad">{t('obv.cantidad')}</Label>
             <Input
               id="cantidad"
               inputMode="numeric"
@@ -81,7 +81,7 @@ export const OBVStep5SaleDetails = memo(function OBVStep5SaleDetails({
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label>Facturación Total</Label>
+            <Label>{t('obv.facturaciónTotal')}</Label>
             <div className="h-12 px-3 flex items-center justify-center bg-muted rounded-md">
               <span className="text-lg font-bold text-primary">
                 €{formData.facturacion.toFixed(2)}
@@ -105,7 +105,7 @@ export const OBVStep5SaleDetails = memo(function OBVStep5SaleDetails({
 
         {/* Margen */}
         <div className="p-4 bg-success/10 rounded-xl border border-success/20">
-          <p className="text-sm text-muted-foreground mb-1">Margen Bruto</p>
+          <p className="text-sm text-muted-foreground mb-1">{t('obv.margenBruto')}</p>
           <p className={cn(
             "text-2xl font-bold",
             formData.margen >= 0 ? "text-success" : "text-destructive"
@@ -117,9 +117,7 @@ export const OBVStep5SaleDetails = memo(function OBVStep5SaleDetails({
         {/* Participants */}
         <div>
           <Label>Participantes (opcional)</Label>
-          <p className="text-xs text-muted-foreground mb-3">
-            Añade otros socios que participaron en esta venta
-          </p>
+          <p className="text-xs text-muted-foreground mb-3">{t('obv.añadeOtrosSociosQue')}</p>
           <div className="space-y-2">
             {formData.participants.map(p => {
               const member = members.find(m => m.id === p.memberId);
@@ -157,7 +155,7 @@ export const OBVStep5SaleDetails = memo(function OBVStep5SaleDetails({
             <Select onValueChange={onAddParticipant}>
               <SelectTrigger className="mt-2">
                 <Plus size={14} className="mr-2" />
-                <SelectValue placeholder="Añadir participante..." />
+                <SelectValue placeholder={t('obv.añadirParticipante')} />
               </SelectTrigger>
               <SelectContent>
                 {projectMembersList

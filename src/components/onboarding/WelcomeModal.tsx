@@ -14,6 +14,7 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
+import { useTranslation } from 'react-i18next';
 import {
   Rocket,
   Target,
@@ -79,8 +80,7 @@ const STEPS = [
             </div>
             <h4 className="font-semibold">Fase 2: Especialización (2 semanas)</h4>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Te enfocas en tus <strong>Top 2 roles</strong> (1 semana cada uno). Subes tu Fit
+          <p className="text-sm text-muted-foreground">{t('onboarding.teEnfocasEnTus')}<strong>{t('onboarding.top2Roles')}</strong> (1 semana cada uno). Subes tu Fit
             Score completando tareas, OBVs y recibiendo feedback.
           </p>
         </div>
@@ -92,8 +92,7 @@ const STEPS = [
             </div>
             <h4 className="font-semibold">Fase 3: Master (permanente)</h4>
           </div>
-          <p className="text-sm text-muted-foreground">
-            Eliges tu <strong>rol estrella</strong> y un rol secundario. Te conviertes en
+          <p className="text-sm text-muted-foreground">{t('onboarding.eligesTu')}<strong>rol estrella</strong> y un rol secundario. Te conviertes en
             referente del equipo. Otros pueden desafiarte si cumplen requisitos.
           </p>
         </div>
@@ -106,7 +105,7 @@ const STEPS = [
     content: (
       <div className="space-y-4">
         <p>
-          El <strong>Fit Score</strong> es tu puntuación de desempeño en cada rol (de 0 a 5.0).
+          El <strong>{t('onboarding.fitScore')}</strong> es tu puntuación de desempeño en cada rol (de 0 a 5.0).
           Se calcula automáticamente con:
         </p>
 
@@ -116,10 +115,8 @@ const STEPS = [
               <span className="text-2xl font-bold">50%</span>
             </div>
             <div>
-              <h5 className="font-semibold">Métricas Objetivas</h5>
-              <p className="text-sm text-muted-foreground">
-                Tareas completadas a tiempo, OBVs validadas, leads cerrados, etc.
-              </p>
+              <h5 className="font-semibold">{t('onboarding.métricasObjetivas')}</h5>
+              <p className="text-sm text-muted-foreground">{t('onboarding.tareasCompletadasATiempo')}</p>
             </div>
           </div>
 
@@ -128,10 +125,8 @@ const STEPS = [
               <span className="text-2xl font-bold">30%</span>
             </div>
             <div>
-              <h5 className="font-semibold">Feedback de Compañeros</h5>
-              <p className="text-sm text-muted-foreground">
-                Evaluaciones que tus compañeros hacen de tu trabajo en el rol.
-              </p>
+              <h5 className="font-semibold">{t('onboarding.feedbackDeCompañeros')}</h5>
+              <p className="text-sm text-muted-foreground">{t('onboarding.evaluacionesQueTusCompañeros')}</p>
             </div>
           </div>
 
@@ -140,10 +135,8 @@ const STEPS = [
               <span className="text-2xl font-bold">20%</span>
             </div>
             <div>
-              <h5 className="font-semibold">Auto-evaluación</h5>
-              <p className="text-sm text-muted-foreground">
-                Tu propia reflexión sobre cómo te fue en el rol.
-              </p>
+              <h5 className="font-semibold">{t('onboarding.autoevaluación')}</h5>
+              <p className="text-sm text-muted-foreground">{t('onboarding.tuPropiaReflexiónSobre')}</p>
             </div>
           </div>
         </div>
@@ -162,34 +155,33 @@ const STEPS = [
     icon: Trophy,
     content: (
       <div className="space-y-4">
-        <p>
-          Cualquiera puede desafiar a un Master si cumple <strong>TODOS</strong> estos
+        <p>{t('onboarding.cualquieraPuedeDesafiarA')}<strong>TODOS</strong> estos
           requisitos:
         </p>
 
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg bg-muted/50 border">
-            <p className="font-semibold text-sm mb-1">Fit Score</p>
+            <p className="font-semibold text-sm mb-1">{t('onboarding.fitScore')}</p>
             <p className="text-2xl font-bold text-primary">≥ 4.2</p>
           </div>
           <div className="p-3 rounded-lg bg-muted/50 border">
-            <p className="font-semibold text-sm mb-1">Experiencia</p>
+            <p className="font-semibold text-sm mb-1">{t('onboarding.experiencia')}</p>
             <p className="text-2xl font-bold text-primary">≥ 4 sem</p>
           </div>
           <div className="p-3 rounded-lg bg-muted/50 border">
-            <p className="font-semibold text-sm mb-1">Ranking</p>
+            <p className="font-semibold text-sm mb-1">{t('onboarding.ranking')}</p>
             <p className="text-2xl font-bold text-primary">Top 3</p>
           </div>
           <div className="p-3 rounded-lg bg-muted/50 border">
-            <p className="font-semibold text-sm mb-1">Tareas</p>
+            <p className="font-semibold text-sm mb-1">{t('onboarding.tareas')}</p>
             <p className="text-2xl font-bold text-primary">≥ 80%</p>
           </div>
           <div className="p-3 rounded-lg bg-muted/50 border">
-            <p className="font-semibold text-sm mb-1">Feedback</p>
+            <p className="font-semibold text-sm mb-1">{t('onboarding.feedback')}</p>
             <p className="text-2xl font-bold text-primary">≥ 3</p>
           </div>
           <div className="p-3 rounded-lg bg-muted/50 border">
-            <p className="font-semibold text-sm mb-1">OBVs</p>
+            <p className="font-semibold text-sm mb-1">{t('onboarding.obvs')}</p>
             <p className="text-2xl font-bold text-primary">≥ 2</p>
           </div>
         </div>
@@ -222,32 +214,31 @@ const STEPS = [
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg border bg-gradient-to-br from-blue-500/10 to-blue-600/10">
             <p className="text-2xl mb-1">🗺️</p>
-            <p className="font-semibold text-sm">Explorador</p>
+            <p className="font-semibold text-sm">{t('onboarding.explorador')}</p>
             <p className="text-xs text-muted-foreground">Completa Fase 1</p>
           </div>
 
           <div className="p-3 rounded-lg border bg-gradient-to-br from-purple-500/10 to-purple-600/10">
             <p className="text-2xl mb-1">👑</p>
-            <p className="font-semibold text-sm">Master</p>
+            <p className="font-semibold text-sm">{t('onboarding.master')}</p>
             <p className="text-xs text-muted-foreground">Alcanza Fase 3</p>
           </div>
 
           <div className="p-3 rounded-lg border bg-gradient-to-br from-amber-500/10 to-amber-600/10">
             <p className="text-2xl mb-1">🔥</p>
-            <p className="font-semibold text-sm">En Racha</p>
+            <p className="font-semibold text-sm">{t('onboarding.enRacha')}</p>
             <p className="text-xs text-muted-foreground">7 días consecutivos</p>
           </div>
 
           <div className="p-3 rounded-lg border bg-gradient-to-br from-green-500/10 to-green-600/10">
             <p className="text-2xl mb-1">💎</p>
-            <p className="font-semibold text-sm">Invencible</p>
-            <p className="text-xs text-muted-foreground">Defiende 3+ veces</p>
+            <p className="font-semibold text-sm">{t('onboarding.invencible')}</p>
+            <p className="text-xs text-muted-foreground">{t('onboarding.defiende3Veces')}</p>
           </div>
         </div>
 
-        <p className="text-sm text-muted-foreground">
-          Hay <strong>15 badges</strong> en total. Los encuentras en{' '}
-          <strong>Mi Desarrollo → Logros</strong>
+        <p className="text-sm text-muted-foreground">{t('onboarding.hay')}<strong>15 badges</strong> en total. Los encuentras en{' '}
+          <strong>{t('onboarding.miDesarrolloLogros')}</strong>
         </p>
       </div>
     ),
@@ -257,16 +248,14 @@ const STEPS = [
     icon: CheckCircle2,
     content: (
       <div className="space-y-4">
-        <p className="text-lg">
-          Ya tienes todo lo que necesitas saber para comenzar tu camino en NOVA.
-        </p>
+        <p className="text-lg">{t('onboarding.yaTienesTodoLo')}</p>
 
         <div className="p-4 rounded-lg bg-gradient-to-br from-primary/20 to-purple-500/20 border border-primary/30">
           <h4 className="font-semibold mb-3">📍 Próximos pasos:</h4>
           <div className="space-y-2 text-sm">
             <div className="flex items-start gap-2">
               <CheckCircle2 size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-              <span>Únete a un proyecto o crea uno nuevo</span>
+              <span>{t('onboarding.úneteAUnProyecto')}</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
@@ -274,7 +263,7 @@ const STEPS = [
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
-              <span>Completa tareas, crea OBVs, pide feedback a compañeros</span>
+              <span>{t('onboarding.completaTareasCreaObvs')}</span>
             </div>
             <div className="flex items-start gap-2">
               <CheckCircle2 size={16} className="text-green-500 mt-0.5 flex-shrink-0" />
@@ -304,6 +293,7 @@ const STEPS = [
 ];
 
 export function WelcomeModal({ open, onComplete }: WelcomeModalProps) {
+  const { t } = useTranslation();
   const [currentStep, setCurrentStep] = useState(0);
 
   const progress = ((currentStep + 1) / STEPS.length) * 100;
@@ -356,25 +346,19 @@ export function WelcomeModal({ open, onComplete }: WelcomeModalProps) {
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-4 border-t">
-          <Button variant="ghost" onClick={handleSkip} size="sm">
-            Saltar tutorial
-          </Button>
+          <Button variant="ghost" onClick={handleSkip} size="sm">{t('onboarding.saltarTutorial')}</Button>
 
           <div className="flex gap-2">
             {!isFirstStep && (
               <Button variant="outline" onClick={handleBack}>
-                <ArrowLeft size={16} className="mr-2" />
-                Anterior
-              </Button>
+                <ArrowLeft size={16} className="mr-2" />{t('onboarding.anterior')}</Button>
             )}
             <Button onClick={handleNext}>
               {isLastStep ? (
-                <>
-                  ¡Comenzar! <Rocket size={16} className="ml-2" />
+                <>{t('onboarding.comenzar')}<Rocket size={16} className="ml-2" />
                 </>
               ) : (
-                <>
-                  Siguiente <ArrowRight size={16} className="ml-2" />
+                <>{t('onboarding.siguiente')}<ArrowRight size={16} className="ml-2" />
                 </>
               )}
             </Button>

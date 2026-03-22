@@ -6,6 +6,7 @@ import { Card } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
+import { useTranslation } from 'react-i18next';
 import {
   CheckCircle2,
   XCircle,
@@ -68,72 +69,72 @@ interface ValidationHistory {
 const VALIDATION_QUEUE: ValidationItem[] = [
   {
     id: "VAL-2024-089",
-    obviTitle: "Automatización de reportes financieros mensuales",
-    creator: "María García",
+    obviTitle: t('preview.automatizaciónDeReportesFinancieros'),
+    creator: t('preview.maríaGarcía'),
     creatorAvatar: "MG",
-    department: "Finanzas",
+    department: t('preview.finanzas'),
     impact: "high",
     status: "pending",
     daysOpen: 2,
-    description: "Implementé un sistema automatizado que genera reportes financieros mensuales usando Python y Power BI. Antes tomaba 3 días de trabajo manual, ahora se genera en 2 horas.",
+    description: t('preview.implementéUnSistemaAutomatizado'),
     evidences: [
-      "Script Python documentado",
-      "Dashboard Power BI interactivo",
-      "Manual de usuario",
-      "Comparativa antes/después"
+      t('preview.scriptPythonDocumentado'),
+      t('preview.dashboardPowerBiInteractivo'),
+      t('preview.manualDeUsuario'),
+      t('preview.comparativaAntesdespués')
     ],
-    expectedResults: "Reducción de 90% en tiempo de generación de reportes"
+    expectedResults: t('preview.reducciónDe90En')
   },
   {
     id: "VAL-2024-087",
-    obviTitle: "Optimización proceso onboarding clientes",
-    creator: "Carlos Ruiz",
+    obviTitle: t('preview.optimizaciónProcesoOnboardingClientes'),
+    creator: t('preview.carlosRuiz'),
     creatorAvatar: "CR",
-    department: "Ventas",
+    department: t('preview.ventas'),
     impact: "high",
     status: "pending",
     daysOpen: 1,
-    description: "Rediseñé el flujo de onboarding creando una checklist digital y automatizaciones en CRM.",
-    evidences: ["Checklist digital", "Métricas de satisfacción", "Templates automatizados"],
-    expectedResults: "Tiempo de onboarding reducido de 5 días a 2 días"
+    description: t('preview.rediseñéElFlujoDe'),
+    evidences: [t('preview.checklistDigital'), t('preview.métricasDeSatisfacción'), t('preview.templatesAutomatizados')],
+    expectedResults: t('preview.tiempoDeOnboardingReducido')
   },
   {
     id: "VAL-2024-085",
-    obviTitle: "Sistema de feedback en tiempo real para atención al cliente",
-    creator: "Ana Martínez",
+    obviTitle: t('preview.sistemaDeFeedbackEn'),
+    creator: t('preview.anaMartínez'),
     creatorAvatar: "AM",
-    department: "Soporte",
+    department: t('preview.soporte'),
     impact: "medium",
     status: "pending",
     daysOpen: 3,
-    description: "Implementé un widget de feedback que se muestra después de cada interacción de soporte.",
-    evidences: ["Widget implementado", "Dashboard de métricas", "Análisis de resultados"],
-    expectedResults: "Incremento del 40% en recolección de feedback"
+    description: t('preview.implementéUnWidgetDe'),
+    evidences: [t('preview.widgetImplementado'), t('preview.dashboardDeMétricas'), t('preview.análisisDeResultados')],
+    expectedResults: t('preview.incrementoDel40En')
   },
   {
     id: "VAL-2024-083",
-    obviTitle: "Biblioteca de componentes reutilizables frontend",
-    creator: "Luis Torres",
+    obviTitle: t('preview.bibliotecaDeComponentesReutilizables'),
+    creator: t('preview.luisTorres'),
     creatorAvatar: "LT",
-    department: "Tecnología",
+    department: t('preview.tecnología'),
     impact: "medium",
     status: "pending",
     daysOpen: 4,
-    description: "Creé una biblioteca de componentes React reutilizables con Storybook y documentación completa.",
-    evidences: ["Código fuente", "Storybook deployment", "Guía de uso"],
-    expectedResults: "Reducción del 50% en tiempo de desarrollo de features"
+    description: t('preview.creéUnaBibliotecaDe'),
+    evidences: [t('preview.códigoFuente'), t('preview.storybookDeployment'), t('preview.guíaDeUso')],
+    expectedResults: t('preview.reducciónDel50En')
   },
   {
     id: "VAL-2024-081",
     obviTitle: "Proceso optimizado de inventario con código QR",
-    creator: "Patricia López",
+    creator: t('preview.patriciaLópez'),
     creatorAvatar: "PL",
-    department: "Operaciones",
+    department: t('preview.operaciones'),
     impact: "low",
     status: "pending",
     daysOpen: 5,
-    description: "Implementé un sistema de códigos QR para tracking de inventario que reemplaza el proceso manual.",
-    evidences: ["App mobile", "Sistema QR", "Resultados piloto"],
+    description: t('preview.implementéUnSistemaDe'),
+    evidences: [t('preview.appMobile'), "Sistema QR", t('preview.resultadosPiloto')],
     expectedResults: "Reducción de errores de inventario en 85%"
   }
 ];
@@ -141,76 +142,77 @@ const VALIDATION_QUEUE: ValidationItem[] = [
 const VALIDATION_HISTORY: ValidationHistory[] = [
   {
     id: "VAL-2024-078",
-    obviTitle: "Chatbot inteligente para FAQ de clientes",
-    validator: "Roberto Sánchez",
+    obviTitle: t('preview.chatbotInteligenteParaFaq'),
+    validator: t('preview.robertoSánchez'),
     validatorAvatar: "RS",
     status: "approved",
     date: "2024-01-28",
-    comment: "Excelente implementación. El chatbot reduce significativamente la carga de trabajo del equipo de soporte. Evidencias muy completas.",
+    comment: t('preview.excelenteImplementaciónElChatbot'),
     rating: 5
   },
   {
     id: "VAL-2024-076",
-    obviTitle: "Dashboard ejecutivo en tiempo real",
-    validator: "Carmen Díaz",
+    obviTitle: t('preview.dashboardEjecutivoEnTiempo'),
+    validator: t('preview.carmenDíaz'),
     validatorAvatar: "CD",
     status: "approved",
     date: "2024-01-26",
-    comment: "Impacto demostrado. La dirección ya está usando el dashboard diariamente. Gran trabajo.",
+    comment: t('preview.impactoDemostradoLaDirección'),
     rating: 5
   },
   {
     id: "VAL-2024-074",
-    obviTitle: "Proceso de aprobaciones digitales",
-    validator: "Miguel Ángel Ruiz",
+    obviTitle: t('preview.procesoDeAprobacionesDigitales'),
+    validator: t('preview.miguelÁngelRuiz'),
     validatorAvatar: "MR",
     status: "approved",
     date: "2024-01-24",
-    comment: "Solución efectiva que agiliza notablemente el flujo de aprobaciones. Bien documentado.",
+    comment: t('preview.soluciónEfectivaQueAgiliza'),
     rating: 4
   },
   {
     id: "VAL-2024-072",
-    obviTitle: "Sistema de notificaciones push",
-    validator: "Laura Fernández",
+    obviTitle: t('preview.sistemaDeNotificacionesPush'),
+    validator: t('preview.lauraFernández'),
     validatorAvatar: "LF",
     status: "rejected",
     date: "2024-01-22",
-    comment: "Aunque la idea es buena, faltan evidencias del impacto real. Recomiendo recopilar métricas durante 2 semanas más.",
+    comment: t('preview.aunqueLaIdeaEs'),
     rating: 2
   },
   {
     id: "VAL-2024-070",
-    obviTitle: "Automatización de backup de servidores",
-    validator: "Javier Moreno",
+    obviTitle: t('preview.automatizaciónDeBackupDe'),
+    validator: t('preview.javierMoreno'),
     validatorAvatar: "JM",
     status: "approved",
     date: "2024-01-20",
-    comment: "Crítico para la continuidad del negocio. Implementación sólida con pruebas de recuperación exitosas.",
+    comment: t('preview.críticoParaLaContinuidad'),
     rating: 5
   },
   {
     id: "VAL-2024-068",
-    obviTitle: "Rediseño de proceso de facturación",
-    validator: "Isabel Castro",
+    obviTitle: t('preview.rediseñoDeProcesoDe'),
+    validator: t('preview.isabelCastro'),
     validatorAvatar: "IC",
     status: "approved",
     date: "2024-01-18",
-    comment: "Impacto cuantificable en reducción de errores y tiempo de proceso. Excelente trabajo de análisis.",
+    comment: t('preview.impactoCuantificableEnReducción'),
     rating: 5
   }
 ];
 
 export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedValidation, setSelectedValidation] = useState<ValidationItem>(VALIDATION_QUEUE[0]);
   const [validationComment, setValidationComment] = useState("");
   const [checklist, setChecklist] = useState<ChecklistItem[]>([
-    { id: "1", label: "El OBV está claramente descrito y es comprensible", checked: false },
-    { id: "2", label: "Las evidencias proporcionadas son verificables", checked: false },
-    { id: "3", label: "El impacto declarado es realista y medible", checked: false },
-    { id: "4", label: "La solución es replicable por otros equipos", checked: false },
-    { id: "5", label: "Los resultados están documentados apropiadamente", checked: false }
+    { id: "1", label: t('preview.elObvEstáClaramente'), checked: false },
+    { id: "2", label: t('preview.lasEvidenciasProporcionadasSon'), checked: false },
+    { id: "3", label: t('preview.elImpactoDeclaradoEs'), checked: false },
+    { id: "4", label: t('preview.laSoluciónEsReplicable'), checked: false },
+    { id: "5", label: t('preview.losResultadosEstánDocumentados'), checked: false }
   ]);
   const [validationAction, setValidationAction] = useState<"approved" | "rejected" | null>(null);
 
@@ -256,9 +258,9 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
 
   const getImpactLabel = (impact: string) => {
     switch (impact) {
-      case "high": return "Alto Impacto";
-      case "medium": return "Impacto Medio";
-      case "low": return "Bajo Impacto";
+      case "high": return t('preview.altoImpacto');
+      case "medium": return t('preview.impactoMedio');
+      case "low": return t('preview.bajoImpacto');
       default: return impact;
     }
   };
@@ -274,27 +276,23 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
               <Shield className="w-24 h-24 text-purple-600 relative" strokeWidth={1.5} />
             </div>
             <div className="text-center space-y-4 max-w-2xl">
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
-                Sistema de Validaciones
-              </h2>
-              <p className="text-xl text-gray-600">
-                Asegura la calidad con validación peer-to-peer
-              </p>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">{t('preview.sistemaDeValidaciones')}</h2>
+              <p className="text-xl text-gray-600">{t('preview.aseguraLaCalidadCon')}</p>
               <div className="grid grid-cols-3 gap-4 pt-8">
                 <Card className="p-4 border-2 hover:border-purple-300 transition-all hover:shadow-lg">
                   <Users className="w-8 h-8 text-purple-600 mb-2 mx-auto" />
                   <p className="text-2xl font-bold text-gray-900">127</p>
-                  <p className="text-sm text-gray-600">Validadores Activos</p>
+                  <p className="text-sm text-gray-600">{t('preview.validadoresActivos')}</p>
                 </Card>
                 <Card className="p-4 border-2 hover:border-green-300 transition-all hover:shadow-lg">
                   <FileCheck className="w-8 h-8 text-green-600 mb-2 mx-auto" />
                   <p className="text-2xl font-bold text-gray-900">342</p>
-                  <p className="text-sm text-gray-600">OBVs Validados</p>
+                  <p className="text-sm text-gray-600">{t('preview.obvsValidados')}</p>
                 </Card>
                 <Card className="p-4 border-2 hover:border-blue-300 transition-all hover:shadow-lg">
                   <TrendingUp className="w-8 h-8 text-blue-600 mb-2 mx-auto" />
                   <p className="text-2xl font-bold text-gray-900">94%</p>
-                  <p className="text-sm text-gray-600">Tasa de Aprobación</p>
+                  <p className="text-sm text-gray-600">{t('preview.tasaDeAprobación')}</p>
                 </Card>
               </div>
             </div>
@@ -307,8 +305,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">Cola de Validaciones</h3>
-                <p className="text-gray-600">Tienes 5 OBVs esperando tu validación</p>
+                <h3 className="text-2xl font-bold text-gray-900">{t('preview.colaDeValidaciones')}</h3>
+                <p className="text-gray-600">{t('preview.tienes5ObvsEsperando')}</p>
               </div>
               <Badge className="bg-purple-100 text-purple-700 text-lg px-4 py-2">
                 <Clock className="w-4 h-4 mr-2" />
@@ -361,7 +359,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                       className={selectedValidation.id === item.id ? "bg-purple-600 hover:bg-purple-700" : ""}
                     >
                       <Eye className="w-4 h-4 mr-1" />
-                      {selectedValidation.id === item.id ? 'Seleccionado' : 'Ver'}
+                      {selectedValidation.id === item.id ? 'Seleccionado': 'Ver'}
                     </Button>
                   </div>
                 </Card>
@@ -422,7 +420,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
               <Card className="p-4 border-2 hover:border-green-300 transition-all">
                 <div className="flex items-center gap-2 mb-3">
                   <FileCheck className="w-5 h-5 text-green-600" />
-                  <h4 className="font-semibold text-gray-900">Evidencias Proporcionadas</h4>
+                  <h4 className="font-semibold text-gray-900">{t('preview.evidenciasProporcionadas')}</h4>
                 </div>
                 <ul className="space-y-2">
                   {selectedValidation.evidences.map((evidence, idx) => (
@@ -437,7 +435,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
               <Card className="p-4 border-2 hover:border-purple-300 transition-all">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="w-5 h-5 text-purple-600" />
-                  <h4 className="font-semibold text-gray-900">Resultados Esperados</h4>
+                  <h4 className="font-semibold text-gray-900">{t('preview.resultadosEsperados')}</h4>
                 </div>
                 <p className="text-gray-700 leading-relaxed">{selectedValidation.expectedResults}</p>
                 <div className="mt-4 pt-4 border-t">
@@ -452,9 +450,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
             <Card className="p-4 bg-gradient-to-r from-purple-50 to-pink-50 border-2 border-purple-200">
               <div className="flex items-center gap-2">
                 <Zap className="w-5 h-5 text-purple-600" />
-                <p className="text-sm font-medium text-purple-900">
-                  Como validador, tu rol es verificar la autenticidad y el impacto de este OBV antes de que sea aprobado oficialmente.
-                </p>
+                <p className="text-sm font-medium text-purple-900">{t('preview.comoValidadorTuRol')}</p>
               </div>
             </Card>
           </div>
@@ -466,8 +462,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">Proceso de Validación</h3>
-                <p className="text-gray-600">Completa el checklist y agrega tus comentarios</p>
+                <h3 className="text-2xl font-bold text-gray-900">{t('preview.procesoDeValidación')}</h3>
+                <p className="text-gray-600">{t('preview.completaElChecklistY')}</p>
               </div>
               <Badge className="bg-purple-100 text-purple-700 px-3 py-1">
                 {selectedValidation.id}
@@ -477,7 +473,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
             <Card className="p-5 border-2 border-purple-200 bg-gradient-to-br from-white to-purple-50">
               <div className="flex items-center gap-2 mb-4">
                 <FileCheck className="w-5 h-5 text-purple-600" />
-                <h4 className="font-semibold text-gray-900">Checklist de Validación</h4>
+                <h4 className="font-semibold text-gray-900">{t('preview.checklistDeValidación')}</h4>
                 <Badge variant="outline" className="ml-auto">
                   {checklist.filter(item => item.checked).length}/{checklist.length}
                 </Badge>
@@ -510,17 +506,15 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
             <Card className="p-5 border-2 border-blue-200">
               <div className="flex items-center gap-2 mb-3">
                 <MessageSquare className="w-5 h-5 text-blue-600" />
-                <h4 className="font-semibold text-gray-900">Comentarios de Validación</h4>
+                <h4 className="font-semibold text-gray-900">{t('preview.comentariosDeValidación')}</h4>
               </div>
               <Textarea
-                placeholder="Agrega tus observaciones, recomendaciones o preguntas sobre este OBV..."
+                placeholder={t('preview.agregaTusObservacionesRecomendaciones')}
                 className="min-h-[120px] resize-none border-2"
                 value={validationComment}
                 onChange={(e) => setValidationComment(e.target.value)}
               />
-              <p className="text-xs text-gray-500 mt-2">
-                Tus comentarios ayudarán al creador a entender el resultado de la validación
-              </p>
+              <p className="text-xs text-gray-500 mt-2">{t('preview.tusComentariosAyudaránAl')}</p>
             </Card>
 
             {validationAction ? (
@@ -533,14 +527,14 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                   {validationAction === "approved" ? (
                     <>
                       <CheckCircle2 className="w-16 h-16 text-green-600 animate-bounce" />
-                      <h4 className="text-xl font-bold text-green-900">OBV Aprobado</h4>
-                      <p className="text-green-700">La validación se ha registrado exitosamente</p>
+                      <h4 className="text-xl font-bold text-green-900">{t('preview.obvAprobado')}</h4>
+                      <p className="text-green-700">{t('preview.laValidaciónSeHa')}</p>
                     </>
                   ) : (
                     <>
                       <XCircle className="w-16 h-16 text-red-600 animate-bounce" />
-                      <h4 className="text-xl font-bold text-red-900">OBV Rechazado</h4>
-                      <p className="text-red-700">Se ha solicitado revisión adicional</p>
+                      <h4 className="text-xl font-bold text-red-900">{t('preview.obvRechazado')}</h4>
+                      <p className="text-red-700">{t('preview.seHaSolicitadoRevisión')}</p>
                     </>
                   )}
                 </div>
@@ -585,8 +579,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <h3 className="text-2xl font-bold text-gray-900">Historial de Validaciones</h3>
-                <p className="text-gray-600">Últimas validaciones completadas por el equipo</p>
+                <h3 className="text-2xl font-bold text-gray-900">{t('preview.historialDeValidaciones')}</h3>
+                <p className="text-gray-600">{t('preview.últimasValidacionesCompletadasPor')}</p>
               </div>
               <div className="flex gap-2">
                 <Badge className="bg-green-100 text-green-700 px-3 py-1">
@@ -621,8 +615,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                       <div className="flex items-start justify-between gap-2 mb-2">
                         <div className="flex-1 min-w-0">
                           <h4 className="font-semibold text-gray-900 truncate">{item.obviTitle}</h4>
-                          <p className="text-sm text-gray-600">
-                            Validado por <span className="font-medium">{item.validator}</span>
+                          <p className="text-sm text-gray-600">Validado por<span className="font-medium">{item.validator}</span>
                           </p>
                         </div>
                         <Badge className={
@@ -631,9 +624,9 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                             : "bg-red-600 text-white"
                         }>
                           {item.status === "approved" ? (
-                            <><CheckCircle2 className="w-3 h-3 mr-1" />Aprobado</>
+                            <><CheckCircle2 className="w-3 h-3 mr-1" />{t('preview.aprobado')}</>
                           ) : (
-                            <><XCircle className="w-3 h-3 mr-1" />Rechazado</>
+                            <><XCircle className="w-3 h-3 mr-1" />{t('preview.rechazado')}</>
                           )}
                         </Badge>
                       </div>
@@ -677,20 +670,20 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="w-5 h-5 text-purple-600" />
-                  <span className="font-semibold text-purple-900">Estadísticas Generales</span>
+                  <span className="font-semibold text-purple-900">{t('preview.estadísticasGenerales')}</span>
                 </div>
                 <div className="flex gap-6 text-sm">
                   <div className="text-center">
                     <p className="text-2xl font-bold text-gray-900">94%</p>
-                    <p className="text-gray-600">Tasa de Aprobación</p>
+                    <p className="text-gray-600">{t('preview.tasaDeAprobación')}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-gray-900">1.8</p>
-                    <p className="text-gray-600">Días Promedio</p>
+                    <p className="text-gray-600">{t('preview.díasPromedio')}</p>
                   </div>
                   <div className="text-center">
                     <p className="text-2xl font-bold text-gray-900">4.7</p>
-                    <p className="text-gray-600">Rating Promedio</p>
+                    <p className="text-gray-600">{t('preview.ratingPromedio')}</p>
                   </div>
                 </div>
               </div>
@@ -706,7 +699,7 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
               <div className="flex items-center justify-center mb-4">
                 <Award className="w-16 h-16 text-yellow-500" />
               </div>
-              <h2 className="text-3xl font-bold text-gray-900">Impacto del Sistema de Validaciones</h2>
+              <h2 className="text-3xl font-bold text-gray-900">{t('preview.impactoDelSistemaDe')}</h2>
               <p className="text-lg text-gray-600 max-w-2xl">
                 La validación peer-to-peer garantiza calidad, transparencia y credibilidad en cada OBV
               </p>
@@ -719,10 +712,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                     <Shield className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Calidad Mejorada</h3>
-                    <p className="text-gray-700 mb-3">
-                      Los OBVs pasan por un proceso riguroso de validación que asegura su autenticidad e impacto real.
-                    </p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t('preview.calidadMejorada')}</h3>
+                    <p className="text-gray-700 mb-3">{t('preview.losObvsPasanPor')}</p>
                     <div className="flex items-center gap-2">
                       <TrendingUp className="w-5 h-5 text-green-600" />
                       <span className="text-2xl font-bold text-green-600">+35%</span>
@@ -738,10 +729,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                     <Eye className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Transparencia Total</h3>
-                    <p className="text-gray-700 mb-3">
-                      Cada validación queda registrada con comentarios y ratings, creando un historial auditable.
-                    </p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t('preview.transparenciaTotal')}</h3>
+                    <p className="text-gray-700 mb-3">{t('preview.cadaValidaciónQuedaRegistrada')}</p>
                     <div className="flex items-center gap-2">
                       <FileCheck className="w-5 h-5 text-blue-600" />
                       <span className="text-2xl font-bold text-blue-600">100%</span>
@@ -757,10 +746,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                     <Users className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Colaboración Efectiva</h3>
-                    <p className="text-gray-700 mb-3">
-                      Los equipos se ayudan mutuamente validando el trabajo de sus compañeros, fortaleciendo la cultura.
-                    </p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t('preview.colaboraciónEfectiva')}</h3>
+                    <p className="text-gray-700 mb-3">{t('preview.losEquiposSeAyudan')}</p>
                     <div className="flex items-center gap-2">
                       <Users className="w-5 h-5 text-purple-600" />
                       <span className="text-2xl font-bold text-purple-600">127</span>
@@ -776,10 +763,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                     <Zap className="w-8 h-8 text-white" />
                   </div>
                   <div>
-                    <h3 className="text-xl font-bold text-gray-900 mb-2">Proceso Ágil</h3>
-                    <p className="text-gray-700 mb-3">
-                      Validaciones rápidas y eficientes que no frenan el momentum de innovación del equipo.
-                    </p>
+                    <h3 className="text-xl font-bold text-gray-900 mb-2">{t('preview.procesoÁgil')}</h3>
+                    <p className="text-gray-700 mb-3">{t('preview.validacionesRápidasYEficientes')}</p>
                     <div className="flex items-center gap-2">
                       <Clock className="w-5 h-5 text-yellow-600" />
                       <span className="text-2xl font-bold text-yellow-600">1.8</span>
@@ -792,22 +777,22 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
 
             <Card className="p-6 bg-gradient-to-r from-purple-600 to-pink-600 text-white w-full max-w-4xl border-0">
               <div className="text-center space-y-3">
-                <h3 className="text-2xl font-bold">¿Por qué es importante?</h3>
+                <h3 className="text-2xl font-bold">{t('preview.porQuéEsImportante')}</h3>
                 <p className="text-lg text-purple-100">
                   La validación peer-to-peer no solo asegura la calidad de los OBVs, sino que también:
                 </p>
                 <div className="grid md:grid-cols-3 gap-4 mt-4">
                   <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                     <CheckCircle2 className="w-8 h-8 mb-2 mx-auto" />
-                    <p className="font-semibold">Previene fraudes</p>
+                    <p className="font-semibold">{t('preview.previeneFraudes')}</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                     <CheckCircle2 className="w-8 h-8 mb-2 mx-auto" />
-                    <p className="font-semibold">Fomenta el aprendizaje</p>
+                    <p className="font-semibold">{t('preview.fomentaElAprendizaje')}</p>
                   </div>
                   <div className="bg-white/10 backdrop-blur rounded-lg p-4">
                     <CheckCircle2 className="w-8 h-8 mb-2 mx-auto" />
-                    <p className="font-semibold">Aumenta la confianza</p>
+                    <p className="font-semibold">{t('preview.aumentaLaConfianza')}</p>
                   </div>
                 </div>
               </div>
@@ -824,10 +809,8 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-5xl h-[90vh] flex flex-col p-8">
         <VisuallyHidden>
-          <DialogTitle>Validaciones Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of the Validaciones section with enterprise-level demo data
-          </DialogDescription>
+          <DialogTitle>{t('preview.validacionesPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfThe')}</DialogDescription>
         </VisuallyHidden>
         <div className="flex-1 overflow-y-auto">
           {renderSlide()}
@@ -856,14 +839,12 @@ export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPre
                 disabled={currentSlide === 0}
                 className="min-w-[100px]"
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Anterior
-              </Button>
+                <ChevronLeft className="w-4 h-4 mr-1" />{t('preview.anterior')}</Button>
               <Button
                 onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : handleNext}
                 className="min-w-[100px] bg-purple-600 hover:bg-purple-700"
               >
-                {currentSlide === totalSlides - 1 ? 'Finalizar' : 'Siguiente'}
+                {currentSlide === totalSlides - 1 ? 'Finalizar': t('preview.siguiente')}
                 {currentSlide === totalSlides - 1 ? <CheckCircle2 className="w-4 h-4 ml-1" /> : <ChevronRight className="w-4 h-4 ml-1" />}
               </Button>
             </div>

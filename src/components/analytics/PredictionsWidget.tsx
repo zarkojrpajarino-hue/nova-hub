@@ -8,6 +8,7 @@ import type { MemberStats } from '@/hooks/useNovaData';
 import { differenceInDays } from 'date-fns';
 import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
+import { useTranslation } from 'react-i18next';
 interface PredictionsWidgetProps {
   members: MemberStats[];
   period: 'week' | 'month' | 'quarter' | 'year';
@@ -27,6 +28,7 @@ interface Prediction {
 }
 
 export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWidgetProps) {
+  const { t } = useTranslation();
   const { data: objectives = [] } = useObjectives({ enabled: !isDemoMode });
 
   const predictions = useMemo((): Prediction[] => {
@@ -65,12 +67,12 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
 
     // Calculate projections based on current pace
     const metrics = [
-      { key: 'obvs', label: 'OBVs', format: (v: number) => v.toString() },
-      { key: 'lps', label: 'Learning Paths', format: (v: number) => v.toString() },
-      { key: 'bps', label: 'Book Points', format: (v: number) => v.toString() },
-      { key: 'cps', label: 'Community Points', format: (v: number) => v.toString() },
-      { key: 'facturacion', label: 'Facturación', format: (v: number) => `€${(v/1000).toFixed(0)}K` },
-      { key: 'margen', label: 'Margen', format: (v: number) => `€${(v/1000).toFixed(0)}K` },
+      { key: 'obvs', label: t('analytics.obvs'), format: (v: number) => v.toString() },
+      { key: 'lps', label: t('analytics.learningPaths'), format: (v: number) => v.toString() },
+      { key: 'bps', label: t('analytics.bookPoints'), format: (v: number) => v.toString() },
+      { key: 'cps', label: t('analytics.communityPoints'), format: (v: number) => v.toString() },
+      { key: 'facturacion', label: t('analytics.facturación'), format: (v: number) => `€${(v/1000).toFixed(0)}K` },
+      { key: 'margen', label: t('analytics.margen'), format: (v: number) => `€${(v/1000).toFixed(0)}K` },
     ];
 
     return metrics.map(({ key, label }) => {
@@ -155,13 +157,13 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
           <CardContent className="space-y-4">
             <div className="flex items-center justify-between">
               <div>
-                <p className="text-sm text-muted-foreground">Proyección próximo mes</p>
+                <p className="text-sm text-muted-foreground">{t('analytics.proyecciónPróximoMes')}</p>
                 <p className="text-3xl font-bold text-primary">
                   ${(demoPred.next_month_revenue / 1000).toFixed(1)}K
                 </p>
               </div>
               <div className="text-right">
-                <p className="text-sm text-muted-foreground">Confianza</p>
+                <p className="text-sm text-muted-foreground">{t('analytics.confianza')}</p>
                 <div className="flex items-center gap-2">
                   <Progress value={demoPred.confidence} className="h-2 w-20" />
                   <span className="text-lg font-semibold text-green-600">{demoPred.confidence}%</span>
@@ -185,9 +187,7 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
             </CardTitle>
           </CardHeader>
           <CardContent>
-            <p className="text-sm text-muted-foreground mb-4">
-              Basado en análisis predictivo de datos históricos y tendencias actuales
-            </p>
+            <p className="text-sm text-muted-foreground mb-4">{t('analytics.basadoEnAnálisisPredictivo')}</p>
 
             <div className="space-y-3">
               {demoPred.recommendations.map((rec, idx) => (
@@ -205,7 +205,7 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
                             variant={rec.priority === 'high' ? 'destructive' : 'secondary'}
                             className="text-xs"
                           >
-                            {rec.priority === 'high' ? 'Alta prioridad' : 'Media prioridad'}
+                            {rec.priority === 'high' ? 'Alta prioridad': t('analytics.mediaPrioridad')}
                           </Badge>
                         </div>
                         <p className="text-sm text-muted-foreground mb-2">{rec.description}</p>
@@ -229,9 +229,7 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target className="w-5 h-5" />
-            Predicciones de Objetivo Semestral
-          </CardTitle>
+            <Target className="w-5 h-5" />{t('analytics.prediccionesDeObjetivoSemestral')}</CardTitle>
         </CardHeader>
         <CardContent>
           <p className="text-sm text-muted-foreground mb-6">
@@ -283,7 +281,7 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
       {/* Team Summary */}
       <Card>
         <CardHeader>
-          <CardTitle>Resumen de Estado</CardTitle>
+          <CardTitle>{t('analytics.resumenDeEstado')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-3 gap-4">
@@ -291,19 +289,19 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
               <div className="text-2xl font-bold text-green-600">
                 {predictions.filter(p => p.status === 'on_track').length}
               </div>
-              <div className="text-sm text-muted-foreground">En ritmo</div>
+              <div className="text-sm text-muted-foreground">{t('analytics.enRitmo')}</div>
             </div>
             <div className="text-center p-4 bg-yellow-500/10 rounded-lg">
               <div className="text-2xl font-bold text-yellow-600">
                 {predictions.filter(p => p.status === 'below_pace').length}
               </div>
-              <div className="text-sm text-muted-foreground">Por debajo</div>
+              <div className="text-sm text-muted-foreground">{t('analytics.porDebajo')}</div>
             </div>
             <div className="text-center p-4 bg-red-500/10 rounded-lg">
               <div className="text-2xl font-bold text-red-600">
                 {predictions.filter(p => p.status === 'off_track').length}
               </div>
-              <div className="text-sm text-muted-foreground">Fuera de ritmo</div>
+              <div className="text-sm text-muted-foreground">{t('analytics.fueraDeRitmo')}</div>
             </div>
           </div>
         </CardContent>

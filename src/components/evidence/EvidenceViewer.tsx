@@ -4,19 +4,21 @@ import { Button } from '@/components/ui/button';
 import { parseDriveUrl, getDriveTypeIcon, getDriveTypeName } from '@/lib/driveUtils';
 import { EvidencePreviewModal } from './EvidencePreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface EvidenceViewerProps {
   url: string | null;
   compact?: boolean;
 }
 
 export function EvidenceViewer({ url, compact = false }: EvidenceViewerProps) {
+  const { t } = useTranslation();
   const [showPreview, setShowPreview] = useState(false);
 
   if (!url) {
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <FileQuestion className="w-4 h-4" />
-        <span>Sin evidencia adjunta</span>
+        <span>{t('evidence.sinEvidenciaAdjunta')}</span>
       </div>
     );
   }
@@ -48,9 +50,7 @@ export function EvidenceViewer({ url, compact = false }: EvidenceViewerProps) {
           size="sm"
           onClick={() => setShowPreview(true)}
         >
-          <span className="mr-1">{getDriveTypeIcon(urlInfo.type)}</span>
-          Ver evidencia
-        </Button>
+          <span className="mr-1">{getDriveTypeIcon(urlInfo.type)}</span>{t('evidence.verEvidencia')}</Button>
         
         <EvidencePreviewModal
           open={showPreview}
@@ -78,17 +78,13 @@ export function EvidenceViewer({ url, compact = false }: EvidenceViewerProps) {
           size="sm"
           onClick={() => setShowPreview(true)}
         >
-          <Eye className="w-4 h-4 mr-1" />
-          Vista previa
-        </Button>
+          <Eye className="w-4 h-4 mr-1" />{t('evidence.vistaPrevia')}</Button>
         <Button
           variant="ghost"
           size="sm"
           onClick={() => window.open(url, '_blank')}
         >
-          <ExternalLink className="w-4 h-4 mr-1" />
-          Abrir en Drive
-        </Button>
+          <ExternalLink className="w-4 h-4 mr-1" />{t('evidence.abrirEnDrive')}</Button>
       </div>
 
       {/* Modal */}

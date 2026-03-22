@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface PeerFeedbackFormProps {
   toMember: {
     id: string;
@@ -50,24 +51,24 @@ interface Ratings {
 
 const RATING_LABELS = {
   collaboration: {
-    title: 'Colaboración',
-    description: '¿Qué tan bien trabaja en equipo?',
+    title: t('feedback.colaboración'),
+    description: t('feedback.quéTanBienTrabaja'),
   },
   quality: {
-    title: 'Calidad de Trabajo',
-    description: '¿Su trabajo cumple con los estándares?',
+    title: t('feedback.calidadDeTrabajo'),
+    description: t('feedback.suTrabajoCumpleCon'),
   },
   communication: {
-    title: 'Comunicación',
-    description: '¿Se comunica claramente y a tiempo?',
+    title: t('feedback.comunicación'),
+    description: t('feedback.seComunicaClaramenteY'),
   },
   initiative: {
-    title: 'Iniciativa/Liderazgo',
-    description: '¿Propone ideas y toma ownership?',
+    title: t('feedback.iniciativaliderazgo'),
+    description: t('feedback.proponeIdeasYToma'),
   },
   technical: {
-    title: 'Habilidades Técnicas',
-    description: '¿Tiene las skills necesarias para el rol?',
+    title: t('feedback.habilidadesTécnicas'),
+    description: t('feedback.tieneLasSkillsNecesarias'),
   },
 };
 
@@ -77,6 +78,7 @@ export function PeerFeedbackForm({
   currentUserId,
   onSuccess,
 }: PeerFeedbackFormProps) {
+  const { t } = useTranslation();
   const [ratings, setRatings] = useState<Ratings>({
     collaboration: 0,
     quality: 0,
@@ -99,7 +101,7 @@ export function PeerFeedbackForm({
     e.preventDefault();
 
     if (!canSubmit) {
-      toast.error('Por favor completa todos los ratings y escribe al menos 10 caracteres en fortalezas');
+      toast.error(t('feedback.porFavorCompletaTodos0'));
       return;
     }
 
@@ -129,17 +131,16 @@ export function PeerFeedbackForm({
       setIsSubmitted(true);
       toast.success(
         isAnonymous
-          ? 'Feedback enviado de forma anónima'
-          : `Feedback enviado a ${toMember.nombre}`
+          ? 'Feedback enviado de forma anónima': `Feedback enviado a ${toMember.nombre}`
       );
 
       if (onSuccess) onSuccess();
     } catch (_error) {
 
       if (error instanceof Error && 'code' in error && (error as { code: string }).code === '23505') {
-        toast.error('Ya enviaste feedback a esta persona en este período');
+        toast.error(t('feedback.yaEnviasteFeedbackA'));
       } else {
-        toast.error('Error al enviar el feedback. Intenta de nuevo.');
+        toast.error(t('feedback.errorAlEnviarEl'));
       }
     } finally {
       setIsSubmitting(false);
@@ -155,7 +156,7 @@ export function PeerFeedbackForm({
               <CheckCircle2 size={32} className="text-green-600" />
             </div>
             <div>
-              <h3 className="text-lg font-semibold">¡Feedback Enviado!</h3>
+              <h3 className="text-lg font-semibold">{t('feedback.feedbackEnviado')}</h3>
               <p className="text-sm text-muted-foreground mt-1">
                 Tu evaluación de {toMember.nombre} ha sido registrada
               </p>
@@ -199,14 +200,13 @@ export function PeerFeedbackForm({
           {/* Comentarios */}
           <div className="space-y-4">
             <div className="space-y-2">
-              <Label htmlFor="strengths">
-                ¿Qué hace bien? <span className="text-red-500">*</span>
+              <Label htmlFor="strengths">{t('feedback.quéHaceBien')}<span className="text-red-500">*</span>
               </Label>
               <Textarea
                 id="strengths"
                 value={strengths}
                 onChange={(e) => setStrengths(e.target.value)}
-                placeholder="Ejemplo: Excelente colaboración, siempre dispuesto a ayudar, muy proactivo..."
+                placeholder={t('feedback.ejemploExcelenteColaboraciónSiempre')}
                 rows={3}
                 required
                 className={cn(
@@ -224,7 +224,7 @@ export function PeerFeedbackForm({
                 id="improvements"
                 value={improvements}
                 onChange={(e) => setImprovements(e.target.value)}
-                placeholder="Ejemplo: Podría mejorar la organización de tareas, comunicar más frecuentemente..."
+                placeholder={t('feedback.ejemploPodríaMejorarLa')}
                 rows={3}
               />
             </div>
@@ -261,9 +261,7 @@ export function PeerFeedbackForm({
           {!allRatingsComplete && (
             <Alert variant="default" className="border-yellow-500">
               <AlertCircle className="h-4 w-4 text-yellow-600" />
-              <AlertDescription className="text-sm">
-                Por favor completa todos los ratings antes de enviar
-              </AlertDescription>
+              <AlertDescription className="text-sm">{t('feedback.porFavorCompletaTodos')}</AlertDescription>
             </Alert>
           )}
 
@@ -276,14 +274,10 @@ export function PeerFeedbackForm({
           >
             {isSubmitting ? (
               <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Enviando...
-              </>
+                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />{t('feedback.enviando')}</>
             ) : (
               <>
-                <Send size={16} />
-                Enviar Feedback
-              </>
+                <Send size={16} />{t('feedback.enviarFeedback')}</>
             )}
           </Button>
         </form>

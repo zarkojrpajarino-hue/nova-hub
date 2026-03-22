@@ -7,6 +7,7 @@ import { parseDriveUrl, getDriveTypeIcon, getDriveTypeName, type DriveUrlInfo } 
 import { cn } from '@/lib/utils';
 import { EvidencePreviewModal } from './EvidencePreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface EvidenceUrlInputProps {
   value: string;
   onChange: (value: string) => void;
@@ -46,7 +47,7 @@ export function EvidenceUrlInput({
         <Input
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          placeholder="https://drive.google.com/file/d/... o https://docs.google.com/..."
+          placeholder={t('evidence.httpsdrivegooglecomfiledOHttpsdocsgooglecom')}
           className={cn(
             "pr-10",
             hasValue && isValid && "border-success focus-visible:ring-success",
@@ -92,26 +93,20 @@ export function EvidenceUrlInput({
             size="sm"
             onClick={() => setShowPreview(true)}
           >
-            <Eye className="w-3 h-3 mr-1" />
-            Vista previa
-          </Button>
+            <Eye className="w-3 h-3 mr-1" />{t('evidence.vistaPrevia')}</Button>
           <Button
             type="button"
             variant="ghost"
             size="sm"
             onClick={() => window.open(value, '_blank')}
           >
-            <ExternalLink className="w-3 h-3 mr-1" />
-            Abrir en Drive
-          </Button>
+            <ExternalLink className="w-3 h-3 mr-1" />{t('evidence.abrirEnDrive')}</Button>
         </div>
       )}
 
       {/* Ayuda */}
       {!hasValue && (
-        <p className="text-xs text-muted-foreground">
-          Sube tu evidencia a Google Drive, haz clic en "Compartir" → "Cualquier persona con el enlace" y pega aquí
-        </p>
+        <p className="text-xs text-muted-foreground">{t('evidence.subeTuEvidenciaA')}</p>
       )}
 
       {/* Modal de preview */}

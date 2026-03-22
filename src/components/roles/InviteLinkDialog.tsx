@@ -22,6 +22,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { ROLE_CONFIG } from '@/data/mockData';
 
+import { useTranslation } from 'react-i18next';
 interface InviteLinkDialogProps {
   isOpen: boolean;
   onClose: () => void;
@@ -29,6 +30,7 @@ interface InviteLinkDialogProps {
 }
 
 export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialogProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [role, setRole] = useState<string>('sales');
   const [email, setEmail] = useState('');
@@ -57,20 +59,20 @@ export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialo
     mutationFn: async () => {
       // Generate token via RPC
       const { data: token, error: tokenErr } = await supabase.rpc('generate_invitation_token');
-      if (tokenErr || !token) throw tokenErr ?? new Error('Token generation failed');
+      if (tokenErr || !token) throw tokenErr ?? new Error(t('roles.tokenGenerationFailed'));
 
       const expiresAt = new Date();
       expiresAt.setDate(expiresAt.getDate() + 7);
 
       // Get current user as invited_by
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) throw new Error('No session');
+      if (!session) throw new Error(t('roles.noSession'));
       const { data: profile } = await supabase
         .from('profiles')
         .select('id')
         .eq('auth_id', session.user.id)
         .single();
-      if (!profile) throw new Error('Profile not found');
+      if (!profile) throw new Error(t('roles.profileNotFound'));
 
       const { error } = await supabase.from('project_invitations').insert({
         project_id: projectId,
@@ -89,10 +91,10 @@ export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialo
       const link = `${window.location.origin}/invite/${token}`;
       setGeneratedLink(link);
       queryClient.invalidateQueries({ queryKey: ['invitations', projectId] });
-      toast.success('Enlace de invitación creado');
+      toast.success(t('roles.enlaceDeInvitaciónCreado'));
     },
     onError: () => {
-      toast.error('Error al crear invitación');
+      toast.error(t('roles.errorAlCrearInvitación'));
     },
   });
 
@@ -107,7 +109,7 @@ export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialo
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['invitations', projectId] });
-      toast.success('Invitación revocada');
+      toast.success(t('roles.invitaciónRevocada'));
     },
   });
 
@@ -121,15 +123,13 @@ export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialo
   return (
     <Dialog open={isOpen} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-md">
-        <DialogTitle>Invitar miembro por enlace</DialogTitle>
-        <DialogDescription>
-          Genera un enlace de invitación para añadir miembros al proyecto.
-        </DialogDescription>
+        <DialogTitle>{t('roles.invitarMiembroPorEnlace')}</DialogTitle>
+        <DialogDescription>{t('roles.generaUnEnlaceDe')}</DialogDescription>
 
         <div className="space-y-4 mt-2">
           {/* Role selector */}
           <div className="space-y-1.5">
-            <Label>Rol</Label>
+            <Label>{t('roles.rol')}</Label>
             <Select value={role} onValueChange={setRole}>
               <SelectTrigger>
                 <SelectValue />
@@ -149,7 +149,7 @@ export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialo
             <Label>Email (opcional — restringe quién puede aceptar)</Label>
             <Input
               type="email"
-              placeholder="persona@empresa.com"
+              placeholder={t('roles.personaempresacom')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
             />
@@ -168,9 +168,9 @@ export function InviteLinkDialog({ isOpen, onClose, projectId }: InviteLinkDialo
             disabled={createInvitation.isPending}
           >
             {createInvitation.isPending ? (
-              <><Loader2 className="h-4 w-4 animate-spin mr-2" />Generando...</>
+              <><Loader2 className="h-4 w-4 animate-spin mr-2" />{t('roles.generando')}</>
             ) : (
-              <><Link2 className="h-4 w-4 mr-2" />Generar enlace</>
+              <><Link2 className="h-4 w-4 mr-2" />{t('roles.generarEnlace')}</>
             )}
           </Button>
 

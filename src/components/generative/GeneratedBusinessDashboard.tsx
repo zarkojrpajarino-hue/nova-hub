@@ -15,6 +15,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
+import { useTranslation } from 'react-i18next';
 import {
   ExternalLink,
   Palette,
@@ -71,6 +72,7 @@ interface ValidationExperiment {
 }
 
 export function GeneratedBusinessDashboard() {
+  const { t } = useTranslation();
   const { projectId } = useParams();
   const [loading, setLoading] = useState(true);
   const [brandGuidelines, setBrandGuidelines] = useState<BrandGuidelines | null>(null);
@@ -163,7 +165,7 @@ export function GeneratedBusinessDashboard() {
       <Card>
         <CardContent className="py-12 text-center">
           <Sparkles className="h-12 w-12 mx-auto text-muted-foreground mb-4" />
-          <h3 className="font-semibold mb-2">Negocio no generado aún</h3>
+          <h3 className="font-semibold mb-2">{t('generative.negocioNoGeneradoAún')}</h3>
           <p className="text-sm text-muted-foreground mb-4">
             Usa el wizard de Generative Onboarding para crear tu negocio completo con IA
           </p>
@@ -178,17 +180,13 @@ export function GeneratedBusinessDashboard() {
       <div className="flex items-center justify-between">
         <div>
           <h2 className="text-3xl font-bold flex items-center gap-2">
-            <Sparkles className="h-8 w-8 text-primary" />
-            Tu Negocio Generado
-          </h2>
-          <p className="text-muted-foreground">Generado con IA en menos de 10 minutos</p>
+            <Sparkles className="h-8 w-8 text-primary" />{t('generative.tuNegocioGenerado')}</h2>
+          <p className="text-muted-foreground">{t('generative.generadoConIaEn')}</p>
         </div>
         {websiteUrl && (
           <Button asChild>
             <a href={websiteUrl} target="_blank" rel="noopener noreferrer">
-              <ExternalLink className="mr-2 h-4 w-4" />
-              Ver Website
-            </a>
+              <ExternalLink className="mr-2 h-4 w-4" />{t('generative.verWebsite')}</a>
           </Button>
         )}
       </div>
@@ -198,10 +196,8 @@ export function GeneratedBusinessDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Palette className="h-5 w-5" />
-              Branding
-            </CardTitle>
-            <CardDescription>Identidad visual de tu marca</CardDescription>
+              <Palette className="h-5 w-5" />{t('generative.branding')}</CardTitle>
+            <CardDescription>{t('generative.identidadVisualDeTu')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Logo */}
@@ -210,12 +206,12 @@ export function GeneratedBusinessDashboard() {
                 <div className="w-24 h-24 rounded-lg overflow-hidden bg-muted flex items-center justify-center">
                   <img
                     src={brandGuidelines.logo_url}
-                    alt="Logo"
+                    alt={t('generative.logo0')}
                     className="w-full h-full object-cover"
                   />
                 </div>
                 <div>
-                  <h4 className="font-semibold">Logo</h4>
+                  <h4 className="font-semibold">{t('generative.logo')}</h4>
                   <p className="text-sm text-muted-foreground">Generado con DALL-E 3</p>
                 </div>
               </div>
@@ -223,7 +219,7 @@ export function GeneratedBusinessDashboard() {
 
             {/* Colors */}
             <div>
-              <h4 className="font-semibold mb-3">Paleta de colores</h4>
+              <h4 className="font-semibold mb-3">{t('generative.paletaDeColores')}</h4>
               <div className="grid grid-cols-3 gap-3">
                 <div className="space-y-2">
                   <div
@@ -231,7 +227,7 @@ export function GeneratedBusinessDashboard() {
                     style={{ backgroundColor: brandGuidelines.color_primary }}
                   />
                   <div className="text-center">
-                    <p className="text-xs font-semibold">Primario</p>
+                    <p className="text-xs font-semibold">{t('generative.primario')}</p>
                     <p className="text-xs text-muted-foreground">{brandGuidelines.color_primary}</p>
                   </div>
                 </div>
@@ -241,7 +237,7 @@ export function GeneratedBusinessDashboard() {
                     style={{ backgroundColor: brandGuidelines.color_secondary }}
                   />
                   <div className="text-center">
-                    <p className="text-xs font-semibold">Secundario</p>
+                    <p className="text-xs font-semibold">{t('generative.secundario')}</p>
                     <p className="text-xs text-muted-foreground">
                       {brandGuidelines.color_secondary}
                     </p>
@@ -253,7 +249,7 @@ export function GeneratedBusinessDashboard() {
                     style={{ backgroundColor: brandGuidelines.color_accent }}
                   />
                   <div className="text-center">
-                    <p className="text-xs font-semibold">Acento</p>
+                    <p className="text-xs font-semibold">{t('generative.acento')}</p>
                     <p className="text-xs text-muted-foreground">{brandGuidelines.color_accent}</p>
                   </div>
                 </div>
@@ -262,16 +258,16 @@ export function GeneratedBusinessDashboard() {
 
             {/* Typography */}
             <div>
-              <h4 className="font-semibold mb-3">Tipografía</h4>
+              <h4 className="font-semibold mb-3">{t('generative.tipografía')}</h4>
               <div className="grid grid-cols-2 gap-4">
                 <div className="p-3 rounded-lg bg-muted/50">
-                  <p className="text-xs text-muted-foreground mb-1">Títulos</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('generative.títulos')}</p>
                   <p className="text-lg font-bold" style={{ fontFamily: brandGuidelines.font_heading }}>
                     {brandGuidelines.font_heading}
                   </p>
                 </div>
                 <div className="p-3 rounded-lg bg-muted/50">
-                  <p className="text-xs text-muted-foreground mb-1">Cuerpo</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('generative.cuerpo')}</p>
                   <p className="text-lg" style={{ fontFamily: brandGuidelines.font_body }}>
                     {brandGuidelines.font_body}
                   </p>
@@ -282,7 +278,7 @@ export function GeneratedBusinessDashboard() {
             {/* Tone attributes */}
             {brandGuidelines.tone_attributes && brandGuidelines.tone_attributes.length > 0 && (
               <div>
-                <h4 className="font-semibold mb-3">Tono de comunicación</h4>
+                <h4 className="font-semibold mb-3">{t('generative.tonoDeComunicación')}</h4>
                 <div className="flex flex-wrap gap-2">
                   {brandGuidelines.tone_attributes.map((attr: string, index: number) => (
                     <Badge key={index} variant="secondary">
@@ -301,10 +297,8 @@ export function GeneratedBusinessDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Package className="h-5 w-5" />
-              Productos y Pricing
-            </CardTitle>
-            <CardDescription>Servicios generados por IA con precios estratégicos</CardDescription>
+              <Package className="h-5 w-5" />{t('generative.productosYPricing')}</CardTitle>
+            <CardDescription>{t('generative.serviciosGeneradosPorIa')}</CardDescription>
           </CardHeader>
           <CardContent>
             <div className="grid gap-4">
@@ -351,10 +345,8 @@ export function GeneratedBusinessDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Cliente Ideal
-            </CardTitle>
-            <CardDescription>Buyer persona principal</CardDescription>
+              <Users className="h-5 w-5" />{t('generative.clienteIdeal')}</CardTitle>
+            <CardDescription>{t('generative.buyerPersonaPrincipal')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="flex items-center gap-4">
@@ -371,11 +363,11 @@ export function GeneratedBusinessDashboard() {
 
             <div className="grid grid-cols-2 gap-4">
               <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground mb-1">Presupuesto mínimo</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('generative.presupuestoMínimo')}</p>
                 <p className="text-xl font-bold">${buyerPersona.budget_min}</p>
               </div>
               <div className="p-3 rounded-lg bg-muted/50">
-                <p className="text-xs text-muted-foreground mb-1">Presupuesto máximo</p>
+                <p className="text-xs text-muted-foreground mb-1">{t('generative.presupuestoMáximo')}</p>
                 <p className="text-xl font-bold">${buyerPersona.budget_max}</p>
               </div>
             </div>
@@ -404,9 +396,7 @@ export function GeneratedBusinessDashboard() {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Experimentos de Validación
-            </CardTitle>
+              <Target className="h-5 w-5" />{t('generative.experimentosDeValidación')}</CardTitle>
             <CardDescription>
               Siguientes pasos para validar tu idea (Lean Startup)
             </CardDescription>

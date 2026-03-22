@@ -15,18 +15,18 @@
 import { Users } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
+import { useTranslation } from 'react-i18next';
 interface FunctionDelegationHintProps {
   onNavigateToTeam?: () => void;
 }
 
 export function FunctionDelegationHint({ onNavigateToTeam }: FunctionDelegationHintProps) {
+  const { t } = useTranslation();
   return (
     <div className="bg-muted/30 border border-border rounded-2xl p-4 space-y-3">
       <div className="flex items-start gap-2">
         <Users size={14} className="text-muted-foreground mt-0.5 shrink-0" />
-        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Techo de fase detectado
-        </p>
+        <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.techoDeFaseDetectado')}</p>
       </div>
       <p className="text-sm leading-relaxed">
         Sin delegación estructural, la puntuación máxima en Fase 4 es 92.5%.
@@ -39,9 +39,7 @@ export function FunctionDelegationHint({ onNavigateToTeam }: FunctionDelegationH
           variant="outline"
           className="w-full"
           onClick={onNavigateToTeam}
-        >
-          Ver equipo
-        </Button>
+        >{t('project.verEquipo')}</Button>
       )}
     </div>
   );

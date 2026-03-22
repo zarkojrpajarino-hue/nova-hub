@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { EvidenceUrlInput } from '@/components/evidence/EvidenceUrlInput';
 import { useCanUpload } from '@/hooks/useValidationSystem';
 
+import { useTranslation } from 'react-i18next';
 interface KPIUploadFormProps {
   type: 'lp' | 'bp' | 'cp';
   open: boolean;
@@ -20,27 +21,28 @@ interface KPIUploadFormProps {
 }
 
 const TYPE_LABELS = {
-  lp: 'Learning Path',
-  bp: 'Book Point',
-  cp: 'Community Point',
+  lp: t('kpi.learningPath'),
+  bp: t('kpi.bookPoint'),
+  cp: t('kpi.communityPoint'),
 };
 
 const TYPE_PLACEHOLDERS = {
   lp: {
     titulo: 'Ej: Design Thinking - IDEO',
-    descripcion: 'Describe qué aprendiste y cómo lo aplicarás',
+    descripcion: t('kpi.describeQuéAprendisteY'),
   },
   bp: {
-    titulo: 'Ej: Lean Startup - Eric Ries',
-    descripcion: 'Resume los puntos clave del libro',
+    titulo: t('kpi.ejLeanStartupEric'),
+    descripcion: t('kpi.resumeLosPuntosClave'),
   },
   cp: {
-    titulo: 'Ej: Mentoring con Juan sobre ventas',
-    descripcion: 'Describe brevemente la actividad comunitaria',
+    titulo: t('kpi.ejMentoringConJuan'),
+    descripcion: t('kpi.describeBrevementeLaActividad'),
   },
 };
 
 export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const { isBlocked } = useCanUpload();
@@ -60,12 +62,12 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
 
   const handleSubmit = async () => {
     if (!profile?.id) {
-      toast.error('Debes iniciar sesión');
+      toast.error(t('kpi.debesIniciarSesión'));
       return;
     }
 
     if (!formData.titulo.trim()) {
-      toast.error('El título es obligatorio');
+      toast.error(t('kpi.elTítuloEsObligatorio'));
       return;
     }
 
@@ -144,10 +146,8 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
           {isBlocked && needsValidation && (
             <Alert variant="destructive">
               <AlertTriangle className="h-4 w-4" />
-              <AlertTitle>Estás bloqueado</AlertTitle>
-              <AlertDescription>
-                No puedes subir KPIs hasta que valides tus pendientes.
-              </AlertDescription>
+              <AlertTitle>{t('kpi.estásBloqueado')}</AlertTitle>
+              <AlertDescription>{t('kpi.noPuedesSubirKpis')}</AlertDescription>
             </Alert>
           )}
 
@@ -155,10 +155,8 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
           {type === 'cp' && (
             <Alert>
               <Users className="h-4 w-4" />
-              <AlertTitle>Community Points</AlertTitle>
-              <AlertDescription>
-                Los CP se suman directamente sin necesidad de validación. Cada actividad = 1 punto.
-              </AlertDescription>
+              <AlertTitle>{t('kpi.communityPoints')}</AlertTitle>
+              <AlertDescription>{t('kpi.losCpSeSuman')}</AlertDescription>
             </Alert>
           )}
 
@@ -174,7 +172,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
           </div>
 
           <div>
-            <Label htmlFor="kpi-descripcion">Descripción</Label>
+            <Label htmlFor="kpi-descripcion">{t('kpi.descripción')}</Label>
             <Textarea
               id="kpi-descripcion"
               value={formData.descripcion}
@@ -197,8 +195,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
                 onChange={(e) => setFormData({ ...formData, bpPoints: Math.max(1, parseInt(e.target.value) || 1) })}
                 className="w-32"
               />
-              <p className="text-xs text-muted-foreground mt-1">
-                Este libro otorgará <span className="font-semibold text-success">{formData.bpPoints} BP</span> al ser validado
+              <p className="text-xs text-muted-foreground mt-1">{t('kpi.esteLibroOtorgará')}<span className="font-semibold text-success">{formData.bpPoints} BP</span> al ser validado
               </p>
             </div>
           )}
@@ -217,9 +214,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
               className="flex-1"
               onClick={() => onOpenChange(false)}
               disabled={isSubmitting}
-            >
-              Cancelar
-            </Button>
+            >{t('kpi.cancelar')}</Button>
             <Button
               className="flex-1"
               onClick={handleSubmit}
@@ -228,12 +223,12 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
               {isSubmitting ? (
                 <>
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                  {needsValidation ? 'Enviando...' : 'Guardando...'}
+                  {needsValidation ? 'Enviando...': t('kpi.guardando')}
                 </>
               ) : (isBlocked && needsValidation) ? (
-                'Bloqueado'
+                t('kpi.bloqueado')
               ) : needsValidation ? (
-                'Enviar a validación'
+                t('kpi.enviarAValidación')
               ) : (
                 `Registrar (+1 CP)`
               )}

@@ -7,6 +7,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 
+import { useTranslation } from 'react-i18next';
 interface KPIListProps {
   type: 'lp' | 'bp' | 'cp';
 }
@@ -22,13 +23,14 @@ interface KPIData {
 }
 
 const TYPE_LABELS = {
-  lp: 'Learning Path',
-  bp: 'Book Point',
-  cp: 'Community Point',
+  lp: t('kpi.learningPath'),
+  bp: t('kpi.bookPoint'),
+  cp: t('kpi.communityPoint'),
 };
 
 // Helper functions moved outside component for better performance
 const getStatusIcon = (status: string) => {
+  const { t } = useTranslation();
   switch (status) {
     case 'validated':
       return <CheckCircle2 className="w-4 h-4 text-success" />;
@@ -42,11 +44,11 @@ const getStatusIcon = (status: string) => {
 const getStatusLabel = (status: string) => {
   switch (status) {
     case 'validated':
-      return 'Validado';
+      return t('kpi.validado');
     case 'rejected':
-      return 'Rechazado';
+      return t('kpi.rechazado');
     default:
-      return 'Pendiente';
+      return t('kpi.pendiente');
   }
 };
 
@@ -159,7 +161,7 @@ export function KPIList({ type }: KPIListProps) {
     return (
       <div className="text-center py-8 text-muted-foreground">
         <p>No tienes {TYPE_LABELS[type]}s registrados</p>
-        <p className="text-sm mt-1">¡Sube tu primero usando el botón de arriba!</p>
+        <p className="text-sm mt-1">{t('kpi.subeTuPrimeroUsando')}</p>
       </div>
     );
   }

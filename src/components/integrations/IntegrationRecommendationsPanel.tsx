@@ -18,6 +18,7 @@ import {
 import { IntegrationRecommendationCard } from './IntegrationRecommendationCard'
 import { Lock } from 'lucide-react'
 
+import { useTranslation } from 'react-i18next';
 interface IntegrationRecommendationsPanelProps {
   ctx: IntegrationRecommendationContext
   /** I15.74 — callback para navegar al tab del proveedor seleccionado */
@@ -28,6 +29,7 @@ export function IntegrationRecommendationsPanel({
   ctx,
   onNavigate,
 }: IntegrationRecommendationsPanelProps) {
+  const { t } = useTranslation();
   // I15.68 — fase temprana: aviso contextual, no recomendaciones
   if (isEarlyPhase(ctx.current_phase)) {
     return (
@@ -54,7 +56,7 @@ export function IntegrationRecommendationsPanel({
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
-        <p className="text-sm font-semibold">Recomendado para tu proyecto</p>
+        <p className="text-sm font-semibold">{t('integrations.recomendadoParaTuProyecto')}</p>
         <span className="text-xs text-muted-foreground">
           ({recommendations.length} integración{recommendations.length > 1 ? 'es' : ''})
         </span>

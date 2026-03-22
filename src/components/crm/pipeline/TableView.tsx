@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import type { Lead } from '@/hooks/useCRMPipeline';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -40,25 +41,24 @@ export const TableView = memo(function TableView({
   getStage,
   onLeadClick,
 }: TableViewProps) {
+  const { t } = useTranslation();
   if (filteredLeads.length === 0) {
     return (
       <div className="border rounded-xl overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHead>Lead</TableHead>
-              <TableHead>Estado</TableHead>
-              <TableHead>Valor</TableHead>
-              {!projectId && <TableHead>Proyecto</TableHead>}
-              <TableHead>Próxima Acción</TableHead>
-              <TableHead>Responsable</TableHead>
+              <TableHead>{t('crm.lead')}</TableHead>
+              <TableHead>{t('crm.estado')}</TableHead>
+              <TableHead>{t('crm.valor')}</TableHead>
+              {!projectId && <TableHead>{t('crm.proyecto')}</TableHead>}
+              <TableHead>{t('crm.próximaAcción')}</TableHead>
+              <TableHead>{t('crm.responsable')}</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             <TableRow>
-              <TableCell colSpan={projectId ? 5 : 6} className="text-center py-8 text-muted-foreground">
-                No hay leads que mostrar
-              </TableCell>
+              <TableCell colSpan={projectId ? 5 : 6} className="text-center py-8 text-muted-foreground">{t('crm.noHayLeadsQue')}</TableCell>
             </TableRow>
           </TableBody>
         </Table>
@@ -71,12 +71,12 @@ export const TableView = memo(function TableView({
       <Table>
         <TableHeader>
           <TableRow>
-            <TableHead>Lead</TableHead>
-            <TableHead>Estado</TableHead>
-            <TableHead>Valor</TableHead>
-            {!projectId && <TableHead>Proyecto</TableHead>}
-            <TableHead>Próxima Acción</TableHead>
-            <TableHead>Responsable</TableHead>
+            <TableHead>{t('crm.lead')}</TableHead>
+            <TableHead>{t('crm.estado')}</TableHead>
+            <TableHead>{t('crm.valor')}</TableHead>
+            {!projectId && <TableHead>{t('crm.proyecto')}</TableHead>}
+            <TableHead>{t('crm.próximaAcción')}</TableHead>
+            <TableHead>{t('crm.responsable')}</TableHead>
           </TableRow>
         </TableHeader>
         <TableBody>

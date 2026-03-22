@@ -24,6 +24,7 @@ import { PlanSelectionModal } from './PlanSelectionModal';
 import { useAvailablePlans } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface UpgradeTooltipProps {
   /** Feature requerida */
   feature: string;
@@ -37,7 +38,7 @@ interface UpgradeTooltipProps {
   /** Descripción personalizada (opcional) */
   description?: string;
 
-  /** Mostrar el botón de "Ver Planes" en el tooltip */
+  /** Mostrar el botón de t('subscription.verPlanes0') en el tooltip */
   showUpgradeButton?: boolean;
 
   /** Lado del tooltip */
@@ -55,44 +56,44 @@ interface UpgradeTooltipProps {
  */
 const FEATURE_TOOLTIPS: Record<string, { name: string; benefit: string }> = {
   ai_role_generation: {
-    name: 'Generación IA de Roles',
+    name: t('subscription.generaciónIaDeRoles'),
     benefit: 'Crea roles de equipo automáticamente con IA',
   },
   ai_task_generation: {
-    name: 'Generación IA de Tareas',
-    benefit: 'Genera tareas inteligentes automáticamente',
+    name: t('subscription.generaciónIaDeTareas'),
+    benefit: t('subscription.generaTareasInteligentesAutomáticamente'),
   },
   ai_logo_generation: {
     name: 'Logo con IA',
-    benefit: 'Diseña logos profesionales en segundos',
+    benefit: t('subscription.diseñaLogosProfesionalesEn'),
   },
   ai_buyer_persona: {
     name: 'Buyer Persona IA',
-    benefit: 'Análisis de mercado y perfiles de cliente ideal',
+    benefit: t('subscription.análisisDeMercadoY'),
   },
   advanced_analytics: {
-    name: 'Analytics Avanzados',
-    benefit: 'Dashboards detallados con métricas avanzadas',
+    name: t('subscription.analyticsAvanzados'),
+    benefit: t('subscription.dashboardsDetalladosConMétricas'),
   },
   custom_branding: {
-    name: 'Branding Personalizado',
-    benefit: 'Personaliza colores, logos y estilos',
+    name: t('subscription.brandingPersonalizado'),
+    benefit: t('subscription.personalizaColoresLogosY'),
   },
   api_access: {
     name: 'Acceso a API',
     benefit: 'Integra con tus herramientas mediante API REST',
   },
   priority_support: {
-    name: 'Soporte Prioritario',
-    benefit: 'Respuesta en menos de 2 horas',
+    name: t('subscription.soportePrioritario'),
+    benefit: t('subscription.respuestaEnMenosDe'),
   },
   white_label: {
-    name: 'White Label',
-    benefit: 'Elimina toda marca de Nova Hub',
+    name: t('subscription.whiteLabel'),
+    benefit: t('subscription.eliminaTodaMarcaDe'),
   },
   custom_domain: {
-    name: 'Dominio Personalizado',
-    benefit: 'Usa tu propio dominio',
+    name: t('subscription.dominioPersonalizado'),
+    benefit: t('subscription.usaTuPropioDominio'),
   },
 };
 
@@ -132,6 +133,7 @@ export function UpgradeTooltip({
   className,
   disabled = false,
 }: UpgradeTooltipProps) {
+  const { t } = useTranslation();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const availablePlans = useAvailablePlans();
 
@@ -142,7 +144,7 @@ export function UpgradeTooltip({
 
   const featureInfo = FEATURE_TOOLTIPS[feature] || {
     name: feature,
-    benefit: 'Funcionalidad premium',
+    benefit: t('subscription.funcionalidadPremium'),
   };
 
   const planStyle = PLAN_STYLES[requiredPlan];
@@ -199,9 +201,7 @@ export function UpgradeTooltip({
                 size="sm"
                 variant="outline"
                 className="w-full text-xs gap-1.5"
-              >
-                Ver Planes
-                <ArrowRight size={12} />
+              >{t('subscription.verPlanes')}<ArrowRight size={12} />
               </Button>
             )}
           </TooltipContent>

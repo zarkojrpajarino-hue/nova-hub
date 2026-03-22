@@ -2,7 +2,7 @@
  * SourcesPanel — T17.19
  *
  * Panel colapsable de procedencia de un insight.
- * Trigger: botón "Ver fuentes" discreto bajo el insight card.
+ * Trigger: botón t('evidence.verFuentes') discreto bajo el insight card.
  * No es un modal — se expande en línea sin re-render del card padre.
  *
  * Props:
@@ -15,19 +15,20 @@
 import { useState } from 'react'
 import { ChevronDown, ChevronUp } from 'lucide-react'
 import { formatDistanceToNow } from 'date-fns'
-import { es } from 'date-fns/locale'
+import { getDateFnsLocale } from '@/i18n'
 import { EvidenceBadge } from './EvidenceBadge'
 import type { SourceUsed, SourceDiscarded, EvidenceType, ProviderSlug } from '@/lib/evidence'
 import { trackEvidenceInspected } from '@/lib/analytics'
 
+import { useTranslation } from 'react-i18next';
 const PROVIDER_LABELS: Record<string, string> = {
-  stripe:          'Stripe',
-  hubspot:         'HubSpot',
-  asana:           'Asana',
-  google_calendar: 'Google Calendar',
-  holded:          'Holded',
-  user_manual:     'Input manual',
-  ai_inferred:     'IA inferido',
+  stripe:          t('evidence.stripe'),
+  hubspot:         t('evidence.hubspot'),
+  asana:           t('evidence.asana'),
+  google_calendar: t('evidence.googleCalendar'),
+  holded:          t('evidence.holded'),
+  user_manual:     t('evidence.inputManual'),
+  ai_inferred:     t('evidence.iaInferido'),
 }
 
 interface SourcesPanelProps {
@@ -48,12 +49,13 @@ export function SourcesPanel({
   project_id,
   insight_type,
 }: SourcesPanelProps) {
+  const { t } = useTranslation();
   const [open, setOpen] = useState(false)
 
   // No renderizar si no hay información de fuentes
   if (sources_used.length === 0 && sources_discarded.length === 0) return null
 
-  const recency = formatDistanceToNow(new Date(generated_at), { addSuffix: true, locale: es })
+  const recency = formatDistanceToNow(new Date(generated_at), { addSuffix: true, locale: getDateFnsLocale() })
 
   function handleToggle() {
     const next = !open
@@ -83,7 +85,7 @@ export function SourcesPanel({
           {/* Fuentes usadas */}
           {sources_used.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-muted-foreground font-medium">Fuentes usadas</p>
+              <p className="text-muted-foreground font-medium">{t('evidence.fuentesUsadas')}</p>
               {sources_used.map((s, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="w-24 shrink-0 text-foreground/80">
@@ -110,7 +112,7 @@ export function SourcesPanel({
           {/* Fuentes descartadas */}
           {sources_discarded.length > 0 && (
             <div className="space-y-1.5">
-              <p className="text-muted-foreground font-medium">Fuentes descartadas</p>
+              <p className="text-muted-foreground font-medium">{t('evidence.fuentesDescartadas')}</p>
               {sources_discarded.map((s, i) => (
                 <div key={i} className="flex items-start gap-1.5 text-muted-foreground/70">
                   <span className="shrink-0">└──</span>

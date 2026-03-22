@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import type { ToolType } from '@/hooks/useToolkitUnlocks';
 
+import { useTranslation } from 'react-i18next';
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface ToolCTAsProps {
@@ -46,7 +47,7 @@ async function insertTask(
     .neq('status', 'done');
 
   if ((active?.length ?? 0) >= 5) {
-    toast.error('Límite alcanzado: máximo 5 tareas activas. Completa una antes de crear otra.');
+    toast.error(t('toolkit.límiteAlcanzadoMáximo5'));
     return false;
   }
 
@@ -62,17 +63,18 @@ async function insertTask(
   });
 
   if (error) {
-    toast.error('Error al crear la tarea');
+    toast.error(t('toolkit.errorAlCrearLa'));
     return false;
   }
 
-  toast.success('Tarea creada');
+  toast.success(t('toolkit.tareaCreada'));
   return true;
 }
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
+  const { t } = useTranslation();
   const { navigate } = useNavigation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
@@ -93,20 +95,16 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
   if (toolType === 'buyer_persona') {
     return (
       <CTABlock>
-        <CTAButton icon={Mail} variant="default" onClick={() => navigate('crm')}>
-          Generar pitch con este perfil
-        </CTAButton>
+        <CTAButton icon={Mail} variant="default" onClick={() => navigate('crm')}>{t('toolkit.generarPitchConEste')}</CTAButton>
         <CTAButton
           icon={ClipboardList}
           loading={isCreatingTask}
           onClick={() => handleCreateTask(
-            'Validar hipótesis de Buyer Persona con 3 entrevistas',
-            'Contactar a 3 personas del perfil detectado. Confirmar pain points, comportamiento de compra y frases clave.',
+            t('toolkit.validarHipótesisDeBuyer'),
+            t('toolkit.contactarA3Personas'),
             'demand',
           )}
-        >
-          Crear tarea de validación
-        </CTAButton>
+        >{t('toolkit.crearTareaDeValidación')}</CTAButton>
       </CTABlock>
     );
   }
@@ -123,12 +121,10 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
           loading={isCreatingTask}
           onClick={() => handleCreateTask(
             'Aplicar criterios de Lead Scoring en CRM',
-            'Revisar leads actuales y reclasificar en hot / warm / cold según los criterios generados.',
+            t('toolkit.revisarLeadsActualesY'),
             'demand',
           )}
-        >
-          Crear tarea: aplicar scoring
-        </CTAButton>
+        >{t('toolkit.crearTareaAplicarScoring')}</CTAButton>
       </CTABlock>
     );
   }
@@ -139,15 +135,13 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
     const primerPaso = pasos?.[0]?.nombre ?? 'primer paso';
     return (
       <CTABlock>
-        <CTAButton icon={Calendar} variant="default" onClick={() => navigate('meetings')}>
-          Ver reuniones
-        </CTAButton>
+        <CTAButton icon={Calendar} variant="default" onClick={() => navigate('meetings')}>{t('toolkit.verReuniones')}</CTAButton>
         <CTAButton
           icon={CheckSquare}
           loading={isCreatingTask}
           onClick={() => handleCreateTask(
             `Sales Playbook — paso 1: ${primerPaso}`,
-            'Iniciar el proceso de venta documentado. Revisar el playbook completo antes de la próxima reunión con un lead.',
+            t('toolkit.iniciarElProcesoDe'),
             'demand',
           )}
         >
@@ -161,20 +155,16 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
   if (toolType === 'brand_kit') {
     return (
       <CTABlock>
-        <CTAButton icon={Mail} variant="default" onClick={() => navigate('crm')}>
-          Aplicar a pitches
-        </CTAButton>
+        <CTAButton icon={Mail} variant="default" onClick={() => navigate('crm')}>{t('toolkit.aplicarAPitches')}</CTAButton>
         <CTAButton
           icon={CheckSquare}
           loading={isCreatingTask}
           onClick={() => handleCreateTask(
-            'Revisar pitches actuales con el Brand Kit',
-            'Comparar los últimos pitches enviados con la propuesta de valor, tono y palabras clave del Brand Kit generado.',
+            t('toolkit.revisarPitchesActualesCon'),
+            t('toolkit.compararLosÚltimosPitches'),
             'demand',
           )}
-        >
-          Crear tarea: revisar coherencia
-        </CTAButton>
+        >{t('toolkit.crearTareaRevisarCoherencia')}</CTAButton>
       </CTABlock>
     );
   }
@@ -187,21 +177,17 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
     const handleCopyEmail = () => {
       if (!emailCanal?.plantilla_primer_contacto) return;
       navigator.clipboard.writeText(emailCanal.plantilla_primer_contacto);
-      toast.success('Plantilla de email copiada al portapapeles');
+      toast.success(t('toolkit.plantillaDeEmailCopiada'));
     };
 
     return (
       <CTABlock>
-        <CTAButton icon={Mail} variant="default" onClick={() => navigate('crm')}>
-          Ir al generador de pitch
-        </CTAButton>
+        <CTAButton icon={Mail} variant="default" onClick={() => navigate('crm')}>{t('toolkit.irAlGeneradorDe')}</CTAButton>
         <CTAButton
           icon={Copy}
           disabled={!emailCanal?.plantilla_primer_contacto}
           onClick={handleCopyEmail}
-        >
-          Copiar plantilla email
-        </CTAButton>
+        >{t('toolkit.copiarPlantillaEmail')}</CTAButton>
       </CTABlock>
     );
   }
@@ -220,13 +206,11 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
           onClick={() => handleCreateTask(
             etapaConFriccion
               ? `Reducir fricción en "${etapaConFriccion.nombre}": ${etapaConFriccion.friccion_principal}`
-              : 'Reducir fricción detectada en el Customer Journey',
-            'Revisar el Customer Journey generado y definir acciones concretas para el punto de mayor fricción.',
+              : t('toolkit.reducirFricciónDetectadaEn'),
+            t('toolkit.revisarElCustomerJourney'),
             'delivery',
           )}
-        >
-          Crear tarea: atacar fricción
-        </CTAButton>
+        >{t('toolkit.crearTareaAtacarFricción')}</CTAButton>
         <CTAButton icon={ArrowRight} onClick={() => navigate('crm')}>
           Ver pipeline CRM
         </CTAButton>
@@ -242,7 +226,7 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
 function CTABlock({ children }: { children: React.ReactNode }) {
   return (
     <div className="rounded-xl border border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-900/50 p-4">
-      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Próximos pasos</p>
+      <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">{t('toolkit.próximosPasos')}</p>
       <div className="flex flex-wrap gap-2">{children}</div>
     </div>
   );

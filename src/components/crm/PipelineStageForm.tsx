@@ -43,6 +43,7 @@ import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import type { LeadStatus } from '@/types';
 
+import { useTranslation } from 'react-i18next';
 interface PipelineStageFormProps {
   currentStage: LeadStatus;
   onStageChange: (newStage: LeadStatus) => void;
@@ -74,18 +75,18 @@ interface FieldDefinition {
 // Configuración de campos por fase
 const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
   frio: {
-    title: 'Lead Frío',
+    title: t('crm.leadFrío'),
     color: '#64748B',
     icon: AlertCircle,
-    description: 'Contacto inicial sin engagement',
+    description: t('crm.contactoInicialSinEngagement'),
     fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial'],
     nextStage: 'tibio',
   },
   tibio: {
-    title: 'Lead Tibio',
+    title: t('crm.leadTibio'),
     color: '#F59E0B',
     icon: AlertCircle,
-    description: 'Contacto con interés mostrado',
+    description: t('crm.contactoConInterésMostrado'),
     fields: [
       'nombre_contacto',
       'empresa',
@@ -97,10 +98,10 @@ const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
     nextStage: 'hot',
   },
   hot: {
-    title: 'Lead Hot',
+    title: t('crm.leadHot'),
     color: '#EF4444',
     icon: AlertCircle,
-    description: 'Oportunidad calificada',
+    description: t('crm.oportunidadCalificada'),
     fields: [
       'nombre_contacto',
       'empresa',
@@ -114,10 +115,10 @@ const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
     nextStage: 'propuesta',
   },
   propuesta: {
-    title: 'Propuesta Enviada',
+    title: t('crm.propuestaEnviada'),
     color: '#A855F7',
     icon: FileText,
-    description: 'Propuesta comercial activa',
+    description: t('crm.propuestaComercialActiva'),
     fields: [
       'nombre_contacto',
       'empresa',
@@ -134,10 +135,10 @@ const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
     nextStage: 'negociacion',
   },
   negociacion: {
-    title: 'En Negociación',
+    title: t('crm.enNegociación'),
     color: '#3B82F6',
     icon: DollarSign,
-    description: 'Negociando términos finales',
+    description: t('crm.negociandoTérminosFinales'),
     fields: [
       'nombre_contacto',
       'empresa',
@@ -155,10 +156,10 @@ const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
     nextStage: 'cerrado_ganado',
   },
   cerrado_ganado: {
-    title: 'Cerrado Ganado',
+    title: t('crm.cerradoGanado'),
     color: '#22C55E',
     icon: CheckCircle,
-    description: 'Convertir a venta',
+    description: t('crm.convertirAVenta'),
     fields: [
       'nombre_contacto',
       'empresa',
@@ -178,10 +179,10 @@ const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
     nextStage: null,
   },
   cerrado_perdido: {
-    title: 'Cerrado Perdido',
+    title: t('crm.cerradoPerdido'),
     color: '#6B7280',
     icon: AlertCircle,
-    description: 'Oportunidad perdida',
+    description: t('crm.oportunidadPerdida'),
     fields: ['nombre_contacto', 'empresa', 'notas'],
     nextStage: null,
   },
@@ -191,33 +192,33 @@ const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
 const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
   // Campos básicos
   nombre_contacto: {
-    label: 'Nombre del Contacto',
+    label: t('crm.nombreDelContacto'),
     type: 'text',
     icon: User,
     required: true,
-    placeholder: 'Ej: Juan Pérez',
+    placeholder: t('crm.ejJuanPérez'),
   },
   empresa: {
-    label: 'Empresa',
+    label: t('crm.empresa'),
     type: 'text',
     icon: Building2,
     required: true,
-    placeholder: 'Ej: Acme Corp',
+    placeholder: t('crm.ejAcmeCorp'),
   },
   email_contacto: {
-    label: 'Email',
+    label: t('crm.email'),
     type: 'email',
     icon: Mail,
     placeholder: 'juan@acme.com',
   },
   telefono_contacto: {
-    label: 'Teléfono',
+    label: t('crm.teléfono'),
     type: 'tel',
     icon: Phone,
     placeholder: '+34 600 123 456',
   },
   valor_potencial: {
-    label: 'Valor Potencial',
+    label: t('crm.valorPotencial'),
     type: 'number',
     icon: DollarSign,
     placeholder: '5000',
@@ -226,38 +227,38 @@ const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
 
   // Campos de acción
   proxima_accion: {
-    label: 'Próxima Acción',
+    label: t('crm.próximaAcción'),
     type: 'text',
     icon: CheckCircle,
-    placeholder: 'Ej: Llamar para seguimiento',
+    placeholder: t('crm.ejLlamarParaSeguimiento'),
   },
   proxima_accion_fecha: {
-    label: 'Fecha de Próxima Acción',
+    label: t('crm.fechaDePróximaAcción'),
     type: 'date',
     icon: Calendar,
   },
   notas: {
-    label: 'Notas',
+    label: t('crm.notas'),
     type: 'textarea',
     icon: FileText,
-    placeholder: 'Observaciones, detalles adicionales...',
+    placeholder: t('crm.observacionesDetallesAdicionales'),
   },
 
   // Campos de propuesta
   producto: {
-    label: 'Producto/Servicio',
+    label: t('crm.productoservicio'),
     type: 'text',
     icon: Package,
-    placeholder: 'Ej: Consultoría Digital',
+    placeholder: t('crm.ejConsultoríaDigital'),
   },
   cantidad: {
-    label: 'Cantidad',
+    label: t('crm.cantidad'),
     type: 'number',
     icon: Calculator,
     placeholder: '1',
   },
   precio_unitario: {
-    label: 'Precio Unitario',
+    label: t('crm.precioUnitario'),
     type: 'number',
     icon: DollarSign,
     placeholder: '5000',
@@ -266,7 +267,7 @@ const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
 
   // Campos de negociación
   costes_estimados: {
-    label: 'Costes Estimados',
+    label: t('crm.costesEstimados'),
     type: 'number',
     icon: Calculator,
     placeholder: '2000',
@@ -275,7 +276,7 @@ const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
 
   // Campos de venta (cerrado ganado)
   facturacion: {
-    label: 'Facturación Total',
+    label: t('crm.facturaciónTotal'),
     type: 'number',
     icon: DollarSign,
     required: true,
@@ -284,14 +285,14 @@ const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
     readonly: true, // Calculado automáticamente
   },
   costes: {
-    label: 'Costes Totales',
+    label: t('crm.costesTotales'),
     type: 'number',
     icon: Calculator,
     placeholder: '2000',
     prefix: '€',
   },
   margen: {
-    label: 'Margen',
+    label: t('crm.margen'),
     type: 'number',
     icon: DollarSign,
     placeholder: '3000',
@@ -299,26 +300,26 @@ const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
     readonly: true, // Calculado automáticamente
   },
   forma_pago: {
-    label: 'Forma de Pago',
+    label: t('crm.formaDePago'),
     type: 'select',
     icon: DollarSign,
     options: [
-      { value: 'transferencia', label: 'Transferencia Bancaria' },
-      { value: 'tarjeta', label: 'Tarjeta de Crédito' },
-      { value: 'efectivo', label: 'Efectivo' },
-      { value: 'paypal', label: 'PayPal' },
-      { value: 'bizum', label: 'Bizum' },
-      { value: 'stripe', label: 'Stripe' },
+      { value: 'transferencia', label: t('crm.transferenciaBancaria') },
+      { value: 'tarjeta', label: t('crm.tarjetaDeCrédito') },
+      { value: 'efectivo', label: t('crm.efectivo') },
+      { value: 'paypal', label: t('crm.paypal') },
+      { value: 'bizum', label: t('crm.bizum') },
+      { value: 'stripe', label: t('crm.stripe') },
     ],
   },
   numero_factura: {
-    label: 'Número de Factura',
+    label: t('crm.númeroDeFactura'),
     type: 'text',
     icon: FileText,
     placeholder: 'FAC-2026-001',
   },
   cobro_fecha_esperada: {
-    label: 'Fecha Esperada de Cobro',
+    label: t('crm.fechaEsperadaDeCobro'),
     type: 'date',
     icon: Calendar,
   },
@@ -331,6 +332,7 @@ export function PipelineStageForm({
   onChange,
   showStageSelector = true,
 }: PipelineStageFormProps) {
+  const { t } = useTranslation();
   const stageConfig = STAGE_CONFIG[currentStage];
   const StageIcon = stageConfig.icon;
 
@@ -464,7 +466,7 @@ export function PipelineStageForm({
       {showStageSelector && (
         <Card>
           <CardHeader>
-            <CardTitle className="text-base">Cambiar Fase del Pipeline</CardTitle>
+            <CardTitle className="text-base">{t('crm.cambiarFaseDelPipeline')}</CardTitle>
           </CardHeader>
           <CardContent>
             <Select
@@ -497,7 +499,7 @@ export function PipelineStageForm({
       {/* Formulario Dinámico */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información de la Oportunidad</CardTitle>
+          <CardTitle className="text-base">{t('crm.informaciónDeLaOportunidad')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -512,7 +514,7 @@ export function PipelineStageForm({
           <CardContent className="pt-6">
             <div className="flex items-center justify-between">
               <div>
-                <p className="font-medium">¿Listo para avanzar?</p>
+                <p className="font-medium">{t('crm.listoParaAvanzar')}</p>
                 <p className="text-sm text-muted-foreground">
                   Pasar a: {STAGE_CONFIG[stageConfig.nextStage].title}
                 </p>

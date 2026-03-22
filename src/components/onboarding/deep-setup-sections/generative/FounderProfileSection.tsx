@@ -16,6 +16,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowRight, CheckCircle2, Users, Briefcase, GraduationCap, Target } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface FounderProfileSectionProps {
   projectId: string;
   onComplete: (data: Record<string, unknown>) => void;
@@ -23,6 +24,7 @@ interface FounderProfileSectionProps {
 }
 
 export function FounderProfileSection({ projectId: _projectId, onComplete, onCancel }: FounderProfileSectionProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [formData, setFormData] = useState({
     name: '',
@@ -45,10 +47,10 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
     onComplete({
       section_id: 'founder-profile',
       ...formData,
-      unlocked_tools: ['Team Builder', 'Co-founder Matcher'],
+      unlocked_tools: [t('onboarding.teamBuilder'), t('onboarding.cofounderMatcher')],
     });
 
-    toast.success('Founder Profile complete!');
+    toast.success(t('onboarding.founderProfileComplete'));
   };
 
   if (isSubmitting) {
@@ -56,7 +58,7 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
       <Card className="max-w-4xl mx-auto">
         <CardContent className="pt-12 pb-12 text-center">
           <Loader2 className="h-10 w-10 text-purple-600 animate-spin mx-auto mb-4" />
-          <h3 className="text-2xl font-bold">Saving your profile...</h3>
+          <h3 className="text-2xl font-bold">{t('onboarding.savingYourProfile')}</h3>
         </CardContent>
       </Card>
     );
@@ -71,8 +73,8 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
               <Users className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl">Founder Profile</CardTitle>
-              <CardDescription>Build your comprehensive founder profile</CardDescription>
+              <CardTitle className="text-2xl">{t('onboarding.founderProfile')}</CardTitle>
+              <CardDescription>{t('onboarding.buildYourComprehensiveFounder')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -82,21 +84,19 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Users className="h-5 w-5" />
-              Basic Info
-            </CardTitle>
+              <Users className="h-5 w-5" />{t('onboarding.basicInfo')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Full Name</Label>
+              <Label>{t('onboarding.fullName')}</Label>
               <Input
                 value={formData.name}
                 onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                placeholder="John Doe"
+                placeholder={t('onboarding.johnDoe')}
               />
             </div>
             <div>
-              <Label>Years of Experience</Label>
+              <Label>{t('onboarding.yearsOfExperience')}</Label>
               <Input
                 type="number"
                 value={formData.experience_years}
@@ -110,17 +110,15 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <GraduationCap className="h-5 w-5" />
-              Background
-            </CardTitle>
+              <GraduationCap className="h-5 w-5" />{t('onboarding.background')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Professional Background</Label>
+              <Label>{t('onboarding.professionalBackground')}</Label>
               <Textarea
                 value={formData.background}
                 onChange={(e) => setFormData({ ...formData, background: e.target.value })}
-                placeholder="e.g., 5 years in software engineering at Google, 2 years as product manager..."
+                placeholder={t('onboarding.eg5YearsIn')}
                 rows={4}
               />
             </div>
@@ -130,17 +128,15 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Briefcase className="h-5 w-5" />
-              Skills & Expertise
-            </CardTitle>
+              <Briefcase className="h-5 w-5" />{t('onboarding.skillsExpertise')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Key Skills</Label>
+              <Label>{t('onboarding.keySkills')}</Label>
               <Textarea
                 value={formData.skills}
                 onChange={(e) => setFormData({ ...formData, skills: e.target.value })}
-                placeholder="e.g., Python, React, Product Management, Marketing, Sales..."
+                placeholder={t('onboarding.egPythonReactProduct')}
                 rows={4}
               />
             </div>
@@ -150,17 +146,15 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
         <Card>
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Motivation & Commitment
-            </CardTitle>
+              <Target className="h-5 w-5" />{t('onboarding.motivationCommitment')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div>
-              <Label>Why This Business?</Label>
+              <Label>{t('onboarding.whyThisBusiness')}</Label>
               <Textarea
                 value={formData.motivation}
                 onChange={(e) => setFormData({ ...formData, motivation: e.target.value })}
-                placeholder="What motivates you to start this business?"
+                placeholder={t('onboarding.whatMotivatesYouTo')}
                 rows={4}
               />
             </div>
@@ -169,7 +163,7 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
       </div>
 
       <div className="flex items-center justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
         <div className="flex items-center gap-3">
           <Badge variant="outline">+10%</Badge>
           <Button
@@ -177,9 +171,7 @@ export function FounderProfileSection({ projectId: _projectId, onComplete, onCan
             disabled={!canSubmit()}
             className="bg-gradient-to-r from-purple-600 to-pink-600"
           >
-            <CheckCircle2 className="h-4 w-4 mr-2" />
-            Complete Section
-            <ArrowRight className="h-4 w-4 ml-2" />
+            <CheckCircle2 className="h-4 w-4 mr-2" />Complete Section<ArrowRight className="h-4 w-4 ml-2" />
           </Button>
         </div>
       </div>

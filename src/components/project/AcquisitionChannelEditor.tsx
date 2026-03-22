@@ -18,8 +18,9 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 // ─── Types ───────────────────────────────────────────────────────────────────
 
 interface AcquisitionChannel {
@@ -37,15 +38,15 @@ interface AcquisitionChannel {
 // ─── Constants ───────────────────────────────────────────────────────────────
 
 const CHANNEL_LABELS: Record<string, string> = {
-  inbound:     'SEO / Orgánico',
+  inbound:     t('project.seoOrgánico'),
   content:     'Contenido (blog, podcast)',
-  outbound:    'Cold outreach',
-  paid_ads:    'Publicidad pagada',
-  referral:    'Referidos',
-  partnership: 'Partnerships',
-  community:   'Comunidad / Eventos',
+  outbound:    t('project.coldOutreach'),
+  paid_ads:    t('project.publicidadPagada'),
+  referral:    t('project.referidos'),
+  partnership: t('project.partnerships'),
+  community:   t('project.comunidadEventos'),
   product_led: 'Product-led (freemium/viral)',
-  other:       'Otro',
+  other:       t('project.otro'),
 };
 
 const CHANNEL_TYPES = Object.keys(CHANNEL_LABELS);
@@ -77,6 +78,7 @@ interface AcquisitionChannelEditorProps {
 }
 
 export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditorProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [showForm, setShowForm] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -111,7 +113,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
   // ── Add channel ────────────────────────────────────────────────────────────
   const handleAdd = async () => {
     if (!formData.channel_type) {
-      toast.error('Selecciona un tipo de canal');
+      toast.error(t('project.seleccionaUnTipoDe'));
       return;
     }
 
@@ -128,12 +130,12 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
         });
       if (error) throw error;
 
-      toast.success('Canal añadido');
+      toast.success(t('project.canalAñadido'));
       invalidate();
       setShowForm(false);
       setFormData({ channel_type: '', is_primary: false, documented_playbook: false, estimated_cac: '' });
     } catch {
-      toast.error('Error al añadir canal');
+      toast.error(t('project.errorAlAñadirCanal'));
     } finally {
       setIsSubmitting(false);
     }
@@ -146,9 +148,9 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
       .update({ last_validated_at: new Date().toISOString() })
       .eq('id', channelId);
     if (error) {
-      toast.error('Error al actualizar');
+      toast.error(t('project.errorAlActualizar'));
     } else {
-      toast.success('Canal marcado como validado hoy');
+      toast.success(t('project.canalMarcadoComoValidado'));
       invalidate();
     }
   };
@@ -164,7 +166,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
       .update({ [field]: !current })
       .eq('id', channelId);
     if (error) {
-      toast.error('Error al actualizar');
+      toast.error(t('project.errorAlActualizar'));
     } else {
       invalidate();
     }
@@ -174,7 +176,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
   const handleSaveCac = async (channelId: string) => {
     const value = cacDraft.trim() === '' ? null : parseFloat(cacDraft);
     if (cacDraft.trim() !== '' && isNaN(value as number)) {
-      toast.error('CAC debe ser un número');
+      toast.error(t('project.cacDebeSerUn'));
       return;
     }
     const { error } = await supabase
@@ -184,7 +186,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
     if (error) {
       toast.error('Error al guardar CAC');
     } else {
-      toast.success('CAC actualizado');
+      toast.success(t('project.cacActualizado'));
       invalidate();
     }
     setEditingCacId(null);
@@ -197,9 +199,9 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
       .delete()
       .eq('id', channelId);
     if (error) {
-      toast.error('Error al eliminar canal');
+      toast.error(t('project.errorAlEliminarCanal'));
     } else {
-      toast.success('Canal eliminado');
+      toast.success(t('project.canalEliminado'));
       invalidate();
     }
   };
@@ -210,24 +212,18 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
         <h3 className="font-semibold flex items-center gap-2">
-          <Radio size={18} className="text-primary" />
-          Canales de adquisición
-        </h3>
+          <Radio size={18} className="text-primary" />{t('project.canalesDeAdquisición')}</h3>
         <Button
           variant="outline"
           size="sm"
           onClick={() => setShowForm(true)}
         >
-          <Plus size={14} className="mr-1" />
-          Nuevo canal
-        </Button>
+          <Plus size={14} className="mr-1" />{t('project.nuevoCanal')}</Button>
       </div>
 
       {/* Empty state */}
       {!isLoading && channels.length === 0 && (
-        <p className="text-sm text-muted-foreground text-center py-6">
-          Sin canales declarados. Añade tu canal principal para que el motor pueda calcular O2.3.
-        </p>
+        <p className="text-sm text-muted-foreground text-center py-6">{t('project.sinCanalesDeclaradosAñade')}</p>
       )}
 
       {/* Channel list */}
@@ -249,9 +245,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                   </span>
                   {ch.is_primary && (
                     <Badge variant="default" className="text-xs">
-                      <Star size={10} className="mr-1" />
-                      Principal
-                    </Badge>
+                      <Star size={10} className="mr-1" />{t('project.principal')}</Badge>
                   )}
                   {score !== null && (
                     <Badge
@@ -268,7 +262,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                   size="sm"
                   className="text-muted-foreground hover:text-destructive h-7 w-7 p-0"
                   onClick={() => handleDelete(ch.id)}
-                  title="Eliminar canal"
+                  title={t('project.eliminarCanal')}
                 >
                   <Trash2 size={14} />
                 </Button>
@@ -280,26 +274,26 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                 <button
                   className="flex items-center gap-1.5 hover:text-foreground transition-colors"
                   onClick={() => handleToggle(ch.id, 'is_primary', ch.is_primary)}
-                  title="Marcar como canal principal"
+                  title={t('project.marcarComoCanalPrincipal')}
                 >
                   <Star
                     size={12}
                     className={ch.is_primary ? 'text-amber-500 fill-amber-500' : ''}
                   />
-                  {ch.is_primary ? 'Principal' : 'Secundario'}
+                  {ch.is_primary ? 'Principal': t('project.secundario')}
                 </button>
 
                 {/* Playbook toggle */}
                 <button
                   className="flex items-center gap-1.5 hover:text-foreground transition-colors"
                   onClick={() => handleToggle(ch.id, 'documented_playbook', ch.documented_playbook)}
-                  title="Toggle playbook documentado"
+                  title={t('project.togglePlaybookDocumentado')}
                 >
                   <BookOpen
                     size={12}
                     className={ch.documented_playbook ? 'text-primary' : ''}
                   />
-                  {ch.documented_playbook ? 'Playbook' : 'Sin playbook'}
+                  {ch.documented_playbook ? 'Playbook': t('project.sinPlaybook')}
                 </button>
 
                 {/* CAC */}
@@ -310,10 +304,10 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                       className="h-6 w-24 text-xs py-0 px-1"
                       value={cacDraft}
                       onChange={(e) => setCacDraft(e.target.value)}
-                      placeholder="CAC en €"
+                      placeholder={t('project.cacEn')}
                       onKeyDown={(e) => {
-                        if (e.key === 'Enter') handleSaveCac(ch.id);
-                        if (e.key === 'Escape') setEditingCacId(null);
+                        if (e.key === t('project.enter')) handleSaveCac(ch.id);
+                        if (e.key === t('project.escape')) setEditingCacId(null);
                       }}
                       autoFocus
                     />
@@ -333,7 +327,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                       setEditingCacId(ch.id);
                       setCacDraft(ch.estimated_cac !== null ? String(ch.estimated_cac) : '');
                     }}
-                    title="Editar CAC estimado"
+                    title={t('project.editarCacEstimado')}
                   >
                     <DollarSign size={12} />
                     {ch.estimated_cac !== null ? `€${ch.estimated_cac} CAC` : 'Sin CAC'}
@@ -353,9 +347,9 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                     {ch.last_validated_at
                       ? formatDistanceToNow(new Date(ch.last_validated_at), {
                           addSuffix: true,
-                          locale: es,
+                          locale: getDateFnsLocale(),
                         })
-                      : 'Sin validar'}
+                      : t('project.sinValidar')}
                   </span>
                 </div>
               </div>
@@ -368,9 +362,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                   className="w-full h-7 text-xs"
                   onClick={() => handleValidateNow(ch.id)}
                 >
-                  <CheckCircle2 size={12} className="mr-1.5" />
-                  Validado hoy
-                </Button>
+                  <CheckCircle2 size={12} className="mr-1.5" />{t('project.validadoHoy')}</Button>
               )}
             </div>
           );
@@ -381,7 +373,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
       <Dialog open={showForm} onOpenChange={setShowForm}>
         <DialogContent className="max-w-sm">
           <DialogHeader>
-            <DialogTitle>Nuevo canal de adquisición</DialogTitle>
+            <DialogTitle>{t('project.nuevoCanalDeAdquisición')}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 mt-2">
@@ -392,7 +384,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                 onValueChange={(v) => setFormData({ ...formData, channel_type: v })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Selecciona..." />
+                  <SelectValue placeholder={t('project.selecciona')} />
                 </SelectTrigger>
                 <SelectContent>
                   {CHANNEL_TYPES.map((type) => (
@@ -406,8 +398,8 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
 
             <div className="flex items-center justify-between">
               <div>
-                <Label>Canal principal</Label>
-                <p className="text-xs text-muted-foreground">El canal que genera más clientes ahora</p>
+                <Label>{t('project.canalPrincipal')}</Label>
+                <p className="text-xs text-muted-foreground">{t('project.elCanalQueGenera')}</p>
               </div>
               <Switch
                 checked={formData.is_primary}
@@ -417,8 +409,8 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
 
             <div className="flex items-center justify-between">
               <div>
-                <Label>Playbook documentado</Label>
-                <p className="text-xs text-muted-foreground">Tienes instrucciones repetibles</p>
+                <Label>{t('project.playbookDocumentado')}</Label>
+                <p className="text-xs text-muted-foreground">{t('project.tienesInstruccionesRepetibles')}</p>
               </div>
               <Switch
                 checked={formData.documented_playbook}
@@ -431,11 +423,11 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
               <Input
                 type="number"
                 min="0"
-                placeholder="Ej: 120"
+                placeholder={t('project.ej120')}
                 value={formData.estimated_cac}
                 onChange={(e) => setFormData({ ...formData, estimated_cac: e.target.value })}
               />
-              <p className="text-xs text-muted-foreground mt-1">Coste de adquisición por cliente. Opcional.</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('project.costeDeAdquisiciónPor')}</p>
             </div>
 
             <div className="flex gap-3 pt-2">
@@ -444,15 +436,13 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                 className="flex-1"
                 onClick={() => setShowForm(false)}
                 disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
+              >{t('project.cancelar')}</Button>
               <Button
                 className="flex-1"
                 onClick={handleAdd}
                 disabled={isSubmitting}
               >
-                {isSubmitting ? 'Añadiendo...' : 'Añadir canal'}
+                {isSubmitting ? t('project.añadiendo') : t('project.añadirCanal')}
               </Button>
             </div>
           </div>

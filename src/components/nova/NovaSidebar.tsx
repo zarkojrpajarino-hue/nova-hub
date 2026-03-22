@@ -6,6 +6,8 @@ import {
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFeatureAccess } from '@/hooks/useSubscription';
+import { useTranslation } from 'react-i18next';
+import { ThemeToggle, LanguageToggle } from '@/components/ui/theme-toggle';
 import { PlanSelectionModal } from '@/components/subscription/PlanSelectionModal';
 import { useAvailablePlans } from '@/hooks/useSubscription';
 import { Badge } from '@/components/ui/badge';
@@ -41,41 +43,41 @@ interface NavItem {
 // Navegación reorganizada con jerarquía lógica
 // NOTA: Las rutas son relativas al proyecto (/proyecto/:projectId)
 const coreItems: NavItem[] = [
-  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard', route: '' }, // ruta vacía = base del proyecto
-  { id: 'mi-espacio', icon: User, label: 'Mi Espacio', route: 'mi-espacio' },
-  { id: 'mi-desarrollo', icon: TrendingUp, label: 'Mi Desarrollo', route: 'mi-desarrollo' },
-  { id: 'mi-modelo', icon: Layers, label: 'Mi Modelo', route: 'mi-modelo' },
+  { id: 'dashboard', icon: LayoutDashboard, label: 'nav.dashboard', route: '' }, // ruta vacía = base del proyecto
+  { id: 'mi-espacio', icon: User, label: 'nav.mySpace', route: 'mi-espacio' },
+  { id: 'mi-desarrollo', icon: TrendingUp, label: 'nav.myDevelopment', route: 'mi-desarrollo' },
+  { id: 'mi-modelo', icon: Layers, label: 'nav.myModel', route: 'mi-modelo' },
 ];
 
 const createValidateItems: NavItem[] = [
-  { id: 'proyectos', icon: FolderKanban, label: 'Proyectos', route: 'proyectos' },
-  { id: 'validaciones', icon: Shield, label: 'Validaciones', route: 'validaciones' },
-  { id: 'obvs', icon: FileCheck, label: 'Centro OBVs', route: 'obvs' },
+  { id: 'proyectos', icon: FolderKanban, label: 'nav.projects', route: 'proyectos' },
+  { id: 'validaciones', icon: Shield, label: 'nav.validations', route: 'validaciones' },
+  { id: 'obvs', icon: FileCheck, label: 'nav.obvCenter', route: 'obvs' },
 ];
 
 const executeItems: NavItem[] = [
-  { id: 'startup-os', icon: Target, label: 'Startup OS', route: 'startup-os' },
-  { id: 'crm', icon: Phone, label: 'CRM Global', route: 'crm' },
-  { id: 'financiero', icon: Wallet, label: 'Financiero', route: 'financiero' },
-  { id: 'meetings', icon: Mic, label: 'Meeting Intelligence', route: 'meetings' },
-  { id: 'analisis-ia', icon: Sparkles, label: 'Análisis IA', route: 'analisis-ia' },
-  { id: 'toolkit', icon: Layers, label: 'Founder Toolkit', route: 'toolkit' },
+  { id: 'startup-os', icon: Target, label: 'nav.startupOS', route: 'startup-os' },
+  { id: 'crm', icon: Phone, label: 'nav.crmGlobal', route: 'crm' },
+  { id: 'financiero', icon: Wallet, label: 'nav.financial', route: 'financiero' },
+  { id: 'meetings', icon: Mic, label: 'nav.meetingIntelligence', route: 'meetings' },
+  { id: 'analisis-ia', icon: Sparkles, label: 'nav.aiAnalysis', route: 'analisis-ia' },
+  { id: 'toolkit', icon: Layers, label: 'nav.founderToolkit', route: 'toolkit' },
 ];
 
 const teamItems: NavItem[] = [
-  { id: 'exploration', icon: Rocket, label: 'Exploración de Roles', route: 'exploration' },
-  { id: 'path-to-master', icon: Trophy, label: 'Camino a Master', route: 'path-to-master' },
-  { id: 'rankings', icon: Trophy, label: 'Rankings', route: 'rankings' },
-  { id: 'masters', icon: Crown, label: 'Masters', route: 'masters' },
-  { id: 'rotacion', icon: ArrowLeftRight, label: 'Rotación', route: 'rotacion' },
+  { id: 'exploration', icon: Rocket, label: 'nav.roleExploration', route: 'exploration' },
+  { id: 'path-to-master', icon: Trophy, label: 'nav.masterPath', route: 'path-to-master' },
+  { id: 'rankings', icon: Trophy, label: 'nav.rankings', route: 'rankings' },
+  { id: 'masters', icon: Crown, label: 'nav.masters', route: 'masters' },
+  { id: 'rotacion', icon: ArrowLeftRight, label: 'nav.rotation', route: 'rotacion' },
 ];
 
 const measureItems: NavItem[] = [
-  { id: 'kpis', icon: BookOpen, label: 'KPIs', route: 'kpis' },
+  { id: 'kpis', icon: BookOpen, label: 'nav.kpis', route: 'kpis' },
   {
     id: 'analytics',
     icon: BarChart3,
-    label: 'Analytics',
+    label: 'nav.analytics',
     route: 'analytics',
     requiredFeature: 'advanced_analytics',
     requiredPlan: 'advanced'
@@ -83,7 +85,7 @@ const measureItems: NavItem[] = [
   {
     id: 'team-performance',
     icon: BarChart3,
-    label: 'Vista Global',
+    label: 'nav.globalView',
     route: 'team-performance',
     requiredFeature: 'advanced_analytics',
     requiredPlan: 'advanced'
@@ -91,19 +93,20 @@ const measureItems: NavItem[] = [
 ];
 
 const systemItems: NavItem[] = [
-  { id: 'settings', icon: Settings, label: 'Configuración', route: 'settings' },
+  { id: 'settings', icon: Settings, label: 'nav.settings', route: 'settings' },
   {
     id: 'integrations',
     icon: Plug,
-    label: 'Integraciones',
+    label: 'nav.integrations',
     route: 'integrations',
     requiredFeature: 'api_access',
     requiredPlan: 'advanced'
   },
-  { id: 'notificaciones', icon: Bell, label: 'Notificaciones', route: 'notificaciones' },
+  { id: 'notificaciones', icon: Bell, label: 'nav.notifications', route: 'notificaciones' },
 ];
 
 export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOut, onMenuHover, projectId }: NovaSidebarProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { canUseFeature } = useFeatureAccess(projectId);
@@ -200,14 +203,14 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
   return (
     <aside
       className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col h-screen fixed z-50"
-      aria-label="Navegación principal"
+      aria-label={t('nav.mainNavigation', t('nova.navegaciónPrincipal'))}
     >
       {/* Logo */}
       <div className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3" role="banner">
           <div
             className="w-10 h-10 nova-gradient rounded-xl flex items-center justify-center font-bold text-lg text-primary-foreground animate-pulse-glow"
-            aria-label="Logo Optimus-K"
+            aria-label={t('nova.logoOptimusk')}
           >
             O
           </div>
@@ -221,13 +224,13 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
       </div>
 
       {/* Navigation con Accordion */}
-      <nav className="flex-1 p-3 overflow-y-auto space-y-2" aria-label="Menú de navegación">
-        {renderSection('core', '🏠', 'Core', coreItems)}
-        {renderSection('create', '🚀', 'Crear & Validar', createValidateItems)}
-        {renderSection('execute', '💼', 'Ejecutar', executeItems)}
-        {renderSection('team', '👥', 'Equipo', teamItems)}
-        {renderSection('measure', '📊', 'Medir', measureItems)}
-        {renderSection('system', '⚙️', 'Sistema', systemItems)}
+      <nav className="flex-1 p-3 overflow-y-auto space-y-2" aria-label={t('nova.menúDeNavegación')}>
+        {renderSection('core', '🏠', t('nav.sections.core'), coreItems)}
+        {renderSection('create', '🚀', t('nav.sections.createValidate'), createValidateItems)}
+        {renderSection('execute', '💼', t('nav.sections.execute'), executeItems)}
+        {renderSection('team', '👥', t('nav.sections.team'), teamItems)}
+        {renderSection('measure', '📊', t('nav.sections.measure'), measureItems)}
+        {renderSection('system', '⚙️', t('nav.sections.system'), systemItems)}
 
         {/* SISTEMA - deprecated old code below this line */}
         <div className="hidden">
@@ -261,18 +264,22 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
             {currentUser?.nombre?.charAt(0) || 'U'}
           </div>
           <div className="flex-1 min-w-0">
-            <p className="font-semibold text-sm truncate">{currentUser?.nombre || 'Usuario'}</p>
-            <p className="text-xs text-muted-foreground">Team Member</p>
+            <p className="font-semibold text-sm truncate">{currentUser?.nombre || t('nav.user')}</p>
+            <p className="text-xs text-muted-foreground">{t('nova.teamMember')}</p>
           </div>
           <Settings size={16} className="text-muted-foreground group-hover:text-foreground transition-colors" />
         </div>
+        <div className="flex items-center gap-1 mt-2">
+          <ThemeToggle className="h-8 w-8" />
+          <LanguageToggle className="h-8" />
+        </div>
         <button
           onClick={onSignOut}
-          className="w-full mt-2 flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors text-sm"
-          aria-label="Cerrar sesión"
+          className="w-full mt-1 flex items-center gap-2 p-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-sidebar-accent transition-colors text-sm"
+          aria-label={t('nav.signOut')}
         >
           <LogOut size={16} aria-hidden="true" />
-          Cerrar sesión
+          {t('nav.signOut')}
         </button>
       </div>
 
@@ -303,6 +310,8 @@ interface NavItemProps {
 }
 
 function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItemProps) {
+  const { t } = useTranslation();
+  const translatedLabel = t(item.label);
   const content = (
     <button
       onClick={onClick}
@@ -313,7 +322,7 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
         !isLocked && isActive && "nova-gradient-subtle nova-border text-foreground",
         !isLocked && !isActive && "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
       )}
-      aria-label={isLocked ? `${item.label} (Requiere ${item.requiredPlan})` : `Navegar a ${item.label}`}
+      aria-label={isLocked ? `${translatedLabel} (Requiere ${item.requiredPlan})` : `Navegar a ${translatedLabel}`}
       aria-current={isActive ? 'page' : undefined}
       role="menuitem"
     >
@@ -325,7 +334,7 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
         )}
         aria-hidden="true"
       />
-      <span className="flex-1 text-left">{item.label}</span>
+      <span className="flex-1 text-left">{translatedLabel}</span>
 
       {/* Badge de plan requerido si está bloqueado */}
       {isLocked && item.requiredPlan && (
@@ -359,12 +368,12 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
             {content}
           </TooltipTrigger>
           <TooltipContent side="right" className="max-w-xs">
-            <p className="font-semibold mb-1">{item.label}</p>
+            <p className="font-semibold mb-1">{translatedLabel}</p>
             <p className="text-xs text-muted-foreground mb-2">
               Esta funcionalidad requiere el plan{' '}
               <span className="font-semibold text-foreground">{item.requiredPlan}</span>
             </p>
-            <p className="text-xs text-primary">Click para ver planes disponibles</p>
+            <p className="text-xs text-primary">{t('nova.clickParaVerPlanes')}</p>
           </TooltipContent>
         </Tooltip>
       </TooltipProvider>

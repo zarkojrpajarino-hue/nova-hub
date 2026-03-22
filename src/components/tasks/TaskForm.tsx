@@ -12,6 +12,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface TaskFormProps {
   projectId: string;
   projectMembers: Array<{ id: string; nombre: string; color: string }>;
@@ -20,19 +21,20 @@ interface TaskFormProps {
 }
 
 const PRIORITY_OPTIONS = [
-  { value: '1', label: 'Alta', color: '#EF4444' },
-  { value: '2', label: 'Media', color: '#F59E0B' },
-  { value: '3', label: 'Baja', color: '#22C55E' },
+  { value: '1', label: t('tasks.alta'), color: '#EF4444' },
+  { value: '2', label: t('tasks.media'), color: '#F59E0B' },
+  { value: '3', label: t('tasks.baja'), color: '#22C55E' },
 ];
 
 const FUNCTION_TYPE_OPTIONS = [
-  { value: 'demand',   label: 'Demanda',  color: '#F59E0B' },
-  { value: 'delivery', label: 'Delivery', color: '#3B82F6' },
-  { value: 'cash',     label: 'Cash',     color: '#22C55E' },
-  { value: 'support',  label: 'Soporte',  color: '#A855F7' },
+  { value: 'demand',   label: t('tasks.demanda'),  color: '#F59E0B' },
+  { value: 'delivery', label: t('tasks.delivery'), color: '#3B82F6' },
+  { value: 'cash',     label: t('tasks.cash'),     color: '#22C55E' },
+  { value: 'support',  label: t('tasks.soporte'),  color: '#A855F7' },
 ];
 
 export function TaskForm({ projectId, projectMembers, open, onOpenChange }: TaskFormProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -48,13 +50,13 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
 
   const handleSubmit = async () => {
     if (!formData.titulo.trim()) {
-      toast.error('El título es obligatorio');
+      toast.error(t('tasks.elTítuloEsObligatorio'));
       return;
     }
 
     // C3.6 — leader ≠ executor
     if (formData.leaderId && formData.assigneeId && formData.leaderId === formData.assigneeId) {
-      toast.error('El responsable y el ejecutor no pueden ser la misma persona');
+      toast.error(t('tasks.elResponsableYEl'));
       return;
     }
 
@@ -71,7 +73,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       if (countError) throw countError;
 
       if (activeTasks && activeTasks.length >= 5) {
-        toast.error('Máximo 5 tareas activas por proyecto. Completa una antes de crear otra.');
+        toast.error(t('tasks.máximo5TareasActivas'));
         setIsSubmitting(false);
         return;
       }
@@ -93,14 +95,14 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
 
       if (error) throw error;
 
-      toast.success('Tarea creada');
+      toast.success(t('tasks.tareaCreada'));
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
 
       setFormData({ titulo: '', descripcion: '', assigneeId: '', leaderId: '', prioridad: '2', fechaLimite: '', functionType: '' });
       onOpenChange(false);
     } catch (_error) {
-      toast.error('Error al crear la tarea');
+      toast.error(t('tasks.errorAlCrearLa'));
     } finally {
       setIsSubmitting(false);
     }
@@ -111,7 +113,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="max-w-md">
           <DialogHeader>
-            <DialogTitle>Nueva Tarea</DialogTitle>
+            <DialogTitle>{t('tasks.nuevaTarea')}</DialogTitle>
           </DialogHeader>
 
           <div className="space-y-4 mt-4">
@@ -120,31 +122,29 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
               <Input
                 value={formData.titulo}
                 onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-                placeholder="Preparar presentación del pitch..."
+                placeholder={t('tasks.prepararPresentaciónDelPitch')}
               />
             </div>
 
             <div>
-              <Label>Descripción</Label>
+              <Label>{t('tasks.descripción')}</Label>
               <Textarea
                 value={formData.descripcion}
                 onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-                placeholder="Detalles de la tarea..."
+                placeholder={t('tasks.detallesDeLaTarea')}
                 rows={3}
               />
             </div>
 
             <div>
               <Label className="flex items-center gap-1.5">
-                <Layers className="w-3.5 h-3.5" />
-                Función del negocio
-              </Label>
+                <Layers className="w-3.5 h-3.5" />{t('tasks.funciónDelNegocio')}</Label>
               <Select
                 value={formData.functionType}
                 onValueChange={(v) => setFormData({ ...formData, functionType: v })}
               >
                 <SelectTrigger>
-                  <SelectValue placeholder="Sin clasificar (no contabiliza)" />
+                  <SelectValue placeholder={t('tasks.sinClasificarNoContabiliza')} />
                 </SelectTrigger>
                 <SelectContent>
                   {FUNCTION_TYPE_OPTIONS.map((opt) => (
@@ -165,15 +165,13 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5" />
-                  Ejecutor
-                </Label>
+                  <User className="w-3.5 h-3.5" />{t('tasks.ejecutor')}</Label>
                 <Select
                   value={formData.assigneeId}
                   onValueChange={(v) => setFormData({ ...formData, assigneeId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar..." />
+                    <SelectValue placeholder={t('tasks.seleccionar')} />
                   </SelectTrigger>
                   <SelectContent>
                     {projectMembers.map((member) => (
@@ -193,9 +191,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
 
               <div>
                 <Label className="flex items-center gap-1.5">
-                  <Shield className="w-3.5 h-3.5 text-amber-500" />
-                  Responsable
-                  <Tooltip>
+                  <Shield className="w-3.5 h-3.5 text-amber-500" />{t('tasks.responsable')}<Tooltip>
                     <TooltipTrigger asChild>
                       <span className="cursor-help text-muted-foreground text-xs ml-0.5">(?)</span>
                     </TooltipTrigger>
@@ -212,7 +208,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
                   onValueChange={(v) => setFormData({ ...formData, leaderId: v })}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Opcional" />
+                    <SelectValue placeholder={t('tasks.opcional')} />
                   </SelectTrigger>
                   <SelectContent>
                     {projectMembers.map((member) => (
@@ -234,9 +230,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="flex items-center gap-1.5">
-                  <Flag className="w-3.5 h-3.5" />
-                  Prioridad
-                </Label>
+                  <Flag className="w-3.5 h-3.5" />{t('tasks.prioridad')}</Label>
                 <Select
                   value={formData.prioridad}
                   onValueChange={(v) => setFormData({ ...formData, prioridad: v })}
@@ -262,9 +256,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
 
               <div>
                 <Label className="flex items-center gap-1.5">
-                  <Calendar className="w-3.5 h-3.5" />
-                  Fecha límite
-                </Label>
+                  <Calendar className="w-3.5 h-3.5" />{t('tasks.fechaLímite')}</Label>
                 <Input
                   type="date"
                   value={formData.fechaLimite}
@@ -279,9 +271,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
                 className="flex-1"
                 onClick={() => onOpenChange(false)}
                 disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
+              >{t('tasks.cancelar')}</Button>
               <Button
                 className="flex-1"
                 onClick={handleSubmit}
@@ -289,11 +279,9 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
               >
                 {isSubmitting ? (
                   <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Creando...
-                  </>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />{t('tasks.creando')}</>
                 ) : (
-                  'Crear Tarea'
+                  t('tasks.crearTarea')
                 )}
               </Button>
             </div>

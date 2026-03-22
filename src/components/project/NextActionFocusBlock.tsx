@@ -28,6 +28,7 @@ import {
 } from '@/lib/analytics'
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis'
 
+import { useTranslation } from 'react-i18next';
 interface NextActionFocusBlockProps {
   projectId:      string
   onNavigateToTab?: (tab: string) => void
@@ -35,6 +36,7 @@ interface NextActionFocusBlockProps {
 
 // F20.V2.3 — lee urgent_decisions del análisis más reciente (cualquier nivel)
 function useAnalysisUrgentDecisions(projectId: string) {
+  const { t } = useTranslation();
   return useQuery({
     queryKey: ['analysis-urgent', projectId],
     staleTime: 5 * 60_000,
@@ -70,9 +72,9 @@ function useOverdueTasks(projectId: string) {
 }
 
 const URGENCY_CONFIG = {
-  high:   { label: 'Urgente',      className: 'bg-red-100 text-red-800 border-red-200' },
-  medium: { label: 'Esta semana',  className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  low:    { label: 'En progreso',  className: 'bg-blue-100 text-blue-800 border-blue-200' },
+  high:   { label: t('project.urgente'),      className: 'bg-red-100 text-red-800 border-red-200' },
+  medium: { label: t('project.estaSemana'),  className: 'bg-amber-100 text-amber-800 border-amber-200' },
+  low:    { label: t('project.enProgreso'),  className: 'bg-blue-100 text-blue-800 border-blue-200' },
 }
 
 const RELIABILITY_CONFIG = {
@@ -82,13 +84,13 @@ const RELIABILITY_CONFIG = {
 }
 
 const SOURCE_LABEL: Partial<Record<string, string>> = {
-  stripe:          'Stripe',
-  holded:          'Holded',
-  hubspot:         'HubSpot',
-  asana:           'Asana',
-  google_calendar: 'Calendar',
-  user_manual:     'Manual',
-  ai_inferred:     'Estimación',
+  stripe:          t('project.stripe'),
+  holded:          t('project.holded'),
+  hubspot:         t('project.hubspot'),
+  asana:           t('project.asana'),
+  google_calendar: t('project.calendar'),
+  user_manual:     t('project.manual'),
+  ai_inferred:     t('project.estimación'),
 }
 
 export function NextActionFocusBlock({
@@ -137,9 +139,7 @@ export function NextActionFocusBlock({
     return (
       <div className="rounded-2xl border border-border bg-card p-5 space-y-3">
         <div className="flex items-center gap-2">
-          <Badge variant="outline" className="text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">
-            Digest
-          </Badge>
+          <Badge variant="outline" className="text-xs font-medium border bg-blue-100 text-blue-800 border-blue-200">{t('project.digest')}</Badge>
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
             {agentInsights.length} señales activas — resumen del sistema
           </span>
@@ -221,9 +221,7 @@ export function NextActionFocusBlock({
         >
           {urgencyConfig.label}
         </Badge>
-        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
-          Tu prioridad ahora
-        </span>
+        <span className="text-xs font-medium text-muted-foreground uppercase tracking-wide">{t('project.tuPrioridadAhora')}</span>
       </div>
 
       {/* Title + description */}
@@ -252,9 +250,7 @@ export function NextActionFocusBlock({
 
       {/* F19.V2.1 — Aviso de baja fiabilidad cuando la acción se basa en estimados */}
       {nextAction.reliabilityInfo?.level === 'low' && (
-        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          Acción basada en datos estimados. Conecta integraciones para obtener datos reales y mejorar la fiabilidad.
-        </div>
+        <div className="rounded-lg bg-amber-50 dark:bg-amber-950/20 border border-amber-200 dark:border-amber-800/30 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">{t('project.acciónBasadaEnDatos')}</div>
       )}
 
       {/* Actions row */}
@@ -288,9 +284,7 @@ export function NextActionFocusBlock({
             <button
               className="underline underline-offset-2 hover:no-underline"
               onClick={handleOverdueLink}
-            >
-              Ver tareas
-            </button>
+            >{t('project.verTareas')}</button>
           </span>
         </div>
       )}
@@ -327,7 +321,7 @@ export function NextActionFocusBlock({
               className="mt-1 text-xs text-primary underline underline-offset-2 hover:no-underline"
               onClick={() => onNavigateToTab?.('analisis')}
             >
-              {urgentDecisions[0].cta.label ?? 'Ver análisis'}
+              {urgentDecisions[0].cta.label ?? t('project.verAnálisis')}
             </button>
           )}
         </div>

@@ -19,6 +19,7 @@ import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface ScheduleSuggestion {
   date: string;
   time: string;
@@ -35,6 +36,7 @@ interface ScheduleSuggestion {
 }
 
 export function OptimalScheduleSuggester() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currentProject } = useCurrentProject();
   const [meetingType, setMeetingType] = useState('');
@@ -50,7 +52,7 @@ export function OptimalScheduleSuggester() {
     }
 
     setSuggestion(result.content?.suggestion || result.content);
-    toast.success('Horarios sugeridos generados');
+    toast.success(t('team.horariosSugeridosGenerados'));
   };
 
   const handleGenerationError = (error: Error) => {
@@ -69,7 +71,7 @@ Participantes: ${suggestion.participants.join(', ')}
 Razón: ${suggestion.reasoning}`;
 
     navigator.clipboard.writeText(text);
-    toast.success('Horario copiado');
+    toast.success(t('team.horarioCopiado'));
   };
 
   return (
@@ -82,10 +84,8 @@ Razón: ${suggestion.reasoning}`;
               <Calendar className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle>Optimal Schedule Suggester</CardTitle>
-              <CardDescription>
-                Encuentra el mejor horario para reuniones basándose en disponibilidad del equipo
-              </CardDescription>
+              <CardTitle>{t('team.optimalScheduleSuggester')}</CardTitle>
+              <CardDescription>{t('team.encuentraElMejorHorario')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -94,29 +94,29 @@ Razón: ${suggestion.reasoning}`;
       {/* Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Detalles de la reunión</CardTitle>
+          <CardTitle className="text-base">{t('team.detallesDeLaReunión')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="meetingType">Tipo de reunión *</Label>
             <Select value={meetingType} onValueChange={setMeetingType} disabled={isGenerating}>
               <SelectTrigger id="meetingType">
-                <SelectValue placeholder="Selecciona tipo" />
+                <SelectValue placeholder={t('team.seleccionaTipo')} />
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="one-on-one">1-on-1</SelectItem>
-                <SelectItem value="team-standup">Standup de equipo</SelectItem>
-                <SelectItem value="project-review">Revisión de proyecto</SelectItem>
-                <SelectItem value="brainstorming">Brainstorming</SelectItem>
-                <SelectItem value="planning">Planificación</SelectItem>
-                <SelectItem value="retrospective">Retrospectiva</SelectItem>
+                <SelectItem value="team-standup">{t('team.standupDeEquipo')}</SelectItem>
+                <SelectItem value="project-review">{t('team.revisiónDeProyecto')}</SelectItem>
+                <SelectItem value="brainstorming">{t('team.brainstorming')}</SelectItem>
+                <SelectItem value="planning">{t('team.planificación')}</SelectItem>
+                <SelectItem value="retrospective">{t('team.retrospectiva')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="duration">Duración</Label>
+              <Label htmlFor="duration">{t('team.duración')}</Label>
               <Select value={duration} onValueChange={setDuration} disabled={isGenerating}>
                 <SelectTrigger id="duration">
                   <SelectValue />
@@ -136,7 +136,7 @@ Razón: ${suggestion.reasoning}`;
               <Label htmlFor="participants">Participantes *</Label>
               <Textarea
                 id="participants"
-                placeholder="Nombres separados por comas"
+                placeholder={t('team.nombresSeparadosPorComas')}
                 value={participants}
                 onChange={(e) => setParticipants(e.target.value)}
                 disabled={isGenerating}
@@ -149,7 +149,7 @@ Razón: ${suggestion.reasoning}`;
             <Label htmlFor="preferences">Preferencias (opcional)</Label>
             <Textarea
               id="preferences"
-              placeholder="Ej: Mañanas preferiblemente, evitar viernes tarde, considerar zonas horarias..."
+              placeholder={t('team.ejMañanasPreferiblementeEvitar')}
               value={preferences}
               onChange={(e) => setPreferences(e.target.value)}
               disabled={isGenerating}
@@ -162,7 +162,7 @@ Razón: ${suggestion.reasoning}`;
             evidenceProfile="team"
             projectId={currentProject?.id || ''}
             userId={user?.id || ''}
-            buttonLabel="Sugerir horarios"
+            buttonLabel={t('team.sugerirHorarios')}
             buttonSize="lg"
             buttonClassName="w-full"
             additionalParams={{
@@ -184,16 +184,14 @@ Razón: ${suggestion.reasoning}`;
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <CardTitle className="text-base">Horario recomendado</CardTitle>
+                <CardTitle className="text-base">{t('team.horarioRecomendado')}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-500">
                   {Math.round(suggestion.confidence_score)}% confianza
                 </Badge>
                 <Button onClick={handleCopy} variant="outline" size="sm" className="gap-2">
-                  <Copy size={14} />
-                  Copiar
-                </Button>
+                  <Copy size={14} />{t('team.copiar')}</Button>
               </div>
             </div>
           </CardHeader>
@@ -202,27 +200,27 @@ Razón: ${suggestion.reasoning}`;
             <div className="p-4 rounded-lg border-2 border-green-500/20 bg-background">
               <div className="grid grid-cols-3 gap-4 mb-4">
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Fecha</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('team.fecha')}</p>
                   <p className="font-semibold flex items-center gap-2">
                     <Calendar size={16} className="text-green-500" />
                     {suggestion.date}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Hora</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('team.hora')}</p>
                   <p className="font-semibold flex items-center gap-2">
                     <Clock size={16} className="text-green-500" />
                     {suggestion.time}
                   </p>
                 </div>
                 <div>
-                  <p className="text-xs text-muted-foreground mb-1">Duración</p>
+                  <p className="text-xs text-muted-foreground mb-1">{t('team.duración')}</p>
                   <p className="font-semibold">{suggestion.duration_minutes} min</p>
                 </div>
               </div>
 
               <div className="space-y-2">
-                <p className="text-xs text-muted-foreground">Participantes</p>
+                <p className="text-xs text-muted-foreground">{t('team.participantes')}</p>
                 <div className="flex flex-wrap gap-1.5">
                   {suggestion.participants.map((participant, idx) => (
                     <Badge key={idx} variant="outline">

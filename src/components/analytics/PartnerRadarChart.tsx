@@ -2,11 +2,13 @@ import { useMemo } from 'react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, Tooltip } from 'recharts';
 import type { MemberStats } from '@/hooks/useNovaData';
 
+import { useTranslation } from 'react-i18next';
 interface PartnerRadarChartProps {
   members: MemberStats[];
 }
 
 export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
+  const { t } = useTranslation();
   const data = useMemo(() => {
     if (members.length === 0) return [];
 
@@ -21,12 +23,12 @@ export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
     };
 
     const metrics = [
-      { name: 'OBVs', key: 'obvs' },
+      { name: t('analytics.obvs'), key: 'obvs' },
       { name: 'LPs', key: 'lps' },
       { name: 'BPs', key: 'bps' },
       { name: 'CPs', key: 'cps' },
-      { name: 'Facturación', key: 'facturacion' },
-      { name: 'Margen', key: 'margen' },
+      { name: t('analytics.facturación'), key: 'facturacion' },
+      { name: t('analytics.margen'), key: 'margen' },
     ];
 
     return metrics.map(metric => {
@@ -34,7 +36,7 @@ export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
       members.forEach(member => {
         const value = Number(member[metric.key as keyof MemberStats]) || 0;
         const maxVal = maxValues[metric.key as keyof typeof maxValues];
-        point[member.nombre || 'Unknown'] = Math.round((value / maxVal) * 100);
+        point[member.nombre || t('analytics.unknown')] = Math.round((value / maxVal) * 100);
       });
       return point;
     });
@@ -45,8 +47,7 @@ export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
   if (members.length === 0) {
     return (
       <div className="flex items-center justify-center h-64 text-muted-foreground">
-        <p className="text-center">
-          Selecciona 2-3 socios de la tabla<br />
+        <p className="text-center">{t('analytics.selecciona23SociosDe')}<br />
           para compararlos en el radar
         </p>
       </div>
@@ -70,8 +71,8 @@ export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
           {members.map((member, index) => (
             <Radar
               key={member.id}
-              name={member.nombre || 'Unknown'}
-              dataKey={member.nombre || 'Unknown'}
+              name={member.nombre || t('analytics.unknown')}
+              dataKey={member.nombre || t('analytics.unknown')}
               stroke={member.color || colors[index % colors.length]}
               fill={member.color || colors[index % colors.length]}
               fillOpacity={0.2}
@@ -87,7 +88,7 @@ export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
               border: '1px solid hsl(var(--border))',
               borderRadius: '8px',
             }}
-            formatter={(value: number) => [`${value}%`, 'Score']}
+            formatter={(value: number) => [`${value}%`, t('analytics.score')]}
           />
         </RadarChart>
       </ResponsiveContainer>

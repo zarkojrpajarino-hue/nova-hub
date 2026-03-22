@@ -19,7 +19,9 @@ import { Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw } from 'luc
 import { toast } from 'sonner';
 import { ApiKeyGuide } from './ApiKeyGuide';
 
+import { useTranslation } from 'react-i18next';
 export function HoldedIntegration() {
+  const { t } = useTranslation();
   const [apiKey, setApiKey] = useState('');
   const [isLoading, _setIsLoading] = useState(false);
   const [isSyncing, _setIsSyncing] = useState(false);
@@ -29,18 +31,18 @@ export function HoldedIntegration() {
   const handleConnect = async () => {
     // I15.0.4 — AISLADO: tabla financial_integrations no existe.
     // Pendiente reescritura completa (mismo patrón que StripeIntegration + integration_connections + pgcrypto).
-    toast.error('Holded no disponible aún — integración en desarrollo');
+    toast.error(t('integrations.holdedNoDisponibleAún'));
   };
 
   const handleSync = async () => {
     // I15.0.4 — AISLADO: auto-sync-finances depende de financial_integrations (no existe).
-    toast.error('Sync de Holded no disponible aún');
+    toast.error(t('integrations.syncDeHoldedNo'));
   };
 
   const handleDisconnect = async () => {
     // I15.0.4 — AISLADO: tabla financial_integrations no existe.
     setIsConnected(false);
-    toast.success('Holded desconectado');
+    toast.success(t('integrations.holdedDesconectado'));
   };
 
   return (
@@ -53,23 +55,15 @@ export function HoldedIntegration() {
               <CardTitle className="flex items-center gap-2">
                 <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">
                   H
-                </div>
-                Holded
-              </CardTitle>
-              <CardDescription>
-                Sincroniza facturas, clientes y cobros desde Holded
-              </CardDescription>
+                </div>{t('integrations.holded')}</CardTitle>
+              <CardDescription>{t('integrations.sincronizaFacturasClientesY')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
-                <CheckCircle2 size={12} className="mr-1" />
-                Conectado
-              </Badge>
+                <CheckCircle2 size={12} className="mr-1" />{t('integrations.conectado')}</Badge>
             ) : (
               <Badge variant="outline">
-                <AlertCircle size={12} className="mr-1" />
-                Desconectado
-              </Badge>
+                <AlertCircle size={12} className="mr-1" />{t('integrations.desconectado')}</Badge>
             )}
           </div>
         </CardHeader>
@@ -91,28 +85,26 @@ export function HoldedIntegration() {
                         <ExternalLink size={12} />
                       </a>
                     </li>
-                    <li>Click en "Generar nueva API Key"</li>
-                    <li>Copia la key y pégala aquí abajo</li>
+                    <li>Click en t('integrations.generarNuevaApiKey')</li>
+                    <li>{t('integrations.copiaLaKeyY')}</li>
                   </ol>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="holded-key">API Key</Label>
+                  <Label htmlFor="holded-key">{t('integrations.apiKey')}</Label>
                   <ApiKeyGuide provider="holded" />
                 </div>
                 <Input
                   id="holded-key"
                   type="password"
-                  placeholder="Tu API Key de Holded"
+                  placeholder={t('integrations.tuApiKeyDe')}
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  Tu API Key se guarda encriptada. Holded permite acceso completo a facturación.
-                </p>
+                <p className="text-xs text-muted-foreground">{t('integrations.tuApiKeySe')}</p>
               </div>
 
               <Button
@@ -122,11 +114,9 @@ export function HoldedIntegration() {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Conectando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.conectando')}</>
                 ) : (
-                  'Conectar Holded'
+                  t('integrations.conectarHolded')
                 )}
               </Button>
             </>
@@ -136,9 +126,7 @@ export function HoldedIntegration() {
                 <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
                   ✓ Integración activa
                 </p>
-                <p className="text-xs text-muted-foreground">
-                  Facturas y cobros se sincronizan automáticamente cada 2 horas.
-                </p>
+                <p className="text-xs text-muted-foreground">{t('integrations.facturasYCobrosSe')}</p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
                     Última sincronización: {lastSync}
@@ -155,14 +143,10 @@ export function HoldedIntegration() {
                 >
                   {isSyncing ? (
                     <>
-                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                      Sincronizando...
-                    </>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.sincronizando')}</>
                   ) : (
                     <>
-                      <RefreshCw className="mr-2 h-4 w-4" />
-                      Sincronizar Ahora
-                    </>
+                      <RefreshCw className="mr-2 h-4 w-4" />{t('integrations.sincronizarAhora')}</>
                   )}
                 </Button>
 
@@ -170,9 +154,7 @@ export function HoldedIntegration() {
                   onClick={handleDisconnect}
                   disabled={isLoading}
                   variant="destructive"
-                >
-                  Desconectar
-                </Button>
+                >{t('integrations.desconectar')}</Button>
               </div>
             </div>
           )}
@@ -182,32 +164,28 @@ export function HoldedIntegration() {
       {/* What gets synced */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">¿Qué se sincroniza?</CardTitle>
+          <CardTitle className="text-base">{t('integrations.quéSeSincroniza')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
             <div className="flex items-start gap-3">
               <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Facturas emitidas</p>
-                <p className="text-xs text-muted-foreground">
-                  Todas las facturas con estados: pagada, pendiente, vencida
-                </p>
+                <p className="font-medium text-sm">{t('integrations.facturasEmitidas')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.todasLasFacturasCon')}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Estado de cobros</p>
-                <p className="text-xs text-muted-foreground">
-                  Qué facturas están pagadas, cuánto falta por cobrar
-                </p>
+                <p className="font-medium text-sm">{t('integrations.estadoDeCobros')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.quéFacturasEstánPagadas')}</p>
               </div>
             </div>
             <div className="flex items-start gap-3">
               <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Clientes</p>
+                <p className="font-medium text-sm">{t('integrations.clientes')}</p>
                 <p className="text-xs text-muted-foreground">
                   Datos de clientes (nombre, email, empresa)
                 </p>
@@ -216,10 +194,8 @@ export function HoldedIntegration() {
             <div className="flex items-start gap-3">
               <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
               <div>
-                <p className="font-medium text-sm">Productos/Servicios</p>
-                <p className="text-xs text-muted-foreground">
-                  Items facturados para análisis de revenue por producto
-                </p>
+                <p className="font-medium text-sm">{t('integrations.productosservicios')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.itemsFacturadosParaAnálisis')}</p>
               </div>
             </div>
           </div>
@@ -229,26 +205,18 @@ export function HoldedIntegration() {
       {/* Benefits */}
       <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-cyan-500/5">
         <CardHeader>
-          <CardTitle className="text-base">Beneficios de la integración</CardTitle>
+          <CardTitle className="text-base">{t('integrations.beneficiosDeLaIntegración')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2 text-sm">
             <p className="flex items-center gap-2">
-              <span className="text-blue-500">•</span>
-              Dashboard financiero actualizado automáticamente
-            </p>
+              <span className="text-blue-500">•</span>{t('integrations.dashboardFinancieroActualizadoAutomáticamente')}</p>
             <p className="flex items-center gap-2">
-              <span className="text-blue-500">•</span>
-              Alertas cuando facturas están vencidas
-            </p>
+              <span className="text-blue-500">•</span>{t('integrations.alertasCuandoFacturasEstán')}</p>
             <p className="flex items-center gap-2">
-              <span className="text-blue-500">•</span>
-              MRR calculado automáticamente de suscripciones
-            </p>
+              <span className="text-blue-500">•</span>{t('integrations.mrrCalculadoAutomáticamenteDe')}</p>
             <p className="flex items-center gap-2">
-              <span className="text-blue-500">•</span>
-              Proyecciones de revenue con IA basadas en historial
-            </p>
+              <span className="text-blue-500">•</span>{t('integrations.proyeccionesDeRevenueCon')}</p>
           </div>
         </CardContent>
       </Card>

@@ -14,7 +14,9 @@ import { AIAnalysisDashboard } from '@/components/analysis/AIAnalysisDashboard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 export default function AIAnalysisPage() {
+  const { t } = useTranslation();
   const { currentProject } = useCurrentProject();
   const projectId = currentProject?.id;
 
@@ -63,9 +65,7 @@ export default function AIAnalysisPage() {
       <div className="container max-w-4xl mx-auto py-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Selecciona un proyecto desde el selector en el header
-          </AlertDescription>
+          <AlertDescription>{t('aIAnalysis.seleccionaUnProyectoDesde')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -75,9 +75,7 @@ export default function AIAnalysisPage() {
     <div className="container max-w-4xl mx-auto py-8">
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">Análisis estratégico IA</h1>
-        <p className="text-sm text-gray-500 mt-1">
-          Diagnóstico en 3 niveles que se desbloquean progresivamente según actividad e integraciones
-        </p>
+        <p className="text-sm text-gray-500 mt-1">{t('aIAnalysis.diagnósticoEn3Niveles')}</p>
       </div>
 
       {isLoading ? (

@@ -4,6 +4,7 @@ import { Progress } from '@/components/ui/progress';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface MyRankingCardProps {
   ranking: {
     id: string;
@@ -23,6 +24,7 @@ const POSITION_CONFIG = {
 };
 
 export function MyRankingCard({ ranking, projectName, projectColor }: MyRankingCardProps) {
+  const { t } = useTranslation();
   const roleConfig = ROLE_CONFIG[ranking.role_name];
   const RoleIcon = roleConfig?.icon || Trophy;
   const positionConfig = POSITION_CONFIG[ranking.ranking_position as keyof typeof POSITION_CONFIG];
@@ -88,7 +90,7 @@ export function MyRankingCard({ ranking, projectName, projectColor }: MyRankingC
         
         <div>
           <div className="flex items-center justify-between mb-1.5">
-            <span className="text-xs text-muted-foreground">Score</span>
+            <span className="text-xs text-muted-foreground">{t('rankings.score')}</span>
             <span className="text-sm font-bold">{Number(ranking.score).toFixed(0)}%</span>
           </div>
           <Progress value={Number(ranking.score)} className="h-2" />

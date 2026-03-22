@@ -1,7 +1,7 @@
 /**
  * HOW IT WORKS COMPONENT
  *
- * Componente reutilizable para mostrar "Cómo funciona" en cada sección
+ * Componente reutilizable para mostrar t('ui.cómoFunciona0') en cada sección
  * Explica: qué es, de dónde vienen datos, qué genera, próximo paso
  */
 
@@ -16,6 +16,7 @@ import { LockedFeatureOverlay } from '@/components/subscription/LockedFeatureOve
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 
+import { useTranslation } from 'react-i18next';
 interface DataFlow {
   from: string;
   items: string[];
@@ -44,11 +45,11 @@ interface HowItWorksProps {
 
 // Map premium features to user-friendly names
 const featureNames: Record<string, string> = {
-  advanced_analytics: 'Analytics Avanzados',
+  advanced_analytics: t('ui.analyticsAvanzados'),
   api_access: 'Acceso API',
-  ai_role_generation: 'Generación IA de Roles',
-  ai_task_generation: 'Generación IA de Tareas',
-  custom_branding: 'Branding Personalizado',
+  ai_role_generation: t('ui.generaciónIaDeRoles'),
+  ai_task_generation: t('ui.generaciónIaDeTareas'),
+  custom_branding: t('ui.brandingPersonalizado'),
 };
 
 
@@ -64,6 +65,7 @@ export function HowItWorks({
   premiumFeature,
   requiredPlan,
 }: HowItWorksProps) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(defaultExpanded);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const { currentProject } = useCurrentProject();
@@ -73,7 +75,7 @@ export function HowItWorks({
   const hasAccess = premiumFeature ? canUseFeature(premiumFeature as keyof SubscriptionPlan) : true;
 
   // Obtener el nombre del plan actual
-  const currentPlanName = subscription?.plan?.display_name || 'Free';
+  const currentPlanName = subscription?.plan?.display_name || t('ui.free');
 
   return (
     <Card className="border-2 border-primary/20 bg-primary/5">
@@ -87,9 +89,7 @@ export function HowItWorks({
               <CardTitle className="text-lg flex items-center gap-2">
                 {title}
                 {!isExpanded && (
-                  <Badge variant="secondary" className="text-xs">
-                    Cómo funciona
-                  </Badge>
+                  <Badge variant="secondary" className="text-xs">{t('ui.cómoFunciona')}</Badge>
                 )}
               </CardTitle>
               <CardDescription>{description}</CardDescription>
@@ -118,13 +118,9 @@ export function HowItWorks({
                 size="lg"
                 className="w-full bg-gradient-to-r from-primary to-purple-600 hover:from-primary/90 hover:to-purple-600/90 gap-2 shadow-lg"
               >
-                <Play className="w-5 h-5" />
-                Ver Sección en Acción
-                <Sparkles className="w-5 h-5" />
+                <Play className="w-5 h-5" />{t('ui.verSecciónEnAcción')}<Sparkles className="w-5 h-5" />
               </Button>
-              <p className="text-xs text-center text-muted-foreground">
-                Preview interactivo con datos de ejemplo enterprise-level
-              </p>
+              <p className="text-xs text-center text-muted-foreground">{t('ui.previewInteractivoConDatos')}</p>
 
               {/* Upgrade Button - Si no tiene acceso */}
               {!hasAccess && premiumFeature && requiredPlan && (
@@ -142,9 +138,7 @@ export function HowItWorks({
                     Desbloquear con Plan {requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)}
                     <Zap className="w-5 h-5" />
                   </Button>
-                  <p className="text-xs text-center text-muted-foreground mt-2">
-                    Actualiza tu plan para usar esta funcionalidad con tus datos reales
-                  </p>
+                  <p className="text-xs text-center text-muted-foreground mt-2">{t('ui.actualizaTuPlanPara')}</p>
                 </div>
               )}
             </div>
@@ -152,7 +146,7 @@ export function HowItWorks({
 
           {/* What is it */}
           <div>
-            <h4 className="font-semibold text-sm mb-2 text-primary">¿Qué es?</h4>
+            <h4 className="font-semibold text-sm mb-2 text-primary">{t('ui.quéEs')}</h4>
             <p className="text-sm text-muted-foreground">{whatIsIt}</p>
           </div>
 
@@ -161,7 +155,7 @@ export function HowItWorks({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Download className="h-4 w-4 text-blue-500" />
-                <h4 className="font-semibold text-sm text-blue-500">De dónde vienen los datos</h4>
+                <h4 className="font-semibold text-sm text-blue-500">{t('ui.deDóndeVienenLos')}</h4>
               </div>
               <div className="space-y-3">
                 {dataInputs.map((input, index) => (
@@ -186,7 +180,7 @@ export function HowItWorks({
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <Upload className="h-4 w-4 text-green-500" />
-                <h4 className="font-semibold text-sm text-green-500">Qué datos genera</h4>
+                <h4 className="font-semibold text-sm text-green-500">{t('ui.quéDatosGenera')}</h4>
               </div>
               <div className="space-y-3">
                 {dataOutputs.map((output, index) => (
@@ -211,7 +205,7 @@ export function HowItWorks({
             <div className="pt-3 border-t">
               <div className="flex items-center gap-2 mb-2">
                 <ArrowRight className="h-4 w-4 text-amber-500" />
-                <h4 className="font-semibold text-sm text-amber-600">Próximo paso</h4>
+                <h4 className="font-semibold text-sm text-amber-600">{t('ui.próximoPaso')}</h4>
               </div>
               <p className="text-sm text-muted-foreground">
                 {nextStep.action} →{' '}
@@ -227,7 +221,7 @@ export function HowItWorks({
         <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
           <DialogContent className="max-w-2xl p-0 border-0 bg-transparent shadow-none">
             <VisuallyHidden>
-              <DialogTitle>Actualizar Plan</DialogTitle>
+              <DialogTitle>{t('ui.actualizarPlan')}</DialogTitle>
               <DialogDescription>
                 Actualiza tu plan para desbloquear {featureNames[premiumFeature] || title}
               </DialogDescription>

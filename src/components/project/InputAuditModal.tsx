@@ -15,6 +15,7 @@ import { Info, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 interface InputAuditModalProps {
   type: 'probability' | 'risk';
   probability?: ProjectEngineData['probability'];
@@ -33,19 +34,19 @@ interface InputRow {
 }
 
 const PROB_ROWS: Omit<InputRow, 'value'>[] = [
-  { label: 'Avance de fase',      source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: 'Añadir OBVs' },
-  { label: 'Tasa de ejecución',   source: 'Motor (Tareas)', confidence: '—', tab: 'tareas',     ctaLabel: 'Ver tareas' },
-  { label: 'Validación',          source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: 'Añadir validaciones' },
-  { label: 'Momentum ingresos',   source: 'Financiero',     confidence: '—', tab: 'financiero', ctaLabel: 'Ver financiero' },
-  { label: 'Capacidad equipo',    source: 'Motor',          confidence: '—', tab: 'financiero', ctaLabel: 'Ver Mi Modelo' },
+  { label: t('project.avanceDeFase'),      source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: t('project.añadirObvs') },
+  { label: t('project.tasaDeEjecución'),   source: 'Motor (Tareas)', confidence: '—', tab: 'tareas',     ctaLabel: t('project.verTareas') },
+  { label: t('project.validación'),          source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: t('project.añadirValidaciones') },
+  { label: t('project.momentumIngresos'),   source: t('project.financiero'),     confidence: '—', tab: 'financiero', ctaLabel: t('project.verFinanciero') },
+  { label: t('project.capacidadEquipo'),    source: t('project.motor'),          confidence: '—', tab: 'financiero', ctaLabel: t('project.verMiModelo') },
 ];
 
 const RISK_ROWS: Omit<InputRow, 'value'>[] = [
-  { label: 'Runway financiero',      source: 'Financiero',     confidence: '—', tab: 'financiero', ctaLabel: 'Añadir runway' },
-  { label: 'Caída de ejecución',     source: 'Motor (Tareas)', confidence: '—', tab: 'tareas',     ctaLabel: 'Ver tareas' },
-  { label: 'Fragilidad validación',  source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: 'Añadir OBVs' },
-  { label: 'Concentración revenue',  source: 'Financiero',     confidence: '—', tab: 'financiero', ctaLabel: 'Ver financiero' },
-  { label: 'Bloqueos activos',       source: 'Motor',          confidence: '—', tab: 'tareas',     ctaLabel: 'Revisar tareas' },
+  { label: t('project.runwayFinanciero'),      source: t('project.financiero'),     confidence: '—', tab: 'financiero', ctaLabel: t('project.añadirRunway') },
+  { label: t('project.caídaDeEjecución'),     source: 'Motor (Tareas)', confidence: '—', tab: 'tareas',     ctaLabel: t('project.verTareas') },
+  { label: t('project.fragilidadValidación'),  source: 'Motor (OBVs)',   confidence: '—', tab: 'obvs',       ctaLabel: t('project.añadirObvs') },
+  { label: t('project.concentraciónRevenue'),  source: t('project.financiero'),     confidence: '—', tab: 'financiero', ctaLabel: t('project.verFinanciero') },
+  { label: t('project.bloqueosActivos'),       source: t('project.motor'),          confidence: '—', tab: 'tareas',     ctaLabel: t('project.revisarTareas') },
 ];
 
 function formatValue(v: number | null): string {
@@ -54,10 +55,10 @@ function formatValue(v: number | null): string {
 }
 
 function confidenceLabel(v: number | null): string {
-  if (v === null) return 'Sin datos';
-  if (v >= 70) return 'Alta';
-  if (v >= 40) return 'Media';
-  return 'Baja';
+  if (v === null) return t('project.sinDatos');
+  if (v >= 70) return t('project.alta');
+  if (v >= 40) return t('project.media');
+  return t('project.baja');
 }
 
 export function InputAuditModal({
@@ -67,6 +68,7 @@ export function InputAuditModal({
   onNavigateToTab,
   onClose,
 }: InputAuditModalProps) {
+  const { t } = useTranslation();
   const isProbability = type === 'probability';
   const baseRows = isProbability ? PROB_ROWS : RISK_ROWS;
 
@@ -107,7 +109,7 @@ export function InputAuditModal({
           <div className="flex items-center gap-2">
             <Info size={16} className="text-muted-foreground" />
             <h3 className="font-semibold text-sm">
-              {isProbability ? 'Inputs de probabilidad' : 'Inputs de riesgo'}
+              {isProbability ? 'Inputs de probabilidad': t('project.inputsDeRiesgo')}
             </h3>
           </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -126,9 +128,9 @@ export function InputAuditModal({
         <div className="space-y-1">
           {/* Header row */}
           <div className="grid grid-cols-12 text-[10px] font-semibold text-muted-foreground uppercase tracking-wide pb-1 border-b border-border">
-            <span className="col-span-5">Input</span>
-            <span className="col-span-2 text-right">Valor</span>
-            <span className="col-span-3 text-right">Confianza</span>
+            <span className="col-span-5">{t('project.input')}</span>
+            <span className="col-span-2 text-right">{t('project.valor')}</span>
+            <span className="col-span-3 text-right">{t('project.confianza')}</span>
             <span className="col-span-2" />
           </div>
           {rows.map((row, i) => (
@@ -142,9 +144,9 @@ export function InputAuditModal({
               </span>
               <span className={cn(
                 'col-span-3 text-right',
-                row.confidence === 'Sin datos' ? 'text-muted-foreground' :
-                row.confidence === 'Alta' ? 'text-success' :
-                row.confidence === 'Media' ? 'text-warning' : 'text-destructive',
+                row.confidence === t('project.sinDatos') ? 'text-muted-foreground' :
+                row.confidence === t('project.alta') ? 'text-success' :
+                row.confidence === t('project.media') ? 'text-warning' : 'text-destructive',
               )}>
                 {row.confidence}
               </span>
@@ -162,9 +164,7 @@ export function InputAuditModal({
           ))}
         </div>
 
-        <p className="text-[10px] text-muted-foreground mt-3">
-          Fuente: Motor del proyecto · Actualización: siguiente ejecución del motor
-        </p>
+        <p className="text-[10px] text-muted-foreground mt-3">{t('project.fuenteMotorDelProyecto')}</p>
       </div>
     </div>
   );
@@ -181,8 +181,8 @@ export function InputAuditTrigger({ onClick }: InputAuditTriggerProps) {
     <button
       onClick={onClick}
       className="inline-flex items-center justify-center w-4 h-4 rounded-full text-muted-foreground hover:text-foreground transition-colors"
-      aria-label="Ver inputs del motor"
-      title="Ver inputs del motor"
+      aria-label={t('project.verInputsDelMotor')}
+      title={t('project.verInputsDelMotor')}
     >
       <Info size={12} />
     </button>

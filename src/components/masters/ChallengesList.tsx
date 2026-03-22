@@ -5,9 +5,10 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { formatDistanceToNow, format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import type { MasterChallenge, TeamMaster } from '@/hooks/useMasters';
 
+import { useTranslation } from 'react-i18next';
 interface ChallengesListProps {
   challenges: MasterChallenge[];
   masters: TeamMaster[];
@@ -16,36 +17,35 @@ interface ChallengesListProps {
 }
 
 const STATUS_CONFIG = {
-  pending: { label: 'Pendiente', color: 'bg-muted text-muted-foreground', icon: Clock },
-  accepted: { label: 'Aceptado', color: 'bg-amber-500/10 text-amber-500', icon: CheckCircle2 },
-  in_progress: { label: 'En Progreso', color: 'bg-primary/10 text-primary', icon: Target },
-  completed: { label: 'Completado', color: 'bg-success/10 text-success', icon: Trophy },
-  declined: { label: 'Declinado', color: 'bg-destructive/10 text-destructive', icon: XCircle },
-  expired: { label: 'Expirado', color: 'bg-muted text-muted-foreground', icon: Clock },
+  pending: { label: t('masters.pendiente'), color: 'bg-muted text-muted-foreground', icon: Clock },
+  accepted: { label: t('masters.aceptado'), color: 'bg-amber-500/10 text-amber-500', icon: CheckCircle2 },
+  in_progress: { label: t('masters.enProgreso'), color: 'bg-primary/10 text-primary', icon: Target },
+  completed: { label: t('masters.completado'), color: 'bg-success/10 text-success', icon: Trophy },
+  declined: { label: t('masters.declinado'), color: 'bg-destructive/10 text-destructive', icon: XCircle },
+  expired: { label: t('masters.expirado'), color: 'bg-muted text-muted-foreground', icon: Clock },
 };
 
 const TYPE_CONFIG = {
-  performance: { label: 'Rendimiento', description: 'Comparación de métricas de rendimiento' },
-  project: { label: 'Proyecto', description: 'Completar un proyecto específico' },
-  peer_vote: { label: 'Votación', description: 'Votación del equipo' },
+  performance: { label: t('masters.rendimiento'), description: t('masters.comparaciónDeMétricasDe') },
+  project: { label: t('masters.proyecto'), description: t('masters.completarUnProyectoEspecífico') },
+  peer_vote: { label: t('masters.votación'), description: t('masters.votaciónDelEquipo') },
 };
 
 const RESULT_CONFIG = {
-  challenger_wins: { label: 'Victoria del Retador', color: 'text-success', icon: Trophy },
-  master_wins: { label: 'Victoria del Master', color: 'text-primary', icon: Trophy },
-  draw: { label: 'Empate', color: 'text-muted-foreground', icon: Target },
+  challenger_wins: { label: t('masters.victoriaDelRetador'), color: 'text-success', icon: Trophy },
+  master_wins: { label: t('masters.victoriaDelMaster'), color: 'text-primary', icon: Trophy },
+  draw: { label: t('masters.empate'), color: 'text-muted-foreground', icon: Target },
 };
 
 export function ChallengesList({ challenges, masters, profiles, currentUserId }: ChallengesListProps) {
+  const { t } = useTranslation();
   if (challenges.length === 0) {
     return (
       <Card className="border-dashed">
         <CardContent className="py-10 text-center">
           <Swords size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-          <h3 className="font-semibold mb-2">Sin desafíos activos</h3>
-          <p className="text-sm text-muted-foreground">
-            Los desafíos permiten competir por el título de Master
-          </p>
+          <h3 className="font-semibold mb-2">{t('masters.sinDesafíosActivos')}</h3>
+          <p className="text-sm text-muted-foreground">{t('masters.losDesafíosPermitenCompetir')}</p>
         </CardContent>
       </Card>
     );
@@ -83,7 +83,7 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
                 </div>
                 
                 <span className="text-xs text-muted-foreground">
-                  {formatDistanceToNow(new Date(challenge.created_at), { addSuffix: true, locale: es })}
+                  {formatDistanceToNow(new Date(challenge.created_at), { addSuffix: true, locale: getDateFnsLocale() })}
                 </span>
               </div>
             </CardHeader>
@@ -99,8 +99,8 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
                       {challenger?.nombre?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="font-semibold text-sm">{challenger?.nombre || 'Retador'}</p>
-                  <p className="text-xs text-muted-foreground">Retador</p>
+                  <p className="font-semibold text-sm">{challenger?.nombre || t('masters.retador0')}</p>
+                  <p className="text-xs text-muted-foreground">{t('masters.retador')}</p>
                 </div>
                 
                 {/* VS */}
@@ -117,8 +117,8 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
                       {masterProfile?.nombre?.charAt(0) || '?'}
                     </AvatarFallback>
                   </Avatar>
-                  <p className="font-semibold text-sm">{masterProfile?.nombre || 'Master'}</p>
-                  <p className="text-xs text-amber-500">Master</p>
+                  <p className="font-semibold text-sm">{masterProfile?.nombre || t('masters.master1')}</p>
+                  <p className="text-xs text-amber-500">{t('masters.master')}</p>
                 </div>
               </div>
               
@@ -133,11 +133,9 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
               {challenge.deadline && challenge.status !== 'completed' && (
                 <div className="flex items-center justify-between text-sm mb-4">
                   <span className="text-muted-foreground flex items-center gap-1">
-                    <Clock size={14} />
-                    Fecha límite
-                  </span>
+                    <Clock size={14} />{t('masters.fechaLímite')}</span>
                   <span className="font-medium">
-                    {format(new Date(challenge.deadline), 'PPP', { locale: es })}
+                    {format(new Date(challenge.deadline), 'PPP', { locale: getDateFnsLocale() })}
                   </span>
                 </div>
               )}
@@ -153,12 +151,8 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
               {/* Actions */}
               {challenge.status === 'pending' && master?.user_id === currentUserId && (
                 <div className="flex gap-2 mt-4">
-                  <Button variant="outline" className="flex-1 text-success hover:bg-success/10">
-                    Aceptar Desafío
-                  </Button>
-                  <Button variant="outline" className="flex-1 text-destructive hover:bg-destructive/10">
-                    Declinar
-                  </Button>
+                  <Button variant="outline" className="flex-1 text-success hover:bg-success/10">{t('masters.aceptarDesafío')}</Button>
+                  <Button variant="outline" className="flex-1 text-destructive hover:bg-destructive/10">{t('masters.declinar')}</Button>
                 </div>
               )}
             </CardContent>

@@ -6,8 +6,8 @@
  * herramienta lógica o avisa que otra herramienta afecta la calidad actual.
  *
  * Tipos:
- *   - opportunity: "Siguiente paso natural" → navega a esa tool
- *   - warning:     "Otra tool tiene datos nuevos que afectan esta" → navega para actualizar
+ *   - opportunity: t('toolkit.siguientePasoNatural') → navega a esa tool
+ *   - warning:     t('toolkit.otraToolTieneDatos') → navega para actualizar
  *
  * Reglas: máx 2 links por tool. Sin redundancia con el chip V2.1.
  */
@@ -16,6 +16,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowRight, AlertTriangle } from 'lucide-react';
 import type { ToolType, ToolkitUnlockState } from '@/hooks/useToolkitUnlocks';
 
+import { useTranslation } from 'react-i18next';
 interface CrossLink {
   type: 'opportunity' | 'warning';
   message: string;
@@ -30,12 +31,12 @@ interface ToolCrossLinksProps {
 }
 
 const TOOL_LABELS: Record<ToolType, string> = {
-  buyer_persona:    'Buyer Persona',
-  lead_scoring:     'Lead Scoring',
-  sales_playbook:   'Sales Playbook',
-  brand_kit:        'Brand Kit',
-  comms_guide:      'Guía de Comunicación',
-  customer_journey: 'Customer Journey',
+  buyer_persona:    t('toolkit.buyerPersona'),
+  lead_scoring:     t('toolkit.leadScoring'),
+  sales_playbook:   t('toolkit.salesPlaybook'),
+  brand_kit:        t('toolkit.brandKit'),
+  comms_guide:      t('toolkit.guíaDeComunicación'),
+  customer_journey: t('toolkit.customerJourney'),
 };
 
 function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): CrossLink[] {
@@ -49,8 +50,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('brand_kit') === 'available') {
         links.push({
           type: 'opportunity',
-          message: 'El perfil está listo para alimentar el Brand Kit.',
-          actionLabel: 'Generar Brand Kit',
+          message: t('toolkit.elPerfilEstáListo'),
+          actionLabel: t('toolkit.generarBrandKit'),
           targetTool: 'brand_kit',
         });
       }
@@ -58,8 +59,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('brand_kit') === 'generated' && st('comms_guide') === 'available') {
         links.push({
           type: 'opportunity',
-          message: 'Brand Kit generado — el siguiente paso es la Guía de Comunicación.',
-          actionLabel: 'Generar Guía de Comunicación',
+          message: t('toolkit.brandKitGeneradoEl'),
+          actionLabel: t('toolkit.generarGuíaDeComunicación'),
           targetTool: 'comms_guide',
         });
       }
@@ -71,8 +72,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (newData('buyer_persona')) {
         links.push({
           type: 'warning',
-          message: 'La Buyer Persona tiene datos nuevos — actualizarla mejoraría los criterios de scoring.',
-          actionLabel: 'Ver Buyer Persona',
+          message: t('toolkit.laBuyerPersonaTiene'),
+          actionLabel: t('toolkit.verBuyerPersona'),
           targetTool: 'buyer_persona',
         });
       }
@@ -80,8 +81,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('sales_playbook') === 'generated') {
         links.push({
           type: 'opportunity',
-          message: 'Aplica estos scores para decidir en qué deals usar el Sales Playbook primero.',
-          actionLabel: 'Ver Sales Playbook',
+          message: t('toolkit.aplicaEstosScoresPara'),
+          actionLabel: t('toolkit.verSalesPlaybook'),
           targetTool: 'sales_playbook',
         });
       }
@@ -93,8 +94,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('lead_scoring') === 'generated') {
         links.push({
           type: 'opportunity',
-          message: 'Usa el Lead Scoring para decidir en qué leads aplicar este playbook primero.',
-          actionLabel: 'Ver Lead Scoring',
+          message: t('toolkit.usaElLeadScoring'),
+          actionLabel: t('toolkit.verLeadScoring'),
           targetTool: 'lead_scoring',
         });
       }
@@ -106,8 +107,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (newData('buyer_persona')) {
         links.push({
           type: 'warning',
-          message: 'La Buyer Persona tiene datos nuevos — considera regenerar el Brand Kit.',
-          actionLabel: 'Ver Buyer Persona',
+          message: t('toolkit.laBuyerPersonaTiene0'),
+          actionLabel: t('toolkit.verBuyerPersona'),
           targetTool: 'buyer_persona',
         });
       }
@@ -115,8 +116,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('comms_guide') === 'available') {
         links.push({
           type: 'opportunity',
-          message: 'Brand Kit listo — el siguiente paso es generar la Guía de Comunicación por canal.',
-          actionLabel: 'Generar Guía de Comunicación',
+          message: t('toolkit.brandKitListoEl'),
+          actionLabel: t('toolkit.generarGuíaDeComunicación'),
           targetTool: 'comms_guide',
         });
       }
@@ -128,8 +129,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('sales_playbook') === 'generated') {
         links.push({
           type: 'opportunity',
-          message: 'Usa estas plantillas como primer contacto en el paso 1 del Sales Playbook.',
-          actionLabel: 'Ver Sales Playbook',
+          message: t('toolkit.usaEstasPlantillasComo'),
+          actionLabel: t('toolkit.verSalesPlaybook'),
           targetTool: 'sales_playbook',
         });
       }
@@ -141,8 +142,8 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
       if (st('lead_scoring') === 'generated') {
         links.push({
           type: 'opportunity',
-          message: 'Contrasta la fricción de cada etapa con los criterios del Lead Scoring.',
-          actionLabel: 'Ver Lead Scoring',
+          message: t('toolkit.contrastaLaFricciónDe'),
+          actionLabel: t('toolkit.verLeadScoring'),
           targetTool: 'lead_scoring',
         });
       }
@@ -154,6 +155,7 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
 }
 
 export function ToolCrossLinks({ toolType, unlocks, onNavigateTool }: ToolCrossLinksProps) {
+  const { t } = useTranslation();
   const links = computeCrossLinks(toolType, unlocks);
   if (links.length === 0) return null;
 

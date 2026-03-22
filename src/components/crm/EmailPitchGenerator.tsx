@@ -20,6 +20,7 @@ import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface GeneratedEmail {
   subject: string;
   body: string;
@@ -29,6 +30,7 @@ interface GeneratedEmail {
 }
 
 export function EmailPitchGenerator() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currentProject } = useCurrentProject();
 
@@ -48,7 +50,7 @@ export function EmailPitchGenerator() {
 
     const text = `Subject: ${generatedEmail.subject}\n\n${generatedEmail.body}`;
     navigator.clipboard.writeText(text);
-    toast.success('Email copiado al portapapeles');
+    toast.success(t('crm.emailCopiadoAlPortapapeles'));
   };
 
   const handleDownload = () => {
@@ -62,7 +64,7 @@ export function EmailPitchGenerator() {
     a.download = `email-pitch-${recipientName.replace(/\s+/g, '-')}.txt`;
     a.click();
     URL.revokeObjectURL(url);
-    toast.success('Email descargado');
+    toast.success(t('crm.emailDescargado'));
   };
 
   return (
@@ -75,7 +77,7 @@ export function EmailPitchGenerator() {
               <Mail className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle>Email Pitch Generator</CardTitle>
+              <CardTitle>{t('crm.emailPitchGenerator')}</CardTitle>
               <CardDescription>
                 Genera emails de prospección personalizados y persuasivos con IA
               </CardDescription>
@@ -87,7 +89,7 @@ export function EmailPitchGenerator() {
       {/* Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Información del destinatario</CardTitle>
+          <CardTitle className="text-base">{t('crm.informaciónDelDestinatario')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-2 gap-4">
@@ -95,17 +97,17 @@ export function EmailPitchGenerator() {
               <Label htmlFor="recipientName">Nombre del destinatario *</Label>
               <Input
                 id="recipientName"
-                placeholder="Ej: María García"
+                placeholder={t('crm.ejMaríaGarcía')}
                 value={recipientName}
                 onChange={(e) => setRecipientName(e.target.value)}
               />
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="recipientRole">Cargo</Label>
+              <Label htmlFor="recipientRole">{t('crm.cargo')}</Label>
               <Input
                 id="recipientRole"
-                placeholder="Ej: Head of Marketing"
+                placeholder={t('crm.ejHeadOfMarketing')}
                 value={recipientRole}
                 onChange={(e) => setRecipientRole(e.target.value)}
               />
@@ -113,10 +115,10 @@ export function EmailPitchGenerator() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="recipientCompany">Empresa</Label>
+            <Label htmlFor="recipientCompany">{t('crm.empresa')}</Label>
             <Input
               id="recipientCompany"
-              placeholder="Ej: Acme Corp"
+              placeholder={t('crm.ejAcmeCorp')}
               value={recipientCompany}
               onChange={(e) => setRecipientCompany(e.target.value)}
             />
@@ -128,7 +130,7 @@ export function EmailPitchGenerator() {
             <Label htmlFor="yourProduct">Tu producto/servicio *</Label>
             <Textarea
               id="yourProduct"
-              placeholder="Ej: Plataforma de automatización de marketing que permite..."
+              placeholder={t('crm.ejPlataformaDeAutomatización')}
               value={yourProduct}
               onChange={(e) => setYourProduct(e.target.value)}
               rows={3}
@@ -136,10 +138,10 @@ export function EmailPitchGenerator() {
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor="painPoints">Pain points que resuelves</Label>
+            <Label htmlFor="painPoints">{t('crm.painPointsQueResuelves')}</Label>
             <Textarea
               id="painPoints"
-              placeholder="Ej: Reduce tiempo manual en campañas de email, aumenta conversion rate..."
+              placeholder={t('crm.ejReduceTiempoManual')}
               value={painPoints}
               onChange={(e) => setPainPoints(e.target.value)}
               rows={2}
@@ -148,32 +150,32 @@ export function EmailPitchGenerator() {
 
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="tone">Tono del email</Label>
+              <Label htmlFor="tone">{t('crm.tonoDelEmail')}</Label>
               <Select value={tone} onValueChange={setTone}>
                 <SelectTrigger id="tone">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="professional">Profesional</SelectItem>
-                  <SelectItem value="friendly">Amigable</SelectItem>
-                  <SelectItem value="casual">Casual</SelectItem>
-                  <SelectItem value="formal">Formal</SelectItem>
+                  <SelectItem value="professional">{t('crm.profesional')}</SelectItem>
+                  <SelectItem value="friendly">{t('crm.amigable')}</SelectItem>
+                  <SelectItem value="casual">{t('crm.casual')}</SelectItem>
+                  <SelectItem value="formal">{t('crm.formal')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="callToAction">Call to Action</Label>
+              <Label htmlFor="callToAction">{t('crm.callToAction')}</Label>
               <Select value={callToAction} onValueChange={setCallToAction}>
                 <SelectTrigger id="callToAction">
-                  <SelectValue placeholder="Selecciona CTA" />
+                  <SelectValue placeholder={t('crm.seleccionaCta')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Dejar que IA decida</SelectItem>
-                  <SelectItem value="schedule-call">Agendar llamada</SelectItem>
-                  <SelectItem value="demo">Solicitar demo</SelectItem>
-                  <SelectItem value="more-info">Más información</SelectItem>
-                  <SelectItem value="trial">Prueba gratuita</SelectItem>
+                  <SelectItem value="">{t('crm.dejarQueIaDecida')}</SelectItem>
+                  <SelectItem value="schedule-call">{t('crm.agendarLlamada')}</SelectItem>
+                  <SelectItem value="demo">{t('crm.solicitarDemo')}</SelectItem>
+                  <SelectItem value="more-info">{t('crm.másInformación')}</SelectItem>
+                  <SelectItem value="trial">{t('crm.pruebaGratuita')}</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -210,29 +212,23 @@ export function EmailPitchGenerator() {
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <CheckCircle2 className="w-5 h-5 text-green-500" />
-                <CardTitle className="text-base">Email generado</CardTitle>
+                <CardTitle className="text-base">{t('crm.emailGenerado')}</CardTitle>
               </div>
               <div className="flex items-center gap-2">
                 <Badge className="bg-green-500">
                   ~{generatedEmail.estimated_response_rate}% tasa de respuesta esperada
                 </Badge>
                 <Button onClick={handleCopy} variant="outline" size="sm" className="gap-2">
-                  <Copy size={14} />
-                  Copiar
-                </Button>
+                  <Copy size={14} />{t('crm.copiar')}</Button>
                 <Button onClick={handleDownload} variant="outline" size="sm" className="gap-2">
-                  <Download size={14} />
-                  Descargar
-                </Button>
+                  <Download size={14} />{t('crm.descargar')}</Button>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* Subject Line */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                Asunto
-              </Label>
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">{t('crm.asunto')}</Label>
               <div className="p-3 rounded-lg bg-background border font-semibold">
                 {generatedEmail.subject}
               </div>
@@ -242,9 +238,7 @@ export function EmailPitchGenerator() {
 
             {/* Email Body */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                Cuerpo del email
-              </Label>
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">{t('crm.cuerpoDelEmail')}</Label>
               <div className="p-4 rounded-lg bg-background border">
                 <pre className="whitespace-pre-wrap text-sm font-sans">{generatedEmail.body}</pre>
               </div>
@@ -254,9 +248,7 @@ export function EmailPitchGenerator() {
 
             {/* Follow-up Suggestions */}
             <div className="space-y-2">
-              <Label className="text-xs font-semibold uppercase text-muted-foreground">
-                Sugerencias de seguimiento
-              </Label>
+              <Label className="text-xs font-semibold uppercase text-muted-foreground">{t('crm.sugerenciasDeSeguimiento')}</Label>
               <ul className="space-y-2">
                 {generatedEmail.follow_up_suggestions.map((suggestion, idx) => (
                   <li key={idx} className="flex items-start gap-2 text-sm">

@@ -9,6 +9,7 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { CaminoMasterPreviewModal } from '@/components/preview/CaminoMasterPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface RolesMeetingViewProps {
   onNewOBV?: () => void;
 }
@@ -21,6 +22,7 @@ interface RoleContext {
 }
 
 export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
+  const { t } = useTranslation();
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: projects = [] } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
@@ -68,8 +70,8 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
   return (
     <>
       <NovaHeader
-        title="Reuniones de Rol"
-        subtitle="Sesiones cross-proyecto donde personas con el mismo rol comparten aprendizajes"
+        title={t('rolesMeeting.reunionesDeRol')}
+        subtitle={t('rolesMeeting.sesionesCrossproyectoDondePersonas')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -77,62 +79,62 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
       <div className="p-8">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Reuniones periódicas por rol para compartir conocimiento entre proyectos"
-          whatIsIt="Sistema de reuniones mensuales donde todas las personas con el mismo rol (ej: todos los CMOs, todos los CTOs) de DIFERENTES proyectos se juntan para compartir aprendizajes, mejores prácticas, y resolver problemas comunes. Rompe silos entre proyectos y acelera aprendizaje cross-funcional. IA genera preguntas personalizadas para cada rol basadas en performance actual."
+          title={t('rolesMeeting.cómoFunciona')}
+          description={t('rolesMeeting.reunionesPeriódicasPorRol')}
+          whatIsIt={t('rolesMeeting.sistemaDeReunionesMensuales')}
           dataInputs={[
             {
-              from: 'Proyectos',
+              from: t('rolesMeeting.proyectos'),
               items: [
-                'Quién tiene qué rol en cada proyecto',
+                t('rolesMeeting.quiénTieneQuéRol'),
                 'Contexto de cada proyecto (industria, fase, desafíos)',
               ],
             },
             {
-              from: 'Mi Desarrollo',
+              from: t('rolesMeeting.miDesarrollo'),
               items: [
-                'Tu Fit Score en tu rol actual',
-                'Áreas donde necesitas mejorar',
+                t('rolesMeeting.tuFitScoreEn'),
+                t('rolesMeeting.áreasDondeNecesitasMejorar'),
                 'Performance reciente (tareas, OBVs)',
               ],
             },
             {
-              from: 'Rankings',
+              from: t('rolesMeeting.rankings'),
               items: [
-                'Quién es top performer en cada rol',
-                'Métricas de performance por rol',
+                t('rolesMeeting.quiénEsTopPerformer'),
+                t('rolesMeeting.métricasDePerformancePor'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Aprendizaje acelerado',
+              to: t('rolesMeeting.aprendizajeAcelerado'),
               items: [
-                'Mejores prácticas compartidas entre proyectos',
-                'Soluciones a problemas comunes del rol',
-                'Mentoría de top performers a novatos',
+                t('rolesMeeting.mejoresPrácticasCompartidasEntre'),
+                t('rolesMeeting.solucionesAProblemasComunes'),
+                t('rolesMeeting.mentoríaDeTopPerformers'),
               ],
             },
             {
-              to: 'Preguntas IA personalizadas',
+              to: t('rolesMeeting.preguntasIaPersonalizadas'),
               items: [
-                'IA genera agenda para cada reunión basada en performance',
-                'Preguntas específicas según desafíos de cada miembro',
-                'Temas prioritarios por resolver',
+                t('rolesMeeting.iaGeneraAgendaPara'),
+                t('rolesMeeting.preguntasEspecíficasSegúnDesafíos'),
+                t('rolesMeeting.temasPrioritariosPorResolver'),
               ],
             },
             {
-              to: 'Red profesional',
+              to: t('rolesMeeting.redProfesional'),
               items: [
-                'Conexiones con otros en tu rol',
-                'Potencial para colaboraciones cross-proyecto',
-                'Apoyo peer-to-peer',
+                t('rolesMeeting.conexionesConOtrosEn'),
+                t('rolesMeeting.potencialParaColaboracionesCrossproyecto'),
+                t('rolesMeeting.apoyoPeertopeer'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Revisa próxima reunión de tu rol → Usa IA para generar preguntas → Asiste y comparte',
-            destination: 'Aprendizajes se reflejan en Mi Desarrollo, mejoras en Rankings',
+            action: t('rolesMeeting.revisaPróximaReuniónDe'),
+            destination: t('rolesMeeting.aprendizajesSeReflejanEn'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -143,10 +145,8 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
             <Calendar size={28} className="text-primary-foreground" />
           </div>
           <div className="flex-1">
-            <h3 className="font-bold text-lg mb-1">Próxima Reunión de Rol: Lunes 27 Enero</h3>
-            <p className="text-sm text-muted-foreground">
-              Todos los miembros con el mismo rol de diferentes proyectos se reúnen para compartir aprendizajes.
-            </p>
+            <h3 className="font-bold text-lg mb-1">{t('rolesMeeting.próximaReuniónDeRol')}</h3>
+            <p className="text-sm text-muted-foreground">{t('rolesMeeting.todosLosMiembrosCon')}</p>
           </div>
         </div>
 

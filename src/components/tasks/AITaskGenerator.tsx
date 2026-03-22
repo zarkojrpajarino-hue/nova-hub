@@ -12,6 +12,7 @@ import { cn } from '@/lib/utils';
 import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 
+import { useTranslation } from 'react-i18next';
 interface GeneratedTask {
   assignee: string;
   titulo: string;
@@ -55,12 +56,13 @@ interface AITaskGeneratorProps {
 }
 
 const PRIORITY_CONFIG: Record<number, { label: string; color: string }> = {
-  1: { label: 'Alta', color: '#EF4444' },
-  2: { label: 'Media', color: '#F59E0B' },
-  3: { label: 'Baja', color: '#22C55E' },
+  1: { label: t('tasks.alta'), color: '#EF4444' },
+  2: { label: t('tasks.media'), color: '#F59E0B' },
+  3: { label: t('tasks.baja'), color: '#22C55E' },
 };
 
 export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const { user } = useAuth();
 
@@ -99,13 +101,13 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
     const savedTasks = result.content?.tasks || [];
 
     if (savedTasks.length === 0) {
-      setError('No se pudieron generar tareas. Asegúrate de que el proyecto tenga miembros asignados.');
+      setError(t('tasks.noSePudieronGenerar'));
       return;
     }
 
     // Transform saved tasks to display format
     const displayTasks = savedTasks.map((t: SavedTask) => ({
-      assignee: t.assignee_id ? (project.team.find(m => m.id === t.assignee_id)?.nombre || 'Sin asignar') : 'Sin asignar',
+      assignee: t.assignee_id ? (project.team.find(m => m.id === t.assignee_id)?.nombre || t('tasks.sinAsignar')) : t('tasks.sinAsignar'),
       titulo: t.titulo,
       descripcion: t.descripcion || '',
       prioridad: t.prioridad || 2,
@@ -127,11 +129,11 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
     setIsGenerating(false);
     const errorMessage = error.message || '';
     if (errorMessage.includes('429')) {
-      setError('Has excedido el límite de solicitudes. Espera unos minutos.');
+      setError(t('tasks.hasExcedidoElLímite'));
     } else if (errorMessage.includes('402')) {
-      setError('Créditos de IA agotados. Contacta al administrador.');
+      setError(t('tasks.créditosDeIaAgotados'));
     } else {
-      setError('Error al conectar con el servicio de IA. Por favor, inténtalo de nuevo.');
+      setError(t('tasks.errorAlConectarCon'));
     }
   };
 
@@ -156,7 +158,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
       {!canGenerateMore ? (
         <Button
           variant="outline"
-          onClick={() => toast.error('Completa las tareas pendientes antes de generar más')}
+          onClick={() => toast.error(t('tasks.completaLasTareasPendientes'))}
           className="gap-2 opacity-70"
           disabled={true}
         >
@@ -193,9 +195,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
               </div>
               Generar Tareas con IA
             </DialogTitle>
-            <DialogDescription>
-              La IA analizará tu proyecto y generará tareas específicas para esta semana
-            </DialogDescription>
+            <DialogDescription>{t('tasks.laIaAnalizaráTu')}</DialogDescription>
           </DialogHeader>
 
           <div className="flex-1 overflow-y-auto py-4">
@@ -207,21 +207,17 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
                   </div>
                   <Loader2 className="w-6 h-6 absolute -bottom-1 -right-1 animate-spin text-purple-500" />
                 </div>
-                <p className="mt-4 font-medium">Analizando proyecto...</p>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Generando tareas personalizadas para tu equipo
-                </p>
+                <p className="mt-4 font-medium">{t('tasks.analizandoProyecto')}</p>
+                <p className="text-sm text-muted-foreground mt-1">{t('tasks.generandoTareasPersonalizadasPara')}</p>
               </div>
             ) : error ? (
               <div className="flex flex-col items-center justify-center py-12 text-center">
                 <div className="w-16 h-16 rounded-2xl bg-destructive/10 flex items-center justify-center">
                   <X className="w-8 h-8 text-destructive" />
                 </div>
-                <p className="mt-4 font-medium text-destructive">Error</p>
+                <p className="mt-4 font-medium text-destructive">{t('tasks.error')}</p>
                 <p className="text-sm text-muted-foreground mt-1 max-w-sm">{error}</p>
-                <Button variant="outline" className="mt-4" onClick={() => setError(null)}>
-                  Reintentar
-                </Button>
+                <Button variant="outline" className="mt-4" onClick={() => setError(null)}>{t('tasks.reintentar')}</Button>
               </div>
             ) : generatedTasks.length > 0 ? (
               <div className="space-y-3">
@@ -316,9 +312,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
                   className="flex-1"
                   onClick={handleClose}
                 >
-                  <Check className="w-4 h-4 mr-2" />
-                  ¡Listo! Ver tareas
-                </Button>
+                  <Check className="w-4 h-4 mr-2" />{t('tasks.listoVerTareas')}</Button>
               ) : (
                 <>
                   <Button
@@ -327,9 +321,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
                     onClick={handleGenerate}
                     disabled={isSaving}
                   >
-                    <Bot className="w-4 h-4 mr-2" />
-                    Regenerar
-                  </Button>
+                    <Bot className="w-4 h-4 mr-2" />{t('tasks.regenerar')}</Button>
                   <Button
                     className="flex-1"
                     onClick={handleClose}

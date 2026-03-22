@@ -13,6 +13,7 @@ import { ErrorBoundary } from "@/components/ErrorBoundary";
 // Page-level lazy imports for route-based code splitting
 const RootRedirect = lazy(() => import("./pages/RootRedirect").then(m => ({ default: m.RootRedirect })));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
+const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const CreateFirstProjectPage = lazy(() => import("./pages/CreateFirstProjectPage").then(m => ({ default: m.CreateFirstProjectPage })));
@@ -88,6 +89,7 @@ const App = () => (
               }>
                 <Routes>
                   {/* Rutas públicas */}
+                  <Route path="/landing" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />
 
                   {/* Root redirect - maneja lógica de redirección inicial */}

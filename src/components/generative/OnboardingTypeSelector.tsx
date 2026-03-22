@@ -12,6 +12,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Lightbulb, Rocket, Building, ArrowRight } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 export type OnboardingType = 'sin_idea' | 'tengo_idea' | 'startup_funcionando';
 
 interface OnboardingTypeSelectorProps {
@@ -22,59 +23,58 @@ const ONBOARDING_TYPES = [
   {
     id: 'sin_idea' as OnboardingType,
     icon: Lightbulb,
-    title: 'No tengo idea',
-    description: 'Quiero emprender pero aún no sé qué negocio montar',
-    subtitle: 'Ideal para: Aspirantes a emprendedores',
+    title: t('generative.noTengoIdea'),
+    description: t('generative.quieroEmprenderPeroAún'),
+    subtitle: t('generative.idealParaAspirantesA'),
     color: 'from-blue-500 to-cyan-500',
     iconBg: 'bg-blue-500/10',
     iconColor: 'text-blue-500',
     features: [
-      'IA genera 5-10 ideas desde tus frustraciones',
-      'Análisis de mercado y competencia',
-      'Negocio completo en 10 minutos',
+      t('generative.iaGenera510Ideas'),
+      t('generative.análisisDeMercadoY'),
+      t('generative.negocioCompletoEn10'),
     ],
   },
   {
     id: 'tengo_idea' as OnboardingType,
     icon: Rocket,
-    title: 'Tengo una idea',
-    description: 'Ya sé qué negocio quiero pero necesito estructurarlo y validarlo',
-    subtitle: 'Ideal para: Emprendedores con visión',
+    title: t('generative.tengoUnaIdea'),
+    description: t('generative.yaSéQuéNegocio'),
+    subtitle: t('generative.idealParaEmprendedoresCon'),
     color: 'from-purple-500 to-pink-500',
     iconBg: 'bg-purple-500/10',
     iconColor: 'text-purple-500',
     features: [
-      'Valida tu idea con análisis competitivo',
-      'Branding + Productos + Pricing automáticos',
+      t('generative.validaTuIdeaCon'),
+      t('generative.brandingProductosPricingAutomáticos'),
       '3 experimentos de validación específicos',
     ],
   },
   {
     id: 'startup_funcionando' as OnboardingType,
     icon: Building,
-    title: 'Startup funcionando',
-    description: 'Tengo una startup operando y quiero estructurarla mejor o escalarla',
-    subtitle: 'Ideal para: Startups early-stage',
+    title: t('generative.startupFuncionando'),
+    description: t('generative.tengoUnaStartupOperando'),
+    subtitle: t('generative.idealParaStartupsEarlystage'),
     color: 'from-orange-500 to-red-500',
     iconBg: 'bg-orange-500/10',
     iconColor: 'text-orange-500',
     features: [
       'Importa tu negocio actual (web, redes, métricas)',
       'Audit automático con IA',
-      'Plan de growth personalizado',
+      t('generative.planDeGrowthPersonalizado'),
     ],
   },
 ];
 
 export function OnboardingTypeSelector({ onSelectType }: OnboardingTypeSelectorProps) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-6">
       {/* Header */}
       <div className="text-center space-y-2">
-        <h2 className="text-2xl font-bold">¿En qué etapa estás?</h2>
-        <p className="text-muted-foreground">
-          Selecciona la opción que mejor describa tu situación actual
-        </p>
+        <h2 className="text-2xl font-bold">{t('generative.enQuéEtapaEstás')}</h2>
+        <p className="text-muted-foreground">{t('generative.seleccionaLaOpciónQue')}</p>
       </div>
 
       {/* Types Grid */}
@@ -122,9 +122,7 @@ export function OnboardingTypeSelector({ onSelectType }: OnboardingTypeSelectorP
                   <Button
                     variant="ghost"
                     className="w-full group-hover:bg-primary/5 transition-colors"
-                  >
-                    Comenzar onboarding
-                    <ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
+                  >{t('generative.comenzarOnboarding')}<ArrowRight className="ml-2 h-4 w-4 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </div>
               </CardContent>

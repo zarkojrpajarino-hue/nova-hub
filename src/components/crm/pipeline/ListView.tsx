@@ -3,6 +3,7 @@ import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import type { Lead } from '@/hooks/useCRMPipeline';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -39,11 +40,10 @@ export const ListView = memo(function ListView({
   getStage,
   onLeadClick,
 }: ListViewProps) {
+  const { t } = useTranslation();
   if (filteredLeads.length === 0) {
     return (
-      <div className="text-center py-12 text-muted-foreground">
-        No hay leads que mostrar
-      </div>
+      <div className="text-center py-12 text-muted-foreground">{t('crm.noHayLeadsQue')}</div>
     );
   }
 

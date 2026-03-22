@@ -9,12 +9,14 @@ import { MapPin, Calendar, Lightbulb } from 'lucide-react';
 import { Dialog, DialogContent, DialogTitle } from '@/components/ui/dialog';
 import type { ExpansionMarket } from './ExpansionMarketCard';
 
+import { useTranslation } from 'react-i18next';
 interface ExplorationPlanSectionProps {
   market: ExpansionMarket;
   onClose: () => void;
 }
 
 export function ExplorationPlanSection({ market, onClose }: ExplorationPlanSectionProps) {
+  const { t } = useTranslation();
   return (
     <Dialog open onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
@@ -50,7 +52,7 @@ export function ExplorationPlanSection({ market, onClose }: ExplorationPlanSecti
           {/* Cultural tips */}
           {market.cultural_tips.length > 0 && (
             <div className="bg-muted/50 rounded-lg p-3">
-              <p className="text-xs font-medium mb-1.5">Consejos culturales de negocio</p>
+              <p className="text-xs font-medium mb-1.5">{t('expansion.consejosCulturalesDeNegocio')}</p>
               <ul className="text-xs text-muted-foreground space-y-1 list-disc ml-4">
                 {market.cultural_tips.map((tip, i) => (
                   <li key={i}>{tip}</li>
@@ -61,7 +63,7 @@ export function ExplorationPlanSection({ market, onClose }: ExplorationPlanSecti
 
           {/* Total cost */}
           <div className="flex justify-between text-sm border-t pt-2">
-            <span className="font-medium">Coste total estimado</span>
+            <span className="font-medium">{t('expansion.costeTotalEstimado')}</span>
             <span className="font-semibold">
               €{market.total_trip_cost.min}–{market.total_trip_cost.max}
             </span>

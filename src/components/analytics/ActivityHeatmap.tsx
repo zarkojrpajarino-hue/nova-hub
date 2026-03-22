@@ -2,16 +2,18 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { format, subMonths, eachDayOfInterval, getDay } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { cn } from '@/lib/utils';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Loader2 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface ActivityHeatmapProps {
   isDemoMode?: boolean;
 }
 
 export function ActivityHeatmap({ isDemoMode = false }: ActivityHeatmapProps = {}) {
+  const { t } = useTranslation();
   const dateRange = useMemo(() => {
     const end = new Date();
     const start = subMonths(end, 6);
@@ -167,7 +169,7 @@ export function ActivityHeatmap({ isDemoMode = false }: ActivityHeatmapProps = {
                   </TooltipTrigger>
                   <TooltipContent>
                     <p className="text-xs">
-                      {format(day.date, 'dd MMM yyyy', { locale: es })}
+                      {format(day.date, 'dd MMM yyyy', { locale: getDateFnsLocale() })}
                       <br />
                       {day.count} evidencias registradas
                     </p>
@@ -181,13 +183,13 @@ export function ActivityHeatmap({ isDemoMode = false }: ActivityHeatmapProps = {
 
       {/* Legend */}
       <div className="flex items-center gap-2 text-xs text-muted-foreground">
-        <span>Menos</span>
+        <span>{t('analytics.menos')}</span>
         <div className="flex gap-1">
           {[0, 1, 2, 3, 4].map(level => (
             <div key={level} className={cn("w-3 h-3 rounded-sm", getColor(level))} />
           ))}
         </div>
-        <span>Más</span>
+        <span>{t('analytics.más')}</span>
       </div>
     </div>
   );

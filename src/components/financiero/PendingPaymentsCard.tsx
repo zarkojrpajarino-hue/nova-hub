@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface PendingPayment {
   id: string;
   titulo: string;
@@ -28,6 +29,7 @@ interface PendingPaymentsCardProps {
 }
 
 export function PendingPaymentsCard({ payments, onMarkPaid }: PendingPaymentsCardProps) {
+  const { t } = useTranslation();
   const overdue = payments.filter(p => p.dias_vencido > 0);
   const upcoming = payments.filter(p => p.dias_vencido <= 0);
   const totalPending = payments.reduce((sum, p) => sum + (p.pendiente || 0), 0);
@@ -36,9 +38,7 @@ export function PendingPaymentsCard({ payments, onMarkPaid }: PendingPaymentsCar
     <Card>
       <CardHeader className="flex flex-row items-center justify-between">
         <CardTitle className="flex items-center gap-2">
-          <Clock className="w-5 h-5 text-amber-500" />
-          Cobros Pendientes
-        </CardTitle>
+          <Clock className="w-5 h-5 text-amber-500" />{t('financiero.cobrosPendientes')}</CardTitle>
         <Badge variant="secondary" className="text-lg px-3">
           €{totalPending.toLocaleString('es-ES')}
         </Badge>
@@ -47,8 +47,8 @@ export function PendingPaymentsCard({ payments, onMarkPaid }: PendingPaymentsCar
         {payments.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <CheckCircle className="w-12 h-12 mx-auto mb-3 text-green-500/50" />
-            <p>¡Todo cobrado!</p>
-            <p className="text-sm">No hay pagos pendientes</p>
+            <p>{t('financiero.todoCobrado')}</p>
+            <p className="text-sm">{t('financiero.noHayPagosPendientes')}</p>
           </div>
         ) : (
           <>
@@ -154,9 +154,7 @@ function PaymentItem({
             size="sm" 
             className="text-xs h-6 px-2"
             onClick={() => onMarkPaid(payment.id)}
-          >
-            Cobrado
-          </Button>
+          >{t('financiero.cobrado')}</Button>
         )}
       </div>
     </div>

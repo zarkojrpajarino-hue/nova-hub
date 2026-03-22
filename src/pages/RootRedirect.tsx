@@ -14,7 +14,9 @@ import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { Loader2 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 export function RootRedirect() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading, profileLoading } = useAuth();
   const { currentProject, userProjects, isLoading: projectsLoading } = useCurrentProject();
@@ -25,9 +27,9 @@ export function RootRedirect() {
       return;
     }
 
-    // Si no está autenticado, ir a login
+    // Si no está autenticado, ir a landing
     if (!isAuthenticated) {
-      navigate('/auth', { replace: true });
+      navigate('/landing', { replace: true });
       return;
     }
 
@@ -55,7 +57,7 @@ export function RootRedirect() {
           N
         </div>
         <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
-        <p className="text-sm text-muted-foreground mt-2">Cargando...</p>
+        <p className="text-sm text-muted-foreground mt-2">{t('rootRedirect.cargando')}</p>
       </div>
     </div>
   );

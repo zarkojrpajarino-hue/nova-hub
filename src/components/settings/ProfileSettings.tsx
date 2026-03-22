@@ -9,6 +9,7 @@ import { cn } from '@/lib/utils';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpdateProfile, useUploadAvatar } from '@/hooks/useSettings';
 
+import { useTranslation } from 'react-i18next';
 const PROFILE_COLORS = [
   '#6366F1', '#8B5CF6', '#EC4899', '#EF4444', '#F59E0B',
   '#22C55E', '#14B8A6', '#3B82F6', '#06B6D4', '#84CC16',
@@ -16,6 +17,7 @@ const PROFILE_COLORS = [
 ];
 
 export function ProfileSettings() {
+  const { t } = useTranslation();
   const { profile, user } = useAuth();
   const fileInputRef = useRef<HTMLInputElement>(null);
   
@@ -47,9 +49,9 @@ export function ProfileSettings() {
       
       // Update profile with new avatar URL
       await updateProfile.mutateAsync({ avatar: publicUrl });
-      toast.success('Avatar actualizado');
+      toast.success(t('settings.avatarActualizado'));
     } catch (_error) {
-      toast.error('Error al subir el avatar');
+      toast.error(t('settings.errorAlSubirEl'));
       setAvatarPreview(profile?.avatar || null);
     }
   };
@@ -58,18 +60,18 @@ export function ProfileSettings() {
     try {
       await updateProfile.mutateAsync({ avatar: null });
       setAvatarPreview(null);
-      toast.success('Avatar eliminado');
+      toast.success(t('settings.avatarEliminado'));
     } catch (_error) {
-      toast.error('Error al eliminar el avatar');
+      toast.error(t('settings.errorAlEliminarEl'));
     }
   };
 
   const handleSave = async () => {
     try {
       await updateProfile.mutateAsync({ nombre, color });
-      toast.success('Perfil actualizado');
+      toast.success(t('settings.perfilActualizado'));
     } catch (_error) {
-      toast.error('Error al guardar');
+      toast.error(t('settings.errorAlGuardar'));
     }
   };
 
@@ -96,7 +98,7 @@ export function ProfileSettings() {
                   {avatarPreview ? (
                     <img 
                       src={avatarPreview} 
-                      alt="Avatar"
+                      alt={t('settings.avatar')}
                       className="w-full h-full object-cover"
                     />
                   ) : (
@@ -130,32 +132,29 @@ export function ProfileSettings() {
                   onClick={handleRemoveAvatar}
                   className="text-xs text-destructive mt-2 hover:underline flex items-center gap-1"
                 >
-                  <X size={12} /> Eliminar foto
-                </button>
+                  <X size={12} />{t('settings.eliminarFoto')}</button>
               )}
             </div>
 
             {/* Fields */}
             <div className="flex-1 space-y-4">
               <div>
-                <Label>Nombre</Label>
+                <Label>{t('settings.nombre')}</Label>
                 <Input
                   value={nombre}
                   onChange={(e) => setNombre(e.target.value)}
-                  placeholder="Tu nombre"
+                  placeholder={t('settings.tuNombre')}
                 />
               </div>
 
               <div>
-                <Label>Email</Label>
+                <Label>{t('settings.email')}</Label>
                 <Input
                   value={user?.email || ''}
                   disabled
                   className="bg-muted"
                 />
-                <p className="text-xs text-muted-foreground mt-1">
-                  El email no se puede cambiar
-                </p>
+                <p className="text-xs text-muted-foreground mt-1">{t('settings.elEmailNoSe')}</p>
               </div>
             </div>
           </div>
@@ -170,9 +169,7 @@ export function ProfileSettings() {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-muted-foreground mb-4">
-            Este color te identifica en rankings, proyectos y equipo
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">{t('settings.esteColorTeIdentifica')}</p>
           
           <div className="flex flex-wrap gap-2">
             {PROFILE_COLORS.map(c => (
@@ -200,9 +197,9 @@ export function ProfileSettings() {
       <div className="flex justify-end">
         <Button onClick={handleSave} disabled={isLoading}>
           {isLoading ? (
-            <><Loader2 size={16} className="mr-2 animate-spin" /> Guardando...</>
+            <><Loader2 size={16} className="mr-2 animate-spin" />{t('settings.guardando')}</>
           ) : (
-            'Guardar cambios'
+            t('settings.guardarCambios')
           )}
         </Button>
       </div>

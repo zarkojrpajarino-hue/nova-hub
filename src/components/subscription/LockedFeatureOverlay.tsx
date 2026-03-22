@@ -32,6 +32,7 @@ import { PlanSelectionModal } from './PlanSelectionModal';
 import { useAvailablePlans } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface LockedFeatureOverlayProps {
   /** Nombre de la feature (display) */
   featureName: string;
@@ -93,13 +94,14 @@ const PLAN_STYLES = {
  * Iconos por tipo de feature
  */
 function getFeatureIcon(featureName: string) {
-  if (featureName.includes('IA') || featureName.includes('Inteligencia')) return Sparkles;
-  if (featureName.includes('Analytics') || featureName.includes('Análisis')) return TrendingUp;
+  const { t } = useTranslation();
+  if (featureName.includes('IA') || featureName.includes(t('subscription.inteligencia'))) return Sparkles;
+  if (featureName.includes(t('subscription.analytics')) || featureName.includes(t('subscription.análisis'))) return TrendingUp;
   if (featureName.includes('API')) return Code;
-  if (featureName.includes('Branding') || featureName.includes('Personaliz')) return Palette;
-  if (featureName.includes('Dominio')) return Globe;
-  if (featureName.includes('White Label')) return Shield;
-  if (featureName.includes('Soporte')) return HeadphonesIcon;
+  if (featureName.includes(t('subscription.branding')) || featureName.includes(t('subscription.personaliz'))) return Palette;
+  if (featureName.includes(t('subscription.dominio'))) return Globe;
+  if (featureName.includes(t('subscription.whiteLabel'))) return Shield;
+  if (featureName.includes(t('subscription.soporte'))) return HeadphonesIcon;
   return Lock;
 }
 
@@ -221,7 +223,7 @@ export function LockedFeatureOverlay({
           <div className="flex items-center gap-4 bg-white/50 px-6 py-3 rounded-xl border border-gray-200/50 backdrop-blur-sm">
             {/* Current plan */}
             <div className="flex flex-col items-center">
-              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Plan Actual</p>
+              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">{t('subscription.planActual')}</p>
               <Badge variant="outline" className="text-xs py-1.5 px-3 font-semibold">
                 {currentPlan}
               </Badge>
@@ -231,7 +233,7 @@ export function LockedFeatureOverlay({
 
             {/* Required plan */}
             <div className="flex flex-col items-center">
-              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">Requerido</p>
+              <p className="text-[10px] uppercase tracking-wide text-gray-500 font-semibold mb-1">{t('subscription.requerido')}</p>
               <Badge
                 className={cn(
                   'text-xs py-1.5 px-3 gap-1.5 font-bold',
@@ -270,7 +272,7 @@ export function LockedFeatureOverlay({
               <div className="w-1 h-1 rounded-full bg-gray-300"></div>
               <div className="flex items-center gap-1.5">
                 <div className="w-1.5 h-1.5 rounded-full bg-blue-500"></div>
-                <span>Cancela cuando quieras</span>
+                <span>{t('subscription.cancelaCuandoQuieras')}</span>
               </div>
             </div>
           </div>

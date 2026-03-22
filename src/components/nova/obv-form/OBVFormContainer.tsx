@@ -13,12 +13,14 @@ import { OBVStep6Evidence } from './OBVStep6Evidence';
 import { useMemberStats } from '@/hooks/useNovaData';
 import { useProjects } from '@/hooks/useNovaData';
 
+import { useTranslation } from 'react-i18next';
 interface OBVFormContainerProps {
   onCancel: () => void;
   onSuccess: () => void;
 }
 
 export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps) {
+  const { t } = useTranslation();
   const { isBlocked } = useCanUpload();
   const { data: members = [] } = useMemberStats();
   const { data: projects = [] } = useProjects();
@@ -54,10 +56,8 @@ export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps)
         {isBlocked && (
           <Alert variant="destructive" className="mb-6">
             <AlertTriangle className="h-4 w-4" />
-            <AlertTitle>Estás bloqueado</AlertTitle>
-            <AlertDescription>
-              No puedes subir OBVs hasta que valides tus pendientes. Ve a validar para desbloquear.
-            </AlertDescription>
+            <AlertTitle>{t('obv.estásBloqueado')}</AlertTitle>
+            <AlertDescription>{t('obv.noPuedesSubirObvs')}</AlertDescription>
           </Alert>
         )}
 
@@ -135,13 +135,10 @@ export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps)
         {/* Actions */}
         <div className="flex justify-center gap-3 pt-4 border-t border-border mt-6">
           {step === 1 ? (
-            <Button variant="outline" size="lg" onClick={onCancel} className="min-w-[120px]">
-              Cancelar
-            </Button>
+            <Button variant="outline" size="lg" onClick={onCancel} className="min-w-[120px]">{t('obv.cancelar')}</Button>
           ) : (
             <Button variant="outline" size="lg" onClick={handleBack} className="min-w-[120px]">
-              <ChevronLeft size={18} className="mr-1" /> Atrás
-            </Button>
+              <ChevronLeft size={18} className="mr-1" />{t('obv.atrás')}</Button>
           )}
 
           {step < totalSteps ? (
@@ -150,8 +147,7 @@ export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps)
               className="nova-gradient min-w-[140px]"
               onClick={handleNext}
               disabled={!canProceed()}
-            >
-              Siguiente <ChevronRight size={18} className="ml-1" />
+            >{t('obv.siguiente')}<ChevronRight size={18} className="ml-1" />
             </Button>
           ) : (
             <Button
@@ -161,9 +157,9 @@ export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps)
               disabled={isSubmitting || isBlocked}
             >
               {isSubmitting ? (
-                <><Loader2 size={18} className="mr-2 animate-spin" /> Guardando...</>
+                <><Loader2 size={18} className="mr-2 animate-spin" />{t('obv.guardando')}</>
               ) : isBlocked ? (
-                <>Bloqueado</>
+                <>{t('obv.bloqueado')}</>
               ) : (
                 <>Enviar OBV <Check size={18} className="ml-1" /></>
               )}

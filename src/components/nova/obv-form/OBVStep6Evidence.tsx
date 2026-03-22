@@ -8,6 +8,7 @@ import {
 import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -22,35 +23,35 @@ interface OBVStep6EvidenceProps {
 }
 
 const EVIDENCE_TYPE_LABELS: Record<string, string> = {
-  payment:             'Comprobante de pago',
-  interview_recording: 'Grabación de entrevista',
+  payment:             t('obv.comprobanteDePago'),
+  interview_recording: t('obv.grabaciónDeEntrevista'),
   public_url:          'URL pública (web, social)',
-  screenshot:          'Captura de pantalla',
-  doc:                 'Documento',
-  other:               'Otro',
+  screenshot:          t('obv.capturaDePantalla'),
+  doc:                 t('obv.documento'),
+  other:               t('obv.otro'),
 };
 
 const OUTCOME_OPTIONS = [
   {
     value: 'success',
-    label: 'Éxito',
-    description: 'Hipótesis confirmada',
+    label: t('obv.éxito'),
+    description: t('obv.hipótesisConfirmada'),
     icon: CheckCircle2,
     color: 'text-success',
     bg: 'bg-success/10 border-success/40',
   },
   {
     value: 'partial',
-    label: 'Parcial',
-    description: 'Señal mixta, no confirmado del todo',
+    label: t('obv.parcial'),
+    description: t('obv.señalMixtaNoConfirmado'),
     icon: MinusCircle,
     color: 'text-warning',
     bg: 'bg-warning/10 border-warning/40',
   },
   {
     value: 'fail',
-    label: 'No validó',
-    description: 'Hipótesis refutada',
+    label: t('obv.noValidó'),
+    description: t('obv.hipótesisRefutada'),
     icon: XCircle,
     color: 'text-destructive',
     bg: 'bg-destructive/10 border-destructive/40',
@@ -64,6 +65,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
   isVenta,
   onUpdate
 }: OBVStep6EvidenceProps) {
+  const { t } = useTranslation();
   return (
     <>
       <h4 className="text-lg font-semibold text-center mb-6">
@@ -73,8 +75,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
 
         {/* obv_outcome — resultado del OBV (drives velocity + scoring) */}
         <div>
-          <Label className="mb-2 block">
-            ¿Cuál fue el resultado? <span className="text-destructive">*</span>
+          <Label className="mb-2 block">{t('obv.cuálFueElResultado')}<span className="text-destructive">*</span>
           </Label>
           <div className="grid grid-cols-3 gap-2">
             {OUTCOME_OPTIONS.map((opt) => {
@@ -98,23 +99,20 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
             })}
           </div>
           {!formData.obvOutcome && (
-            <p className="text-xs text-destructive mt-1.5">
-              Obligatorio — sin resultado el motor no contabiliza esta OBV como iteración.
-            </p>
+            <p className="text-xs text-destructive mt-1.5">{t('obv.obligatorioSinResultadoEl')}</p>
           )}
         </div>
 
         {/* evidence_type */}
         <div>
-          <Label className="mb-2 block">
-            Tipo de evidencia <span className="text-muted-foreground font-normal">(opcional)</span>
+          <Label className="mb-2 block">Tipo de evidencia<span className="text-muted-foreground font-normal">(opcional)</span>
           </Label>
           <Select
             value={formData.evidenceType}
             onValueChange={(v) => onUpdate({ evidenceType: v })}
           >
             <SelectTrigger>
-              <SelectValue placeholder="Selecciona tipo de evidencia..." />
+              <SelectValue placeholder={t('obv.seleccionaTipoDeEvidencia')} />
             </SelectTrigger>
             <SelectContent>
               {Object.entries(EVIDENCE_TYPE_LABELS).map(([value, label]) => (
@@ -123,9 +121,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
             </SelectContent>
           </Select>
           {formData.evidenceType === 'payment' && (
-            <p className="text-xs text-success mt-1.5">
-              Comprobante de pago verificado — activa la señal de validación del motor.
-            </p>
+            <p className="text-xs text-success mt-1.5">{t('obv.comprobanteDePagoVerificado')}</p>
           )}
         </div>
 
@@ -138,7 +134,7 @@ export const OBVStep6Evidence = memo(function OBVStep6Evidence({
 
         {/* Summary */}
         <div className="p-4 bg-muted rounded-xl space-y-2">
-          <h5 className="font-semibold">Resumen</h5>
+          <h5 className="font-semibold">{t('obv.resumen')}</h5>
           <div className="grid grid-cols-2 gap-2 text-sm">
             <span className="text-muted-foreground">Tipo:</span>
             <span className="font-medium capitalize">{formData.tipo}</span>

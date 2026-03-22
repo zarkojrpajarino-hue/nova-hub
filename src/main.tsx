@@ -3,6 +3,7 @@ import posthog from "posthog-js";
 import { createRoot } from "react-dom/client";
 import App from "./App.tsx";
 import "./index.css";
+import "./i18n";
 
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,

@@ -4,7 +4,7 @@
  * Modal interactivo que muestra TODAS las funcionalidades del Dashboard
  * con datos demo enterprise-level perfectos.
  *
- * Se activa desde el botón "Ver Sección en Acción" en HowItWorks
+ * Se activa desde el botón t('preview.verSecciónEnAcción') en HowItWorks
  */
 
 import { useState } from 'react';
@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
+import { useTranslation } from 'react-i18next';
 interface DashboardPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -43,32 +44,30 @@ interface DashboardPreviewModalProps {
 const SLIDES = [
   {
     id: 'intro',
-    title: 'Dashboard - Tu Centro de Comando',
+    title: t('preview.dashboardTuCentroDe'),
     icon: LayoutDashboard,
-    description: 'Vista panorámica de tu negocio en tiempo real: métricas clave, proyectos activos y acciones rápidas.',
+    description: t('preview.vistaPanorámicaDeTu'),
     content: (
       <div className="space-y-6">
         <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            ¿Qué puedes hacer con el Dashboard?
-          </h4>
+            <Sparkles className="w-5 h-5 text-primary" />{t('preview.quéPuedesHacerCon')}</h4>
           <div className="grid grid-cols-2 gap-3 mt-3">
             <div className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span className="text-sm">Monitorear KPIs principales en tiempo real</span>
+              <span className="text-sm">{t('preview.monitorearKpisPrincipalesEn')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span className="text-sm">Ver estado de todos los proyectos activos</span>
+              <span className="text-sm">{t('preview.verEstadoDeTodos')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span className="text-sm">Seguir activity feed con eventos del equipo</span>
+              <span className="text-sm">{t('preview.seguirActivityFeedCon')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span className="text-sm">Ejecutar quick actions sin cambiar de página</span>
+              <span className="text-sm">{t('preview.ejecutarQuickActionsSin')}</span>
             </div>
             <div className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
@@ -76,7 +75,7 @@ const SLIDES = [
             </div>
             <div className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span className="text-sm">Identificar alertas y oportunidades</span>
+              <span className="text-sm">{t('preview.identificarAlertasYOportunidades')}</span>
             </div>
           </div>
         </div>
@@ -85,9 +84,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-primary/40 hover:shadow-lg transition-all cursor-pointer group">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <DollarSign className="w-4 h-4 group-hover:text-green-600 transition-colors" />
-                Revenue Overview
-              </CardTitle>
+                <DollarSign className="w-4 h-4 group-hover:text-green-600 transition-colors" />{t('preview.revenueOverview')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-primary group-hover:scale-105 transition-transform inline-block">
@@ -102,9 +99,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-primary/40 hover:shadow-lg transition-all cursor-pointer group">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Briefcase className="w-4 h-4 group-hover:text-blue-600 transition-colors" />
-                Active Projects
-              </CardTitle>
+                <Briefcase className="w-4 h-4 group-hover:text-blue-600 transition-colors" />{t('preview.activeProjects')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-primary group-hover:scale-105 transition-transform inline-block">
@@ -119,9 +114,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-primary/40 hover:shadow-lg transition-all cursor-pointer group">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm font-medium text-muted-foreground flex items-center gap-2">
-                <Users className="w-4 h-4 group-hover:text-purple-600 transition-colors" />
-                Team Members
-              </CardTitle>
+                <Users className="w-4 h-4 group-hover:text-purple-600 transition-colors" />{t('preview.teamMembers')}</CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-2xl font-bold text-primary group-hover:scale-105 transition-transform inline-block">
@@ -144,9 +137,9 @@ const SLIDES = [
   },
   {
     id: 'kpis',
-    title: 'KPIs Principales',
+    title: t('preview.kpisPrincipales'),
     icon: TrendingUp,
-    description: 'Métricas clave con tendencias y comparativas de períodos anteriores.',
+    description: t('preview.métricasClaveConTendencias'),
     content: (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
@@ -158,7 +151,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-green-500/50 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center justify-between">
-                <span className="text-muted-foreground">Total Revenue</span>
+                <span className="text-muted-foreground">{t('preview.totalRevenue')}</span>
                 <DollarSign className="w-5 h-5 text-green-600 group-hover:scale-125 transition-transform" />
               </CardTitle>
             </CardHeader>
@@ -183,7 +176,7 @@ const SLIDES = [
                   <span className="font-semibold">${(PREMIUM_DEMO_DATA.analytics.metrics.arr / 1000).toFixed(0)}K</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Per Member</span>
+                  <span className="text-muted-foreground">{t('preview.perMember')}</span>
                   <span className="font-semibold">${(PREMIUM_DEMO_DATA.analytics.metrics.revenuePerMember / 1000).toFixed(1)}K</span>
                 </div>
               </div>
@@ -194,7 +187,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-blue-500/50 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center justify-between">
-                <span className="text-muted-foreground">Tasks Completed</span>
+                <span className="text-muted-foreground">{t('preview.tasksCompleted')}</span>
                 <CheckCircle2 className="w-5 h-5 text-blue-600 group-hover:scale-125 transition-transform" />
               </CardTitle>
             </CardHeader>
@@ -211,15 +204,15 @@ const SLIDES = [
               </div>
               <div className="pt-2 border-t space-y-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">This Month</span>
+                  <span className="text-muted-foreground">{t('preview.thisMonth')}</span>
                   <span className="font-semibold">298</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Last Month</span>
+                  <span className="text-muted-foreground">{t('preview.lastMonth')}</span>
                   <span className="font-semibold">267</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Avg/Member</span>
+                  <span className="text-muted-foreground">{t('preview.avgmember')}</span>
                   <span className="font-semibold">45</span>
                 </div>
               </div>
@@ -230,7 +223,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-purple-500/50 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center justify-between">
-                <span className="text-muted-foreground">Active Projects</span>
+                <span className="text-muted-foreground">{t('preview.activeProjects')}</span>
                 <Briefcase className="w-5 h-5 text-purple-600 group-hover:scale-125 transition-transform" />
               </CardTitle>
             </CardHeader>
@@ -253,7 +246,7 @@ const SLIDES = [
                   <span className="font-semibold">2</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Needs Attention</span>
+                  <span className="text-muted-foreground">{t('preview.needsAttention')}</span>
                   <span className="font-semibold">1</span>
                 </div>
               </div>
@@ -264,7 +257,7 @@ const SLIDES = [
           <Card className="border-primary/20 hover:border-amber-500/50 hover:shadow-xl transition-all duration-300 cursor-pointer group hover:scale-[1.02]">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center justify-between">
-                <span className="text-muted-foreground">Team Satisfaction</span>
+                <span className="text-muted-foreground">{t('preview.teamSatisfaction')}</span>
                 <Sparkles className="w-5 h-5 text-amber-600 group-hover:scale-125 transition-transform" />
               </CardTitle>
             </CardHeader>
@@ -273,22 +266,20 @@ const SLIDES = [
                 {PREMIUM_DEMO_DATA.analytics.metrics.customerSatisfaction}/5
               </p>
               <div className="flex items-center gap-2 text-sm">
-                <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 group-hover:bg-amber-500/20 transition-colors">
-                  Excellent
-                </Badge>
+                <Badge variant="secondary" className="bg-amber-500/10 text-amber-700 dark:text-amber-400 group-hover:bg-amber-500/20 transition-colors">{t('preview.excellent')}</Badge>
                 <span className="text-xs text-muted-foreground">98th percentile</span>
               </div>
               <div className="pt-2 border-t space-y-1 text-xs opacity-0 group-hover:opacity-100 transition-opacity">
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Responses</span>
+                  <span className="text-muted-foreground">{t('preview.responses')}</span>
                   <span className="font-semibold">28/28</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">Trend</span>
+                  <span className="text-muted-foreground">{t('preview.trend')}</span>
                   <span className="font-semibold text-green-600">↑ Improving</span>
                 </div>
                 <div className="flex justify-between">
-                  <span className="text-muted-foreground">NPS Score</span>
+                  <span className="text-muted-foreground">{t('preview.npsScore')}</span>
                   <span className="font-semibold">72</span>
                 </div>
               </div>
@@ -300,16 +291,14 @@ const SLIDES = [
   },
   {
     id: 'revenue-evolution',
-    title: 'Evolución de Revenue',
+    title: t('preview.evoluciónDeRevenue'),
     icon: DollarSign,
-    description: 'Gráfico de crecimiento de revenue en los últimos 6 meses con tendencias.',
+    description: t('preview.gráficoDeCrecimientoDe'),
     content: (
       <div className="space-y-4">
         <div className="p-4 rounded-lg border bg-gradient-to-r from-green-500/10 to-emerald-500/10">
           <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-green-600" />
-            Revenue Growth - Últimos 6 Meses
-            <span className="text-xs text-muted-foreground ml-2">(Pasa el ratón por cada mes)</span>
+            <TrendingUp className="w-5 h-5 text-green-600" />{t('preview.revenueGrowthÚltimos6')}<span className="text-xs text-muted-foreground ml-2">(Pasa el ratón por cada mes)</span>
           </h4>
 
           <div className="flex items-baseline gap-3 h-[180px] mb-4">
@@ -369,11 +358,11 @@ const SLIDES = [
           {/* Stats */}
           <div className="grid grid-cols-3 gap-3 pt-4 border-t">
             <div className="text-center">
-              <p className="text-xs text-muted-foreground">Growth Rate</p>
+              <p className="text-xs text-muted-foreground">{t('preview.growthRate')}</p>
               <p className="text-lg font-bold text-green-600">+83%</p>
             </div>
             <div className="text-center">
-              <p className="text-xs text-muted-foreground">Avg Monthly</p>
+              <p className="text-xs text-muted-foreground">{t('preview.avgMonthly')}</p>
               <p className="text-lg font-bold text-primary">$40.3K</p>
             </div>
             <div className="text-center">
@@ -396,9 +385,9 @@ const SLIDES = [
   },
   {
     id: 'projects-status',
-    title: 'Estado de Proyectos',
+    title: t('preview.estadoDeProyectos'),
     icon: Briefcase,
-    description: 'Cards interactivas con health score, team y progreso de cada proyecto activo.',
+    description: t('preview.cardsInteractivasConHealth'),
     content: (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
@@ -428,7 +417,7 @@ const SLIDES = [
                 {/* Health Score */}
                 <div>
                   <div className="flex items-center justify-between text-xs mb-1">
-                    <span className="text-muted-foreground">Health Score</span>
+                    <span className="text-muted-foreground">{t('preview.healthScore')}</span>
                     <span className="font-bold text-green-600 group-hover:scale-110 transition-transform inline-block">
                       {project.health_score}%
                     </span>
@@ -445,23 +434,17 @@ const SLIDES = [
                 <div className="space-y-1.5 text-xs pt-2 border-t">
                   <div className="flex justify-between items-center group-hover:bg-primary/5 p-1.5 rounded transition-colors">
                     <span className="text-muted-foreground flex items-center gap-1">
-                      <DollarSign className="w-3 h-3" />
-                      Revenue
-                    </span>
+                      <DollarSign className="w-3 h-3" />{t('preview.revenue')}</span>
                     <span className="font-semibold">${(project.revenue / 1000).toFixed(0)}K</span>
                   </div>
                   <div className="flex justify-between items-center group-hover:bg-primary/5 p-1.5 rounded transition-colors">
                     <span className="text-muted-foreground flex items-center gap-1">
-                      <Users className="w-3 h-3" />
-                      Team
-                    </span>
+                      <Users className="w-3 h-3" />{t('preview.team')}</span>
                     <span className="font-semibold">{project.team_size} members</span>
                   </div>
                   <div className="flex justify-between items-center group-hover:bg-primary/5 p-1.5 rounded transition-colors">
                     <span className="text-muted-foreground flex items-center gap-1">
-                      <Target className="w-3 h-3" />
-                      Leads Won
-                    </span>
+                      <Target className="w-3 h-3" />{t('preview.leadsWon')}</span>
                     <span className="font-semibold text-green-600">
                       {project.leads_ganados}/{project.leads}
                     </span>
@@ -499,16 +482,14 @@ const SLIDES = [
   },
   {
     id: 'activity-feed',
-    title: 'Activity Feed',
+    title: t('preview.activityFeed'),
     icon: Activity,
-    description: 'Stream de eventos en tiempo real: OBVs validadas, tasks completadas, deals cerrados.',
+    description: t('preview.streamDeEventosEn'),
     content: (
       <div className="space-y-4">
         <div className="p-4 rounded-lg border bg-gradient-to-br from-purple-500/10 to-pink-500/10">
           <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <Activity className="w-5 h-5 text-purple-600" />
-            Actividad Reciente
-            <Badge variant="secondary" className="ml-auto">En vivo</Badge>
+            <Activity className="w-5 h-5 text-purple-600" />Actividad Reciente<Badge variant="secondary" className="ml-auto">{t('preview.enVivo')}</Badge>
           </h4>
 
           <div className="space-y-2">
@@ -566,41 +547,37 @@ const SLIDES = [
 
         <div className="grid grid-cols-3 gap-3 text-xs">
           <div className="p-3 rounded-lg border bg-card">
-            <p className="text-muted-foreground mb-1">Eventos Hoy</p>
+            <p className="text-muted-foreground mb-1">{t('preview.eventosHoy')}</p>
             <p className="text-2xl font-bold">151</p>
           </div>
           <div className="p-3 rounded-lg border bg-card">
-            <p className="text-muted-foreground mb-1">Usuarios Activos</p>
+            <p className="text-muted-foreground mb-1">{t('preview.usuariosActivos')}</p>
             <p className="text-2xl font-bold">28</p>
           </div>
           <div className="p-3 rounded-lg border bg-card">
-            <p className="text-muted-foreground mb-1">Tiempo Respuesta</p>
+            <p className="text-muted-foreground mb-1">{t('preview.tiempoRespuesta')}</p>
             <p className="text-2xl font-bold">12m</p>
           </div>
         </div>
 
         <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
           <p className="text-sm font-medium mb-1">🔔 Notificaciones Inteligentes</p>
-          <p className="text-xs text-muted-foreground">
-            El feed prioriza eventos importantes y filtra ruido automáticamente.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('preview.elFeedPriorizaEventos')}</p>
         </div>
       </div>
     ),
   },
   {
     id: 'quick-actions',
-    title: 'Quick Actions & Resumen',
+    title: t('preview.quickActionsResumen'),
     icon: Zap,
-    description: 'Acciones rápidas y resumen ejecutivo para tomar decisiones al instante.',
+    description: t('preview.accionesRápidasYResumen'),
     content: (
       <div className="space-y-4">
         {/* Quick Actions */}
         <div className="p-4 rounded-lg border bg-gradient-to-r from-amber-500/10 to-orange-500/10">
           <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <Zap className="w-5 h-5 text-amber-600" />
-            Quick Actions
-            <span className="text-xs text-muted-foreground">(Sin salir del Dashboard)</span>
+            <Zap className="w-5 h-5 text-amber-600" />Quick Actions<span className="text-xs text-muted-foreground">(Sin salir del Dashboard)</span>
           </h4>
 
           <div className="grid grid-cols-2 gap-3">
@@ -613,7 +590,7 @@ const SLIDES = [
               </div>
               <div className="text-left">
                 <p className="font-semibold text-sm">Validar OBV</p>
-                <p className="text-xs text-muted-foreground">Aprobar objetivo pendiente</p>
+                <p className="text-xs text-muted-foreground">{t('preview.aprobarObjetivoPendiente')}</p>
               </div>
             </Button>
 
@@ -625,8 +602,8 @@ const SLIDES = [
                 <Users className="w-5 h-5 text-blue-600 group-hover:scale-110 transition-transform" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-sm">Asignar Tarea</p>
-                <p className="text-xs text-muted-foreground">Crear y asignar al equipo</p>
+                <p className="font-semibold text-sm">{t('preview.asignarTarea')}</p>
+                <p className="text-xs text-muted-foreground">{t('preview.crearYAsignarAl')}</p>
               </div>
             </Button>
 
@@ -638,8 +615,8 @@ const SLIDES = [
                 <Target className="w-5 h-5 text-purple-600 group-hover:scale-110 transition-transform" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-sm">Nuevo Proyecto</p>
-                <p className="text-xs text-muted-foreground">Iniciar proyecto rápido</p>
+                <p className="font-semibold text-sm">{t('preview.nuevoProyecto')}</p>
+                <p className="text-xs text-muted-foreground">{t('preview.iniciarProyectoRápido')}</p>
               </div>
             </Button>
 
@@ -651,8 +628,8 @@ const SLIDES = [
                 <DollarSign className="w-5 h-5 text-amber-600 group-hover:scale-110 transition-transform" />
               </div>
               <div className="text-left">
-                <p className="font-semibold text-sm">Registrar Venta</p>
-                <p className="text-xs text-muted-foreground">Log nuevo deal cerrado</p>
+                <p className="font-semibold text-sm">{t('preview.registrarVenta')}</p>
+                <p className="text-xs text-muted-foreground">{t('preview.logNuevoDealCerrado')}</p>
               </div>
             </Button>
           </div>
@@ -661,19 +638,15 @@ const SLIDES = [
         {/* Executive Summary */}
         <div className="p-4 rounded-lg border bg-gradient-to-br from-blue-500/10 to-purple-500/10">
           <h4 className="font-semibold mb-3 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            Resumen Ejecutivo
-          </h4>
+            <Sparkles className="w-5 h-5 text-primary" />{t('preview.resumenEjecutivo')}</h4>
 
           <div className="space-y-2">
             <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20">
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-green-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium">Todo va bien</p>
-                  <p className="text-xs text-muted-foreground">
-                    Revenue +23.5%, Team satisfaction 4.8/5, Projects healthy
-                  </p>
+                  <p className="text-sm font-medium">{t('preview.todoVaBien')}</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.revenue235TeamSatisfaction')}</p>
                 </div>
               </div>
             </div>
@@ -684,7 +657,7 @@ const SLIDES = [
                 <div>
                   <p className="text-sm font-medium">1 proyecto necesita atención</p>
                   <p className="text-xs text-muted-foreground">
-                    "Mobile App Redesign" está al 65% - considera reforzar el equipo
+                    t('preview.mobileAppRedesign') está al 65% - considera reforzar el equipo
                   </p>
                 </div>
               </div>
@@ -694,10 +667,8 @@ const SLIDES = [
               <div className="flex items-start gap-2">
                 <TrendingUp className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                 <div>
-                  <p className="text-sm font-medium">Oportunidad detectada</p>
-                  <p className="text-xs text-muted-foreground">
-                    Elena Rodriguez (+40% revenue) - apoya sus sales initiatives
-                  </p>
+                  <p className="text-sm font-medium">{t('preview.oportunidadDetectada')}</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.elenaRodriguez40Revenue')}</p>
                 </div>
               </div>
             </div>
@@ -715,6 +686,7 @@ const SLIDES = [
 ];
 
 export function DashboardPreviewModal({ open, onOpenChange }: DashboardPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -742,10 +714,8 @@ export function DashboardPreviewModal({ open, onOpenChange }: DashboardPreviewMo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden">
         <VisuallyHidden>
-          <DialogTitle>Dashboard Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of dashboard section
-          </DialogDescription>
+          <DialogTitle>{t('preview.dashboardPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfDashboard')}</DialogDescription>
         </VisuallyHidden>
         {/* Header */}
         <div className="relative p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-purple-500/5">
@@ -790,9 +760,7 @@ export function DashboardPreviewModal({ open, onOpenChange }: DashboardPreviewMo
               disabled={currentSlide === 0}
               className="gap-2"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
+              <ChevronLeft className="w-4 h-4" />{t('preview.anterior')}</Button>
 
             <div className="flex gap-1">
               {SLIDES.map((_, idx) => (
@@ -813,14 +781,10 @@ export function DashboardPreviewModal({ open, onOpenChange }: DashboardPreviewMo
               className="gap-2"
             >
               {currentSlide === SLIDES.length - 1 ? (
-                <>
-                  Finalizar
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
+                <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-1" />
                 </>
               ) : (
-                <>
-                  Siguiente
-                  <ChevronRight className="w-4 h-4" />
+                <>{t('preview.siguiente')}<ChevronRight className="w-4 h-4" />
                 </>
               )}
             </Button>

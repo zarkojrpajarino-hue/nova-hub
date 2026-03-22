@@ -7,7 +7,7 @@
  * Edge functions: connect-google-calendar, sync-google-calendar
  *
  * Flujo OAuth:
- *   1. Pulsar "Conectar" → llama connect-google-calendar[get_auth_url]
+ *   1. Pulsar t('integrations.conectar') → llama connect-google-calendar[get_auth_url]
  *   2. Redirección a Google OAuth (consent screen)
  *   3. Google redirige a /integrations?gcal_code=...&state=...
  *   4. Componente detecta gcal_code en URL → llama connect-google-calendar[exchange_code]
@@ -61,6 +61,7 @@ interface UpcomingCalendarEvent {
 
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 
+import { useTranslation } from 'react-i18next';
 async function getFreshSession(fallback: Session | null): Promise<Session | null> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(fallback), 2000)
@@ -87,6 +88,7 @@ interface SyncResult {
 }
 
 export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: GoogleCalendarIntegrationProps) {
+  const { t } = useTranslation();
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [isConnecting, setIsConnecting]       = useState(false)
@@ -126,7 +128,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
           setAccountEmail(meta?.account_email ?? null)
           if (data.last_sync_at) setHasPriorSync(true)
         } else if (data.status === 'error') {
-          setConnectionError(data.error_message ?? 'La conexión anterior falló. Vuelve a conectar.')
+          setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
   }, [projectId])
@@ -152,7 +154,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
 
   const handleConnect = async () => {
     if (!projectId) {
-      toast.error('No hay proyecto activo')
+      toast.error(t('integrations.noHayProyectoActivo'))
       return
     }
 
@@ -160,7 +162,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -193,7 +195,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
       const data = await res.json()
       if (!res.ok || !data?.auth_url) {
         if (data?.reason === 'google_oauth_not_configured') {
-          toast.error('Google OAuth no está configurado en esta instancia de Optimus. Contacta al administrador.')
+          toast.error(t('integrations.googleOauthNoEstá'))
         } else {
           toast.error(`Error obteniendo URL de autorización: ${data?.reason ?? 'desconocido'}`)
         }
@@ -223,7 +225,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -262,7 +264,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
       setConnectionId(data.connection_id)
       setAccountEmail(data.account_email ?? null)
       setIsConnected(true)
-      toast.success('Google Calendar conectado — haz clic en "Sincronizar Ahora" para importar tus eventos')
+      toast.success('Google Calendar conectado — haz clic en Sincronizar Ahora para importar tus eventos')
     } catch (err) {
       toast.error('Error al completar OAuth: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -273,7 +275,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
   const handleSync = async (overrideConnectionId?: string) => {
     const connId = overrideConnectionId ?? connectionId
     if (!projectId || !connId) {
-      toast.error('Conexión no disponible')
+      toast.error(t('integrations.conexiónNoDisponible'))
       return
     }
 
@@ -282,7 +284,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -308,9 +310,9 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
 
       if (!res.ok) {
         if (data?.reason === 'token_refresh_failed') {
-          toast.error('El acceso a Google Calendar ha expirado o fue revocado. Vuelve a conectar.')
+          toast.error(t('integrations.elAccesoAGoogle'))
           setIsConnected(false)
-          setConnectionError('Acceso revocado — vuelve a autorizar con Google.')
+          setConnectionError(t('integrations.accesoRevocadoVuelveA'))
           return
         }
         throw new Error(data?.reason ?? data?.message ?? `HTTP ${res.status}`)
@@ -372,7 +374,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
             : 60
           return {
             id:              row.external_id as string,
-            title:           (p.title as string) ?? 'Sin título',
+            title:           (p.title as string) ?? t('integrations.sinTítulo'),
             start_at:        startAt,
             end_at:          endAt,
             attendee_count:  p.attendee_count as number | undefined,
@@ -414,7 +416,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
     return (
       <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
         <Loader2 size={16} className="animate-spin" />
-        {isExchanging ? 'Completando autorización con Google...' : 'Cargando...'}
+        {isExchanging ? t('integrations.completandoAutorizaciónConGoogle') : t('integrations.cargando')}
       </div>
     )
   }
@@ -433,20 +435,14 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
                   <span className="text-sm font-normal text-muted-foreground">· {accountEmail}</span>
                 )}
               </CardTitle>
-              <CardDescription>
-                Importa eventos del calendario primario para trackear reuniones y carga operativa
-              </CardDescription>
+              <CardDescription>{t('integrations.importaEventosDelCalendario')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
-                <CheckCircle2 size={12} className="mr-1" />
-                Conectado
-              </Badge>
+                <CheckCircle2 size={12} className="mr-1" />{t('integrations.conectado')}</Badge>
             ) : (
               <Badge variant="outline">
-                <AlertCircle size={12} className="mr-1" />
-                Desconectado
-              </Badge>
+                <AlertCircle size={12} className="mr-1" />{t('integrations.desconectado')}</Badge>
             )}
           </div>
         </CardHeader>
@@ -457,7 +453,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Conexión interrumpida.</strong> {connectionError}
+                    <strong>{t('integrations.conexiónInterrumpida')}</strong> {connectionError}
                   </AlertDescription>
                 </Alert>
               )}
@@ -465,7 +461,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
               <Alert>
                 <AlertDescription className="space-y-2">
                   <p>
-                    Al pulsar "Conectar", serás redirigido a Google para autorizar el acceso
+                    Al pulsar t('integrations.conectar'), serás redirigido a Google para autorizar el acceso
                     de <strong>solo lectura</strong> a tu calendario.
                   </p>
                   <p className="text-xs text-muted-foreground">
@@ -482,28 +478,20 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
               >
                 {isConnecting ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Iniciando autorización...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.iniciandoAutorización')}</>
                 ) : connectionError ? (
                   <>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Reconectar Google Calendar
-                  </>
+                    <Calendar className="mr-2 h-4 w-4" />{t('integrations.reconectarGoogleCalendar')}</>
                 ) : (
                   <>
-                    <Calendar className="mr-2 h-4 w-4" />
-                    Conectar con Google
-                  </>
+                    <Calendar className="mr-2 h-4 w-4" />{t('integrations.conectarConGoogle')}</>
                 )}
               </Button>
             </>
           ) : (
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-                  Integración activa
-                </p>
+                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
                 <p className="text-xs text-muted-foreground">
                   Importa eventos de los próximos 30 días y los últimos 30 días.
                   Acceso de solo lectura — nunca se modifican eventos.
@@ -517,15 +505,15 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
                   <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.entities_synced}</div>
-                      <div className="text-muted-foreground">Procesados</div>
+                      <div className="text-muted-foreground">{t('integrations.procesados')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-mono font-semibold text-green-600">{syncResult.entities_written}</div>
-                      <div className="text-muted-foreground">Importados</div>
+                      <div className="text-muted-foreground">{t('integrations.importados')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.entities_rejected}</div>
-                      <div className="text-muted-foreground">Rechazados</div>
+                      <div className="text-muted-foreground">{t('integrations.rechazados')}</div>
                     </div>
                   </div>
                 )}
@@ -539,14 +527,10 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
               >
                 {isSyncing ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sincronizando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.sincronizando')}</>
                 ) : (
                   <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Sincronizar Ahora
-                  </>
+                    <RefreshCw className="mr-2 h-4 w-4" />{t('integrations.sincronizarAhora')}</>
                 )}
               </Button>
             </div>
@@ -559,25 +543,21 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
         <Card className="border-blue-500/20 bg-blue-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-green-500" />
-              Google Calendar conectado — qué pasará a continuación
-            </CardTitle>
+              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.googleCalendarConectadoQué')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-sm">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
                 <div>
-                  <p className="font-medium">Pulsa "Sincronizar Ahora"</p>
-                  <p className="text-xs text-muted-foreground">
-                    Optimus descargará los eventos de tu calendario de los últimos 30 días y los próximos 30.
-                  </p>
+                  <p className="font-medium">Pulsa t('integrations.sincronizarAhora0')</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.optimusDescargaráLosEventos')}</p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
                 <div>
-                  <p className="font-medium">Los eventos se almacenan en <span className="font-mono text-xs">integration_entities</span></p>
+                  <p className="font-medium">Los eventos se almacenan en<span className="font-mono text-xs">integration_entities</span></p>
                   <p className="text-xs text-muted-foreground">
                     Eventos de día completo se descartan en v1 (solo reuniones con hora exacta).
                     El Calendar Agent los analizará para detectar patrones de carga operativa.
@@ -587,10 +567,8 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
                 <div>
-                  <p className="font-medium">Token automático</p>
-                  <p className="text-xs text-muted-foreground">
-                    No necesitas volver a autorizar — el token se renueva automáticamente en cada sync.
-                  </p>
+                  <p className="font-medium">{t('integrations.tokenAutomático')}</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.noNecesitasVolverA')}</p>
                 </div>
               </li>
             </ol>
@@ -603,14 +581,12 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
         <SyncHealthCard connectionId={connectionId} provider="google_calendar" />
       )}
 
-      {/* M18.9 — Próximas reuniones (48h) con botón "Iniciar reunión" */}
+      {/* M18.9 — Próximas reuniones (48h) con botón t('integrations.iniciarReunión1') */}
       {isConnected && hasPriorSync && onStartFromEvent && upcomingEvents.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Video size={15} className="text-blue-500" />
-              Próximas reuniones — 48h
-            </CardTitle>
+              <Video size={15} className="text-blue-500" />{t('integrations.próximasReuniones48h')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {upcomingEvents.map((ev) => {
@@ -645,9 +621,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
                       attendee_emails: ev.attendee_emails,
                     })}
                   >
-                    <Mic size={11} />
-                    Iniciar reunión
-                  </Button>
+                    <Mic size={11} />{t('integrations.iniciarReunión')}</Button>
                 </div>
               )
             })}
@@ -664,45 +638,43 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <ListChecks size={16} className="text-blue-500" />
-            Qué entra · Dónde va · Qué cambia
-          </CardTitle>
+            <ListChecks size={16} className="text-blue-500" />{t('integrations.quéEntraDóndeVa')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-0 divide-y divide-border/50">
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
-                <p className="font-medium">Eventos del calendario</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.eventosDelCalendario')}</p>
                 <p className="text-muted-foreground mt-0.5">título, inicio, fin, asistentes, organizador</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dónde va</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.dóndeVa')}</p>
                 <p className="font-mono text-[11px]">integration_entities</p>
                 <p className="text-muted-foreground mt-0.5">entity_type='calendar_event'</p>
                 <p className="text-muted-foreground">provider='google_calendar'</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Qué cambia</p>
-                <p className="font-medium">Reuniones reales visibles</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéCambia')}</p>
+                <p className="font-medium">{t('integrations.reunionesRealesVisibles')}</p>
                 <p className="text-muted-foreground mt-0.5">base para Calendar Agent — carga operativa y patrones</p>
               </div>
             </div>
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
                 <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Qué no entra (v1)</p>
-                <p className="font-medium">Eventos de día completo</p>
+                <p className="font-medium">{t('integrations.eventosDeDíaCompleto')}</p>
                 <p className="text-muted-foreground mt-0.5">calendarios secundarios, eventos sin hora exacta</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Ventana</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.ventana')}</p>
                 <p className="font-mono text-[11px]">±30 días desde hoy</p>
                 <p className="text-muted-foreground mt-0.5">30 días atrás + 30 días adelante</p>
                 <p className="text-muted-foreground">fija en v1 — expandible en v2</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Próxima fase</p>
-                <p className="font-medium">Calendar Agent activo</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.próximaFase')}</p>
+                <p className="font-medium">{t('integrations.calendarAgentActivo')}</p>
                 <p className="text-muted-foreground mt-0.5">analiza carga semanal de reuniones y densidad respecto a la jornada laboral</p>
               </div>
             </div>

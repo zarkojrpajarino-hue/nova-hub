@@ -5,6 +5,7 @@ import { PIPELINE_STAGES } from '../pipeline-stages';
 import { cn } from '@/lib/utils';
 import type { Lead } from '@/hooks/useCRMPipeline';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -39,6 +40,7 @@ export const KanbanView = memo(function KanbanView({
   onLeadClick,
   onAddLead,
 }: KanbanViewProps) {
+  const { t } = useTranslation();
   return (
     <DragDropContext onDragEnd={onDragEnd}>
       <div className="flex gap-4 overflow-x-auto pb-4">
@@ -171,9 +173,7 @@ export const KanbanView = memo(function KanbanView({
                       onClick={() => onAddLead(stage.id)}
                       className="w-full py-3 border-2 border-dashed border-border rounded-lg text-sm text-muted-foreground hover:border-muted-foreground/50 hover:text-foreground transition-colors flex items-center justify-center gap-2"
                     >
-                      <Plus size={14} />
-                      Añadir
-                    </button>
+                      <Plus size={14} />{t('crm.añadir')}</button>
                   </div>
                 )}
               </Droppable>

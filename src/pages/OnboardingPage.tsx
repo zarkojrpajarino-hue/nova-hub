@@ -12,7 +12,9 @@ import { Loader2, ArrowLeft, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { FastStartWizard } from '@/components/onboarding/FastStartWizard';
 
+import { useTranslation } from 'react-i18next';
 export function OnboardingPage() {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -47,7 +49,7 @@ export function OnboardingPage() {
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="text-center">
           <Loader2 className="h-8 w-8 animate-spin text-purple-600 mx-auto mb-4" />
-          <p className="text-sm text-gray-600">Cargando onboarding...</p>
+          <p className="text-sm text-gray-600">{t('onboarding.cargandoOnboarding')}</p>
         </div>
       </div>
     );
@@ -57,7 +59,7 @@ export function OnboardingPage() {
     return (
       <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 via-purple-50 to-pink-50">
         <div className="text-center">
-          <p className="text-red-600">Error: No se pudo cargar el proyecto</p>
+          <p className="text-red-600">{t('onboarding.errorNoSePudo')}</p>
         </div>
       </div>
     );
@@ -76,12 +78,9 @@ export function OnboardingPage() {
               </div>
               {/* Título */}
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  Bienvenido a <span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">OPTIMUS-K</span>
+                <h1 className="text-2xl font-bold text-gray-900">Bienvenido a<span className="bg-gradient-to-r from-cyan-600 via-blue-600 to-purple-600 bg-clip-text text-transparent">OPTIMUS-K</span>
                 </h1>
-                <p className="text-sm text-gray-600">
-                  Completa este formulario y en minutos tendrás tu proyecto configurado
-                </p>
+                <p className="text-sm text-gray-600">{t('onboarding.completaEsteFormularioY')}</p>
               </div>
             </div>
 
@@ -93,9 +92,7 @@ export function OnboardingPage() {
                 onClick={() => navigate('/select-onboarding-type')}
                 className="gap-2"
               >
-                <ArrowLeft className="h-4 w-4" />
-                Cambiar tipo
-              </Button>
+                <ArrowLeft className="h-4 w-4" />{t('onboarding.cambiarTipo')}</Button>
               <Button
                 variant="ghost"
                 size="sm"

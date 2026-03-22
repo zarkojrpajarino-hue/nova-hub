@@ -6,6 +6,7 @@ import { TaskCard } from './TaskCard';
 import type { Task } from '@/hooks/useTaskKanban';
 import { getPhaseRelevanceScore } from '@/lib/phase-features';
 
+import { useTranslation } from 'react-i18next';
 const COLUMN_ICONS = {
   todo: Circle,
   doing: Clock,
@@ -51,6 +52,7 @@ export const KanbanColumn = memo(function KanbanColumn({
   onDeleteClick,
   currentPhase = 1,
 }: KanbanColumnProps) {
+  const { t } = useTranslation();
   const IconComponent = COLUMN_ICONS[column.id as keyof typeof COLUMN_ICONS] || Circle;
 
   // F19.B.5: ordenar columna 'todo' por relevancia de fase × prioridad
@@ -126,9 +128,7 @@ export const KanbanColumn = memo(function KanbanColumn({
             {provided.placeholder}
 
             {tasks.length === 0 && (
-              <div className="text-center py-10 text-muted-foreground text-sm">
-                Sin tareas
-              </div>
+              <div className="text-center py-10 text-muted-foreground text-sm">{t('tasks.sinTareas')}</div>
             )}
           </div>
         )}

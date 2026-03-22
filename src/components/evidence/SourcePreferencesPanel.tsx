@@ -22,6 +22,7 @@ import { useSourcePreferences, getDefaultWeight, PRESET_VERIFIED, PRESET_MANUAL,
 import type { ProviderSlug } from '@/lib/evidence'
 import { trackSourcePreferenceChanged } from '@/lib/analytics'
 
+import { useTranslation } from 'react-i18next';
 // ─────────────────────────────────────────────────────────────────────────────
 // Metadata visual de cada proveedor
 // ─────────────────────────────────────────────────────────────────────────────
@@ -33,13 +34,13 @@ interface ProviderMeta {
 }
 
 const PROVIDER_META: Record<ProviderSlug, ProviderMeta> = {
-  stripe:          { label: 'Stripe Payments',    description: 'Ingresos, suscripciones, pagos',     color: 'text-indigo-500' },
-  holded:          { label: 'Holded ERP',          description: 'Contabilidad, facturas, márgenes',   color: 'text-emerald-600' },
-  hubspot:         { label: 'HubSpot CRM',         description: 'Pipeline de ventas, deals',           color: 'text-orange-500' },
-  asana:           { label: 'Asana',               description: 'Tareas, sprints, ejecución',          color: 'text-pink-500' },
-  google_calendar: { label: 'Google Calendar',     description: 'Reuniones, agenda, carga horaria',   color: 'text-blue-500' },
-  user_manual:     { label: 'Entradas manuales',   description: 'Datos declarados por ti',            color: 'text-muted-foreground' },
-  ai_inferred:     { label: 'Inferencias IA',      description: 'Derivadas por el sistema',           color: 'text-purple-500' },
+  stripe:          { label: t('evidence.stripePayments'),    description: t('evidence.ingresosSuscripcionesPagos'),     color: 'text-indigo-500' },
+  holded:          { label: 'Holded ERP',          description: t('evidence.contabilidadFacturasMárgenes'),   color: 'text-emerald-600' },
+  hubspot:         { label: 'HubSpot CRM',         description: t('evidence.pipelineDeVentasDeals'),           color: 'text-orange-500' },
+  asana:           { label: t('evidence.asana'),               description: t('evidence.tareasSprintsEjecución'),          color: 'text-pink-500' },
+  google_calendar: { label: t('evidence.googleCalendar'),     description: t('evidence.reunionesAgendaCargaHoraria'),   color: 'text-blue-500' },
+  user_manual:     { label: t('evidence.entradasManuales'),   description: t('evidence.datosDeclaradosPorTi'),            color: 'text-muted-foreground' },
+  ai_inferred:     { label: 'Inferencias IA',      description: t('evidence.derivadasPorElSistema'),           color: 'text-purple-500' },
 }
 
 // Las fuentes que pueden venir de integration_connections (provider field)
@@ -68,6 +69,7 @@ export function SourcePreferencesPanel({
   projectId,
   activeProviders,
 }: SourcePreferencesPanelProps) {
+  const { t } = useTranslation();
   const { preferences, isLoading, updatePreference, resetPreference, resetAll } =
     useSourcePreferences(projectId)
 
@@ -171,13 +173,13 @@ export function SourcePreferencesPanel({
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
           <Settings2 size={14} className="text-muted-foreground" />
-          <span className="text-sm font-medium">Fuentes de datos</span>
+          <span className="text-sm font-medium">{t('evidence.fuentesDeDatos')}</span>
         </div>
         <button
           onClick={() => setAdvancedMode(v => !v)}
           className="text-xs text-muted-foreground hover:text-foreground underline underline-offset-2"
         >
-          {advancedMode ? 'Modo básico' : 'Configuración avanzada'}
+          {advancedMode ? t('evidence.modoBásico') : t('evidence.configuraciónAvanzada')}
         </button>
       </div>
 
@@ -186,38 +188,28 @@ export function SourcePreferencesPanel({
         <button
           onClick={applyPresetBalanced}
           className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted transition-colors"
-        >
-          Balanceado
-        </button>
+        >{t('evidence.balanceado')}</button>
         <button
           onClick={applyPresetVerified}
           className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted transition-colors"
-        >
-          Solo datos verificados
-        </button>
+        >{t('evidence.soloDatosVerificados')}</button>
         <button
           onClick={applyPresetManual}
           className="text-xs px-2.5 py-1 rounded-full border border-border hover:bg-muted transition-colors"
-        >
-          Priorizar mis datos
-        </button>
+        >{t('evidence.priorizarMisDatos')}</button>
       </div>
 
       {/* Empty state: ninguna integración conectada */}
       {hasNoIntegrations && (
         <div className="rounded-lg border border-dashed border-border/60 p-4 text-center">
-          <p className="text-xs text-muted-foreground">
-            Conecta una integración para configurar sus fuentes.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('evidence.conectaUnaIntegraciónPara')}</p>
         </div>
       )}
 
       {/* Constraint warning */}
       {allDisabled && (
         <div className="flex items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs text-amber-700 dark:text-amber-400">
-          <AlertTriangle size={12} />
-          Al menos una fuente debe estar habilitada.
-        </div>
+          <AlertTriangle size={12} />{t('evidence.alMenosUnaFuente')}</div>
       )}
 
       {/* T17.V2.5 — advertencia de calidad: integraciones externas desactivadas */}
@@ -259,7 +251,7 @@ export function SourcePreferencesPanel({
                 <div className="flex-1 min-w-0">
                   <p className={`text-xs font-medium truncate ${pref.enabled ? meta.color : 'text-muted-foreground'}`}>
                     {meta.label}
-                    {isSaving && <span className="ml-1.5 text-muted-foreground/60 font-normal">Guardando…</span>}
+                    {isSaving && <span className="ml-1.5 text-muted-foreground/60 font-normal">{t('evidence.guardando')}</span>}
                   </p>
                   <p className="text-xs text-muted-foreground truncate">{meta.description}</p>
                 </div>
@@ -275,7 +267,7 @@ export function SourcePreferencesPanel({
                   <button
                     onClick={() => handleReset(source)}
                     className="text-muted-foreground/60 hover:text-foreground transition-colors"
-                    title="Restaurar peso por defecto"
+                    title={t('evidence.restaurarPesoPorDefecto')}
                   >
                     <RotateCcw size={11} />
                   </button>
@@ -286,7 +278,7 @@ export function SourcePreferencesPanel({
               {advancedMode && pref.enabled && (
                 <div className="mt-2.5 px-0.5 space-y-1">
                   <div className="flex items-center justify-between text-xs text-muted-foreground">
-                    <span>Peso</span>
+                    <span>{t('evidence.peso')}</span>
                     <span className="font-mono">{currentWeight.toFixed(1)}</span>
                   </div>
                   <Slider

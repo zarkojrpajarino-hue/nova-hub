@@ -23,11 +23,13 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { ExportButton } from '@/components/export/ExportButton';
 import { CRMPreviewModal } from '@/components/preview/CRMPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface CRMViewProps {
   onNewOBV?: () => void;
 }
 
 export function CRMView({ onNewOBV }: CRMViewProps) {
+  const { t } = useTranslation();
   const { data: leads = [], isLoading: loadingLeads } = usePipelineGlobal();
   const { data: projects = [], isLoading: loadingProjects } = useProjects();
   const { data: profiles = [], isLoading: loadingProfiles } = useProfiles();
@@ -95,8 +97,8 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
   return (
     <>
       <NovaHeader
-        title="CRM Global"
-        subtitle="Gestiona leads usando buyer personas y value props generados por IA"
+        title={t('cRM.crmGlobal')}
+        subtitle={t('cRM.gestionaLeadsUsandoBuyer')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -104,12 +106,12 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
       <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="CRM inteligente que usa datos de tu proyecto para cerrar ventas"
-          whatIsIt="Sistema de gestión de leads que usa buyer personas y value propositions generadas por IA en Proyectos. Cada lead se compara automáticamente con tu cliente ideal y recibe el mensaje de valor correcto. IA sugiere próximos pasos y prioriza leads con mayor probabilidad de conversión."
+          title={t('cRM.cómoFunciona')}
+          description={t('cRM.crmInteligenteQueUsa')}
+          whatIsIt={t('cRM.sistemaDeGestiónDe')}
           dataInputs={[
             {
-              from: 'Proyectos',
+              from: t('cRM.proyectos'),
               items: [
                 'Buyer Personas (cliente ideal con pain points)',
                 'Value Propositions (por qué comprar tu producto)',
@@ -117,35 +119,35 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
               ],
             },
             {
-              from: 'Centro OBVs',
+              from: t('cRM.centroObvs'),
               items: [
                 'OBVs de tipo "venta" generan leads automáticamente',
                 'Objetivos de ventas (Ej: "10 demos cerradas")',
-                'Scripts de prospección',
+                t('cRM.scriptsDeProspección'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Financiero',
+              to: t('cRM.financiero'),
               items: [
                 'Revenue proyectado (pipeline value)',
                 'Deals cerrados (revenue real)',
-                'Forecast mensual',
+                t('cRM.forecastMensual'),
               ],
             },
             {
-              to: 'KPIs',
+              to: t('cRM.kpis'),
               items: [
-                'Tasa de conversión por etapa',
-                'Tiempo promedio de cierre',
-                'Valor promedio de deal',
+                t('cRM.tasaDeConversiónPor'),
+                t('cRM.tiempoPromedioDeCierre'),
+                t('cRM.valorPromedioDeDeal'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Gestiona pipeline → Cierra deals',
-            destination: 'Revenue aparece en FINANCIERO, métricas en KPIs',
+            action: t('cRM.gestionaPipelineCierraDeals'),
+            destination: t('cRM.revenueApareceEnFinanciero'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -153,21 +155,13 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
         <Tabs value={viewMode} onValueChange={(v) => setViewMode(v as typeof viewMode)}>
           <TabsList className="mb-6">
             <TabsTrigger value="overview" className="flex items-center gap-2">
-              <LayoutDashboard size={16} />
-              Vista General
-            </TabsTrigger>
+              <LayoutDashboard size={16} />{t('cRM.vistaGeneral')}</TabsTrigger>
             <TabsTrigger value="pipeline" className="flex items-center gap-2">
-              <Kanban size={16} />
-              Pipeline Kanban
-            </TabsTrigger>
+              <Kanban size={16} />{t('cRM.pipelineKanban')}</TabsTrigger>
             <TabsTrigger value="lista" className="flex items-center gap-2">
-              <List size={16} />
-              Lista Detallada
-            </TabsTrigger>
+              <List size={16} />{t('cRM.listaDetallada')}</TabsTrigger>
             <TabsTrigger value="ai-finder" className="flex items-center gap-2">
-              <Sparkles size={16} />
-              AI Lead Finder
-            </TabsTrigger>
+              <Sparkles size={16} />{t('cRM.aiLeadFinder')}</TabsTrigger>
             <TabsTrigger value="email-pitch" className="flex items-center gap-2">
               <Mail size={16} />
               Email Pitch IA
@@ -182,15 +176,13 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             {/* Header with Export Button */}
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-lg font-semibold">Resumen del Pipeline</h3>
-                <p className="text-sm text-muted-foreground">
-                  Vista general de todos los leads
-                </p>
+                <h3 className="text-lg font-semibold">{t('cRM.resumenDelPipeline')}</h3>
+                <p className="text-sm text-muted-foreground">{t('cRM.vistaGeneralDeTodos')}</p>
               </div>
               <ExportButton
                 options={[
                   {
-                    label: 'Exportar Todos los Leads',
+                    label: t('cRM.exportarTodosLosLeads'),
                     type: 'crm',
                     data: filteredLeads.map(lead => {
                       const project = projects.find(p => p.id === lead.project_id);
@@ -208,12 +200,12 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
                       };
                     }),
                     metadata: {
-                      title: 'Pipeline CRM - Todos los Leads',
+                      title: t('cRM.pipelineCrmTodosLos'),
                       currencyColumns: [3],
                     },
                   },
                   {
-                    label: 'Exportar Solo Cerrados Ganados',
+                    label: t('cRM.exportarSoloCerradosGanados'),
                     type: 'crm_cerrados',
                     data: filteredLeads
                       .filter(lead => lead.status === 'cerrado_ganado')
@@ -229,7 +221,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
                         };
                       }),
                     metadata: {
-                      title: 'CRM - Cerrados Ganados',
+                      title: t('cRM.crmCerradosGanados'),
                       currencyColumns: [2],
                     },
                   },
@@ -243,27 +235,27 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Total Leads</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('cRM.totalLeads')}</CardTitle>
                   <Users className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">{metrics.totalLeads}</div>
-                  <p className="text-xs text-muted-foreground">En el pipeline</p>
+                  <p className="text-xs text-muted-foreground">{t('cRM.enElPipeline')}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Valor Pipeline</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('cRM.valorPipeline')}</CardTitle>
                   <DollarSign className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold">€{metrics.totalValue.toLocaleString('es-ES')}</div>
-                  <p className="text-xs text-muted-foreground">Potencial total</p>
+                  <p className="text-xs text-muted-foreground">{t('cRM.potencialTotal')}</p>
                 </CardContent>
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">En Negociación</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('cRM.enNegociación')}</CardTitle>
                   <Target className="h-4 w-4 text-muted-foreground" />
                 </CardHeader>
                 <CardContent>
@@ -273,12 +265,12 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
               </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-                  <CardTitle className="text-sm font-medium">Cerrados Ganados</CardTitle>
+                  <CardTitle className="text-sm font-medium">{t('cRM.cerradosGanados')}</CardTitle>
                   <TrendingUp className="h-4 w-4 text-green-500" />
                 </CardHeader>
                 <CardContent>
                   <div className="text-2xl font-bold text-green-600">{metrics.ganados}</div>
-                  <p className="text-xs text-muted-foreground">Convertidos a cliente</p>
+                  <p className="text-xs text-muted-foreground">{t('cRM.convertidosACliente')}</p>
                 </CardContent>
               </Card>
             </div>
@@ -286,7 +278,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             {/* Distribución por estado */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Distribución por Estado</CardTitle>
+                <CardTitle className="text-base">{t('cRM.distribuciónPorEstado')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="flex flex-wrap gap-3">
@@ -302,7 +294,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
             {/* Top Leads */}
             <Card>
               <CardHeader>
-                <CardTitle className="text-base">Top 5 Leads por Valor</CardTitle>
+                <CardTitle className="text-base">{t('cRM.top5LeadsPor')}</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
@@ -317,7 +309,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
                           </span>
                           <div>
                             <p className="font-medium">{lead.nombre}</p>
-                            <p className="text-sm text-muted-foreground">{lead.empresa || 'Sin empresa'}</p>
+                            <p className="text-sm text-muted-foreground">{lead.empresa || t('cRM.sinEmpresa')}</p>
                           </div>
                         </div>
                         <div className="text-right">
@@ -359,7 +351,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
               <ExportButton
                 options={[
                   {
-                    label: 'Exportar Lista Filtrada',
+                    label: t('cRM.exportarListaFiltrada'),
                     type: 'crm',
                     data: filteredLeads.map(lead => {
                       const project = projects.find(p => p.id === lead.project_id);
@@ -377,7 +369,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
                       };
                     }),
                     metadata: {
-                      title: 'Pipeline CRM - Lista Filtrada',
+                      title: t('cRM.pipelineCrmListaFiltrada'),
                       currencyColumns: [3],
                     },
                   },

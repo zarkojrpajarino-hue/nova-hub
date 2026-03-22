@@ -8,6 +8,7 @@ import {
 import { Button } from '@/components/ui/button';
 import { ChevronLeft, ChevronRight, Trophy, Medal, Star, TrendingUp, Award, Target, Zap, Crown, Gift, Users, CheckCircle2 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface RankingsPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -49,42 +50,42 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
 
   // Mock data for enterprise team (28 members)
   const leaderboardData: TeamMember[] = [
-    { id: 1, name: 'Sarah Chen', avatar: 'SC', points: 15840, badges: 24, rank: 1, change: 0, department: 'Sales' },
-    { id: 2, name: 'Michael Torres', avatar: 'MT', points: 14520, badges: 21, rank: 2, change: 1, department: 'Sales' },
-    { id: 3, name: 'Emma Wilson', avatar: 'EW', points: 13890, badges: 19, rank: 3, change: -1, department: 'Marketing' },
-    { id: 4, name: 'James Park', avatar: 'JP', points: 12760, badges: 18, rank: 4, change: 2, department: 'Sales' },
-    { id: 5, name: 'Lisa Rodriguez', avatar: 'LR', points: 11920, badges: 17, rank: 5, change: 0, department: 'Customer Success' },
-    { id: 6, name: 'David Kim', avatar: 'DK', points: 11340, badges: 16, rank: 6, change: -2, department: 'Sales' },
-    { id: 7, name: 'Rachel Green', avatar: 'RG', points: 10880, badges: 15, rank: 7, change: 1, department: 'Marketing' },
-    { id: 8, name: 'Thomas Anderson', avatar: 'TA', points: 10420, badges: 14, rank: 8, change: 0, department: 'Sales' },
-    { id: 9, name: 'Nina Patel', avatar: 'NP', points: 9850, badges: 13, rank: 9, change: 3, department: 'Learning' },
-    { id: 10, name: 'Alex Morgan', avatar: 'AM', points: 9520, badges: 12, rank: 10, change: -1, department: 'Sales' },
+    { id: 1, name: t('preview.sarahChen'), avatar: 'SC', points: 15840, badges: 24, rank: 1, change: 0, department: t('preview.sales') },
+    { id: 2, name: t('preview.michaelTorres'), avatar: 'MT', points: 14520, badges: 21, rank: 2, change: 1, department: t('preview.sales') },
+    { id: 3, name: t('preview.emmaWilson'), avatar: 'EW', points: 13890, badges: 19, rank: 3, change: -1, department: t('preview.marketing') },
+    { id: 4, name: t('preview.jamesPark'), avatar: 'JP', points: 12760, badges: 18, rank: 4, change: 2, department: t('preview.sales') },
+    { id: 5, name: t('preview.lisaRodriguez'), avatar: 'LR', points: 11920, badges: 17, rank: 5, change: 0, department: t('preview.customerSuccess') },
+    { id: 6, name: t('preview.davidKim'), avatar: 'DK', points: 11340, badges: 16, rank: 6, change: -2, department: t('preview.sales') },
+    { id: 7, name: t('preview.rachelGreen'), avatar: 'RG', points: 10880, badges: 15, rank: 7, change: 1, department: t('preview.marketing') },
+    { id: 8, name: t('preview.thomasAnderson'), avatar: 'TA', points: 10420, badges: 14, rank: 8, change: 0, department: t('preview.sales') },
+    { id: 9, name: t('preview.ninaPatel'), avatar: 'NP', points: 9850, badges: 13, rank: 9, change: 3, department: t('preview.learning') },
+    { id: 10, name: t('preview.alexMorgan'), avatar: 'AM', points: 9520, badges: 12, rank: 10, change: -1, department: t('preview.sales') },
   ];
 
   const categoryRankings: CategoryRanking[] = [
-    { category: 'OBVs', icon: <Target className="w-5 h-5" />, color: 'bg-blue-500', leader: 'Sarah Chen', points: 4820, trend: '+12%' },
-    { category: 'Learning', icon: <Star className="w-5 h-5" />, color: 'bg-purple-500', leader: 'Nina Patel', points: 3650, trend: '+28%' },
-    { category: 'Revenue', icon: <TrendingUp className="w-5 h-5" />, color: 'bg-green-500', leader: 'Michael Torres', points: 5240, trend: '+18%' },
-    { category: 'Quality', icon: <Award className="w-5 h-5" />, color: 'bg-orange-500', leader: 'Emma Wilson', points: 4120, trend: '+9%' },
-    { category: 'Collaboration', icon: <Users className="w-5 h-5" />, color: 'bg-pink-500', leader: 'Lisa Rodriguez', points: 3890, trend: '+15%' },
-    { category: 'Innovation', icon: <Zap className="w-5 h-5" />, color: 'bg-yellow-500', leader: 'James Park', points: 3340, trend: '+22%' },
+    { category: t('preview.obvs'), icon: <Target className="w-5 h-5" />, color: 'bg-blue-500', leader: t('preview.sarahChen'), points: 4820, trend: '+12%' },
+    { category: t('preview.learning'), icon: <Star className="w-5 h-5" />, color: 'bg-purple-500', leader: t('preview.ninaPatel'), points: 3650, trend: '+28%' },
+    { category: t('preview.revenue'), icon: <TrendingUp className="w-5 h-5" />, color: 'bg-green-500', leader: t('preview.michaelTorres'), points: 5240, trend: '+18%' },
+    { category: t('preview.quality'), icon: <Award className="w-5 h-5" />, color: 'bg-orange-500', leader: t('preview.emmaWilson'), points: 4120, trend: '+9%' },
+    { category: t('preview.collaboration'), icon: <Users className="w-5 h-5" />, color: 'bg-pink-500', leader: t('preview.lisaRodriguez'), points: 3890, trend: '+15%' },
+    { category: t('preview.innovation'), icon: <Zap className="w-5 h-5" />, color: 'bg-yellow-500', leader: t('preview.jamesPark'), points: 3340, trend: '+22%' },
   ];
 
   const achievements: Achievement[] = [
-    { id: 1, name: 'Century Club', description: '100 OBVs completed', icon: <Trophy className="w-8 h-8" />, unlocked: true, progress: 100, rarity: 'legendary' },
-    { id: 2, name: 'Quick Learner', description: 'Complete 50 training modules', icon: <Star className="w-8 h-8" />, unlocked: true, progress: 100, rarity: 'epic' },
-    { id: 3, name: 'Revenue Hero', description: 'Generate $500K in revenue', icon: <TrendingUp className="w-8 h-8" />, unlocked: true, progress: 100, rarity: 'rare' },
-    { id: 4, name: 'Team Player', description: 'Help 20 team members', icon: <Users className="w-8 h-8" />, unlocked: false, progress: 75, rarity: 'rare' },
-    { id: 5, name: 'Perfect Week', description: '7 days of 100% completion', icon: <Award className="w-8 h-8" />, unlocked: false, progress: 60, rarity: 'epic' },
-    { id: 6, name: 'Innovation Master', description: 'Submit 10 ideas implemented', icon: <Zap className="w-8 h-8" />, unlocked: false, progress: 40, rarity: 'legendary' },
+    { id: 1, name: t('preview.centuryClub'), description: '100 OBVs completed', icon: <Trophy className="w-8 h-8" />, unlocked: true, progress: 100, rarity: 'legendary' },
+    { id: 2, name: t('preview.quickLearner'), description: t('preview.complete50TrainingModules'), icon: <Star className="w-8 h-8" />, unlocked: true, progress: 100, rarity: 'epic' },
+    { id: 3, name: t('preview.revenueHero'), description: t('preview.generate500kInRevenue'), icon: <TrendingUp className="w-8 h-8" />, unlocked: true, progress: 100, rarity: 'rare' },
+    { id: 4, name: t('preview.teamPlayer'), description: t('preview.help20TeamMembers'), icon: <Users className="w-8 h-8" />, unlocked: false, progress: 75, rarity: 'rare' },
+    { id: 5, name: t('preview.perfectWeek'), description: '7 days of 100% completion', icon: <Award className="w-8 h-8" />, unlocked: false, progress: 60, rarity: 'epic' },
+    { id: 6, name: t('preview.innovationMaster'), description: t('preview.submit10IdeasImplemented'), icon: <Zap className="w-8 h-8" />, unlocked: false, progress: 40, rarity: 'legendary' },
   ];
 
   const teamRankings = [
-    { department: 'Sales', members: 12, totalPoints: 84520, avgPoints: 7043, rank: 1, change: 0 },
-    { department: 'Marketing', members: 6, totalPoints: 38640, avgPoints: 6440, rank: 2, change: 1 },
-    { department: 'Customer Success', members: 5, totalPoints: 29850, avgPoints: 5970, rank: 3, change: -1 },
-    { department: 'Learning & Dev', members: 3, totalPoints: 16420, avgPoints: 5473, rank: 4, change: 0 },
-    { department: 'Operations', members: 2, totalPoints: 9840, avgPoints: 4920, rank: 5, change: 0 },
+    { department: t('preview.sales'), members: 12, totalPoints: 84520, avgPoints: 7043, rank: 1, change: 0 },
+    { department: t('preview.marketing'), members: 6, totalPoints: 38640, avgPoints: 6440, rank: 2, change: 1 },
+    { department: t('preview.customerSuccess'), members: 5, totalPoints: 29850, avgPoints: 5970, rank: 3, change: -1 },
+    { department: t('preview.learningDev'), members: 3, totalPoints: 16420, avgPoints: 5473, rank: 4, change: 0 },
+    { department: t('preview.operations'), members: 2, totalPoints: 9840, avgPoints: 4920, rank: 5, change: 0 },
   ];
 
   const currentUser = {
@@ -92,13 +93,14 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
     rank: 12,
     points: 8940,
     badges: 11,
-    department: 'Sales',
+    department: t('preview.sales'),
     weeklyProgress: 240,
     monthlyProgress: 1180,
     streak: 7,
   };
 
   const nextSlide = () => {
+  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }
@@ -130,39 +132,29 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
               <Trophy className="w-32 h-32 text-yellow-500 relative z-10" />
             </div>
             <div className="text-center space-y-4 max-w-2xl">
-              <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 via-orange-500 to-pink-500 bg-clip-text text-transparent">
-                Team Rankings
-              </h2>
-              <p className="text-xl text-muted-foreground">
-                Compite, colabora, destaca
-              </p>
+              <h2 className="text-4xl font-bold bg-gradient-to-r from-yellow-500 via-orange-500 to-pink-500 bg-clip-text text-transparent">{t('preview.teamRankings')}</h2>
+              <p className="text-xl text-muted-foreground">{t('preview.compiteColaboraDestaca')}</p>
               <div className="grid grid-cols-3 gap-6 mt-8">
                 <div className="flex flex-col items-center space-y-2">
                   <div className="w-16 h-16 rounded-full bg-blue-100 dark:bg-blue-900/30 flex items-center justify-center">
                     <Trophy className="w-8 h-8 text-blue-600 dark:text-blue-400" />
                   </div>
-                  <p className="font-semibold">Compete</p>
-                  <p className="text-sm text-muted-foreground text-center">
-                    Rise through the ranks
-                  </p>
+                  <p className="font-semibold">{t('preview.compete')}</p>
+                  <p className="text-sm text-muted-foreground text-center">{t('preview.riseThroughTheRanks')}</p>
                 </div>
                 <div className="flex flex-col items-center space-y-2">
                   <div className="w-16 h-16 rounded-full bg-green-100 dark:bg-green-900/30 flex items-center justify-center">
                     <Users className="w-8 h-8 text-green-600 dark:text-green-400" />
                   </div>
-                  <p className="font-semibold">Collaborate</p>
-                  <p className="text-sm text-muted-foreground text-center">
-                    Help your team succeed
-                  </p>
+                  <p className="font-semibold">{t('preview.collaborate')}</p>
+                  <p className="text-sm text-muted-foreground text-center">{t('preview.helpYourTeamSucceed')}</p>
                 </div>
                 <div className="flex flex-col items-center space-y-2">
                   <div className="w-16 h-16 rounded-full bg-purple-100 dark:bg-purple-900/30 flex items-center justify-center">
                     <Star className="w-8 h-8 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <p className="font-semibold">Excel</p>
-                  <p className="text-sm text-muted-foreground text-center">
-                    Unlock achievements
-                  </p>
+                  <p className="font-semibold">{t('preview.excel')}</p>
+                  <p className="text-sm text-muted-foreground text-center">{t('preview.unlockAchievements')}</p>
                 </div>
               </div>
             </div>
@@ -175,10 +167,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
-                <Trophy className="w-6 h-6 text-yellow-500" />
-                Overall Leaderboard
-              </h3>
-              <p className="text-sm text-muted-foreground">Top 10 performers this month</p>
+                <Trophy className="w-6 h-6 text-yellow-500" />{t('preview.overallLeaderboard')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.top10PerformersThis')}</p>
             </div>
 
             {/* Podium */}
@@ -226,11 +216,11 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
                 <table className="w-full">
                   <thead className="bg-muted sticky top-0">
                     <tr>
-                      <th className="text-left p-3 text-sm font-semibold">Rank</th>
-                      <th className="text-left p-3 text-sm font-semibold">Member</th>
-                      <th className="text-right p-3 text-sm font-semibold">Points</th>
-                      <th className="text-center p-3 text-sm font-semibold">Badges</th>
-                      <th className="text-center p-3 text-sm font-semibold">Trend</th>
+                      <th className="text-left p-3 text-sm font-semibold">{t('preview.rank')}</th>
+                      <th className="text-left p-3 text-sm font-semibold">{t('preview.member')}</th>
+                      <th className="text-right p-3 text-sm font-semibold">{t('preview.points')}</th>
+                      <th className="text-center p-3 text-sm font-semibold">{t('preview.badges')}</th>
+                      <th className="text-center p-3 text-sm font-semibold">{t('preview.trend')}</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -291,10 +281,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
-                <Target className="w-6 h-6 text-blue-500" />
-                Category Rankings
-              </h3>
-              <p className="text-sm text-muted-foreground">Performance across different areas</p>
+                <Target className="w-6 h-6 text-blue-500" />{t('preview.categoryRankings')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.performanceAcrossDifferentAreas')}</p>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
@@ -307,7 +295,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
                       </div>
                       <div>
                         <h4 className="font-semibold">{category.category}</h4>
-                        <p className="text-xs text-muted-foreground">Monthly leader</p>
+                        <p className="text-xs text-muted-foreground">{t('preview.monthlyLeader')}</p>
                       </div>
                     </div>
                     <span className="text-xs font-semibold text-green-600 bg-green-100 dark:bg-green-900/30 px-2 py-1 rounded">
@@ -337,10 +325,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
               <div className="flex items-center gap-3">
                 <Zap className="w-5 h-5 text-yellow-500" />
                 <div>
-                  <p className="font-semibold text-sm">Pro Tip</p>
-                  <p className="text-xs text-muted-foreground">
-                    Focus on your weakest category to become a well-rounded top performer
-                  </p>
+                  <p className="font-semibold text-sm">{t('preview.proTip')}</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.focusOnYourWeakest')}</p>
                 </div>
               </div>
             </div>
@@ -353,10 +339,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
-                <Star className="w-6 h-6 text-purple-500" />
-                Your Performance
-              </h3>
-              <p className="text-sm text-muted-foreground">Track your progress and achievements</p>
+                <Star className="w-6 h-6 text-purple-500" />{t('preview.yourPerformance')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.trackYourProgressAnd')}</p>
             </div>
 
             {/* Profile header */}
@@ -371,22 +355,22 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
                 </div>
                 <div className="text-right">
                   <p className="text-3xl font-bold text-purple-600">#{currentUser.rank}</p>
-                  <p className="text-xs text-muted-foreground">Global Rank</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.globalRank')}</p>
                 </div>
               </div>
 
               <div className="grid grid-cols-3 gap-4 mt-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold">{currentUser.points.toLocaleString()}</p>
-                  <p className="text-xs text-muted-foreground">Total Points</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.totalPoints')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold">{currentUser.badges}</p>
-                  <p className="text-xs text-muted-foreground">Badges Earned</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.badgesEarned')}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-2xl font-bold">{currentUser.streak} days</p>
-                  <p className="text-xs text-muted-foreground">Current Streak</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.currentStreak')}</p>
                 </div>
               </div>
             </div>
@@ -395,7 +379,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
             <div className="grid grid-cols-2 gap-4">
               <div className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold">Weekly Progress</p>
+                  <p className="text-sm font-semibold">{t('preview.weeklyProgress')}</p>
                   <TrendingUp className="w-4 h-4 text-green-500" />
                 </div>
                 <p className="text-2xl font-bold mb-2">+{currentUser.weeklyProgress}</p>
@@ -407,7 +391,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
 
               <div className="border rounded-lg p-4">
                 <div className="flex items-center justify-between mb-2">
-                  <p className="text-sm font-semibold">Monthly Progress</p>
+                  <p className="text-sm font-semibold">{t('preview.monthlyProgress')}</p>
                   <TrendingUp className="w-4 h-4 text-blue-500" />
                 </div>
                 <p className="text-2xl font-bold mb-2">+{currentUser.monthlyProgress}</p>
@@ -420,7 +404,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
 
             {/* Category breakdown */}
             <div className="border rounded-lg p-4">
-              <h4 className="font-semibold mb-3">Your Category Performance</h4>
+              <h4 className="font-semibold mb-3">{t('preview.yourCategoryPerformance')}</h4>
               <div className="space-y-3">
                 {categoryRankings.slice(0, 4).map((cat, index) => (
                   <div key={index} className="flex items-center gap-3">
@@ -454,10 +438,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
-                <Users className="w-6 h-6 text-blue-500" />
-                Team Rankings
-              </h3>
-              <p className="text-sm text-muted-foreground">Department competition standings</p>
+                <Users className="w-6 h-6 text-blue-500" />{t('preview.teamRankings')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.departmentCompetitionStandings')}</p>
             </div>
 
             {/* Top 3 teams podium */}
@@ -485,11 +467,11 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
                   <p className="text-xs text-muted-foreground mb-3">{team.members} members</p>
                   <div className="space-y-2">
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Total</span>
+                      <span className="text-muted-foreground">{t('preview.total')}</span>
                       <span className="font-bold">{team.totalPoints.toLocaleString()}</span>
                     </div>
                     <div className="flex justify-between text-sm">
-                      <span className="text-muted-foreground">Avg/Member</span>
+                      <span className="text-muted-foreground">{t('preview.avgmember')}</span>
                       <span className="font-semibold">{team.avgPoints.toLocaleString()}</span>
                     </div>
                   </div>
@@ -502,12 +484,12 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
               <table className="w-full">
                 <thead className="bg-muted">
                   <tr>
-                    <th className="text-left p-3 text-sm font-semibold">Rank</th>
-                    <th className="text-left p-3 text-sm font-semibold">Department</th>
-                    <th className="text-center p-3 text-sm font-semibold">Members</th>
-                    <th className="text-right p-3 text-sm font-semibold">Total Points</th>
-                    <th className="text-right p-3 text-sm font-semibold">Avg Points</th>
-                    <th className="text-center p-3 text-sm font-semibold">Trend</th>
+                    <th className="text-left p-3 text-sm font-semibold">{t('preview.rank')}</th>
+                    <th className="text-left p-3 text-sm font-semibold">{t('preview.department')}</th>
+                    <th className="text-center p-3 text-sm font-semibold">{t('preview.members')}</th>
+                    <th className="text-right p-3 text-sm font-semibold">{t('preview.totalPoints')}</th>
+                    <th className="text-right p-3 text-sm font-semibold">{t('preview.avgPoints')}</th>
+                    <th className="text-center p-3 text-sm font-semibold">{t('preview.trend')}</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -563,10 +545,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
           <div className="space-y-6">
             <div className="text-center space-y-2">
               <h3 className="text-2xl font-bold flex items-center justify-center gap-2">
-                <Award className="w-6 h-6 text-purple-500" />
-                Rewards & Achievements
-              </h3>
-              <p className="text-sm text-muted-foreground">Unlock badges and earn prizes</p>
+                <Award className="w-6 h-6 text-purple-500" />{t('preview.rewardsAchievements')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.unlockBadgesAndEarn')}</p>
             </div>
 
             {/* Achievement cards */}
@@ -618,7 +598,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
             <div className="border rounded-lg p-6 bg-gradient-to-br from-yellow-50 to-orange-50 dark:from-yellow-950/20 dark:to-orange-950/20">
               <div className="flex items-center gap-3 mb-4">
                 <Gift className="w-6 h-6 text-orange-500" />
-                <h4 className="font-bold text-lg">Monthly Prizes</h4>
+                <h4 className="font-bold text-lg">{t('preview.monthlyPrizes')}</h4>
               </div>
               <div className="grid grid-cols-3 gap-4">
                 <div className="text-center">
@@ -644,7 +624,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
                 </div>
               </div>
               <div className="mt-4 pt-4 border-t border-orange-200 dark:border-orange-900">
-                <p className="text-sm text-center font-semibold">Top 10 finishers get exclusive swag</p>
+                <p className="text-sm text-center font-semibold">{t('preview.top10FinishersGet')}</p>
               </div>
             </div>
 
@@ -653,10 +633,8 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
               <div className="flex items-center gap-3">
                 <Zap className="w-5 h-5 text-yellow-500" />
                 <div>
-                  <p className="font-semibold text-sm">Keep Going!</p>
-                  <p className="text-xs text-muted-foreground">
-                    You're only 3 achievements away from unlocking the Innovation Master badge!
-                  </p>
+                  <p className="font-semibold text-sm">{t('preview.keepGoing')}</p>
+                  <p className="text-xs text-muted-foreground">{t('preview.youreOnly3Achievements')}</p>
                 </div>
               </div>
             </div>
@@ -673,7 +651,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-between">
-            <span>Rankings Preview</span>
+            <span>{t('preview.rankingsPreview')}</span>
             <span className="text-sm text-muted-foreground font-normal">
               Slide {currentSlide + 1} of {totalSlides}
             </span>
@@ -690,9 +668,7 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
             onClick={prevSlide}
             disabled={currentSlide === 0}
           >
-            <ChevronLeft className="w-4 h-4 mr-1" />
-            Previous
-          </Button>
+            <ChevronLeft className="w-4 h-4 mr-1" />{t('preview.previous')}</Button>
 
           <div className="flex gap-2">
             {Array.from({ length: totalSlides }).map((_, index) => (
@@ -714,14 +690,10 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
           onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : nextSlide}
         >
           {currentSlide === totalSlides - 1 ? (
-            <>
-              Finalizar
-              <CheckCircle2 className="h-4 w-4 ml-1" />
+            <>{t('preview.finalizar')}<CheckCircle2 className="h-4 w-4 ml-1" />
             </>
           ) : (
-            <>
-              Next
-              <ChevronRight className="h-4 w-4 ml-1" />
+            <>{t('preview.next')}<ChevronRight className="h-4 w-4 ml-1" />
             </>
           )}
         </Button>

@@ -20,6 +20,7 @@
  */
 
 import { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, Zap, FlaskConical, Target } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { supabase } from '@/integrations/supabase/client';
@@ -36,30 +37,30 @@ interface PanelData {
 }
 
 // ── Action 2 — Validación ────────────────────────────────────────────────────
-function getValidationAction(maturity: HypothesisMaturity, riskiest: string | null) {
+function getValidationAction(maturity: HypothesisMaturity, riskiest: string | null, t: (key: string, opts?: Record<string, unknown>) => string) {
   switch (maturity) {
     case 'none':
       return {
-        title: 'Define tu hipótesis antes de validar',
-        body: 'Tienes una dirección pero sin hipótesis clara. El primer experimento debe apuntar a confirmar si el problema existe y afecta a quien crees.',
-        highlight: riskiest ? `Asunción más arriesgada: "${riskiest}"` : null,
+        title: t('project.defineTuHipótesisAntes'),
+        body: t('project.tienesUnaDirecciónPero'),
+        highlight: riskiest ? t('firstSteps.riskiestAssumption', { assumption: riskiest }) : null,
       };
     case 'partial':
       return {
-        title: 'Refina tu hipótesis en los primeros OBVs',
-        body: 'Tu hipótesis está en borrador. Los primeros OBVs deberían enfocarse en confirmar la asunción más débil.',
-        highlight: riskiest ? `Asunción a validar primero: "${riskiest}"` : null,
+        title: t('project.refinaTuHipótesisEn'),
+        body: t('project.tuHipótesisEstáEn'),
+        highlight: riskiest ? t('firstSteps.assumptionToValidate', { assumption: riskiest }) : null,
       };
     case 'structured':
       return {
-        title: 'Valida tu hipótesis con evidencia real',
-        body: 'Tu hipótesis está formada. El siguiente paso es confrontarla con usuarios reales: 3-5 conversaciones de descubrimiento cortas.',
+        title: t('project.validaTuHipótesisCon'),
+        body: t('project.tuHipótesisEstáFormada'),
         highlight: null,
       };
     default:
       return {
-        title: 'Define tu hipótesis de negocio',
-        body: 'Antes de crear OBVs, define quién es tu cliente, qué problema resuelves y qué solución propones. Sin hipótesis, los experimentos no acumulan aprendizaje.',
+        title: t('project.defineTuHipótesisDe'),
+        body: t('project.antesDeCrearObvs'),
         highlight: null,
       };
   }
@@ -70,28 +71,28 @@ function getOperationalAction(monetization: MonetizationType) {
   switch (monetization) {
     case 'suscripcion':
       return {
-        title: 'Consigue tu primer usuario piloto',
-        body: 'Aunque sea gratis. Es tu primera señal real de adopción del modelo de suscripción — sin churn que medir todavía.',
+        title: t('project.consigueTuPrimerUsuario'),
+        body: t('project.aunqueSeaGratisEs'),
       };
     case 'transaccional':
       return {
         title: 'Registra tu primer contacto en el CRM',
-        body: 'Identifica y añade tu primer contacto potencial. Sin pipeline activo no hay conversión en un modelo transaccional.',
+        body: t('project.identificaYAñadeTu'),
       };
     case 'ticket_alto':
       return {
-        title: 'Identifica 2-3 clientes de alto valor por nombre',
-        body: 'Las ventas de alto ticket empiezan con personas específicas. ¿Quiénes son tus 3 mejores candidatos reales?',
+        title: t('project.identifica23ClientesDe'),
+        body: t('project.lasVentasDeAlto'),
       };
     case 'contrato':
       return {
-        title: 'Documenta el problema de tu primer cliente objetivo',
-        body: 'Un contrato empieza con evidencia de necesidad real. Agenda una conversación con tu primer candidato antes de construir.',
+        title: t('project.documentaElProblemaDe'),
+        body: t('project.unContratoEmpiezaCon'),
       };
     default:
       return {
-        title: 'Completa tu perfil operativo',
-        body: 'Sin modelo de monetización definido, el engine aplica métricas genéricas. Define el tuyo en el panel de perfil para análisis más precisos.',
+        title: t('project.completaTuPerfilOperativo'),
+        body: t('project.sinModeloDeMonetización'),
       };
   }
 }
@@ -102,6 +103,7 @@ interface FirstStepsPanelProps {
 }
 
 export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelProps) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState<boolean | null>(null); // null = cargando
   const [data, setData] = useState<PanelData | null>(null);
 
@@ -151,20 +153,20 @@ export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelP
 
   if (!visible || !data) return null;
 
-  const validationAction = getValidationAction(data.hypothesisMaturity, data.riskiestAssumption);
+  const validationAction = getValidationAction(data.hypothesisMaturity, data.riskiestAssumption, t);
   const operationalAction = getOperationalAction(data.monetizationType);
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 animate-fade-in">
       {/* Header */}
       <div className="flex items-center justify-between mb-4">
-        <h3 className="font-semibold text-base">Por dónde empezar</h3>
+        <h3 className="font-semibold text-base">{t('firstSteps.title')}</h3>
         <Button
           variant="ghost"
           size="icon"
           className="h-7 w-7 text-muted-foreground hover:text-foreground"
           onClick={dismiss}
-          aria-label="Marcar como visto"
+          aria-label={t('project.marcarComoVisto')}
         >
           <X className="h-4 w-4" />
         </Button>
@@ -178,10 +180,10 @@ export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelP
           icon={Zap}
           iconColor="text-amber-500"
           iconBg="bg-amber-50"
-          title="Siguiente acción del motor"
-          body="Tu primera acción priorizada. Empieza por aquí."
+          title={t('firstSteps.nextAction')}
+          body={t('firstSteps.nextActionDesc')}
           highlight={null}
-          ctaLabel="Ver tareas"
+          ctaLabel={t('firstSteps.viewTasks')}
           onCTA={onNavigateToTab ? () => onNavigateToTab('tareas') : undefined}
         />
 
@@ -194,7 +196,7 @@ export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelP
           title={validationAction.title}
           body={validationAction.body}
           highlight={validationAction.highlight}
-          ctaLabel="Crear validación"
+          ctaLabel={t('firstSteps.createValidation')}
           onCTA={onNavigateToTab ? () => onNavigateToTab('obvs') : undefined}
         />
 
@@ -207,7 +209,7 @@ export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelP
           title={operationalAction.title}
           body={operationalAction.body}
           highlight={null}
-          ctaLabel="Ver CRM"
+          ctaLabel={t('firstSteps.viewCRM')}
           onCTA={onNavigateToTab ? () => onNavigateToTab('crm') : undefined}
         />
       </div>
@@ -229,13 +231,14 @@ interface ActionBlockProps {
 }
 
 function ActionBlock({ number, icon: Icon, iconColor, iconBg, title, body, highlight, ctaLabel, onCTA }: ActionBlockProps) {
+  const { t } = useTranslation();
   return (
     <div className="flex flex-col gap-2.5 p-4 bg-background rounded-xl">
       <div className="flex items-center gap-2">
         <div className={cn('w-7 h-7 rounded-full flex items-center justify-center shrink-0', iconBg)}>
           <Icon className={cn('h-3.5 w-3.5', iconColor)} />
         </div>
-        <span className="text-xs text-muted-foreground font-medium">Paso {number}</span>
+        <span className="text-xs text-muted-foreground font-medium">{t('firstSteps.step', { number })}</span>
       </div>
       <p className="text-sm font-semibold leading-snug">{title}</p>
       <p className="text-xs text-muted-foreground leading-relaxed">{body}</p>

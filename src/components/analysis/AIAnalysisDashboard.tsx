@@ -18,8 +18,9 @@ import { FinancialPulseSection, PipelineTractionSection } from './sections/Level
 import { CrossSignalsSection, HardTruthsSection } from './sections/Level3Sections';
 import type { ProjectAnalysisState } from '@/hooks/useProjectAnalysis';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface AIAnalysisDashboardProps {
   projectId: string;
   projectName: string;
@@ -45,6 +46,7 @@ export function AIAnalysisDashboard({
   activeConnections,
   decisionCount,
 }: AIAnalysisDashboardProps) {
+  const { t } = useTranslation();
   const [showSources, setShowSources] = useState(false);
   const [showPreReview, setShowPreReview] = useState(false);
 
@@ -112,20 +114,18 @@ export function AIAnalysisDashboard({
             </Badge>
             {isStale && (
               <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
-                <AlertTriangle className="h-3 w-3 mr-1" />
-                Datos actualizados — regenerar
-              </Badge>
+                <AlertTriangle className="h-3 w-3 mr-1" />{t('analysis.datosActualizadosRegenerar')}</Badge>
             )}
           </div>
           {cachedAnalysis && (
             <p className="text-xs text-gray-500 mt-1">
-              Generado {formatDistanceToNow(new Date(cachedAnalysis.generated_at), { addSuffix: true, locale: es })}
+              Generado {formatDistanceToNow(new Date(cachedAnalysis.generated_at), { addSuffix: true, locale: getDateFnsLocale() })}
               {' · '}
               <button
                 className="underline hover:text-gray-700"
                 onClick={() => setShowSources(v => !v)}
               >
-                {showSources ? 'Ocultar fuentes' : '¿De dónde viene esto?'}
+                {showSources ? 'Ocultar fuentes': t('analysis.deDóndeVieneEsto')}
               </button>
             </p>
           )}
@@ -140,11 +140,11 @@ export function AIAnalysisDashboard({
           disabled={isGenerating || !canRegenerate}
         >
           {isGenerating ? (
-            <><Loader2 className="h-3.5 w-3.5 animate-spin" />Generando...</>
+            <><Loader2 className="h-3.5 w-3.5 animate-spin" />{t('analysis.generando')}</>
           ) : cachedAnalysis ? (
-            <><RefreshCw className="h-3.5 w-3.5" />Regenerar</>
+            <><RefreshCw className="h-3.5 w-3.5" />{t('analysis.regenerar')}</>
           ) : (
-            <>Generar análisis</>
+            <>{t('analysis.generarAnálisis')}</>
           )}
         </Button>
       </div>
@@ -160,9 +160,7 @@ export function AIAnalysisDashboard({
       {/* Panel de fuentes */}
       {showSources && cachedAnalysis && (
         <div className="rounded-lg border border-gray-200 bg-gray-50 dark:bg-gray-900 p-4">
-          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">
-            Fuentes de datos usadas
-          </p>
+          <p className="text-xs font-semibold text-gray-600 uppercase tracking-wide mb-2">{t('analysis.fuentesDeDatosUsadas')}</p>
           <div className="flex flex-wrap gap-2">
             {cachedAnalysis.data_sources.map((src, i) => (
               <SourceBadge
@@ -179,12 +177,8 @@ export function AIAnalysisDashboard({
       {/* Sin análisis generado todavía */}
       {!cachedAnalysis && !isGenerating && (
         <div className="flex flex-col items-center justify-center py-12 text-center space-y-3 rounded-xl border-2 border-dashed border-gray-200">
-          <p className="text-gray-600 dark:text-gray-400">
-            No hay análisis generado todavía
-          </p>
-          <Button onClick={handleGenerateClick} disabled={!canRegenerate}>
-            Generar primer análisis
-          </Button>
+          <p className="text-gray-600 dark:text-gray-400">{t('analysis.noHayAnálisisGenerado')}</p>
+          <Button onClick={handleGenerateClick} disabled={!canRegenerate}>{t('analysis.generarPrimerAnálisis')}</Button>
         </div>
       )}
 

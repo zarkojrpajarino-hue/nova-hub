@@ -14,65 +14,67 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 // import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface PathToMasterProps {
   currentRoles: string[]; // Roles actuales del usuario (estrella + secundario)
   allRoles: string[]; // Todos los roles disponibles
-  onStartExploration: (role: string) => Promise<void>;
+  onStartExploration: (role: string) =>Promise<void>;
 }
 
 const ROLE_INFO = {
   sales: {
-    name: 'Sales',
+    name: t('exploration.sales'),
     icon: '💰',
-    description: 'Ventas, captación de clientes, negociación',
-    difficulty: 'Media',
+    description: t('exploration.ventasCaptaciónDeClientes'),
+    difficulty: t('exploration.media'),
     duration: '2-4 semanas',
   },
   finance: {
-    name: 'Finance',
+    name: t('exploration.finance'),
     icon: '📊',
-    description: 'Finanzas, presupuestos, análisis económico',
-    difficulty: 'Alta',
+    description: t('exploration.finanzasPresupuestosAnálisisEconómico'),
+    difficulty: t('exploration.alta'),
     duration: '3-4 semanas',
   },
   ai_tech: {
-    name: 'AI & Tech',
+    name: t('exploration.aiTech'),
     icon: '🤖',
-    description: 'Tecnología, automatización, desarrollo',
-    difficulty: 'Alta',
+    description: t('exploration.tecnologíaAutomatizaciónDesarrollo'),
+    difficulty: t('exploration.alta'),
     duration: '3-5 semanas',
   },
   marketing: {
-    name: 'Marketing',
+    name: t('exploration.marketing'),
     icon: '📱',
-    description: 'Marketing digital, contenido, branding',
-    difficulty: 'Media',
+    description: t('exploration.marketingDigitalContenidoBranding'),
+    difficulty: t('exploration.media'),
     duration: '2-3 semanas',
   },
   operations: {
-    name: 'Operations',
+    name: t('exploration.operations'),
     icon: '⚙️',
-    description: 'Operaciones, procesos, logística',
-    difficulty: 'Media',
+    description: t('exploration.operacionesProcesosLogística'),
+    difficulty: t('exploration.media'),
     duration: '2-3 semanas',
   },
   strategy: {
-    name: 'Strategy',
+    name: t('exploration.strategy'),
     icon: '🎯',
-    description: 'Estrategia, planificación, visión',
-    difficulty: 'Alta',
+    description: t('exploration.estrategiaPlanificaciónVisión'),
+    difficulty: t('exploration.alta'),
     duration: '3-4 semanas',
   },
   customer: {
-    name: 'Customer Success',
+    name: t('exploration.customerSuccess'),
     icon: '💬',
-    description: 'Atención al cliente, soporte, éxito',
-    difficulty: 'Baja',
+    description: t('exploration.atenciónAlClienteSoporte'),
+    difficulty: t('exploration.baja'),
     duration: '2 semanas',
   },
 };
 
 export function PathToMaster({ currentRoles, allRoles, onStartExploration }: PathToMasterProps) {
+  const { t } = useTranslation();
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
 
@@ -104,9 +106,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
             </div>
             <div className="flex-1">
               <h3 className="text-2xl font-bold">🚀 Camino a Master</h3>
-              <p className="text-sm text-muted-foreground font-normal">
-                Explora y domina nuevos roles en cualquier momento
-              </p>
+              <p className="text-sm text-muted-foreground font-normal">{t('exploration.exploraYDominaNuevos')}</p>
             </div>
             <Badge variant="secondary" className="text-lg px-4 py-2">
               {availableRoles.length} disponibles
@@ -118,7 +118,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
           {/* Current Roles */}
           {masteredRoles.length > 0 && (
             <div className="space-y-2">
-              <h4 className="font-semibold text-sm text-muted-foreground">Tus Roles Actuales</h4>
+              <h4 className="font-semibold text-sm text-muted-foreground">{t('exploration.tusRolesActuales')}</h4>
               <div className="flex gap-2">
                 {masteredRoles.map((role, index) => {
                   const info = ROLE_INFO[role as keyof typeof ROLE_INFO];
@@ -136,7 +136,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
 
           {/* Available Roles */}
           <div className="space-y-3">
-            <h4 className="font-semibold">Explora un Nuevo Rol</h4>
+            <h4 className="font-semibold">{t('exploration.exploraUnNuevoRol')}</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
               {availableRoles.map((role) => {
                 const info = ROLE_INFO[role as keyof typeof ROLE_INFO];
@@ -187,9 +187,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                   {ROLE_INFO[selectedRole as keyof typeof ROLE_INFO]?.duration}
                 </p>
               </div>
-              <Button size="lg" onClick={() => setSelectedRole(selectedRole)}>
-                Iniciar Camino
-              </Button>
+              <Button size="lg" onClick={() => setSelectedRole(selectedRole)}>{t('exploration.iniciarCamino')}</Button>
             </div>
           )}
 
@@ -207,11 +205,9 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                 • <strong>Semana 3-4:</strong> Especialización (sube tu fit score)
               </li>
               <li>
-                • <strong>Después:</strong> Puedes desafiar al Master actual del rol
-              </li>
+                • <strong>Después:</strong>{t('exploration.puedesDesafiarAlMaster')}</li>
               <li>
-                • <strong>Requisito:</strong> Fit score mínimo de 3.5 para desafiar
-              </li>
+                • <strong>Requisito:</strong>{t('exploration.fitScoreMínimoDe')}</li>
             </ul>
           </div>
         </CardContent>
@@ -226,9 +222,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
               Iniciar Camino a Master:{' '}
               {selectedRole && ROLE_INFO[selectedRole as keyof typeof ROLE_INFO]?.name}
             </DialogTitle>
-            <DialogDescription>
-              Comenzarás una exploración de este rol desde cero. ¿Estás listo?
-            </DialogDescription>
+            <DialogDescription>{t('exploration.comenzarásUnaExploraciónDe')}</DialogDescription>
           </DialogHeader>
 
           {selectedRole && (
@@ -275,9 +269,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">Exploración (1-2 semanas)</p>
-                      <p className="text-xs text-muted-foreground">
-                        Completa tareas, recibe feedback
-                      </p>
+                      <p className="text-xs text-muted-foreground">{t('exploration.completaTareasRecibeFeedback')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -286,7 +278,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                     </div>
                     <div className="flex-1">
                       <p className="font-medium">Especialización (1-2 semanas)</p>
-                      <p className="text-xs text-muted-foreground">Sube tu fit score</p>
+                      <p className="text-xs text-muted-foreground">{t('exploration.subeTuFitScore')}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-3">
@@ -294,7 +286,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                       3
                     </div>
                     <div className="flex-1">
-                      <p className="font-medium">Desafío al Master</p>
+                      <p className="font-medium">{t('exploration.desafíoAlMaster')}</p>
                       <p className="text-xs text-muted-foreground">
                         Si alcanzas fit score 3.5+
                       </p>
@@ -305,17 +297,13 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
 
               {/* Actions */}
               <div className="flex gap-2">
-                <Button variant="outline" onClick={() => setSelectedRole(null)} className="flex-1">
-                  Cancelar
-                </Button>
+                <Button variant="outline" onClick={() => setSelectedRole(null)} className="flex-1">{t('exploration.cancelar')}</Button>
                 <Button onClick={handleStartPath} disabled={isStarting} className="flex-1 gap-2">
                   {isStarting ? (
-                    <>Iniciando...</>
+                    <>{t('exploration.iniciando')}</>
                   ) : (
                     <>
-                      <Rocket size={16} />
-                      Comenzar Ahora
-                    </>
+                      <Rocket size={16} />{t('exploration.comenzarAhora')}</>
                   )}
                 </Button>
               </div>

@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { ChevronLeft, ChevronRight, Users, Target, TrendingUp, Briefcase, Award, Network, BarChart3, Building2, Zap, Clock, CheckCircle2, Activity } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface TeamPerformancePreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -37,63 +38,64 @@ interface Project {
 }
 
 const teamMembers: TeamMember[] = [
-  { id: '1', name: 'Sarah Chen', role: 'Engineering Lead', department: 'Engineering', performance: 95, utilization: 88, projects: ['Project Alpha', 'Project Beta'], manager: 'CEO', skills: { 'Leadership': 95, 'Technical': 90, 'Communication': 88, 'Strategy': 85 } },
-  { id: '2', name: 'Marcus Williams', role: 'Senior Developer', department: 'Engineering', performance: 92, utilization: 85, projects: ['Project Alpha', 'Project Gamma'], manager: '1', skills: { 'Leadership': 75, 'Technical': 95, 'Communication': 80, 'Strategy': 70 } },
-  { id: '3', name: 'Emma Rodriguez', role: 'Product Manager', department: 'Product', performance: 88, utilization: 82, projects: ['Project Beta', 'Project Delta'], manager: 'CPO', skills: { 'Leadership': 85, 'Technical': 70, 'Communication': 92, 'Strategy': 88 } },
-  { id: '4', name: 'Alex Kim', role: 'UX Designer', department: 'Design', performance: 90, utilization: 79, projects: ['Project Beta', 'Project Epsilon'], manager: '15', skills: { 'Leadership': 65, 'Technical': 75, 'Communication': 85, 'Strategy': 70 } },
-  { id: '5', name: 'Jordan Taylor', role: 'Marketing Director', department: 'Marketing', performance: 86, utilization: 76, projects: ['Project Zeta', 'Project Eta'], manager: 'CMO', skills: { 'Leadership': 88, 'Technical': 60, 'Communication': 95, 'Strategy': 85 } },
-  { id: '6', name: 'Maya Patel', role: 'Data Analyst', department: 'Analytics', performance: 94, utilization: 91, projects: ['Project Alpha', 'Project Theta'], manager: '20', skills: { 'Leadership': 70, 'Technical': 92, 'Communication': 75, 'Strategy': 80 } },
-  { id: '7', name: 'Chris Anderson', role: 'DevOps Engineer', department: 'Engineering', performance: 91, utilization: 87, projects: ['Project Gamma', 'Project Iota'], manager: '1', skills: { 'Leadership': 72, 'Technical': 94, 'Communication': 78, 'Strategy': 75 } },
-  { id: '8', name: 'Sofia Martinez', role: 'Sales Manager', department: 'Sales', performance: 89, utilization: 84, projects: ['Project Kappa'], manager: 'CSO', skills: { 'Leadership': 90, 'Technical': 55, 'Communication': 93, 'Strategy': 82 } },
-  { id: '9', name: 'Ryan O\'Connor', role: 'Backend Developer', department: 'Engineering', performance: 87, utilization: 83, projects: ['Project Alpha', 'Project Lambda'], manager: '1', skills: { 'Leadership': 68, 'Technical': 90, 'Communication': 74, 'Strategy': 70 } },
-  { id: '10', name: 'Lily Zhang', role: 'Content Strategist', department: 'Marketing', performance: 85, utilization: 80, projects: ['Project Eta', 'Project Mu'], manager: '5', skills: { 'Leadership': 75, 'Technical': 65, 'Communication': 88, 'Strategy': 85 } },
-  { id: '11', name: 'David Brown', role: 'QA Lead', department: 'Engineering', performance: 93, utilization: 89, projects: ['Project Beta', 'Project Gamma'], manager: '1', skills: { 'Leadership': 82, 'Technical': 88, 'Communication': 85, 'Strategy': 78 } },
-  { id: '12', name: 'Aria Johnson', role: 'Product Designer', department: 'Design', performance: 91, utilization: 86, projects: ['Project Delta', 'Project Epsilon'], manager: '15', skills: { 'Leadership': 70, 'Technical': 80, 'Communication': 90, 'Strategy': 75 } },
-  { id: '13', name: 'Tyler Moore', role: 'Frontend Developer', department: 'Engineering', performance: 88, utilization: 82, projects: ['Project Beta', 'Project Iota'], manager: '1', skills: { 'Leadership': 65, 'Technical': 92, 'Communication': 76, 'Strategy': 68 } },
-  { id: '14', name: 'Nina Kowalski', role: 'HR Manager', department: 'HR', performance: 84, utilization: 78, projects: ['Project Nu'], manager: 'CHRO', skills: { 'Leadership': 86, 'Technical': 58, 'Communication': 92, 'Strategy': 80 } },
-  { id: '15', name: 'Oliver Smith', role: 'Design Director', department: 'Design', performance: 92, utilization: 85, projects: ['Project Beta', 'Project Delta'], manager: 'CDO', skills: { 'Leadership': 90, 'Technical': 75, 'Communication': 88, 'Strategy': 87 } },
-  { id: '16', name: 'Isabella Garcia', role: 'Account Executive', department: 'Sales', performance: 87, utilization: 81, projects: ['Project Kappa', 'Project Xi'], manager: '8', skills: { 'Leadership': 78, 'Technical': 52, 'Communication': 90, 'Strategy': 76 } },
-  { id: '17', name: 'Ethan Lee', role: 'ML Engineer', department: 'Engineering', performance: 96, utilization: 90, projects: ['Project Theta', 'Project Omicron'], manager: '1', skills: { 'Leadership': 75, 'Technical': 98, 'Communication': 72, 'Strategy': 82 } },
-  { id: '18', name: 'Zoe Campbell', role: 'Social Media Manager', department: 'Marketing', performance: 83, utilization: 77, projects: ['Project Eta', 'Project Pi'], manager: '5', skills: { 'Leadership': 70, 'Technical': 68, 'Communication': 86, 'Strategy': 72 } },
-  { id: '19', name: 'Lucas Wilson', role: 'Mobile Developer', department: 'Engineering', performance: 89, utilization: 84, projects: ['Project Lambda', 'Project Rho'], manager: '1', skills: { 'Leadership': 68, 'Technical': 91, 'Communication': 75, 'Strategy': 70 } },
-  { id: '20', name: 'Hannah Foster', role: 'Analytics Lead', department: 'Analytics', performance: 94, utilization: 88, projects: ['Project Alpha', 'Project Theta'], manager: 'CAO', skills: { 'Leadership': 88, 'Technical': 93, 'Communication': 82, 'Strategy': 90 } },
-  { id: '21', name: 'Jack Thompson', role: 'Security Engineer', department: 'Engineering', performance: 90, utilization: 86, projects: ['Project Sigma', 'Project Tau'], manager: '1', skills: { 'Leadership': 72, 'Technical': 95, 'Communication': 70, 'Strategy': 78 } },
-  { id: '22', name: 'Ava Mitchell', role: 'Brand Manager', department: 'Marketing', performance: 86, utilization: 79, projects: ['Project Zeta', 'Project Upsilon'], manager: '5', skills: { 'Leadership': 82, 'Technical': 62, 'Communication': 90, 'Strategy': 84 } },
-  { id: '23', name: 'Noah Davis', role: 'Solutions Architect', department: 'Engineering', performance: 93, utilization: 87, projects: ['Project Alpha', 'Project Gamma'], manager: '1', skills: { 'Leadership': 85, 'Technical': 96, 'Communication': 80, 'Strategy': 88 } },
-  { id: '24', name: 'Mia Robinson', role: 'Customer Success', department: 'Sales', performance: 88, utilization: 83, projects: ['Project Kappa', 'Project Phi'], manager: '8', skills: { 'Leadership': 80, 'Technical': 65, 'Communication': 94, 'Strategy': 78 } },
-  { id: '25', name: 'Liam Carter', role: 'Data Engineer', department: 'Analytics', performance: 91, utilization: 85, projects: ['Project Theta', 'Project Chi'], manager: '20', skills: { 'Leadership': 70, 'Technical': 93, 'Communication': 73, 'Strategy': 76 } },
-  { id: '26', name: 'Emma Watson', role: 'Recruiter', department: 'HR', performance: 82, utilization: 75, projects: ['Project Nu', 'Project Psi'], manager: '14', skills: { 'Leadership': 75, 'Technical': 55, 'Communication': 88, 'Strategy': 72 } },
-  { id: '27', name: 'James Harris', role: 'Business Analyst', department: 'Analytics', performance: 87, utilization: 81, projects: ['Project Delta', 'Project Omega'], manager: '20', skills: { 'Leadership': 76, 'Technical': 82, 'Communication': 84, 'Strategy': 86 } },
-  { id: '28', name: 'Olivia White', role: 'UI Designer', department: 'Design', performance: 89, utilization: 82, projects: ['Project Epsilon', 'Project Iota'], manager: '15', skills: { 'Leadership': 68, 'Technical': 78, 'Communication': 86, 'Strategy': 72 } },
+  { id: '1', name: t('preview.sarahChen4'), role: t('preview.engineeringLead5'), department: t('preview.engineering'), performance: 95, utilization: 88, projects: [t('preview.projectAlpha'), t('preview.projectBeta')], manager: 'CEO', skills: { 'Leadership': 95, 'Technical': 90, 'Communication': 88, 'Strategy': 85 } },
+  { id: '2', name: t('preview.marcusWilliams'), role: t('preview.seniorDeveloper'), department: t('preview.engineering'), performance: 92, utilization: 85, projects: [t('preview.projectAlpha'), t('preview.projectGamma')], manager: '1', skills: { 'Leadership': 75, 'Technical': 95, 'Communication': 80, 'Strategy': 70 } },
+  { id: '3', name: t('preview.emmaRodriguez'), role: t('preview.productManager'), department: t('preview.product6'), performance: 88, utilization: 82, projects: [t('preview.projectBeta'), t('preview.projectDelta')], manager: 'CPO', skills: { 'Leadership': 85, 'Technical': 70, 'Communication': 92, 'Strategy': 88 } },
+  { id: '4', name: t('preview.alexKim'), role: t('preview.uxDesigner'), department: t('preview.design'), performance: 90, utilization: 79, projects: [t('preview.projectBeta'), t('preview.projectEpsilon')], manager: '15', skills: { 'Leadership': 65, 'Technical': 75, 'Communication': 85, 'Strategy': 70 } },
+  { id: '5', name: t('preview.jordanTaylor7'), role: t('preview.marketingDirector8'), department: t('preview.marketing'), performance: 86, utilization: 76, projects: [t('preview.projectZeta'), t('preview.projectEta')], manager: 'CMO', skills: { 'Leadership': 88, 'Technical': 60, 'Communication': 95, 'Strategy': 85 } },
+  { id: '6', name: t('preview.mayaPatel'), role: t('preview.dataAnalyst'), department: t('preview.analytics'), performance: 94, utilization: 91, projects: [t('preview.projectAlpha'), t('preview.projectTheta')], manager: '20', skills: { 'Leadership': 70, 'Technical': 92, 'Communication': 75, 'Strategy': 80 } },
+  { id: '7', name: t('preview.chrisAnderson'), role: t('preview.devopsEngineer'), department: t('preview.engineering'), performance: 91, utilization: 87, projects: [t('preview.projectGamma'), t('preview.projectIota')], manager: '1', skills: { 'Leadership': 72, 'Technical': 94, 'Communication': 78, 'Strategy': 75 } },
+  { id: '8', name: t('preview.sofiaMartinez'), role: t('preview.salesManager'), department: t('preview.sales9'), performance: 89, utilization: 84, projects: [t('preview.projectKappa')], manager: 'CSO', skills: { 'Leadership': 90, 'Technical': 55, 'Communication': 93, 'Strategy': 82 } },
+  { id: '9', name: "Ryan O'Connor", role: t('preview.backendDeveloper'), department: t('preview.engineering'), performance: 87, utilization: 83, projects: [t('preview.projectAlpha'), t('preview.projectLambda')], manager: '1', skills: { 'Leadership': 68, 'Technical': 90, 'Communication': 74, 'Strategy': 70 } },
+  { id: '10', name: t('preview.lilyZhang'), role: t('preview.contentStrategist'), department: t('preview.marketing'), performance: 85, utilization: 80, projects: [t('preview.projectEta'), t('preview.projectMu')], manager: '5', skills: { 'Leadership': 75, 'Technical': 65, 'Communication': 88, 'Strategy': 85 } },
+  { id: '11', name: t('preview.davidBrown'), role: t('preview.qaLead'), department: t('preview.engineering'), performance: 93, utilization: 89, projects: [t('preview.projectBeta'), t('preview.projectGamma')], manager: '1', skills: { 'Leadership': 82, 'Technical': 88, 'Communication': 85, 'Strategy': 78 } },
+  { id: '12', name: t('preview.ariaJohnson'), role: t('preview.productDesigner'), department: t('preview.design'), performance: 91, utilization: 86, projects: [t('preview.projectDelta'), t('preview.projectEpsilon')], manager: '15', skills: { 'Leadership': 70, 'Technical': 80, 'Communication': 90, 'Strategy': 75 } },
+  { id: '13', name: t('preview.tylerMoore'), role: t('preview.frontendDeveloper'), department: t('preview.engineering'), performance: 88, utilization: 82, projects: [t('preview.projectBeta'), t('preview.projectIota')], manager: '1', skills: { 'Leadership': 65, 'Technical': 92, 'Communication': 76, 'Strategy': 68 } },
+  { id: '14', name: t('preview.ninaKowalski'), role: t('preview.hrManager'), department: 'HR', performance: 84, utilization: 78, projects: [t('preview.projectNu')], manager: 'CHRO', skills: { 'Leadership': 86, 'Technical': 58, 'Communication': 92, 'Strategy': 80 } },
+  { id: '15', name: t('preview.oliverSmith10'), role: t('preview.designDirector11'), department: t('preview.design'), performance: 92, utilization: 85, projects: [t('preview.projectBeta'), t('preview.projectDelta')], manager: 'CDO', skills: { 'Leadership': 90, 'Technical': 75, 'Communication': 88, 'Strategy': 87 } },
+  { id: '16', name: t('preview.isabellaGarcia'), role: t('preview.accountExecutive'), department: t('preview.sales9'), performance: 87, utilization: 81, projects: [t('preview.projectKappa'), t('preview.projectXi')], manager: '8', skills: { 'Leadership': 78, 'Technical': 52, 'Communication': 90, 'Strategy': 76 } },
+  { id: '17', name: t('preview.ethanLee'), role: t('preview.mlEngineer'), department: t('preview.engineering'), performance: 96, utilization: 90, projects: [t('preview.projectTheta'), t('preview.projectOmicron')], manager: '1', skills: { 'Leadership': 75, 'Technical': 98, 'Communication': 72, 'Strategy': 82 } },
+  { id: '18', name: t('preview.zoeCampbell'), role: t('preview.socialMediaManager'), department: t('preview.marketing'), performance: 83, utilization: 77, projects: [t('preview.projectEta'), t('preview.projectPi')], manager: '5', skills: { 'Leadership': 70, 'Technical': 68, 'Communication': 86, 'Strategy': 72 } },
+  { id: '19', name: t('preview.lucasWilson'), role: t('preview.mobileDeveloper'), department: t('preview.engineering'), performance: 89, utilization: 84, projects: [t('preview.projectLambda'), t('preview.projectRho')], manager: '1', skills: { 'Leadership': 68, 'Technical': 91, 'Communication': 75, 'Strategy': 70 } },
+  { id: '20', name: t('preview.hannahFoster12'), role: t('preview.analyticsLead13'), department: t('preview.analytics'), performance: 94, utilization: 88, projects: [t('preview.projectAlpha'), t('preview.projectTheta')], manager: 'CAO', skills: { 'Leadership': 88, 'Technical': 93, 'Communication': 82, 'Strategy': 90 } },
+  { id: '21', name: t('preview.jackThompson'), role: t('preview.securityEngineer'), department: t('preview.engineering'), performance: 90, utilization: 86, projects: [t('preview.projectSigma'), t('preview.projectTau')], manager: '1', skills: { 'Leadership': 72, 'Technical': 95, 'Communication': 70, 'Strategy': 78 } },
+  { id: '22', name: t('preview.avaMitchell'), role: t('preview.brandManager'), department: t('preview.marketing'), performance: 86, utilization: 79, projects: [t('preview.projectZeta'), t('preview.projectUpsilon')], manager: '5', skills: { 'Leadership': 82, 'Technical': 62, 'Communication': 90, 'Strategy': 84 } },
+  { id: '23', name: t('preview.noahDavis'), role: t('preview.solutionsArchitect'), department: t('preview.engineering'), performance: 93, utilization: 87, projects: [t('preview.projectAlpha'), t('preview.projectGamma')], manager: '1', skills: { 'Leadership': 85, 'Technical': 96, 'Communication': 80, 'Strategy': 88 } },
+  { id: '24', name: t('preview.miaRobinson'), role: t('preview.customerSuccess'), department: t('preview.sales9'), performance: 88, utilization: 83, projects: [t('preview.projectKappa'), t('preview.projectPhi')], manager: '8', skills: { 'Leadership': 80, 'Technical': 65, 'Communication': 94, 'Strategy': 78 } },
+  { id: '25', name: t('preview.liamCarter'), role: t('preview.dataEngineer'), department: t('preview.analytics'), performance: 91, utilization: 85, projects: [t('preview.projectTheta'), t('preview.projectChi')], manager: '20', skills: { 'Leadership': 70, 'Technical': 93, 'Communication': 73, 'Strategy': 76 } },
+  { id: '26', name: t('preview.emmaWatson'), role: t('preview.recruiter'), department: 'HR', performance: 82, utilization: 75, projects: [t('preview.projectNu'), t('preview.projectPsi')], manager: '14', skills: { 'Leadership': 75, 'Technical': 55, 'Communication': 88, 'Strategy': 72 } },
+  { id: '27', name: t('preview.jamesHarris'), role: t('preview.businessAnalyst'), department: t('preview.analytics'), performance: 87, utilization: 81, projects: [t('preview.projectDelta'), t('preview.projectOmega')], manager: '20', skills: { 'Leadership': 76, 'Technical': 82, 'Communication': 84, 'Strategy': 86 } },
+  { id: '28', name: t('preview.oliviaWhite'), role: t('preview.uiDesigner'), department: t('preview.design'), performance: 89, utilization: 82, projects: [t('preview.projectEpsilon'), t('preview.projectIota')], manager: '15', skills: { 'Leadership': 68, 'Technical': 78, 'Communication': 86, 'Strategy': 72 } },
 ];
 
 const departments: Department[] = [
-  { name: 'Engineering', headcount: 10, avgPerformance: 91, avgUtilization: 86, budget: 2500000 },
-  { name: 'Product', headcount: 1, avgPerformance: 88, avgUtilization: 82, budget: 180000 },
-  { name: 'Design', headcount: 4, avgPerformance: 91, avgUtilization: 84, budget: 480000 },
-  { name: 'Marketing', headcount: 4, avgPerformance: 85, avgUtilization: 78, budget: 520000 },
-  { name: 'Sales', headcount: 3, avgPerformance: 88, avgUtilization: 83, budget: 450000 },
-  { name: 'Analytics', headcount: 4, avgPerformance: 92, avgUtilization: 86, budget: 580000 },
+  { name: t('preview.engineering'), headcount: 10, avgPerformance: 91, avgUtilization: 86, budget: 2500000 },
+  { name: t('preview.product6'), headcount: 1, avgPerformance: 88, avgUtilization: 82, budget: 180000 },
+  { name: t('preview.design'), headcount: 4, avgPerformance: 91, avgUtilization: 84, budget: 480000 },
+  { name: t('preview.marketing'), headcount: 4, avgPerformance: 85, avgUtilization: 78, budget: 520000 },
+  { name: t('preview.sales9'), headcount: 3, avgPerformance: 88, avgUtilization: 83, budget: 450000 },
+  { name: t('preview.analytics'), headcount: 4, avgPerformance: 92, avgUtilization: 86, budget: 580000 },
 ];
 
 const projects: Project[] = [
-  { name: 'Project Alpha', members: ['Sarah Chen', 'Marcus Williams', 'Maya Patel', 'Ryan O\'Connor', 'Hannah Foster', 'Noah Davis'], allocation: { 'Sarah Chen': 40, 'Marcus Williams': 80, 'Maya Patel': 60, 'Ryan O\'Connor': 100, 'Hannah Foster': 50, 'Noah Davis': 70 } },
-  { name: 'Project Beta', members: ['Sarah Chen', 'Emma Rodriguez', 'Alex Kim', 'David Brown', 'Tyler Moore', 'Oliver Smith'], allocation: { 'Sarah Chen': 30, 'Emma Rodriguez': 50, 'Alex Kim': 60, 'David Brown': 70, 'Tyler Moore': 80, 'Oliver Smith': 40 } },
-  { name: 'Project Gamma', members: ['Marcus Williams', 'Chris Anderson', 'David Brown', 'Noah Davis'], allocation: { 'Marcus Williams': 60, 'Chris Anderson': 70, 'David Brown': 50, 'Noah Davis': 50 } },
-  { name: 'Project Delta', members: ['Emma Rodriguez', 'Aria Johnson', 'Oliver Smith', 'James Harris'], allocation: { 'Emma Rodriguez': 70, 'Aria Johnson': 60, 'Oliver Smith': 40, 'James Harris': 50 } },
-  { name: 'Project Epsilon', members: ['Alex Kim', 'Aria Johnson', 'Olivia White'], allocation: { 'Alex Kim': 70, 'Aria Johnson': 80, 'Olivia White': 60 } },
-  { name: 'Project Zeta', members: ['Jordan Taylor', 'Ava Mitchell'], allocation: { 'Jordan Taylor': 50, 'Ava Mitchell': 60 } },
-  { name: 'Project Eta', members: ['Jordan Taylor', 'Lily Zhang', 'Zoe Campbell'], allocation: { 'Jordan Taylor': 40, 'Lily Zhang': 70, 'Zoe Campbell': 50 } },
-  { name: 'Project Theta', members: ['Maya Patel', 'Ethan Lee', 'Hannah Foster', 'Liam Carter'], allocation: { 'Maya Patel': 80, 'Ethan Lee': 60, 'Hannah Foster': 70, 'Liam Carter': 60 } },
-  { name: 'Project Iota', members: ['Chris Anderson', 'Tyler Moore', 'Olivia White'], allocation: { 'Chris Anderson': 50, 'Tyler Moore': 60, 'Olivia White': 70 } },
-  { name: 'Project Kappa', members: ['Sofia Martinez', 'Isabella Garcia', 'Mia Robinson'], allocation: { 'Sofia Martinez': 80, 'Isabella Garcia': 70, 'Mia Robinson': 60 } },
-  { name: 'Project Lambda', members: ['Ryan O\'Connor', 'Lucas Wilson'], allocation: { 'Ryan O\'Connor': 50, 'Lucas Wilson': 70 } },
-  { name: 'Project Nu', members: ['Nina Kowalski', 'Emma Watson'], allocation: { 'Nina Kowalski': 60, 'Emma Watson': 70 } },
+  { name: t('preview.projectAlpha'), members: [t('preview.sarahChen4'), t('preview.marcusWilliams'), t('preview.mayaPatel'), "Ryan O'Connor", 'Hannah Foster', t('preview.noahDavis')], allocation: { 'Sarah Chen': 40, 'Marcus Williams': 80, 'Maya Patel': 60, "Ryan O'Connor": 100, 'Hannah Foster': 50, 'Noah Davis': 70 } },
+  { name: t('preview.projectBeta'), members: [t('preview.sarahChen4'), t('preview.emmaRodriguez'), t('preview.alexKim'), t('preview.davidBrown'), t('preview.tylerMoore'), t('preview.oliverSmith10')], allocation: { 'Sarah Chen': 30, 'Emma Rodriguez': 50, 'Alex Kim': 60, 'David Brown': 70, 'Tyler Moore': 80, 'Oliver Smith': 40 } },
+  { name: t('preview.projectGamma'), members: [t('preview.marcusWilliams'), t('preview.chrisAnderson'), t('preview.davidBrown'), t('preview.noahDavis')], allocation: { 'Marcus Williams': 60, 'Chris Anderson': 70, 'David Brown': 50, 'Noah Davis': 50 } },
+  { name: t('preview.projectDelta'), members: [t('preview.emmaRodriguez'), t('preview.ariaJohnson'), t('preview.oliverSmith10'), t('preview.jamesHarris')], allocation: { 'Emma Rodriguez': 70, 'Aria Johnson': 60, 'Oliver Smith': 40, 'James Harris': 50 } },
+  { name: t('preview.projectEpsilon'), members: [t('preview.alexKim'), t('preview.ariaJohnson'), t('preview.oliviaWhite')], allocation: { 'Alex Kim': 70, 'Aria Johnson': 80, 'Olivia White': 60 } },
+  { name: t('preview.projectZeta'), members: [t('preview.jordanTaylor7'), t('preview.avaMitchell')], allocation: { 'Jordan Taylor': 50, 'Ava Mitchell': 60 } },
+  { name: t('preview.projectEta'), members: [t('preview.jordanTaylor7'), t('preview.lilyZhang'), t('preview.zoeCampbell')], allocation: { 'Jordan Taylor': 40, 'Lily Zhang': 70, 'Zoe Campbell': 50 } },
+  { name: t('preview.projectTheta'), members: [t('preview.mayaPatel'), t('preview.ethanLee'), t('preview.hannahFoster12'), t('preview.liamCarter')], allocation: { 'Maya Patel': 80, 'Ethan Lee': 60, 'Hannah Foster': 70, 'Liam Carter': 60 } },
+  { name: t('preview.projectIota'), members: [t('preview.chrisAnderson'), t('preview.tylerMoore'), t('preview.oliviaWhite')], allocation: { 'Chris Anderson': 50, 'Tyler Moore': 60, 'Olivia White': 70 } },
+  { name: t('preview.projectKappa'), members: [t('preview.sofiaMartinez'), t('preview.isabellaGarcia'), t('preview.miaRobinson')], allocation: { 'Sofia Martinez': 80, 'Isabella Garcia': 70, 'Mia Robinson': 60 } },
+  { name: t('preview.projectLambda'), members: ["Ryan O'Connor", 'Lucas Wilson'], allocation: { "Ryan O'Connor": 50, 'Lucas Wilson': 70 } },
+  { name: t('preview.projectNu'), members: [t('preview.ninaKowalski'), t('preview.emmaWatson')], allocation: { 'Nina Kowalski': 60, 'Emma Watson': 70 } },
 ];
 
-const skills = ['Leadership', 'Technical', 'Communication', 'Strategy'];
+const skills = [t('preview.leadership'), t('preview.technical'), t('preview.communication'), t('preview.strategy')];
 
 export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerformancePreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const totalSlides = 7;
@@ -139,10 +141,8 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl h-[90vh] p-0 gap-0">
         <VisuallyHidden>
-          <DialogTitle>Team Performance Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of the Team Performance Dashboard
-          </DialogDescription>
+          <DialogTitle>{t('preview.teamPerformancePreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfThe')}</DialogDescription>
         </VisuallyHidden>
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -151,8 +151,8 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <Users className="w-6 h-6 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-gray-900">Team Performance Dashboard</h2>
-              <p className="text-sm text-gray-600">Vista 360° de tu organización</p>
+              <h2 className="text-xl font-bold text-gray-900">{t('preview.teamPerformanceDashboard')}</h2>
+              <p className="text-sm text-gray-600">{t('preview.vista360DeTu')}</p>
             </div>
           </div>
 
@@ -165,37 +165,31 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                   <Network className="w-14 h-14 text-white" />
                 </div>
                 <div className="space-y-4 max-w-2xl">
-                  <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">
-                    Vista 360° de tu Organización
-                  </h1>
-                  <p className="text-xl text-gray-600">
-                    Análisis completo de rendimiento, estructura y capacidades del equipo
-                  </p>
+                  <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-blue-600 bg-clip-text text-transparent">{t('preview.vista360DeTu0')}</h1>
+                  <p className="text-xl text-gray-600">{t('preview.análisisCompletoDeRendimiento')}</p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-6 w-full max-w-3xl mt-8">
                   <div className="p-6 rounded-xl border-2 border-purple-200 bg-purple-50">
                     <Users className="w-8 h-8 text-purple-600 mb-3" />
                     <div className="text-3xl font-bold text-purple-900">28</div>
-                    <div className="text-sm text-purple-700">Team Members</div>
+                    <div className="text-sm text-purple-700">{t('preview.teamMembers')}</div>
                   </div>
                   <div className="p-6 rounded-xl border-2 border-blue-200 bg-blue-50">
                     <Briefcase className="w-8 h-8 text-blue-600 mb-3" />
                     <div className="text-3xl font-bold text-blue-900">12</div>
-                    <div className="text-sm text-blue-700">Active Projects</div>
+                    <div className="text-sm text-blue-700">{t('preview.activeProjects')}</div>
                   </div>
                   <div className="p-6 rounded-xl border-2 border-cyan-200 bg-cyan-50">
                     <Building2 className="w-8 h-8 text-cyan-600 mb-3" />
                     <div className="text-3xl font-bold text-cyan-900">6</div>
-                    <div className="text-sm text-cyan-700">Departments</div>
+                    <div className="text-sm text-cyan-700">{t('preview.departments')}</div>
                   </div>
                 </div>
 
                 <div className="mt-8">
                   <Badge variant="secondary" className="text-sm px-4 py-2">
-                    <Zap className="w-4 h-4 mr-2" />
-                    Advanced Analytics
-                  </Badge>
+                    <Zap className="w-4 h-4 mr-2" />{t('preview.advancedAnalytics')}</Badge>
                 </div>
               </div>
             )}
@@ -205,38 +199,36 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <BarChart3 className="w-6 h-6 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Team Overview</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('preview.teamOverview')}</h3>
                 </div>
 
                 <div className="grid grid-cols-4 gap-4 mb-8">
                   <div className="p-6 rounded-xl bg-gradient-to-br from-purple-500 to-purple-600 text-white">
                     <Users className="w-8 h-8 mb-3 opacity-80" />
                     <div className="text-3xl font-bold">{teamMembers.length}</div>
-                    <div className="text-sm opacity-90">Total Headcount</div>
+                    <div className="text-sm opacity-90">{t('preview.totalHeadcount')}</div>
                   </div>
                   <div className="p-6 rounded-xl bg-gradient-to-br from-blue-500 to-blue-600 text-white">
                     <Target className="w-8 h-8 mb-3 opacity-80" />
                     <div className="text-3xl font-bold">{avgPerformance}%</div>
-                    <div className="text-sm opacity-90">Avg Performance</div>
+                    <div className="text-sm opacity-90">{t('preview.avgPerformance')}</div>
                   </div>
                   <div className="p-6 rounded-xl bg-gradient-to-br from-cyan-500 to-cyan-600 text-white">
                     <Activity className="w-8 h-8 mb-3 opacity-80" />
                     <div className="text-3xl font-bold">{avgUtilization}%</div>
-                    <div className="text-sm opacity-90">Avg Utilization</div>
+                    <div className="text-sm opacity-90">{t('preview.avgUtilization')}</div>
                   </div>
                   <div className="p-6 rounded-xl bg-gradient-to-br from-green-500 to-green-600 text-white">
                     <TrendingUp className="w-8 h-8 mb-3 opacity-80" />
                     <div className="text-3xl font-bold">+12%</div>
-                    <div className="text-sm opacity-90">Growth Rate</div>
+                    <div className="text-sm opacity-90">{t('preview.growthRate')}</div>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
                   <div className="p-6 border-2 rounded-xl">
                     <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Target className="w-5 h-5 text-blue-600" />
-                      Performance Distribution
-                    </h4>
+                      <Target className="w-5 h-5 text-blue-600" />{t('preview.performanceDistribution')}</h4>
                     <div className="space-y-3">
                       <div>
                         <div className="flex justify-between text-sm mb-1">
@@ -270,9 +262,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
 
                   <div className="p-6 border-2 rounded-xl">
                     <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Clock className="w-5 h-5 text-purple-600" />
-                      Utilization Distribution
-                    </h4>
+                      <Clock className="w-5 h-5 text-purple-600" />{t('preview.utilizationDistribution')}</h4>
                     <div className="space-y-3">
                       <div>
                         <div className="flex justify-between text-sm mb-1">
@@ -307,9 +297,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
 
                 <div className="p-6 border-2 rounded-xl bg-gradient-to-r from-purple-50 to-blue-50">
                   <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                    <Award className="w-5 h-5 text-purple-600" />
-                    Top Performers
-                  </h4>
+                    <Award className="w-5 h-5 text-purple-600" />{t('preview.topPerformers')}</h4>
                   <div className="grid grid-cols-5 gap-3">
                     {teamMembers
                       .sort((a, b) => b.performance - a.performance)
@@ -332,7 +320,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <Target className="w-6 h-6 text-blue-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Performance Matrix</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('preview.performanceMatrix')}</h3>
                 </div>
 
                 <div className="grid grid-cols-7 gap-2">
@@ -376,11 +364,11 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                   </div>
                   <div className="flex items-center gap-2">
                     <CheckCircle2 className="w-4 h-4 text-green-600" />
-                    <span className="text-sm text-gray-700">Top Performer</span>
+                    <span className="text-sm text-gray-700">{t('preview.topPerformer')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <Zap className="w-4 h-4 text-yellow-600" />
-                    <span className="text-sm text-gray-700">High Utilization</span>
+                    <span className="text-sm text-gray-700">{t('preview.highUtilization')}</span>
                   </div>
                 </div>
               </div>
@@ -391,7 +379,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <Building2 className="w-6 h-6 text-cyan-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Department Breakdown</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('preview.departmentBreakdown')}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-6">
@@ -408,15 +396,15 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                       <div className="grid grid-cols-3 gap-3 mb-4">
                         <div className="text-center p-3 bg-blue-50 rounded-lg">
                           <div className="text-2xl font-bold text-blue-600">{dept.avgPerformance}%</div>
-                          <div className="text-xs text-gray-600 mt-1">Performance</div>
+                          <div className="text-xs text-gray-600 mt-1">{t('preview.performance')}</div>
                         </div>
                         <div className="text-center p-3 bg-purple-50 rounded-lg">
                           <div className="text-2xl font-bold text-purple-600">{dept.avgUtilization}%</div>
-                          <div className="text-xs text-gray-600 mt-1">Utilization</div>
+                          <div className="text-xs text-gray-600 mt-1">{t('preview.utilization')}</div>
                         </div>
                         <div className="text-center p-3 bg-green-50 rounded-lg">
                           <div className="text-2xl font-bold text-green-600">${(dept.budget / 1000).toFixed(0)}K</div>
-                          <div className="text-xs text-gray-600 mt-1">Budget</div>
+                          <div className="text-xs text-gray-600 mt-1">{t('preview.budget')}</div>
                         </div>
                       </div>
 
@@ -441,7 +429,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                 </div>
 
                 <div className="p-6 border-2 rounded-xl bg-gradient-to-r from-blue-50 to-cyan-50">
-                  <h4 className="font-semibold text-gray-900 mb-4">Department Comparison</h4>
+                  <h4 className="font-semibold text-gray-900 mb-4">{t('preview.departmentComparison')}</h4>
                   <div className="space-y-3">
                     {departments.map((dept) => (
                       <div key={dept.name} className="flex items-center gap-4">
@@ -449,7 +437,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                         <div className="flex-1">
                           <div className="flex gap-2">
                             <div className="flex-1">
-                              <div className="text-xs text-gray-600 mb-1">Performance</div>
+                              <div className="text-xs text-gray-600 mb-1">{t('preview.performance')}</div>
                               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-blue-500 rounded-full"
@@ -458,7 +446,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                               </div>
                             </div>
                             <div className="flex-1">
-                              <div className="text-xs text-gray-600 mb-1">Utilization</div>
+                              <div className="text-xs text-gray-600 mb-1">{t('preview.utilization')}</div>
                               <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                                 <div
                                   className="h-full bg-purple-500 rounded-full"
@@ -480,7 +468,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <Briefcase className="w-6 h-6 text-green-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Project Allocation</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('preview.projectAllocation')}</h3>
                 </div>
 
                 <div className="grid grid-cols-2 gap-4">
@@ -542,16 +530,14 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <Award className="w-6 h-6 text-orange-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Skills Matrix</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('preview.skillsMatrix')}</h3>
                 </div>
 
                 <div className="overflow-auto">
                   <div className="inline-block min-w-full">
                     <div className="grid grid-cols-5 gap-1">
                       {/* Header */}
-                      <div className="p-3 bg-gray-100 font-semibold text-sm sticky left-0">
-                        Team Member
-                      </div>
+                      <div className="p-3 bg-gray-100 font-semibold text-sm sticky left-0">{t('preview.teamMember')}</div>
                       {skills.map((skill) => (
                         <div key={skill} className="p-3 bg-gray-100 font-semibold text-sm text-center">
                           {skill}
@@ -595,7 +581,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                       <div key={skill} className="p-4 border-2 rounded-xl bg-gradient-to-br from-white to-gray-50">
                         <h4 className="font-semibold text-gray-900 mb-2">{skill}</h4>
                         <div className="text-3xl font-bold text-blue-600 mb-2">{avgScore}</div>
-                        <div className="text-xs text-gray-600">Team Average</div>
+                        <div className="text-xs text-gray-600">{t('preview.teamAverage')}</div>
                         <div className="mt-3 w-full h-2 bg-gray-200 rounded-full overflow-hidden">
                           <div
                             className={`h-full ${getSkillColor(avgScore)} rounded-full`}
@@ -637,7 +623,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
               <div className="space-y-6">
                 <div className="flex items-center gap-3 mb-6">
                   <Network className="w-6 h-6 text-purple-600" />
-                  <h3 className="text-2xl font-bold text-gray-900">Organization Chart</h3>
+                  <h3 className="text-2xl font-bold text-gray-900">{t('preview.organizationChart')}</h3>
                 </div>
 
                 <div className="space-y-6">
@@ -645,8 +631,8 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                   <div className="p-6 rounded-xl border-2 bg-gradient-to-br from-blue-50 to-cyan-50">
                     <div className="text-center mb-6">
                       <div className="inline-block p-4 bg-blue-600 rounded-lg text-white">
-                        <div className="font-bold">Sarah Chen</div>
-                        <div className="text-sm">Engineering Lead</div>
+                        <div className="font-bold">{t('preview.sarahChen')}</div>
+                        <div className="text-sm">{t('preview.engineeringLead')}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-5 gap-3">
@@ -664,8 +650,8 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                   <div className="p-6 rounded-xl border-2 bg-gradient-to-br from-purple-50 to-pink-50">
                     <div className="text-center mb-6">
                       <div className="inline-block p-4 bg-purple-600 rounded-lg text-white">
-                        <div className="font-bold">Oliver Smith</div>
-                        <div className="text-sm">Design Director</div>
+                        <div className="font-bold">{t('preview.oliverSmith')}</div>
+                        <div className="text-sm">{t('preview.designDirector')}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-3 gap-3">
@@ -683,8 +669,8 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                   <div className="p-6 rounded-xl border-2 bg-gradient-to-br from-orange-50 to-yellow-50">
                     <div className="text-center mb-6">
                       <div className="inline-block p-4 bg-orange-600 rounded-lg text-white">
-                        <div className="font-bold">Jordan Taylor</div>
-                        <div className="text-sm">Marketing Director</div>
+                        <div className="font-bold">{t('preview.jordanTaylor')}</div>
+                        <div className="text-sm">{t('preview.marketingDirector')}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -702,8 +688,8 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                   <div className="p-6 rounded-xl border-2 bg-gradient-to-br from-green-50 to-emerald-50">
                     <div className="text-center mb-6">
                       <div className="inline-block p-4 bg-green-600 rounded-lg text-white">
-                        <div className="font-bold">Hannah Foster</div>
-                        <div className="text-sm">Analytics Lead</div>
+                        <div className="font-bold">{t('preview.hannahFoster')}</div>
+                        <div className="text-sm">{t('preview.analyticsLead')}</div>
                       </div>
                     </div>
                     <div className="grid grid-cols-2 gap-3">
@@ -722,10 +708,10 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                     <div className="p-4 rounded-xl border-2 bg-gradient-to-br from-cyan-50 to-blue-50">
                       <div className="text-center mb-4">
                         <div className="inline-block p-3 bg-cyan-600 rounded-lg text-white text-sm">
-                          <div className="font-bold">Product</div>
+                          <div className="font-bold">{t('preview.product')}</div>
                         </div>
                       </div>
-                      {teamMembers.filter((m) => m.department === 'Product').map((member) => (
+                      {teamMembers.filter((m) => m.department === t('preview.product6')).map((member) => (
                         <div key={member.id} className="p-2 bg-white rounded border text-center">
                           <div className="text-xs font-semibold">{member.name.split(' ')[0]}</div>
                           <div className="text-xs text-cyan-600">{member.performance}%</div>
@@ -736,10 +722,10 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                     <div className="p-4 rounded-xl border-2 bg-gradient-to-br from-red-50 to-pink-50">
                       <div className="text-center mb-4">
                         <div className="inline-block p-3 bg-red-600 rounded-lg text-white text-sm">
-                          <div className="font-bold">Sales</div>
+                          <div className="font-bold">{t('preview.sales')}</div>
                         </div>
                       </div>
-                      {teamMembers.filter((m) => m.department === 'Sales' && m.manager !== '8').slice(0, 1).map((member) => (
+                      {teamMembers.filter((m) => m.department === t('preview.sales9') && m.manager !== '8').slice(0, 1).map((member) => (
                         <div key={member.id} className="p-2 bg-white rounded border text-center mb-2">
                           <div className="text-xs font-semibold">{member.name.split(' ')[0]}</div>
                           <div className="text-xs text-red-600">{member.performance}%</div>
@@ -783,9 +769,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
           {/* Footer */}
           <div className="flex items-center justify-between p-6 border-t bg-gray-50">
             <div className="flex items-center gap-2">
-              <Badge variant="outline" className="text-sm">
-                Advanced Analytics
-              </Badge>
+              <Badge variant="outline" className="text-sm">{t('preview.advancedAnalytics')}</Badge>
               <span className="text-sm text-gray-600">
                 Slide {currentSlide + 1} of {totalSlides}
               </span>
@@ -798,9 +782,7 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
                 onClick={prevSlide}
                 disabled={currentSlide === 0}
               >
-                <ChevronLeft className="w-4 h-4 mr-1" />
-                Previous
-              </Button>
+                <ChevronLeft className="w-4 h-4 mr-1" />{t('preview.previous')}</Button>
 
               <div className="flex gap-1">
                 {Array.from({ length: totalSlides }).map((_, index) => (
@@ -820,14 +802,10 @@ export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerforma
             onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : nextSlide}
           >
             {currentSlide === totalSlides - 1 ? (
-              <>
-                Finalizar
-                <CheckCircle2 className="w-4 h-4 ml-1" />
+              <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-1" />
               </>
             ) : (
-              <>
-                Siguiente
-                <ChevronRight className="w-4 h-4 ml-1" />
+              <>{t('preview.siguiente')}<ChevronRight className="w-4 h-4 ml-1" />
               </>
             )}
           </Button>

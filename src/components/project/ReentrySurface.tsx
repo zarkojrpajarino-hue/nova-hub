@@ -20,6 +20,7 @@ import {
 } from '@/hooks/useNovaDataOptimized';
 import { getNextAction } from '@/lib/next-action';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
+import { useTranslation } from 'react-i18next';
 import {
   computeReentryPayload,
   PHASE_LABEL,
@@ -52,6 +53,7 @@ const SEVERITY_LABEL: Record<UrgencySeverity, string> = {
 };
 
 export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigateToTab }: ReentrySurfaceProps) {
+  const { t } = useTranslation();
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
   const { data: viabilityData, isLoading: viabilityLoading } = useProjectViabilityState(projectId);
   const { data: cycleData, isLoading: cycleLoading } = useStrategicCyclesWhileAway(projectId, lastSeenAt);
@@ -72,12 +74,10 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
       <div className="max-w-2xl mx-auto py-12 space-y-4">
         <div className="flex items-center gap-2 text-muted-foreground text-sm">
           <Clock size={14} />
-          <span>Resumen de re-entry</span>
+          <span>{t('project.resumenDeReentry')}</span>
         </div>
-        <p className="text-muted-foreground">El motor del proyecto aún no tiene datos. Revisa el estado directamente.</p>
-        <Button onClick={onAcknowledge} className="gap-2">
-          Ver estado actual
-          <ArrowRight size={16} />
+        <p className="text-muted-foreground">{t('project.elMotorDelProyecto')}</p>
+        <Button onClick={onAcknowledge} className="gap-2">{t('project.verEstadoActual')}<ArrowRight size={16} />
         </Button>
       </div>
     );
@@ -121,7 +121,7 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
         <div className="bg-destructive/10 border border-destructive/20 rounded-2xl p-4 flex items-start gap-3">
           <AlertTriangle size={16} className="text-destructive flex-shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-destructive">Riesgo de abandono</p>
+            <p className="text-sm font-semibold text-destructive">{t('project.riesgoDeAbandono')}</p>
             <p className="text-xs text-muted-foreground mt-1">
               Los proyectos sin actividad durante más de 60 días tienen una tasa de recuperación muy baja.
               Vale la pena evaluar si este proyecto sigue siendo prioritario.
@@ -144,31 +144,29 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
 
       {/* ── Estado actual ─────────────────────────────────────────────────── */}
       <div className="bg-card border border-border rounded-2xl p-5 space-y-3">
-        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-          Estado actual
-        </h3>
+        <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.estadoActual')}</h3>
         <div className="grid grid-cols-2 gap-3">
           <div className="bg-background rounded-xl px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-1">Fase</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('project.fase')}</p>
             <p className="font-medium text-sm">
               {PHASE_LABEL[currentState.phase] ?? `Fase ${currentState.phase}`}
             </p>
           </div>
           <div className="bg-background rounded-xl px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-1">Viabilidad</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('project.viabilidad')}</p>
             <p className="font-medium text-sm">
               {VIABILITY_LABEL[currentState.viabilityStatus] ?? currentState.viabilityStatus}
             </p>
           </div>
           <div className="bg-background rounded-xl px-4 py-3">
-            <p className="text-xs text-muted-foreground mb-1">Probabilidad</p>
+            <p className="text-xs text-muted-foreground mb-1">{t('project.probabilidad')}</p>
             <p className="font-medium text-sm">
               {TREND_LABEL[currentState.probabilityTrend]}
             </p>
           </div>
           {currentState.primaryBlock !== 'none' && (
             <div className="bg-background rounded-xl px-4 py-3">
-              <p className="text-xs text-muted-foreground mb-1">Bloqueo</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('project.bloqueo')}</p>
               <p className="font-medium text-sm">
                 {BLOCK_LABEL[currentState.primaryBlock]}
               </p>
@@ -180,9 +178,7 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
       {/* ── Cambios detectados ────────────────────────────────────────────── */}
       {activeChanges.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Cambios detectados
-          </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.cambiosDetectados')}</h3>
           <div className="space-y-2">
             {activeChanges.map(key => (
               <div
@@ -200,9 +196,7 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
       {/* ── Urgencias activas ─────────────────────────────────────────────── */}
       {urgencies.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Urgencias activas
-          </h3>
+          <h3 className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.urgenciasActivas')}</h3>
           <div className="space-y-2">
             {urgencies.map((u, i) => (
               <div
@@ -233,7 +227,7 @@ export function ReentrySurface({ projectId, lastSeenAt, onAcknowledge, onNavigat
           </p>
         )}
         <Button onClick={onAcknowledge} className="gap-2">
-          {nextAction ? 'Retomar proyecto' : 'Ver estado actual'}
+          {nextAction ? 'Retomar proyecto': t('project.verEstadoActual0')}
           <ArrowRight size={16} />
         </Button>
       </div>

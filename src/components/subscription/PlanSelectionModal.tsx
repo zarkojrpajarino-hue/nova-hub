@@ -13,6 +13,7 @@ import { Check, Zap, Crown, Building2, Sparkles } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { SubscriptionPlan } from '@/hooks/useSubscription';
 
+import { useTranslation } from 'react-i18next';
 interface PlanSelectionModalProps {
   isOpen: boolean;
   onClose: () => void;
@@ -26,6 +27,7 @@ export function PlanSelectionModal({
   onSelectPlan,
   availablePlans,
 }: PlanSelectionModalProps) {
+  const { t } = useTranslation();
   const [billingCycle, setBillingCycle] = useState<'monthly' | 'yearly'>('monthly');
 
   const handleSelectPlan = (planId: string) => {
@@ -46,12 +48,8 @@ export function PlanSelectionModal({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle className="text-3xl text-center mb-2">
-            Elige el plan perfecto para tu proyecto
-          </DialogTitle>
-          <DialogDescription className="text-center text-base">
-            Cada proyecto tiene su propio plan. Puedes cambiar o cancelar en cualquier momento.
-          </DialogDescription>
+          <DialogTitle className="text-3xl text-center mb-2">{t('subscription.eligeElPlanPerfecto')}</DialogTitle>
+          <DialogDescription className="text-center text-base">{t('subscription.cadaProyectoTieneSu')}</DialogDescription>
         </DialogHeader>
 
         {/* Billing Cycle Toggle (Solo mostrar si hay planes de pago) */}
@@ -61,16 +59,12 @@ export function PlanSelectionModal({
               variant={billingCycle === 'monthly' ? 'default' : 'outline'}
               onClick={() => setBillingCycle('monthly')}
               size="sm"
-            >
-              Mensual
-            </Button>
+            >{t('subscription.mensual')}</Button>
             <Button
               variant={billingCycle === 'yearly' ? 'default' : 'outline'}
               onClick={() => setBillingCycle('yearly')}
               size="sm"
-            >
-              Anual
-              <Badge className="ml-2 bg-green-500 hover:bg-green-600">
+            >{t('subscription.anual')}<Badge className="ml-2 bg-green-500 hover:bg-green-600">
                 -20%
               </Badge>
             </Button>
@@ -148,27 +142,27 @@ export function PlanSelectionModal({
                 <ul className="space-y-3 mb-6">
                   <FeatureItem
                     included={true}
-                    text={plan.max_members === null ? 'Miembros ilimitados' : `Hasta ${plan.max_members} miembros`}
+                    text={plan.max_members === null ? 'Miembros ilimitados': `Hasta ${plan.max_members} miembros`}
                   />
                   <FeatureItem
                     included={true}
-                    text={plan.max_tasks === null ? 'Tareas ilimitadas' : `Hasta ${plan.max_tasks} tareas`}
+                    text={plan.max_tasks === null ? 'Tareas ilimitadas': `Hasta ${plan.max_tasks} tareas`}
                   />
                   <FeatureItem
                     included={plan.ai_role_generation}
-                    text="Generación IA de roles"
+                    text={t('subscription.generaciónIaDeRoles')}
                   />
                   <FeatureItem
                     included={plan.ai_task_generation}
-                    text="Generación IA de tareas"
+                    text={t('subscription.generaciónIaDeTareas')}
                   />
                   <FeatureItem
                     included={plan.ai_logo_generation}
-                    text="Generación IA de logo"
+                    text={t('subscription.generaciónIaDeLogo')}
                   />
                   <FeatureItem
                     included={plan.advanced_analytics}
-                    text="Analíticas avanzadas"
+                    text={t('subscription.analíticasAvanzadas')}
                   />
                   <FeatureItem
                     included={plan.api_access}
@@ -176,12 +170,12 @@ export function PlanSelectionModal({
                   />
                   <FeatureItem
                     included={plan.priority_support}
-                    text="Soporte prioritario"
+                    text={t('subscription.soportePrioritario')}
                   />
                   {plan.white_label && (
                     <FeatureItem
                       included={true}
-                      text="White Label"
+                      text={t('subscription.whiteLabel')}
                     />
                   )}
                 </ul>
@@ -195,7 +189,7 @@ export function PlanSelectionModal({
                     !isRecommended && 'bg-gray-900 hover:bg-gray-800'
                   )}
                 >
-                  {isTrial ? 'Comenzar Gratis' : 'Seleccionar Plan'}
+                  {isTrial ? 'Comenzar Gratis': t('subscription.seleccionarPlan')}
                 </Button>
               </div>
             );

@@ -11,31 +11,32 @@ import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/comp
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface EconomicProfileFormProps {
   projectId: string;
 }
 
 const MODEL_TYPE_OPTIONS = [
   { value: 'saas',        label: 'SaaS' },
-  { value: 'service',     label: 'Servicios' },
-  { value: 'physical',    label: 'Producto físico' },
-  { value: 'marketplace', label: 'Marketplace' },
-  { value: 'agency',      label: 'Agencia' },
-  { value: 'unknown',     label: 'Por definir' },
+  { value: 'service',     label: t('engineInputs.servicios') },
+  { value: 'physical',    label: t('engineInputs.productoFísico') },
+  { value: 'marketplace', label: t('engineInputs.marketplace') },
+  { value: 'agency',      label: t('engineInputs.agencia') },
+  { value: 'unknown',     label: t('engineInputs.porDefinir') },
 ];
 
 const PRICING_MODEL_OPTIONS = [
-  { value: 'subscription', label: 'Suscripción' },
-  { value: 'usage',        label: 'Por uso' },
-  { value: 'one_off',      label: 'Pago único' },
-  { value: 'hybrid',       label: 'Híbrido' },
-  { value: 'unknown',      label: 'Por definir' },
+  { value: 'subscription', label: t('engineInputs.suscripción') },
+  { value: 'usage',        label: t('engineInputs.porUso') },
+  { value: 'one_off',      label: t('engineInputs.pagoÚnico') },
+  { value: 'hybrid',       label: t('engineInputs.híbrido') },
+  { value: 'unknown',      label: t('engineInputs.porDefinir') },
 ];
 
 const REVENUE_TYPE_OPTIONS = [
-  { value: 'recurring',     label: 'Recurrente' },
-  { value: 'transactional', label: 'Transaccional' },
-  { value: 'mixed',         label: 'Mixto' },
+  { value: 'recurring',     label: t('engineInputs.recurrente') },
+  { value: 'transactional', label: t('engineInputs.transaccional') },
+  { value: 'mixed',         label: t('engineInputs.mixto') },
 ];
 
 function computeConfidence(form: {
@@ -86,6 +87,7 @@ const LEVEL_COLORS = {
 };
 
 export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);
 
@@ -136,7 +138,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
 
   const handleSave = async () => {
     if (!form.modelType) {
-      toast.error('El modelo de negocio es obligatorio');
+      toast.error(t('engineInputs.elModeloDeNegocio'));
       return;
     }
 
@@ -167,10 +169,10 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
 
       if (error) throw error;
 
-      toast.success('Perfil económico guardado');
+      toast.success(t('engineInputs.perfilEconómicoGuardado'));
       queryClient.invalidateQueries({ queryKey: ['economic_profile', projectId] });
     } catch {
-      toast.error('Error al guardar el perfil económico');
+      toast.error(t('engineInputs.errorAlGuardarEl'));
     } finally {
       setIsSaving(false);
     }
@@ -192,10 +194,8 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
         <CardHeader>
           <div className="flex items-start justify-between">
             <div>
-              <CardTitle className="text-base">Perfil económico</CardTitle>
-              <CardDescription>
-                Modelo, pricing y métricas financieras. Alimenta RunwayFactor (R1.1) y ConcentraciónRevenue (R1.4).
-              </CardDescription>
+              <CardTitle className="text-base">{t('engineInputs.perfilEconómico')}</CardTitle>
+              <CardDescription>{t('engineInputs.modeloPricingYMétricas')}</CardDescription>
             </div>
             <Badge variant="outline" className={LEVEL_COLORS[confidence.level]}>
               Confianza: {confidence.score}% ({confidence.level})
@@ -205,13 +205,13 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
         <CardContent className="space-y-6">
           {/* Required fields */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Clasificación del modelo</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">{t('engineInputs.clasificaciónDelModelo')}</p>
             <div className="grid grid-cols-3 gap-4">
               <div className="space-y-1.5">
                 <Label>Modelo de negocio *</Label>
                 <Select value={form.modelType} onValueChange={(v) => setForm({ ...form, modelType: v })}>
                   <SelectTrigger>
-                    <SelectValue placeholder="Seleccionar..." />
+                    <SelectValue placeholder={t('engineInputs.seleccionar')} />
                   </SelectTrigger>
                   <SelectContent>
                     {MODEL_TYPE_OPTIONS.map((o) => (
@@ -253,7 +253,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
 
           {/* Risk engine inputs */}
           <div>
-            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">Inputs para motor de riesgo</p>
+            <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide mb-3">{t('engineInputs.inputsParaMotorDe')}</p>
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-1.5">
                 <div className="flex items-center gap-1.5">
@@ -263,7 +263,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                       <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="text-xs max-w-48">Dinero disponible hoy. Usado para calcular runway. NULL = RunwayFactor no se calcula.</p>
+                      <p className="text-xs max-w-48">{t('engineInputs.dineroDisponibleHoyUsado')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -273,7 +273,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                   step="100"
                   value={form.cashOnHand}
                   onChange={(e) => setForm({ ...form, cashOnHand: e.target.value })}
-                  placeholder="Ej: 50000"
+                  placeholder={t('engineInputs.ej50000')}
                 />
               </div>
 
@@ -285,7 +285,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                       <Info className="w-3.5 h-3.5 text-muted-foreground cursor-help" />
                     </TooltipTrigger>
                     <TooltipContent>
-                      <p className="text-xs max-w-48">{"Concentración: ≤20% bajo riesgo, >80% riesgo crítico. NULL = no se calcula R1.4."}</p>
+                      <p className="text-xs max-w-48">{t('engineInputs.concentración20BajoRiesgo')}</p>
                     </TooltipContent>
                   </Tooltip>
                 </div>
@@ -296,7 +296,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                   step="1"
                   value={form.topClientPercent}
                   onChange={(e) => setForm({ ...form, topClientPercent: e.target.value })}
-                  placeholder="Ej: 35"
+                  placeholder={t('engineInputs.ej35')}
                 />
               </div>
             </div>
@@ -314,7 +314,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                   step="1"
                   value={form.avgTicket}
                   onChange={(e) => setForm({ ...form, avgTicket: e.target.value })}
-                  placeholder="Ej: 299"
+                  placeholder={t('engineInputs.ej299')}
                 />
               </div>
 
@@ -326,7 +326,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                   step="1"
                   value={form.cacEstimate}
                   onChange={(e) => setForm({ ...form, cacEstimate: e.target.value })}
-                  placeholder="Ej: 150"
+                  placeholder={t('engineInputs.ej150')}
                 />
               </div>
 
@@ -339,7 +339,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                   step="0.5"
                   value={form.grossMargin}
                   onChange={(e) => setForm({ ...form, grossMargin: e.target.value })}
-                  placeholder="Ej: 70"
+                  placeholder={t('engineInputs.ej70')}
                 />
               </div>
 
@@ -351,7 +351,7 @@ export function EconomicProfileForm({ projectId }: EconomicProfileFormProps) {
                   step="1"
                   value={form.salesCycleDays}
                   onChange={(e) => setForm({ ...form, salesCycleDays: e.target.value })}
-                  placeholder="Ej: 30"
+                  placeholder={t('engineInputs.ej30')}
                 />
               </div>
             </div>

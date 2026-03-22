@@ -7,16 +7,18 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { usePlaybookForRole, useGeneratePlaybook, type UserPlaybook } from '@/hooks/useDevelopment';
 import { useAuth } from '@/hooks/useAuth';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { toast } from 'sonner';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_PLAYBOOKS } from '@/data/demoData';
 
+import { useTranslation } from 'react-i18next';
 interface PlaybookViewerProps {
   roleName: string;
 }
 
 export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { isDemoMode } = useDemoMode();
   const { data: realPlaybook, isLoading } = usePlaybookForRole(profile?.id, roleName);
@@ -44,7 +46,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
 
   const handleGenerate = async () => {
     if (isDemoMode) {
-      toast.info('En modo demo no se pueden generar playbooks');
+      toast.info(t('development.enModoDemoNo'));
       return;
     }
     if (!profile?.id) return;
@@ -55,9 +57,9 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
         userId: profile.id,
         roleName,
       });
-      toast.success('Playbook generado con éxito');
+      toast.success(t('development.playbookGeneradoConÉxito'));
     } catch (_error) {
-      toast.error('Error al generar el playbook');
+      toast.error(t('development.errorAlGenerarEl'));
     } finally {
       setGenerating(false);
     }
@@ -77,9 +79,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
         <CardContent className="py-10 text-center">
           <BookOpen size={48} className="mx-auto text-muted-foreground/50 mb-4" />
           <h3 className="font-semibold mb-2">Sin Playbook para {roleName}</h3>
-          <p className="text-sm text-muted-foreground mb-4">
-            Genera un playbook personalizado basado en tu rendimiento y experiencia
-          </p>
+          <p className="text-sm text-muted-foreground mb-4">{t('development.generaUnPlaybookPersonalizado')}</p>
           <Button onClick={handleGenerate} disabled={generating}>
             {generating ? (
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
@@ -105,13 +105,13 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
             <h3 className="font-bold text-lg">Playbook: {playbook.role_name}</h3>
             <p className="text-sm text-muted-foreground">
               Versión {playbook.version} • Generado{' '}
-              {formatDistanceToNow(new Date(playbook.generated_at), { addSuffix: true, locale: es })}
+              {formatDistanceToNow(new Date(playbook.generated_at), { addSuffix: true, locale: getDateFnsLocale() })}
             </p>
           </div>
         </div>
         <Button variant="outline" size="sm" onClick={handleGenerate} disabled={generating}>
           {generating ? <Loader2 className="h-4 w-4 animate-spin" /> : <RefreshCw className="h-4 w-4" />}
-          <span className="ml-2">Regenerar</span>
+          <span className="ml-2">{t('development.regenerar')}</span>
         </Button>
       </div>
 
@@ -120,9 +120,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2 text-success">
-              <CheckCircle size={16} />
-              Fortalezas
-            </CardTitle>
+              <CheckCircle size={16} />{t('development.fortalezas')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -132,7 +130,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
                 </Badge>
               ))}
               {playbook.fortalezas.length === 0 && (
-                <p className="text-sm text-muted-foreground">Sin datos suficientes</p>
+                <p className="text-sm text-muted-foreground">{t('development.sinDatosSuficientes')}</p>
               )}
             </div>
           </CardContent>
@@ -141,9 +139,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
         <Card>
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2 text-amber-500">
-              <AlertCircle size={16} />
-              Áreas de Mejora
-            </CardTitle>
+              <AlertCircle size={16} />{t('development.áreasDeMejora')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex flex-wrap gap-2">
@@ -153,7 +149,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
                 </Badge>
               ))}
               {playbook.areas_mejora.length === 0 && (
-                <p className="text-sm text-muted-foreground">Sin datos suficientes</p>
+                <p className="text-sm text-muted-foreground">{t('development.sinDatosSuficientes')}</p>
               )}
             </div>
           </CardContent>
@@ -164,9 +160,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Target size={18} />
-            Guía del Rol
-          </CardTitle>
+            <Target size={18} />{t('development.guíaDelRol')}</CardTitle>
         </CardHeader>
         <CardContent>
           <Accordion type="single" collapsible className="w-full">
@@ -192,7 +186,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
                 </AccordionContent>
               </AccordionItem>
             )) || (
-              <p className="text-muted-foreground text-sm">Sin contenido disponible</p>
+              <p className="text-muted-foreground text-sm">{t('development.sinContenidoDisponible')}</p>
             )}
           </Accordion>
         </CardContent>
@@ -203,9 +197,7 @@ export function PlaybookViewer({ roleName }: PlaybookViewerProps) {
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp size={18} />
-              Objetivos Sugeridos
-            </CardTitle>
+              <TrendingUp size={18} />{t('development.objetivosSugeridos')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">

@@ -37,12 +37,14 @@ import { HowItWorks } from '@/components/ui/how-it-works';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { TeamPerformancePreviewModal } from '@/components/preview/TeamPerformancePreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface TeamPerformanceDashboardProps {
   isDemoMode?: boolean; // Viene de FeatureGate cuando está bloqueado
 }
 
 // Componente interno que renderiza el contenido
 function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerformanceDashboardProps = {}) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { goBack, canGoBack } = useNavigation();
   const { currentProject: _contextProject } = useCurrentProject();
@@ -82,7 +84,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
         await loadProjectData(projects[0].id);
       }
     } catch (_error) {
-      toast.error('Error al cargar los datos');
+      toast.error(t('teamPerformanceDashboard.errorAlCargarLos'));
     } finally {
       setIsLoading(false);
     }
@@ -151,16 +153,14 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
           </div>
         )}
         <div className="px-6">
-          <h1 className="text-3xl font-bold">Vista Global de Equipos</h1>
+          <h1 className="text-3xl font-bold">{t('teamPerformanceDashboard.vistaGlobalDeEquipos')}</h1>
         </div>
         <div className="px-6">
           <Card>
             <CardContent className="p-12 text-center">
               <Users size={48} className="mx-auto text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">No hay proyectos aún</h3>
-              <p className="text-muted-foreground">
-                Cuando se creen proyectos, aparecerán aquí
-              </p>
+              <h3 className="text-lg font-semibold mb-2">{t('teamPerformanceDashboard.noHayProyectosAún')}</h3>
+              <p className="text-muted-foreground">{t('teamPerformanceDashboard.cuandoSeCreenProyectos')}</p>
             </CardContent>
           </Card>
         </div>
@@ -185,65 +185,61 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
         {/* Header */}
         <div className="px-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
-          <BarChart3 className="text-primary" />
-          Vista Global de Equipos
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Vista consolidada de performance de todos los equipos y proyectos
-        </p>
+          <BarChart3 className="text-primary" />{t('teamPerformanceDashboard.vistaGlobalDeEquipos')}</h1>
+        <p className="text-muted-foreground mt-2">{t('teamPerformanceDashboard.vistaConsolidadaDePerformance')}</p>
       </div>
 
       {/* How it works */}
       <div className="px-6">
         <HowItWorks
-          title="Cómo funciona"
-          description="Dashboard para Project Owners/Admins monitorear salud del equipo"
-          whatIsIt="Vista agregada que muestra exploraciones activas de roles en TODOS los proyectos, fit scores promedio por equipo, competencias en curso, y alertas de atención (ej: exploraciones sin feedback suficiente). Diseñado para owners/managers que necesitan visibilidad cross-proyecto del progreso del equipo en encontrar sus roles ideales."
+          title={t('teamPerformanceDashboard.cómoFunciona')}
+          description={t('teamPerformanceDashboard.dashboardParaProjectOwnersadmins')}
+          whatIsIt={t('teamPerformanceDashboard.vistaAgregadaQueMuestra')}
           dataInputs={[
             {
-              from: 'Exploración de Roles',
+              from: t('teamPerformanceDashboard.exploraciónDeRoles'),
               items: [
-                'Exploraciones activas por proyecto',
-                'Fit Scores actuales de cada miembro en su rol',
-                'Feedback pendiente de dar/recibir',
+                t('teamPerformanceDashboard.exploracionesActivasPorProyecto'),
+                t('teamPerformanceDashboard.fitScoresActualesDe'),
+                t('teamPerformanceDashboard.feedbackPendienteDeDarrecibir'),
               ],
             },
             {
-              from: 'Camino a Master',
+              from: t('teamPerformanceDashboard.caminoAMaster'),
               items: [
-                'Competencias activas entre miembros',
-                'Progreso hacia requisitos de Master',
+                t('teamPerformanceDashboard.competenciasActivasEntreMiembros'),
+                t('teamPerformanceDashboard.progresoHaciaRequisitosDe'),
               ],
             },
             {
-              from: 'Rankings',
+              from: t('teamPerformanceDashboard.rankings'),
               items: [
-                'Ranking consolidado de todos los proyectos',
-                'Tendencias de fit score del equipo',
+                t('teamPerformanceDashboard.rankingConsolidadoDeTodos'),
+                t('teamPerformanceDashboard.tendenciasDeFitScore'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Insights de equipo',
+              to: t('teamPerformanceDashboard.insightsDeEquipo'),
               items: [
                 'Qué equipos necesitan atención (bajo fit score promedio)',
-                'Exploraciones que expiran pronto sin completar',
-                'Miembros sin feedback suficiente',
+                t('teamPerformanceDashboard.exploracionesQueExpiranPronto'),
+                t('teamPerformanceDashboard.miembrosSinFeedbackSuficiente'),
               ],
             },
             {
               to: 'Recomendaciones IA',
               items: [
-                'Sugerencias de rotación de roles entre proyectos',
-                'Qué miembros deberían cambiar de rol',
-                'Gaps de talento en cada proyecto',
+                t('teamPerformanceDashboard.sugerenciasDeRotaciónDe'),
+                t('teamPerformanceDashboard.quéMiembrosDeberíanCambiar'),
+                t('teamPerformanceDashboard.gapsDeTalentoEn'),
               ],
             },
           ]}
           nextStep={{
             action: 'Identifica problemas de equipo → Toma acciones (rotaciones, feedback, support)',
-            destination: 'Filtra por proyecto para deep dive, o ve a Rotación para proponer cambios',
+            destination: t('teamPerformanceDashboard.filtraPorProyectoPara'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
           premiumFeature="advanced_analytics"
@@ -270,7 +266,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
       <div className="grid gap-4 md:grid-cols-3 px-6">
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Exploraciones Activas</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('teamPerformanceDashboard.exploracionesActivas')}</CardTitle>
             <Users className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
@@ -283,20 +279,18 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Requieren Atención</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('teamPerformanceDashboard.requierenAtención')}</CardTitle>
             <AlertTriangle className="h-4 w-4 text-yellow-600" />
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{needsAttention.length}</div>
-            <p className="text-xs text-muted-foreground">
-              Períodos finalizados o con poco feedback
-            </p>
+            <p className="text-xs text-muted-foreground">{t('teamPerformanceDashboard.períodosFinalizadosOCon')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Fit Score Promedio</CardTitle>
+            <CardTitle className="text-sm font-medium">{t('teamPerformanceDashboard.fitScorePromedio')}</CardTitle>
             <TrendingUp className="h-4 w-4 text-green-600" />
           </CardHeader>
           <CardContent>
@@ -308,7 +302,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
                   ).toFixed(1)
                 : '—'}
             </div>
-            <p className="text-xs text-muted-foreground">Del equipo actual</p>
+            <p className="text-xs text-muted-foreground">{t('teamPerformanceDashboard.delEquipoActual')}</p>
           </CardContent>
         </Card>
       </div>
@@ -331,13 +325,9 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
             )}
           </TabsTrigger>
           <TabsTrigger value="matrix" className="gap-2">
-            <BarChart3 size={16} />
-            Matriz de Fit
-          </TabsTrigger>
+            <BarChart3 size={16} />{t('teamPerformanceDashboard.matrizDeFit')}</TabsTrigger>
           <TabsTrigger value="insights" className="gap-2">
-            <Lightbulb size={16} />
-            Insights del Equipo
-          </TabsTrigger>
+            <Lightbulb size={16} />{t('teamPerformanceDashboard.insightsDelEquipo')}</TabsTrigger>
           <TabsTrigger value="schedule" className="gap-2">
             <Calendar size={16} />
             Agendar Reunión IA
@@ -354,10 +344,8 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
             <Card>
               <CardContent className="p-12 text-center">
                 <Users size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Sin exploraciones activas</h3>
-                <p className="text-muted-foreground">
-                  Agrega miembros al proyecto para iniciar exploraciones
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('teamPerformanceDashboard.sinExploracionesActivas')}</h3>
+                <p className="text-muted-foreground">{t('teamPerformanceDashboard.agregaMiembrosAlProyecto')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -381,7 +369,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
                           <CardTitle className="capitalize flex items-center gap-2">
                             {exp.member?.nombre}
                             {exp.competing_with && exp.competing_with.length > 0 && (
-                              <Badge variant="secondary">En competencia</Badge>
+                              <Badge variant="secondary">{t('teamPerformanceDashboard.enCompetencia')}</Badge>
                             )}
                           </CardTitle>
                           <CardDescription className="capitalize">
@@ -393,7 +381,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
                           className="gap-1"
                         >
                           <Clock size={12} />
-                          {isExpired ? 'Finalizado' : `${daysRemaining}d`}
+                          {isExpired ? 'Finalizado': `${daysRemaining}d`}
                         </Badge>
                       </div>
                     </CardHeader>
@@ -402,17 +390,17 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
                       <div className="grid grid-cols-3 gap-4 text-center">
                         <div>
                           <div className="text-2xl font-bold">{exp.tasks_completed || 0}</div>
-                          <div className="text-xs text-muted-foreground">Tareas</div>
+                          <div className="text-xs text-muted-foreground">{t('teamPerformanceDashboard.tareas')}</div>
                         </div>
                         <div>
                           <div className="text-2xl font-bold">{exp.obvs_completed || 0}</div>
-                          <div className="text-xs text-muted-foreground">OBVs</div>
+                          <div className="text-xs text-muted-foreground">{t('teamPerformanceDashboard.obvs')}</div>
                         </div>
                         <div>
                           <div className="text-2xl font-bold">
                             {exp.peer_feedback_count || 0}
                           </div>
-                          <div className="text-xs text-muted-foreground">Feedback</div>
+                          <div className="text-xs text-muted-foreground">{t('teamPerformanceDashboard.feedback')}</div>
                         </div>
                       </div>
 
@@ -420,7 +408,7 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
                       {exp.fit_score && (
                         <div className="space-y-2">
                           <div className="flex items-center justify-between text-sm">
-                            <span>Fit Score</span>
+                            <span>{t('teamPerformanceDashboard.fitScore')}</span>
                             <span className="font-bold text-primary">{exp.fit_score.toFixed(1)}/5.0</span>
                           </div>
                           <Progress value={(exp.fit_score / 5) * 100} className="h-2" />
@@ -433,13 +421,13 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
                           {isExpired && (
                             <div className="flex items-start gap-2 text-sm text-yellow-600 bg-yellow-500/10 p-2 rounded">
                               <AlertTriangle size={16} className="mt-0.5" />
-                              <span>Período finalizado - Requiere decisión</span>
+                              <span>{t('teamPerformanceDashboard.períodoFinalizadoRequiereDecisión')}</span>
                             </div>
                           )}
                           {needsFeedback && (
                             <div className="flex items-start gap-2 text-sm text-blue-600 bg-blue-500/10 p-2 rounded">
                               <AlertTriangle size={16} className="mt-0.5" />
-                              <span>Poco feedback recibido - Solicitar a más miembros</span>
+                              <span>{t('teamPerformanceDashboard.pocoFeedbackRecibidoSolicitar')}</span>
                             </div>
                           )}
                         </div>
@@ -458,10 +446,8 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
             <Card>
               <CardContent className="p-12 text-center">
                 <Trophy size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Sin competencias activas</h3>
-                <p className="text-muted-foreground">
-                  Las competencias aparecen cuando 2+ usuarios exploran el mismo rol
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('teamPerformanceDashboard.sinCompetenciasActivas')}</h3>
+                <p className="text-muted-foreground">{t('teamPerformanceDashboard.lasCompetenciasAparecenCuando')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -509,16 +495,12 @@ function TeamPerformanceContent({ isDemoMode: _isDemoMode = false }: TeamPerform
         <TabsContent value="matrix" className="space-y-4">
           <Card>
             <CardHeader>
-              <CardTitle>Matriz de Fit Scores por Miembro</CardTitle>
-              <CardDescription>
-                Visualiza el desempeño de cada miembro en diferentes roles
-              </CardDescription>
+              <CardTitle>{t('teamPerformanceDashboard.matrizDeFitScores')}</CardTitle>
+              <CardDescription>{t('teamPerformanceDashboard.visualizaElDesempeñoDe')}</CardDescription>
             </CardHeader>
             <CardContent>
               {explorations.length === 0 ? (
-                <p className="text-center text-muted-foreground py-8">
-                  Sin datos de exploraciones aún
-                </p>
+                <p className="text-center text-muted-foreground py-8">{t('teamPerformanceDashboard.sinDatosDeExploraciones')}</p>
               ) : (
                 <div className="space-y-3">
                   {explorations.map((exp) => (

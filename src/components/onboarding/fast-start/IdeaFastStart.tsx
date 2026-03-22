@@ -5,7 +5,7 @@
  * Metodología: Lean Startup (con hipótesis) / Design Thinking (sin hipótesis).
  *
  * Fases internas:
- *   screening     → pregunta binaria "¿tienes hipótesis clara?"
+ *   screening     → pregunta binaria t('onboarding.tienesHipótesisClara')
  *   with-hyp      → flujo original: pitch + nombre + generate (Lean Startup)
  *   without-hyp   → DiscoveryThinkingForm 5 pasos (O5.5)
  *
@@ -35,6 +35,7 @@ import { generateAllArtifacts } from '@/lib/ai-generators';
 import type { FaseAAnswers } from './FaseACommon';
 import { DiscoveryThinkingForm } from './DiscoveryThinkingForm';
 
+import { useTranslation } from 'react-i18next';
 interface IdeaFastStartProps {
   projectId: string;
   faseAAnswers: FaseAAnswers;
@@ -42,6 +43,7 @@ interface IdeaFastStartProps {
 }
 
 export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastStartProps) {
+  const { t } = useTranslation();
   // O5.5 — madurez de hipótesis: null=sin responder, 'structured'=Lean Startup, 'partial'/'none'=DT
   const [hypothesisMaturity, setHypothesisMaturity] = useState<'none' | 'partial' | 'structured' | null>(null);
 
@@ -91,12 +93,12 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
         completed_at: new Date().toISOString(),
       });
 
-      toast.success('Idea validated!', {
-        description: 'Your business strategy is ready'
+      toast.success(t('onboarding.ideaValidated'), {
+        description: t('onboarding.yourBusinessStrategyIs')
       });
     } catch (_error) {
-      toast.error('Failed to validate idea', {
-        description: 'Please try again or contact support'
+      toast.error(t('onboarding.failedToValidateIdea'), {
+        description: t('onboarding.pleaseTryAgainOr')
       });
       setIsGenerating(false);
     }
@@ -113,21 +115,15 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
                 <Rocket className="h-7 w-7 text-white" />
               </div>
               <div>
-                <CardTitle className="text-2xl">Tienes una idea</CardTitle>
-                <CardDescription className="text-base mt-1">
-                  Una pregunta para orientar tu flujo
-                </CardDescription>
+                <CardTitle className="text-2xl">{t('onboarding.tienesUnaIdea')}</CardTitle>
+                <CardDescription className="text-base mt-1">{t('onboarding.unaPreguntaParaOrientar')}</CardDescription>
               </div>
             </div>
           </CardHeader>
           <CardContent className="space-y-6">
             <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
-              <p className="font-semibold text-gray-900 text-lg mb-1">
-                ¿En qué punto está tu hipótesis de negocio?
-              </p>
-              <p className="text-sm text-muted-foreground">
-                No necesitas tener nada validado, solo saber qué tan formada está tu tesis.
-              </p>
+              <p className="font-semibold text-gray-900 text-lg mb-1">{t('onboarding.enQuéPuntoEstá')}</p>
+              <p className="text-sm text-muted-foreground">{t('onboarding.noNecesitasTenerNada')}</p>
             </div>
             <div className="flex flex-col gap-3">
               <Button
@@ -135,30 +131,24 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
                 className="h-auto py-4 flex flex-col gap-1.5 border-2 hover:border-primary hover:bg-primary/5 text-left items-start px-5"
                 onClick={() => setHypothesisMaturity('structured')}
               >
-                <span className="font-semibold">Ya tengo una hipótesis clara</span>
-                <span className="text-xs text-muted-foreground font-normal">
-                  Sé quién es mi cliente, qué problema resuelvo y qué construiré
-                </span>
+                <span className="font-semibold">{t('onboarding.yaTengoUnaHipótesis')}</span>
+                <span className="text-xs text-muted-foreground font-normal">{t('onboarding.séQuiénEsMi')}</span>
               </Button>
               <Button
                 variant="outline"
                 className="h-auto py-4 flex flex-col gap-1.5 border-2 hover:border-primary hover:bg-primary/5 text-left items-start px-5"
                 onClick={() => setHypothesisMaturity('partial')}
               >
-                <span className="font-semibold">Tengo una idea pero está poco definida</span>
-                <span className="text-xs text-muted-foreground font-normal">
-                  Intuyo el problema y la solución, pero no lo he formulado con claridad
-                </span>
+                <span className="font-semibold">{t('onboarding.tengoUnaIdeaPero')}</span>
+                <span className="text-xs text-muted-foreground font-normal">{t('onboarding.intuyoElProblemaY')}</span>
               </Button>
               <Button
                 variant="outline"
                 className="h-auto py-4 flex flex-col gap-1.5 border-2 hover:border-primary hover:bg-primary/5 text-left items-start px-5"
                 onClick={() => setHypothesisMaturity('none')}
               >
-                <span className="font-semibold">Quiero descubrir una oportunidad</span>
-                <span className="text-xs text-muted-foreground font-normal">
-                  Tengo ganas de emprender pero aún no tengo una dirección clara
-                </span>
+                <span className="font-semibold">{t('onboarding.quieroDescubrirUnaOportunidad')}</span>
+                <span className="text-xs text-muted-foreground font-normal">{t('onboarding.tengoGanasDeEmprender')}</span>
               </Button>
             </div>
           </CardContent>
@@ -191,12 +181,8 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
               </div>
 
               <div className="space-y-2">
-                <h3 className="text-2xl font-bold">
-                  AI is analyzing and validating your idea
-                </h3>
-                <p className="text-muted-foreground max-w-md">
-                  Creating Business Model Canvas, Buyer Personas, Sales Playbook, and competitive analysis
-                </p>
+                <h3 className="text-2xl font-bold">{t('onboarding.aiIsAnalyzingAnd')}</h3>
+                <p className="text-muted-foreground max-w-md">{t('onboarding.creatingBusinessModelCanvas')}</p>
               </div>
 
               <div className="flex items-center gap-2">
@@ -205,9 +191,7 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
                 <div className="h-2 w-2 rounded-full bg-blue-600 animate-bounce" style={{ animationDelay: '300ms' }} />
               </div>
 
-              <p className="text-sm text-muted-foreground">
-                This will take approximately 15-20 seconds
-              </p>
+              <p className="text-sm text-muted-foreground">{t('onboarding.thisWillTakeApproximately')}</p>
             </div>
           </CardContent>
         </Card>
@@ -227,9 +211,7 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
               <CardTitle className="text-2xl md:text-3xl">
                 Validate Your Idea with AI
               </CardTitle>
-              <CardDescription className="text-base mt-1">
-                Tell us about your business idea and get a complete strategic analysis
-              </CardDescription>
+              <CardDescription className="text-base mt-1">{t('onboarding.tellUsAboutYour')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -239,8 +221,7 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
           <Alert className="bg-blue-50 border-blue-200">
             <Sparkles className="h-4 w-4 text-blue-600" />
             <AlertDescription className="text-blue-900">
-              <strong>Fast Start:</strong> We'll analyze your idea in ~15 seconds. You can add more details later in Deep Setup (optional).
-            </AlertDescription>
+              <strong>Fast Start:</strong>{t('onboarding.wellAnalyzeYourIdea')}</AlertDescription>
           </Alert>
 
           {/* Question 1: Project Name (REQUIRED) */}
@@ -251,13 +232,11 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
                 1. Project name <span className="text-red-600">*</span>
               </Label>
             </div>
-            <p className="text-sm text-gray-700 ml-7">
-              What's the name of your business or project?
-            </p>
+            <p className="text-sm text-gray-700 ml-7">{t('onboarding.whatsTheNameOf')}</p>
             <Input
               id="project_name"
               type="text"
-              placeholder="e.g., TaskFlow, FitCoach, EcoDelivery"
+              placeholder={t('onboarding.egTaskflowFitcoachEcodelivery')}
               value={formData.project_name}
               onChange={(e) => setFormData({ ...formData, project_name: e.target.value })}
               className="ml-7 bg-white"
@@ -265,7 +244,7 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
             {formData.project_name.trim().length >= 3 && (
               <div className="flex items-center gap-1 text-xs text-green-600 ml-7">
                 <CheckCircle2 className="h-3 w-3" />
-                <span>Looks good!</span>
+                <span>{t('onboarding.looksGood')}</span>
               </div>
             )}
           </div>
@@ -283,7 +262,7 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
             </p>
             <Textarea
               id="pitch"
-              placeholder="Example: A mobile app that connects freelance designers with small businesses. We solve the problem of businesses struggling to find affordable, quality design work. Our platform provides vetted designers, transparent pricing, and project management tools..."
+              placeholder={t('onboarding.exampleAMobileApp')}
               rows={6}
               value={formData.business_description}
               onChange={(e) => setFormData({ ...formData, business_description: e.target.value })}
@@ -296,7 +275,7 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
               {formData.business_description.length >= 50 && (
                 <div className="flex items-center gap-1 text-xs text-green-600">
                   <CheckCircle2 className="h-3 w-3" />
-                  <span>Great description!</span>
+                  <span>{t('onboarding.greatDescription')}</span>
                 </div>
               )}
             </div>
@@ -313,22 +292,19 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
             <Alert className="bg-purple-50 border-purple-200">
               <Info className="h-4 w-4 text-purple-600" />
               <AlertDescription className="text-purple-900">
-                <strong>Save 15 minutes:</strong> AutoFill can extract information from your website, social media, LinkedIn, or competitors to enrich your business profile automatically.
-              </AlertDescription>
+                <strong>Save 15 minutes:</strong>{t('onboarding.autofillCanExtractInformation')}</AlertDescription>
             </Alert>
             <Button
               variant="outline"
               onClick={() => setShowAutoFill(!showAutoFill)}
               className="w-full border-purple-300 hover:bg-purple-50"
             >
-              {showAutoFill ? 'Hide AutoFill Options' : 'Show AutoFill Options'}
+              {showAutoFill ? 'Hide AutoFill Options': t('onboarding.showAutofillOptions')}
             </Button>
 
             {showAutoFill && (
               <div className="p-4 bg-gray-50 rounded-lg border border-gray-200">
-                <p className="text-sm text-gray-600 mb-3">
-                  AutoFill will be available in Deep Setup. For now, continue with your manual input.
-                </p>
+                <p className="text-sm text-gray-600 mb-3">{t('onboarding.autofillWillBeAvailable')}</p>
                 <p className="text-xs text-gray-500">
                   💡 After completing Fast Start, you can use AutoFill to extract data from:
                   website, LinkedIn, social media, competitors, and more.
@@ -347,14 +323,10 @@ export function IdeaFastStart({ projectId, faseAAnswers, onComplete }: IdeaFastS
             >
               {isGenerating ? (
                 <>
-                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />
-                  Validating idea...
-                </>
+                  <Loader2 className="mr-2 h-5 w-5 animate-spin" />{t('onboarding.validatingIdea')}</>
               ) : (
                 <>
-                  <Sparkles className="mr-2 h-5 w-5" />
-                  Validate Idea and Generate Strategy
-                  <ArrowRight className="ml-2 h-5 w-5" />
+                  <Sparkles className="mr-2 h-5 w-5" />Validate Idea and Generate Strategy<ArrowRight className="ml-2 h-5 w-5" />
                 </>
               )}
             </Button>

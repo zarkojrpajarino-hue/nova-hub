@@ -24,10 +24,11 @@ import {
   Trash2,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface Notification {
   id: string;
   title: string;
@@ -43,7 +44,7 @@ interface NotificationListProps {
   userId: string;
   onNotificationRead?: () => void;
   onClose?: () => void;
-  /** N7.V2.3 — fase del proyecto activo para filtro "Relevante a mi fase" */
+  /** N7.V2.3 — fase del proyecto activo para filtro t('notifications.relevanteAMiFase') */
   phase?: number;
 }
 
@@ -84,6 +85,7 @@ const typeColors: Record<string, string> = {
 };
 
 export function NotificationList({ userId, onNotificationRead, onClose, phase }: NotificationListProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [notifications, setNotifications] = useState<Notification[]>([]);
   const [filter, setFilter] = useState<'all' | 'unread' | 'phase'>('all');
@@ -118,7 +120,7 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
       if (error) throw error;
       setNotifications(data || []);
     } catch (_error) {
-      toast.error('Error al cargar las notificaciones');
+      toast.error(t('notifications.errorAlCargarLas'));
     } finally {
       setIsLoading(false);
     }
@@ -148,7 +150,7 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
       const unreadIds = notifications.filter((n) => !n.read).map((n) => n.id);
 
       if (unreadIds.length === 0) {
-        toast.info('No hay notificaciones sin leer');
+        toast.info(t('notifications.noHayNotificacionesSin'));
         return;
       }
 
@@ -161,9 +163,9 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
 
       await loadNotifications();
       onNotificationRead?.();
-      toast.success('Todas las notificaciones marcadas como leídas');
+      toast.success(t('notifications.todasLasNotificacionesMarcadas'));
     } catch (_error) {
-      toast.error('Error al marcar como leídas');
+      toast.error(t('notifications.errorAlMarcarComo'));
     }
   };
 
@@ -174,9 +176,9 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
       if (error) throw error;
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      toast.success('Notificación eliminada');
+      toast.success(t('notifications.notificaciónEliminada'));
     } catch (_error) {
-      toast.error('Error al eliminar');
+      toast.error(t('notifications.errorAlEliminar'));
     }
   };
 
@@ -206,12 +208,10 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
       {/* Header */}
       <div className="p-4 border-b">
         <div className="flex items-center justify-between mb-3">
-          <h3 className="font-semibold text-lg">Notificaciones</h3>
+          <h3 className="font-semibold text-lg">{t('notifications.notificaciones')}</h3>
           {unreadCount > 0 && (
             <Button onClick={markAllAsRead} variant="ghost" size="sm" className="gap-2">
-              <CheckCheck size={16} />
-              Marcar todas como leídas
-            </Button>
+              <CheckCheck size={16} />{t('notifications.marcarTodasComoLeídas')}</Button>
           )}
         </div>
 
@@ -239,7 +239,7 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
           <div className="p-12 text-center">
             <Bell size={48} className="mx-auto text-muted-foreground mb-4 opacity-50" />
             <p className="text-muted-foreground">
-              {filter === 'unread' ? 'No tienes notificaciones sin leer' : 'No tienes notificaciones'}
+              {filter === 'unread' ? 'No tienes notificaciones sin leer': t('notifications.noTienesNotificaciones')}
             </p>
           </div>
         ) : (
@@ -273,11 +273,11 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
 
                       <div className="flex items-center justify-between">
                         <span className="text-xs text-muted-foreground">
-                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: es })}
+                          {formatDistanceToNow(new Date(notification.created_at), { addSuffix: true, locale: getDateFnsLocale() })}
                         </span>
 
                         {notification.priority === 'high' && (
-                          <span className="text-xs font-semibold text-destructive">Prioridad alta</span>
+                          <span className="text-xs font-semibold text-destructive">{t('notifications.prioridadAlta')}</span>
                         )}
                       </div>
                     </div>

@@ -14,6 +14,7 @@ import { useAvailablePlans } from '@/hooks/useSubscription';
 import { cn } from '@/lib/utils';
 import { isPaymentsEnabled, shouldShowUpgradeHints } from '@/config/features';
 
+import { useTranslation } from 'react-i18next';
 interface DemoBannerProps {
   featureName: string;
   requiredPlan: 'starter' | 'pro' | 'advanced' | 'enterprise';
@@ -36,6 +37,7 @@ export function DemoBanner({
   variant = 'default',
   className,
 }: DemoBannerProps) {
+  const { t } = useTranslation();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const availablePlans = useAvailablePlans();
 
@@ -71,23 +73,17 @@ export function DemoBanner({
                   <div className="p-1 bg-white/20 rounded-md">
                     <Sparkles className="h-4 w-4" />
                   </div>
-                  <p className="text-sm font-bold">
-                    Vista Preview con Datos Demo
-                  </p>
+                  <p className="text-sm font-bold">{t('subscription.vistaPreviewConDatos')}</p>
                 </div>
                 <div className="hidden sm:block w-px h-5 bg-white/30" />
-                <p className="hidden sm:block text-sm text-white/95 font-medium">
-                  Para aplicar a tu empresa con datos reales personalizados, mejora tu plan
-                </p>
+                <p className="hidden sm:block text-sm text-white/95 font-medium">{t('subscription.paraAplicarATu')}</p>
               </div>
               <Button
                 onClick={handleUpgrade}
                 size="sm"
                 className="bg-white hover:bg-white/90 text-purple-600 gap-2 font-bold shadow-md hover:shadow-lg transition-all hover:scale-105"
               >
-                <Lock className="h-3.5 w-3.5" />
-                Ver Planes
-                <ArrowRight className="h-3.5 w-3.5" />
+                <Lock className="h-3.5 w-3.5" />Ver Planes<ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </div>
           </div>
@@ -123,9 +119,7 @@ export function DemoBanner({
             <div className="flex items-start justify-between gap-4 mb-2">
               <div>
                 <h3 className="font-bold text-amber-900 flex items-center gap-2">
-                  <Info className="h-4 w-4" />
-                  Estás viendo datos demo
-                </h3>
+                  <Info className="h-4 w-4" />{t('subscription.estásViendoDatosDemo')}</h3>
                 <AlertDescription className="text-sm text-amber-800 mt-1">
                   {description || `Esta es una preview de ${featureName}. Para aplicar estos análisis a tu empresa con datos reales personalizados, mejora tu plan.`}
                 </AlertDescription>

@@ -6,6 +6,7 @@ import { Users, Quote } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 
+import { useTranslation } from 'react-i18next';
 interface BuyerPersonaOutput {
   persona: {
     nombre: string;
@@ -21,6 +22,7 @@ interface BuyerPersonaOutput {
 }
 
 export function BuyerPersonaView({ output }: { output: BuyerPersonaOutput }) {
+  const { t } = useTranslation();
   const p = output.persona;
   return (
     <div className="space-y-4">
@@ -44,7 +46,7 @@ export function BuyerPersonaView({ output }: { output: BuyerPersonaOutput }) {
         {/* Pain points */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-red-700 dark:text-red-400">Pain Points</CardTitle>
+            <CardTitle className="text-sm text-red-700 dark:text-red-400">{t('toolkit.painPoints')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -61,7 +63,7 @@ export function BuyerPersonaView({ output }: { output: BuyerPersonaOutput }) {
         {/* Motivaciones */}
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-green-700 dark:text-green-400">Motivaciones de compra</CardTitle>
+            <CardTitle className="text-sm text-green-700 dark:text-green-400">{t('toolkit.motivacionesDeCompra')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -79,7 +81,7 @@ export function BuyerPersonaView({ output }: { output: BuyerPersonaOutput }) {
       {/* Objeciones */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm text-amber-700 dark:text-amber-400">Objeciones típicas</CardTitle>
+          <CardTitle className="text-sm text-amber-700 dark:text-amber-400">{t('toolkit.objecionesTípicas')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="flex flex-wrap gap-2">

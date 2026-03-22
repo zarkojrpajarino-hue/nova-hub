@@ -12,6 +12,7 @@ import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface Performer {
   id: string;
   nombre: string;
@@ -29,6 +30,7 @@ interface TopPerformersProps {
 }
 
 function getRankIcon(rank: number) {
+  const { t } = useTranslation();
   switch (rank) {
     case 0:
       return '🥇';
@@ -136,28 +138,18 @@ export function TopPerformers({ obvs, facturacion, leads, tareas }: TopPerformer
             <Trophy className="w-5 h-5 text-yellow-600" />
           </div>
           <div>
-            <CardTitle>Top Performers</CardTitle>
-            <p className="text-sm text-muted-foreground mt-1">
-              Los 3 mejores del equipo
-            </p>
+            <CardTitle>{t('dashboard.topPerformers')}</CardTitle>
+            <p className="text-sm text-muted-foreground mt-1">{t('dashboard.los3MejoresDel')}</p>
           </div>
         </div>
       </CardHeader>
       <CardContent>
         <Tabs defaultValue="obvs" className="w-full">
           <TabsList className="grid w-full grid-cols-4 mb-4">
-            <TabsTrigger value="obvs" className="text-xs">
-              OBVs
-            </TabsTrigger>
-            <TabsTrigger value="facturacion" className="text-xs">
-              Facturación
-            </TabsTrigger>
-            <TabsTrigger value="leads" className="text-xs">
-              Leads
-            </TabsTrigger>
-            <TabsTrigger value="tareas" className="text-xs">
-              Tareas
-            </TabsTrigger>
+            <TabsTrigger value="obvs" className="text-xs">{t('dashboard.obvs')}</TabsTrigger>
+            <TabsTrigger value="facturacion" className="text-xs">{t('dashboard.facturación')}</TabsTrigger>
+            <TabsTrigger value="leads" className="text-xs">{t('dashboard.leads')}</TabsTrigger>
+            <TabsTrigger value="tareas" className="text-xs">{t('dashboard.tareas')}</TabsTrigger>
           </TabsList>
 
           <TabsContent value="obvs" className="space-y-3 mt-0">

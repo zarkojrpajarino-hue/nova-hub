@@ -11,6 +11,7 @@ import { useCheckMasterEligibility, useCreateMasterApplication } from '@/hooks/u
 import { ROLE_CONFIG } from '@/data/mockData';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface ApplyForMasterDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -19,6 +20,7 @@ interface ApplyForMasterDialogProps {
 }
 
 export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: ApplyForMasterDialogProps) {
+  const { t } = useTranslation();
   const [selectedRole, setSelectedRole] = useState<string>('');
   const [motivation, setMotivation] = useState('');
   const [achievements, setAchievements] = useState<Array<{ title: string; description: string }>>([
@@ -50,12 +52,12 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
 
   const handleSubmit = async () => {
     if (!userId || !selectedRole || !motivation.trim()) {
-      toast.error('Completa todos los campos requeridos');
+      toast.error(t('masters.completaTodosLosCampos'));
       return;
     }
 
     if (!eligibility?.eligible) {
-      toast.error('No cumples los requisitos para aplicar');
+      toast.error(t('masters.noCumplesLosRequisitos'));
       return;
     }
 
@@ -66,12 +68,12 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
         motivation,
         achievements: achievements.filter(a => a.title.trim()),
       });
-      toast.success('Aplicación enviada. ¡Buena suerte!');
+      toast.success(t('masters.aplicaciónEnviadaBuenaSuerte'));
       onOpenChange(false);
       setMotivation('');
       setAchievements([{ title: '', description: '' }]);
     } catch (_error) {
-      toast.error('Error al enviar la aplicación');
+      toast.error(t('masters.errorAlEnviarLa'));
     }
   };
 
@@ -82,21 +84,17 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Crown className="text-amber-500" size={24} />
-            Aplicar para ser Master
-          </DialogTitle>
-          <DialogDescription>
-            Los Masters son líderes de conocimiento que guían y mentorean al equipo en su especialidad.
-          </DialogDescription>
+            <Crown className="text-amber-500" size={24} />{t('masters.aplicarParaSerMaster')}</DialogTitle>
+          <DialogDescription>{t('masters.losMastersSonLíderes')}</DialogDescription>
         </DialogHeader>
 
         <div className="space-y-4">
           {/* Role Selection */}
           <div>
-            <Label>Rol para el que aplicas</Label>
+            <Label>{t('masters.rolParaElQue')}</Label>
             <Select value={selectedRole} onValueChange={setSelectedRole}>
               <SelectTrigger>
-                <SelectValue placeholder="Selecciona un rol" />
+                <SelectValue placeholder={t('masters.seleccionaUnRol')} />
               </SelectTrigger>
               <SelectContent>
                 {userRoles.map(role => {
@@ -118,26 +116,22 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
           {selectedRole && (
             <div className="p-4 rounded-lg border bg-muted/30">
               <div className="flex items-center justify-between mb-3">
-                <span className="font-medium">Verificación de Elegibilidad</span>
+                <span className="font-medium">{t('masters.verificaciónDeElegibilidad')}</span>
                 {checkingEligibility ? (
                   <Loader2 className="h-4 w-4 animate-spin" />
                 ) : eligibility?.eligible ? (
                   <Badge className="bg-success text-success-foreground gap-1">
-                    <CheckCircle2 size={14} />
-                    Elegible
-                  </Badge>
+                    <CheckCircle2 size={14} />{t('masters.elegible')}</Badge>
                 ) : (
                   <Badge variant="destructive" className="gap-1">
-                    <XCircle size={14} />
-                    No Elegible
-                  </Badge>
+                    <XCircle size={14} />{t('masters.noElegible')}</Badge>
                 )}
               </div>
 
               {eligibility && (
                 <div className="space-y-2 text-sm">
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Rendimiento</span>
+                    <span className="text-muted-foreground">{t('masters.rendimiento')}</span>
                     <div className="flex items-center gap-2">
                       <Progress value={eligibility.performance} className="w-20 h-2" />
                       <span className={eligibility.performance >= 70 ? 'text-success' : 'text-destructive'}>
@@ -147,7 +141,7 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
                   </div>
                   
                   <div className="flex items-center justify-between">
-                    <span className="text-muted-foreground">Tiempo en rol</span>
+                    <span className="text-muted-foreground">{t('masters.tiempoEnRol')}</span>
                     <span className={eligibility.months_in_role >= 3 ? 'text-success' : 'text-destructive'}>
                       {eligibility.months_in_role} meses
                     </span>
@@ -175,7 +169,7 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
               id="motivation"
               value={motivation}
               onChange={e => setMotivation(e.target.value)}
-              placeholder="Explica tu motivación, experiencia y cómo puedes ayudar al equipo..."
+              placeholder={t('masters.explicaTuMotivaciónExperiencia')}
               rows={4}
             />
           </div>
@@ -194,14 +188,14 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
                 <div key={index} className="flex gap-2">
                   <input
                     type="text"
-                    placeholder="Título del logro"
+                    placeholder={t('masters.títuloDelLogro')}
                     value={achievement.title}
                     onChange={e => handleAchievementChange(index, 'title', e.target.value)}
                     className="flex-1 px-3 py-2 text-sm border rounded-lg bg-background"
                   />
                   <input
                     type="text"
-                    placeholder="Descripción breve"
+                    placeholder={t('masters.descripciónBreve')}
                     value={achievement.description}
                     onChange={e => handleAchievementChange(index, 'description', e.target.value)}
                     className="flex-1 px-3 py-2 text-sm border rounded-lg bg-background"
@@ -223,9 +217,7 @@ export function ApplyForMasterDialog({ open, onOpenChange, userRoles, userId }: 
 
           {/* Submit */}
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>{t('masters.cancelar')}</Button>
             <Button
               onClick={handleSubmit}
               disabled={!eligibility?.eligible || createApplication.isPending || !motivation.trim()}

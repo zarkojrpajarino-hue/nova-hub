@@ -11,22 +11,20 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis';
 
+import { useTranslation } from 'react-i18next';
 // ── Cross Signals ─────────────────────────────────────────────────────────────
 
 export function CrossSignalsSection({ data }: { data: NonNullable<AnalysisSection['cross_signals']> }) {
+  const { t } = useTranslation();
   if (!data.length) {
     return (
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <GitMerge className="h-5 w-5 text-blue-600" />
-            Señales cruzadas
-          </CardTitle>
+            <GitMerge className="h-5 w-5 text-blue-600" />{t('analysis.señalesCruzadas')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">
-            No hay suficientes datos de múltiples fuentes para detectar correlaciones en este momento.
-          </p>
+          <p className="text-sm text-gray-500">{t('analysis.noHaySuficientesDatos')}</p>
         </CardContent>
       </Card>
     );
@@ -36,9 +34,7 @@ export function CrossSignalsSection({ data }: { data: NonNullable<AnalysisSectio
     <Card>
       <CardHeader className="pb-2">
         <CardTitle className="flex items-center gap-2 text-base">
-          <GitMerge className="h-5 w-5 text-blue-600" />
-          Señales cruzadas
-        </CardTitle>
+          <GitMerge className="h-5 w-5 text-blue-600" />{t('analysis.señalesCruzadas')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {data.map((signal, i) => (
@@ -112,14 +108,10 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
       <Card>
         <CardHeader className="pb-2">
           <CardTitle className="flex items-center gap-2 text-base">
-            <Eye className="h-5 w-5 text-red-600" />
-            Hard Truths
-          </CardTitle>
+            <Eye className="h-5 w-5 text-red-600" />{t('analysis.hardTruths')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <p className="text-sm text-gray-500">
-            No hay suficientes datos para emitir Hard Truths en este momento.
-          </p>
+          <p className="text-sm text-gray-500">{t('analysis.noHaySuficientesDatos1')}</p>
         </CardContent>
       </Card>
     );
@@ -132,9 +124,7 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base">
-              <Eye className="h-5 w-5 text-red-600" />
-              Hard Truths
-            </CardTitle>
+              <Eye className="h-5 w-5 text-red-600" />{t('analysis.hardTruths')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">
             {strong.map((truth, i) => (
@@ -149,12 +139,8 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
         <Card className="border-amber-200 dark:border-amber-800">
           <CardHeader className="pb-2">
             <CardTitle className="flex items-center gap-2 text-base text-amber-700 dark:text-amber-400">
-              <Eye className="h-5 w-5" />
-              Hipótesis a vigilar
-            </CardTitle>
-            <p className="text-xs text-amber-600 dark:text-amber-500">
-              Verdades posibles, aún no confirmadas por datos suficientes
-            </p>
+              <Eye className="h-5 w-5" />{t('analysis.hipótesisAVigilar')}</CardTitle>
+            <p className="text-xs text-amber-600 dark:text-amber-500">{t('analysis.verdadesPosiblesAúnNo')}</p>
           </CardHeader>
           <CardContent className="space-y-3">
             {uncertain.map((truth, i) => (

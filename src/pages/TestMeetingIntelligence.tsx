@@ -15,7 +15,9 @@ import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { Mic, CheckCircle2, AlertCircle, Loader2, Calendar } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 export default function TestMeetingIntelligence() {
+  const { t } = useTranslation();
   const [showModal, setShowModal] = useState(false);
   const [currentMeeting, setCurrentMeeting] = useState<Meeting | null>(null);
   const [reviewingMeeting, setReviewingMeeting] = useState<Meeting | null>(null);
@@ -31,32 +33,32 @@ export default function TestMeetingIntelligence() {
   const mockParticipants = [
     {
       id: '1',
-      name: 'Juan Pérez',
-      role: 'Product Manager',
+      name: t('testMeetingIntelligence.juanPérez'),
+      role: t('testMeetingIntelligence.productManager'),
       email: 'juan@example.com',
     },
     {
       id: '2',
-      name: 'María García',
+      name: t('testMeetingIntelligence.maríaGarcía'),
       role: 'CTO',
       email: 'maria@example.com',
     },
     {
       id: '3',
-      name: 'Carlos López',
+      name: t('testMeetingIntelligence.carlosLópez'),
       role: 'CMO',
       email: 'carlos@example.com',
     },
     {
       id: '4',
-      name: 'Ana Martínez',
+      name: t('testMeetingIntelligence.anaMartínez'),
       role: 'CFO',
       email: 'ana@example.com',
     },
     {
       id: '5',
-      name: 'Pedro Ruiz',
-      role: 'Backend Developer',
+      name: t('testMeetingIntelligence.pedroRuiz'),
+      role: t('testMeetingIntelligence.backendDeveloper'),
       email: 'pedro@example.com',
     },
   ];
@@ -70,7 +72,7 @@ export default function TestMeetingIntelligence() {
 
   const handleStartMeeting = async (config: Record<string, unknown> & { title: string; meeting_type: string; description?: string; objectives?: string; estimated_duration_min?: number; strategic_context?: Record<string, unknown>; participants: string[]; assignable_members?: string[]; ai_config: { enable_questions: boolean; enable_proactive_guidance: boolean; enable_context_detection: boolean; enable_time_alerts: boolean } }) => {
     if (!currentProject) {
-      toast.error('Selecciona un proyecto primero');
+      toast.error(t('testMeetingIntelligence.seleccionaUnProyectoPrimero'));
       return;
     }
 
@@ -90,7 +92,7 @@ export default function TestMeetingIntelligence() {
 
       setShowModal(false);
       setCurrentMeeting(meeting);
-      toast.success('¡Reunión creada! Ahora puedes grabar o subir el audio');
+      toast.success(t('testMeetingIntelligence.reuniónCreadaAhoraPuedes'));
     } catch (_error) {
       // intentionally empty
     }
@@ -106,7 +108,7 @@ export default function TestMeetingIntelligence() {
 
   const handleCancelRecording = () => {
     setCurrentMeeting(null);
-    toast.info('Grabación cancelada');
+    toast.info(t('testMeetingIntelligence.grabaciónCancelada'));
   };
 
   const handleApplyInsights = () => {
@@ -116,7 +118,7 @@ export default function TestMeetingIntelligence() {
 
   const handleCancelReview = () => {
     setReviewingMeeting(null);
-    toast.info('Revisión cancelada');
+    toast.info(t('testMeetingIntelligence.revisiónCancelada'));
   };
 
   if (!currentProject) {
@@ -124,9 +126,7 @@ export default function TestMeetingIntelligence() {
       <div className="container max-w-4xl mx-auto py-8">
         <Alert variant="destructive">
           <AlertCircle className="h-4 w-4" />
-          <AlertDescription>
-            Por favor selecciona un proyecto desde el selector en el header
-          </AlertDescription>
+          <AlertDescription>{t('testMeetingIntelligence.porFavorSeleccionaUn')}</AlertDescription>
         </Alert>
       </div>
     );
@@ -172,10 +172,8 @@ export default function TestMeetingIntelligence() {
       {/* Main Test Card */}
       <Card>
         <CardHeader>
-          <CardTitle>Probar Modal de Configuración</CardTitle>
-          <CardDescription>
-            Click en el botón para abrir el modal de configuración pre-reunión y probar todas las funcionalidades
-          </CardDescription>
+          <CardTitle>{t('testMeetingIntelligence.probarModalDeConfiguración')}</CardTitle>
+          <CardDescription>{t('testMeetingIntelligence.clickEnElBotón')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <Button
@@ -183,45 +181,33 @@ export default function TestMeetingIntelligence() {
             size="lg"
             className="w-full gap-2"
           >
-            <Mic className="h-5 w-5" />
-            Iniciar Nueva Reunión
-          </Button>
+            <Mic className="h-5 w-5" />{t('testMeetingIntelligence.iniciarNuevaReunión')}</Button>
 
           <div className="pt-4 border-t">
             <h4 className="font-semibold text-sm mb-2">Funcionalidades a probar:</h4>
             <ul className="space-y-1 text-sm text-gray-600">
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Modal en 3 pasos con progress indicator
-              </li>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />{t('testMeetingIntelligence.modalEn3Pasos')}</li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 20+ tipos de reunión organizados por categoría
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Tipo de reunión personalizado
-              </li>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />{t('testMeetingIntelligence.tipoDeReuniónPersonalizado')}</li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Selección de participantes
-              </li>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />{t('testMeetingIntelligence.selecciónDeParticipantes')}</li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 Miembros asignables (no presentes)
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Preguntas estratégicas de contexto
-              </li>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />{t('testMeetingIntelligence.preguntasEstratégicasDeContexto')}</li>
               <li className="flex items-center gap-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
                 Configuración de funcionalidades IA
               </li>
               <li className="flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4 text-green-600" />
-                Validaciones y resumen final
-              </li>
+                <CheckCircle2 className="h-4 w-4 text-green-600" />{t('testMeetingIntelligence.validacionesYResumenFinal')}</li>
             </ul>
           </div>
         </CardContent>
@@ -231,9 +217,7 @@ export default function TestMeetingIntelligence() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Calendar className="h-5 w-5" />
-            Reuniones Creadas
-          </CardTitle>
+            <Calendar className="h-5 w-5" />{t('testMeetingIntelligence.reunionesCreadas')}</CardTitle>
           <CardDescription>
             Reuniones que has creado en este proyecto (guardadas en la base de datos)
           </CardDescription>
@@ -285,9 +269,7 @@ export default function TestMeetingIntelligence() {
                           size="sm"
                           onClick={() => setReviewingMeeting(meeting)}
                           className="mt-2"
-                        >
-                          Revisar Insights
-                        </Button>
+                        >{t('testMeetingIntelligence.revisarInsights')}</Button>
                       )}
                     </div>
                   </div>
@@ -297,8 +279,8 @@ export default function TestMeetingIntelligence() {
           ) : (
             <div className="text-center py-8 text-gray-500">
               <Calendar className="h-12 w-12 mx-auto mb-3 opacity-50" />
-              <p>No hay reuniones creadas aún</p>
-              <p className="text-sm mt-1">Crea tu primera reunión usando el botón de arriba</p>
+              <p>{t('testMeetingIntelligence.noHayReunionesCreadas')}</p>
+              <p className="text-sm mt-1">{t('testMeetingIntelligence.creaTuPrimeraReunión')}</p>
             </div>
           )}
         </CardContent>

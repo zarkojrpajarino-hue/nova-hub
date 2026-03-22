@@ -4,7 +4,7 @@
  * Modal interactivo enterprise-level que muestra desarrollo profesional
  * y learning con datos demo perfectos.
  *
- * Se activa desde el botón "Ver Sección en Acción" en HowItWorks
+ * Se activa desde el botón t('preview.verSecciónEnAcción') en HowItWorks
  */
 
 import { useState } from 'react';
@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 
+import { useTranslation } from 'react-i18next';
 interface MiDesarrolloPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -42,9 +43,9 @@ interface MiDesarrolloPreviewModalProps {
 const SLIDES = [
   {
     id: 'intro',
-    title: 'Tu Plan de Desarrollo Personal',
+    title: t('preview.tuPlanDeDesarrollo'),
     icon: GraduationCap,
-    description: 'Centro personalizado de crecimiento profesional, learning y mentoría.',
+    description: t('preview.centroPersonalizadoDeCrecimiento'),
     content: (
       <div className="space-y-6">
         {/* Welcome header */}
@@ -66,10 +67,10 @@ const SLIDES = [
           {/* Stats overview */}
           <div className="grid grid-cols-4 gap-3">
             {[
-              { label: 'Horas este mes', value: PREMIUM_DEMO_DATA.miDesarrollo.stats.learningHoursThisMonth, target: PREMIUM_DEMO_DATA.miDesarrollo.stats.learningHoursTarget, icon: '⏱️' },
-              { label: 'Cursos completados', value: PREMIUM_DEMO_DATA.miDesarrollo.stats.coursesCompleted, icon: '📚' },
-              { label: 'Certificaciones', value: PREMIUM_DEMO_DATA.miDesarrollo.stats.certificationsEarned, icon: '🏆' },
-              { label: 'Racha actual', value: `${PREMIUM_DEMO_DATA.miDesarrollo.stats.learningStreak} días`, icon: '🔥' },
+              { label: t('preview.horasEsteMes'), value: PREMIUM_DEMO_DATA.miDesarrollo.stats.learningHoursThisMonth, target: PREMIUM_DEMO_DATA.miDesarrollo.stats.learningHoursTarget, icon: '⏱️' },
+              { label: t('preview.cursosCompletados'), value: PREMIUM_DEMO_DATA.miDesarrollo.stats.coursesCompleted, icon: '📚' },
+              { label: t('preview.certificaciones0'), value: PREMIUM_DEMO_DATA.miDesarrollo.stats.certificationsEarned, icon: '🏆' },
+              { label: t('preview.rachaActual'), value: `${PREMIUM_DEMO_DATA.miDesarrollo.stats.learningStreak} días`, icon: '🔥' },
             ].map((stat, idx) => (
               <div
                 key={idx}
@@ -109,29 +110,27 @@ const SLIDES = [
         {/* Features overview */}
         <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            ¿Qué puedes hacer en Mi Desarrollo?
-          </h4>
+            <Sparkles className="w-5 h-5 text-primary" />{t('preview.quéPuedesHacerEn')}</h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Tracking de competencias actuales con radar charts y progress bars</span>
+              <span>{t('preview.trackingDeCompetenciasActuales')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Learning paths personalizados con certificaciones de Reforge, Coursera, LinkedIn</span>
+              <span>{t('preview.learningPathsPersonalizadosCon')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Colección de certificaciones y logros con badges verificados</span>
+              <span>{t('preview.colecciónDeCertificacionesY')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Programa de mentoría 1-on-1 con calendario de sesiones</span>
+              <span>{t('preview.programaDeMentoría1on1')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>OKRs personales de desarrollo con tracking y reminders automáticos</span>
+              <span>{t('preview.okrsPersonalesDeDesarrollo')}</span>
             </li>
           </ul>
         </div>
@@ -140,9 +139,9 @@ const SLIDES = [
   },
   {
     id: 'competencias',
-    title: 'Competencias Actuales',
+    title: t('preview.competenciasActuales'),
     icon: Target,
-    description: 'Visualiza tu progreso en cada competencia clave con targets definidos.',
+    description: t('preview.visualizaTuProgresoEn'),
     content: (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
@@ -171,7 +170,7 @@ const SLIDES = [
                 </CardHeader>
                 <CardContent className="space-y-2">
                   <div className="flex items-center justify-between text-xs">
-                    <span className="text-muted-foreground">Current Score</span>
+                    <span className="text-muted-foreground">{t('preview.currentScore')}</span>
                     <span className={`font-bold group-hover:scale-110 transition-transform inline-block ${
                       isOnTarget ? 'text-green-600' : 'text-amber-600'
                     }`}>
@@ -195,19 +194,19 @@ const SLIDES = [
                   </div>
                   <div className="pt-2 space-y-1 text-xs">
                     <div className="flex justify-between group-hover:bg-primary/5 p-1 rounded transition-colors">
-                      <span className="text-muted-foreground">Target</span>
+                      <span className="text-muted-foreground">{t('preview.target')}</span>
                       <span className="font-semibold">{comp.target}%</span>
                     </div>
                     {!isOnTarget && (
                       <div className="flex justify-between group-hover:bg-amber-500/10 p-1 rounded transition-colors">
-                        <span className="text-muted-foreground">Gap</span>
+                        <span className="text-muted-foreground">{t('preview.gap')}</span>
                         <span className="font-semibold text-amber-600">-{gap}%</span>
                       </div>
                     )}
                     {isOnTarget && (
                       <div className="flex items-center justify-center gap-1 bg-green-500/10 p-1 rounded text-green-600">
                         <CheckCircle2 className="w-3 h-3" />
-                        <span className="font-semibold">Target Achieved!</span>
+                        <span className="font-semibold">{t('preview.targetAchieved')}</span>
                       </div>
                     )}
                   </div>
@@ -248,9 +247,9 @@ const SLIDES = [
   },
   {
     id: 'learning-paths',
-    title: 'Learning Paths Recomendados',
+    title: t('preview.learningPathsRecomendados'),
     icon: BookOpen,
-    description: 'Cursos y certificaciones personalizadas para cerrar gaps de competencias.',
+    description: t('preview.cursosYCertificacionesPersonalizadas'),
     content: (
       <div className="space-y-4">
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
@@ -287,7 +286,7 @@ const SLIDES = [
                         <p className="text-xs text-muted-foreground">{path.provider}</p>
                       </div>
                       <Badge
-                        variant={path.difficulty === 'Advanced' ? 'destructive' : 'secondary'}
+                        variant={path.difficulty === t('preview.advanced') ? 'destructive' : 'secondary'}
                         className="group-hover:scale-110 transition-transform"
                       >
                         {path.difficulty}
@@ -297,7 +296,7 @@ const SLIDES = [
                     {/* Progress */}
                     <div className="space-y-1">
                       <div className="flex items-center justify-between text-xs">
-                        <span className="text-muted-foreground">Progress</span>
+                        <span className="text-muted-foreground">{t('preview.progress')}</span>
                         <span className="font-bold text-primary">{path.progress}%</span>
                       </div>
                       <div className="relative">
@@ -321,9 +320,7 @@ const SLIDES = [
                       </div>
                       {path.certification && (
                         <div className="flex items-center gap-1 text-green-600">
-                          <Award className="w-3 h-3" />
-                          Certification
-                        </div>
+                          <Award className="w-3 h-3" />{t('preview.certification')}</div>
                       )}
                     </div>
 
@@ -376,38 +373,36 @@ const SLIDES = [
   },
   {
     id: 'achievements',
-    title: 'Certificaciones y Logros',
+    title: t('preview.certificacionesYLogros'),
     icon: Award,
-    description: 'Tu colección de certificaciones verificadas y achievements desbloqueados.',
+    description: t('preview.tuColecciónDeCertificaciones'),
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-3">
           <div className="p-3 rounded-lg border bg-gradient-to-br from-amber-500/10 to-orange-500/10">
             <div className="flex items-center gap-2 mb-1">
               <Trophy className="w-5 h-5 text-amber-600" />
-              <span className="text-sm font-semibold">Certificaciones</span>
+              <span className="text-sm font-semibold">{t('preview.certificaciones')}</span>
             </div>
             <p className="text-3xl font-bold text-amber-600">
               {PREMIUM_DEMO_DATA.miDesarrollo.achievements.filter(a => a.verified).length}
             </p>
-            <p className="text-xs text-muted-foreground">Verificadas</p>
+            <p className="text-xs text-muted-foreground">{t('preview.verificadas')}</p>
           </div>
           <div className="p-3 rounded-lg border bg-gradient-to-br from-blue-500/10 to-purple-500/10">
             <div className="flex items-center gap-2 mb-1">
               <Star className="w-5 h-5 text-blue-600" />
-              <span className="text-sm font-semibold">Badges</span>
+              <span className="text-sm font-semibold">{t('preview.badges')}</span>
             </div>
             <p className="text-3xl font-bold text-blue-600">
               {PREMIUM_DEMO_DATA.miDesarrollo.achievements.filter(a => !a.verified).length}
             </p>
-            <p className="text-xs text-muted-foreground">Desbloqueados</p>
+            <p className="text-xs text-muted-foreground">{t('preview.desbloqueados')}</p>
           </div>
         </div>
 
         <div className="space-y-2">
-          <h4 className="text-sm font-semibold text-muted-foreground">
-            Colección Completa
-            <span className="text-xs ml-2">(Hover para ver detalles)</span>
+          <h4 className="text-sm font-semibold text-muted-foreground">{t('preview.colecciónCompleta')}<span className="text-xs ml-2">(Hover para ver detalles)</span>
           </h4>
           <div className="grid grid-cols-2 gap-2">
             {PREMIUM_DEMO_DATA.miDesarrollo.achievements.map((achievement, idx) => (
@@ -430,7 +425,7 @@ const SLIDES = [
                   {achievement.verified && (
                     <div className="flex items-center gap-1 mt-2 text-green-600">
                       <CheckCircle2 className="w-3 h-3" />
-                      <span className="text-xs font-medium">Verified Credential</span>
+                      <span className="text-xs font-medium">{t('preview.verifiedCredential')}</span>
                     </div>
                   )}
                   <div className="absolute top-full left-1/2 -translate-x-1/2 w-0 h-0 border-4 border-transparent border-t-popover" />
@@ -485,18 +480,16 @@ const SLIDES = [
   },
   {
     id: 'mentorship',
-    title: 'Mentoría y 1-on-1s',
+    title: t('preview.mentoríaY1on1s'),
     icon: Users,
-    description: 'Programa de mentoría bidireccional con sesiones programadas y tracking.',
+    description: t('preview.programaDeMentoríaBidireccional'),
     content: (
       <div className="space-y-4">
         {/* Mentor section */}
         <Card className="border-2 border-primary/30 bg-gradient-to-br from-primary/10 to-purple-500/10">
           <CardHeader className="pb-3">
             <CardTitle className="text-sm flex items-center gap-2">
-              <Star className="w-4 h-4 text-amber-500" />
-              Tu Mentor
-            </CardTitle>
+              <Star className="w-4 h-4 text-amber-500" />{t('preview.tuMentor')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-start gap-3">
@@ -646,12 +639,12 @@ const SLIDES = [
     id: 'development-okrs',
     title: 'Objetivos de Desarrollo (OKRs)',
     icon: Target,
-    description: 'Tus OKRs personales con tracking automático y recomendaciones IA.',
+    description: t('preview.tusOkrsPersonalesCon'),
     content: (
       <div className="space-y-4">
         <div className="p-3 rounded-lg bg-gradient-to-r from-primary/10 to-purple-500/10 border border-primary/20">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-semibold">Q1 2024 Progress</span>
+            <span className="text-sm font-semibold">{t('preview.q12024Progress')}</span>
             <span className="text-sm font-bold text-primary">
               {Math.round(
                 PREMIUM_DEMO_DATA.miDesarrollo.developmentOKRs.reduce((sum, okr) => sum + okr.progress, 0) /
@@ -772,6 +765,7 @@ const SLIDES = [
 ];
 
 export function MiDesarrolloPreviewModal({ open, onOpenChange }: MiDesarrolloPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -799,10 +793,8 @@ export function MiDesarrolloPreviewModal({ open, onOpenChange }: MiDesarrolloPre
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden">
         <VisuallyHidden>
-          <DialogTitle>Mi Desarrollo Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of personal development section
-          </DialogDescription>
+          <DialogTitle>{t('preview.miDesarrolloPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfPersonal')}</DialogDescription>
         </VisuallyHidden>
         {/* Header */}
         <div className="relative p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-purple-500/5">
@@ -847,9 +839,7 @@ export function MiDesarrolloPreviewModal({ open, onOpenChange }: MiDesarrolloPre
               disabled={currentSlide === 0}
               className="gap-2"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
+              <ChevronLeft className="w-4 h-4" />{t('preview.anterior')}</Button>
 
             <div className="flex gap-1">
               {SLIDES.map((_, idx) => (
@@ -870,14 +860,10 @@ export function MiDesarrolloPreviewModal({ open, onOpenChange }: MiDesarrolloPre
               className="gap-2"
             >
               {currentSlide === SLIDES.length - 1 ? (
-                <>
-                  Finalizar
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
+                <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-1" />
                 </>
               ) : (
-                <>
-                  Siguiente
-                  <ChevronRight className="w-4 h-4" />
+                <>{t('preview.siguiente')}<ChevronRight className="w-4 h-4" />
                 </>
               )}
             </Button>

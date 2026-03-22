@@ -36,51 +36,52 @@ import {
 } from 'lucide-react';
 import type { FaseAAnswers } from '@/components/onboarding/fast-start/FaseACommon';
 
+import { useTranslation } from 'react-i18next';
 // ── Label maps ─────────────────────────────────────────────────────────────────
 
 const SALES_CYCLE_LABELS: Record<string, string> = {
-  days: 'Mismo día',
+  days: t('miModelo.mismoDía'),
   weeks: '1–7 días',
   months: '1–4 semanas',
   quarters: '1–3 meses',
 };
 
 const MONETIZATION_LABELS: Record<string, string> = {
-  transaccional: 'Venta única',
-  suscripcion: 'Suscripción recurrente',
-  ticket_alto: 'Ticket alto / servicio',
-  contrato: 'Contrato / proyecto',
+  transaccional: t('miModelo.ventaÚnica'),
+  suscripcion: t('miModelo.suscripciónRecurrente'),
+  ticket_alto: t('miModelo.ticketAltoServicio'),
+  contrato: t('miModelo.contratoProyecto'),
 };
 
 const MARKET_SCOPE_LABELS: Record<string, string> = {
-  local: 'Local',
-  national: 'Nacional',
+  local: t('miModelo.local'),
+  national: t('miModelo.nacional'),
   international: 'Internacional (global)',
 };
 
 const PHASE_STATUS_LABELS: Record<string, string> = {
-  healthy: 'Saludable',
-  friction: 'Fricción',
-  critical: 'Crítico',
+  healthy: t('miModelo.saludable'),
+  friction: t('miModelo.fricción'),
+  critical: t('miModelo.crítico'),
 };
 
 const VIABILITY_STATUS_LABELS: Record<string, string> = {
-  healthy: 'Saludable',
-  monitoring: 'En seguimiento',
-  stagnation: 'Estancado',
-  critical: 'Crítico',
+  healthy: t('miModelo.saludable'),
+  monitoring: t('miModelo.enSeguimiento'),
+  stagnation: t('miModelo.estancado'),
+  critical: t('miModelo.crítico'),
 };
 
 const COVERAGE_LEVEL_LABELS: Record<string, string> = {
-  none: 'Sin cobertura',
-  basic: 'Básica',
-  strong: 'Fuerte',
+  none: t('miModelo.sinCobertura'),
+  basic: t('miModelo.básica'),
+  strong: t('miModelo.fuerte'),
 };
 
 const FUNCTION_TYPE_LABELS: Record<string, string> = {
-  demand: 'Demanda',
-  delivery: 'Entrega',
-  cash: 'Caja',
+  demand: t('miModelo.demanda'),
+  delivery: t('miModelo.entrega'),
+  cash: t('miModelo.caja'),
 };
 
 // ── Status color helpers ────────────────────────────────────────────────────────
@@ -95,6 +96,7 @@ function statusVariant(status: string): StatusVariant {
 }
 
 function StatusBadge({ status, label }: { status: string; label: string }) {
+  const { t } = useTranslation();
   const variant = statusVariant(status);
   const cls =
     variant === 'healthy'
@@ -156,7 +158,7 @@ function DataRow({ label, value }: { label: string; value: React.ReactNode }) {
 
 // ── No-data placeholder ─────────────────────────────────────────────────────────
 
-function NoEngineData({ message = 'Motor no ejecutado aún' }: { message?: string }) {
+function NoEngineData({ message = t('miModelo.motorNoEjecutadoAún') }: { message?: string }) {
   return (
     <p className="text-sm text-gray-400 italic py-2">{message}</p>
   );
@@ -242,8 +244,8 @@ export function MiModeloView() {
   return (
     <div>
       <NovaHeader
-        title="Mi Modelo"
-        subtitle="Modelo estratégico de tu proyecto"
+        title={t('miModelo.miModelo')}
+        subtitle={t('miModelo.modeloEstratégicoDeTu')}
       />
 
       <div className="p-6 space-y-6 max-w-5xl">
@@ -251,11 +253,11 @@ export function MiModeloView() {
         {/* ── Bloque 1: Fase Actual ──────────────────────────────────────────── */}
         <Card className="border-2 border-blue-100">
           <CardContent className="pt-5 pb-5">
-            <BlockHeader icon={Target} title="Fase Actual" color="bg-blue-500" />
+            <BlockHeader icon={Target} title={t('miModelo.faseActual')} color="bg-blue-500" />
             {phaseState ? (
               <div className="space-y-1">
                 <DataRow
-                  label="Fase del proyecto"
+                  label={t('miModelo.faseDelProyecto')}
                   value={
                     <span className="font-bold text-blue-700">
                       Fase {phaseState.current_phase}
@@ -264,12 +266,12 @@ export function MiModeloView() {
                 />
                 <div className="py-2 border-b border-gray-100">
                   <div className="flex items-center justify-between mb-1.5">
-                    <span className="text-sm text-gray-500">Puntuación de fase</span>
+                    <span className="text-sm text-gray-500">{t('miModelo.puntuaciónDeFase')}</span>
                   </div>
                   <ScoreBar score={phaseState.phase_score} color="bg-blue-500" />
                 </div>
                 <DataRow
-                  label="Estado"
+                  label={t('miModelo.estado')}
                   value={
                     <StatusBadge
                       status={phaseState.phase_status}
@@ -278,16 +280,13 @@ export function MiModeloView() {
                   }
                 />
                 <DataRow
-                  label="Señal de avance de fase"
+                  label={t('miModelo.señalDeAvanceDe')}
                   value={
                     phaseState.hard_signal_met ? (
                       <Badge className="bg-green-100 text-green-800 border-green-200 gap-1">
-                        <CheckCircle2 className="h-3 w-3" /> Cumplida
-                      </Badge>
+                        <CheckCircle2 className="h-3 w-3" />{t('miModelo.cumplida')}</Badge>
                     ) : (
-                      <Badge className="bg-gray-100 text-gray-600 border-gray-200">
-                        Pendiente
-                      </Badge>
+                      <Badge className="bg-gray-100 text-gray-600 border-gray-200">{t('miModelo.pendiente')}</Badge>
                     )
                   }
                 />
@@ -304,18 +303,18 @@ export function MiModeloView() {
           {/* Bloque 2: Contexto Económico */}
           <Card className="border-2 border-green-100">
             <CardContent className="pt-5 pb-5">
-              <BlockHeader icon={DollarSign} title="Contexto Económico" color="bg-green-500" />
+              <BlockHeader icon={DollarSign} title={t('miModelo.contextoEconómico')} color="bg-green-500" />
               {fa ? (
                 <div className="space-y-1">
                   {fa.monetization_type && (
                     <DataRow
-                      label="Modelo de monetización"
+                      label={t('miModelo.modeloDeMonetización')}
                       value={MONETIZATION_LABELS[fa.monetization_type] ?? fa.monetization_type}
                     />
                   )}
                   {fa.sales_cycle && (
                     <DataRow
-                      label="Ciclo de venta"
+                      label={t('miModelo.cicloDeVenta')}
                       value={
                         <div className="flex items-center gap-1">
                           <Clock className="h-3.5 w-3.5 text-gray-400" />
@@ -326,7 +325,7 @@ export function MiModeloView() {
                   )}
                   {fa.avg_ticket != null && (
                     <DataRow
-                      label="Ticket promedio"
+                      label={t('miModelo.ticketPromedio')}
                       value={
                         <div className="flex items-center gap-1">
                           <ShoppingCart className="h-3.5 w-3.5 text-gray-400" />
@@ -337,16 +336,16 @@ export function MiModeloView() {
                   )}
                   {fa.generates_revenue && fa.mrr_monthly != null && fa.mrr_monthly > 0 && (
                     <DataRow
-                      label="MRR actual"
+                      label={t('miModelo.mrrActual')}
                       value={`€${fa.mrr_monthly.toLocaleString()}/mes`}
                     />
                   )}
                   {!fa.monetization_type && !fa.sales_cycle && fa.avg_ticket == null && (
-                    <NoEngineData message="Datos de onboarding incompletos" />
+                    <NoEngineData message={t('miModelo.datosDeOnboardingIncompletos')} />
                   )}
                 </div>
               ) : (
-                <NoEngineData message="Completa el onboarding para ver este bloque" />
+                <NoEngineData message={t('miModelo.completaElOnboardingPara')} />
               )}
             </CardContent>
           </Card>
@@ -354,22 +353,22 @@ export function MiModeloView() {
           {/* Bloque 3: Mercado */}
           <Card className="border-2 border-purple-100">
             <CardContent className="pt-5 pb-5">
-              <BlockHeader icon={Globe} title="Mercado" color="bg-purple-500" />
+              <BlockHeader icon={Globe} title={t('miModelo.mercado')} color="bg-purple-500" />
               <div className="space-y-1">
                 {projectBase?.market_scope && (
                   <DataRow
-                    label="Alcance de mercado"
+                    label={t('miModelo.alcanceDeMercado')}
                     value={MARKET_SCOPE_LABELS[projectBase.market_scope] ?? projectBase.market_scope}
                   />
                 )}
                 {projectBase?.country && (
-                  <DataRow label="País de operación" value={projectBase.country} />
+                  <DataRow label={t('miModelo.paísDeOperación')} value={projectBase.country} />
                 )}
                 {fa?.goal_90d && (
-                  <DataRow label="Objetivo 90 días" value={fa.goal_90d} />
+                  <DataRow label={t('miModelo.objetivo90Días')} value={fa.goal_90d} />
                 )}
                 {!projectBase?.market_scope && !projectBase?.country && !fa?.goal_90d && (
-                  <NoEngineData message="Completa el onboarding para ver este bloque" />
+                  <NoEngineData message={t('miModelo.completaElOnboardingPara')} />
                 )}
               </div>
             </CardContent>
@@ -379,14 +378,12 @@ export function MiModeloView() {
         {/* ── Bloque 4: Estructura ──────────────────────────────────────────── */}
         <Card className="border-2 border-orange-100">
           <CardContent className="pt-5 pb-5">
-            <BlockHeader icon={Users} title="Estructura del Equipo" color="bg-orange-500" />
+            <BlockHeader icon={Users} title={t('miModelo.estructuraDelEquipo')} color="bg-orange-500" />
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
               {/* Team size */}
               <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                  Equipo
-                </p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('miModelo.equipo')}</p>
                 {fa ? (
                   <div className="flex items-baseline gap-1">
                     <span className="text-3xl font-bold text-gray-900">{fa.team_size}</span>
@@ -395,7 +392,7 @@ export function MiModeloView() {
                     </span>
                   </div>
                 ) : (
-                  <NoEngineData message="Completa el onboarding" />
+                  <NoEngineData message={t('miModelo.completaElOnboarding')} />
                 )}
                 {fa?.active_customers != null && fa.active_customers > 0 && (
                   <p className="text-xs text-gray-500 mt-1">
@@ -406,9 +403,7 @@ export function MiModeloView() {
 
               {/* Function coverage */}
               <div>
-                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">
-                  Cobertura funcional
-                </p>
+                <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-2">{t('miModelo.coberturaFuncional')}</p>
                 {coverage.length > 0 ? (
                   <div className="space-y-2">
                     {FUNCTIONS.map((ft) => {
@@ -445,16 +440,14 @@ export function MiModeloView() {
         {/* ── Bloque 5: Salud del Sistema ───────────────────────────────────── */}
         <Card className="border-2 border-red-100">
           <CardContent className="pt-5 pb-5">
-            <BlockHeader icon={Activity} title="Salud del Sistema" color="bg-red-500" />
+            <BlockHeader icon={Activity} title={t('miModelo.saludDelSistema')} color="bg-red-500" />
 
             {probability || viabilityData ? (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
 
                 {/* Probability block */}
                 <div>
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                    Probabilidad de éxito
-                  </p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('miModelo.probabilidadDeÉxito')}</p>
                   {probability ? (
                     <div className="space-y-3">
                       {probability.probability_score != null && (
@@ -488,9 +481,7 @@ export function MiModeloView() {
 
                 {/* Viability block */}
                 <div>
-                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">
-                    Estado de viabilidad
-                  </p>
+                  <p className="text-xs font-semibold text-gray-400 uppercase tracking-wide mb-3">{t('miModelo.estadoDeViabilidad')}</p>
                   {viabilityData ? (
                     <div className="space-y-3">
                       <StatusBadge
@@ -517,9 +508,7 @@ export function MiModeloView() {
           </CardContent>
         </Card>
 
-        <p className="text-xs text-center text-gray-400 pb-6">
-          Los datos del motor se actualizan automáticamente al generar nuevas actividades.
-        </p>
+        <p className="text-xs text-center text-gray-400 pb-6">{t('miModelo.losDatosDelMotor')}</p>
       </div>
     </div>
   );

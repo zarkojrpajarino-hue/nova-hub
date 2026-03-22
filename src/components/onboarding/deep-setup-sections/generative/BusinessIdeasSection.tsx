@@ -30,6 +30,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface BusinessIdea {
   id: string;
   title: string;
@@ -54,6 +55,7 @@ export function BusinessIdeasSection({
   onComplete,
   onCancel,
 }: BusinessIdeasSectionProps) {
+  const { t } = useTranslation();
   const [selectedIdea, setSelectedIdea] = useState<string | null>(null);
   const [refinedNotes, setRefinedNotes] = useState('');
   const [isAnalyzing, setIsAnalyzing] = useState(false);
@@ -62,30 +64,30 @@ export function BusinessIdeasSection({
   const ideas: BusinessIdea[] = initialIdeas || [
     {
       id: '1',
-      title: 'AI-Powered Local Business Marketing Platform',
+      title: t('onboarding.aipoweredLocalBusinessMarketing'),
       description: 'SaaS platform that helps local businesses automate their social media and email marketing using AI',
-      problem: 'Small businesses lack time and expertise for digital marketing',
-      solution: 'Automated content generation, scheduling, and analytics tailored for local businesses',
+      problem: t('onboarding.smallBusinessesLackTime'),
+      solution: t('onboarding.automatedContentGenerationScheduling'),
       target_market: 'Local restaurants, retail stores, service providers (10-50 employees)',
-      revenue_model: 'SaaS subscription ($99-299/month) + setup fee',
+      revenue_model: t('onboarding.saasSubscription99299monthSetup'),
       fit_score: 87,
     },
     {
       id: '2',
-      title: 'Sustainable Packaging Marketplace',
-      description: 'B2B marketplace connecting e-commerce businesses with sustainable packaging suppliers',
-      problem: 'E-commerce brands struggle to find eco-friendly packaging options at scale',
-      solution: 'Curated supplier network + carbon footprint calculator + bulk ordering',
+      title: t('onboarding.sustainablePackagingMarketplace'),
+      description: t('onboarding.b2bMarketplaceConnectingEcommerce'),
+      problem: t('onboarding.ecommerceBrandsStruggleTo'),
+      solution: t('onboarding.curatedSupplierNetworkCarbon'),
       target_market: 'E-commerce businesses ($500k-$10M revenue)',
-      revenue_model: 'Transaction fee (8-12%) + premium listings for suppliers',
+      revenue_model: t('onboarding.transactionFee812Premium'),
       fit_score: 78,
     },
     {
       id: '3',
-      title: 'Remote Team Culture Builder',
-      description: 'Platform for remote companies to build culture through virtual events and team rituals',
-      problem: 'Remote teams lack spontaneous interactions and culture-building moments',
-      solution: 'Virtual coffee breaks, team rituals, culture analytics, and event planning tools',
+      title: t('onboarding.remoteTeamCultureBuilder'),
+      description: t('onboarding.platformForRemoteCompanies'),
+      problem: t('onboarding.remoteTeamsLackSpontaneous'),
+      solution: t('onboarding.virtualCoffeeBreaksTeam'),
       target_market: 'Remote-first companies (20-200 employees)',
       revenue_model: 'Per-seat subscription ($10-15/user/month)',
       fit_score: 82,
@@ -108,15 +110,15 @@ export function BusinessIdeasSection({
         selected_idea: selectedIdeaData,
         refined_notes: refinedNotes,
         analysis_completed: true,
-        unlocked_tools: ['SWOT Matrix', 'Market Research'],
+        unlocked_tools: [t('onboarding.swotMatrix'), t('onboarding.marketResearch')],
       });
 
-      toast.success('Business idea analyzed!', {
-        description: 'SWOT Matrix and Market Research tools unlocked'
+      toast.success(t('onboarding.businessIdeaAnalyzed'), {
+        description: t('onboarding.swotMatrixAndMarket')
       });
     } catch (_error) {
-      toast.error('Analysis failed', {
-        description: 'Please try again'
+      toast.error(t('onboarding.analysisFailed'), {
+        description: t('onboarding.pleaseTryAgain')
       });
       setIsAnalyzing(false);
     }
@@ -134,12 +136,8 @@ export function BusinessIdeasSection({
             </div>
 
             <div className="space-y-2">
-              <h3 className="text-2xl font-bold">
-                Analyzing your chosen business idea
-              </h3>
-              <p className="text-muted-foreground max-w-md">
-                Running market research, competitive analysis, SWOT matrix, and opportunity assessment
-              </p>
+              <h3 className="text-2xl font-bold">{t('onboarding.analyzingYourChosenBusiness')}</h3>
+              <p className="text-muted-foreground max-w-md">{t('onboarding.runningMarketResearchCompetitive')}</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -163,10 +161,8 @@ export function BusinessIdeasSection({
               <Sparkles className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl">Refine Your Business Ideas</CardTitle>
-              <CardDescription className="text-base">
-                Review the 3 AI-generated ideas and select your favorite for deep analysis
-              </CardDescription>
+              <CardTitle className="text-2xl">{t('onboarding.refineYourBusinessIdeas')}</CardTitle>
+              <CardDescription className="text-base">{t('onboarding.reviewThe3Aigenerated')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -176,8 +172,7 @@ export function BusinessIdeasSection({
       <Alert className="bg-blue-50 border-blue-200">
         <Sparkles className="h-4 w-4 text-blue-600" />
         <AlertDescription className="text-blue-900">
-          <strong>What you'll get:</strong> Market research, competitive SWOT matrix, opportunity scores, and initial validation roadmap for your chosen idea.
-        </AlertDescription>
+          <strong>What you'll get:</strong>Market research, competitive SWOT matrix, opportunity scores, and initial validation roadmap for your chosen idea.</AlertDescription>
       </Alert>
 
       {/* Ideas Grid */}
@@ -215,7 +210,7 @@ export function BusinessIdeasSection({
                 <div className="flex items-start gap-2">
                   <Target className="h-4 w-4 text-red-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-700">Problem</p>
+                    <p className="font-semibold text-gray-700">{t('onboarding.problem')}</p>
                     <p className="text-gray-600">{idea.problem}</p>
                   </div>
                 </div>
@@ -223,7 +218,7 @@ export function BusinessIdeasSection({
                 <div className="flex items-start gap-2">
                   <Zap className="h-4 w-4 text-yellow-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-700">Solution</p>
+                    <p className="font-semibold text-gray-700">{t('onboarding.solution')}</p>
                     <p className="text-gray-600">{idea.solution}</p>
                   </div>
                 </div>
@@ -231,7 +226,7 @@ export function BusinessIdeasSection({
                 <div className="flex items-start gap-2">
                   <Users className="h-4 w-4 text-blue-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-700">Market</p>
+                    <p className="font-semibold text-gray-700">{t('onboarding.market')}</p>
                     <p className="text-gray-600">{idea.target_market}</p>
                   </div>
                 </div>
@@ -239,7 +234,7 @@ export function BusinessIdeasSection({
                 <div className="flex items-start gap-2">
                   <DollarSign className="h-4 w-4 text-green-500 mt-0.5 flex-shrink-0" />
                   <div>
-                    <p className="font-semibold text-gray-700">Revenue</p>
+                    <p className="font-semibold text-gray-700">{t('onboarding.revenue')}</p>
                     <p className="text-gray-600">{idea.revenue_model}</p>
                   </div>
                 </div>
@@ -253,7 +248,7 @@ export function BusinessIdeasSection({
                   setSelectedIdea(idea.id);
                 }}
               >
-                {selectedIdea === idea.id ? 'Selected' : 'Select This Idea'}
+                {selectedIdea === idea.id ? 'Selected': t('onboarding.selectThisIdea')}
               </Button>
             </CardContent>
           </Card>
@@ -265,13 +260,11 @@ export function BusinessIdeasSection({
         <Card className="border-2 border-blue-200">
           <CardHeader>
             <CardTitle className="text-lg">Additional Context (Optional)</CardTitle>
-            <CardDescription>
-              Add any specific details, constraints, or preferences for this idea
-            </CardDescription>
+            <CardDescription>{t('onboarding.addAnySpecificDetails')}</CardDescription>
           </CardHeader>
           <CardContent>
             <Textarea
-              placeholder="Example: I have existing contacts in this industry, I want to focus on Spanish-speaking markets first, I prefer B2B over B2C, etc."
+              placeholder={t('onboarding.exampleIHaveExisting')}
               rows={4}
               value={refinedNotes}
               onChange={(e) => setRefinedNotes(e.target.value)}
@@ -283,13 +276,11 @@ export function BusinessIdeasSection({
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-sm text-gray-600">Section Progress</p>
+            <p className="text-sm text-gray-600">{t('onboarding.sectionProgress')}</p>
             <p className="text-lg font-bold text-purple-600">+10%</p>
           </div>
           <Button
@@ -298,9 +289,7 @@ export function BusinessIdeasSection({
             className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             size="lg"
           >
-            <TrendingUp className="h-4 w-4" />
-            Analyze Selected Idea
-            <ArrowRight className="h-4 w-4" />
+            <TrendingUp className="h-4 w-4" />Analyze Selected Idea<ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

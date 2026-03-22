@@ -18,6 +18,7 @@ import { HowItWorks } from '@/components/ui/how-it-works';
 import { ExportButton } from '@/components/export/ExportButton';
 import { AnalyticsPreviewModal } from '@/components/preview/AnalyticsPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface AnalyticsViewProps {
   onNewOBV?: () => void;
   isDemoMode?: boolean; // Viene de FeatureGate cuando está bloqueado
@@ -25,6 +26,7 @@ interface AnalyticsViewProps {
 
 // Componente interno que renderiza el contenido
 function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: AnalyticsViewProps) {
+  const { t } = useTranslation();
   const [period, setPeriod] = useState<'week' | 'month' | 'quarter' | 'year'>('month');
   const [selectedProject, setSelectedProject] = useState<string>('all');
   const [selectedPartners, setSelectedPartners] = useState<string[]>([]);
@@ -70,8 +72,8 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
   return (
     <>
       <NovaHeader
-          title="Analytics"
-          subtitle="Deep dives en métricas con comparativas, correlaciones y predicciones IA"
+          title={t('analytics.analytics')}
+          subtitle={t('analytics.deepDivesEnMétricas')}
           onNewOBV={onNewOBV}
           showBackButton={true}
         />
@@ -79,53 +81,53 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
         <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Dashboards detallados con métricas avanzadas, reportes personalizados y exportación de datos"
-          whatIsIt="Herramienta de business intelligence que cruza datos de todas las secciones para encontrar patrones, correlaciones y tendencias. Compara socios, proyectos, analiza evolución temporal, y usa IA para predecir revenue futuro, riesgos, y recomendar acciones."
+          title={t('analytics.cómoFunciona')}
+          description={t('analytics.dashboardsDetalladosConMétricas')}
+          whatIsIt={t('analytics.herramientaDeBusinessIntelligence')}
           onViewPreview={() => setShowPreviewModal(true)}
           premiumFeature="advanced_analytics"
           requiredPlan="advanced"
           dataInputs={[
             {
-              from: 'Todas las secciones',
+              from: t('analytics.todasLasSecciones'),
               items: [
-                'Dashboard → KPIs consolidados de toda la organización',
-                'Centro OBVs → Actividad y productivity del equipo',
-                'CRM → Pipeline, conversiones, y revenue',
-                'Financiero → MRR, growth rate, márgenes',
-                'KPIs → Learning Paths, Book Points, Community Points',
+                t('analytics.dashboardKpisConsolidadosDe'),
+                t('analytics.centroObvsActividadY'),
+                t('analytics.crmPipelineConversionesY'),
+                t('analytics.financieroMrrGrowthRate'),
+                t('analytics.kpisLearningPathsBook'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Decisiones estratégicas',
+              to: t('analytics.decisionesEstratégicas'),
               items: [
                 'Qué socio tiene mejor performance (y por qué)',
-                'Qué proyecto es más rentable',
-                'Correlaciones: ¿Más learning = más revenue?',
+                t('analytics.quéProyectoEsMás'),
+                t('analytics.correlacionesMásLearningMás'),
               ],
             },
             {
               to: 'Predicciones IA',
               items: [
-                'Revenue proyectado próximos 3 meses',
-                'Riesgo de incumplimiento de objetivos',
-                'Recomendaciones de acciones a tomar',
+                t('analytics.revenueProyectadoPróximos3'),
+                t('analytics.riesgoDeIncumplimientoDe'),
+                t('analytics.recomendacionesDeAccionesA'),
               ],
             },
             {
-              to: 'Reportes',
+              to: t('analytics.reportes'),
               items: [
                 'Exportar comparativas a Excel/PDF',
-                'Dashboards personalizados por período',
-                'Visualizaciones para investors',
+                t('analytics.dashboardsPersonalizadosPorPeríodo'),
+                t('analytics.visualizacionesParaInvestors'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Explora comparativas → Identifica patrones → Toma decisiones data-driven',
-            destination: 'Aplica insights en Proyectos, Equipo, o Financiero según hallazgos',
+            action: t('analytics.exploraComparativasIdentificaPatrones'),
+            destination: t('analytics.aplicaInsightsEnProyectos'),
           }}
         />
 
@@ -140,10 +142,10 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="week">Semana</SelectItem>
-                    <SelectItem value="month">Mes</SelectItem>
-                    <SelectItem value="quarter">Trimestre</SelectItem>
-                    <SelectItem value="year">Año</SelectItem>
+                    <SelectItem value="week">{t('analytics.semana')}</SelectItem>
+                    <SelectItem value="month">{t('analytics.mes')}</SelectItem>
+                    <SelectItem value="quarter">{t('analytics.trimestre')}</SelectItem>
+                    <SelectItem value="year">{t('analytics.año')}</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -152,10 +154,10 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
                 <span className="text-sm font-medium text-muted-foreground">Proyecto:</span>
                 <Select value={selectedProject} onValueChange={setSelectedProject}>
                   <SelectTrigger className="w-48">
-                    <SelectValue placeholder="Todos" />
+                    <SelectValue placeholder={t('analytics.todos')} />
                   </SelectTrigger>
                   <SelectContent>
-                    <SelectItem value="all">Todos los proyectos</SelectItem>
+                    <SelectItem value="all">{t('analytics.todosLosProyectos')}</SelectItem>
                     {projects.map(p => (
                       <SelectItem key={p.id} value={p.id}>{p.nombre}</SelectItem>
                     ))}
@@ -168,15 +170,13 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
                 size="sm"
                 onClick={() => setShowFilters(!showFilters)}
               >
-                <Filter className="w-4 h-4 mr-2" />
-                Más filtros
-              </Button>
+                <Filter className="w-4 h-4 mr-2" />{t('analytics.másFiltros')}</Button>
 
               <div className="ml-auto flex items-center gap-2">
                 <ExportButton
                   options={[
                     {
-                      label: 'Exportar Socios',
+                      label: t('analytics.exportarSocios'),
                       type: 'members',
                       data: filteredMembers.map(m => ({
                         nombre: m.nombre || '',
@@ -190,12 +190,12 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
                         tareas_completadas: m.tareas_completadas || 0,
                       })),
                       metadata: {
-                        title: 'Analytics - Socios',
+                        title: t('analytics.analyticsSocios'),
                         currencyColumns: [3, 4],
                       },
                     },
                     {
-                      label: 'Exportar Proyectos',
+                      label: t('analytics.exportarProyectos'),
                       type: 'proyectos',
                       data: filteredProjectStats.map(p => ({
                         nombre: p.nombre || '',
@@ -207,7 +207,7 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
                         margen: p.margen || 0,
                       })),
                       metadata: {
-                        title: 'Analytics - Proyectos',
+                        title: t('analytics.analyticsProyectos'),
                         currencyColumns: [5, 6],
                       },
                     },
@@ -239,10 +239,10 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
         {/* Main Tabs */}
         <Tabs defaultValue="partners" className="space-y-6">
           <TabsList className="grid grid-cols-4 w-fit">
-            <TabsTrigger value="partners">Comparativa Socios</TabsTrigger>
-            <TabsTrigger value="projects">Comparativa Proyectos</TabsTrigger>
-            <TabsTrigger value="temporal">Evolución Temporal</TabsTrigger>
-            <TabsTrigger value="predictions">Predicciones</TabsTrigger>
+            <TabsTrigger value="partners">{t('analytics.comparativaSocios')}</TabsTrigger>
+            <TabsTrigger value="projects">{t('analytics.comparativaProyectos')}</TabsTrigger>
+            <TabsTrigger value="temporal">{t('analytics.evoluciónTemporal')}</TabsTrigger>
+            <TabsTrigger value="predictions">{t('analytics.predicciones')}</TabsTrigger>
           </TabsList>
 
           {/* Partners Comparison Tab */}
@@ -251,11 +251,11 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
               <div className="col-span-2">
                 <Card>
                   <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Tabla Comparativa de Socios</CardTitle>
+                    <CardTitle>{t('analytics.tablaComparativaDeSocios')}</CardTitle>
                     <ExportButton
                       options={[
                         {
-                          label: 'Exportar',
+                          label: t('analytics.exportar'),
                           type: 'members',
                           data: filteredMembers.map(m => ({
                             nombre: m.nombre || '',
@@ -269,7 +269,7 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
                             tareas_completadas: m.tareas_completadas || 0,
                           })),
                           metadata: {
-                            title: 'Socios - Comparativa',
+                            title: t('analytics.sociosComparativa'),
                             currencyColumns: [3, 4],
                           },
                         },
@@ -297,7 +297,7 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
               <div>
                 <Card className="h-full">
                   <CardHeader>
-                    <CardTitle>Radar Comparativo</CardTitle>
+                    <CardTitle>{t('analytics.radarComparativo')}</CardTitle>
                   </CardHeader>
                   <CardContent>
                     <PartnerRadarChart 
@@ -322,7 +322,7 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
             <div className="grid grid-cols-2 gap-6">
               <Card>
                 <CardHeader>
-                  <CardTitle>Evolución de KPIs</CardTitle>
+                  <CardTitle>{t('analytics.evoluciónDeKpis')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <TemporalEvolutionChart period={period} />
@@ -330,7 +330,7 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
               </Card>
               <Card>
                 <CardHeader>
-                  <CardTitle>Mapa de Actividad</CardTitle>
+                  <CardTitle>{t('analytics.mapaDeActividad')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ActivityHeatmap />

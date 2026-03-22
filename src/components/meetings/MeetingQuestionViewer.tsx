@@ -10,6 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface MeetingQuestion {
   pregunta: string;
   subtitulo: string;
@@ -46,22 +47,23 @@ interface MeetingQuestionViewerProps {
 }
 
 const CATEGORIA_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  resultados: { label: 'Resultados', color: 'bg-green-500/10 text-green-700 border-green-200', icon: <CheckCircle2 className="w-4 h-4" /> },
-  aprendizajes: { label: 'Aprendizajes', color: 'bg-blue-500/10 text-blue-700 border-blue-200', icon: <Lightbulb className="w-4 h-4" /> },
-  desafios: { label: 'Desafíos', color: 'bg-red-500/10 text-red-700 border-red-200', icon: <AlertCircle className="w-4 h-4" /> },
-  colaboracion: { label: 'Colaboración', color: 'bg-purple-500/10 text-purple-700 border-purple-200', icon: <Users className="w-4 h-4" /> },
-  mejora_continua: { label: 'Mejora Continua', color: 'bg-amber-500/10 text-amber-700 border-amber-200', icon: <Target className="w-4 h-4" /> },
+  resultados: { label: t('meetings.resultados'), color: 'bg-green-500/10 text-green-700 border-green-200', icon: <CheckCircle2 className="w-4 h-4" /> },
+  aprendizajes: { label: t('meetings.aprendizajes'), color: 'bg-blue-500/10 text-blue-700 border-blue-200', icon: <Lightbulb className="w-4 h-4" /> },
+  desafios: { label: t('meetings.desafíos'), color: 'bg-red-500/10 text-red-700 border-red-200', icon: <AlertCircle className="w-4 h-4" /> },
+  colaboracion: { label: t('meetings.colaboración'), color: 'bg-purple-500/10 text-purple-700 border-purple-200', icon: <Users className="w-4 h-4" /> },
+  mejora_continua: { label: t('meetings.mejoraContinua'), color: 'bg-amber-500/10 text-amber-700 border-amber-200', icon: <Target className="w-4 h-4" /> },
 };
 
 const FORMATO_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
-  ronda: { label: 'Ronda', icon: <Users className="w-4 h-4" /> },
-  debate: { label: 'Debate', icon: <MessageCircle className="w-4 h-4" /> },
-  brainstorm: { label: 'Brainstorm', icon: <Lightbulb className="w-4 h-4" /> },
-  caso_estudio: { label: 'Caso de Estudio', icon: <Target className="w-4 h-4" /> },
-  role_play: { label: 'Role Play', icon: <Play className="w-4 h-4" /> },
+  ronda: { label: t('meetings.ronda'), icon: <Users className="w-4 h-4" /> },
+  debate: { label: t('meetings.debate'), icon: <MessageCircle className="w-4 h-4" /> },
+  brainstorm: { label: t('meetings.brainstorm'), icon: <Lightbulb className="w-4 h-4" /> },
+  caso_estudio: { label: t('meetings.casoDeEstudio'), icon: <Target className="w-4 h-4" /> },
+  role_play: { label: t('meetings.rolePlay'), icon: <Play className="w-4 h-4" /> },
 };
 
 export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: MeetingQuestionViewerProps) {
+  const { t } = useTranslation();
   const [expandedQuestion, setExpandedQuestion] = useState<number | null>(null);
   const [completedQuestions, setCompletedQuestions] = useState<number[]>([]);
 
@@ -100,15 +102,15 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
           <CardContent className="pt-0">
             <div className="grid gap-2 md:grid-cols-3">
               <div className="p-3 rounded-lg bg-green-50 dark:bg-green-950/20">
-                <p className="text-xs font-medium text-green-700 dark:text-green-400 mb-1">Apertura</p>
+                <p className="text-xs font-medium text-green-700 dark:text-green-400 mb-1">{t('meetings.apertura')}</p>
                 <p className="text-xs text-muted-foreground">{agendaSugerida.apertura}</p>
               </div>
               <div className="p-3 rounded-lg bg-blue-50 dark:bg-blue-950/20">
-                <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">Desarrollo</p>
+                <p className="text-xs font-medium text-blue-700 dark:text-blue-400 mb-1">{t('meetings.desarrollo')}</p>
                 <p className="text-xs text-muted-foreground">{agendaSugerida.desarrollo}</p>
               </div>
               <div className="p-3 rounded-lg bg-purple-50 dark:bg-purple-950/20">
-                <p className="text-xs font-medium text-purple-700 dark:text-purple-400 mb-1">Cierre</p>
+                <p className="text-xs font-medium text-purple-700 dark:text-purple-400 mb-1">{t('meetings.cierre')}</p>
                 <p className="text-xs text-muted-foreground">{agendaSugerida.cierre}</p>
               </div>
             </div>
@@ -209,11 +211,11 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                     {/* Contexto */}
                     <div className="grid gap-3 md:grid-cols-2">
                       <div className="p-3 rounded-lg bg-muted/50">
-                        <p className="text-xs font-medium mb-1">¿Por qué esta pregunta?</p>
+                        <p className="text-xs font-medium mb-1">{t('meetings.porQuéEstaPregunta')}</p>
                         <p className="text-xs text-muted-foreground">{question.por_que_esta_pregunta}</p>
                       </div>
                       <div className="p-3 rounded-lg bg-muted/50">
-                        <p className="text-xs font-medium mb-1">Basada en</p>
+                        <p className="text-xs font-medium mb-1">{t('meetings.basadaEn')}</p>
                         <p className="text-xs text-muted-foreground">{question.basada_en}</p>
                       </div>
                     </div>
@@ -223,9 +225,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                       <AccordionItem value="intro">
                         <AccordionTrigger className="text-sm">
                           <span className="flex items-center gap-2">
-                            <Play className="w-4 h-4 text-green-500" />
-                            Cómo introducirla
-                          </span>
+                            <Play className="w-4 h-4 text-green-500" />{t('meetings.cómoIntroducirla')}</span>
                         </AccordionTrigger>
                         <AccordionContent>
                           <p className="text-sm italic bg-muted/50 p-3 rounded-lg">
@@ -237,9 +237,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                       <AccordionItem value="dinamica">
                         <AccordionTrigger className="text-sm">
                           <span className="flex items-center gap-2">
-                            <Users className="w-4 h-4 text-blue-500" />
-                            Dinámica sugerida
-                          </span>
+                            <Users className="w-4 h-4 text-blue-500" />{t('meetings.dinámicaSugerida')}</span>
                         </AccordionTrigger>
                         <AccordionContent>
                           <p className="text-sm text-muted-foreground mb-2">
@@ -261,9 +259,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                       <AccordionItem value="seguimiento">
                         <AccordionTrigger className="text-sm">
                           <span className="flex items-center gap-2">
-                            <ArrowRight className="w-4 h-4 text-purple-500" />
-                            Preguntas de seguimiento
-                          </span>
+                            <ArrowRight className="w-4 h-4 text-purple-500" />{t('meetings.preguntasDeSeguimiento')}</span>
                         </AccordionTrigger>
                         <AccordionContent>
                           <ul className="space-y-1">
@@ -280,9 +276,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                       <AccordionItem value="buscar">
                         <AccordionTrigger className="text-sm">
                           <span className="flex items-center gap-2">
-                            <Target className="w-4 h-4 text-amber-500" />
-                            Qué buscar en respuestas
-                          </span>
+                            <Target className="w-4 h-4 text-amber-500" />{t('meetings.quéBuscarEnRespuestas')}</span>
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="grid gap-3 md:grid-cols-2">
@@ -309,9 +303,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                       <AccordionItem value="cierre">
                         <AccordionTrigger className="text-sm">
                           <span className="flex items-center gap-2">
-                            <Flag className="w-4 h-4 text-green-500" />
-                            Cómo cerrar
-                          </span>
+                            <Flag className="w-4 h-4 text-green-500" />{t('meetings.cómoCerrar')}</span>
                         </AccordionTrigger>
                         <AccordionContent>
                           <p className="text-sm italic bg-muted/50 p-3 rounded-lg mb-2">

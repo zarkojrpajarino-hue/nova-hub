@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { useTranslation } from 'react-i18next';
 interface OnboardingProgressBannerProps {
   projectId: string;
   progress: number; // 0-100
@@ -46,6 +47,7 @@ export function OnboardingProgressBanner({
   deepSetupSections,
   onboardingType: _onboardingType,
 }: OnboardingProgressBannerProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Calculate stats
@@ -77,12 +79,8 @@ export function OnboardingProgressBanner({
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  Fast Start Complete!
-                </h3>
-                <p className="text-sm text-gray-700 mb-3">
-                  Your project is ready to use. Complete Deep Setup (optional) to unlock advanced tools and AI features.
-                </p>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">{t('onboarding.fastStartComplete')}</h3>
+                <p className="text-sm text-gray-700 mb-3">{t('onboarding.yourProjectIsReady')}</p>
 
                 {/* Progress Bar */}
                 <div className="flex items-center gap-3 mb-2">
@@ -101,7 +99,7 @@ export function OnboardingProgressBanner({
                   </div>
                   <div className="flex items-center gap-1">
                     <Unlock className="h-3 w-3 text-blue-600" />
-                    <span>Basic features unlocked</span>
+                    <span>{t('onboarding.basicFeaturesUnlocked')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Lock className="h-3 w-3 text-gray-400" />
@@ -117,18 +115,14 @@ export function OnboardingProgressBanner({
                 onClick={() => navigate(`/proyecto/${projectId}/deep-setup`)}
                 className="gap-2 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700"
               >
-                <Sparkles className="h-4 w-4" />
-                Continue Deep Setup
-                <ArrowRight className="h-4 w-4" />
+                <Sparkles className="h-4 w-4" />Continue Deep Setup<ArrowRight className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => localStorage.setItem(`onboarding-banner-dismissed-${projectId}`, 'true')}
                 className="text-gray-500"
-              >
-                Dismiss
-              </Button>
+              >{t('onboarding.dismiss')}</Button>
             </div>
           </div>
         </CardContent>
@@ -150,9 +144,7 @@ export function OnboardingProgressBanner({
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-gray-900 mb-1">
-                  Great Progress! Keep Going
-                </h3>
+                <h3 className="text-xl font-bold text-gray-900 mb-1">{t('onboarding.greatProgressKeepGoing')}</h3>
                 <p className="text-sm text-gray-700 mb-3">
                   You've completed {completedSections} of {totalSections} Deep Setup sections. {unlockedTools} advanced tools unlocked!
                 </p>
@@ -186,18 +178,14 @@ export function OnboardingProgressBanner({
                 onClick={() => navigate(`/proyecto/${projectId}/deep-setup`)}
                 className="gap-2 bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
               >
-                <Sparkles className="h-4 w-4" />
-                Continue Setup
-                <ArrowRight className="h-4 w-4" />
+                <Sparkles className="h-4 w-4" />Continue Setup<ArrowRight className="h-4 w-4" />
               </Button>
               <Button
                 variant="ghost"
                 size="sm"
                 onClick={() => localStorage.setItem(`onboarding-banner-dismissed-${projectId}`, 'true')}
                 className="text-gray-500"
-              >
-                Dismiss
-              </Button>
+              >{t('onboarding.dismiss')}</Button>
             </div>
           </div>
         </CardContent>
@@ -219,13 +207,9 @@ export function OnboardingProgressBanner({
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">
-                  Onboarding Complete!
-                  <span className="text-2xl">🎉</span>
+                <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">Onboarding Complete!<span className="text-2xl">🎉</span>
                 </h3>
-                <p className="text-sm text-gray-700 mb-2">
-                  You've unlocked all features and tools. Your business ecosystem is fully configured!
-                </p>
+                <p className="text-sm text-gray-700 mb-2">{t('onboarding.youveUnlockedAllFeatures')}</p>
 
                 {/* Stats */}
                 <div className="flex items-center gap-4 text-xs text-gray-600">
@@ -235,11 +219,11 @@ export function OnboardingProgressBanner({
                   </div>
                   <div className="flex items-center gap-1">
                     <Unlock className="h-3 w-3 text-green-600" />
-                    <span>All tools unlocked</span>
+                    <span>{t('onboarding.allToolsUnlocked')}</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Trophy className="h-3 w-3 text-yellow-600" />
-                    <span>Master badge earned</span>
+                    <span>{t('onboarding.masterBadgeEarned')}</span>
                   </div>
                 </div>
               </div>
@@ -251,9 +235,7 @@ export function OnboardingProgressBanner({
               size="sm"
               onClick={() => localStorage.setItem(`onboarding-banner-dismissed-${projectId}`, 'true')}
               className="text-gray-500"
-            >
-              Dismiss
-            </Button>
+            >{t('onboarding.dismiss')}</Button>
           </div>
         </CardContent>
       </Card>

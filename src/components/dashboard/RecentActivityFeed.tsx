@@ -2,8 +2,9 @@ import { useQuery } from '@tanstack/react-query';
 import { Zap, FileCheck, CheckCircle2, Users, UserPlus, TrendingUp, Loader2 } from 'lucide-react';
 import { useProfiles, useProjects } from '@/hooks/useNovaData';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface ActivityMetadata {
   titulo?: string;
   facturacion?: number;
@@ -37,6 +38,7 @@ const ACTION_CONFIG: Record<string, { icon: typeof FileCheck; color: string; lab
 };
 
 export function RecentActivityFeed() {
+  const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
   useProjects(); // Keep for potential future use
 
@@ -59,7 +61,7 @@ export function RecentActivityFeed() {
     return {
       ...activity,
       metadata: meta,
-      user_nombre: user?.nombre || 'Usuario',
+      user_nombre: user?.nombre || t('dashboard.usuario'),
       user_color: user?.color || '#6366F1',
     };
   });
@@ -91,7 +93,7 @@ export function RecentActivityFeed() {
       <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in">
         <div className="p-5 border-b border-border flex items-center gap-2.5">
           <Zap size={18} className="text-warning" />
-          <h3 className="font-semibold">Actividad Reciente</h3>
+          <h3 className="font-semibold">{t('dashboard.actividadReciente')}</h3>
         </div>
         <div className="flex items-center justify-center py-12">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -104,14 +106,14 @@ export function RecentActivityFeed() {
     <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in">
       <div className="p-5 border-b border-border flex items-center gap-2.5">
         <Zap size={18} className="text-warning" />
-        <h3 className="font-semibold">Actividad Reciente</h3>
+        <h3 className="font-semibold">{t('dashboard.actividadReciente')}</h3>
       </div>
 
       <div className="p-3 max-h-[400px] overflow-y-auto">
         {enrichedActivities.length === 0 ? (
           <div className="text-center py-8 text-muted-foreground">
             <Zap className="w-10 h-10 mx-auto mb-2 opacity-30" />
-            <p className="text-sm">Sin actividad reciente</p>
+            <p className="text-sm">{t('dashboard.sinActividadReciente')}</p>
           </div>
         ) : (
           <div className="space-y-1">
@@ -146,7 +148,7 @@ export function RecentActivityFeed() {
                     <span className="text-xs text-muted-foreground shrink-0">
                       {formatDistanceToNow(new Date(activity.created_at), { 
                         addSuffix: true,
-                        locale: es,
+                        locale: getDateFnsLocale(),
                       })}
                     </span>
                   )}

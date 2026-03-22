@@ -18,6 +18,7 @@ import { Button } from '@/components/ui/button';
 import { useProjectRiskData } from '@/hooks/useNovaDataOptimized';
 import type { ToolType } from '@/lib/toolkit-unlock-engine';
 
+import { useTranslation } from 'react-i18next';
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface TriggerRule {
@@ -40,8 +41,8 @@ interface TriggerContext {
 const TRIGGER_RULES: TriggerRule[] = [
   {
     tool:     'sales_playbook',
-    label:    'Sales Playbook',
-    reason:   'Tu nivel de riesgo es alto — un Sales Playbook puede mejorar conversión y acortar ciclos de venta.',
+    label:    t('project.salesPlaybook'),
+    reason:   t('project.tuNivelDeRiesgo'),
     priority: 1,
     condition: ctx =>
       (ctx.riskLevel === 'high' || ctx.riskLevel === 'critical') &&
@@ -49,8 +50,8 @@ const TRIGGER_RULES: TriggerRule[] = [
   },
   {
     tool:     'buyer_persona',
-    label:    'Buyer Persona',
-    reason:   'Estás en fase 2 o superior sin Buyer Persona definida — es la base para cualquier acción comercial.',
+    label:    t('project.buyerPersona'),
+    reason:   t('project.estásEnFase2'),
     priority: 2,
     condition: ctx =>
       ctx.phase >= 2 &&
@@ -58,8 +59,8 @@ const TRIGGER_RULES: TriggerRule[] = [
   },
   {
     tool:     'lead_scoring',
-    label:    'Lead Scoring',
-    reason:   'Con 5+ contactos en CRM puedes priorizar automáticamente quién merece más atención.',
+    label:    t('project.leadScoring'),
+    reason:   t('project.con5ContactosEn'),
     priority: 3,
     condition: ctx =>
       ctx.leadsCount >= 5 &&
@@ -67,8 +68,8 @@ const TRIGGER_RULES: TriggerRule[] = [
   },
   {
     tool:     'brand_kit',
-    label:    'Brand Kit',
-    reason:   'Tienes Buyer Persona generada — el Brand Kit usa esa base para construir tu identidad de marca.',
+    label:    t('project.brandKit'),
+    reason:   t('project.tienesBuyerPersonaGenerada'),
     priority: 4,
     condition: ctx =>
       ctx.generatedTools.includes('buyer_persona') &&
@@ -76,8 +77,8 @@ const TRIGGER_RULES: TriggerRule[] = [
   },
   {
     tool:     'comms_guide',
-    label:    'Guía de Comunicación',
-    reason:   'Con Brand Kit listo, la Guía de Comunicación estandariza tu tono en todos los canales.',
+    label:    t('project.guíaDeComunicación'),
+    reason:   t('project.conBrandKitListo'),
     priority: 5,
     condition: ctx =>
       ctx.generatedTools.includes('brand_kit') &&
@@ -85,8 +86,8 @@ const TRIGGER_RULES: TriggerRule[] = [
   },
   {
     tool:     'customer_journey',
-    label:    'Customer Journey',
-    reason:   'Tienes clientes activos — mapear su journey ahora puede reducir churn y mejorar retención.',
+    label:    t('project.customerJourney'),
+    reason:   t('project.tienesClientesActivosMapear'),
     priority: 6,
     condition: ctx =>
       ctx.phase >= 3 &&
@@ -97,6 +98,7 @@ const TRIGGER_RULES: TriggerRule[] = [
 // ── Hooks de datos ────────────────────────────────────────────────────────────
 
 function useGeneratedTools(projectId: string | undefined) {
+  const { t } = useTranslation();
   return useQuery<ToolType[]>({
     queryKey:  ['playbook-trigger-tools', projectId],
     enabled:   !!projectId,
@@ -201,13 +203,11 @@ export function PlaybookTriggerBanner({
           className="h-7 gap-1 border-indigo-300 text-indigo-700 hover:bg-indigo-100 dark:border-indigo-700 dark:text-indigo-300"
           onClick={() => onNavigate?.('toolkit')}
         >
-          <Sparkles className="h-3 w-3" />
-          Abrir
-          <ArrowRight className="h-3 w-3" />
+          <Sparkles className="h-3 w-3" />Abrir<ArrowRight className="h-3 w-3" />
         </Button>
         <button
           onClick={handleDismiss}
-          aria-label="Descartar sugerencia"
+          aria-label={t('project.descartarSugerencia')}
           className="rounded p-0.5 text-indigo-400 hover:bg-indigo-200 hover:text-indigo-700 dark:hover:bg-indigo-800"
         >
           <X className="h-4 w-4" />

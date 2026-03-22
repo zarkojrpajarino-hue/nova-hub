@@ -30,8 +30,10 @@ import { useIntegrationConnections, useSyncQuality, type IntegrationConnectionSt
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { SourcePreferencesPanel } from '@/components/evidence/SourcePreferencesPanel';
 
+import { useTranslation } from 'react-i18next';
 // AUD.B.7 — Badge de calidad de sync (migration 20260326000009)
 function SyncQualityBadge({ quality }: { quality: SyncQuality | undefined }) {
+  const { t } = useTranslation();
   if (!quality || !quality.has_quality_warning) return null
   const pct = quality.quality_pct != null ? Math.round(quality.quality_pct * 100) : null
   return (
@@ -43,40 +45,32 @@ function SyncQualityBadge({ quality }: { quality: SyncQuality | undefined }) {
 }
 
 // Badge que refleja estado real de integration_connections (I15.58 + I15.60)
-// isLoading: muestra skeleton mientras la query de connections está cargando (evita falso "Disponible")
+// isLoading: muestra skeleton mientras la query de connections está cargando (evita falso t('integrations.disponible10'))
 function ConnectionBadge({ status, isLoading }: { status: IntegrationConnectionStatus; isLoading: boolean }) {
   if (isLoading) {
-    return <Badge variant="outline" className="text-xs opacity-40 animate-pulse">Cargando</Badge>
+    return <Badge variant="outline" className="text-xs opacity-40 animate-pulse">{t('integrations.cargando')}</Badge>
   }
   if (status.status === 'active' && status.is_stale) {
     return (
       <Badge variant="outline" className="text-xs text-amber-600 border-amber-400">
-        <AlertTriangle size={11} className="mr-1" />
-        Stale
-      </Badge>
+        <AlertTriangle size={11} className="mr-1" />{t('integrations.stale')}</Badge>
     )
   }
   if (status.status === 'active') {
     return (
       <Badge className="text-xs bg-green-500">
-        <CheckCircle2 size={11} className="mr-1" />
-        Conectado
-      </Badge>
+        <CheckCircle2 size={11} className="mr-1" />{t('integrations.conectado')}</Badge>
     )
   }
   if (status.status === 'error') {
     return (
       <Badge variant="destructive" className="text-xs">
-        <AlertCircle size={11} className="mr-1" />
-        Error
-      </Badge>
+        <AlertCircle size={11} className="mr-1" />{t('integrations.error')}</Badge>
     )
   }
   // not_connected | disconnected
   return (
-    <Badge variant="outline" className="text-xs">
-      Disponible
-    </Badge>
+    <Badge variant="outline" className="text-xs">{t('integrations.disponible')}</Badge>
   )
 }
 
@@ -140,19 +134,15 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
       {/* Header — T17.27 */}
       <div className="flex items-start justify-between gap-4">
         <div>
-          <h1 className="text-3xl font-bold mb-2">Integraciones</h1>
-          <p className="text-muted-foreground">
-            Conecta Nova Hub con tus herramientas favoritas para automatizar tu flujo de trabajo
-          </p>
+          <h1 className="text-3xl font-bold mb-2">{t('integrations.integraciones')}</h1>
+          <p className="text-muted-foreground">{t('integrations.conectaNovaHubCon')}</p>
         </div>
         {hasAnyActive && !isDemoMode && (
           <button
             onClick={() => setSourcePrefsOpen(true)}
             className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground transition-colors mt-1 shrink-0"
           >
-            <Settings2 size={14} />
-            Configurar fuentes
-          </button>
+            <Settings2 size={14} />{t('integrations.configurarFuentes')}</button>
         )}
       </div>
 
@@ -160,7 +150,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
       <Sheet open={sourcePrefsOpen} onOpenChange={setSourcePrefsOpen}>
         <SheetContent className="w-[420px] sm:max-w-[420px] overflow-y-auto">
           <SheetHeader className="pb-4 border-b border-border">
-            <SheetTitle className="text-base">Configurar fuentes de datos</SheetTitle>
+            <SheetTitle className="text-base">{t('integrations.configurarFuentesDeDatos')}</SheetTitle>
             <p className="text-xs text-muted-foreground mt-1">
               Ajusta qué fuentes usa el sistema de evidencia y con qué peso.
               Solo se muestran las integraciones activas de este proyecto.
@@ -173,7 +163,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 activeProviders={activeProviders}
               />
             ) : (
-              <p className="text-sm text-muted-foreground">Sin proyecto activo.</p>
+              <p className="text-sm text-muted-foreground">{t('integrations.sinProyectoActivo')}</p>
             )}
           </div>
         </SheetContent>
@@ -188,26 +178,21 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             </div>
           </div>
           <div>
-            <p className="font-semibold text-lg">Sin integraciones activas</p>
-            <p className="text-sm text-muted-foreground mt-1">
-              Conecta Stripe para importar MRR, o Holded para sincronizar facturas.<br />
-              Optimus usará los datos externos para recalcular tu evaluación automáticamente.
-            </p>
+            <p className="font-semibold text-lg">{t('integrations.sinIntegracionesActivas')}</p>
+            <p className="text-sm text-muted-foreground mt-1">{t('integrations.conectaStripeParaImportar')}<br />{t('integrations.optimusUsaráLosDatos')}</p>
           </div>
-          <p className="text-xs text-muted-foreground">
-            Elige un proveedor abajo y pulsa "Conectar" para empezar.
-          </p>
+          <p className="text-xs text-muted-foreground">{t('integrations.eligeUnProveedorAbajo')}</p>
         </div>
       )}
 
       {/* How It Works */}
       <HowItWorks
-        title="Sistema de Integraciones"
-        description="Conecta Nova Hub con tu stack tecnológico"
-        whatIsIt="Integra Nova Hub con Slack, Stripe, Holded y más. Automatiza notificaciones, sincroniza datos financieros y conecta tu flujo de trabajo. Acceso completo a API REST para integraciones personalizadas."
+        title={t('integrations.sistemaDeIntegraciones')}
+        description={t('integrations.conectaNovaHubCon11')}
+        whatIsIt={t('integrations.integraNovaHubCon')}
         dataInputs={[
           {
-            from: "Herramientas externas",
+            from: t('integrations.herramientasExternas'),
             items: [
               "Eventos de Slack (mensajes, menciones)",
               "Transacciones de Stripe (pagos, suscripciones)",
@@ -217,17 +202,17 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         ]}
         dataOutputs={[
           {
-            to: "Tus herramientas",
+            to: t('integrations.tusHerramientas'),
             items: [
-              "Notificaciones automáticas en Slack",
-              "Webhooks personalizados",
-              "Sincronización bidireccional de datos"
+              t('integrations.notificacionesAutomáticasEnSlack'),
+              t('integrations.webhooksPersonalizados12'),
+              t('integrations.sincronizaciónBidireccionalDeDatos')
             ]
           }
         ]}
         nextStep={{
-          action: "Configura tu primera integración",
-          destination: "Automatiza tu flujo de trabajo"
+          action: t('integrations.configuraTuPrimeraIntegración'),
+          destination: t('integrations.automatizaTuFlujoDe')
         }}
         premiumFeature="api_access"
         requiredPlan="advanced"
@@ -256,15 +241,11 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 </svg>
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">Slack</CardTitle>
-                <Badge variant="secondary" className="text-xs mt-1">
-                  Activo
-                </Badge>
+                <CardTitle className="text-lg">{t('integrations.slack')}</CardTitle>
+                <Badge variant="secondary" className="text-xs mt-1">{t('integrations.activo')}</Badge>
               </div>
             </div>
-            <CardDescription>
-              Output-only: envía alertas a tu workspace cuando ocurren eventos — lead ganado, OBV validado, hito completado. No importa datos.
-            </CardDescription>
+            <CardDescription>{t('integrations.outputonlyEnvíaAlertasA')}</CardDescription>
           </CardHeader>
         </Card>
 
@@ -276,7 +257,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <CreditCard className="w-7 h-7 text-indigo-500" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">Stripe</CardTitle>
+                <CardTitle className="text-lg">{t('integrations.stripe')}</CardTitle>
                 <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('stripe')} isLoading={isLoading} />
                   <SyncQualityBadge quality={syncQuality['stripe']} />
@@ -297,7 +278,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <FileText className="w-7 h-7 text-cyan-500" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">Holded</CardTitle>
+                <CardTitle className="text-lg">{t('integrations.holded')}</CardTitle>
                 <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('holded')} isLoading={isLoading} />
                   <SyncQualityBadge quality={syncQuality['holded']} />
@@ -305,7 +286,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
             </div>
             <CardDescription>
-              Facturas y cobros → proyecciones financieras → <span className="font-mono text-xs">runway_months</span> más preciso. <span className="text-amber-600 dark:text-amber-400">Implementación pendiente.</span>
+              Facturas y cobros → proyecciones financieras → <span className="font-mono text-xs">runway_months</span> más preciso. <span className="text-amber-600 dark:text-amber-400">{t('integrations.implementaciónPendiente')}</span>
             </CardDescription>
           </CardHeader>
         </Card>
@@ -318,7 +299,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <CheckSquare className="w-7 h-7 text-pink-500" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">Asana</CardTitle>
+                <CardTitle className="text-lg">{t('integrations.asana')}</CardTitle>
                 <div className="mt-1">
                   <ConnectionBadge status={getStatus('asana')} isLoading={isLoading} />
                 </div>
@@ -338,7 +319,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <TrendingUp className="w-7 h-7 text-orange-500" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">HubSpot</CardTitle>
+                <CardTitle className="text-lg">{t('integrations.hubspot')}</CardTitle>
                 <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('hubspot')} isLoading={isLoading} />
                   <SyncQualityBadge quality={syncQuality['hubspot']} />
@@ -359,7 +340,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <CalendarDays className="w-7 h-7 text-blue-500" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">Google Calendar</CardTitle>
+                <CardTitle className="text-lg">{t('integrations.googleCalendar')}</CardTitle>
                 <div className="mt-1 flex flex-wrap gap-1">
                   <ConnectionBadge status={getStatus('google_calendar')} isLoading={isLoading} />
                   <SyncQualityBadge quality={syncQuality['google_calendar']} />
@@ -380,15 +361,11 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <Zap className="w-7 h-7 text-blue-500" />
               </div>
               <div className="flex-1">
-                <CardTitle className="text-lg">Webhooks</CardTitle>
-                <Badge variant="outline" className="text-xs mt-1">
-                  Próximamente
-                </Badge>
+                <CardTitle className="text-lg">{t('integrations.webhooks')}</CardTitle>
+                <Badge variant="outline" className="text-xs mt-1">{t('integrations.próximamente')}</Badge>
               </div>
             </div>
-            <CardDescription>
-              Envía eventos a URLs personalizadas para integraciones custom
-            </CardDescription>
+            <CardDescription>{t('integrations.envíaEventosAUrls')}</CardDescription>
           </CardHeader>
         </Card>
 
@@ -401,9 +378,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
               <div className="flex-1">
                 <CardTitle className="text-lg">API REST</CardTitle>
-                <Badge variant="outline" className="text-xs mt-1">
-                  Próximamente
-                </Badge>
+                <Badge variant="outline" className="text-xs mt-1">{t('integrations.próximamente')}</Badge>
               </div>
             </div>
             <CardDescription>
@@ -417,33 +392,19 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
       <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
         <TabsList>
           <TabsTrigger value="slack" className="gap-2">
-            <MessageSquare size={16} />
-            Slack
-          </TabsTrigger>
+            <MessageSquare size={16} />{t('integrations.slack')}</TabsTrigger>
           <TabsTrigger value="stripe" className="gap-2">
-            <CreditCard size={16} />
-            Stripe
-          </TabsTrigger>
+            <CreditCard size={16} />{t('integrations.stripe')}</TabsTrigger>
           <TabsTrigger value="holded" className="gap-2">
-            <FileText size={16} />
-            Holded
-          </TabsTrigger>
+            <FileText size={16} />{t('integrations.holded')}</TabsTrigger>
           <TabsTrigger value="asana" className="gap-2">
-            <CheckSquare size={16} />
-            Asana
-          </TabsTrigger>
+            <CheckSquare size={16} />{t('integrations.asana')}</TabsTrigger>
           <TabsTrigger value="hubspot" className="gap-2">
-            <TrendingUp size={16} />
-            HubSpot
-          </TabsTrigger>
+            <TrendingUp size={16} />{t('integrations.hubspot')}</TabsTrigger>
           <TabsTrigger value="google-calendar" className="gap-2">
-            <CalendarDays size={16} />
-            Google Calendar
-          </TabsTrigger>
+            <CalendarDays size={16} />{t('integrations.googleCalendar')}</TabsTrigger>
           <TabsTrigger value="webhooks" disabled>
-            <Zap size={16} />
-            Webhooks
-          </TabsTrigger>
+            <Zap size={16} />{t('integrations.webhooks')}</TabsTrigger>
           <TabsTrigger value="api" disabled>
             <Code size={16} />
             API
@@ -458,9 +419,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               <CardTitle className="flex items-center gap-2">
                 📚 Cómo configurar Slack
               </CardTitle>
-              <CardDescription>
-                Sigue estos pasos para recibir notificaciones automáticas en tu workspace de Slack
-              </CardDescription>
+              <CardDescription>{t('integrations.sigueEstosPasosPara')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               {/* Step 1 */}
@@ -469,10 +428,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   1
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Accede a la documentación de Slack</h4>
-                  <p className="text-sm text-muted-foreground mb-2">
-                    Ve a la página oficial de Incoming Webhooks de Slack
-                  </p>
+                  <h4 className="font-semibold mb-1">{t('integrations.accedeALaDocumentación')}</h4>
+                  <p className="text-sm text-muted-foreground mb-2">{t('integrations.veALaPágina')}</p>
                   <a
                     href="https://api.slack.com/messaging/webhooks"
                     target="_blank"
@@ -491,10 +448,10 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   2
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Crea una Incoming Webhook</h4>
+                  <h4 className="font-semibold mb-1">{t('integrations.creaUnaIncomingWebhook')}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Click en "Create your Slack app" y sigue el asistente. Cuando te pida permisos,
-                    asegúrate de activar "Incoming Webhooks".
+                    Click en t('integrations.createYourSlackApp') y sigue el asistente. Cuando te pida permisos,
+                    asegúrate de activar t('integrations.incomingWebhooks').
                   </p>
                 </div>
               </div>
@@ -505,7 +462,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   3
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Selecciona el canal</h4>
+                  <h4 className="font-semibold mb-1">{t('integrations.seleccionaElCanal')}</h4>
                   <p className="text-sm text-muted-foreground">
                     Elige el canal de Slack donde quieres recibir las notificaciones (ej: #general,
                     #proyectos, #ventas, etc.)
@@ -535,9 +492,9 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   5
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Pega la URL abajo</h4>
+                  <h4 className="font-semibold mb-1">{t('integrations.pegaLaUrlAbajo')}</h4>
                   <p className="text-sm text-muted-foreground">
-                    Usa el botón "Añadir Webhook" de abajo, pega la URL, selecciona los tipos de
+                    Usa el botón t('integrations.añadirWebhook') de abajo, pega la URL, selecciona los tipos de
                     notificaciones y guarda.
                   </p>
                 </div>
@@ -549,9 +506,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   ✓
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1 text-green-600 dark:text-green-400">
-                    ¡Listo! Ya recibirás notificaciones
-                  </h4>
+                  <h4 className="font-semibold mb-1 text-green-600 dark:text-green-400">{t('integrations.listoYaRecibirásNotificaciones')}</h4>
                   <p className="text-sm text-muted-foreground">
                     Cuando sucedan eventos importantes (lead ganado, OBV validado, etc.), recibirás
                     un mensaje automático en tu canal de Slack.
@@ -578,12 +533,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             <Card className="border-purple-500/20 bg-gradient-to-br from-purple-500/5 to-pink-500/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <MessageSquare className="h-5 w-5 text-purple-600" />
-                  Vista Preview - Slack Conectado
-                </CardTitle>
-                <CardDescription>
-                  Así se vería tu workspace con Nova Hub conectado
-                </CardDescription>
+                  <MessageSquare className="h-5 w-5 text-purple-600" />{t('integrations.vistaPreviewSlackConectado')}</CardTitle>
+                <CardDescription>{t('integrations.asíSeVeríaTu')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Stats */}
@@ -591,25 +542,25 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   <Card>
                     <CardContent className="pt-4 text-center">
                       <div className="text-2xl font-bold text-purple-600">{demoData.slack.stats.totalEvents}</div>
-                      <div className="text-xs text-muted-foreground">Total Events</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.totalEvents')}</div>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="pt-4 text-center">
                       <div className="text-2xl font-bold text-blue-600">{demoData.slack.stats.activeUsers}</div>
-                      <div className="text-xs text-muted-foreground">Active Users</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.activeUsers')}</div>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="pt-4 text-center">
                       <div className="text-2xl font-bold text-green-600">{demoData.slack.connected_channels}</div>
-                      <div className="text-xs text-muted-foreground">Connected Channels</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.connectedChannels')}</div>
                     </CardContent>
                   </Card>
                   <Card>
                     <CardContent className="pt-4 text-center">
                       <div className="text-2xl font-bold text-amber-600">{demoData.slack.stats.avgResponseTime}</div>
-                      <div className="text-xs text-muted-foreground">Avg Response</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.avgResponse')}</div>
                     </CardContent>
                   </Card>
                 </div>
@@ -617,9 +568,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 {/* Recent Notifications */}
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <Zap className="h-4 w-4 text-yellow-500" />
-                    Notificaciones Recientes
-                  </h4>
+                    <Zap className="h-4 w-4 text-yellow-500" />{t('integrations.notificacionesRecientes')}</h4>
                   <div className="space-y-2">
                     {demoData.slack.recent_notifications.map((notif) => (
                       <div key={notif.id} className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
@@ -640,14 +589,14 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
                 {/* Channels */}
                 <div>
-                  <h4 className="font-semibold mb-3">Canales Configurados</h4>
+                  <h4 className="font-semibold mb-3">{t('integrations.canalesConfigurados')}</h4>
                   <div className="grid grid-cols-2 gap-3">
                     {demoData.slack.channels.map((channel) => (
                       <div key={channel.id} className="p-3 rounded-lg border bg-card">
                         <div className="flex items-center justify-between mb-2">
                           <span className="font-mono text-sm font-semibold">{channel.name}</span>
                           <Badge variant={channel.enabled ? "default" : "secondary"} className="text-xs">
-                            {channel.enabled ? 'Activo' : 'Inactivo'}
+                            {channel.enabled ? 'Activo': t('integrations.inactivo')}
                           </Badge>
                         </div>
                         <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -671,17 +620,15 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           {/* Events Documentation */}
           <Card>
             <CardHeader>
-              <CardTitle>Eventos que disparan notificaciones</CardTitle>
-              <CardDescription>
-                Estos son los tipos de eventos que puedes recibir en Slack
-              </CardDescription>
+              <CardTitle>{t('integrations.eventosQueDisparanNotificaciones')}</CardTitle>
+              <CardDescription>{t('integrations.estosSonLosTipos')}</CardDescription>
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">🎉</span>
-                    <span className="font-medium text-sm">Lead ganado</span>
+                    <span className="font-medium text-sm">{t('integrations.leadGanado')}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
                     Cuando un lead se cierra con estado "cerrado_ganado"
@@ -691,51 +638,41 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">✅</span>
-                    <span className="font-medium text-sm">OBV validado</span>
+                    <span className="font-medium text-sm">{t('integrations.obvValidado')}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Cuando un OBV recibe suficientes validaciones
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.cuandoUnObvRecibe')}</p>
                 </div>
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">🎯</span>
-                    <span className="font-medium text-sm">Objetivo alcanzado</span>
+                    <span className="font-medium text-sm">{t('integrations.objetivoAlcanzado')}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Cuando se completa un objetivo del proyecto
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.cuandoSeCompletaUn')}</p>
                 </div>
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">🚀</span>
-                    <span className="font-medium text-sm">Hito del proyecto</span>
+                    <span className="font-medium text-sm">{t('integrations.hitoDelProyecto')}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Hitos importantes en la vida del proyecto
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.hitosImportantesEnLa')}</p>
                 </div>
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">✔️</span>
-                    <span className="font-medium text-sm">Tarea completada</span>
+                    <span className="font-medium text-sm">{t('integrations.tareaCompletada')}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Notificación cuando se completan tareas importantes
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.notificaciónCuandoSeCompletan')}</p>
                 </div>
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
                     <span className="text-lg">👋</span>
-                    <span className="font-medium text-sm">Nuevo miembro</span>
+                    <span className="font-medium text-sm">{t('integrations.nuevoMiembro')}</span>
                   </div>
-                  <p className="text-xs text-muted-foreground">
-                    Cuando alguien se une al equipo del proyecto
-                  </p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.cuandoAlguienSeUne')}</p>
                 </div>
               </div>
             </CardContent>
@@ -750,9 +687,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               <CardTitle className="flex items-center gap-2">
                 💳 Configurar Stripe
               </CardTitle>
-              <CardDescription>
-                Conecta tu cuenta de Stripe para sincronizar transacciones automáticamente
-              </CardDescription>
+              <CardDescription>{t('integrations.conectaTuCuentaDe')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-4">
@@ -760,7 +695,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   1
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Accede a tu Dashboard de Stripe</h4>
+                  <h4 className="font-semibold mb-1">{t('integrations.accedeATuDashboard')}</h4>
                   <a
                     href="https://dashboard.stripe.com/apikeys"
                     target="_blank"
@@ -778,9 +713,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   2
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Copia tu Secret Key</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Busca la clave que empieza con <code className="bg-muted px-1 rounded">sk_live_...</code> o <code className="bg-muted px-1 rounded">sk_test_...</code>
+                  <h4 className="font-semibold mb-1">{t('integrations.copiaTuSecretKey')}</h4>
+                  <p className="text-sm text-muted-foreground">Busca la clave que empieza con<code className="bg-muted px-1 rounded">sk_live_...</code> o <code className="bg-muted px-1 rounded">sk_test_...</code>
                   </p>
                 </div>
               </div>
@@ -790,10 +724,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   3
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Pega la clave abajo</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Se guardará de forma segura y encriptada
-                  </p>
+                  <h4 className="font-semibold mb-1">{t('integrations.pegaLaClaveAbajo')}</h4>
+                  <p className="text-sm text-muted-foreground">{t('integrations.seGuardaráDeForma')}</p>
                 </div>
               </div>
             </CardContent>
@@ -807,12 +739,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             <Card className="border-indigo-500/20 bg-gradient-to-br from-indigo-500/5 to-purple-500/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <CreditCard className="h-5 w-5 text-indigo-600" />
-                  Vista Preview - Stripe Conectado
-                </CardTitle>
-                <CardDescription>
-                  Así se verían tus transacciones de Stripe sincronizadas
-                </CardDescription>
+                  <CreditCard className="h-5 w-5 text-indigo-600" />{t('integrations.vistaPreviewStripeConectado')}</CardTitle>
+                <CardDescription>{t('integrations.asíSeVeríanTus')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Métricas principales */}
@@ -822,7 +750,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                       <div className="text-2xl font-bold text-green-600">
                         €{(demoData.stripe.preview.totalRevenue / 1000).toFixed(0)}K
                       </div>
-                      <div className="text-xs text-muted-foreground">Total Revenue</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.totalRevenue')}</div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -838,7 +766,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                       <div className="text-2xl font-bold text-purple-600">
                         {demoData.stripe.preview.activeSubscriptions}
                       </div>
-                      <div className="text-xs text-muted-foreground">Subscriptions</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.subscriptions')}</div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -846,7 +774,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                       <div className="text-2xl font-bold text-amber-600">
                         {demoData.stripe.preview.churnRate}%
                       </div>
-                      <div className="text-xs text-muted-foreground">Churn Rate</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.churnRate')}</div>
                     </CardContent>
                   </Card>
                 </div>
@@ -854,9 +782,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 {/* Transacciones recientes */}
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <TrendingUp className="h-4 w-4 text-green-500" />
-                    Transacciones Recientes
-                  </h4>
+                    <TrendingUp className="h-4 w-4 text-green-500" />{t('integrations.transaccionesRecientes')}</h4>
                   <div className="space-y-2">
                     {demoData.stripe.preview.recentTransactions.map((txn) => (
                       <div key={txn.id} className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
@@ -883,7 +809,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
                 {/* Top Plans */}
                 <div>
-                  <h4 className="font-semibold mb-3">Planes Más Populares</h4>
+                  <h4 className="font-semibold mb-3">{t('integrations.planesMásPopulares')}</h4>
                   <div className="space-y-2">
                     {demoData.stripe.preview.topPlans.map((plan, idx) => (
                       <div key={idx} className="p-3 rounded-lg border bg-card flex items-center justify-between">
@@ -912,9 +838,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               <CardTitle className="flex items-center gap-2">
                 📋 Configurar Holded
               </CardTitle>
-              <CardDescription>
-                Sincroniza facturas, clientes y cobros desde tu cuenta de Holded
-              </CardDescription>
+              <CardDescription>{t('integrations.sincronizaFacturasClientesY')}</CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
               <div className="flex gap-4">
@@ -940,10 +864,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   2
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Genera una nueva API Key</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Click en "Generar nueva API Key" y copia el código generado
-                  </p>
+                  <h4 className="font-semibold mb-1">{t('integrations.generaUnaNuevaApi')}</h4>
+                  <p className="text-sm text-muted-foreground">{t('integrations.clickEnGenerarNueva')}</p>
                 </div>
               </div>
 
@@ -952,10 +874,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                   3
                 </div>
                 <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Pega la API Key abajo</h4>
-                  <p className="text-sm text-muted-foreground">
-                    Se iniciará la sincronización automática de tus datos financieros
-                  </p>
+                  <h4 className="font-semibold mb-1">{t('integrations.pegaLaApiKey')}</h4>
+                  <p className="text-sm text-muted-foreground">{t('integrations.seIniciaráLaSincronización')}</p>
                 </div>
               </div>
             </CardContent>
@@ -969,12 +889,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 to-blue-500/5">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2">
-                  <FileText className="h-5 w-5 text-cyan-600" />
-                  Vista Preview - Holded Conectado
-                </CardTitle>
-                <CardDescription>
-                  Así se verían tus facturas y cobros sincronizados desde Holded
-                </CardDescription>
+                  <FileText className="h-5 w-5 text-cyan-600" />{t('integrations.vistaPreviewHoldedConectado')}</CardTitle>
+                <CardDescription>{t('integrations.asíSeVeríanTus8')}</CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 {/* Métricas principales */}
@@ -984,7 +900,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                       <div className="text-2xl font-bold text-green-600">
                         €{(demoData.holded.preview.totalAmount / 1000).toFixed(0)}K
                       </div>
-                      <div className="text-xs text-muted-foreground">Facturado Total</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.facturadoTotal')}</div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -992,7 +908,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                       <div className="text-2xl font-bold text-amber-600">
                         €{(demoData.holded.preview.pendingAmount / 1000).toFixed(0)}K
                       </div>
-                      <div className="text-xs text-muted-foreground">Pendiente Cobro</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.pendienteCobro')}</div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -1000,7 +916,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                       <div className="text-2xl font-bold text-blue-600">
                         {demoData.holded.preview.totalInvoices}
                       </div>
-                      <div className="text-xs text-muted-foreground">Facturas</div>
+                      <div className="text-xs text-muted-foreground">{t('integrations.facturas')}</div>
                     </CardContent>
                   </Card>
                   <Card>
@@ -1016,9 +932,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                 {/* Facturas recientes */}
                 <div>
                   <h4 className="font-semibold mb-3 flex items-center gap-2">
-                    <FileText className="h-4 w-4 text-cyan-500" />
-                    Facturas Recientes
-                  </h4>
+                    <FileText className="h-4 w-4 text-cyan-500" />{t('integrations.facturasRecientes')}</h4>
                   <div className="space-y-2">
                     {demoData.holded.preview.recentInvoices.map((inv) => (
                       <div key={inv.id} className="p-3 rounded-lg border bg-card hover:bg-muted/50 transition-colors">
@@ -1036,7 +950,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
                                 }
                                 className="text-xs"
                               >
-                                {inv.status === 'paid' ? 'Pagada' : inv.status === 'overdue' ? 'Vencida' : 'Pendiente'}
+                                {inv.status === 'paid' ? 'Pagada': inv.status === 'overdue' ? 'Vencida': t('integrations.pendiente')}
                               </Badge>
                             </div>
                             <p className="text-sm font-medium">{inv.client}</p>
@@ -1061,7 +975,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
                 {/* Revenue mensual */}
                 <div>
-                  <h4 className="font-semibold mb-3">Evolución Mensual</h4>
+                  <h4 className="font-semibold mb-3">{t('integrations.evoluciónMensual')}</h4>
                   <div className="grid grid-cols-6 gap-2">
                     {demoData.holded.preview.monthlyRevenue.map((month, idx) => (
                       <div key={idx} className="text-center p-2 rounded-lg border bg-card">
@@ -1097,8 +1011,8 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         <TabsContent value="webhooks">
           <Card>
             <CardHeader>
-              <CardTitle>Webhooks Personalizados</CardTitle>
-              <CardDescription>Próximamente disponible</CardDescription>
+              <CardTitle>{t('integrations.webhooksPersonalizados')}</CardTitle>
+              <CardDescription>{t('integrations.próximamenteDisponible')}</CardDescription>
             </CardHeader>
           </Card>
         </TabsContent>
@@ -1108,7 +1022,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           <Card>
             <CardHeader>
               <CardTitle>API REST</CardTitle>
-              <CardDescription>Próximamente disponible</CardDescription>
+              <CardDescription>{t('integrations.próximamenteDisponible')}</CardDescription>
             </CardHeader>
           </Card>
         </TabsContent>

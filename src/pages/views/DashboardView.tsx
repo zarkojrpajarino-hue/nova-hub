@@ -24,11 +24,13 @@ import { RegenerationTriggersWidget } from '@/components/onboarding/Regeneration
 import { GamificationWidget } from '@/components/onboarding/GamificationWidget';
 import { supabase } from '@/integrations/supabase/client';
 
+import { useTranslation } from 'react-i18next';
 interface DashboardViewProps {
   onNewOBV?: () => void;
 }
 
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [onboardingProgress, setOnboardingProgress] = useState<{ progress: number; fastStartCompleted: boolean; deepSetupSections: string[]; onboardingType: string } | null>(null);
@@ -128,8 +130,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   return (
     <>
       <NovaHeader
-        title="Dashboard"
-        subtitle="Consolida métricas de proyectos, equipo y finanzas en un solo lugar"
+        title={t('dashboard.dashboard')}
+        subtitle={t('dashboard.consolidaMétricasDeProyectos')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -147,18 +149,18 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         )}
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Vista general consolidada de toda tu organización"
-          whatIsIt="Dashboard principal que agrega automáticamente métricas de todos tus proyectos, OBVs ejecutadas, deals cerrados en CRM, revenue en Financiero, y progreso del equipo. Te da una foto completa de la salud de tu startup en tiempo real."
+          title={t('dashboard.cómoFunciona')}
+          description={t('dashboard.vistaGeneralConsolidadaDe')}
+          whatIsIt={t('dashboard.dashboardPrincipalQueAgrega')}
           onViewPreview={() => setShowPreviewModal(true)}
           dataInputs={[
             {
-              from: 'Todas las secciones',
+              from: t('dashboard.todasLasSecciones'),
               items: [
-                'Centro OBVs → Total de OBVs completadas',
-                'CRM → Pipeline value y deals cerrados',
-                'Financiero → Revenue y márgenes',
-                'Equipo → Fit Scores y progreso en roles',
+                t('dashboard.centroObvsTotalDe'),
+                t('dashboard.crmPipelineValueY'),
+                t('dashboard.financieroRevenueYMárgenes'),
+                t('dashboard.equipoFitScoresY'),
               ],
             },
           ]}
@@ -166,14 +168,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             {
               to: 'Tú (decisiones)',
               items: [
-                'Vista 360° de la startup',
-                'Alertas de problemas críticos',
-                'Qué priorizar hoy',
+                t('dashboard.vista360DeLa'),
+                t('dashboard.alertasDeProblemasCríticos'),
+                t('dashboard.quéPriorizarHoy'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Identifica problemas o cuellos de botella',
+            action: t('dashboard.identificaProblemasOCuellos'),
             destination: 'Navega a la sección específica para profundizar (Proyectos, CRM, etc.)',
           }}
         />
@@ -183,7 +185,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <StatCard
             icon={FileCheck}
             value={totals.obvs}
-            label="OBVs Totales"
+            label={t('dashboard.obvsTotales')}
             progress={(totals.obvs / teamObjectives.obvs) * 100}
             target={teamObjectives.obvs}
             color="#6366F1"
@@ -192,7 +194,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <StatCard
             icon={BookOpen}
             value={totals.lps}
-            label="Learning Paths"
+            label={t('dashboard.learningPaths')}
             progress={(totals.lps / teamObjectives.lps) * 100}
             target={teamObjectives.lps}
             color="#F59E0B"
@@ -201,7 +203,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <StatCard
             icon={Trophy}
             value={totals.bps}
-            label="Book Points"
+            label={t('dashboard.bookPoints')}
             progress={(totals.bps / teamObjectives.bps) * 100}
             target={teamObjectives.bps}
             color="#22C55E"
@@ -210,7 +212,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <StatCard
             icon={Users}
             value={totals.cps}
-            label="Community Points"
+            label={t('dashboard.communityPoints')}
             progress={(totals.cps / teamObjectives.cps) * 100}
             target={teamObjectives.cps}
             color="#EC4899"
@@ -219,7 +221,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <StatCard
             icon={TrendingUp}
             value={`€${(totals.facturacion/1000).toFixed(1)}K`}
-            label="Facturación"
+            label={t('dashboard.facturación')}
             progress={(totals.facturacion / teamObjectives.facturacion) * 100}
             target={`€${teamObjectives.facturacion/1000}K`}
             color="#3B82F6"
@@ -228,7 +230,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <StatCard
             icon={Wallet}
             value={`€${(totals.margen/1000).toFixed(1)}K`}
-            label="Margen Bruto"
+            label={t('dashboard.margenBruto')}
             progress={(totals.margen / teamObjectives.margen) * 100}
             target={`€${teamObjectives.margen/1000}K`}
             color="#22C55E"

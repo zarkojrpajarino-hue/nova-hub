@@ -30,3 +30,37 @@ export const PHASE_DESCRIPTIONS: Record<number, string> = {
   3: 'El proyecto entra en operación y debe demostrar que el modelo genera ingresos sostenibles.',
   4: 'El modelo está validado. El objetivo es consolidar la operación y escalar de forma sostenible.',
 };
+
+/**
+ * i18n-aware phase labels. Use this hook in components instead of importing PHASE_LABELS directly.
+ * Falls back to Spanish constants if i18n is not available.
+ */
+export function getPhaseLabelsI18n(t: (key: string) => string): Record<number, string> {
+  return {
+    0: t('phases.labels.0') || PHASE_LABELS[0],
+    1: t('phases.labels.1') || PHASE_LABELS[1],
+    2: t('phases.labels.2') || PHASE_LABELS[2],
+    3: t('phases.labels.3') || PHASE_LABELS[3],
+    4: t('phases.labels.4') || PHASE_LABELS[4],
+  };
+}
+
+export function getPhaseDescriptionsI18n(t: (key: string) => string): Record<number, string> {
+  return {
+    0: t('phases.descriptions.0') || PHASE_DESCRIPTIONS[0],
+    1: t('phases.descriptions.1') || PHASE_DESCRIPTIONS[1],
+    2: t('phases.descriptions.2') || PHASE_DESCRIPTIONS[2],
+    3: t('phases.descriptions.3') || PHASE_DESCRIPTIONS[3],
+    4: t('phases.descriptions.4') || PHASE_DESCRIPTIONS[4],
+  };
+}
+
+export function getPhaseMethodologyI18n(t: (key: string) => string): Record<number, string> {
+  return {
+    0: t('phases.methodology.0') || PHASE_METHODOLOGY[0],
+    1: t('phases.methodology.1') || PHASE_METHODOLOGY[1],
+    2: t('phases.methodology.2') || PHASE_METHODOLOGY[2],
+    3: t('phases.methodology.3') || PHASE_METHODOLOGY[3],
+    4: t('phases.methodology.4') || PHASE_METHODOLOGY[4],
+  };
+}

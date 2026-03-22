@@ -32,17 +32,18 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import type { Database } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 type SpecializationRole = Database['public']['Enums']['specialization_role'];
 
 // C3.3 — fuente única de verdad: enum specialization_role
 // Elimina dependencia de project_roles (tabla ghost).
 const ROLE_OPTIONS: { value: SpecializationRole; label: string; description: string }[] = [
-  { value: 'sales',      label: 'Ventas',          description: 'Captación y cierre de clientes' },
-  { value: 'marketing',  label: 'Marketing',        description: 'Adquisición y comunicación' },
-  { value: 'ai_tech',    label: 'Tecnología / IA',  description: 'Desarrollo de producto y sistemas' },
-  { value: 'operations', label: 'Operaciones',      description: 'Entrega de servicio y procesos' },
-  { value: 'finance',    label: 'Finanzas',         description: 'Gestión de cobros y tesorería' },
-  { value: 'strategy',   label: 'Estrategia',       description: 'Dirección y decisiones de producto' },
+  { value: 'sales',      label: t('roles.ventas'),          description: t('roles.captaciónYCierreDe') },
+  { value: 'marketing',  label: t('roles.marketing'),        description: t('roles.adquisiciónYComunicación') },
+  { value: 'ai_tech',    label: 'Tecnología / IA',  description: t('roles.desarrolloDeProductoY') },
+  { value: 'operations', label: t('roles.operaciones'),      description: t('roles.entregaDeServicioY') },
+  { value: 'finance',    label: t('roles.finanzas'),         description: t('roles.gestiónDeCobrosY') },
+  { value: 'strategy',   label: t('roles.estrategia'),       description: t('roles.direcciónYDecisionesDe') },
 ];
 
 interface InviteMemberWizardProps {
@@ -58,6 +59,7 @@ export function InviteMemberWizard({
   projectId,
   onSuccess,
 }: InviteMemberWizardProps) {
+  const { t } = useTranslation();
   const { getLimitInfo } = useFeatureAccess(projectId);
   const membersLimit = getLimitInfo('members');
 
@@ -72,12 +74,12 @@ export function InviteMemberWizard({
   // C3.1 — submit real: busca profile por email, verifica no duplicado, inserta en project_members
   const handleSubmit = async () => {
     if (!email.trim()) {
-      setError('El email es obligatorio');
+      setError(t('roles.elEmailEsObligatorio'));
       return;
     }
 
     if (!selectedRole) {
-      setError('El rol es obligatorio');
+      setError(t('roles.elRolEsObligatorio'));
       return;
     }
 
@@ -98,7 +100,7 @@ export function InviteMemberWizard({
         .single();
 
       if (!profile) {
-        setError('Usuario no registrado. Pídele que se registre primero en Nova Hub.');
+        setError(t('roles.usuarioNoRegistradoPídele'));
         return;
       }
 
@@ -129,7 +131,7 @@ export function InviteMemberWizard({
       onSuccess?.();
       handleClose();
     } catch (_err) {
-      setError('Error al añadir el miembro. Por favor intenta de nuevo.');
+      setError(t('roles.errorAlAñadirEl'));
     } finally {
       setIsSubmitting(false);
     }
@@ -150,13 +152,9 @@ export function InviteMemberWizard({
         <DialogHeader>
           <div className="flex items-center gap-2">
             <UserPlus className="h-6 w-6 text-primary" />
-            <DialogTitle className="text-2xl">
-              Añadir Miembro al Proyecto
-            </DialogTitle>
+            <DialogTitle className="text-2xl">{t('roles.añadirMiembroAlProyecto')}</DialogTitle>
           </div>
-          <p className="text-muted-foreground text-sm">
-            El usuario debe tener cuenta en Nova Hub. Introduce su email y asígnale un rol.
-          </p>
+          <p className="text-muted-foreground text-sm">{t('roles.elUsuarioDebeTener')}</p>
         </DialogHeader>
 
         <div className="space-y-5 mt-4">
@@ -175,7 +173,7 @@ export function InviteMemberWizard({
           {/* Members usage */}
           <div className="bg-muted/50 rounded-lg p-4">
             <div className="flex items-center justify-between mb-2">
-              <span className="text-sm font-medium">Miembros en el proyecto</span>
+              <span className="text-sm font-medium">{t('roles.miembrosEnElProyecto')}</span>
               <span className="text-sm font-semibold">
                 {membersLimit.current} / {membersLimit.isUnlimited ? '∞' : membersLimit.max}
               </span>
@@ -202,7 +200,7 @@ export function InviteMemberWizard({
             <Input
               id="email"
               type="email"
-              placeholder="nombre@ejemplo.com"
+              placeholder={t('roles.nombreejemplocom')}
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               disabled={!canAddMember || isSubmitting}
@@ -221,7 +219,7 @@ export function InviteMemberWizard({
               disabled={!canAddMember || isSubmitting}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Sin rol asignado" />
+                <SelectValue placeholder={t('roles.sinRolAsignado')} />
               </SelectTrigger>
               <SelectContent>
                 {ROLE_OPTIONS.map((role) => (
@@ -249,14 +247,12 @@ export function InviteMemberWizard({
         </div>
 
         <div className="flex justify-end gap-3 mt-6 pt-4 border-t">
-          <Button onClick={handleClose} variant="outline" disabled={isSubmitting}>
-            Cancelar
-          </Button>
+          <Button onClick={handleClose} variant="outline" disabled={isSubmitting}>{t('roles.cancelar')}</Button>
           <Button
             onClick={handleSubmit}
             disabled={!canAddMember || isSubmitting || !email.trim() || !selectedRole}
           >
-            {isSubmitting ? 'Añadiendo...' : 'Añadir miembro'}
+            {isSubmitting ? t('roles.añadiendo') : t('roles.añadirMiembro')}
           </Button>
         </div>
       </DialogContent>

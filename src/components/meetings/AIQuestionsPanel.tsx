@@ -19,6 +19,7 @@ import { Sparkles, Check, X, ChevronDown, ChevronUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface AIQuestionsPanelProps {
   meetingId: string;
   meetingType: string;
@@ -46,6 +47,7 @@ export function AIQuestionsPanel({
   recordingTime,
   isMinimized = false,
 }: AIQuestionsPanelProps) {
+  const { t } = useTranslation();
   const [questions, setQuestions] = useState<AIQuestion[]>([]);
   const [minimized, setMinimized] = useState(isMinimized);
   const [answeringId, setAnsweringId] = useState<string | null>(null);
@@ -117,7 +119,7 @@ export function AIQuestionsPanel({
    */
   const handleAnswer = async (questionId: string) => {
     if (!answerText.trim()) {
-      toast.error('Escribe una respuesta');
+      toast.error(t('meetings.escribeUnaRespuesta'));
       return;
     }
 
@@ -140,7 +142,7 @@ export function AIQuestionsPanel({
       );
       setAnsweringId(null);
       setAnswerText('');
-      toast.success('Respuesta guardada');
+      toast.success(t('meetings.respuestaGuardada'));
     }
   };
 
@@ -157,7 +159,7 @@ export function AIQuestionsPanel({
       setQuestions((prev) =>
         prev.map((q) => (q.id === questionId ? { ...q, status: 'dismissed' } : q))
       );
-      toast.info('Pregunta descartada');
+      toast.info(t('meetings.preguntaDescartada'));
     }
   };
 
@@ -224,7 +226,7 @@ export function AIQuestionsPanel({
                   <Textarea
                     value={answerText}
                     onChange={(e) => setAnswerText(e.target.value)}
-                    placeholder="Escribe tu respuesta..."
+                    placeholder={t('meetings.escribeTuRespuesta')}
                     rows={2}
                     className="text-sm"
                   />
@@ -234,9 +236,7 @@ export function AIQuestionsPanel({
                       onClick={() => handleAnswer(question.id)}
                       className="gap-1"
                     >
-                      <Check className="h-3 w-3" />
-                      Guardar
-                    </Button>
+                      <Check className="h-3 w-3" />{t('meetings.guardar')}</Button>
                     <Button
                       size="sm"
                       variant="outline"
@@ -244,9 +244,7 @@ export function AIQuestionsPanel({
                         setAnsweringId(null);
                         setAnswerText('');
                       }}
-                    >
-                      Cancelar
-                    </Button>
+                    >{t('meetings.cancelar')}</Button>
                   </div>
                 </div>
               ) : (
@@ -256,18 +254,14 @@ export function AIQuestionsPanel({
                     variant="outline"
                     onClick={() => setAnsweringId(question.id)}
                     className="flex-1"
-                  >
-                    Responder
-                  </Button>
+                  >{t('meetings.responder')}</Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => handleDismiss(question.id)}
                     className="gap-1"
                   >
-                    <X className="h-3 w-3" />
-                    Descartar
-                  </Button>
+                    <X className="h-3 w-3" />{t('meetings.descartar')}</Button>
                 </div>
               )}
             </div>
@@ -320,61 +314,61 @@ function getSmartQuestions(
   const questionsByType: Record<string, Array<{ question: string; context: string; priority: 'high' | 'medium' | 'low' }>> = {
     sprint_planning: [
       {
-        question: '¿Hay dependencias técnicas que bloqueen alguna tarea del sprint?',
-        context: 'Importante para priorización',
+        question: t('meetings.hayDependenciasTécnicasQue'),
+        context: t('meetings.importanteParaPriorización'),
         priority: 'high',
       },
       {
-        question: '¿El equipo tiene capacidad suficiente para este sprint?',
-        context: 'Verificar disponibilidad',
+        question: t('meetings.elEquipoTieneCapacidad'),
+        context: t('meetings.verificarDisponibilidad'),
         priority: 'medium',
       },
     ],
     quarterly_planning: [
       {
-        question: '¿Qué métricas clave definen el éxito de este trimestre?',
-        context: 'Para alinear OKRs',
+        question: t('meetings.quéMétricasClaveDefinen'),
+        context: t('meetings.paraAlinearOkrs'),
         priority: 'high',
       },
       {
-        question: '¿Hay riesgos identificados que puedan afectar los objetivos?',
-        context: 'Gestión de riesgos',
+        question: t('meetings.hayRiesgosIdentificadosQue'),
+        context: t('meetings.gestiónDeRiesgos'),
         priority: 'medium',
       },
     ],
     one_on_one: [
       {
-        question: '¿Hay algún blocker personal o profesional que debamos abordar?',
-        context: 'Bienestar del equipo',
+        question: t('meetings.hayAlgúnBlockerPersonal'),
+        context: t('meetings.bienestarDelEquipo'),
         priority: 'high',
       },
       {
-        question: '¿Qué objetivos de crecimiento tiene la persona para este trimestre?',
-        context: 'Desarrollo profesional',
+        question: t('meetings.quéObjetivosDeCrecimiento'),
+        context: t('meetings.desarrolloProfesional'),
         priority: 'medium',
       },
     ],
     retrospective: [
       {
-        question: '¿Qué proceso específico mejoraremos en el próximo sprint?',
-        context: 'Acción concreta de mejora',
+        question: t('meetings.quéProcesoEspecíficoMejoraremos'),
+        context: t('meetings.acciónConcretaDeMejora'),
         priority: 'high',
       },
       {
-        question: '¿Qué celebramos de este sprint?',
-        context: 'Reconocer éxitos',
+        question: t('meetings.quéCelebramosDeEste'),
+        context: t('meetings.reconocerÉxitos'),
         priority: 'low',
       },
     ],
     client_demo: [
       {
-        question: '¿Qué feedback específico dio el cliente sobre cada feature?',
-        context: 'Capturar feedback detallado',
+        question: t('meetings.quéFeedbackEspecíficoDio'),
+        context: t('meetings.capturarFeedbackDetallado'),
         priority: 'high',
       },
       {
-        question: '¿Hay nuevos requisitos o cambios solicitados?',
-        context: 'Scope changes',
+        question: t('meetings.hayNuevosRequisitosO'),
+        context: t('meetings.scopeChanges'),
         priority: 'high',
       },
     ],
@@ -387,24 +381,24 @@ function getSmartQuestions(
   // Preguntas según contexto estratégico
   if (strategicContext?.has_critical_decisions) {
     questions.push({
-      question: '¿Se tomaron todas las decisiones críticas planeadas?',
-      context: 'Verificar completitud',
+      question: t('meetings.seTomaronTodasLas'),
+      context: t('meetings.verificarCompletitud'),
       priority: 'high',
     });
   }
 
   if (strategicContext?.current_blockers) {
     questions.push({
-      question: '¿Se resolvieron los blockers mencionados o hay un plan de acción?',
-      context: 'Seguimiento de blockers',
+      question: t('meetings.seResolvieronLosBlockers'),
+      context: t('meetings.seguimientoDeBlockers'),
       priority: 'high',
     });
   }
 
   if (strategicContext?.obvs_to_discuss?.length > 0) {
     questions.push({
-      question: '¿Se revisó el progreso de todos los OBVs planeados?',
-      context: 'Alineación estratégica',
+      question: t('meetings.seRevisóElProgreso'),
+      context: t('meetings.alineaciónEstratégica'),
       priority: 'medium',
     });
   }
@@ -413,13 +407,13 @@ function getSmartQuestions(
   if (questions.length < 2) {
     questions.push(
       {
-        question: '¿Hay algún tema importante que no se haya discutido?',
-        context: 'Completitud de la reunión',
+        question: t('meetings.hayAlgúnTemaImportante'),
+        context: t('meetings.completitudDeLaReunión'),
         priority: 'medium',
       },
       {
-        question: '¿Quedaron claros los próximos pasos y responsables?',
-        context: 'Accionables claros',
+        question: t('meetings.quedaronClarosLosPróximos'),
+        context: t('meetings.accionablesClaros'),
         priority: 'high',
       }
     );

@@ -4,6 +4,7 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { EngineEmptyState } from './EngineEmptyState';
 import { InputAuditModal, InputAuditTrigger } from './InputAuditModal';
 
+import { useTranslation } from 'react-i18next';
 interface RiskBreakdownProps {
   risk: ProjectEngineData['risk'];
   riskHistory: ProjectEngineData['riskHistory'];
@@ -20,18 +21,18 @@ const FACTORS: {
   key: keyof NonNullable<ProjectEngineData['risk']>;
   label: string;
 }[] = [
-  { key: 'runway_factor_input',          label: 'Pista financiera'      },
-  { key: 'execution_drop_input',         label: 'Caída de ejecución'    },
-  { key: 'validation_weakness_input',    label: 'Fragilidad validación' },
-  { key: 'revenue_concentration_input',  label: 'Concentración revenue' },
-  { key: 'bottleneck_severity_input',    label: 'Bloqueos activos'      },
+  { key: 'runway_factor_input',          label: t('project.pistaFinanciera')      },
+  { key: 'execution_drop_input',         label: t('project.caídaDeEjecución')    },
+  { key: 'validation_weakness_input',    label: t('project.fragilidadValidación') },
+  { key: 'revenue_concentration_input',  label: t('project.concentraciónRevenue') },
+  { key: 'bottleneck_severity_input',    label: t('project.bloqueosActivos')      },
 ];
 
 const RISK_LEVEL_LABEL: Record<string, string> = {
-  low:      'Bajo',
-  medium:   'Medio',
-  high:     'Alto',
-  critical: 'Crítico',
+  low:      t('project.bajo'),
+  medium:   t('project.medio'),
+  high:     t('project.alto'),
+  critical: t('project.crítico'),
 };
 
 const RISK_LEVEL_COLOR: Record<string, string> = {
@@ -63,13 +64,14 @@ function computeTrend(history: ProjectEngineData['riskHistory']): number | null 
 // ── Component ─────────────────────────────────────────────────────────────────
 
 function RiskBreakdownComponent({ risk, riskHistory, onNavigateToTab }: RiskBreakdownProps) {
+  const { t } = useTranslation();
   const [auditOpen, setAuditOpen] = useState(false);
   if (!risk || risk.risk_status === 'insufficient_data') {
     const available = risk?.inputs_available ?? 0;
     return (
       <EngineEmptyState
         icon={Shield}
-        title="El sistema todavía no puede evaluar el riesgo del proyecto"
+        title={t('project.elSistemaTodavíaNo')}
         description={`Inputs disponibles: ${available}/5. Se necesitan más datos para activar el motor de riesgo.`}
       />
     );
@@ -112,9 +114,7 @@ function RiskBreakdownComponent({ risk, riskHistory, onNavigateToTab }: RiskBrea
             <span className="text-sm text-muted-foreground tabular-nums">({score})</span>
           )}
           {isLowConf && (
-            <span className="text-[11px] text-warning bg-warning/10 px-2 py-0.5 rounded-md font-medium">
-              Confianza baja
-            </span>
+            <span className="text-[11px] text-warning bg-warning/10 px-2 py-0.5 rounded-md font-medium">{t('project.confianzaBaja')}</span>
           )}
         </div>
       </div>

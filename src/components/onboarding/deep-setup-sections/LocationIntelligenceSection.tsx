@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface LocationInvestor {
   name: string;
   type: string;
@@ -83,6 +84,7 @@ export function LocationIntelligenceSection({
   onComplete,
   onCancel,
 }: LocationIntelligenceSectionProps) {
+  const { t } = useTranslation();
   const [location, setLocation] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
   const [locationData, setLocationData] = useState<LocationData | null>(null);
@@ -101,38 +103,38 @@ export function LocationIntelligenceSection({
         location,
         investors: [
           {
-            name: 'Seaya Ventures',
+            name: t('onboarding.seayaVentures'),
             type: 'VC',
             stage: 'Series A-B',
-            focus: 'SaaS, Marketplace',
+            focus: t('onboarding.saasMarketplace'),
             website: 'https://seaya.vc',
           },
           {
-            name: 'K Fund',
+            name: t('onboarding.kFund'),
             type: 'VC',
             stage: 'Seed, Series A',
             focus: 'Deep Tech, B2B',
             website: 'https://kfund.vc',
           },
           {
-            name: 'JME Ventures',
+            name: t('onboarding.jmeVentures'),
             type: 'VC',
-            stage: 'Pre-seed, Seed',
-            focus: 'Consumer, Marketplace',
+            stage: t('onboarding.preseedSeed'),
+            focus: t('onboarding.consumerMarketplace'),
             website: 'https://jmeventures.com',
           },
         ],
         accelerators: [
           {
-            name: 'Lanzadera',
+            name: t('onboarding.lanzadera'),
             duration: '6 months',
             investment: '€50k for 7% equity',
             website: 'https://lanzadera.es',
           },
           {
-            name: 'Startup Valencia',
+            name: t('onboarding.startupValencia'),
             duration: '4 months',
-            investment: 'Non-equity',
+            investment: t('onboarding.nonequity'),
             website: 'https://startupvalencia.com',
           },
         ],
@@ -146,14 +148,14 @@ export function LocationIntelligenceSection({
           {
             name: 'CDTI NEOTEC',
             amount: '€250k-€300k',
-            type: 'Loan + Grant',
-            focus: 'Deep tech startups',
+            type: t('onboarding.loanGrant'),
+            focus: t('onboarding.deepTechStartups'),
           },
           {
-            name: 'Enisa',
+            name: t('onboarding.enisa'),
             amount: '€25k-€300k',
-            type: 'Participative loan',
-            focus: 'Early-stage startups',
+            type: t('onboarding.participativeLoan'),
+            focus: t('onboarding.earlystageStartups'),
           },
         ],
         events: [
@@ -165,12 +167,12 @@ export function LocationIntelligenceSection({
 
       setLocationData(mockData);
 
-      toast.success('Location intelligence generated!', {
-        description: 'Investor Map and Grant Finder unlocked'
+      toast.success(t('onboarding.locationIntelligenceGenerated'), {
+        description: t('onboarding.investorMapAndGrant')
       });
     } catch (_error) {
-      toast.error('Generation failed', {
-        description: 'Please try again'
+      toast.error(t('onboarding.generationFailed'), {
+        description: t('onboarding.pleaseTryAgain')
       });
       setIsGenerating(false);
     }
@@ -181,7 +183,7 @@ export function LocationIntelligenceSection({
       section_id: 'location-intelligence',
       location,
       location_data: locationData,
-      unlocked_tools: ['Investor Map', 'Grant Finder', 'Local Market Data'],
+      unlocked_tools: [t('onboarding.investorMap'), t('onboarding.grantFinder'), t('onboarding.localMarketData')],
     });
   };
 
@@ -200,9 +202,7 @@ export function LocationIntelligenceSection({
               <h3 className="text-2xl font-bold">
                 Analyzing local ecosystem for {location}
               </h3>
-              <p className="text-muted-foreground max-w-md">
-                Gathering data on investors, accelerators, costs, grants, regulations, and events
-              </p>
+              <p className="text-muted-foreground max-w-md">{t('onboarding.gatheringDataOnInvestors')}</p>
             </div>
 
             <div className="flex items-center gap-2">
@@ -227,7 +227,7 @@ export function LocationIntelligenceSection({
                 <CheckCircle2 className="h-6 w-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-2xl">Location Intelligence Complete</CardTitle>
+                <CardTitle className="text-2xl">{t('onboarding.locationIntelligenceComplete')}</CardTitle>
                 <CardDescription className="text-base">
                   Local ecosystem data for {locationData.location}
                 </CardDescription>
@@ -242,9 +242,7 @@ export function LocationIntelligenceSection({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <DollarSign className="h-5 w-5 text-green-600" />
-                Local Investors
-              </CardTitle>
+                <DollarSign className="h-5 w-5 text-green-600" />{t('onboarding.localInvestors')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {locationData.investors.map((inv: LocationInvestor, idx: number) => (
@@ -263,9 +261,7 @@ export function LocationIntelligenceSection({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Building2 className="h-5 w-5 text-blue-600" />
-                Accelerators & Incubators
-              </CardTitle>
+                <Building2 className="h-5 w-5 text-blue-600" />{t('onboarding.acceleratorsIncubators')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {locationData.accelerators.map((acc: LocationAccelerator, idx: number) => (
@@ -282,9 +278,7 @@ export function LocationIntelligenceSection({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <Users className="h-5 w-5 text-purple-600" />
-                Local Costs
-              </CardTitle>
+                <Users className="h-5 w-5 text-purple-600" />{t('onboarding.localCosts')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-2 text-sm">
               <div className="flex justify-between">
@@ -310,9 +304,7 @@ export function LocationIntelligenceSection({
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                <FileText className="h-5 w-5 text-orange-600" />
-                Available Grants
-              </CardTitle>
+                <FileText className="h-5 w-5 text-orange-600" />{t('onboarding.availableGrants')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               {locationData.grants.map((grant: LocationGrant, idx: number) => (
@@ -332,9 +324,7 @@ export function LocationIntelligenceSection({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-pink-600" />
-              Startup Events & Community
-            </CardTitle>
+              <Sparkles className="h-5 w-5 text-pink-600" />{t('onboarding.startupEventsCommunity')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -350,13 +340,11 @@ export function LocationIntelligenceSection({
 
         {/* Actions */}
         <div className="flex items-center justify-between pt-6 border-t">
-          <Button variant="outline" onClick={onCancel}>
-            Cancel
-          </Button>
+          <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
 
           <div className="flex items-center gap-3">
             <div className="text-right">
-              <p className="text-sm text-gray-600">Section Progress</p>
+              <p className="text-sm text-gray-600">{t('onboarding.sectionProgress')}</p>
               <p className="text-lg font-bold text-green-600">+8%</p>
             </div>
             <Button
@@ -364,9 +352,7 @@ export function LocationIntelligenceSection({
               className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
               size="lg"
             >
-              <CheckCircle2 className="h-4 w-4" />
-              Complete Section
-              <ArrowRight className="h-4 w-4" />
+              <CheckCircle2 className="h-4 w-4" />Complete Section<ArrowRight className="h-4 w-4" />
             </Button>
           </div>
         </div>
@@ -384,10 +370,8 @@ export function LocationIntelligenceSection({
               <MapPin className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-2xl">Location Intelligence</CardTitle>
-              <CardDescription className="text-base">
-                Get local insights: investors, accelerators, costs, grants, and events
-              </CardDescription>
+              <CardTitle className="text-2xl">{t('onboarding.locationIntelligence')}</CardTitle>
+              <CardDescription className="text-base">{t('onboarding.getLocalInsightsInvestors')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -397,31 +381,28 @@ export function LocationIntelligenceSection({
       <Alert className="bg-blue-50 border-blue-200">
         <Sparkles className="h-4 w-4 text-blue-600" />
         <AlertDescription className="text-blue-900">
-          <strong>What you'll get:</strong> Local investor database, accelerator programs, cost estimates, available grants, regulatory info, and startup events.
-        </AlertDescription>
+          <strong>What you'll get:</strong>Local investor database, accelerator programs, cost estimates, available grants, regulatory info, and startup events.</AlertDescription>
       </Alert>
 
       {/* Input Form */}
       <Card>
         <CardHeader>
-          <CardTitle>Enter Your Location</CardTitle>
-          <CardDescription>
-            City, region, or country where you plan to operate
-          </CardDescription>
+          <CardTitle>{t('onboarding.enterYourLocation')}</CardTitle>
+          <CardDescription>{t('onboarding.cityRegionOrCountry')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div>
-            <Label htmlFor="location">Location</Label>
+            <Label htmlFor="location">{t('onboarding.location')}</Label>
             <Input
               id="location"
               type="text"
-              placeholder="e.g., Valencia, Spain"
+              placeholder={t('onboarding.egValenciaSpain')}
               value={location}
               onChange={(e) => setLocation(e.target.value)}
               className="mt-2"
             />
             <p className="text-xs text-gray-500 mt-2">
-              💡 Be specific for better results (e.g., "Barcelona" instead of "Spain")
+              💡 Be specific for better results (e.g., t('onboarding.barcelona') instead of t('onboarding.spain'))
             </p>
           </div>
         </CardContent>
@@ -429,13 +410,11 @@ export function LocationIntelligenceSection({
 
       {/* Actions */}
       <div className="flex items-center justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onCancel}>
-          Cancel
-        </Button>
+        <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
 
         <div className="flex items-center gap-3">
           <div className="text-right">
-            <p className="text-sm text-gray-600">Section Progress</p>
+            <p className="text-sm text-gray-600">{t('onboarding.sectionProgress')}</p>
             <p className="text-lg font-bold text-blue-600">+8%</p>
           </div>
           <Button
@@ -444,9 +423,7 @@ export function LocationIntelligenceSection({
             className="gap-2 bg-gradient-to-r from-blue-600 to-cyan-600 hover:from-blue-700 hover:to-cyan-700"
             size="lg"
           >
-            <TrendingUp className="h-4 w-4" />
-            Generate Location Intelligence
-            <ArrowRight className="h-4 w-4" />
+            <TrendingUp className="h-4 w-4" />Generate Location Intelligence<ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

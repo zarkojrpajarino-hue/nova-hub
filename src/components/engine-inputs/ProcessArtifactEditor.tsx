@@ -10,14 +10,15 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface ProcessArtifactEditorProps {
   projectId: string;
 }
 
 const FUNCTION_TYPES = [
-  { value: 'demand',   label: 'Demanda',  color: '#F59E0B', description: 'Generación de leads, ventas, marketing' },
-  { value: 'delivery', label: 'Delivery', color: '#3B82F6', description: 'Producto, desarrollo, entrega al cliente' },
-  { value: 'cash',     label: 'Cash',     color: '#22C55E', description: 'Facturación, cobros, gestión financiera' },
+  { value: 'demand',   label: t('engineInputs.demanda'),  color: '#F59E0B', description: t('engineInputs.generaciónDeLeadsVentas') },
+  { value: 'delivery', label: t('engineInputs.delivery'), color: '#3B82F6', description: t('engineInputs.productoDesarrolloEntregaAl') },
+  { value: 'cash',     label: t('engineInputs.cash'),     color: '#22C55E', description: t('engineInputs.facturaciónCobrosGestiónFinanciera') },
 ] as const;
 
 type FunctionType = typeof FUNCTION_TYPES[number]['value'];
@@ -48,6 +49,7 @@ function isUsedRecently(lastUsedAt: string | null): boolean {
 }
 
 export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [addingFor, setAddingFor] = useState<FunctionType | null>(null);
   const [newForm, setNewForm] = useState<NewArtifactForm>(EMPTY_FORM);
@@ -71,7 +73,7 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
 
   const handleCreate = async (ft: FunctionType) => {
     if (!newForm.title.trim()) {
-      toast.error('El título es obligatorio');
+      toast.error(t('engineInputs.elTítuloEsObligatorio'));
       return;
     }
     setIsCreating(true);
@@ -84,12 +86,12 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
         link_or_doc_id: newForm.linkOrDocId.trim() || null,
       });
       if (error) throw error;
-      toast.success('Proceso creado');
+      toast.success(t('engineInputs.procesoCreado'));
       setAddingFor(null);
       setNewForm(EMPTY_FORM);
       queryClient.invalidateQueries({ queryKey: ['process_artifacts', projectId] });
     } catch {
-      toast.error('Error al crear el proceso');
+      toast.error(t('engineInputs.errorAlCrearEl'));
     } finally {
       setIsCreating(false);
     }
@@ -103,10 +105,10 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
         .update({ last_used_at: new Date().toISOString() })
         .eq('id', id);
       if (error) throw error;
-      toast.success('Marcado como usado hoy');
+      toast.success(t('engineInputs.marcadoComoUsadoHoy'));
       queryClient.invalidateQueries({ queryKey: ['process_artifacts', projectId] });
     } catch {
-      toast.error('Error al marcar el proceso');
+      toast.error(t('engineInputs.errorAlMarcarEl'));
     } finally {
       setMarkingId(null);
     }
@@ -120,10 +122,10 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
         .delete()
         .eq('id', id);
       if (error) throw error;
-      toast.success('Proceso eliminado');
+      toast.success(t('engineInputs.procesoEliminado'));
       queryClient.invalidateQueries({ queryKey: ['process_artifacts', projectId] });
     } catch {
-      toast.error('Error al eliminar el proceso');
+      toast.error(t('engineInputs.errorAlEliminarEl'));
     } finally {
       setDeletingId(null);
     }
@@ -142,7 +144,7 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Procesos documentados</CardTitle>
+        <CardTitle className="text-base">{t('engineInputs.procesosDocumentados')}</CardTitle>
         <CardDescription>
           Un proceso activo por función = documented_process_exists. Requiere ≥{CHECKLIST_THRESHOLD} ítems de checklist y marcado de uso en ≤60 días.
         </CardDescription>
@@ -166,14 +168,10 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
                 <div className="flex items-center gap-2">
                   {hasActiveProcess ? (
                     <Badge variant="outline" className="gap-1 text-green-600 border-green-600 text-xs">
-                      <CheckCircle2 className="w-3 h-3" />
-                      Proceso activo
-                    </Badge>
+                      <CheckCircle2 className="w-3 h-3" />{t('engineInputs.procesoActivo')}</Badge>
                   ) : (
                     <Badge variant="outline" className="gap-1 text-amber-600 border-amber-600 text-xs">
-                      <AlertCircle className="w-3 h-3" />
-                      Sin proceso activo
-                    </Badge>
+                      <AlertCircle className="w-3 h-3" />{t('engineInputs.sinProcesoActivo')}</Badge>
                   )}
                   <Button
                     variant="outline"
@@ -184,9 +182,7 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
                       setNewForm(EMPTY_FORM);
                     }}
                   >
-                    <Plus className="w-3 h-3 mr-1" />
-                    Añadir
-                  </Button>
+                    <Plus className="w-3 h-3 mr-1" />{t('engineInputs.añadir')}</Button>
                 </div>
               </div>
 
@@ -230,7 +226,7 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
                               <Clock className="w-3 h-3" />
                               {artifact.last_used_at
                                 ? `Usado ${new Date(artifact.last_used_at).toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })}`
-                                : 'Nunca usado'}
+                                : t('engineInputs.nuncaUsado')}
                             </span>
                           </div>
                         </div>
@@ -280,12 +276,12 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
                       <Input
                         value={newForm.title}
                         onChange={(e) => setNewForm({ ...newForm, title: e.target.value })}
-                        placeholder="Ej: Pipeline de leads semanal"
+                        placeholder={t('engineInputs.ejPipelineDeLeads')}
                         className="h-8 text-sm"
                       />
                     </div>
                     <div className="space-y-1">
-                      <Label className="text-xs">Ítems de checklist</Label>
+                      <Label className="text-xs">{t('engineInputs.ítemsDeChecklist')}</Label>
                       <Input
                         type="number"
                         min="0"
@@ -301,7 +297,7 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
                       <Input
                         value={newForm.linkOrDocId}
                         onChange={(e) => setNewForm({ ...newForm, linkOrDocId: e.target.value })}
-                        placeholder="https://..."
+                        placeholder={t('engineInputs.https')}
                         className="h-8 text-sm"
                       />
                     </div>
@@ -312,16 +308,14 @@ export function ProcessArtifactEditor({ projectId }: ProcessArtifactEditorProps)
                       size="sm"
                       className="h-7 text-xs"
                       onClick={() => { setAddingFor(null); setNewForm(EMPTY_FORM); }}
-                    >
-                      Cancelar
-                    </Button>
+                    >{t('engineInputs.cancelar')}</Button>
                     <Button
                       size="sm"
                       className="h-7 text-xs"
                       disabled={isCreating || !newForm.title.trim()}
                       onClick={() => handleCreate(ft.value as FunctionType)}
                     >
-                      {isCreating ? <Loader2 className="w-3 h-3 animate-spin" /> : 'Crear'}
+                      {isCreating ? <Loader2 className="w-3 h-3 animate-spin" /> : t('engineInputs.crear')}
                     </Button>
                   </div>
                 </div>

@@ -27,6 +27,7 @@ import type { AlignmentData } from '@/components/meetings/MeetingCompletionSumma
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { runMeetingAgent } from '@/services/meetingAgentService';
 
+import { useTranslation } from 'react-i18next';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 interface InsightLocal {
@@ -56,9 +57,9 @@ const TYPE_ICON: Record<string, React.ElementType> = {
 };
 
 const LEVEL_LABEL: Record<string, string> = {
-  high:   'Estratégico',
-  medium: 'Operativo',
-  low:    'Informativo',
+  high:   t('meetingReview.estratégico'),
+  medium: t('meetingReview.operativo'),
+  low:    t('meetingReview.informativo'),
 };
 
 const LEVEL_BADGE: Record<string, string> = {
@@ -82,7 +83,7 @@ function InsightCard({
 }) {
   const [confirmed, setConfirmed] = useState(false);
   const Icon  = TYPE_ICON[insight.insight_type] ?? Target;
-  const title = (insight.content.title ?? insight.content.name ?? 'Sin título') as string;
+  const title = (insight.content.title ?? insight.content.name ?? t('meetingReview.sinTítulo')) as string;
   const desc  = (insight.content.description ?? insight.content.rationale ?? '') as string;
   const level = classified.impact_level;
 
@@ -146,9 +147,7 @@ function InsightCard({
                     checked={confirmed}
                     onCheckedChange={v => setConfirmed(!!v)}
                   />
-                  <span className="text-xs text-muted-foreground">
-                    Confirmo que esta decisión debe aplicarse al proyecto
-                  </span>
+                  <span className="text-xs text-muted-foreground">{t('meetingReview.confirmoQueEstaDecisión')}</span>
                 </label>
                 <div className="flex gap-2">
                   <Button
@@ -156,17 +155,13 @@ function InsightCard({
                     disabled={!confirmed}
                     onClick={() => onApprove(insight.id)}
                     className="h-7 text-xs px-3"
-                  >
-                    Aplicar decisión
-                  </Button>
+                  >{t('meetingReview.aplicarDecisión')}</Button>
                   <Button
                     size="sm"
                     variant="ghost"
                     onClick={() => onReject(insight.id)}
                     className="h-7 text-xs px-2 text-muted-foreground"
-                  >
-                    Descartar
-                  </Button>
+                  >{t('meetingReview.descartar')}</Button>
                 </div>
               </div>
             )}
@@ -179,31 +174,27 @@ function InsightCard({
                   onClick={() => onApprove(insight.id)}
                   className="h-7 text-xs px-3"
                 >
-                  <CheckCircle2 size={11} className="mr-1" /> Aprobar
-                </Button>
+                  <CheckCircle2 size={11} className="mr-1" />{t('meetingReview.aprobar')}</Button>
                 <Button
                   size="sm"
                   variant="outline"
                   onClick={() => onReject(insight.id)}
                   className="h-7 text-xs px-2"
                 >
-                  <XCircle size={11} className="mr-1" /> Rechazar
-                </Button>
+                  <XCircle size={11} className="mr-1" />{t('meetingReview.rechazar')}</Button>
               </div>
             )}
 
             {/* Level 1: pre-selected, only dismiss */}
             {level === 'low' && (
               <div className="flex items-center gap-2">
-                <span className="text-xs text-muted-foreground italic">Auto-incluido</span>
+                <span className="text-xs text-muted-foreground italic">{t('meetingReview.autoincluido')}</span>
                 <Button
                   size="sm"
                   variant="ghost"
                   onClick={() => onReject(insight.id)}
                   className="h-6 text-xs px-2 text-muted-foreground"
-                >
-                  Descartar
-                </Button>
+                >{t('meetingReview.descartar')}</Button>
               </div>
             )}
           </div>
@@ -212,13 +203,11 @@ function InsightCard({
         {/* Status badge */}
         {isApproved && (
           <div className="pl-5 flex items-center gap-1 text-xs text-green-600">
-            <CheckCircle2 size={11} /> Aprobado
-          </div>
+            <CheckCircle2 size={11} />{t('meetingReview.aprobado')}</div>
         )}
         {isRejected && (
           <div className="pl-5 flex items-center gap-1 text-xs text-muted-foreground">
-            <XCircle size={11} /> Descartado
-          </div>
+            <XCircle size={11} />{t('meetingReview.descartado')}</div>
         )}
       </CardContent>
     </Card>
@@ -228,6 +217,7 @@ function InsightCard({
 // ── Right panel: live summary ─────────────────────────────────────────────────
 
 function LiveSummaryPanel({ insights }: { insights: InsightLocal[] }) {
+  const { t } = useTranslation();
   const approved = insights.filter(i => i.review_status === 'approved');
 
   const counts = useMemo(() => ({
@@ -246,23 +236,19 @@ function LiveSummaryPanel({ insights }: { insights: InsightLocal[] }) {
     <div className="space-y-4">
       <div>
         <h3 className="text-sm font-semibold flex items-center gap-2">
-          <Sparkles size={14} className="text-primary" />
-          Resumen en vivo
-        </h3>
-        <p className="text-xs text-muted-foreground mt-0.5">
-          Se actualiza al aprobar insights
-        </p>
+          <Sparkles size={14} className="text-primary" />{t('meetingReview.resumenEnVivo')}</h3>
+        <p className="text-xs text-muted-foreground mt-0.5">{t('meetingReview.seActualizaAlAprobar')}</p>
       </div>
 
       {/* Approved counts */}
       <div className="space-y-2">
         {[
-          { label: 'Tareas',       val: counts.tasks,      color: 'text-blue-600' },
-          { label: 'Decisiones',   val: counts.decisions,  color: 'text-green-600' },
-          { label: 'Leads',        val: counts.leads,      color: 'text-purple-600' },
-          { label: 'Blockers',     val: counts.blockers,   color: 'text-red-600' },
-          { label: 'Métricas',     val: counts.metrics,    color: 'text-indigo-600' },
-          { label: 'OBV updates',  val: counts.obv_update, color: 'text-orange-600' },
+          { label: t('meetingReview.tareas'),       val: counts.tasks,      color: 'text-blue-600' },
+          { label: t('meetingReview.decisiones'),   val: counts.decisions,  color: 'text-green-600' },
+          { label: t('meetingReview.leads'),        val: counts.leads,      color: 'text-purple-600' },
+          { label: t('meetingReview.blockers'),     val: counts.blockers,   color: 'text-red-600' },
+          { label: t('meetingReview.métricas'),     val: counts.metrics,    color: 'text-indigo-600' },
+          { label: t('meetingReview.obvUpdates'),  val: counts.obv_update, color: 'text-orange-600' },
         ].filter(item => item.val > 0 || total === 0).map(item => (
           <div key={item.label} className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground">{item.label}</span>
@@ -276,11 +262,11 @@ function LiveSummaryPanel({ insights }: { insights: InsightLocal[] }) {
       {/* Status line */}
       <div className="border-t border-border pt-3 space-y-1">
         <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Aprobados</span>
+          <span className="text-muted-foreground">{t('meetingReview.aprobados')}</span>
           <span className="font-medium text-green-600">{approved.length}</span>
         </div>
         <div className="flex justify-between text-xs">
-          <span className="text-muted-foreground">Pendientes</span>
+          <span className="text-muted-foreground">{t('meetingReview.pendientes')}</span>
           <span className="font-medium text-amber-600">{pending}</span>
         </div>
       </div>
@@ -393,7 +379,7 @@ export default function MeetingReviewPage() {
       await supabase.from('meeting_insights').update({ review_status: 'approved' }).eq('id', id);
       setLocalInsights(prev => prev.map(i => i.id === id ? { ...i, review_status: 'approved' } : i));
     } catch {
-      toast.error('Error al aprobar insight');
+      toast.error(t('meetingReview.errorAlAprobarInsight'));
     }
   };
 
@@ -402,7 +388,7 @@ export default function MeetingReviewPage() {
       await supabase.from('meeting_insights').update({ review_status: 'rejected' }).eq('id', id);
       setLocalInsights(prev => prev.map(i => i.id === id ? { ...i, review_status: 'rejected' } : i));
     } catch {
-      toast.error('Error al rechazar insight');
+      toast.error(t('meetingReview.errorAlRechazarInsight'));
     }
   };
 
@@ -418,7 +404,7 @@ export default function MeetingReviewPage() {
           .catch(_e => { /* Meeting Agent failed — non-fatal */ });
       }
     } catch {
-      toast.error('Error al aplicar insights');
+      toast.error(t('meetingReview.errorAlAplicarInsights'));
     } finally {
       setIsApplying(false);
     }
@@ -448,7 +434,7 @@ export default function MeetingReviewPage() {
     return (
       <div className="container max-w-3xl mx-auto py-8">
         <MeetingCompletionSummary
-          meetingTitle={meeting?.title ?? 'Reunión completada'}
+          meetingTitle={meeting?.title ?? t('meetingReview.reuniónCompletada')}
           meetingSummary={meeting?.summary ?? undefined}
           keyPoints={(meeting?.key_points as string[] | undefined) ?? []}
           results={completedSummary.results}
@@ -464,13 +450,11 @@ export default function MeetingReviewPage() {
           <SheetContent>
             <SheetHeader>
               <SheetTitle className="flex items-center gap-2">
-                <Target size={16} />
-                Tareas generadas
-              </SheetTitle>
+                <Target size={16} />{t('meetingReview.tareasGeneradas')}</SheetTitle>
             </SheetHeader>
             <div className="mt-4 space-y-3">
               {meetingTasks.length === 0 ? (
-                <p className="text-sm text-muted-foreground">No hay tareas registradas para esta reunión.</p>
+                <p className="text-sm text-muted-foreground">{t('meetingReview.noHayTareasRegistradas')}</p>
               ) : (
                 meetingTasks.map(task => (
                   <div key={task.id} className="flex items-start justify-between gap-2 rounded-md border border-border p-3">
@@ -489,7 +473,7 @@ export default function MeetingReviewPage() {
                         ? 'bg-blue-100 text-blue-700'
                         : 'bg-gray-100 text-gray-600'
                     }>
-                      {task.status === 'done' ? 'Completada' : task.status === 'in_progress' ? 'En progreso' : 'Pendiente'}
+                      {task.status === 'done' ? 'Completada': task.status === 'in_progress' ? 'En progreso': t('meetingReview.pendiente')}
                     </Badge>
                   </div>
                 ))
@@ -510,11 +494,9 @@ export default function MeetingReviewPage() {
       <div className="border-b border-border bg-background/95 backdrop-blur sticky top-0 z-10 px-6 py-3 flex items-center justify-between">
         <div className="flex items-center gap-3">
           <button onClick={handleClose} className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground">
-            <ArrowLeft size={15} />
-            Volver
-          </button>
+            <ArrowLeft size={15} />{t('meetingReview.volver')}</button>
           <span className="text-muted-foreground/50">·</span>
-          <h1 className="text-sm font-semibold">{meeting?.title ?? 'Revisión de insights'}</h1>
+          <h1 className="text-sm font-semibold">{meeting?.title ?? t('meetingReview.revisiónDeInsights')}</h1>
         </div>
         <div className="flex items-center gap-3">
           <span className="text-xs text-muted-foreground">
@@ -528,9 +510,7 @@ export default function MeetingReviewPage() {
             {isApplying ? <Loader2 size={14} className="animate-spin" /> : <Sparkles size={14} />}
             Aplicar insights aprobados
           </Button>
-          <Button variant="outline" size="sm" onClick={handleClose}>
-            Revisar más tarde
-          </Button>
+          <Button variant="outline" size="sm" onClick={handleClose}>{t('meetingReview.revisarMásTarde')}</Button>
         </div>
       </div>
 
@@ -539,17 +519,13 @@ export default function MeetingReviewPage() {
         {/* LEFT — Transcript */}
         <div className="hidden lg:flex flex-col w-[30%] border-r border-border overflow-y-auto p-4 space-y-3">
           <h3 className="text-sm font-semibold flex items-center gap-2 sticky top-0 bg-background pb-2">
-            <FileText size={14} className="text-muted-foreground" />
-            Transcripción
-          </h3>
+            <FileText size={14} className="text-muted-foreground" />{t('meetingReview.transcripción')}</h3>
           {meeting?.transcript ? (
             <p className="text-xs text-muted-foreground leading-relaxed whitespace-pre-wrap">
               {meeting.transcript}
             </p>
           ) : (
-            <p className="text-xs text-muted-foreground italic">
-              Transcripción no disponible.
-            </p>
+            <p className="text-xs text-muted-foreground italic">{t('meetingReview.transcripciónNoDisponible')}</p>
           )}
         </div>
 
@@ -584,7 +560,7 @@ export default function MeetingReviewPage() {
           {localInsights.length === 0 && (
             <div className="flex flex-col items-center justify-center py-12 text-muted-foreground">
               <Loader2 size={24} className="animate-spin mb-3" />
-              <p className="text-sm">Cargando insights...</p>
+              <p className="text-sm">{t('meetingReview.cargandoInsights')}</p>
             </div>
           )}
         </div>

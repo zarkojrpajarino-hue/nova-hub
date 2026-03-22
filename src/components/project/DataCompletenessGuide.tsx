@@ -5,6 +5,7 @@
  * "Para subir tu score necesitas: registrar costes (D2), añadir 3 OBVs (D1)"
  */
 
+import { useTranslation } from 'react-i18next';
 import { CheckCircle2, Circle, Database } from 'lucide-react';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
@@ -18,7 +19,7 @@ interface DataItem {
   impact: string;
 }
 
-function deriveDataItems(probability: {
+function deriveDataItems(t: (key: string) => string, probability: {
   phase_score_input: number | null;
   execution_rate_input: number | null;
   validation_strength_input: number | null;
@@ -29,40 +30,41 @@ function deriveDataItems(probability: {
 
   return [
     {
-      label: 'Score de fase (motor activo)',
+      label: t('dataGuide.phaseScore'),
       met: probability.phase_score_input !== null,
-      impact: 'Automático — se calcula con tus OBVs y actividad',
+      impact: t('dataGuide.phaseScoreHint'),
     },
     {
-      label: 'Tasa de ejecución (tareas completadas)',
+      label: t('dataGuide.executionRate'),
       met: probability.execution_rate_input !== null,
-      impact: 'Completa tareas semanalmente para activar este input',
+      impact: t('dataGuide.executionRateHint'),
     },
     {
-      label: 'Fuerza de validación (OBVs aprobadas)',
+      label: t('dataGuide.validationStrength'),
       met: probability.validation_strength_input !== null,
-      impact: 'Crea y valida OBVs con tu equipo',
+      impact: t('dataGuide.validationStrengthHint'),
     },
     {
-      label: 'Momentum de revenue (MRR/ventas)',
+      label: t('dataGuide.revenueMomentum'),
       met: probability.revenue_momentum_input !== null,
-      impact: 'Registra ingresos en el tab Financiero o conecta Stripe',
+      impact: t('dataGuide.revenueMomentumHint'),
     },
     {
-      label: 'Salud de capacidad (equipo + funciones)',
+      label: t('dataGuide.capacityHealth'),
       met: probability.capacity_health_input !== null,
-      impact: 'Asigna roles y completa cobertura funcional',
+      impact: t('dataGuide.capacityHealthHint'),
     },
   ];
 }
 
 export function DataCompletenessGuide({ projectId }: DataCompletenessGuideProps) {
+  const { t } = useTranslation();
   const { data: engineData } = useProjectEngineData(projectId);
   const probability = engineData?.probability ?? null;
 
   if (!probability) return null;
 
-  const items = deriveDataItems(probability);
+  const items = deriveDataItems(t, probability);
   const completedCount = items.filter(i => i.met).length;
 
   if (completedCount === items.length) return null; // All complete — hide
@@ -71,7 +73,7 @@ export function DataCompletenessGuide({ projectId }: DataCompletenessGuideProps)
     <div className="bg-card border rounded-lg p-3 space-y-2">
       <div className="flex items-center gap-2">
         <Database className="h-4 w-4 text-purple-500" />
-        <span className="text-xs font-semibold">Datos que mejoran tu score</span>
+        <span className="text-xs font-semibold">{t('dataGuide.title')}</span>
         <span className="text-[10px] text-muted-foreground ml-auto">{completedCount}/{items.length}</span>
       </div>
       <div className="space-y-1">

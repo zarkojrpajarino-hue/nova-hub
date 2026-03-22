@@ -29,6 +29,7 @@ import { HealthDiagnosticSection } from './deep-setup-sections/existing/HealthDi
 import { LocationIntelligenceSection } from './deep-setup-sections/LocationIntelligenceSection';
 import { GenericSection } from './deep-setup-sections/GenericSection';
 
+import { useTranslation } from 'react-i18next';
 // Icons for generic sections
 import {
   DollarSign,
@@ -68,6 +69,7 @@ export function DeepSetupSectionRouter({
   currentProgress,
   sectionProgressValue,
 }: DeepSetupSectionRouterProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [_saving, setSaving] = useState(false);
 
@@ -131,20 +133,20 @@ export function DeepSetupSectionRouter({
         origin: { y: 0.6 }
       });
 
-      toast.success('Section completed!', {
+      toast.success(t('onboarding.sectionCompleted'), {
         description: `Progress: ${newProgress}%. ${data.unlocked_tools?.join(', ')} unlocked!`
       });
 
       // Check if milestone reached
       if (newProgress === 50 || newProgress === 75) {
         toast.success(`🎉 Milestone reached: ${newProgress}%`, {
-          description: 'New sections unlocked!'
+          description: t('onboarding.newSectionsUnlocked')
         });
       }
 
       if (newProgress === 100) {
         toast.success('🏆 Onboarding Complete!', {
-          description: 'All features and tools are now unlocked'
+          description: t('onboarding.allFeaturesAndTools')
         });
       }
 
@@ -154,8 +156,8 @@ export function DeepSetupSectionRouter({
       }, 2000);
 
     } catch (_error) {
-      toast.error('Failed to save section', {
-        description: error instanceof Error ? error.message : 'Unknown error'
+      toast.error(t('onboarding.failedToSaveSection'), {
+        description: error instanceof Error ? error.message : t('onboarding.unknownError')
       });
       setSaving(false);
     }
@@ -191,17 +193,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="financial-planning"
-          title="Financial Planning"
-          description="Budget, runway, and funding strategy"
+          title={t('onboarding.financialPlanning')}
+          description={t('onboarding.budgetRunwayAndFunding')}
           icon={DollarSign}
           gradientFrom="from-green-500"
           gradientTo="to-emerald-600"
           progressValue={12}
-          unlockedTools={['Financial Projections', 'Fundraising Roadmap']}
+          unlockedTools={[t('onboarding.financialProjections'), t('onboarding.fundraisingRoadmap')]}
           fields={[
-            { label: 'Initial Budget', placeholder: 'How much capital do you have/need to start?', required: true },
-            { label: 'Monthly Burn Rate', placeholder: 'Estimated monthly expenses', required: true },
-            { label: 'Funding Strategy', placeholder: 'Bootstrap, angel, VC, or other?', required: false },
+            { label: t('onboarding.initialBudget'), placeholder: t('onboarding.howMuchCapitalDo'), required: true },
+            { label: t('onboarding.monthlyBurnRate'), placeholder: t('onboarding.estimatedMonthlyExpenses'), required: true },
+            { label: t('onboarding.fundingStrategy'), placeholder: t('onboarding.bootstrapAngelVcOr'), required: false },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -213,17 +215,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="validation-experiments"
-          title="Validation Experiments"
-          description="Design experiments to validate your chosen idea"
+          title={t('onboarding.validationExperiments')}
+          description={t('onboarding.designExperimentsToValidate')}
           icon={Beaker}
           gradientFrom="from-purple-500"
           gradientTo="to-pink-600"
           progressValue={15}
-          unlockedTools={['Experiment Designer', 'Results Tracker']}
+          unlockedTools={[t('onboarding.experimentDesigner'), t('onboarding.resultsTracker')]}
           fields={[
-            { label: 'Hypothesis', placeholder: 'What do you want to validate?', required: true },
-            { label: 'Experiment Design', placeholder: 'How will you test it?', required: true },
-            { label: 'Success Metrics', placeholder: 'What defines success?', required: true },
+            { label: t('onboarding.hypothesis'), placeholder: t('onboarding.whatDoYouWant'), required: true },
+            { label: t('onboarding.experimentDesign'), placeholder: t('onboarding.howWillYouTest'), required: true },
+            { label: t('onboarding.successMetrics'), placeholder: t('onboarding.whatDefinesSuccess'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -235,17 +237,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="go-to-market"
-          title="Go-to-Market Strategy"
-          description="Launch plan, channels, and early customer acquisition"
+          title={t('onboarding.gotomarketStrategy')}
+          description={t('onboarding.launchPlanChannelsAnd')}
           icon={Rocket}
           gradientFrom="from-blue-500"
           gradientTo="to-indigo-600"
           progressValue={20}
-          unlockedTools={['GTM Planner', 'Channel Optimizer', 'Launch Checklist']}
+          unlockedTools={[t('onboarding.gtmPlanner'), t('onboarding.channelOptimizer'), t('onboarding.launchChecklist')]}
           fields={[
-            { label: 'Target Launch Date', placeholder: 'When do you plan to launch?', required: false },
-            { label: 'Primary Channels', placeholder: 'How will you reach customers?', required: true },
-            { label: 'Launch Strategy', placeholder: 'Soft launch, beta, big bang?', required: true },
+            { label: t('onboarding.targetLaunchDate'), placeholder: t('onboarding.whenDoYouPlan'), required: false },
+            { label: t('onboarding.primaryChannels'), placeholder: t('onboarding.howWillYouReach'), required: true },
+            { label: t('onboarding.launchStrategy'), placeholder: t('onboarding.softLaunchBetaBig'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -287,17 +289,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="competitive-analysis"
-          title="Competitive Analysis"
-          description="SWOT vs competitors + market gaps identification"
+          title={t('onboarding.competitiveAnalysis')}
+          description={t('onboarding.swotVsCompetitorsMarket')}
           icon={Target}
           gradientFrom="from-red-500"
           gradientTo="to-orange-600"
           progressValue={12}
-          unlockedTools={['Competitor Tracker', 'Market Gap Analyzer']}
+          unlockedTools={[t('onboarding.competitorTracker'), t('onboarding.marketGapAnalyzer')]}
           fields={[
-            { label: 'Main Competitors', placeholder: 'List your top 3-5 competitors', required: true },
-            { label: 'Your Differentiation', placeholder: 'What makes you different/better?', required: true },
-            { label: 'Market Gaps', placeholder: 'Opportunities competitors are missing', required: false },
+            { label: t('onboarding.mainCompetitors'), placeholder: t('onboarding.listYourTop35'), required: true },
+            { label: t('onboarding.yourDifferentiation'), placeholder: t('onboarding.whatMakesYouDifferentbetter'), required: true },
+            { label: t('onboarding.marketGaps'), placeholder: t('onboarding.opportunitiesCompetitorsAreMissing'), required: false },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -309,17 +311,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="sales-playbook-advanced"
-          title="Advanced Sales Playbook"
-          description="Sales process, scripts, objection handling, and pricing"
+          title={t('onboarding.advancedSalesPlaybook')}
+          description={t('onboarding.salesProcessScriptsObjection')}
           icon={DollarSign}
           gradientFrom="from-green-500"
           gradientTo="to-teal-600"
           progressValue={12}
-          unlockedTools={['Sales Simulator', 'Script Generator']}
+          unlockedTools={[t('onboarding.salesSimulator'), t('onboarding.scriptGenerator')]}
           fields={[
-            { label: 'Sales Process Steps', placeholder: 'Describe your sales process (qualification → close)', required: true },
-            { label: 'Key Objections', placeholder: 'Common objections and how to handle them', required: true },
-            { label: 'Pricing Strategy', placeholder: 'How do you price and position your offer?', required: true },
+            { label: t('onboarding.salesProcessSteps'), placeholder: 'Describe your sales process (qualification → close)', required: true },
+            { label: t('onboarding.keyObjections'), placeholder: t('onboarding.commonObjectionsAndHow'), required: true },
+            { label: t('onboarding.pricingStrategy'), placeholder: t('onboarding.howDoYouPrice'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -331,17 +333,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="mvp-roadmap"
-          title="MVP Roadmap"
-          description="Feature prioritization and development timeline"
+          title={t('onboarding.mvpRoadmap')}
+          description={t('onboarding.featurePrioritizationAndDevelopment')}
           icon={GitBranch}
           gradientFrom="from-indigo-500"
           gradientTo="to-purple-600"
           progressValue={15}
-          unlockedTools={['Feature Prioritizer', 'Timeline Planner']}
+          unlockedTools={[t('onboarding.featurePrioritizer'), t('onboarding.timelinePlanner')]}
           fields={[
-            { label: 'MVP Core Features', placeholder: 'Minimum features for launch (must-haves)', required: true },
-            { label: 'Nice-to-Have Features', placeholder: 'Features for v1.1, v1.2', required: false },
-            { label: 'Development Timeline', placeholder: 'Estimated timeline and milestones', required: true },
+            { label: t('onboarding.mvpCoreFeatures'), placeholder: 'Minimum features for launch (must-haves)', required: true },
+            { label: t('onboarding.nicetohaveFeatures'), placeholder: 'Features for v1.1, v1.2', required: false },
+            { label: t('onboarding.developmentTimeline'), placeholder: t('onboarding.estimatedTimelineAndMilestones'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -353,17 +355,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="validation-plan"
-          title="Validation Plan"
-          description="Lean experiments to validate assumptions"
+          title={t('onboarding.validationPlan')}
+          description={t('onboarding.leanExperimentsToValidate')}
           icon={Beaker}
           gradientFrom="from-cyan-500"
           gradientTo="to-blue-600"
           progressValue={15}
-          unlockedTools={['Experiment Designer', 'Metrics Dashboard']}
+          unlockedTools={[t('onboarding.experimentDesigner'), t('onboarding.metricsDashboard')]}
           fields={[
-            { label: 'Key Assumptions', placeholder: 'What assumptions need validation?', required: true },
-            { label: 'Validation Experiments', placeholder: 'How will you test each assumption?', required: true },
-            { label: 'Success Criteria', placeholder: 'What results prove/disprove assumptions?', required: true },
+            { label: t('onboarding.keyAssumptions'), placeholder: t('onboarding.whatAssumptionsNeedValidation'), required: true },
+            { label: t('onboarding.validationExperiments'), placeholder: t('onboarding.howWillYouTest0'), required: true },
+            { label: t('onboarding.successCriteria'), placeholder: t('onboarding.whatResultsProvedisproveAssumptions'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -385,16 +387,16 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="data-integration"
-          title="Data Integration"
-          description="Connect Stripe, GA, Mixpanel for automated insights"
+          title={t('onboarding.dataIntegration')}
+          description={t('onboarding.connectStripeGaMixpanel')}
           icon={Database}
           gradientFrom="from-blue-500"
           gradientTo="to-cyan-600"
           progressValue={8}
-          unlockedTools={['Auto-sync', 'Real-time Metrics']}
+          unlockedTools={[t('onboarding.autosync'), t('onboarding.realtimeMetrics')]}
           fields={[
-            { label: 'Data Sources', placeholder: 'Which tools do you use? (Stripe, GA, etc.)', required: true },
-            { label: 'Key Metrics', placeholder: 'What metrics matter most?', required: true },
+            { label: t('onboarding.dataSources'), placeholder: 'Which tools do you use? (Stripe, GA, etc.)', required: true },
+            { label: t('onboarding.keyMetrics'), placeholder: t('onboarding.whatMetricsMatterMost'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -406,17 +408,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="team-alignment"
-          title="Team & Culture"
-          description="Team structure, roles, and culture assessment"
+          title={t('onboarding.teamCulture')}
+          description={t('onboarding.teamStructureRolesAnd')}
           icon={Users}
           gradientFrom="from-purple-500"
           gradientTo="to-pink-600"
           progressValue={10}
-          unlockedTools={['Team Builder', 'Culture Tracker']}
+          unlockedTools={[t('onboarding.teamBuilder'), t('onboarding.cultureTracker')]}
           fields={[
-            { label: 'Team Structure', placeholder: 'Current team composition and roles', required: true },
-            { label: 'Culture Values', placeholder: 'Core values and working principles', required: true },
-            { label: 'Alignment Challenges', placeholder: 'Where is team not aligned?', required: false },
+            { label: t('onboarding.teamStructure'), placeholder: t('onboarding.currentTeamCompositionAnd'), required: true },
+            { label: t('onboarding.cultureValues'), placeholder: t('onboarding.coreValuesAndWorking'), required: true },
+            { label: t('onboarding.alignmentChallenges'), placeholder: t('onboarding.whereIsTeamNot'), required: false },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -428,17 +430,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="growth-bottlenecks"
-          title="Growth Bottlenecks"
+          title={t('onboarding.growthBottlenecks')}
           description="Identify and prioritize what's blocking growth"
           icon={Target}
           gradientFrom="from-red-500"
           gradientTo="to-orange-600"
           progressValue={12}
-          unlockedTools={['Bottleneck Analyzer', 'Action Prioritizer']}
+          unlockedTools={[t('onboarding.bottleneckAnalyzer'), t('onboarding.actionPrioritizer')]}
           fields={[
-            { label: 'Current Bottlenecks', placeholder: 'What is limiting your growth right now?', required: true },
-            { label: 'Impact Assessment', placeholder: 'Which bottleneck has biggest impact?', required: true },
-            { label: 'Action Plan', placeholder: 'How will you address top bottlenecks?', required: true },
+            { label: t('onboarding.currentBottlenecks'), placeholder: t('onboarding.whatIsLimitingYour'), required: true },
+            { label: t('onboarding.impactAssessment'), placeholder: t('onboarding.whichBottleneckHasBiggest'), required: true },
+            { label: t('onboarding.actionPlan'), placeholder: t('onboarding.howWillYouAddress'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -450,17 +452,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="unit-economics"
-          title="Unit Economics"
-          description="CAC, LTV, payback period, and profitability analysis"
+          title={t('onboarding.unitEconomics')}
+          description={t('onboarding.cacLtvPaybackPeriod')}
           icon={LineChart}
           gradientFrom="from-green-500"
           gradientTo="to-emerald-600"
           progressValue={12}
-          unlockedTools={['Economics Calculator', 'Cohort Analysis']}
+          unlockedTools={[t('onboarding.economicsCalculator'), t('onboarding.cohortAnalysis')]}
           fields={[
-            { label: 'CAC (Customer Acquisition Cost)', placeholder: 'Average cost to acquire a customer', required: true },
-            { label: 'LTV (Lifetime Value)', placeholder: 'Average revenue per customer', required: true },
-            { label: 'Payback Period', placeholder: 'Months to recover CAC', required: false },
+            { label: 'CAC (Customer Acquisition Cost)', placeholder: t('onboarding.averageCostToAcquire'), required: true },
+            { label: 'LTV (Lifetime Value)', placeholder: t('onboarding.averageRevenuePerCustomer'), required: true },
+            { label: t('onboarding.paybackPeriod'), placeholder: 'Months to recover CAC', required: false },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -472,17 +474,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="retention-optimization"
-          title="Retention & Churn"
-          description="Churn analysis and retention improvement strategies"
+          title={t('onboarding.retentionChurn')}
+          description={t('onboarding.churnAnalysisAndRetention')}
           icon={TrendingUp}
           gradientFrom="from-blue-500"
           gradientTo="to-indigo-600"
           progressValue={12}
-          unlockedTools={['Churn Predictor', 'Retention Playbook']}
+          unlockedTools={[t('onboarding.churnPredictor'), t('onboarding.retentionPlaybook')]}
           fields={[
-            { label: 'Current Churn Rate', placeholder: 'Monthly churn percentage', required: true },
-            { label: 'Churn Reasons', placeholder: 'Why are customers leaving?', required: true },
-            { label: 'Retention Strategies', placeholder: 'How will you improve retention?', required: true },
+            { label: t('onboarding.currentChurnRate'), placeholder: t('onboarding.monthlyChurnPercentage'), required: true },
+            { label: t('onboarding.churnReasons'), placeholder: t('onboarding.whyAreCustomersLeaving'), required: true },
+            { label: t('onboarding.retentionStrategies'), placeholder: t('onboarding.howWillYouImprove'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -494,17 +496,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="scaling-roadmap"
-          title="Scaling Roadmap"
+          title={t('onboarding.scalingRoadmap')}
           description="3 scenarios (status quo, fix, growth) with action plan"
           icon={Rocket}
           gradientFrom="from-purple-500"
           gradientTo="to-pink-600"
           progressValue={15}
-          unlockedTools={['Scenario Planner', 'Growth Model', 'OKR Tracker']}
+          unlockedTools={[t('onboarding.scenarioPlanner'), t('onboarding.growthModel'), t('onboarding.okrTracker')]}
           fields={[
-            { label: 'Status Quo Scenario', placeholder: 'What happens if you change nothing?', required: true },
-            { label: 'Fix Scenario', placeholder: 'What if you fix current issues?', required: true },
-            { label: 'Growth Scenario', placeholder: 'What if everything goes right?', required: true },
+            { label: t('onboarding.statusQuoScenario'), placeholder: t('onboarding.whatHappensIfYou'), required: true },
+            { label: t('onboarding.fixScenario'), placeholder: t('onboarding.whatIfYouFix'), required: true },
+            { label: t('onboarding.growthScenario'), placeholder: t('onboarding.whatIfEverythingGoes'), required: true },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -516,17 +518,17 @@ export function DeepSetupSectionRouter({
         <GenericSection
           projectId={projectId}
           sectionId="competitive-moat"
-          title="Competitive Moat"
-          description="Build defensibility and sustainable competitive advantage"
+          title={t('onboarding.competitiveMoat')}
+          description={t('onboarding.buildDefensibilityAndSustainable')}
           icon={Shield}
           gradientFrom="from-indigo-500"
           gradientTo="to-purple-600"
           progressValue={13}
-          unlockedTools={['Moat Builder', 'Strategy Canvas']}
+          unlockedTools={[t('onboarding.moatBuilder'), t('onboarding.strategyCanvas')]}
           fields={[
-            { label: 'Current Advantages', placeholder: 'What competitive advantages do you have?', required: true },
-            { label: 'Moat Strategy', placeholder: 'How will you build defensibility?', required: true },
-            { label: 'Threats', placeholder: 'What could erode your advantages?', required: false },
+            { label: t('onboarding.currentAdvantages'), placeholder: t('onboarding.whatCompetitiveAdvantagesDo'), required: true },
+            { label: t('onboarding.moatStrategy'), placeholder: t('onboarding.howWillYouBuild'), required: true },
+            { label: t('onboarding.threats'), placeholder: t('onboarding.whatCouldErodeYour'), required: false },
           ]}
           onComplete={handleSectionComplete}
           onCancel={handleCancel}
@@ -536,11 +538,9 @@ export function DeepSetupSectionRouter({
     default:
       return (
         <div className="max-w-4xl mx-auto p-8 text-center">
-          <h2 className="text-2xl font-bold mb-4">Section Not Found</h2>
-          <p className="text-gray-600 mb-4">This section is under development.</p>
-          <button onClick={handleCancel} className="text-blue-600 hover:underline">
-            Back to Deep Setup
-          </button>
+          <h2 className="text-2xl font-bold mb-4">{t('onboarding.sectionNotFound')}</h2>
+          <p className="text-gray-600 mb-4">{t('onboarding.thisSectionIsUnder')}</p>
+          <button onClick={handleCancel} className="text-blue-600 hover:underline">{t('onboarding.backToDeepSetup')}</button>
         </div>
       );
   }

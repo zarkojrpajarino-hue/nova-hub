@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 
+import { useTranslation } from 'react-i18next';
 interface EnrichedRanking {
   id: string;
   role_name: string;
@@ -23,6 +24,7 @@ interface RankingTrendsProps {
 }
 
 export function RankingTrends({ rankings, selectedRole }: RankingTrendsProps) {
+  const { t } = useTranslation();
   // Calculate movers (biggest position changes)
   const movers = useMemo(() => {
     return rankings
@@ -103,15 +105,11 @@ export function RankingTrends({ rankings, selectedRole }: RankingTrendsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp size={20} className="text-success" />
-            Mayores Movimientos
-          </CardTitle>
+            <TrendingUp size={20} className="text-success" />{t('rankings.mayoresMovimientos')}</CardTitle>
         </CardHeader>
         <CardContent>
           {movers.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">
-              Sin cambios de posición registrados aún
-            </p>
+            <p className="text-muted-foreground text-center py-6">{t('rankings.sinCambiosDePosición')}</p>
           ) : (
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {movers.map((mover) => {
@@ -161,9 +159,7 @@ export function RankingTrends({ rankings, selectedRole }: RankingTrendsProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Users size={20} />
-            Estadísticas por Rol
-          </CardTitle>
+            <Users size={20} />{t('rankings.estadísticasPorRol')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -191,12 +187,12 @@ export function RankingTrends({ rankings, selectedRole }: RankingTrendsProps) {
                   
                   <div className="space-y-2 text-sm">
                     <div className="flex justify-between">
-                      <span className="text-muted-foreground">Score Promedio</span>
+                      <span className="text-muted-foreground">{t('rankings.scorePromedio')}</span>
                       <span className="font-medium">{stats.avgScore.toFixed(0)}%</span>
                     </div>
                     {stats.topPerformer && (
                       <div className="flex justify-between">
-                        <span className="text-muted-foreground">Top Performer</span>
+                        <span className="text-muted-foreground">{t('rankings.topPerformer')}</span>
                         <span className="font-medium text-amber-500">{stats.topPerformer}</span>
                       </div>
                     )}
@@ -211,7 +207,7 @@ export function RankingTrends({ rankings, selectedRole }: RankingTrendsProps) {
       {/* Score Distribution Chart */}
       <Card>
         <CardHeader>
-          <CardTitle>Distribución de Scores</CardTitle>
+          <CardTitle>{t('rankings.distribuciónDeScores')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="h-[300px]">

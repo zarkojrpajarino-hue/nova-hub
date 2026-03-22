@@ -6,7 +6,9 @@ import { useValidationOrder, useMyValidators, useValidatorStats } from '@/hooks/
 import { useAuth } from '@/hooks/useAuth';
 import { Skeleton } from '@/components/ui/skeleton';
 
+import { useTranslation } from 'react-i18next';
 export function ValidationOrderCard() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: order, isLoading: loadingOrder } = useValidationOrder();
   const { data: myValidators, isLoading: loadingValidators } = useMyValidators(profile?.id);
@@ -58,9 +60,7 @@ export function ValidationOrderCard() {
       <CardHeader className="pb-3">
         <CardTitle className="flex items-center justify-between">
           <span className="flex items-center gap-2">
-            <Shield size={18} className="text-primary" />
-            Sistema de Validación
-          </span>
+            <Shield size={18} className="text-primary" />{t('validation.sistemaDeValidación')}</span>
           {myStats?.is_blocked && (
             <Badge variant="destructive" className="animate-pulse">
               <AlertTriangle size={12} className="mr-1" />
@@ -72,7 +72,7 @@ export function ValidationOrderCard() {
       <CardContent className="space-y-4">
         {/* My position */}
         <div className="p-3 bg-primary/10 rounded-lg">
-          <p className="text-sm text-muted-foreground mb-1">Tu posición este mes</p>
+          <p className="text-sm text-muted-foreground mb-1">{t('validation.tuPosiciónEsteMes')}</p>
           <p className="text-2xl font-bold text-primary">#{myPosition || '-'}</p>
         </div>
 
@@ -80,7 +80,7 @@ export function ValidationOrderCard() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <ArrowUp size={14} className="text-green-500" />
-            <p className="text-sm font-medium">Te validan</p>
+            <p className="text-sm font-medium">{t('validation.teValidan')}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             {myValidators?.map((validator) => (
@@ -99,7 +99,7 @@ export function ValidationOrderCard() {
               </TooltipProvider>
             ))}
             {(!myValidators || myValidators.length === 0) && (
-              <p className="text-sm text-muted-foreground">Sin validadores asignados</p>
+              <p className="text-sm text-muted-foreground">{t('validation.sinValidadoresAsignados')}</p>
             )}
           </div>
         </div>
@@ -108,7 +108,7 @@ export function ValidationOrderCard() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <ArrowDown size={14} className="text-blue-500" />
-            <p className="text-sm font-medium">Validas a</p>
+            <p className="text-sm font-medium">{t('validation.validasA')}</p>
           </div>
           <div className="flex gap-2 flex-wrap">
             {validatees.map((person) => (
@@ -133,21 +133,19 @@ export function ValidationOrderCard() {
         {myStats && (
           <div className="pt-3 border-t border-border">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Tasa a tiempo</span>
+              <span className="text-muted-foreground">{t('validation.tasaATiempo')}</span>
               <span className={`font-bold ${onTimeRate >= 80 ? 'text-success' : onTimeRate >= 50 ? 'text-warning' : 'text-destructive'}`}>
                 {onTimeRate}%
               </span>
             </div>
             <div className="flex items-center justify-between text-sm mt-1">
-              <span className="text-muted-foreground">Total validaciones</span>
+              <span className="text-muted-foreground">{t('validation.totalValidaciones')}</span>
               <span className="font-medium">{myStats.total_validations}</span>
             </div>
             {myStats.missed_validations > 0 && (
               <div className="flex items-center justify-between text-sm mt-1">
                 <span className="text-muted-foreground flex items-center gap-1">
-                  <Clock size={12} className="text-destructive" />
-                  Perdidas
-                </span>
+                  <Clock size={12} className="text-destructive" />{t('validation.perdidas')}</span>
                 <span className="font-medium text-destructive">{myStats.missed_validations}</span>
               </div>
             )}
@@ -171,7 +169,7 @@ export function ValidationOrderCard() {
                   {o.profile?.nombre.charAt(0) || '?'}
                 </div>
                 <span className={o.user_id === profile?.id ? 'font-semibold' : ''}>
-                  {o.profile?.nombre || 'Usuario'}
+                  {o.profile?.nombre || t('validation.usuario')}
                 </span>
                 {o.user_id === profile?.id && (
                   <Badge variant="outline" className="ml-auto text-xs">Tú</Badge>

@@ -20,6 +20,7 @@ import { toast } from 'sonner';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface DataSource {
   type: 'google_maps' | 'linkedin' | 'website' | 'email_finder' | 'manual' | 'simulated';
   url?: string;
@@ -79,6 +80,7 @@ interface GeneratedLead {
 }
 
 export function AILeadFinder() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currentProject } = useCurrentProject();
 
@@ -97,12 +99,12 @@ export function AILeadFinder() {
 
   const handleGenerate = async () => {
     if (!targetIndustry || !yourProductService) {
-      toast.error('Por favor completa al menos la industria objetivo y tu producto/servicio');
+      toast.error(t('crm.porFavorCompletaAl'));
       return;
     }
 
     if (!user?.id || !currentProject?.id) {
-      toast.error('Usuario o proyecto no encontrado');
+      toast.error(t('crm.usuarioOProyectoNo'));
       return;
     }
 
@@ -129,8 +131,8 @@ export function AILeadFinder() {
           },
             criteria: {
               industry: targetIndustry,
-              companySize: companySize === 'any' ? 'Cualquiera' : companySize || 'Cualquiera',
-              revenueRange: revenueRange === 'any' ? 'Cualquiera' : revenueRange || 'Cualquiera',
+              companySize: companySize === 'any' ? 'Cualquiera': companySize || t('crm.cualquiera1'),
+              revenueRange: revenueRange === 'any' ? 'Cualquiera': revenueRange || t('crm.cualquiera1'),
               idealCustomerProfile,
               productService: yourProductService,
             },
@@ -174,20 +176,20 @@ export function AILeadFinder() {
         }
 
         return {
-          company_name: lead.business_name || 'Unknown Company',
-          industry: lead.industry || 'Unknown',
-          location: lead.location || 'Unknown',
+          company_name: lead.business_name || t('crm.unknownCompany'),
+          industry: lead.industry || t('crm.unknown'),
+          location: lead.location || t('crm.unknown'),
           estimated_revenue: lead.estimated_value ? `€${lead.estimated_value.toLocaleString()}` : '€50,000 - €100,000',
           employee_count: lead.estimated_size === 'micro' ? '1-10' :
                          lead.estimated_size === 'small' ? '11-50' :
                          lead.estimated_size === 'medium' ? '51-200' : '10-50',
-          contact_name: lead.contact_info?.name || 'Manager General',
-          contact_title: lead.contact_info?.title || 'Director',
+          contact_name: lead.contact_info?.name || t('crm.managerGeneral'),
+          contact_title: lead.contact_info?.title || t('crm.director'),
           contact_email: lead.contact_info?.email || 'info@company.com',
           contact_phone: lead.contact_info?.phone || lead.phone,
-          pain_points: lead.suggested_pitch?.pain_points || ['Necesita optimizar procesos', 'Busca mejorar resultados'],
-          why_good_fit: lead.suggested_pitch?.why_fit || 'Perfil ideal según criterios de búsqueda',
-          talking_points: lead.suggested_pitch?.talking_points || ['Experiencia en el sector', 'Solución adaptada a sus necesidades'],
+          pain_points: lead.suggested_pitch?.pain_points || [t('crm.necesitaOptimizarProcesos'), t('crm.buscaMejorarResultados')],
+          why_good_fit: lead.suggested_pitch?.why_fit || t('crm.perfilIdealSegúnCriterios'),
+          talking_points: lead.suggested_pitch?.talking_points || [t('crm.experienciaEnElSector'), t('crm.soluciónAdaptadaASus')],
           // Evidence System fields
           sources: sources,
           verification_links: {
@@ -210,7 +212,7 @@ export function AILeadFinder() {
         toast.info('✅ Verifica en Supabase: SELECT COUNT(*) FROM evidence_generation_metrics');
       }, 2000);
     } catch (_error) {
-      toast.error('Error al generar leads: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al generar leads: ' + (error instanceof Error ? error.message : t('crm.errorDesconocido')));
     } finally {
       setIsGenerating(false);
     }
@@ -218,7 +220,7 @@ export function AILeadFinder() {
 
   const handleSaveLead = async (lead: GeneratedLead) => {
     if (!user?.id || !currentProject?.id) {
-      toast.error('Usuario o proyecto no encontrado');
+      toast.error(t('crm.usuarioOProyectoNo'));
       return;
     }
 
@@ -243,7 +245,7 @@ export function AILeadFinder() {
         industria: lead.industry,
         ubicacion: locationStr,
         estado: 'nuevo',
-        fuente: 'AI Lead Finder',
+        fuente: t('crm.aiLeadFinder2'),
         notas: notes,
       });
 
@@ -251,7 +253,7 @@ export function AILeadFinder() {
 
       toast.success(`Lead "${lead.company_name}" guardado en CRM`);
     } catch (_error) {
-      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : t('crm.errorDesconocido')));
     } finally {
       setIsSaving(false);
     }
@@ -259,7 +261,7 @@ export function AILeadFinder() {
 
   const handleSaveAll = async () => {
     if (!user?.id || !currentProject?.id) {
-      toast.error('Usuario o proyecto no encontrado');
+      toast.error(t('crm.usuarioOProyectoNo'));
       return;
     }
 
@@ -285,7 +287,7 @@ export function AILeadFinder() {
           industria: lead.industry,
           ubicacion: locationStr,
           estado: 'nuevo',
-          fuente: 'AI Lead Finder',
+          fuente: t('crm.aiLeadFinder2'),
           notas: notes,
         };
       });
@@ -297,7 +299,7 @@ export function AILeadFinder() {
       toast.success(`${leadsToInsert.length} leads guardados en CRM`);
       setGeneratedLeads([]);
     } catch (_error) {
-      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al guardar: ' + (error instanceof Error ? error.message : t('crm.errorDesconocido')));
     } finally {
       setIsSaving(false);
     }
@@ -313,7 +315,7 @@ export function AILeadFinder() {
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
-              <CardTitle>AI Lead Finder</CardTitle>
+              <CardTitle>{t('crm.aiLeadFinder')}</CardTitle>
               <CardDescription>
                 Genera leads cualificados automáticamente con IA basándose en tu ICP
               </CardDescription>
@@ -325,8 +327,8 @@ export function AILeadFinder() {
       {/* Criteria Form */}
       <Card>
         <CardHeader>
-          <CardTitle className="text-base">Criterios de búsqueda</CardTitle>
-          <CardDescription>Define tu cliente ideal y la IA encontrará empresas que encajan</CardDescription>
+          <CardTitle className="text-base">{t('crm.criteriosDeBúsqueda')}</CardTitle>
+          <CardDescription>{t('crm.defineTuClienteIdeal')}</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           {/* Product/Service */}
@@ -334,15 +336,13 @@ export function AILeadFinder() {
             <Label htmlFor="productService">Tu producto/servicio *</Label>
             <Textarea
               id="productService"
-              placeholder="Ej: Software de gestión de proyectos para equipos remotos"
+              placeholder={t('crm.ejSoftwareDeGestión')}
               value={yourProductService}
               onChange={(e) => setYourProductService(e.target.value)}
               disabled={isGenerating}
               rows={2}
             />
-            <p className="text-xs text-muted-foreground">
-              Describe brevemente qué vendes
-            </p>
+            <p className="text-xs text-muted-foreground">{t('crm.describeBrevementeQuéVendes')}</p>
           </div>
 
           {/* Target Industry */}
@@ -350,7 +350,7 @@ export function AILeadFinder() {
             <Label htmlFor="targetIndustry">Industria objetivo *</Label>
             <Input
               id="targetIndustry"
-              placeholder="Ej: SaaS, E-commerce, Marketing digital, Construcción..."
+              placeholder={t('crm.ejSaasEcommerceMarketing')}
               value={targetIndustry}
               onChange={(e) => setTargetIndustry(e.target.value)}
               disabled={isGenerating}
@@ -360,10 +360,10 @@ export function AILeadFinder() {
           {/* Location & Company Size */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="targetLocation">Ubicación</Label>
+              <Label htmlFor="targetLocation">{t('crm.ubicación')}</Label>
               <Input
                 id="targetLocation"
-                placeholder="Ej: España, LATAM, USA..."
+                placeholder={t('crm.ejEspañaLatamUsa')}
                 value={targetLocation}
                 onChange={(e) => setTargetLocation(e.target.value)}
                 disabled={isGenerating}
@@ -371,17 +371,17 @@ export function AILeadFinder() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="companySize">Tamaño de empresa</Label>
+              <Label htmlFor="companySize">{t('crm.tamañoDeEmpresa')}</Label>
               <Select
                 value={companySize}
                 onValueChange={setCompanySize}
                 disabled={isGenerating}
               >
                 <SelectTrigger id="companySize">
-                  <SelectValue placeholder="Cualquiera" />
+                  <SelectValue placeholder={t('crm.cualquiera1')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Cualquiera</SelectItem>
+                  <SelectItem value="any">{t('crm.cualquiera')}</SelectItem>
                   <SelectItem value="1-10">1-10 empleados</SelectItem>
                   <SelectItem value="11-50">11-50 empleados</SelectItem>
                   <SelectItem value="51-200">51-200 empleados</SelectItem>
@@ -395,17 +395,17 @@ export function AILeadFinder() {
           {/* Revenue & Lead Count */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
-              <Label htmlFor="revenueRange">Rango de facturación</Label>
+              <Label htmlFor="revenueRange">{t('crm.rangoDeFacturación')}</Label>
               <Select
                 value={revenueRange}
                 onValueChange={setRevenueRange}
                 disabled={isGenerating}
               >
                 <SelectTrigger id="revenueRange">
-                  <SelectValue placeholder="Cualquiera" />
+                  <SelectValue placeholder={t('crm.cualquiera1')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="any">Cualquiera</SelectItem>
+                  <SelectItem value="any">{t('crm.cualquiera')}</SelectItem>
                   <SelectItem value="0-100k">$0 - $100k</SelectItem>
                   <SelectItem value="100k-500k">$100k - $500k</SelectItem>
                   <SelectItem value="500k-1M">$500k - $1M</SelectItem>
@@ -416,7 +416,7 @@ export function AILeadFinder() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="leadCount">Cantidad de leads</Label>
+              <Label htmlFor="leadCount">{t('crm.cantidadDeLeads')}</Label>
               <Select
                 value={leadCount}
                 onValueChange={setLeadCount}
@@ -440,15 +440,13 @@ export function AILeadFinder() {
             <Label htmlFor="idealCustomerProfile">Perfil de cliente ideal (ICP)</Label>
             <Textarea
               id="idealCustomerProfile"
-              placeholder="Ej: Startups tecnológicas en fase de crecimiento que necesitan escalar sus operaciones..."
+              placeholder={t('crm.ejStartupsTecnológicasEn')}
               value={idealCustomerProfile}
               onChange={(e) => setIdealCustomerProfile(e.target.value)}
               disabled={isGenerating}
               rows={3}
             />
-            <p className="text-xs text-muted-foreground">
-              Opcional: Añade detalles adicionales sobre tu cliente ideal
-            </p>
+            <p className="text-xs text-muted-foreground">{t('crm.opcionalAñadeDetallesAdicionales')}</p>
           </div>
 
           {/* Generate Button - Simple Direct Call */}
@@ -460,9 +458,7 @@ export function AILeadFinder() {
           >
             {isGenerating ? (
               <>
-                <Loader2 className="h-5 w-5 animate-spin" />
-                Generando leads...
-              </>
+                <Loader2 className="h-5 w-5 animate-spin" />{t('crm.generandoLeads')}</>
             ) : (
               <>
                 <Sparkles className="h-5 w-5" />
@@ -471,9 +467,7 @@ export function AILeadFinder() {
             )}
           </Button>
 
-          <p className="text-xs text-muted-foreground text-center">
-            Esta función está instrumentada con el Evidence System y guardará métricas en la base de datos.
-          </p>
+          <p className="text-xs text-muted-foreground text-center">{t('crm.estaFunciónEstáInstrumentada')}</p>
         </CardContent>
       </Card>
 
@@ -512,14 +506,10 @@ export function AILeadFinder() {
                         <h4 className="font-bold text-lg">{lead.company_name}</h4>
                         {lead.is_verified ? (
                           <Badge variant="default" className="gap-1 bg-green-500/10 text-green-700 dark:text-green-400 border-green-500/20">
-                            <Shield size={12} />
-                            Verificado
-                          </Badge>
+                            <Shield size={12} />{t('crm.verificado')}</Badge>
                         ) : (
                           <Badge variant="outline" className="gap-1 bg-yellow-500/10 text-yellow-700 dark:text-yellow-400 border-yellow-500/20">
-                            <AlertTriangle size={12} />
-                            Datos simulados
-                          </Badge>
+                            <AlertTriangle size={12} />{t('crm.datosSimulados')}</Badge>
                         )}
                         {lead.confidence_score && (
                           <span className="text-xs text-muted-foreground">
@@ -594,9 +584,7 @@ export function AILeadFinder() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                         >
-                          <Globe size={12} />
-                          Website
-                          <ExternalLink size={10} />
+                          <Globe size={12} />{t('crm.website')}<ExternalLink size={10} />
                         </a>
                       )}
                       {lead.verification_links.google_maps && (
@@ -606,9 +594,7 @@ export function AILeadFinder() {
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
                         >
-                          <MapPin size={12} />
-                          Ver en Google Maps
-                          <ExternalLink size={10} />
+                          <MapPin size={12} />{t('crm.verEnGoogleMaps')}<ExternalLink size={10} />
                         </a>
                       )}
                       {lead.verification_links.linkedin && (
@@ -617,9 +603,7 @@ export function AILeadFinder() {
                           target="_blank"
                           rel="noopener noreferrer"
                           className="inline-flex items-center gap-1 text-xs text-primary hover:underline"
-                        >
-                          LinkedIn
-                          <ExternalLink size={10} />
+                        >{t('crm.linkedin')}<ExternalLink size={10} />
                         </a>
                       )}
                     </div>
@@ -701,9 +685,7 @@ export function AILeadFinder() {
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     className="text-primary hover:underline inline-flex items-center gap-1"
-                                  >
-                                    Ver fuente
-                                    <ExternalLink size={10} />
+                                  >{t('crm.verFuente')}<ExternalLink size={10} />
                                   </a>
                                 )}
                               </div>

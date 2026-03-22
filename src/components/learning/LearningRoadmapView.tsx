@@ -23,6 +23,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface LearningRoadmapStep {
   id: string;
   role_name: string;
@@ -47,6 +48,7 @@ export function LearningRoadmapView({
   projectId,
   memberId,
 }: LearningRoadmapViewProps) {
+  const { t } = useTranslation();
   const [selectedStep, setSelectedStep] = useState<string | null>(null);
 
   // Fetch roadmap steps
@@ -94,12 +96,8 @@ export function LearningRoadmapView({
       <Card>
         <CardContent className="p-6 text-center">
           <BookOpen className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-semibold mb-2">
-            No hay roadmap de aprendizaje
-          </h3>
-          <p className="text-gray-600 mb-4">
-            Genera un roadmap personalizado con IA para comenzar tu viaje de aprendizaje
-          </p>
+          <h3 className="text-lg font-semibold mb-2">{t('learning.noHayRoadmapDe')}</h3>
+          <p className="text-gray-600 mb-4">{t('learning.generaUnRoadmapPersonalizado')}</p>
           <Button>
             <Sparkles className="h-4 w-4 mr-2" />
             Generar Roadmap con IA
@@ -119,9 +117,7 @@ export function LearningRoadmapView({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="h-5 w-5 text-primary" />
-            Progreso General
-          </CardTitle>
+            <TrendingUp className="h-5 w-5 text-primary" />{t('learning.progresoGeneral')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -201,9 +197,9 @@ export function LearningRoadmapView({
                             step.status === 'locked' && 'bg-gray-400'
                           )}
                         >
-                          {step.status === 'completed' && 'Completado'}
-                          {step.status === 'active' && 'En Progreso'}
-                          {step.status === 'locked' && 'Bloqueado'}
+                          {step.status === 'completed' && t('learning.completado')}
+                          {step.status === 'active' && t('learning.enProgreso')}
+                          {step.status === 'locked' && t('learning.bloqueado')}
                         </Badge>
                       </div>
 
@@ -218,7 +214,7 @@ export function LearningRoadmapView({
                       {step.status === 'active' && (
                         <div className="mt-3 space-y-2">
                           <div className="flex items-center justify-between text-xs">
-                            <span>Progreso</span>
+                            <span>{t('learning.progreso')}</span>
                             <span className="font-semibold">
                               {progressPercentage.toFixed(0)}%
                             </span>
@@ -231,7 +227,7 @@ export function LearningRoadmapView({
 
                   {/* Time estimate */}
                   <div className="text-right">
-                    <p className="text-xs text-gray-500">Tiempo estimado</p>
+                    <p className="text-xs text-gray-500">{t('learning.tiempoEstimado')}</p>
                     <p className="text-sm font-semibold">
                       {step.estimated_weeks}{' '}
                       {step.estimated_weeks === 1 ? 'semana' : 'semanas'}
@@ -246,18 +242,16 @@ export function LearningRoadmapView({
                   {/* Requirements */}
                   <div>
                     <h4 className="font-semibold text-sm mb-2 flex items-center gap-2">
-                      <Target className="h-4 w-4 text-primary" />
-                      Requisitos para Completar
-                    </h4>
+                      <Target className="h-4 w-4 text-primary" />{t('learning.requisitosParaCompletar')}</h4>
                     <div className="grid grid-cols-2 gap-3">
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-600 mb-1">Tareas</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('learning.tareas')}</p>
                         <p className="text-lg font-bold">
                           {step.tasks_completed} / {step.tasks_required}
                         </p>
                       </div>
                       <div className="bg-gray-50 rounded-lg p-3">
-                        <p className="text-xs text-gray-600 mb-1">OBVs</p>
+                        <p className="text-xs text-gray-600 mb-1">{t('learning.obvs')}</p>
                         <p className="text-lg font-bold">
                           {step.obvs_completed} / {step.obvs_required}
                         </p>
@@ -268,9 +262,7 @@ export function LearningRoadmapView({
                   {/* Skills to Learn */}
                   {step.skills_to_learn && step.skills_to_learn.length > 0 && (
                     <div>
-                      <h4 className="font-semibold text-sm mb-2">
-                        Habilidades a Desarrollar
-                      </h4>
+                      <h4 className="font-semibold text-sm mb-2">{t('learning.habilidadesADesarrollar')}</h4>
                       <div className="flex flex-wrap gap-2">
                         {step.skills_to_learn.map((skill, idx) => (
                           <Badge key={idx} variant="secondary" className="text-xs">
@@ -286,16 +278,14 @@ export function LearningRoadmapView({
                     <div className="bg-amber-50 border border-amber-200 rounded-lg p-3">
                       <p className="text-sm text-amber-800">
                         <Lock className="h-4 w-4 inline mr-1" />
-                        {step.unlock_criteria || 'Completa el paso anterior para desbloquear'}
+                        {step.unlock_criteria || t('learning.completaElPasoAnterior')}
                       </p>
                     </div>
                   )}
 
                   {/* Action Button */}
                   {step.status === 'active' && (
-                    <Button className="w-full">
-                      Ir a Tareas del Rol
-                    </Button>
+                    <Button className="w-full">{t('learning.irATareasDel')}</Button>
                   )}
                 </CardContent>
               )}

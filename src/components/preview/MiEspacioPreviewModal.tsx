@@ -4,7 +4,7 @@
  * Modal interactivo que muestra TODAS las funcionalidades de Mi Espacio
  * (workspace personal del usuario) con datos demo enterprise-level.
  *
- * Se activa desde el botón "Ver Sección en Acción" en HowItWorks
+ * Se activa desde el botón t('preview.verSecciónEnAcción') en HowItWorks
  */
 
 import { useState } from 'react';
@@ -14,6 +14,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -42,8 +43,8 @@ interface MiEspacioPreviewModalProps {
 
 // Datos demo enterprise-level de un usuario real
 const DEMO_USER = {
-  nombre: 'María García',
-  rol: 'Senior Product Manager',
+  nombre: t('preview.maríaGarcía'),
+  rol: t('preview.seniorProductManager'),
   email: 'maria.garcia@company.com',
   avatar_url: null,
   stats: {
@@ -60,8 +61,8 @@ const DEMO_USER = {
   tareas_activas: [
     {
       id: 1,
-      titulo: 'Revisar roadmap Q2 con stakeholders',
-      proyecto: 'Enterprise SaaS Platform',
+      titulo: t('preview.revisarRoadmapQ2Con'),
+      proyecto: t('preview.enterpriseSaasPlatform'),
       prioridad: 'high',
       deadline: '2026-02-05',
       progreso: 65,
@@ -69,8 +70,8 @@ const DEMO_USER = {
     },
     {
       id: 2,
-      titulo: 'Preparar presentación para board meeting',
-      proyecto: 'Corporate Strategy',
+      titulo: t('preview.prepararPresentaciónParaBoard'),
+      proyecto: t('preview.corporateStrategy'),
       prioridad: 'high',
       deadline: '2026-02-07',
       progreso: 40,
@@ -78,8 +79,8 @@ const DEMO_USER = {
     },
     {
       id: 3,
-      titulo: 'Review de backlog con equipo de desarrollo',
-      proyecto: 'Enterprise SaaS Platform',
+      titulo: t('preview.reviewDeBacklogCon'),
+      proyecto: t('preview.enterpriseSaasPlatform'),
       prioridad: 'medium',
       deadline: '2026-02-10',
       progreso: 80,
@@ -87,8 +88,8 @@ const DEMO_USER = {
     },
     {
       id: 4,
-      titulo: 'Analizar feedback de usuarios beta',
-      proyecto: 'Mobile App Launch',
+      titulo: t('preview.analizarFeedbackDeUsuarios'),
+      proyecto: t('preview.mobileAppLaunch'),
       prioridad: 'medium',
       deadline: '2026-02-12',
       progreso: 25,
@@ -96,8 +97,8 @@ const DEMO_USER = {
     },
     {
       id: 5,
-      titulo: 'Documentar proceso de onboarding clientes',
-      proyecto: 'Customer Success',
+      titulo: t('preview.documentarProcesoDeOnboarding'),
+      proyecto: t('preview.customerSuccess'),
       prioridad: 'low',
       deadline: '2026-02-15',
       progreso: 10,
@@ -107,18 +108,18 @@ const DEMO_USER = {
   obvs_recientes: [
     {
       id: 1,
-      titulo: 'Nuevo dashboard de analytics validado por cliente enterprise',
+      titulo: t('preview.nuevoDashboardDeAnalytics'),
       tipo: 'validada',
-      proyecto: 'Enterprise SaaS Platform',
+      proyecto: t('preview.enterpriseSaasPlatform'),
       fecha: '2026-02-01',
       valor: 8500,
       impacto: 'high',
     },
     {
       id: 2,
-      titulo: 'Feature de exportación a Excel implementada',
+      titulo: t('preview.featureDeExportaciónA'),
       tipo: 'validada',
-      proyecto: 'Enterprise SaaS Platform',
+      proyecto: t('preview.enterpriseSaasPlatform'),
       fecha: '2026-01-28',
       valor: 3200,
       impacto: 'medium',
@@ -127,16 +128,16 @@ const DEMO_USER = {
       id: 3,
       titulo: 'Optimización de flujo de onboarding (-40% tiempo)',
       tipo: 'validada',
-      proyecto: 'Customer Success',
+      proyecto: t('preview.customerSuccess'),
       fecha: '2026-01-25',
       valor: 5600,
       impacto: 'high',
     },
     {
       id: 4,
-      titulo: 'Integración con Slack para notificaciones en tiempo real',
+      titulo: t('preview.integraciónConSlackPara'),
       tipo: 'en_validacion',
-      proyecto: 'Enterprise SaaS Platform',
+      proyecto: t('preview.enterpriseSaasPlatform'),
       fecha: '2026-02-02',
       valor: 4200,
       impacto: 'medium',
@@ -145,7 +146,7 @@ const DEMO_USER = {
   learning_paths: [
     {
       id: 1,
-      titulo: 'Advanced Product Management',
+      titulo: t('preview.advancedProductManagement'),
       progreso: 100,
       completado: true,
       modulos_total: 8,
@@ -155,23 +156,23 @@ const DEMO_USER = {
     },
     {
       id: 2,
-      titulo: 'Data-Driven Decision Making',
+      titulo: t('preview.datadrivenDecisionMaking'),
       progreso: 75,
       completado: false,
       modulos_total: 6,
       modulos_completados: 4,
       certificado: false,
-      proximo_modulo: 'Advanced Analytics with Python',
+      proximo_modulo: t('preview.advancedAnalyticsWithPython'),
     },
     {
       id: 3,
-      titulo: 'Leadership & Team Management',
+      titulo: t('preview.leadershipTeamManagement'),
       progreso: 45,
       completado: false,
       modulos_total: 10,
       modulos_completados: 4,
       certificado: false,
-      proximo_modulo: 'Conflict Resolution Strategies',
+      proximo_modulo: t('preview.conflictResolutionStrategies'),
     },
   ],
   notificaciones: [
@@ -179,31 +180,31 @@ const DEMO_USER = {
       id: 1,
       tipo: 'urgente',
       titulo: 'Deadline próximo: Roadmap Q2',
-      mensaje: 'Tu tarea vence en 2 días',
+      mensaje: t('preview.tuTareaVenceEn'),
       fecha: '2026-02-03',
       leida: false,
     },
     {
       id: 2,
       tipo: 'logro',
-      titulo: '¡Nuevo logro desbloqueado!',
-      mensaje: 'Has completado 45 días consecutivos de actividad',
+      titulo: t('preview.nuevoLogroDesbloqueado'),
+      mensaje: t('preview.hasCompletado45Días'),
       fecha: '2026-02-03',
       leida: false,
     },
     {
       id: 3,
       tipo: 'info',
-      titulo: 'Nueva respuesta en comentario',
-      mensaje: 'Carlos Mendoza respondió a tu comentario en "Analytics Dashboard"',
+      titulo: t('preview.nuevaRespuestaEnComentario'),
+      mensaje: 'Carlos Mendoza respondió a tu comentario en Analytics Dashboard',
       fecha: '2026-02-02',
       leida: false,
     },
     {
       id: 4,
       tipo: 'info',
-      titulo: 'Nuevo módulo disponible',
-      mensaje: 'El módulo "Advanced Analytics with Python" ya está disponible',
+      titulo: t('preview.nuevoMóduloDisponible'),
+      mensaje: 'El módulo Advanced Analytics with Python ya está disponible',
       fecha: '2026-02-01',
       leida: true,
     },
@@ -220,7 +221,7 @@ const DEMO_USER = {
     },
     {
       id: 2,
-      titulo: 'Board Meeting Presentation',
+      titulo: t('preview.boardMeetingPresentation'),
       tipo: 'presentation',
       fecha: '2026-02-07',
       hora: '2:00 PM',
@@ -242,9 +243,9 @@ const DEMO_USER = {
 const SLIDES = [
   {
     id: 'intro',
-    title: 'Mi Espacio - Tu Workspace Personal',
+    title: t('preview.miEspacioTuWorkspace'),
     icon: User,
-    description: 'Tu hub centralizado con todas tus tareas, OBVs, aprendizaje y notificaciones en un solo lugar.',
+    description: t('preview.tuHubCentralizadoCon'),
     content: (
       <div className="space-y-6">
         {/* User Profile Card */}
@@ -276,7 +277,7 @@ const SLIDES = [
             <CardContent className="pt-4">
               <div className="flex items-center gap-2 mb-2">
                 <CheckSquare className="w-5 h-5 text-green-600" />
-                <p className="text-xs text-muted-foreground">Tareas</p>
+                <p className="text-xs text-muted-foreground">{t('preview.tareas')}</p>
               </div>
               <p className="text-2xl font-bold">{DEMO_USER.stats.tareas_completadas}</p>
               <p className="text-xs text-muted-foreground mt-1">{DEMO_USER.stats.tareas_activas} activas</p>
@@ -287,7 +288,7 @@ const SLIDES = [
             <CardContent className="pt-4">
               <div className="flex items-center gap-2 mb-2">
                 <Target className="w-5 h-5 text-blue-600" />
-                <p className="text-xs text-muted-foreground">OBVs</p>
+                <p className="text-xs text-muted-foreground">{t('preview.obvs')}</p>
               </div>
               <p className="text-2xl font-bold">{DEMO_USER.stats.obvs_creadas}</p>
               <p className="text-xs text-green-600 mt-1">{DEMO_USER.stats.obvs_validadas} validadas</p>
@@ -298,7 +299,7 @@ const SLIDES = [
             <CardContent className="pt-4">
               <div className="flex items-center gap-2 mb-2">
                 <BookOpen className="w-5 h-5 text-purple-600" />
-                <p className="text-xs text-muted-foreground">Learning</p>
+                <p className="text-xs text-muted-foreground">{t('preview.learning')}</p>
               </div>
               <p className="text-2xl font-bold">{DEMO_USER.stats.learning_paths_completados}</p>
               <p className="text-xs text-muted-foreground mt-1">{DEMO_USER.stats.learning_paths_en_curso} en curso</p>
@@ -309,7 +310,7 @@ const SLIDES = [
             <CardContent className="pt-4">
               <div className="flex items-center gap-2 mb-2">
                 <Award className="w-5 h-5 text-amber-600" />
-                <p className="text-xs text-muted-foreground">Nivel</p>
+                <p className="text-xs text-muted-foreground">{t('preview.nivel')}</p>
               </div>
               <p className="text-2xl font-bold">{DEMO_USER.stats.nivel}</p>
               <Progress value={65} className="h-1 mt-2" />
@@ -319,25 +320,23 @@ const SLIDES = [
 
         <div className="p-4 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
           <h4 className="font-semibold mb-2 flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            ¿Qué puedes hacer en Mi Espacio?
-          </h4>
+            <Sparkles className="w-5 h-5 text-primary" />{t('preview.quéPuedesHacerEn')}</h4>
           <ul className="space-y-2 text-sm">
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Gestionar todas tus tareas con prioridades y deadlines visuales</span>
+              <span>{t('preview.gestionarTodasTusTareas')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Trackear tus OBVs (Objetivos de Valor) y su impacto en revenue</span>
+              <span>{t('preview.trackearTusObvsObjetivos')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Seguir tu progreso en learning paths con certificaciones</span>
+              <span>{t('preview.seguirTuProgresoEn')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
-              <span>Recibir notificaciones inteligentes y gestionar tu calendario</span>
+              <span>{t('preview.recibirNotificacionesInteligentesY')}</span>
             </li>
             <li className="flex items-start gap-2">
               <span className="text-primary mt-0.5">✓</span>
@@ -350,9 +349,9 @@ const SLIDES = [
   },
   {
     id: 'perfil-stats',
-    title: 'Perfil y Estadísticas Personales',
+    title: t('preview.perfilYEstadísticasPersonales'),
     icon: User,
-    description: 'Tu progreso, logros y performance en tiempo real con insights personalizados.',
+    description: t('preview.tuProgresoLogrosY'),
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-2 gap-4">
@@ -360,14 +359,12 @@ const SLIDES = [
           <Card className="border-primary/20">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                <TrendingUp className="w-4 h-4 text-green-600" />
-                Performance Este Mes
-              </CardTitle>
+                <TrendingUp className="w-4 h-4 text-green-600" />{t('preview.performanceEsteMes')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="group relative p-2 rounded-lg bg-muted/50 hover:bg-primary/5 transition-all cursor-pointer">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Tareas Completadas</span>
+                  <span className="text-xs text-muted-foreground">{t('preview.tareasCompletadas')}</span>
                   <span className="text-sm font-bold">24</span>
                 </div>
                 <Progress value={85} className="h-1 mt-2" />
@@ -378,7 +375,7 @@ const SLIDES = [
 
               <div className="group relative p-2 rounded-lg bg-muted/50 hover:bg-primary/5 transition-all cursor-pointer">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">OBVs Validadas</span>
+                  <span className="text-xs text-muted-foreground">{t('preview.obvsValidadas')}</span>
                   <span className="text-sm font-bold">5</span>
                 </div>
                 <Progress value={70} className="h-1 mt-2" />
@@ -389,7 +386,7 @@ const SLIDES = [
 
               <div className="group relative p-2 rounded-lg bg-muted/50 hover:bg-primary/5 transition-all cursor-pointer">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs text-muted-foreground">Módulos Completados</span>
+                  <span className="text-xs text-muted-foreground">{t('preview.módulosCompletados')}</span>
                   <span className="text-sm font-bold">3</span>
                 </div>
                 <Progress value={60} className="h-1 mt-2" />
@@ -404,30 +401,26 @@ const SLIDES = [
           <Card className="border-amber-500/20 bg-gradient-to-br from-amber-500/5 to-orange-500/5">
             <CardHeader className="pb-3">
               <CardTitle className="text-sm flex items-center gap-2">
-                <Award className="w-4 h-4 text-amber-600" />
-                Logros y Reconocimientos
-              </CardTitle>
+                <Award className="w-4 h-4 text-amber-600" />{t('preview.logrosYReconocimientos')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-3">
               <div className="flex items-center justify-between p-2 rounded-lg bg-background/50">
                 <div className="flex items-center gap-2">
                   <div className="text-2xl">🔥</div>
                   <div>
-                    <p className="text-xs font-semibold">Racha Épica</p>
+                    <p className="text-xs font-semibold">{t('preview.rachaÉpica')}</p>
                     <p className="text-[10px] text-muted-foreground">45 días consecutivos</p>
                   </div>
                 </div>
-                <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-600">
-                  Nuevo
-                </Badge>
+                <Badge variant="secondary" className="text-xs bg-amber-500/10 text-amber-600">{t('preview.nuevo')}</Badge>
               </div>
 
               <div className="flex items-center justify-between p-2 rounded-lg bg-background/50">
                 <div className="flex items-center gap-2">
                   <div className="text-2xl">⭐</div>
                   <div>
-                    <p className="text-xs font-semibold">Top Performer</p>
-                    <p className="text-[10px] text-muted-foreground">Top 5% este mes</p>
+                    <p className="text-xs font-semibold">{t('preview.topPerformer')}</p>
+                    <p className="text-[10px] text-muted-foreground">{t('preview.top5EsteMes')}</p>
                   </div>
                 </div>
               </div>
@@ -436,7 +429,7 @@ const SLIDES = [
                 <div className="flex items-center gap-2">
                   <div className="text-2xl">🎓</div>
                   <div>
-                    <p className="text-xs font-semibold">Learning Master</p>
+                    <p className="text-xs font-semibold">{t('preview.learningMaster')}</p>
                     <p className="text-[10px] text-muted-foreground">3 certificaciones</p>
                   </div>
                 </div>
@@ -458,9 +451,7 @@ const SLIDES = [
               <Badge className="bg-primary">580 XP hasta nivel {DEMO_USER.stats.nivel + 1}</Badge>
             </div>
             <Progress value={65} className="h-3" />
-            <p className="text-xs text-muted-foreground mt-2 text-center">
-              ¡Sigue así! Completa 2 tareas más para desbloquear el siguiente nivel
-            </p>
+            <p className="text-xs text-muted-foreground mt-2 text-center">{t('preview.sigueAsíCompleta2')}</p>
           </CardContent>
         </Card>
 
@@ -480,9 +471,9 @@ const SLIDES = [
   },
   {
     id: 'tareas-activas',
-    title: 'Mis Tareas Activas',
+    title: t('preview.misTareasActivas'),
     icon: CheckSquare,
-    description: 'Gestiona todas tus tareas con prioridades inteligentes, deadlines y progreso visual.',
+    description: t('preview.gestionaTodasTusTareas'),
     content: (
       <div className="space-y-4">
         <div className="flex items-center justify-between">
@@ -490,7 +481,7 @@ const SLIDES = [
             <p className="text-sm font-semibold">
               {DEMO_USER.stats.tareas_activas} tareas activas
             </p>
-            <p className="text-xs text-muted-foreground">Ordenadas por prioridad y deadline</p>
+            <p className="text-xs text-muted-foreground">{t('preview.ordenadasPorPrioridadY')}</p>
           </div>
           <Badge variant="outline" className="text-xs">
             2 tareas vencen esta semana
@@ -514,15 +505,15 @@ const SLIDES = [
                 <div className="absolute left-0 top-full mt-2 w-full p-3 rounded-lg bg-popover border shadow-xl z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <div className="grid grid-cols-2 gap-3 text-xs">
                     <div>
-                      <p className="text-muted-foreground mb-1">Proyecto</p>
+                      <p className="text-muted-foreground mb-1">{t('preview.proyecto')}</p>
                       <p className="font-semibold">{tarea.proyecto}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground mb-1">Deadline</p>
+                      <p className="text-muted-foreground mb-1">{t('preview.deadline')}</p>
                       <p className="font-semibold">{new Date(tarea.deadline).toLocaleDateString('es-ES')}</p>
                     </div>
                     <div className="col-span-2">
-                      <p className="text-muted-foreground mb-1">Etiquetas</p>
+                      <p className="text-muted-foreground mb-1">{t('preview.etiquetas')}</p>
                       <div className="flex gap-1">
                         {tarea.etiquetas.map((tag) => (
                           <Badge key={tag} variant="secondary" className="text-[10px]">
@@ -606,24 +597,22 @@ const SLIDES = [
 
         <div className="flex items-center gap-2 p-3 rounded-lg bg-muted/50 border">
           <Sparkles className="w-4 h-4 text-primary" />
-          <p className="text-xs text-muted-foreground">
-            Filtra por proyecto, prioridad o deadline • Arrastra para reordenar • Crea subtareas
-          </p>
+          <p className="text-xs text-muted-foreground">{t('preview.filtraPorProyectoPrioridad')}</p>
         </div>
       </div>
     ),
   },
   {
     id: 'obvs-recientes',
-    title: 'Mis OBVs Recientes',
+    title: t('preview.misObvsRecientes'),
     icon: Target,
-    description: 'Trackea tus Objetivos de Valor con impacto en revenue y validación de stakeholders.',
+    description: t('preview.trackeaTusObjetivosDe'),
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
           <Card className="border-green-500/20 bg-green-500/5">
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground mb-1">Total Validadas</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('preview.totalValidadas')}</p>
               <p className="text-2xl font-bold text-green-600">{DEMO_USER.stats.obvs_validadas}</p>
               <p className="text-xs text-muted-foreground mt-1">de {DEMO_USER.stats.obvs_creadas} creadas</p>
             </CardContent>
@@ -631,7 +620,7 @@ const SLIDES = [
 
           <Card className="border-blue-500/20 bg-blue-500/5">
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground mb-1">Valor Total</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('preview.valorTotal')}</p>
               <p className="text-2xl font-bold text-blue-600">$22.5K</p>
               <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" />
@@ -642,7 +631,7 @@ const SLIDES = [
 
           <Card className="border-purple-500/20 bg-purple-500/5">
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground mb-1">Tasa de Éxito</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('preview.tasaDeÉxito')}</p>
               <p className="text-2xl font-bold text-purple-600">82%</p>
               <p className="text-xs text-muted-foreground mt-1">validation rate</p>
             </CardContent>
@@ -664,15 +653,15 @@ const SLIDES = [
                 <div className="absolute left-0 top-full mt-2 w-full p-3 rounded-lg bg-popover border shadow-xl z-10 opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none">
                   <div className="space-y-2 text-xs">
                     <div>
-                      <p className="text-muted-foreground">Proyecto</p>
+                      <p className="text-muted-foreground">{t('preview.proyecto')}</p>
                       <p className="font-semibold">{obv.proyecto}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Valor de Negocio</p>
+                      <p className="text-muted-foreground">{t('preview.valorDeNegocio')}</p>
                       <p className="font-semibold text-green-600">${obv.valor.toLocaleString()}</p>
                     </div>
                     <div>
-                      <p className="text-muted-foreground">Fecha</p>
+                      <p className="text-muted-foreground">{t('preview.fecha')}</p>
                       <p className="font-semibold">{new Date(obv.fecha).toLocaleDateString('es-ES')}</p>
                     </div>
                   </div>
@@ -695,7 +684,7 @@ const SLIDES = [
                           variant={isValidada ? 'default' : 'secondary'}
                           className={`text-[10px] ${isValidada ? 'bg-green-600' : ''}`}
                         >
-                          {isValidada ? 'Validada' : 'En validación'}
+                          {isValidada ? 'Validada': t('preview.enValidación')}
                         </Badge>
                         {isHighImpact && (
                           <Badge variant="destructive" className="text-[10px]">
@@ -740,9 +729,7 @@ const SLIDES = [
 
         <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
           <p className="text-sm font-medium mb-2 flex items-center gap-2">
-            <Zap className="w-4 h-4 text-primary" />
-            Insights de OBVs
-          </p>
+            <Zap className="w-4 h-4 text-primary" />{t('preview.insightsDeObvs')}</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
             <li>• Tus OBVs generan en promedio $5,625 de valor validado</li>
             <li>• 82% de tasa de validación (18% sobre el promedio del equipo)</li>
@@ -754,15 +741,15 @@ const SLIDES = [
   },
   {
     id: 'learning-progress',
-    title: 'Mi Progreso en Learning Paths',
+    title: t('preview.miProgresoEnLearning'),
     icon: BookOpen,
-    description: 'Sigue tu desarrollo profesional con cursos, certificaciones y módulos interactivos.',
+    description: t('preview.sigueTuDesarrolloProfesional'),
     content: (
       <div className="space-y-4">
         <div className="grid grid-cols-3 gap-3">
           <Card className="border-purple-500/20 bg-purple-500/5">
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground mb-1">Completados</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('preview.completados')}</p>
               <p className="text-2xl font-bold text-purple-600">{DEMO_USER.stats.learning_paths_completados}</p>
               <div className="flex items-center gap-1 mt-1">
                 <Award className="w-3 h-3 text-amber-500" />
@@ -773,7 +760,7 @@ const SLIDES = [
 
           <Card className="border-blue-500/20 bg-blue-500/5">
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground mb-1">En Progreso</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('preview.enProgreso')}</p>
               <p className="text-2xl font-bold text-blue-600">{DEMO_USER.stats.learning_paths_en_curso}</p>
               <p className="text-xs text-muted-foreground mt-1">5 módulos restantes</p>
             </CardContent>
@@ -781,7 +768,7 @@ const SLIDES = [
 
           <Card className="border-green-500/20 bg-green-500/5">
             <CardContent className="pt-4">
-              <p className="text-xs text-muted-foreground mb-1">Horas Totales</p>
+              <p className="text-xs text-muted-foreground mb-1">{t('preview.horasTotales')}</p>
               <p className="text-2xl font-bold text-green-600">47</p>
               <p className="text-xs text-green-600 mt-1 flex items-center gap-1">
                 <TrendingUp className="w-3 h-3" />
@@ -807,9 +794,7 @@ const SLIDES = [
                       <h4 className="font-semibold text-sm">{lp.titulo}</h4>
                       {lp.completado && (
                         <Badge className="text-[10px] bg-green-600">
-                          <Award className="w-3 h-3 mr-1" />
-                          Completado
-                        </Badge>
+                          <Award className="w-3 h-3 mr-1" />{t('preview.completado')}</Badge>
                       )}
                     </div>
                     <p className="text-xs text-muted-foreground">
@@ -830,13 +815,11 @@ const SLIDES = [
                         <ArrowUp className="w-3 h-3 text-primary" />
                       </div>
                       <div>
-                        <p className="text-xs font-medium">Próximo módulo</p>
+                        <p className="text-xs font-medium">{t('preview.próximoMódulo')}</p>
                         <p className="text-[10px] text-muted-foreground">{lp.proximo_modulo}</p>
                       </div>
                     </div>
-                    <Button size="sm" variant="outline" className="text-xs h-7">
-                      Continuar
-                    </Button>
+                    <Button size="sm" variant="outline" className="text-xs h-7">{t('preview.continuar')}</Button>
                   </div>
                 )}
 
@@ -848,9 +831,7 @@ const SLIDES = [
                         Certificado obtenido - {new Date(lp.fecha_completado || '').toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}
                       </span>
                     </div>
-                    <Button size="sm" variant="ghost" className="text-xs h-7">
-                      Descargar
-                    </Button>
+                    <Button size="sm" variant="ghost" className="text-xs h-7">{t('preview.descargar')}</Button>
                   </div>
                 )}
               </CardContent>
@@ -873,13 +854,11 @@ const SLIDES = [
 
         <div className="p-3 rounded-lg bg-purple-500/10 border border-purple-500/20">
           <p className="text-sm font-medium mb-2 flex items-center gap-2">
-            <Brain className="w-4 h-4 text-purple-600" />
-            Recomendaciones Personalizadas
-          </p>
+            <Brain className="w-4 h-4 text-purple-600" />{t('preview.recomendacionesPersonalizadas')}</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
-            <li>• Basado en tu rol, te recomendamos: "Strategic Product Planning"</li>
-            <li>• Compañeros con roles similares también estudiaron "OKR Mastery"</li>
-            <li>• Nuevo curso disponible: "AI for Product Managers" (5h)</li>
+            <li>• Basado en tu rol, te recomendamos: t('preview.strategicProductPlanning')</li>
+            <li>• Compañeros con roles similares también estudiaron t('preview.okrMastery')</li>
+            <li>• Nuevo curso disponible: t('preview.aiForProductManagers') (5h)</li>
           </ul>
         </div>
       </div>
@@ -887,15 +866,15 @@ const SLIDES = [
   },
   {
     id: 'notificaciones-eventos',
-    title: 'Notificaciones y Próximos Eventos',
+    title: t('preview.notificacionesYPróximosEventos'),
     icon: Bell,
-    description: 'Mantente al día con notificaciones inteligentes y gestiona tu calendario.',
+    description: t('preview.mantenteAlDíaCon'),
     content: (
       <div className="space-y-4">
         {/* Notificaciones */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-sm">Notificaciones Recientes</h4>
+            <h4 className="font-semibold text-sm">{t('preview.notificacionesRecientes')}</h4>
             <Badge variant="destructive" className="text-xs">
               3 nuevas
             </Badge>
@@ -949,10 +928,8 @@ const SLIDES = [
         {/* Próximos Eventos */}
         <div>
           <div className="flex items-center justify-between mb-3">
-            <h4 className="font-semibold text-sm">Próximos Eventos</h4>
-            <Badge variant="outline" className="text-xs">
-              Esta semana
-            </Badge>
+            <h4 className="font-semibold text-sm">{t('preview.próximosEventos')}</h4>
+            <Badge variant="outline" className="text-xs">{t('preview.estaSemana')}</Badge>
           </div>
 
           <div className="space-y-2">
@@ -991,8 +968,8 @@ const SLIDES = [
                           </div>
                           <div>
                             <Badge variant="secondary" className={`text-[10px] bg-${tipoColor}-500/10`}>
-                              {evento.tipo === 'meeting' ? 'Meeting' :
-                               evento.tipo === 'presentation' ? 'Presentation' : '1:1'}
+                              {evento.tipo === 'meeting' ? 'Meeting':
+                               evento.tipo === 'presentation' ? 'Presentation': '1:1'}
                             </Badge>
                           </div>
                         </div>
@@ -1020,9 +997,7 @@ const SLIDES = [
 
         <div className="p-3 rounded-lg bg-gradient-to-r from-blue-500/10 to-purple-500/10 border border-blue-500/20">
           <p className="text-sm font-medium mb-2 flex items-center gap-2">
-            <Sparkles className="w-4 h-4 text-primary" />
-            Notificaciones Inteligentes
-          </p>
+            <Sparkles className="w-4 h-4 text-primary" />{t('preview.notificacionesInteligentes')}</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
             <li>• Filtros personalizables por tipo (tareas, OBVs, learning, eventos)</li>
             <li>• Integración con Slack y email para notificaciones críticas</li>
@@ -1036,6 +1011,7 @@ const SLIDES = [
 ];
 
 export function MiEspacioPreviewModal({ open, onOpenChange }: MiEspacioPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {
@@ -1063,10 +1039,8 @@ export function MiEspacioPreviewModal({ open, onOpenChange }: MiEspacioPreviewMo
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-4xl max-h-[90vh] p-0 gap-0 overflow-hidden">
         <VisuallyHidden>
-          <DialogTitle>Mi Espacio Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of personal workspace section
-          </DialogDescription>
+          <DialogTitle>{t('preview.miEspacioPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfPersonal')}</DialogDescription>
         </VisuallyHidden>
         {/* Header */}
         <div className="relative p-6 pb-4 border-b bg-gradient-to-r from-primary/5 to-purple-500/5">
@@ -1111,9 +1085,7 @@ export function MiEspacioPreviewModal({ open, onOpenChange }: MiEspacioPreviewMo
               disabled={currentSlide === 0}
               className="gap-2"
             >
-              <ChevronLeft className="w-4 h-4" />
-              Anterior
-            </Button>
+              <ChevronLeft className="w-4 h-4" />{t('preview.anterior')}</Button>
 
             <div className="flex gap-1">
               {SLIDES.map((_, idx) => (
@@ -1134,14 +1106,10 @@ export function MiEspacioPreviewModal({ open, onOpenChange }: MiEspacioPreviewMo
               className="gap-2"
             >
               {currentSlide === SLIDES.length - 1 ? (
-                <>
-                  Finalizar
-                  <CheckCircle2 className="w-4 h-4 ml-1" />
+                <>{t('preview.finalizar')}<CheckCircle2 className="w-4 h-4 ml-1" />
                 </>
               ) : (
-                <>
-                  Siguiente
-                  <ChevronRight className="w-4 h-4" />
+                <>{t('preview.siguiente')}<ChevronRight className="w-4 h-4" />
                 </>
               )}
             </Button>

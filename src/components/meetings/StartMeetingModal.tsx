@@ -47,6 +47,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 
+import { useTranslation } from 'react-i18next';
 interface MeetingBrief {
   headline:         string
   engine_status:    string
@@ -111,29 +112,29 @@ const MEETING_TYPES: MeetingType[] = [
   // Planning & Roadmap
   {
     id: 'sprint_planning',
-    label: 'Sprint Planning',
-    description: 'Planificación de sprint y asignación de tareas',
+    label: t('meetings.sprintPlanning'),
+    description: t('meetings.planificaciónDeSprintY'),
     icon: Calendar,
     category: 'planning',
   },
   {
     id: 'quarterly_planning',
     label: 'Quarterly Planning (OKRs)',
-    description: 'Definición de objetivos trimestrales',
+    description: t('meetings.definiciónDeObjetivosTrimestrales'),
     icon: Target,
     category: 'planning',
   },
   {
     id: 'product_roadmap',
-    label: 'Product Roadmap Review',
-    description: 'Revisión y actualización del roadmap',
+    label: t('meetings.productRoadmapReview'),
+    description: t('meetings.revisiónYActualizaciónDel'),
     icon: ChevronRight,
     category: 'planning',
   },
   {
     id: 'feature_prioritization',
-    label: 'Feature Prioritization',
-    description: 'Priorización de funcionalidades',
+    label: t('meetings.featurePrioritization'),
+    description: t('meetings.priorizaciónDeFuncionalidades'),
     icon: CheckCircle2,
     category: 'planning',
   },
@@ -141,29 +142,29 @@ const MEETING_TYPES: MeetingType[] = [
   // Seguimiento & Review
   {
     id: 'sprint_review',
-    label: 'Sprint Review',
-    description: 'Revisión de resultados del sprint',
+    label: t('meetings.sprintReview'),
+    description: t('meetings.revisiónDeResultadosDel'),
     icon: CheckCircle2,
     category: 'review',
   },
   {
     id: 'weekly_sync',
-    label: 'Weekly Sync',
-    description: 'Sincronización semanal del equipo',
+    label: t('meetings.weeklySync'),
+    description: t('meetings.sincronizaciónSemanalDelEquipo'),
     icon: Users,
     category: 'review',
   },
   {
     id: 'obv_status_update',
-    label: 'OBV Status Update',
-    description: 'Actualización de estado de OBVs',
+    label: t('meetings.obvStatusUpdate'),
+    description: t('meetings.actualizaciónDeEstadoDe'),
     icon: Target,
     category: 'review',
   },
   {
     id: 'kpi_review',
-    label: 'KPI Review',
-    description: 'Revisión de métricas clave',
+    label: t('meetings.kpiReview'),
+    description: t('meetings.revisiónDeMétricasClave'),
     icon: Target,
     category: 'review',
   },
@@ -171,22 +172,22 @@ const MEETING_TYPES: MeetingType[] = [
   // Retrospectiva & Mejora
   {
     id: 'sprint_retrospective',
-    label: 'Sprint Retrospective',
-    description: 'Reflexión sobre el sprint pasado',
+    label: t('meetings.sprintRetrospective'),
+    description: t('meetings.reflexiónSobreElSprint'),
     icon: Brain,
     category: 'retro',
   },
   {
     id: 'post_mortem',
-    label: 'Post-Mortem',
-    description: 'Análisis de incidente o problema',
+    label: t('meetings.postmortem'),
+    description: t('meetings.análisisDeIncidenteO'),
     icon: AlertCircle,
     category: 'retro',
   },
   {
     id: 'process_improvement',
-    label: 'Process Improvement',
-    description: 'Mejora de procesos del equipo',
+    label: t('meetings.processImprovement'),
+    description: t('meetings.mejoraDeProcesosDel'),
     icon: Sparkles,
     category: 'retro',
   },
@@ -194,22 +195,22 @@ const MEETING_TYPES: MeetingType[] = [
   // Personas & Team
   {
     id: 'one_on_one',
-    label: 'One-on-One',
-    description: 'Reunión individual con miembro',
+    label: t('meetings.oneonone'),
+    description: t('meetings.reuniónIndividualConMiembro'),
     icon: Users,
     category: 'people',
   },
   {
     id: 'performance_review',
-    label: 'Performance Review',
-    description: 'Evaluación de desempeño',
+    label: t('meetings.performanceReview'),
+    description: t('meetings.evaluaciónDeDesempeño'),
     icon: CheckCircle2,
     category: 'people',
   },
   {
     id: 'team_building',
-    label: 'Team Building',
-    description: 'Actividad de construcción de equipo',
+    label: t('meetings.teamBuilding'),
+    description: t('meetings.actividadDeConstrucciónDe'),
     icon: Users,
     category: 'people',
   },
@@ -217,29 +218,29 @@ const MEETING_TYPES: MeetingType[] = [
   // Cliente & Stakeholders
   {
     id: 'client_demo',
-    label: 'Client Demo',
-    description: 'Demostración para cliente',
+    label: t('meetings.clientDemo'),
+    description: t('meetings.demostraciónParaCliente'),
     icon: Sparkles,
     category: 'client',
   },
   {
     id: 'stakeholder_update',
-    label: 'Stakeholder Update',
-    description: 'Actualización para stakeholders',
+    label: t('meetings.stakeholderUpdate'),
+    description: t('meetings.actualizaciónParaStakeholders'),
     icon: Users,
     category: 'client',
   },
   {
     id: 'sales_pitch',
-    label: 'Sales Pitch',
-    description: 'Presentación de ventas',
+    label: t('meetings.salesPitch'),
+    description: t('meetings.presentaciónDeVentas'),
     icon: Target,
     category: 'client',
   },
   {
     id: 'discovery_call',
-    label: 'Discovery Call',
-    description: 'Llamada de descubrimiento con prospecto',
+    label: t('meetings.discoveryCall'),
+    description: t('meetings.llamadaDeDescubrimientoCon'),
     icon: Sparkles,
     category: 'client',
   },
@@ -247,15 +248,15 @@ const MEETING_TYPES: MeetingType[] = [
   // Urgente & Crisis
   {
     id: 'emergency_meeting',
-    label: 'Emergency Meeting',
-    description: 'Reunión de emergencia',
+    label: t('meetings.emergencyMeeting'),
+    description: t('meetings.reuniónDeEmergencia'),
     icon: AlertCircle,
     category: 'urgent',
   },
   {
     id: 'incident_review',
-    label: 'Incident Review',
-    description: 'Revisión de incidente crítico',
+    label: t('meetings.incidentReview'),
+    description: t('meetings.revisiónDeIncidenteCrítico'),
     icon: AlertCircle,
     category: 'urgent',
   },
@@ -263,8 +264,8 @@ const MEETING_TYPES: MeetingType[] = [
   // General
   {
     id: 'general_meeting',
-    label: 'Reunión General',
-    description: 'Reunión sin categoría específica',
+    label: t('meetings.reuniónGeneral'),
+    description: t('meetings.reuniónSinCategoríaEspecífica'),
     icon: Users,
     category: 'other',
   },
@@ -272,13 +273,13 @@ const MEETING_TYPES: MeetingType[] = [
 
 // Areas de discusión
 const DISCUSSION_AREAS = [
-  { id: 'product', label: 'Producto/Features' },
-  { id: 'marketing', label: 'Marketing/Ventas' },
-  { id: 'finance', label: 'Finanzas' },
-  { id: 'operations', label: 'Operaciones' },
-  { id: 'tech', label: 'Tecnología' },
+  { id: 'product', label: t('meetings.productofeatures') },
+  { id: 'marketing', label: t('meetings.marketingventas') },
+  { id: 'finance', label: t('meetings.finanzas') },
+  { id: 'operations', label: t('meetings.operaciones') },
+  { id: 'tech', label: t('meetings.tecnología') },
   { id: 'people', label: 'Personas/HR' },
-  { id: 'strategy', label: 'Estrategia' },
+  { id: 'strategy', label: t('meetings.estrategia') },
 ];
 
 export function StartMeetingModal({
@@ -289,6 +290,7 @@ export function StartMeetingModal({
   projectMembers,
   currentOBVs = [],
 }: StartMeetingModalProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState<'basic' | 'strategic' | 'ai'>('basic');
   const [customMeetingType, setCustomMeetingType] = useState('');
   const [showCustomType, setShowCustomType] = useState(false);
@@ -406,15 +408,15 @@ export function StartMeetingModal({
   const validateStep = (currentStep: typeof step): boolean => {
     if (currentStep === 'basic') {
       if (!config.title.trim()) {
-        toast.error('Por favor ingresa un título para la reunión');
+        toast.error(t('meetings.porFavorIngresaUn'));
         return false;
       }
       if (!config.meeting_type && !customMeetingType) {
-        toast.error('Por favor selecciona un tipo de reunión');
+        toast.error(t('meetings.porFavorSeleccionaUn'));
         return false;
       }
       if (config.participants.length === 0) {
-        toast.error('Por favor selecciona al menos un participante');
+        toast.error(t('meetings.porFavorSeleccionaAl'));
         return false;
       }
     }
@@ -452,19 +454,15 @@ export function StartMeetingModal({
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-2xl">
-            <Mic className="h-6 w-6 text-primary" />
-            Iniciar Reunión Inteligente
-          </DialogTitle>
-          <DialogDescription>
-            Configura tu reunión para que la IA pueda generar los mejores insights
-          </DialogDescription>
+            <Mic className="h-6 w-6 text-primary" />{t('meetings.iniciarReuniónInteligente')}</DialogTitle>
+          <DialogDescription>{t('meetings.configuraTuReuniónPara')}</DialogDescription>
         </DialogHeader>
 
         {/* Progress steps */}
         <div className="flex items-center justify-between mb-6 px-4">
           {[
-            { id: 'basic', label: 'Información Básica' },
-            { id: 'strategic', label: 'Contexto Estratégico' },
+            { id: 'basic', label: t('meetings.informaciónBásica') },
+            { id: 'strategic', label: t('meetings.contextoEstratégico') },
             { id: 'ai', label: 'Configuración IA' },
           ].map((s, idx) => (
             <div key={s.id} className="flex items-center flex-1">
@@ -511,12 +509,11 @@ export function StartMeetingModal({
             <div className="space-y-6 pb-4">
               {/* Title */}
               <div className="space-y-2">
-                <Label htmlFor="title">
-                  Título de la Reunión <span className="text-red-500">*</span>
+                <Label htmlFor="title">{t('meetings.títuloDeLaReunión')}<span className="text-red-500">*</span>
                 </Label>
                 <Input
                   id="title"
-                  placeholder="Ej: Sprint Planning Q1 2024"
+                  placeholder={t('meetings.ejSprintPlanningQ1')}
                   value={config.title}
                   onChange={(e) => setConfig({ ...config, title: e.target.value })}
                   className="text-base"
@@ -525,8 +522,7 @@ export function StartMeetingModal({
 
               {/* Meeting Type */}
               <div className="space-y-2">
-                <Label htmlFor="type">
-                  Tipo de Reunión <span className="text-red-500">*</span>
+                <Label htmlFor="type">{t('meetings.tipoDeReunión')}<span className="text-red-500">*</span>
                 </Label>
                 {!showCustomType ? (
                   <Select
@@ -540,7 +536,7 @@ export function StartMeetingModal({
                     }}
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Selecciona el tipo de reunión" />
+                      <SelectValue placeholder={t('meetings.seleccionaElTipoDe')} />
                     </SelectTrigger>
                     <SelectContent className="max-h-[300px]">
                       {Object.entries(
@@ -593,7 +589,7 @@ export function StartMeetingModal({
                 ) : (
                   <div className="space-y-2">
                     <Input
-                      placeholder="Escribe el tipo de reunión personalizado"
+                      placeholder={t('meetings.escribeElTipoDe')}
                       value={customMeetingType}
                       onChange={(e) => setCustomMeetingType(e.target.value)}
                     />
@@ -613,7 +609,7 @@ export function StartMeetingModal({
 
               {/* Duration */}
               <div className="space-y-2">
-                <Label htmlFor="duration">Duración Estimada</Label>
+                <Label htmlFor="duration">{t('meetings.duraciónEstimada')}</Label>
                 <Select
                   value={config.estimated_duration_min.toString()}
                   onValueChange={(value) =>
@@ -636,8 +632,7 @@ export function StartMeetingModal({
 
               {/* Participants */}
               <div className="space-y-3">
-                <Label>
-                  Participantes <span className="text-red-500">*</span>
+                <Label>{t('meetings.participantes')}<span className="text-red-500">*</span>
                 </Label>
                 <div className="border rounded-lg p-4 max-h-[240px] overflow-y-auto space-y-2">
                   {projectMembers.map((member) => (
@@ -665,9 +660,7 @@ export function StartMeetingModal({
                         </label>
                       </div>
                       {config.participants.includes(member.id) && (
-                        <Badge variant="secondary" className="text-xs">
-                          Presente
-                        </Badge>
+                        <Badge variant="secondary" className="text-xs">{t('meetings.presente')}</Badge>
                       )}
                     </div>
                   ))}
@@ -680,15 +673,11 @@ export function StartMeetingModal({
                   <Label className="flex-1">
                     Miembros que pueden recibir tareas (aunque no estén presentes)
                   </Label>
-                  <Badge variant="outline" className="text-xs">
-                    Opcional
-                  </Badge>
+                  <Badge variant="outline" className="text-xs">{t('meetings.opcional')}</Badge>
                 </div>
                 <Alert>
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription className="text-sm">
-                    Podrás asignar tareas a estos miembros aunque no asistan a la reunión
-                  </AlertDescription>
+                  <AlertDescription className="text-sm">{t('meetings.podrásAsignarTareasA')}</AlertDescription>
                 </Alert>
                 <div className="border rounded-lg p-4 max-h-[200px] overflow-y-auto space-y-2">
                   {projectMembers
@@ -719,19 +708,17 @@ export function StartMeetingModal({
                     ))}
                   {projectMembers.filter((m) => !config.participants.includes(m.id)).length ===
                     0 && (
-                    <p className="text-sm text-gray-500 text-center py-4">
-                      Todos los miembros están como participantes
-                    </p>
+                    <p className="text-sm text-gray-500 text-center py-4">{t('meetings.todosLosMiembrosEstán')}</p>
                   )}
                 </div>
               </div>
 
               {/* Objectives */}
               <div className="space-y-2">
-                <Label htmlFor="objectives">¿Cuál es el objetivo principal?</Label>
+                <Label htmlFor="objectives">{t('meetings.cuálEsElObjetivo')}</Label>
                 <Textarea
                   id="objectives"
-                  placeholder="Ej: Definir el roadmap del Q2 y asignar responsables..."
+                  placeholder={t('meetings.ejDefinirElRoadmap')}
                   value={config.objectives}
                   onChange={(e) => setConfig({ ...config, objectives: e.target.value })}
                   rows={3}
@@ -747,7 +734,7 @@ export function StartMeetingModal({
               <Alert className="bg-blue-50 border-blue-200">
                 <Brain className="h-4 w-4 text-blue-600" />
                 <AlertDescription className="text-sm text-blue-900">
-                  <strong>¿Por qué estas preguntas?</strong> La IA usará este contexto para
+                  <strong>{t('meetings.porQuéEstasPreguntas')}</strong> La IA usará este contexto para
                   generar insights más precisos y relevantes durante la reunión.
                 </AlertDescription>
               </Alert>
@@ -755,9 +742,7 @@ export function StartMeetingModal({
               {/* M18.8 — Brief pre-reunión del motor */}
               {briefLoading && (
                 <div className="flex items-center gap-2 text-sm text-muted-foreground py-2 px-3 rounded-lg border border-border/40 bg-muted/20">
-                  <Loader2 size={13} className="animate-spin flex-shrink-0" />
-                  Optimus está preparando tu brief…
-                </div>
+                  <Loader2 size={13} className="animate-spin flex-shrink-0" />{t('meetings.optimusEstáPreparandoTu')}</div>
               )}
               {!briefLoading && brief && (
                 <div className="rounded-lg border border-primary/20 bg-primary/5 p-4 space-y-3">
@@ -776,7 +761,7 @@ export function StartMeetingModal({
                         brief.confidence === 'low'    && 'border-muted-foreground/40 text-muted-foreground',
                       )}
                     >
-                      {brief.confidence === 'high' ? 'Motor actualizado' : brief.confidence === 'medium' ? 'Datos parciales' : 'Sin datos frescos'}
+                      {brief.confidence === 'high' ? 'Motor actualizado': brief.confidence === 'medium' ? 'Datos parciales': t('meetings.sinDatosFrescos')}
                     </Badge>
                   </div>
 
@@ -790,9 +775,7 @@ export function StartMeetingModal({
 
                   {brief.suggested_topics.length > 0 && (
                     <div className="space-y-1.5">
-                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide" style={{ fontSize: '10px' }}>
-                        Temas sugeridos por el motor
-                      </p>
+                      <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('meetings.temasSugeridosPorEl')}</p>
                       <div className="flex flex-wrap gap-1.5">
                         {brief.suggested_topics.map((topic, i) => (
                           <button
@@ -827,7 +810,7 @@ export function StartMeetingModal({
 
               {/* Critical Decisions */}
               <div className="space-y-3">
-                <Label>¿Hay decisiones críticas pendientes?</Label>
+                <Label>{t('meetings.hayDecisionesCríticasPendientes')}</Label>
                 <div className="flex items-center gap-4">
                   <div className="flex items-center gap-2">
                     <Checkbox
@@ -843,14 +826,12 @@ export function StartMeetingModal({
                         })
                       }
                     />
-                    <label htmlFor="has-decisions" className="text-sm cursor-pointer">
-                      Sí, hay decisiones críticas
-                    </label>
+                    <label htmlFor="has-decisions" className="text-sm cursor-pointer">{t('meetings.síHayDecisionesCríticas')}</label>
                   </div>
                 </div>
                 {config.strategic_context.has_critical_decisions && (
                   <Textarea
-                    placeholder="Describe las decisiones que se deben tomar..."
+                    placeholder={t('meetings.describeLasDecisionesQue')}
                     value={config.strategic_context.critical_decisions_description || ''}
                     onChange={(e) =>
                       setConfig({
@@ -869,7 +850,7 @@ export function StartMeetingModal({
 
               {/* Discussion Areas */}
               <div className="space-y-3">
-                <Label>¿Qué áreas del proyecto se tratarán?</Label>
+                <Label>{t('meetings.quéÁreasDelProyecto')}</Label>
                 <div className="grid grid-cols-2 gap-3">
                   {DISCUSSION_AREAS.map((area) => (
                     <div
@@ -894,9 +875,9 @@ export function StartMeetingModal({
 
               {/* Current Blockers */}
               <div className="space-y-2">
-                <Label>¿Hay blockers actuales a resolver?</Label>
+                <Label>{t('meetings.hayBlockersActualesA')}</Label>
                 <Textarea
-                  placeholder="Ej: API de pagos no está lista, necesitamos priorizar..."
+                  placeholder={t('meetings.ejApiDePagos')}
                   value={config.strategic_context.current_blockers || ''}
                   onChange={(e) =>
                     setConfig({
@@ -914,7 +895,7 @@ export function StartMeetingModal({
               {/* OBVs to Discuss */}
               {currentOBVs.length > 0 && (
                 <div className="space-y-3">
-                  <Label>¿Qué OBVs se discutirán?</Label>
+                  <Label>{t('meetings.quéObvsSeDiscutirán')}</Label>
                   <div className="border rounded-lg p-3 max-h-[180px] overflow-y-auto space-y-2">
                     {currentOBVs.map((obv) => (
                       <div
@@ -940,9 +921,9 @@ export function StartMeetingModal({
 
               {/* Metrics to Review */}
               <div className="space-y-2">
-                <Label>¿Métricas clave a revisar?</Label>
+                <Label>{t('meetings.métricasClaveARevisar')}</Label>
                 <Input
-                  placeholder="Ej: MRR, CAC, Churn Rate, Usuarios Activos..."
+                  placeholder={t('meetings.ejMrrCacChurn')}
                   value={config.strategic_context.metrics_to_review || ''}
                   onChange={(e) =>
                     setConfig({
@@ -964,7 +945,7 @@ export function StartMeetingModal({
               <Alert className="bg-purple-50 border-purple-200">
                 <Sparkles className="h-4 w-4 text-purple-600" />
                 <AlertDescription className="text-sm text-purple-900">
-                  <strong>IA Facilitador Inteligente</strong> - Configura cómo la IA te ayudará
+                  <strong>{t('meetings.iaFacilitadorInteligente')}</strong> - Configura cómo la IA te ayudará
                   durante la reunión
                 </AlertDescription>
               </Alert>
@@ -989,9 +970,7 @@ export function StartMeetingModal({
                     <label
                       htmlFor="enable-questions"
                       className="font-medium cursor-pointer block"
-                    >
-                      Permitir que IA haga preguntas de clarificación
-                    </label>
+                    >{t('meetings.permitirQueIaHaga')}</label>
                     <p className="text-sm text-gray-600 mt-1">
                       La IA detectará ambigüedades y hará preguntas específicas para obtener
                       información más precisa (modo silencioso: solo texto en pantalla)
@@ -1015,17 +994,14 @@ export function StartMeetingModal({
                     }
                   />
                   <div className="flex-1">
-                    <label htmlFor="enable-guidance" className="font-medium cursor-pointer block">
-                      IA puede guiar y recomendar temas
-                    </label>
+                    <label htmlFor="enable-guidance" className="font-medium cursor-pointer block">{t('meetings.iaPuedeGuiarY')}</label>
                     <p className="text-sm text-gray-600 mt-1">
                       La IA sugerirá temas importantes que se están pasando por alto, recordará
                       contexto relevante y recomendará conversaciones críticas
                     </p>
                     {config.ai_config.enable_proactive_guidance && (
                       <div className="mt-3 p-3 bg-blue-50 rounded-lg text-sm text-blue-900">
-                        <strong>Ejemplo:</strong> "Están definiendo el sprint, pero hay 3 tareas
-                        bloqueadas del anterior. ¿Deberían discutirlas primero?"
+                        <strong>Ejemplo:</strong> t('meetings.estánDefiniendoElSprint')
                       </div>
                     )}
                   </div>
@@ -1047,9 +1023,7 @@ export function StartMeetingModal({
                     }
                   />
                   <div className="flex-1">
-                    <label htmlFor="enable-context" className="font-medium cursor-pointer block">
-                      Detectar contexto relevante del proyecto
-                    </label>
+                    <label htmlFor="enable-context" className="font-medium cursor-pointer block">{t('meetings.detectarContextoRelevanteDel')}</label>
                     <p className="text-sm text-gray-600 mt-1">
                       La IA conectará la conversación con OBVs, tareas, métricas y decisiones del
                       proyecto en tiempo real
@@ -1073,9 +1047,7 @@ export function StartMeetingModal({
                     }
                   />
                   <div className="flex-1">
-                    <label htmlFor="enable-time" className="font-medium cursor-pointer block">
-                      Alertas de gestión de tiempo
-                    </label>
+                    <label htmlFor="enable-time" className="font-medium cursor-pointer block">{t('meetings.alertasDeGestiónDe')}</label>
                     <p className="text-sm text-gray-600 mt-1">
                       La IA te recordará temas pendientes cuando se acerque el tiempo estimado de
                       finalización
@@ -1087,16 +1059,14 @@ export function StartMeetingModal({
               {/* Summary */}
               <div className="mt-6 p-4 bg-gray-50 rounded-lg space-y-2">
                 <div className="font-semibold text-sm flex items-center gap-2">
-                  <CheckCircle2 className="h-4 w-4 text-green-600" />
-                  Resumen de Configuración
-                </div>
+                  <CheckCircle2 className="h-4 w-4 text-green-600" />{t('meetings.resumenDeConfiguración')}</div>
                 <div className="text-sm space-y-1 text-gray-700">
                   <div>
-                    • <strong>Título:</strong> {config.title || 'Sin título'}
+                    • <strong>Título:</strong> {config.title || t('meetings.sinTítulo')}
                   </div>
                   <div>
                     • <strong>Tipo:</strong>{' '}
-                    {selectedMeetingType?.label || customMeetingType || 'No seleccionado'}
+                    {selectedMeetingType?.label || customMeetingType || t('meetings.noSeleccionado')}
                   </div>
                   <div>
                     • <strong>Participantes:</strong> {config.participants.length}{' '}
@@ -1125,19 +1095,13 @@ export function StartMeetingModal({
             )}
           </div>
           <div className="flex items-center gap-2">
-            <Button variant="outline" onClick={onClose}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={onClose}>{t('meetings.cancelar')}</Button>
             {step !== 'ai' ? (
-              <Button onClick={handleNext}>
-                Siguiente
-                <ChevronRight className="ml-2 h-4 w-4" />
+              <Button onClick={handleNext}>{t('meetings.siguiente')}<ChevronRight className="ml-2 h-4 w-4" />
               </Button>
             ) : (
               <Button onClick={handleStart} className="gap-2">
-                <Mic className="h-4 w-4" />
-                Iniciar Reunión
-              </Button>
+                <Mic className="h-4 w-4" />{t('meetings.iniciarReunión')}</Button>
             )}
           </div>
         </div>

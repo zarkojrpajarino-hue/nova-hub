@@ -3,9 +3,11 @@ import { TrendingUp, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 export function WeeklyEvolutionChart() {
+  const { t } = useTranslation();
   const { data: chartData = [], isLoading } = useQuery({
     queryKey: ['weekly_evolution'],
     queryFn: async () => {
@@ -19,7 +21,7 @@ export function WeeklyEvolutionChart() {
         weeks.push({
           start: weekStart,
           end: weekEnd,
-          label: format(weekStart, 'd MMM', { locale: es }),
+          label: format(weekStart, 'd MMM', { locale: getDateFnsLocale() }),
         });
       }
 
@@ -72,7 +74,7 @@ export function WeeklyEvolutionChart() {
       <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
         <div className="flex items-center gap-2.5 mb-4">
           <TrendingUp size={18} className="text-primary" />
-          <h3 className="font-semibold">Evolución Semanal</h3>
+          <h3 className="font-semibold">{t('dashboard.evoluciónSemanal')}</h3>
         </div>
         <div className="flex items-center justify-center h-[200px]">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -85,7 +87,7 @@ export function WeeklyEvolutionChart() {
     <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
       <div className="flex items-center gap-2.5 mb-4">
         <TrendingUp size={18} className="text-primary" />
-        <h3 className="font-semibold">Evolución Semanal</h3>
+        <h3 className="font-semibold">{t('dashboard.evoluciónSemanal')}</h3>
       </div>
 
       <div className="h-[220px]">
@@ -115,7 +117,7 @@ export function WeeklyEvolutionChart() {
             />
             <Line 
               type="monotone" 
-              dataKey="OBVs" 
+              dataKey={t('dashboard.obvs')} 
               stroke="#6366F1" 
               strokeWidth={2}
               dot={{ fill: '#6366F1', strokeWidth: 0, r: 3 }}

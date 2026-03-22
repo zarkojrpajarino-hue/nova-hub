@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface LiveMeetingRecorderProps {
   meetingId: string;
   projectId: string;
@@ -53,6 +54,7 @@ export function LiveMeetingRecorder({
   onRecordingComplete,
   onCancel,
 }: LiveMeetingRecorderProps) {
+  const { t } = useTranslation();
   // Recording state
   const [recordingState, setRecordingState] = useState<RecordingState>('idle');
   const [recordingTime, setRecordingTime] = useState(0);
@@ -143,14 +145,14 @@ export function LiveMeetingRecorder({
         },
       });
 
-      toast.success('Grabación iniciada');
+      toast.success(t('meetings.grabaciónIniciada'));
     } catch (error) {
-      if (error instanceof Error && error.name === 'NotAllowedError') {
-        toast.error('Permiso de micrófono denegado. Por favor, permite el acceso al micrófono.');
-      } else if (error instanceof Error && error.name === 'NotFoundError') {
-        toast.error('No se encontró ningún micrófono. Conecta un micrófono e intenta de nuevo.');
+      if (error instanceof Error && error.name === t('meetings.notallowederror')) {
+        toast.error(t('meetings.permisoDeMicrófonoDenegado'));
+      } else if (error instanceof Error && error.name === t('meetings.notfounderror')) {
+        toast.error(t('meetings.noSeEncontróNingún'));
       } else {
-        toast.error('Error al iniciar la grabación: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+        toast.error('Error al iniciar la grabación: ' + (error instanceof Error ? error.message : t('meetings.errorDesconocido')));
       }
     }
   };
@@ -162,7 +164,7 @@ export function LiveMeetingRecorder({
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'recording') {
       mediaRecorderRef.current.pause();
       setRecordingState('paused');
-      toast.info('Grabación pausada');
+      toast.info(t('meetings.grabaciónPausada'));
     }
   };
 
@@ -173,7 +175,7 @@ export function LiveMeetingRecorder({
     if (mediaRecorderRef.current && mediaRecorderRef.current.state === 'paused') {
       mediaRecorderRef.current.resume();
       setRecordingState('recording');
-      toast.info('Grabación reanudada');
+      toast.info(t('meetings.grabaciónReanudada'));
     }
   };
 
@@ -190,7 +192,7 @@ export function LiveMeetingRecorder({
         streamRef.current.getTracks().forEach(track => track.stop());
       }
 
-      toast.success('Grabación finalizada');
+      toast.success(t('meetings.grabaciónFinalizada'));
     }
   };
 
@@ -205,7 +207,7 @@ export function LiveMeetingRecorder({
       // Upload a Supabase Storage
       await uploadAudioToStorage(audioBlob, 'recording.webm');
     } catch (_error) {
-      toast.error('Error al procesar la grabación');
+      toast.error(t('meetings.errorAlProcesarLa'));
     }
   };
 
@@ -229,7 +231,7 @@ export function LiveMeetingRecorder({
     ];
 
     if (!validTypes.includes(file.type)) {
-      toast.error('Tipo de archivo no soportado. Usa MP3, WAV, WEBM, OGG, MP4 o MOV.');
+      toast.error(t('meetings.tipoDeArchivoNo'));
       return;
     }
 
@@ -255,7 +257,7 @@ export function LiveMeetingRecorder({
     try {
       await uploadAudioToStorage(selectedFile, selectedFile.name);
     } catch (_error) {
-      toast.error('Error al subir el archivo');
+      toast.error(t('meetings.errorAlSubirEl'));
       setRecordingState('idle');
     }
   };
@@ -323,11 +325,11 @@ export function LiveMeetingRecorder({
         },
       });
 
-      toast.success('Audio subido correctamente');
+      toast.success(t('meetings.audioSubidoCorrectamente'));
 
       // Iniciar transcripción automáticamente
       setRecordingState('transcribing');
-      toast.info('Iniciando transcripción con Whisper AI...');
+      toast.info(t('meetings.iniciandoTranscripciónConWhisper'));
 
       try {
         const transcribeResult = await transcribeMeeting.mutateAsync(meetingId);
@@ -342,7 +344,7 @@ export function LiveMeetingRecorder({
 
         // Calidad ≥ 0.4 → analizar automáticamente
         setRecordingState('analyzing');
-        toast.info('Analizando reunión con Claude...');
+        toast.info(t('meetings.analizandoReuniónConClaude'));
         await analyzeMeeting.mutateAsync({ meetingId });
       } catch (_transcriptionError) {
         // El toast de error lo muestran los hooks
@@ -351,7 +353,7 @@ export function LiveMeetingRecorder({
       // Notificar al componente padre
       onRecordingComplete(audioUrl);
     } catch (error) {
-      toast.error('Error al subir el audio: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al subir el audio: ' + (error instanceof Error ? error.message : t('meetings.errorDesconocido')));
       setRecordingState('stopped');
     }
   };
@@ -361,7 +363,7 @@ export function LiveMeetingRecorder({
    */
   const handleContinueWithLowQuality = async () => {
     setRecordingState('analyzing');
-    toast.info('Analizando reunión con Claude...');
+    toast.info(t('meetings.analizandoReuniónConClaude'));
     try {
       await analyzeMeeting.mutateAsync({ meetingId, lowQuality: true });
     } catch {
@@ -380,7 +382,7 @@ export function LiveMeetingRecorder({
     setLowQualityConfidence(null);
     setPendingAudioUrl(null);
     setSelectedFile(null);
-    toast.info('Sube un nuevo archivo de audio o graba de nuevo');
+    toast.info(t('meetings.subeUnNuevoArchivo'));
   };
 
   /**
@@ -418,17 +420,13 @@ export function LiveMeetingRecorder({
             onClick={() => setMode('live')}
             className="flex-1"
           >
-            <Mic className="h-4 w-4 mr-2" />
-            Grabar en Vivo
-          </Button>
+            <Mic className="h-4 w-4 mr-2" />{t('meetings.grabarEnVivo')}</Button>
           <Button
             variant={mode === 'upload' ? 'default' : 'outline'}
             onClick={() => setMode('upload')}
             className="flex-1"
           >
-            <Upload className="h-4 w-4 mr-2" />
-            Subir Archivo
-          </Button>
+            <Upload className="h-4 w-4 mr-2" />{t('meetings.subirArchivo')}</Button>
         </div>
       )}
 
@@ -437,12 +435,8 @@ export function LiveMeetingRecorder({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Mic className="h-5 w-5" />
-              Grabación en Vivo
-            </CardTitle>
-            <CardDescription>
-              Graba la reunión usando el micrófono de tu dispositivo
-            </CardDescription>
+              <Mic className="h-5 w-5" />{t('meetings.grabaciónEnVivo')}</CardTitle>
+            <CardDescription>{t('meetings.grabaLaReuniónUsando')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-6">
             {/* Timer and Progress */}
@@ -471,23 +465,21 @@ export function LiveMeetingRecorder({
                 {recordingState === 'recording' && (
                   <div className="flex items-center justify-center gap-2 p-3 bg-red-50 border border-red-200 rounded-lg">
                     <div className="w-3 h-3 bg-red-500 rounded-full animate-pulse" />
-                    <span className="text-red-700 font-semibold">Grabando...</span>
+                    <span className="text-red-700 font-semibold">{t('meetings.grabando')}</span>
                   </div>
                 )}
 
                 {recordingState === 'paused' && (
                   <div className="flex items-center justify-center gap-2 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
                     <Pause className="h-4 w-4 text-yellow-700" />
-                    <span className="text-yellow-700 font-semibold">Pausado</span>
+                    <span className="text-yellow-700 font-semibold">{t('meetings.pausado')}</span>
                   </div>
                 )}
 
                 {recordingState === 'stopped' && (
                   <Alert className="bg-green-50 border-green-200">
                     <CheckCircle2 className="h-4 w-4 text-green-600" />
-                    <AlertDescription className="text-green-900">
-                      Grabación finalizada. Procesando audio...
-                    </AlertDescription>
+                    <AlertDescription className="text-green-900">{t('meetings.grabaciónFinalizadaProcesandoAudio')}</AlertDescription>
                   </Alert>
                 )}
               </div>
@@ -501,9 +493,7 @@ export function LiveMeetingRecorder({
                   size="lg"
                   className="flex-1 gap-2"
                 >
-                  <Mic className="h-5 w-5" />
-                  Iniciar Grabación
-                </Button>
+                  <Mic className="h-5 w-5" />{t('meetings.iniciarGrabación')}</Button>
               )}
 
               {recordingState === 'recording' && (
@@ -514,18 +504,14 @@ export function LiveMeetingRecorder({
                     size="lg"
                     className="flex-1 gap-2"
                   >
-                    <Pause className="h-5 w-5" />
-                    Pausar
-                  </Button>
+                    <Pause className="h-5 w-5" />{t('meetings.pausar')}</Button>
                   <Button
                     onClick={stopRecording}
                     variant="destructive"
                     size="lg"
                     className="flex-1 gap-2"
                   >
-                    <Square className="h-5 w-5" />
-                    Finalizar
-                  </Button>
+                    <Square className="h-5 w-5" />{t('meetings.finalizar')}</Button>
                 </>
               )}
 
@@ -536,18 +522,14 @@ export function LiveMeetingRecorder({
                     size="lg"
                     className="flex-1 gap-2"
                   >
-                    <Play className="h-5 w-5" />
-                    Reanudar
-                  </Button>
+                    <Play className="h-5 w-5" />{t('meetings.reanudar')}</Button>
                   <Button
                     onClick={stopRecording}
                     variant="destructive"
                     size="lg"
                     className="flex-1 gap-2"
                   >
-                    <Square className="h-5 w-5" />
-                    Finalizar
-                  </Button>
+                    <Square className="h-5 w-5" />{t('meetings.finalizar')}</Button>
                 </>
               )}
             </div>
@@ -556,9 +538,7 @@ export function LiveMeetingRecorder({
             {recordingState === 'idle' && (
               <Alert>
                 <AlertCircle className="h-4 w-4" />
-                <AlertDescription>
-                  Se solicitará permiso para acceder al micrófono cuando inicies la grabación.
-                </AlertDescription>
+                <AlertDescription>{t('meetings.seSolicitaráPermisoPara')}</AlertDescription>
               </Alert>
             )}
           </CardContent>
@@ -593,12 +573,8 @@ export function LiveMeetingRecorder({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileAudio className="h-5 w-5" />
-              Subir Archivo de Audio/Video
-            </CardTitle>
-            <CardDescription>
-              Sube una grabación existente de la reunión
-            </CardDescription>
+              <FileAudio className="h-5 w-5" />{t('meetings.subirArchivoDeAudiovideo')}</CardTitle>
+            <CardDescription>{t('meetings.subeUnaGrabaciónExistente')}</CardDescription>
           </CardHeader>
           <CardContent className="space-y-4">
             {/* File Input */}
@@ -614,9 +590,7 @@ export function LiveMeetingRecorder({
                 className="hidden"
               />
               <Upload className="h-12 w-12 mx-auto mb-3 text-gray-400" />
-              <p className="text-sm font-semibold mb-1">
-                Click para seleccionar archivo
-              </p>
+              <p className="text-sm font-semibold mb-1">{t('meetings.clickParaSeleccionarArchivo')}</p>
               <p className="text-xs text-gray-500">
                 MP3, WAV, WEBM, OGG, MP4, MOV (máx. 100MB)
               </p>
@@ -645,14 +619,10 @@ export function LiveMeetingRecorder({
             >
               {recordingState === 'uploading' ? (
                 <>
-                  <Loader2 className="h-5 w-5 animate-spin" />
-                  Subiendo...
-                </>
+                  <Loader2 className="h-5 w-5 animate-spin" />{t('meetings.subiendo')}</>
               ) : (
                 <>
-                  <Upload className="h-5 w-5" />
-                  Subir y Procesar
-                </>
+                  <Upload className="h-5 w-5" />{t('meetings.subirYProcesar')}</>
               )}
             </Button>
           </CardContent>
@@ -665,13 +635,11 @@ export function LiveMeetingRecorder({
           <CardContent className="pt-6">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <span className="text-sm font-semibold">Subiendo audio...</span>
+                <span className="text-sm font-semibold">{t('meetings.subiendoAudio')}</span>
                 <span className="text-sm text-gray-600">{uploadProgress}%</span>
               </div>
               <Progress value={uploadProgress} className="h-2" />
-              <p className="text-xs text-gray-500 text-center">
-                Esto puede tardar unos momentos dependiendo del tamaño del archivo
-              </p>
+              <p className="text-xs text-gray-500 text-center">{t('meetings.estoPuedeTardarUnos')}</p>
             </div>
           </CardContent>
         </Card>
@@ -684,7 +652,7 @@ export function LiveMeetingRecorder({
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="text-sm font-semibold">Transcribiendo con Whisper AI...</span>
+                <span className="text-sm font-semibold">{t('meetings.transcribiendoConWhisperAi')}</span>
               </div>
               <Alert className="bg-blue-50 border-blue-200">
                 <AlertCircle className="h-4 w-4 text-blue-600" />
@@ -693,9 +661,7 @@ export function LiveMeetingRecorder({
                   Esto puede tardar 1-3 minutos dependiendo de la duración de la reunión.
                 </AlertDescription>
               </Alert>
-              <p className="text-xs text-gray-500 text-center">
-                Por favor espera mientras OpenAI Whisper transcribe el audio...
-              </p>
+              <p className="text-xs text-gray-500 text-center">{t('meetings.porFavorEsperaMientras')}</p>
             </div>
           </CardContent>
         </Card>
@@ -722,15 +688,11 @@ export function LiveMeetingRecorder({
                 onClick={handleContinueWithLowQuality}
                 variant="outline"
                 className="flex-1 border-amber-300 text-amber-800 hover:bg-amber-100 dark:border-amber-700 dark:text-amber-200"
-              >
-                Continuar de todas formas
-              </Button>
+              >{t('meetings.continuarDeTodasFormas')}</Button>
               <Button
                 onClick={handleRetryAudio}
                 className="flex-1"
-              >
-                Subir de nuevo
-              </Button>
+              >{t('meetings.subirDeNuevo')}</Button>
             </div>
           </CardContent>
         </Card>
@@ -743,18 +705,16 @@ export function LiveMeetingRecorder({
             <div className="space-y-4">
               <div className="flex items-center justify-center gap-3">
                 <Loader2 className="h-6 w-6 animate-spin text-primary" />
-                <span className="text-sm font-semibold">Analizando con Claude...</span>
+                <span className="text-sm font-semibold">{t('meetings.analizandoConClaude')}</span>
               </div>
               <Alert className="bg-purple-50 border-purple-200">
                 <AlertCircle className="h-4 w-4 text-purple-600" />
                 <AlertDescription className="text-purple-900 text-xs">
-                  <strong>Claude</strong> está analizando la transcripción para extraer insights:
+                  <strong>{t('meetings.claude')}</strong> está analizando la transcripción para extraer insights:
                   tareas, decisiones, leads, OBVs mencionados, blockers y métricas.
                 </AlertDescription>
               </Alert>
-              <p className="text-xs text-gray-500 text-center">
-                Por favor espera mientras Claude analiza la reunión...
-              </p>
+              <p className="text-xs text-gray-500 text-center">{t('meetings.porFavorEsperaMientras1')}</p>
             </div>
           </CardContent>
         </Card>
@@ -766,9 +726,7 @@ export function LiveMeetingRecorder({
           onClick={onCancel}
           variant="outline"
           className="w-full"
-        >
-          Cancelar
-        </Button>
+        >{t('meetings.cancelar')}</Button>
       )}
     </div>
   );

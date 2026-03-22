@@ -2,6 +2,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface BackButtonProps {
   onClick: () => void;
   disabled?: boolean;
@@ -9,7 +10,8 @@ interface BackButtonProps {
   label?: string;
 }
 
-export function BackButton({ onClick, disabled = false, className, label = 'Volver' }: BackButtonProps) {
+export function BackButton({ onClick, disabled = false, className, label = t('navigation.volver') }: BackButtonProps) {
+  const { t } = useTranslation();
   if (disabled) return null;
 
   return (

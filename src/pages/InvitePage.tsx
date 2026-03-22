@@ -2,7 +2,7 @@
  * EQ26.3 — /invite/:token — Landing de invitación
  *
  * Página semi-pública que muestra info del proyecto y rol.
- * Si usuario logueado: "Unirme al proyecto" → accept_invitation RPC.
+ * Si usuario logueado: t('invite.unirmeAlProyecto0') → accept_invitation RPC.
  * Si no logueado: redirige a login con returnTo.
  */
 
@@ -16,7 +16,9 @@ import { toast } from 'sonner';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { useEffect, useState } from 'react';
 
+import { useTranslation } from 'react-i18next';
 export default function InvitePage() {
+  const { t } = useTranslation();
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
@@ -62,12 +64,12 @@ export default function InvitePage() {
       return result;
     },
     onSuccess: (data) => {
-      toast.success('¡Te has unido al proyecto!');
+      toast.success(t('invite.teHasUnidoAl'));
       // Navigate to mini-onboarding or project
       navigate(`/proyecto/${data.project_id}`);
     },
     onError: (err: Error) => {
-      toast.error(err.message || 'Error al aceptar invitación');
+      toast.error(err.message || t('invite.errorAlAceptarInvitación'));
     },
   });
 
@@ -85,13 +87,9 @@ export default function InvitePage() {
         <Card className="max-w-md w-full">
           <CardContent className="pt-8 pb-8 text-center">
             <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
-            <h2 className="text-xl font-bold mb-2">Invitación no válida</h2>
-            <p className="text-sm text-muted-foreground">
-              Esta invitación no existe, ha expirado o ya fue utilizada.
-            </p>
-            <Button className="mt-4" onClick={() => navigate('/')}>
-              Ir al inicio
-            </Button>
+            <h2 className="text-xl font-bold mb-2">{t('invite.invitaciónNoVálida')}</h2>
+            <p className="text-sm text-muted-foreground">{t('invite.estaInvitaciónNoExiste')}</p>
+            <Button className="mt-4" onClick={() => navigate('/')}>{t('invite.irAlInicio')}</Button>
           </CardContent>
         </Card>
       </div>
@@ -110,12 +108,12 @@ export default function InvitePage() {
           <CardContent className="pt-8 pb-8 text-center">
             <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">
-              {isExpired ? 'Invitación expirada' : 'Invitación agotada'}
+              {isExpired ? t('invite.invitaciónExpirada') : t('invite.invitaciónAgotada')}
             </h2>
             <p className="text-sm text-muted-foreground">
               {isExpired
-                ? 'Esta invitación ha expirado. Pide un nuevo enlace al líder del proyecto.'
-                : 'Esta invitación ya alcanzó el máximo de usos.'}
+                ? t('invite.estaInvitaciónHaExpirado')
+                : t('invite.estaInvitaciónYaAlcanzó')}
             </p>
           </CardContent>
         </Card>
@@ -131,12 +129,12 @@ export default function InvitePage() {
             <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center mx-auto mb-4">
               <Users className="h-8 w-8 text-blue-600" />
             </div>
-            <h2 className="text-xl font-bold">Te han invitado a un proyecto</h2>
+            <h2 className="text-xl font-bold">{t('invite.teHanInvitadoA')}</h2>
           </div>
 
           <div className="space-y-4 mb-6">
             <div className="bg-muted/50 rounded-lg p-4">
-              <p className="text-sm font-medium">{project?.nombre ?? 'Proyecto'}</p>
+              <p className="text-sm font-medium">{project?.nombre ?? t('invite.proyecto')}</p>
               {project?.descripcion && (
                 <p className="text-xs text-muted-foreground mt-1">{project.descripcion}</p>
               )}
@@ -165,18 +163,16 @@ export default function InvitePage() {
               disabled={acceptMutation.isPending}
             >
               {acceptMutation.isPending ? (
-                <><Loader2 className="h-4 w-4 animate-spin" />Uniéndome...</>
+                <><Loader2 className="h-4 w-4 animate-spin" />{t('invite.uniéndome')}</>
               ) : (
-                <><CheckCircle2 className="h-4 w-4" />Unirme al proyecto</>
+                <><CheckCircle2 className="h-4 w-4" />{t('invite.unirmeAlProyecto')}</>
               )}
             </Button>
           ) : (
             <Button
               className="w-full"
               onClick={() => navigate(`/auth?returnTo=/invite/${token}`)}
-            >
-              Iniciar sesión para unirme
-            </Button>
+            >{t('invite.iniciarSesiónParaUnirme')}</Button>
           )}
         </CardContent>
       </Card>

@@ -13,6 +13,7 @@ import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface Playbook {
   resumen_ejecutivo: string;
   preparacion: {
@@ -54,6 +55,7 @@ interface TaskPlaybookViewerProps {
 }
 
 export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: TaskPlaybookViewerProps) {
+  const { t } = useTranslation();
   const [copiedScript, setCopiedScript] = useState(false);
   const [completedSteps, setCompletedSteps] = useState<number[]>([]);
   const [checkedItems, setCheckedItems] = useState<number[]>([]);
@@ -83,7 +85,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
     if (playbook.script_sugerido) {
       navigator.clipboard.writeText(playbook.script_sugerido);
       setCopiedScript(true);
-      toast.success('Script copiado al portapapeles');
+      toast.success(t('tasks.scriptCopiadoAlPortapapeles'));
       setTimeout(() => setCopiedScript(false), 2000);
     }
   };
@@ -122,11 +124,11 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
       <CardContent className="pt-0">
         <Tabs defaultValue="pasos" className="w-full">
           <TabsList className="grid w-full grid-cols-5 mb-4">
-            <TabsTrigger value="preparacion" className="text-xs">Preparación</TabsTrigger>
-            <TabsTrigger value="pasos" className="text-xs">Pasos</TabsTrigger>
-            <TabsTrigger value="herramientas" className="text-xs">Herramientas</TabsTrigger>
-            <TabsTrigger value="recursos" className="text-xs">Recursos</TabsTrigger>
-            <TabsTrigger value="checklist" className="text-xs">Checklist</TabsTrigger>
+            <TabsTrigger value="preparacion" className="text-xs">{t('tasks.preparación')}</TabsTrigger>
+            <TabsTrigger value="pasos" className="text-xs">{t('tasks.pasos')}</TabsTrigger>
+            <TabsTrigger value="herramientas" className="text-xs">{t('tasks.herramientas')}</TabsTrigger>
+            <TabsTrigger value="recursos" className="text-xs">{t('tasks.recursos')}</TabsTrigger>
+            <TabsTrigger value="checklist" className="text-xs">{t('tasks.checklist')}</TabsTrigger>
           </TabsList>
 
           {/* Preparación */}
@@ -135,9 +137,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
               <AccordionItem value="antes">
                 <AccordionTrigger className="text-sm font-medium">
                   <span className="flex items-center gap-2">
-                    <Zap className="w-4 h-4 text-amber-500" />
-                    Antes de empezar
-                  </span>
+                    <Zap className="w-4 h-4 text-amber-500" />{t('tasks.antesDeEmpezar')}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   <ul className="space-y-2">
@@ -154,9 +154,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
               <AccordionItem value="materiales">
                 <AccordionTrigger className="text-sm font-medium">
                   <span className="flex items-center gap-2">
-                    <FileText className="w-4 h-4 text-blue-500" />
-                    Materiales necesarios
-                  </span>
+                    <FileText className="w-4 h-4 text-blue-500" />{t('tasks.materialesNecesarios')}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   <ul className="space-y-2">
@@ -173,9 +171,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
               <AccordionItem value="conocimientos">
                 <AccordionTrigger className="text-sm font-medium">
                   <span className="flex items-center gap-2">
-                    <Lightbulb className="w-4 h-4 text-yellow-500" />
-                    Conocimientos previos
-                  </span>
+                    <Lightbulb className="w-4 h-4 text-yellow-500" />{t('tasks.conocimientosPrevios')}</span>
                 </AccordionTrigger>
                 <AccordionContent>
                   <ul className="space-y-2">
@@ -233,9 +229,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
                       {paso.tips.length > 0 && (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-sm font-medium text-green-600">
-                            <Lightbulb className="w-4 h-4" />
-                            Tips
-                          </div>
+                            <Lightbulb className="w-4 h-4" />{t('tasks.tips')}</div>
                           <ul className="space-y-1">
                             {paso.tips.map((tip, i) => (
                               <li key={i} className="text-xs text-muted-foreground">• {tip}</li>
@@ -247,9 +241,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
                       {paso.errores_comunes.length > 0 && (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-sm font-medium text-red-600">
-                            <AlertTriangle className="w-4 h-4" />
-                            Errores comunes
-                          </div>
+                            <AlertTriangle className="w-4 h-4" />{t('tasks.erroresComunes')}</div>
                           <ul className="space-y-1">
                             {paso.errores_comunes.map((error, i) => (
                               <li key={i} className="text-xs text-muted-foreground">• {error}</li>
@@ -314,9 +306,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
                         size="sm"
                         onClick={() => copyToClipboard(recurso.contenido!, recurso.titulo)}
                       >
-                        <Copy className="w-3 h-3 mr-1" />
-                        Copiar
-                      </Button>
+                        <Copy className="w-3 h-3 mr-1" />{t('tasks.copiar')}</Button>
                     )}
                   </div>
                 </CardHeader>
@@ -338,11 +328,11 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
                   <div className="flex items-start justify-between">
                     <div className="flex items-center gap-2">
                       <MessageSquare className="w-4 h-4 text-primary" />
-                      <CardTitle className="text-sm">Script Sugerido</CardTitle>
+                      <CardTitle className="text-sm">{t('tasks.scriptSugerido')}</CardTitle>
                     </div>
                     <Button variant="ghost" size="sm" onClick={copyScript}>
                       {copiedScript ? <Check className="w-3 h-3 mr-1" /> : <Copy className="w-3 h-3 mr-1" />}
-                      {copiedScript ? 'Copiado' : 'Copiar'}
+                      {copiedScript ? 'Copiado': t('tasks.copiar0')}
                     </Button>
                   </div>
                 </CardHeader>
@@ -358,7 +348,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
             {playbook.preguntas_clave && playbook.preguntas_clave.length > 0 && (
               <Card>
                 <CardHeader className="p-3 pb-2">
-                  <CardTitle className="text-sm">Preguntas Clave</CardTitle>
+                  <CardTitle className="text-sm">{t('tasks.preguntasClave')}</CardTitle>
                 </CardHeader>
                 <CardContent className="p-3 pt-0">
                   <ul className="space-y-2">
@@ -381,7 +371,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
             <Card>
               <CardHeader className="p-3 pb-2">
                 <div className="flex items-center justify-between">
-                  <CardTitle className="text-sm">Checklist Final</CardTitle>
+                  <CardTitle className="text-sm">{t('tasks.checklistFinal')}</CardTitle>
                   <Badge variant="outline">{checklistProgress}%</Badge>
                 </div>
                 <Progress value={checklistProgress} className="h-1.5 mt-2" />
@@ -415,9 +405,7 @@ export function TaskPlaybookViewer({ playbook, taskTitle, onClose: _onClose }: T
 
                 {/* Siguiente paso */}
                 <div className="mt-4 p-4 rounded-lg bg-primary/5 border border-primary/20">
-                  <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">
-                    Siguiente Paso
-                  </p>
+                  <p className="text-xs font-medium text-primary uppercase tracking-wide mb-1">{t('tasks.siguientePaso')}</p>
                   <p className="text-sm">{playbook.siguiente_paso}</p>
                 </div>
               </CardContent>

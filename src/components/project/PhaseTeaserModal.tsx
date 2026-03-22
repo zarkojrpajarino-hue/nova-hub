@@ -3,7 +3,7 @@
  *
  * Se abre cuando el usuario clica una tab con status 'teaser'.
  * Explica por qué no está activa ahora y cuándo se desbloquea.
- * "Abrir de todas formas" → power user escape hatch.
+ * t('project.abrirDeTodasFormas') → power user escape hatch.
  */
 
 import { Lock } from 'lucide-react'
@@ -15,9 +15,10 @@ import {
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
 
+import { useTranslation } from 'react-i18next';
 const TAB_LABELS: Record<string, string> = {
   crm:          'CRM',
-  financiero:   'Financiero',
+  financiero:   t('project.financiero'),
   'negocio-ia': 'Negocio IA',
 }
 
@@ -38,6 +39,7 @@ export function PhaseTeaserModal({
   unlockCondition,
   onOpenAnyway,
 }: PhaseTeaserModalProps) {
+  const { t } = useTranslation();
   const tabLabel = TAB_LABELS[tabId] ?? tabId
 
   return (
@@ -68,9 +70,7 @@ export function PhaseTeaserModal({
             variant="default"
             className="flex-1"
             onClick={() => onOpenChange(false)}
-          >
-            Entendido
-          </Button>
+          >{t('project.entendido')}</Button>
           <Button
             variant="ghost"
             className="flex-1 text-muted-foreground text-xs"

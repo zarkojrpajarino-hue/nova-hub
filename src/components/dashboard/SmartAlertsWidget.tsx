@@ -5,6 +5,7 @@ import { useProfiles, useProjects, useMemberStats, useObjectives } from '@/hooks
 import { cn } from '@/lib/utils';
 import { differenceInDays } from 'date-fns';
 
+import { useTranslation } from 'react-i18next';
 interface Alert {
   id: string;
   type: 'inactive_member' | 'stale_leads' | 'goal_at_risk';
@@ -15,6 +16,7 @@ interface Alert {
 }
 
 export function SmartAlertsWidget() {
+  const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
   const { data: projects = [] } = useProjects();
   const { data: memberStats = [] } = useMemberStats();
@@ -56,7 +58,7 @@ export function SmartAlertsWidget() {
             title: `${member.nombre} sin actividad`,
             description: lastActivity 
               ? `${daysSince} días sin registrar OBVs`
-              : 'Sin actividad reciente',
+              : t('dashboard.sinActividadReciente'),
             icon: User,
           });
         }
@@ -105,7 +107,7 @@ export function SmartAlertsWidget() {
             id: 'goal-at-risk-obvs',
             type: 'goal_at_risk',
             severity: 'error',
-            title: 'Meta de OBVs en riesgo',
+            title: t('dashboard.metaDeObvsEn'),
             description: `${currentProgress.toFixed(0)}% de progreso vs ${expectedProgress.toFixed(0)}% esperado`,
             icon: TrendingDown,
           });
@@ -122,7 +124,7 @@ export function SmartAlertsWidget() {
       <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
         <div className="flex items-center gap-2.5 mb-4">
           <AlertTriangle size={18} className="text-warning" />
-          <h3 className="font-semibold">Alertas</h3>
+          <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
         </div>
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
@@ -136,11 +138,11 @@ export function SmartAlertsWidget() {
       <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
         <div className="flex items-center gap-2.5 mb-4">
           <AlertTriangle size={18} className="text-success" />
-          <h3 className="font-semibold">Alertas</h3>
+          <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
         </div>
         <div className="text-center py-6 text-muted-foreground">
           <span className="text-2xl mb-2 block">✅</span>
-          <p className="text-sm">Todo en orden, ¡sigue así!</p>
+          <p className="text-sm">{t('dashboard.todoEnOrdenSigue')}</p>
         </div>
       </div>
     );
@@ -151,7 +153,7 @@ export function SmartAlertsWidget() {
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center gap-2.5">
           <AlertTriangle size={18} className="text-warning" />
-          <h3 className="font-semibold">Alertas</h3>
+          <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
         </div>
         <span className="text-xs font-bold bg-warning/20 text-warning px-2.5 py-1 rounded-lg">
           {alerts.length}

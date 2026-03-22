@@ -17,8 +17,9 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 // ── Tipos ─────────────────────────────────────────────────────────────────────
 
 interface DecisionRetrospective {
@@ -32,6 +33,7 @@ interface DecisionRetrospective {
 // ── Hook ──────────────────────────────────────────────────────────────────────
 
 function usePendingRetrospectives(projectId: string | undefined) {
+  const { t } = useTranslation();
   return useQuery<DecisionRetrospective[]>({
     queryKey:  ['decision_retrospectives_pending', projectId],
     enabled:   !!projectId,
@@ -90,12 +92,12 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['decision_retrospectives_pending', projectId] });
-      toast.success('Retrospectiva registrada');
+      toast.success(t('project.retrospectivaRegistrada'));
       setActiveId(null);
       setOutcome('');
       setWasCorrect(null);
     },
-    onError: () => toast.error('Error al guardar la retrospectiva'),
+    onError: () => toast.error(t('project.errorAlGuardarLa')),
   });
 
   if (!projectId || isSnoozed() || pending.length === 0) return null;
@@ -129,7 +131,7 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
           </span>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-xs text-violet-500">¿Qué pasó?</span>
+          <span className="text-xs text-violet-500">{t('project.quéPasó')}</span>
           {expanded
             ? <ChevronUp  className="h-4 w-4 text-violet-500" />
             : <ChevronDown className="h-4 w-4 text-violet-500" />}
@@ -159,7 +161,7 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
                 </p>
                 <p className="text-xs text-violet-500 mt-0.5">
                   Tomada{' '}
-                  {formatDistanceToNow(new Date(retro.decision_made_at), { addSuffix: true, locale: es })}
+                  {formatDistanceToNow(new Date(retro.decision_made_at), { addSuffix: true, locale: getDateFnsLocale() })}
                 </p>
               </div>
             ))}
@@ -168,18 +170,16 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
           {/* Form inline para la decisión activa */}
           {activeId && (
             <div className="space-y-3 rounded-md border border-violet-300 dark:border-violet-700 bg-white dark:bg-violet-950/50 p-3">
-              <p className="text-xs font-semibold text-violet-800 dark:text-violet-200 uppercase tracking-wide">
-                ¿Qué pasó con esta decisión?
-              </p>
+              <p className="text-xs font-semibold text-violet-800 dark:text-violet-200 uppercase tracking-wide">{t('project.quéPasóConEsta')}</p>
               <Textarea
-                placeholder="Describe brevemente el outcome real..."
+                placeholder={t('project.describeBrevementeElOutcome')}
                 value={outcomeText}
                 onChange={e => setOutcome(e.target.value)}
                 rows={2}
                 className="resize-none text-sm"
               />
               <div className="flex items-center gap-2">
-                <span className="text-xs text-violet-600 dark:text-violet-400">¿Fue la decisión correcta?</span>
+                <span className="text-xs text-violet-600 dark:text-violet-400">{t('project.fueLaDecisiónCorrecta')}</span>
                 <button
                   onClick={() => setWasCorrect(true)}
                   className={`flex items-center gap-1 rounded px-2 py-1 text-xs font-medium transition-colors ${
@@ -206,16 +206,12 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
                   size="sm"
                   variant="outline"
                   onClick={() => { setActiveId(null); setOutcome(''); setWasCorrect(null); }}
-                >
-                  Cancelar
-                </Button>
+                >{t('project.cancelar')}</Button>
                 <Button
                   size="sm"
                   disabled={wasCorrect === null || fillMutation.isPending}
                   onClick={handleSubmit}
-                >
-                  Guardar retrospectiva
-                </Button>
+                >{t('project.guardarRetrospectiva')}</Button>
               </div>
             </div>
           )}
@@ -226,9 +222,7 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
               onClick={handleSnooze}
               className="flex items-center gap-1 text-xs text-violet-400 hover:text-violet-600"
             >
-              <X className="h-3 w-3" />
-              Recordar en 7 días
-            </button>
+              <X className="h-3 w-3" />{t('project.recordarEn7Días')}</button>
           </div>
         </div>
       )}

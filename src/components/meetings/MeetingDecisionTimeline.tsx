@@ -12,6 +12,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, CheckCircle2, ArrowUpRight, RefreshCw, Calendar } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 // ── Types ─────────────────────────────────────────────────────────────────────
 
 type EventKind = 'decision' | 'phase_transition' | 'cycle'
@@ -28,6 +29,7 @@ interface TimelineEvent {
 // ── Queries ───────────────────────────────────────────────────────────────────
 
 function useDecisionTimeline(projectId: string) {
+  const { t } = useTranslation();
   return useQuery<TimelineEvent[]>({
     queryKey:  ['decision_timeline', projectId],
     enabled:   !!projectId,
@@ -50,9 +52,9 @@ function useDecisionTimeline(projectId: string) {
           id:          d.id,
           date:        d.created_at as string,
           kind:        'decision',
-          title:       payload?.title ?? 'Decisión de reunión',
+          title:       payload?.title ?? t('meetings.decisiónDeReunión'),
           description: payload?.description ?? undefined,
-          badge:       'Decisión',
+          badge:       t('meetings.decisión'),
         });
       }
 
@@ -66,9 +68,9 @@ function useDecisionTimeline(projectId: string) {
         .limit(10);
 
       const PHASE_REASON_LABELS: Record<string, string> = {
-        threshold_met:      'Umbral alcanzado',
-        acceleration_signal: 'Señal de aceleración',
-        regression:         'Regresión detectada',
+        threshold_met:      t('meetings.umbralAlcanzado'),
+        acceleration_signal: t('meetings.señalDeAceleración'),
+        regression:         t('meetings.regresiónDetectada'),
       };
 
       for (const p of phases ?? []) {
@@ -90,9 +92,9 @@ function useDecisionTimeline(projectId: string) {
         .limit(10);
 
       const CYCLE_LABELS: Record<string, string> = {
-        weekly:    'Ciclo semanal',
-        monthly:   'Ciclo mensual',
-        quarterly: 'Ciclo trimestral',
+        weekly:    t('meetings.cicloSemanal'),
+        monthly:   t('meetings.cicloMensual'),
+        quarterly: t('meetings.cicloTrimestral'),
       };
 
       for (const c of cycles ?? []) {
@@ -199,12 +201,8 @@ export function MeetingDecisionTimeline({ projectId, onClose }: MeetingDecisionT
       {/* Header */}
       <div>
         <h3 className="text-lg font-semibold flex items-center gap-2">
-          <Calendar className="h-5 w-5 text-muted-foreground" />
-          Timeline de Decisiones
-        </h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          Decisiones de reunión, transiciones de fase y ciclos estratégicos en orden cronológico.
-        </p>
+          <Calendar className="h-5 w-5 text-muted-foreground" />{t('meetings.timelineDeDecisiones')}</h3>
+        <p className="text-sm text-muted-foreground mt-1">{t('meetings.decisionesDeReuniónTransiciones')}</p>
       </div>
 
       {/* Legend */}
@@ -229,11 +227,7 @@ export function MeetingDecisionTimeline({ projectId, onClose }: MeetingDecisionT
               <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
             </div>
           ) : events.length === 0 ? (
-            <p className="text-sm text-muted-foreground text-center py-8">
-              Sin eventos de decisión registrados aún.
-              <br />
-              Completa reuniones para ver cómo tus decisiones se alinean con el motor.
-            </p>
+            <p className="text-sm text-muted-foreground text-center py-8">{t('meetings.sinEventosDeDecisión')}<br />{t('meetings.completaReunionesParaVer')}</p>
           ) : (
             <div className="space-y-0">
               {events.map(event => (
@@ -249,9 +243,7 @@ export function MeetingDecisionTimeline({ projectId, onClose }: MeetingDecisionT
           <button
             onClick={onClose}
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
-          >
-            Cerrar
-          </button>
+          >{t('meetings.cerrar')}</button>
         </div>
       )}
     </div>

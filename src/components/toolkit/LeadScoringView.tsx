@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface LeadScored {
   nombre: string;
   empresa?: string | null;
@@ -34,6 +35,7 @@ const TIER_STYLE: Record<string, string> = {
 };
 
 export function LeadScoringView({ output }: { output: LeadScoringOutput }) {
+  const { t } = useTranslation();
   return (
     <div className="space-y-4">
       {/* Top Hot */}
@@ -59,7 +61,7 @@ export function LeadScoringView({ output }: { output: LeadScoringOutput }) {
       {/* Criterios */}
       <Card>
         <CardHeader className="pb-2">
-          <CardTitle className="text-sm">Criterios de scoring</CardTitle>
+          <CardTitle className="text-sm">{t('toolkit.criteriosDeScoring')}</CardTitle>
         </CardHeader>
         <CardContent className="space-y-3">
           {(output.criterios ?? []).map((c, i) => (
@@ -81,7 +83,7 @@ export function LeadScoringView({ output }: { output: LeadScoringOutput }) {
       {output.leads_scored?.length > 0 && (
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm">Leads puntuados</CardTitle>
+            <CardTitle className="text-sm">{t('toolkit.leadsPuntuados')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">

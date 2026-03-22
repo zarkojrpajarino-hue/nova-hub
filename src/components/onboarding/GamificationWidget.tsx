@@ -21,6 +21,7 @@ import {
 import { GamificationSystem, ACHIEVEMENTS, BADGES } from '@/lib/gamification';
 import type { Achievement } from '@/lib/gamification';
 
+import { useTranslation } from 'react-i18next';
 interface GamificationData {
   points: number;
   achievements: Achievement[];
@@ -34,6 +35,7 @@ interface GamificationWidgetProps {
 }
 
 export function GamificationWidget({ projectId, userId }: GamificationWidgetProps) {
+  const { t } = useTranslation();
   const [gamData, setGamData] = useState<GamificationData | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -80,14 +82,14 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
               <Trophy className="h-6 w-6 text-white" />
             </div>
             <div>
-              <CardTitle className="text-lg">Your Progress</CardTitle>
+              <CardTitle className="text-lg">{t('onboarding.yourProgress')}</CardTitle>
               <CardDescription>Level {gamData.level} Founder</CardDescription>
             </div>
           </div>
 
           <div className="text-right">
             <div className="text-3xl font-bold text-yellow-600">{gamData.points}</div>
-            <div className="text-xs text-gray-600">Total Points</div>
+            <div className="text-xs text-gray-600">{t('onboarding.totalPoints')}</div>
           </div>
         </div>
       </CardHeader>
@@ -110,9 +112,7 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
         {userBadges.length > 0 && (
           <div>
             <h4 className="text-sm font-semibold text-gray-700 mb-3 flex items-center gap-2">
-              <Award className="h-4 w-4" />
-              Your Badges
-            </h4>
+              <Award className="h-4 w-4" />{t('onboarding.yourBadges')}</h4>
             <div className="flex flex-wrap gap-2">
               {userBadges.map((badge) => (
                 <Badge
@@ -144,9 +144,7 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
             {unlockedAchievements.length === 0 ? (
               <div className="text-center py-8">
                 <Target className="h-12 w-12 text-gray-300 mx-auto mb-3" />
-                <p className="text-sm text-gray-600">
-                  Complete onboarding tasks to earn achievements!
-                </p>
+                <p className="text-sm text-gray-600">{t('onboarding.completeOnboardingTasksTo')}</p>
               </div>
             ) : (
               unlockedAchievements.map((achievement: Achievement) => (
@@ -210,19 +208,19 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
             <div className="text-2xl font-bold text-yellow-600">
               {unlockedAchievements.length}
             </div>
-            <div className="text-xs text-gray-600">Achievements</div>
+            <div className="text-xs text-gray-600">{t('onboarding.achievements')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-blue-600">
               {userBadges.length}
             </div>
-            <div className="text-xs text-gray-600">Badges</div>
+            <div className="text-xs text-gray-600">{t('onboarding.badges')}</div>
           </div>
           <div className="text-center">
             <div className="text-2xl font-bold text-purple-600">
               {gamData.level}
             </div>
-            <div className="text-xs text-gray-600">Level</div>
+            <div className="text-xs text-gray-600">{t('onboarding.level')}</div>
           </div>
         </div>
       </CardContent>

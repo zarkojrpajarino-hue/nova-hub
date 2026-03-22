@@ -11,6 +11,7 @@ import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 import { useActiveCycle, type CycleObjective } from '@/hooks/useStrategicCycles';
 
+import { useTranslation } from 'react-i18next';
 // AUD.B.4 — validación semántica mínima para siguiente_accion
 // Reglas: ≥15 chars + no todo mayúsculas (evita "LLAMAR LLAMAR LLAMAR")
 function isValidSiguienteAccion(text: string): boolean {
@@ -21,10 +22,10 @@ function isValidSiguienteAccion(text: string): boolean {
 }
 
 const FUNCTION_TYPE_OPTIONS = [
-  { value: 'demand',   label: 'Demanda',  color: '#F59E0B', description: 'Generación de leads, ventas, marketing' },
-  { value: 'delivery', label: 'Delivery', color: '#3B82F6', description: 'Producto, desarrollo, entrega al cliente' },
-  { value: 'cash',     label: 'Cash',     color: '#22C55E', description: 'Facturación, cobros, gestión financiera' },
-  { value: 'support',  label: 'Soporte',  color: '#A855F7', description: 'Operaciones, atención al cliente, admin' },
+  { value: 'demand',   label: t('tasks.demanda'),  color: '#F59E0B', description: t('tasks.generaciónDeLeadsVentas') },
+  { value: 'delivery', label: t('tasks.delivery'), color: '#3B82F6', description: t('tasks.productoDesarrolloEntregaAl') },
+  { value: 'cash',     label: t('tasks.cash'),     color: '#22C55E', description: t('tasks.facturaciónCobrosGestiónFinanciera') },
+  { value: 'support',  label: t('tasks.soporte'),  color: '#A855F7', description: t('tasks.operacionesAtenciónAlCliente') },
 ] as const;
 
 interface TaskCompletionDialogProps {
@@ -66,6 +67,7 @@ export function TaskCompletionDialog({
   projectId,
   onComplete
 }: TaskCompletionDialogProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [aiQuestions, setAiQuestions] = useState<AIQuestion[]>([]);
@@ -144,7 +146,7 @@ export function TaskCompletionDialog({
       setResolvedFunctionType(ft);
       setStep('feedback');
     } catch {
-      toast.error('Error al guardar la función. Intenta de nuevo.');
+      toast.error(t('tasks.errorAlGuardarLa'));
     } finally {
       setIsSavingFunctionType(false);
     }
@@ -161,7 +163,7 @@ export function TaskCompletionDialog({
 
   const handleSubmit = async () => {
     if (!insights.trim() || !aprendizaje.trim()) {
-      toast.error('Por favor completa los campos de insights y aprendizaje');
+      toast.error(t('tasks.porFavorCompletaLos'));
       return;
     }
 
@@ -207,7 +209,7 @@ export function TaskCompletionDialog({
         onOpenChange(false);
       }
     } catch (_err) {
-      toast.error('Error al completar la tarea');
+      toast.error(t('tasks.errorAlCompletarLa'));
     } finally {
       setIsSubmitting(false);
     }
@@ -229,7 +231,7 @@ export function TaskCompletionDialog({
       if (error) throw error;
       toast.success(`Tarea creada · ${completedFeedback.siguiente_accion.slice(0, 40)}`);
     } catch {
-      toast.error('Error al crear la tarea');
+      toast.error(t('tasks.errorAlCrearLa'));
     } finally {
       setIsCreatingFollowUpTask(false);
     }
@@ -256,9 +258,9 @@ export function TaskCompletionDialog({
   };
 
   const RESULTADO_OPTIONS = [
-    { value: 'exito', label: 'Éxito total', icon: CheckCircle2, color: 'text-green-500' },
-    { value: 'parcial', label: 'Éxito parcial', icon: TrendingUp, color: 'text-amber-500' },
-    { value: 'fallido', label: 'No completada', icon: AlertTriangle, color: 'text-red-500' },
+    { value: 'exito', label: t('tasks.éxitoTotal'), icon: CheckCircle2, color: 'text-green-500' },
+    { value: 'parcial', label: t('tasks.éxitoParcial'), icon: TrendingUp, color: 'text-amber-500' },
+    { value: 'fallido', label: t('tasks.noCompletada'), icon: AlertTriangle, color: 'text-red-500' },
   ];
 
   return (
@@ -268,9 +270,7 @@ export function TaskCompletionDialog({
           <DialogTitle className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-green-500 to-emerald-500 flex items-center justify-center">
               <CheckCircle2 className="w-4 h-4 text-white" />
-            </div>
-            Completar Tarea
-          </DialogTitle>
+            </div>{t('tasks.completarTarea')}</DialogTitle>
           <DialogDescription className="line-clamp-2">
             {task.titulo}
           </DialogDescription>
@@ -281,7 +281,7 @@ export function TaskCompletionDialog({
           <div className="space-y-4 py-4">
             <div className="flex items-center gap-2 text-sm text-muted-foreground">
               <Layers className="w-4 h-4 text-primary" />
-              <span>Antes de completar, asigna la función de esta tarea en el negocio</span>
+              <span>{t('tasks.antesDeCompletarAsigna')}</span>
             </div>
             <div className="grid grid-cols-2 gap-3">
               {FUNCTION_TYPE_OPTIONS.map((opt) => (
@@ -307,9 +307,7 @@ export function TaskCompletionDialog({
               ))}
             </div>
             <div className="flex gap-3 pt-2 border-t">
-              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
-                Cancelar
-              </Button>
+              <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>{t('tasks.cancelar')}</Button>
             </div>
           </div>
         )}
@@ -321,7 +319,7 @@ export function TaskCompletionDialog({
           {/* [P4.1] Vincular a objetivo del ciclo */}
           {cycleObjectives.length > 0 && (
             <div className="space-y-2">
-              <Label className="text-sm font-medium">¿A qué objetivo contribuyó?</Label>
+              <Label className="text-sm font-medium">{t('tasks.aQuéObjetivoContribuyó')}</Label>
               <div className="grid gap-1.5">
                 {cycleObjectives.map((obj) => (
                   <button
@@ -346,16 +344,14 @@ export function TaskCompletionDialog({
                     'text-left px-3 py-2 rounded-lg border text-xs',
                     !selectedObjectiveId ? 'border-muted-foreground/30 bg-muted/30' : 'border-border'
                   )}
-                >
-                  Ninguno / No aplica
-                </button>
+                >{t('tasks.ningunoNoAplica')}</button>
               </div>
             </div>
           )}
 
           {/* Resultado */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">¿Cómo fue el resultado?</Label>
+            <Label className="text-sm font-medium">{t('tasks.cómoFueElResultado')}</Label>
             <div className="grid grid-cols-3 gap-2">
               {RESULTADO_OPTIONS.map(option => {
                 const Icon = option.icon;
@@ -381,7 +377,7 @@ export function TaskCompletionDialog({
 
           {/* Dificultad */}
           <div className="space-y-3">
-            <Label className="text-sm font-medium">¿Qué tan difícil fue?</Label>
+            <Label className="text-sm font-medium">{t('tasks.quéTanDifícilFue')}</Label>
             <div className="flex gap-2">
               {[1, 2, 3, 4, 5].map(n => (
                 <button
@@ -400,21 +396,19 @@ export function TaskCompletionDialog({
               ))}
             </div>
             <div className="flex justify-between text-xs text-muted-foreground">
-              <span>Muy fácil</span>
-              <span>Muy difícil</span>
+              <span>{t('tasks.muyFácil')}</span>
+              <span>{t('tasks.muyDifícil')}</span>
             </div>
           </div>
 
           {/* Insights */}
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-amber-500" />
-              ¿Qué insights obtuviste?
-            </Label>
+              <Lightbulb className="w-4 h-4 text-amber-500" />{t('tasks.quéInsightsObtuviste')}</Label>
             <Textarea
               value={insights}
               onChange={e => setInsights(e.target.value)}
-              placeholder="Descubrimientos sobre el cliente, mercado, producto..."
+              placeholder={t('tasks.descubrimientosSobreElCliente')}
               className="min-h-[80px] resize-none"
             />
           </div>
@@ -422,13 +416,11 @@ export function TaskCompletionDialog({
           {/* Aprendizaje */}
           <div className="space-y-2">
             <Label className="text-sm font-medium flex items-center gap-2">
-              <TrendingUp className="w-4 h-4 text-blue-500" />
-              ¿Qué aprendizaje te llevas?
-            </Label>
+              <TrendingUp className="w-4 h-4 text-blue-500" />{t('tasks.quéAprendizajeTeLlevas')}</Label>
             <Textarea
               value={aprendizaje}
               onChange={e => setAprendizaje(e.target.value)}
-              placeholder="Qué harías diferente, qué funcionó bien..."
+              placeholder={t('tasks.quéHaríasDiferenteQué')}
               className="min-h-[80px] resize-none"
             />
           </div>
@@ -439,14 +431,14 @@ export function TaskCompletionDialog({
             <Textarea
               value={siguienteAccion}
               onChange={e => setSiguienteAccion(e.target.value)}
-              placeholder="Próxima acción a tomar..."
+              placeholder={t('tasks.próximaAcciónATomar')}
               className="min-h-[60px] resize-none"
             />
             {siguienteAccion.trim().length > 0 && !isValidSiguienteAccion(siguienteAccion) && (
               <p className="text-xs text-muted-foreground">
                 {siguienteAccion.trim().length < 15
                   ? `Describe un poco más para crear tarea (${siguienteAccion.trim().length}/15 chars)`
-                  : 'Evita escribir todo en mayúsculas'}
+                  : t('tasks.evitaEscribirTodoEn')}
               </p>
             )}
           </div>
@@ -455,7 +447,7 @@ export function TaskCompletionDialog({
           {isGeneratingQuestions && (
             <div className="flex items-center justify-center py-4">
               <Loader2 className="w-5 h-5 animate-spin text-primary mr-2" />
-              <span className="text-sm text-muted-foreground">Generando preguntas personalizadas...</span>
+              <span className="text-sm text-muted-foreground">{t('tasks.generandoPreguntasPersonalizadas')}</span>
             </div>
           )}
 
@@ -472,7 +464,7 @@ export function TaskCompletionDialog({
                     <Textarea
                       value={answers[`q${i}`] || ''}
                       onChange={e => setAnswers(prev => ({ ...prev, [`q${i}`]: e.target.value }))}
-                      placeholder={q.placeholder || 'Tu respuesta...'}
+                      placeholder={q.placeholder || t('tasks.tuRespuesta')}
                       className="min-h-[60px] resize-none"
                     />
                   )}
@@ -496,9 +488,7 @@ export function TaskCompletionDialog({
         </div>
 
         <div className="flex gap-3 pt-4 border-t">
-          <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>
-            Cancelar
-          </Button>
+          <Button variant="outline" className="flex-1" onClick={() => onOpenChange(false)}>{t('tasks.cancelar')}</Button>
           <Button
             className="flex-1"
             onClick={handleSubmit}
@@ -519,9 +509,7 @@ export function TaskCompletionDialog({
         {step === 'followup' && completedFeedback && (
           <div className="space-y-4 py-4">
             <div className="flex items-center gap-2 text-sm text-green-600 font-medium">
-              <CheckCircle2 className="w-4 h-4" />
-              Tarea completada
-            </div>
+              <CheckCircle2 className="w-4 h-4" />{t('tasks.tareaCompletada')}</div>
 
             {/* B.1: Siguiente acción detectada */}
             {isValidSiguienteAccion(completedFeedback.siguiente_accion) && (
@@ -544,9 +532,7 @@ export function TaskCompletionDialog({
                     }
                     Crear tarea
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={handleCloseFollowUp}>
-                    Ignorar
-                  </Button>
+                  <Button size="sm" variant="ghost" onClick={handleCloseFollowUp}>{t('tasks.ignorar')}</Button>
                 </div>
               </div>
             )}
@@ -554,7 +540,7 @@ export function TaskCompletionDialog({
             {/* B.3: demand + exito → sugerencia de OBV */}
             {resolvedFunctionType === 'demand' && completedFeedback.resultado === 'exito' && (
               <div className="rounded-xl border border-border bg-muted/30 p-4 space-y-3">
-                <p className="text-xs text-muted-foreground font-medium">¿Fue una validación con un cliente?</p>
+                <p className="text-xs text-muted-foreground font-medium">{t('tasks.fueUnaValidaciónCon')}</p>
                 <div className="flex gap-2">
                   <Button
                     size="sm"
@@ -564,9 +550,7 @@ export function TaskCompletionDialog({
                   >
                     Registrar como OBV →
                   </Button>
-                  <Button size="sm" variant="ghost" onClick={handleCloseFollowUp}>
-                    No por ahora
-                  </Button>
+                  <Button size="sm" variant="ghost" onClick={handleCloseFollowUp}>{t('tasks.noPorAhora')}</Button>
                 </div>
               </div>
             )}
@@ -574,9 +558,7 @@ export function TaskCompletionDialog({
             {/* Cierre sin acción extra */}
             {!isValidSiguienteAccion(completedFeedback.siguiente_accion) &&
               resolvedFunctionType !== 'demand' && (
-              <Button className="w-full" onClick={handleCloseFollowUp}>
-                Cerrar
-              </Button>
+              <Button className="w-full" onClick={handleCloseFollowUp}>{t('tasks.cerrar')}</Button>
             )}
           </div>
         )}

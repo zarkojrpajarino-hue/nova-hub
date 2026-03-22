@@ -18,6 +18,7 @@ import { Badge } from '@/components/ui/badge'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { CheckCircle2, AlertCircle, AlertTriangle, Clock, Database } from 'lucide-react'
 
+import { useTranslation } from 'react-i18next';
 interface SyncHealthCardProps {
   connectionId: string | null
   provider: string
@@ -36,10 +37,10 @@ interface SyncRun {
 }
 
 function formatRelativeTime(iso: string | null): string {
-  if (!iso) return 'Nunca'
+  if (!iso) return t('integrations.nunca')
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
-  if (minutes < 1) return 'Hace menos de 1 min'
+  if (minutes < 1) return t('integrations.haceMenosDe1')
   if (minutes < 60) return `Hace ${minutes} min`
   const hours = Math.floor(minutes / 60)
   if (hours < 24) return `Hace ${hours}h`
@@ -48,12 +49,11 @@ function formatRelativeTime(iso: string | null): string {
 }
 
 function StatusBadge({ status, isPartial }: { status: string; isPartial: boolean }) {
+  const { t } = useTranslation();
   if (status === 'completed' && isPartial) {
     return (
       <Badge variant="outline" className="text-xs text-amber-600 border-amber-400">
-        <AlertTriangle size={11} className="mr-1" />
-        Parcial
-      </Badge>
+        <AlertTriangle size={11} className="mr-1" />{t('integrations.parcial')}</Badge>
     )
   }
   if (status === 'completed') {
@@ -67,17 +67,13 @@ function StatusBadge({ status, isPartial }: { status: string; isPartial: boolean
   if (status === 'failed') {
     return (
       <Badge variant="destructive" className="text-xs">
-        <AlertCircle size={11} className="mr-1" />
-        Error
-      </Badge>
+        <AlertCircle size={11} className="mr-1" />{t('integrations.error')}</Badge>
     )
   }
   if (status === 'running') {
     return (
       <Badge variant="secondary" className="text-xs">
-        <Clock size={11} className="mr-1" />
-        En curso
-      </Badge>
+        <Clock size={11} className="mr-1" />{t('integrations.enCurso')}</Badge>
     )
   }
   return <Badge variant="outline" className="text-xs">{status}</Badge>
@@ -108,13 +104,11 @@ export function SyncHealthCard({ connectionId, provider: _provider }: SyncHealth
     <Card className="border-border/50">
       <CardHeader className="pb-2">
         <CardTitle className="text-sm flex items-center gap-2">
-          <Database size={15} className="text-muted-foreground" />
-          Salud de sincronización
-        </CardTitle>
+          <Database size={15} className="text-muted-foreground" />{t('integrations.saludDeSincronización')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {!lastRun ? (
-          <p className="text-sm text-muted-foreground">Sin runs registrados. Haz clic en "Sincronizar Ahora" para importar datos.</p>
+          <p className="text-sm text-muted-foreground">{t('integrations.sinRunsRegistradosHaz')}</p>
         ) : (
           <>
             <div className="flex items-center justify-between">
@@ -129,15 +123,15 @@ export function SyncHealthCard({ connectionId, provider: _provider }: SyncHealth
               <div className="grid grid-cols-3 gap-2 text-center">
                 <div className="p-2 rounded-md bg-muted/40">
                   <p className="text-base font-semibold">{lastRun.entities_processed ?? '—'}</p>
-                  <p className="text-xs text-muted-foreground">Procesadas</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.procesadas')}</p>
                 </div>
                 <div className="p-2 rounded-md bg-green-500/10">
                   <p className="text-base font-semibold text-green-600">{lastRun.entities_written}</p>
-                  <p className="text-xs text-muted-foreground">Escritas</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.escritas')}</p>
                 </div>
                 <div className="p-2 rounded-md bg-muted/40">
                   <p className="text-base font-semibold">{lastRun.entities_rejected ?? '—'}</p>
-                  <p className="text-xs text-muted-foreground">Rechazadas</p>
+                  <p className="text-xs text-muted-foreground">{t('integrations.rechazadas')}</p>
                 </div>
               </div>
             )}
@@ -145,9 +139,7 @@ export function SyncHealthCard({ connectionId, provider: _provider }: SyncHealth
             {lastRun.is_partial && (
               <Alert className="border-amber-400/40 bg-amber-500/5 py-2">
                 <AlertTriangle className="h-3.5 w-3.5 text-amber-500" />
-                <AlertDescription className="text-xs">
-                  Sync parcial — hay más datos pendientes. Vuelve a sincronizar para continuar.
-                </AlertDescription>
+                <AlertDescription className="text-xs">{t('integrations.syncParcialHayMás')}</AlertDescription>
               </Alert>
             )}
 

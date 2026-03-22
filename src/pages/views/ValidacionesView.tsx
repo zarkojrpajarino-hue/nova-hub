@@ -19,11 +19,13 @@ import { useAuth } from '@/hooks/useAuth';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
+import { useTranslation } from 'react-i18next';
 interface ValidacionesViewProps {
   onNewOBV?: () => void;
 }
 
 export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const [activeTab, setActiveTab] = useState('obvs');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -156,8 +158,8 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
   return (
     <>
       <NovaHeader
-        title="Validaciones"
-        subtitle="Valida tu idea con experimentos Lean Startup antes de gastar dinero"
+        title={t('validaciones.validaciones')}
+        subtitle={t('validaciones.validaTuIdeaCon')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -165,48 +167,48 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
       <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Valida tu startup con experimentos antes de invertir mucho"
-          whatIsIt="Sistema de validación peer-to-peer donde el equipo revisa y aprueba OBVs (Objectives-Based Validations) y KPIs. Basado en metodología Lean Startup: testea hipótesis con clientes reales antes de construir el producto completo."
+          title={t('validaciones.cómoFunciona')}
+          description={t('validaciones.validaTuStartupCon')}
+          whatIsIt={t('validaciones.sistemaDeValidaciónPeertopeer')}
           dataInputs={[
             {
-              from: 'Proyectos',
+              from: t('validaciones.proyectos'),
               items: [
                 'Experimentos de validación sugeridos por IA',
                 'Hipótesis a testear (Ej: "Clientes pagarían $X")',
-                'Criterios de éxito predefinidos',
+                t('validaciones.criteriosDeÉxitoPredefinidos'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Centro OBVs',
+              to: t('validaciones.centroObvs'),
               items: [
-                'OBVs validadas y aprobadas por el equipo',
+                t('validaciones.obvsValidadasYAprobadas'),
                 'Objetivos concretos (Ej: "100 leads en 2 semanas")',
-                'Tareas específicas para ejecutar',
+                t('validaciones.tareasEspecíficasParaEjecutar'),
               ],
             },
             {
-              to: 'KPIs',
+              to: t('validaciones.kpis0'),
               items: [
-                'Métricas a trackear',
-                'Criterios de éxito/fallo',
-                'Dashboard de progreso',
+                t('validaciones.métricasATrackear'),
+                t('validaciones.criteriosDeÉxitofallo'),
+                t('validaciones.dashboardDeProgreso'),
               ],
             },
             {
-              to: 'Decisiones',
+              to: t('validaciones.decisiones'),
               items: [
-                'Datos para decidir: ¿Pivotar o Perseverar?',
-                'Aprendizajes validados',
-                'Próximos experimentos',
+                t('validaciones.datosParaDecidirPivotar'),
+                t('validaciones.aprendizajesValidados'),
+                t('validaciones.próximosExperimentos'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Crea OBVs basadas en experimentos sugeridos',
-            destination: 'Ve a CENTRO OBVs para ejecutar y trackear progreso',
+            action: t('validaciones.creaObvsBasadasEn'),
+            destination: t('validaciones.veACentroObvs'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -223,20 +225,18 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
               </div>
               <div>
                 <h3 className="text-2xl font-bold">{totalPending}</h3>
-                <p className="text-sm text-muted-foreground">
-                  Validaciones pendientes
-                </p>
+                <p className="text-sm text-muted-foreground">{t('validaciones.validacionesPendientes')}</p>
               </div>
             </div>
 
             <div className="flex gap-6">
               <div className="text-center">
                 <p className="text-3xl font-bold text-purple-500">{numPendingOBVs}</p>
-                <p className="text-xs text-muted-foreground">OBVs</p>
+                <p className="text-xs text-muted-foreground">{t('validaciones.obvs')}</p>
               </div>
               <div className="text-center">
                 <p className="text-3xl font-bold text-pink-500">{numPendingKPIs}</p>
-                <p className="text-xs text-muted-foreground">KPIs</p>
+                <p className="text-xs text-muted-foreground">{t('validaciones.kpis')}</p>
               </div>
             </div>
           </div>
@@ -273,18 +273,14 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
             </TabsTrigger>
 
             <TabsTrigger value="historial" className="flex items-center gap-2">
-              <History className="w-4 h-4" />
-              Historial
-            </TabsTrigger>
+              <History className="w-4 h-4" />{t('validaciones.historial')}</TabsTrigger>
           </TabsList>
 
           {/* Tab: OBVs Pendientes */}
           <TabsContent value="obvs" className="mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">OBVs Pendientes de Validar</h3>
-              <p className="text-sm text-muted-foreground">
-                Revisa y valida las OBVs creadas por tus compañeros
-              </p>
+              <h3 className="text-lg font-semibold">{t('validaciones.obvsPendientesDeValidar')}</h3>
+              <p className="text-sm text-muted-foreground">{t('validaciones.revisaYValidaLas')}</p>
             </div>
             <OBVValidationList />
           </TabsContent>
@@ -292,10 +288,8 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
           {/* Tab: KPIs Pendientes */}
           <TabsContent value="kpis" className="mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">KPIs Pendientes de Validar</h3>
-              <p className="text-sm text-muted-foreground">
-                Revisa y valida los KPIs registrados por tus compañeros
-              </p>
+              <h3 className="text-lg font-semibold">{t('validaciones.kpisPendientesDeValidar')}</h3>
+              <p className="text-sm text-muted-foreground">{t('validaciones.revisaYValidaLos')}</p>
             </div>
             <KPIValidationList />
           </TabsContent>
@@ -303,10 +297,8 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
           {/* Tab: Historial */}
           <TabsContent value="historial" className="mt-6">
             <div className="mb-4">
-              <h3 className="text-lg font-semibold">Historial de Validaciones</h3>
-              <p className="text-sm text-muted-foreground">
-                Últimas 20 validaciones que has realizado
-              </p>
+              <h3 className="text-lg font-semibold">{t('validaciones.historialDeValidaciones')}</h3>
+              <p className="text-sm text-muted-foreground">{t('validaciones.últimas20ValidacionesQue')}</p>
             </div>
 
             {isLoadingHistory ? (
@@ -316,10 +308,8 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
             ) : validationHistory.length === 0 ? (
               <div className="bg-card border border-border rounded-2xl p-12 text-center">
                 <History className="w-12 h-12 text-muted-foreground mx-auto mb-4" />
-                <h4 className="font-semibold mb-2">Sin historial</h4>
-                <p className="text-sm text-muted-foreground">
-                  Aún no has realizado ninguna validación
-                </p>
+                <h4 className="font-semibold mb-2">{t('validaciones.sinHistorial')}</h4>
+                <p className="text-sm text-muted-foreground">{t('validaciones.aúnNoHasRealizado')}</p>
               </div>
             ) : (
               <div className="space-y-3">
@@ -342,19 +332,19 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
                           <span className={`text-sm font-medium ${
                             validation.approved ? 'text-success' : 'text-destructive'
                           }`}>
-                            {validation.approved ? 'Aprobado' : 'Rechazado'}
+                            {validation.approved ? 'Aprobado': t('validaciones.rechazado')}
                           </span>
                         </div>
 
                         <h4 className="font-semibold mb-1">
-                          {validation.item?.[0]?.titulo || 'Sin título'}
+                          {validation.item?.[0]?.titulo || t('validaciones.sinTítulo')}
                         </h4>
 
                         <p className="text-sm text-muted-foreground mb-2">
                           {validation.item_type === 'OBV'
                             ? `Tipo: ${validation.item?.[0]?.tipo}`
                             : `Tipo: ${validation.item?.[0]?.type}`
-                          } • Creado por {validation.item?.[0]?.owner?.[0]?.nombre || 'Desconocido'}
+                          } • Creado por {validation.item?.[0]?.owner?.[0]?.nombre || t('validaciones.desconocido')}
                         </p>
 
                         {validation.comentario && (

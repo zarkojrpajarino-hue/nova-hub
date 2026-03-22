@@ -45,6 +45,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import type { Json } from '@/integrations/supabase/types';
 
+import { useTranslation } from 'react-i18next';
 interface FaseBPanelProps {
   projectId: string;
   totalOBVs: number;
@@ -109,6 +110,7 @@ async function mergeCompetitors(projectId: string, newList: string[]): Promise<v
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanelProps) {
+  const { t } = useTranslation();
   const [visible, setVisible] = useState<boolean | null>(null);
   const [data, setData] = useState<PanelData | null>(null);
   const [allDone, setAllDone] = useState(false);
@@ -265,12 +267,10 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
       {/* Header */}
       <div className="flex items-center justify-between mb-1">
         <div className="flex items-center gap-2">
-          <h3 className="font-semibold text-base">Completa tu proyecto</h3>
+          <h3 className="font-semibold text-base">{t('project.completaTuProyecto')}</h3>
           {allDone && (
             <span className="text-xs font-medium text-success flex items-center gap-1">
-              <CheckCircle2 className="h-3.5 w-3.5" />
-              Perfecto
-            </span>
+              <CheckCircle2 className="h-3.5 w-3.5" />{t('project.perfecto')}</span>
           )}
         </div>
         <div className="flex items-center gap-3">
@@ -280,7 +280,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
             size="icon"
             className="h-7 w-7 text-muted-foreground hover:text-foreground"
             onClick={dismiss}
-            aria-label="Descartar"
+            aria-label={t('project.descartar')}
           >
             <X className="h-4 w-4" />
           </Button>
@@ -303,22 +303,20 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
 
         {/* Bloque 1 — Completa tu contexto */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Completa tu contexto
-          </p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.completaTuContexto')}</p>
 
           {/* Ítem 1: Sector */}
           <ItemCard complete={sectorOk} icon={Building2} iconBg="bg-violet-50" iconColor="text-violet-600">
-            <p className="text-sm font-medium mb-1.5">Sector / industria</p>
+            <p className="text-sm font-medium mb-1.5">{t('project.sectorIndustria')}</p>
             {sectorOk ? (
               <p className="text-xs text-muted-foreground">{data.selectedIndustry}</p>
             ) : (
               <div className="space-y-1.5">
                 <Input
-                  placeholder="ej. SaaS B2B, ecommerce, consultoría..."
+                  placeholder={t('project.ejSaasB2bEcommerce')}
                   value={sectorInput}
                   onChange={e => setSectorInput(e.target.value)}
-                  onKeyDown={e => e.key === 'Enter' && saveSector()}
+                  onKeyDown={e => e.key === t('project.enter') && saveSector()}
                   className="h-8 text-xs"
                 />
                 <Button
@@ -326,16 +324,14 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
                   className="h-7 text-xs w-full"
                   onClick={saveSector}
                   disabled={!sectorInput.trim() || saving === 'sector'}
-                >
-                  Guardar
-                </Button>
+                >{t('project.guardar')}</Button>
               </div>
             )}
           </ItemCard>
 
           {/* Ítem 2: Competidores */}
           <ItemCard complete={competitorOk} icon={Users} iconBg="bg-orange-50" iconColor="text-orange-600">
-            <p className="text-sm font-medium mb-1.5">Competidores principales</p>
+            <p className="text-sm font-medium mb-1.5">{t('project.competidoresPrincipales')}</p>
             <div className="space-y-1">
               {data.competitors.map((c, i) => (
                 <div
@@ -359,7 +355,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
                     placeholder={`Competidor ${data.competitors.length + 1}`}
                     value={competitorInput}
                     onChange={e => setCompetitorInput(e.target.value)}
-                    onKeyDown={e => e.key === 'Enter' && addCompetitor()}
+                    onKeyDown={e => e.key === t('project.enter') && addCompetitor()}
                     className="h-7 text-xs"
                   />
                   <Button
@@ -368,7 +364,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
                     className="h-7 px-2 shrink-0"
                     onClick={addCompetitor}
                     disabled={!competitorInput.trim() || saving === 'competitors'}
-                    aria-label="Añadir competidor"
+                    aria-label={t('project.añadirCompetidor')}
                   >
                     <Plus className="h-3 w-3" />
                   </Button>
@@ -380,13 +376,11 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
 
         {/* Bloque 2 — Define tu mercado */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Define tu mercado
-          </p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.defineTuMercado')}</p>
 
           {/* Ítem 3: Canal de adquisición */}
           <ItemCard complete={channelOk} icon={TrendingUp} iconBg="bg-blue-50" iconColor="text-blue-600">
-            <p className="text-sm font-medium mb-1.5">Canal de adquisición</p>
+            <p className="text-sm font-medium mb-1.5">{t('project.canalDeAdquisición')}</p>
             {channelOk ? (
               <p className="text-xs text-muted-foreground">
                 {channelCount} {channelCount === 1 ? 'canal definido' : 'canales definidos'}
@@ -397,8 +391,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
                 size="sm"
                 className="h-7 text-xs text-primary hover:text-primary gap-1 pl-0 mt-0.5"
                 onClick={scrollToAcqChannel}
-              >
-                Ir al canal de adquisición <ChevronRight className="h-3 w-3" />
+              >{t('project.irAlCanalDe')}<ChevronRight className="h-3 w-3" />
               </Button>
             )}
           </ItemCard>
@@ -406,16 +399,14 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
 
         {/* Bloque 3 — Da tus primeros pasos */}
         <div className="space-y-2">
-          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">
-            Da tus primeros pasos
-          </p>
+          <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wide">{t('project.daTusPrimerosPasos')}</p>
 
           {/* Ítem 4: Primer OBV */}
           <ItemCard complete={obvOk} icon={Target} iconBg="bg-amber-50" iconColor="text-amber-600">
-            <p className="text-sm font-medium mb-1.5">Primer OBV registrado</p>
+            <p className="text-sm font-medium mb-1.5">{t('project.primerObvRegistrado')}</p>
             {obvOk ? (
               <p className="text-xs text-muted-foreground">
-                {totalOBVs} {totalOBVs === 1 ? 'OBV creado' : 'OBVs creados'}
+                {totalOBVs} {totalOBVs === 1 ? 'OBV creado': t('project.obvsCreados')}
               </p>
             ) : onNavigateToTab ? (
               <Button
@@ -431,13 +422,13 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
 
           {/* Ítem 5: Asunción más arriesgada */}
           <ItemCard complete={riskiestOk} icon={Lightbulb} iconBg="bg-emerald-50" iconColor="text-emerald-600">
-            <p className="text-sm font-medium mb-1.5">Asunción más arriesgada</p>
+            <p className="text-sm font-medium mb-1.5">{t('project.asunciónMásArriesgada')}</p>
             {riskiestOk ? (
               <p className="text-xs text-muted-foreground line-clamp-2">{data.riskiestAssumption}</p>
             ) : (
               <div className="space-y-1.5">
                 <textarea
-                  placeholder="¿Qué asunción, si es falsa, haría fracasar tu proyecto?"
+                  placeholder={t('project.quéAsunciónSiEs')}
                   value={riskiestInput}
                   onChange={e => setRiskiestInput(e.target.value)}
                   className="w-full text-xs p-2 border border-input rounded-lg bg-background resize-none focus:outline-none focus:ring-1 focus:ring-ring"
@@ -448,9 +439,7 @@ export function FaseBPanel({ projectId, totalOBVs, onNavigateToTab }: FaseBPanel
                   className="h-7 text-xs w-full"
                   onClick={saveRiskiest}
                   disabled={riskiestInput.trim().length < 15 || saving === 'riskiest'}
-                >
-                  Guardar
-                </Button>
+                >{t('project.guardar')}</Button>
               </div>
             )}
           </ItemCard>

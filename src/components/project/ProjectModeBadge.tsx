@@ -1,5 +1,6 @@
 import type { ProjectEngineData, ViabilityStateData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 // ── Derivation (exported — reusable if other components need mode awareness) ──
 
 export type ProjectMode = 'build' | 'rescue';
@@ -26,21 +27,22 @@ interface ProjectModeBadgeProps {
 }
 
 export function ProjectModeBadge({ engineData, viabilityData }: ProjectModeBadgeProps) {
+  const { t } = useTranslation();
   const mode = deriveProjectMode(engineData?.risk, viabilityData);
 
   if (mode === 'rescue') {
     return (
       <div className="flex flex-col items-end bg-destructive/10 border border-destructive/20 rounded-lg px-2.5 py-1.5 shrink-0">
-        <p className="text-xs font-semibold text-destructive leading-none">Rescue Mode</p>
-        <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">Prioriza estabilizar</p>
+        <p className="text-xs font-semibold text-destructive leading-none">{t('project.rescueMode')}</p>
+        <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">{t('project.priorizaEstabilizar')}</p>
       </div>
     );
   }
 
   return (
     <div className="flex flex-col items-end bg-success/10 border border-success/20 rounded-lg px-2.5 py-1.5 shrink-0">
-      <p className="text-xs font-semibold text-success leading-none">Build Mode</p>
-      <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">Construcción normal</p>
+      <p className="text-xs font-semibold text-success leading-none">{t('project.buildMode')}</p>
+      <p className="text-[10px] text-muted-foreground mt-0.5 leading-none">{t('project.construcciónNormal')}</p>
     </div>
   );
 }

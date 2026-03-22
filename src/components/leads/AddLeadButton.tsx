@@ -14,6 +14,7 @@ import { PlanSelectionModal } from '@/components/subscription/PlanSelectionModal
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface AddLeadButtonProps {
   onAddLead?: () => void;
   variant?: 'default' | 'outline' | 'ghost';
@@ -29,6 +30,7 @@ export function AddLeadButton({
   className,
   children,
 }: AddLeadButtonProps) {
+  const { t } = useTranslation();
   const { currentProject } = useCurrentProject();
   const { getLimitInfo } = useFeatureAccess(currentProject?.id);
   const { data: availablePlans = [] } = useAvailablePlans();
@@ -40,7 +42,7 @@ export function AddLeadButton({
 
   const handleClick = () => {
     if (!currentProject) {
-      toast.error('Selecciona un proyecto primero');
+      toast.error(t('leads.seleccionaUnProyectoPrimero'));
       return;
     }
 
@@ -57,7 +59,7 @@ export function AddLeadButton({
   const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
     // TODO: Implementar upgrade en Fase 7
     setShowUpgradeModal(false);
-    toast.success('¡Plan actualizado! Ya puedes añadir más leads.');
+    toast.success(t('leads.planActualizadoYaPuedes'));
   };
 
   return (
@@ -76,7 +78,7 @@ export function AddLeadButton({
         ) : (
           <Plus className="h-4 w-4 mr-2" />
         )}
-        {children || 'Nuevo Lead'}
+        {children || t('leads.nuevoLead')}
       </Button>
 
       {/* Upgrade Modal */}

@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { PIPELINE_STAGES } from './pipeline-stages';
 
+import { useTranslation } from 'react-i18next';
 export interface CRMFilters {
   project: string;
   responsable: string;
@@ -22,6 +23,7 @@ interface CRMFiltersProps {
 }
 
 export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMFiltersProps) {
+  const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
 
   const activeFiltersCount = [
@@ -61,9 +63,7 @@ export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMF
 
         {activeFiltersCount > 0 && (
           <Button variant="ghost" size="sm" onClick={clearFilters}>
-            <X size={14} className="mr-1" />
-            Limpiar
-          </Button>
+            <X size={14} className="mr-1" />{t('crm.limpiar')}</Button>
         )}
       </div>
 
@@ -76,10 +76,10 @@ export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMF
               onValueChange={(v) => onFiltersChange({ ...filters, project: v })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Proyecto" />
+                <SelectValue placeholder={t('crm.proyecto')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los proyectos</SelectItem>
+                <SelectItem value="all">{t('crm.todosLosProyectos')}</SelectItem>
                 {projects.map(p => (
                   <SelectItem key={p.id} value={p.id}>
                     {p.icon} {p.nombre}
@@ -96,10 +96,10 @@ export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMF
               onValueChange={(v) => onFiltersChange({ ...filters, responsable: v })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Responsable" />
+                <SelectValue placeholder={t('crm.responsable')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos</SelectItem>
+                <SelectItem value="all">{t('crm.todos')}</SelectItem>
                 {members.map(m => (
                   <SelectItem key={m.id} value={m.id}>
                     <div className="flex items-center gap-2">
@@ -122,10 +122,10 @@ export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMF
               onValueChange={(v) => onFiltersChange({ ...filters, status: v })}
             >
               <SelectTrigger>
-                <SelectValue placeholder="Estado" />
+                <SelectValue placeholder={t('crm.estado')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">Todos los estados</SelectItem>
+                <SelectItem value="all">{t('crm.todosLosEstados')}</SelectItem>
                 {PIPELINE_STAGES.map(s => (
                   <SelectItem key={s.id} value={s.id}>
                     <div className="flex items-center gap-2">
@@ -145,7 +145,7 @@ export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMF
           <div className="flex items-center gap-2">
             <Input
               type="number"
-              placeholder="Min €"
+              placeholder={t('crm.min')}
               value={filters.minValue}
               onChange={(e) => onFiltersChange({ ...filters, minValue: e.target.value })}
               className="w-[100px]"
@@ -153,7 +153,7 @@ export function CRMFilters({ projects, members, filters, onFiltersChange }: CRMF
             <span className="text-muted-foreground">-</span>
             <Input
               type="number"
-              placeholder="Max €"
+              placeholder={t('crm.max')}
               value={filters.maxValue}
               onChange={(e) => onFiltersChange({ ...filters, maxValue: e.target.value })}
               className="w-[100px]"

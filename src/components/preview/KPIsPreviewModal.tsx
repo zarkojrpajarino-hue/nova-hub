@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle2, Clock, DollarSign, Users, Package, BarChart3, Activity } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface KPIsPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -38,66 +39,66 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
   const totalSlides = 6;
 
   const kpis: KPI[] = [
-    { id: '1', name: 'Monthly Revenue', value: '$284,500', change: 12.5, target: '$300K', status: 'good', category: 'Financial', unit: 'USD' },
-    { id: '2', name: 'Active Users', value: '15,847', change: 8.3, target: '18K', status: 'good', category: 'Business', unit: 'users' },
-    { id: '3', name: 'Conversion Rate', value: '4.2%', change: -2.1, target: '5%', status: 'warning', category: 'Business', unit: '%' },
-    { id: '4', name: 'Churn Rate', value: '2.8%', change: -0.5, target: '<3%', status: 'good', category: 'Business', unit: '%' },
-    { id: '5', name: 'Customer Satisfaction', value: '4.6/5', change: 0.3, target: '4.5/5', status: 'good', category: 'Product', unit: 'score' },
-    { id: '6', name: 'Team Productivity', value: '92%', change: 5.2, target: '90%', status: 'good', category: 'Team', unit: '%' },
-    { id: '7', name: 'Deployment Frequency', value: '23/week', change: -8.0, target: '25/week', status: 'critical', category: 'Team', unit: 'deploys' },
-    { id: '8', name: 'Support Response Time', value: '2.3h', change: -15.2, target: '<3h', status: 'good', category: 'Product', unit: 'hours' },
+    { id: '1', name: t('preview.monthlyRevenue'), value: '$284,500', change: 12.5, target: '$300K', status: 'good', category: t('preview.financial'), unit: 'USD' },
+    { id: '2', name: t('preview.activeUsers'), value: '15,847', change: 8.3, target: '18K', status: 'good', category: t('preview.business'), unit: 'users' },
+    { id: '3', name: t('preview.conversionRate'), value: '4.2%', change: -2.1, target: '5%', status: 'warning', category: t('preview.business'), unit: '%' },
+    { id: '4', name: t('preview.churnRate'), value: '2.8%', change: -0.5, target: '<3%', status: 'good', category: t('preview.business'), unit: '%' },
+    { id: '5', name: t('preview.customerSatisfaction'), value: '4.6/5', change: 0.3, target: '4.5/5', status: 'good', category: t('preview.product'), unit: 'score' },
+    { id: '6', name: t('preview.teamProductivity'), value: '92%', change: 5.2, target: '90%', status: 'good', category: t('preview.team'), unit: '%' },
+    { id: '7', name: t('preview.deploymentFrequency'), value: '23/week', change: -8.0, target: '25/week', status: 'critical', category: t('preview.team'), unit: 'deploys' },
+    { id: '8', name: t('preview.supportResponseTime'), value: '2.3h', change: -15.2, target: '<3h', status: 'good', category: t('preview.product'), unit: 'hours' },
   ];
 
   const categories: Category[] = [
     {
-      name: 'Business',
+      name: t('preview.business'),
       icon: <BarChart3 className="w-5 h-5" />,
       color: 'blue',
       metrics: [
-        { label: 'Total Users', value: '15,847', trend: 8.3 },
-        { label: 'New Sign-ups', value: '1,234', trend: 15.2 },
-        { label: 'Conversion Rate', value: '4.2%', trend: -2.1 },
-        { label: 'Churn Rate', value: '2.8%', trend: -0.5 },
+        { label: t('preview.totalUsers'), value: '15,847', trend: 8.3 },
+        { label: t('preview.newSignups'), value: '1,234', trend: 15.2 },
+        { label: t('preview.conversionRate'), value: '4.2%', trend: -2.1 },
+        { label: t('preview.churnRate'), value: '2.8%', trend: -0.5 },
         { label: 'LTV', value: '$12,450', trend: 6.8 },
         { label: 'CAC', value: '$450', trend: -3.2 },
       ],
     },
     {
-      name: 'Product',
+      name: t('preview.product'),
       icon: <Package className="w-5 h-5" />,
       color: 'purple',
       metrics: [
-        { label: 'Feature Adoption', value: '68%', trend: 12.4 },
-        { label: 'User Satisfaction', value: '4.6/5', trend: 0.3 },
-        { label: 'Bug Rate', value: '0.8%', trend: -25.0 },
-        { label: 'Response Time', value: '2.3h', trend: -15.2 },
-        { label: 'NPS Score', value: '67', trend: 5.0 },
-        { label: 'API Uptime', value: '99.8%', trend: 0.1 },
+        { label: t('preview.featureAdoption'), value: '68%', trend: 12.4 },
+        { label: t('preview.userSatisfaction'), value: '4.6/5', trend: 0.3 },
+        { label: t('preview.bugRate'), value: '0.8%', trend: -25.0 },
+        { label: t('preview.responseTime'), value: '2.3h', trend: -15.2 },
+        { label: t('preview.npsScore'), value: '67', trend: 5.0 },
+        { label: t('preview.apiUptime'), value: '99.8%', trend: 0.1 },
       ],
     },
     {
-      name: 'Team',
+      name: t('preview.team'),
       icon: <Users className="w-5 h-5" />,
       color: 'green',
       metrics: [
-        { label: 'Productivity', value: '92%', trend: 5.2 },
-        { label: 'Velocity', value: '87 pts', trend: 3.5 },
-        { label: 'Deployment Freq', value: '23/week', trend: -8.0 },
-        { label: 'Code Review Time', value: '4.2h', trend: -12.0 },
-        { label: 'Sprint Completion', value: '94%', trend: 2.1 },
-        { label: 'Team Satisfaction', value: '8.4/10', trend: 0.8 },
+        { label: t('preview.productivity'), value: '92%', trend: 5.2 },
+        { label: t('preview.velocity'), value: '87 pts', trend: 3.5 },
+        { label: t('preview.deploymentFreq'), value: '23/week', trend: -8.0 },
+        { label: t('preview.codeReviewTime'), value: '4.2h', trend: -12.0 },
+        { label: t('preview.sprintCompletion'), value: '94%', trend: 2.1 },
+        { label: t('preview.teamSatisfaction'), value: '8.4/10', trend: 0.8 },
       ],
     },
     {
-      name: 'Financial',
+      name: t('preview.financial'),
       icon: <DollarSign className="w-5 h-5" />,
       color: 'amber',
       metrics: [
-        { label: 'Monthly Revenue', value: '$284.5K', trend: 12.5 },
-        { label: 'MRR Growth', value: '8.2%', trend: 1.3 },
-        { label: 'Gross Margin', value: '72%', trend: 2.0 },
-        { label: 'Operating Costs', value: '$156K', trend: -5.5 },
-        { label: 'Runway', value: '18 months', trend: 0 },
+        { label: t('preview.monthlyRevenue'), value: '$284.5K', trend: 12.5 },
+        { label: t('preview.mrrGrowth'), value: '8.2%', trend: 1.3 },
+        { label: t('preview.grossMargin'), value: '72%', trend: 2.0 },
+        { label: t('preview.operatingCosts'), value: '$156K', trend: -5.5 },
+        { label: t('preview.runway'), value: '18 months', trend: 0 },
         { label: 'ARR', value: '$3.4M', trend: 15.8 },
       ],
     },
@@ -112,42 +113,42 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
       deadline: 'Q4 2026',
       keyResults: [
         { kr: 'Increase user base to 25K', progress: 63 },
-        { kr: 'Launch enterprise tier', progress: 45 },
+        { kr: t('preview.launchEnterpriseTier'), progress: 45 },
         { kr: 'Reduce churn to <2%', progress: 93 },
       ],
     },
     {
-      title: 'Product Excellence',
+      title: t('preview.productExcellence'),
       progress: 72,
       current: '72%',
       target: '100%',
       deadline: 'Q3 2026',
       keyResults: [
-        { kr: 'Ship 5 major features', progress: 60 },
+        { kr: t('preview.ship5MajorFeatures'), progress: 60 },
         { kr: 'Achieve NPS >70', progress: 96 },
         { kr: 'Reduce bug rate to <0.5%', progress: 60 },
       ],
     },
     {
-      title: 'Team Scale & Efficiency',
+      title: t('preview.teamScaleEfficiency'),
       progress: 68,
       current: '68%',
       target: '100%',
       deadline: 'Q4 2026',
       keyResults: [
-        { kr: 'Hire 8 engineers', progress: 50 },
-        { kr: 'Deploy 30+ times/week', progress: 77 },
-        { kr: 'Maintain 95%+ productivity', progress: 97 },
+        { kr: t('preview.hire8Engineers'), progress: 50 },
+        { kr: t('preview.deploy30Timesweek'), progress: 77 },
+        { kr: t('preview.maintain95Productivity'), progress: 97 },
       ],
     },
   ];
 
   const alerts = [
-    { id: '1', kpi: 'Deployment Frequency', message: 'Below target by 8% - investigate bottlenecks', severity: 'critical', time: '2h ago' },
-    { id: '2', kpi: 'Conversion Rate', message: 'Trending down - review funnel optimization', severity: 'warning', time: '5h ago' },
-    { id: '3', kpi: 'Support Response Time', message: 'Improved by 15% - on track', severity: 'good', time: '1d ago' },
-    { id: '4', kpi: 'Bug Rate', message: 'Decreased by 25% - excellent progress', severity: 'good', time: '2d ago' },
-    { id: '5', kpi: 'MRR Growth', message: 'Target met - continue current strategy', severity: 'good', time: '3d ago' },
+    { id: '1', kpi: t('preview.deploymentFrequency'), message: t('preview.belowTargetBy8'), severity: 'critical', time: '2h ago' },
+    { id: '2', kpi: t('preview.conversionRate'), message: t('preview.trendingDownReviewFunnel'), severity: 'warning', time: '5h ago' },
+    { id: '3', kpi: t('preview.supportResponseTime'), message: t('preview.improvedBy15On'), severity: 'good', time: '1d ago' },
+    { id: '4', kpi: t('preview.bugRate'), message: t('preview.decreasedBy25Excellent'), severity: 'good', time: '2d ago' },
+    { id: '5', kpi: t('preview.mrrGrowth'), message: t('preview.targetMetContinueCurrent'), severity: 'good', time: '3d ago' },
   ];
 
   const historicalData = [
@@ -163,6 +164,7 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
   if (!open) return null;
 
   const nextSlide = () => {
+  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }
@@ -212,29 +214,25 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
               <div className="w-24 h-24 bg-gradient-to-br from-blue-500/20 to-purple-500/20 rounded-2xl flex items-center justify-center mb-6 mx-auto border border-blue-500/30">
                 <Activity className="w-12 h-12 text-blue-400" />
               </div>
-              <h2 className="text-4xl font-bold text-white mb-4">
-                Tus KPIs en Tiempo Real
-              </h2>
-              <p className="text-xl text-gray-400 max-w-2xl">
-                Dashboard completo de indicadores clave de rendimiento
-              </p>
+              <h2 className="text-4xl font-bold text-white mb-4">{t('preview.tusKpisEnTiempo')}</h2>
+              <p className="text-xl text-gray-400 max-w-2xl">{t('preview.dashboardCompletoDeIndicadores')}</p>
             </div>
             <div className="grid grid-cols-2 gap-6 max-w-xl w-full">
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50">
                 <div className="text-3xl font-bold text-white mb-1">24</div>
-                <div className="text-sm text-gray-400">KPIs Tracked</div>
+                <div className="text-sm text-gray-400">{t('preview.kpisTracked')}</div>
               </div>
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50">
                 <div className="text-3xl font-bold text-white mb-1">4</div>
-                <div className="text-sm text-gray-400">Categories</div>
+                <div className="text-sm text-gray-400">{t('preview.categories')}</div>
               </div>
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50">
                 <div className="text-3xl font-bold text-green-400 mb-1">18</div>
-                <div className="text-sm text-gray-400">On Target</div>
+                <div className="text-sm text-gray-400">{t('preview.onTarget')}</div>
               </div>
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-6 border border-gray-700/50">
                 <div className="text-3xl font-bold text-amber-400 mb-1">5</div>
-                <div className="text-sm text-gray-400">Need Attention</div>
+                <div className="text-sm text-gray-400">{t('preview.needAttention')}</div>
               </div>
             </div>
           </div>
@@ -244,8 +242,8 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
         return (
           <div className="overflow-y-auto px-8 py-6">
             <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">KPI Dashboard</h3>
-              <p className="text-gray-400">Principales indicadores de rendimiento</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{t('preview.kpiDashboard')}</h3>
+              <p className="text-gray-400">{t('preview.principalesIndicadoresDeRendimiento')}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {kpis.map((kpi) => (
@@ -293,8 +291,8 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
         return (
           <div className="overflow-y-auto px-8 py-6">
             <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">Categorías de KPIs</h3>
-              <p className="text-gray-400">Métricas organizadas por área de negocio</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{t('preview.categoríasDeKpis')}</h3>
+              <p className="text-gray-400">{t('preview.métricasOrganizadasPorÁrea')}</p>
             </div>
             <div className="grid grid-cols-2 gap-4">
               {categories.map((category) => (
@@ -333,12 +331,12 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
         return (
           <div className="overflow-y-auto px-8 py-6">
             <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">Deep Dive: Conversion Rate</h3>
-              <p className="text-gray-400">Análisis histórico y proyección</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{t('preview.deepDiveConversionRate')}</h3>
+              <p className="text-gray-400">{t('preview.análisisHistóricoYProyección')}</p>
             </div>
             <div className="grid grid-cols-3 gap-4 mb-6">
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/50">
-                <div className="text-sm text-gray-400 mb-1">Current</div>
+                <div className="text-sm text-gray-400 mb-1">{t('preview.current')}</div>
                 <div className="text-2xl font-bold text-white">4.2%</div>
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingDown className="w-4 h-4 text-red-400" />
@@ -346,12 +344,12 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
                 </div>
               </div>
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/50">
-                <div className="text-sm text-gray-400 mb-1">Target</div>
+                <div className="text-sm text-gray-400 mb-1">{t('preview.target')}</div>
                 <div className="text-2xl font-bold text-white">5.0%</div>
                 <div className="text-sm text-gray-500 mt-1">By Q3 2026</div>
               </div>
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/50">
-                <div className="text-sm text-gray-400 mb-1">Forecast</div>
+                <div className="text-sm text-gray-400 mb-1">{t('preview.forecast')}</div>
                 <div className="text-2xl font-bold text-white">4.6%</div>
                 <div className="flex items-center gap-1 mt-1">
                   <TrendingUp className="w-4 h-4 text-green-400" />
@@ -365,11 +363,11 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
                 <div className="flex items-center gap-4 text-xs">
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 bg-blue-500 rounded"></div>
-                    <span className="text-gray-400">Actual</span>
+                    <span className="text-gray-400">{t('preview.actual')}</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <div className="w-3 h-3 border-2 border-dashed border-green-500 rounded"></div>
-                    <span className="text-gray-400">Target</span>
+                    <span className="text-gray-400">{t('preview.target')}</span>
                   </div>
                 </div>
               </div>
@@ -406,7 +404,7 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
           <div className="overflow-y-auto px-8 py-6">
             <div className="mb-6">
               <h3 className="text-2xl font-bold text-white mb-2">Goals & Targets (OKRs)</h3>
-              <p className="text-gray-400">Objetivos clave y seguimiento de resultados</p>
+              <p className="text-gray-400">{t('preview.objetivosClaveYSeguimiento')}</p>
             </div>
             <div className="space-y-4">
               {goals.map((goal, idx) => (
@@ -483,8 +481,8 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
         return (
           <div className="overflow-y-auto px-8 py-6">
             <div className="mb-6">
-              <h3 className="text-2xl font-bold text-white mb-2">Alertas y Notificaciones</h3>
-              <p className="text-gray-400">KPIs que requieren atención</p>
+              <h3 className="text-2xl font-bold text-white mb-2">{t('preview.alertasYNotificaciones')}</h3>
+              <p className="text-gray-400">{t('preview.kpisQueRequierenAtención')}</p>
             </div>
             <div className="space-y-3">
               {alerts.map((alert) => {
@@ -520,15 +518,15 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
             <div className="mt-8 grid grid-cols-3 gap-4">
               <div className="bg-gradient-to-br from-red-500/10 to-red-600/10 rounded-xl p-4 border border-red-500/20">
                 <div className="text-2xl font-bold text-red-400 mb-1">1</div>
-                <div className="text-sm text-gray-300">Critical</div>
+                <div className="text-sm text-gray-300">{t('preview.critical')}</div>
               </div>
               <div className="bg-gradient-to-br from-amber-500/10 to-amber-600/10 rounded-xl p-4 border border-amber-500/20">
                 <div className="text-2xl font-bold text-amber-400 mb-1">1</div>
-                <div className="text-sm text-gray-300">Warning</div>
+                <div className="text-sm text-gray-300">{t('preview.warning')}</div>
               </div>
               <div className="bg-gradient-to-br from-green-500/10 to-green-600/10 rounded-xl p-4 border border-green-500/20">
                 <div className="text-2xl font-bold text-green-400 mb-1">3</div>
-                <div className="text-sm text-gray-300">On Track</div>
+                <div className="text-sm text-gray-300">{t('preview.onTrack')}</div>
               </div>
             </div>
           </div>
@@ -544,7 +542,7 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
       <div className="bg-gradient-to-br from-gray-900 to-black rounded-2xl shadow-2xl w-full max-w-5xl h-[90vh] flex flex-col border border-gray-800">
         {/* Header */}
         <div className="p-6 border-b border-gray-800">
-          <h2 className="text-2xl font-bold text-white">KPIs Dashboard</h2>
+          <h2 className="text-2xl font-bold text-white">{t('preview.kpisDashboard')}</h2>
           <p className="text-sm text-gray-400">
             Slide {currentSlide + 1} of {totalSlides}
           </p>
@@ -568,7 +566,7 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
               }`}
             >
               <ChevronLeft className="w-5 h-5" />
-              <span>Previous</span>
+              <span>{t('preview.previous')}</span>
             </button>
 
             {/* Dots */}
@@ -592,12 +590,12 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
             >
               {currentSlide === totalSlides - 1 ? (
                 <>
-                  <span>Finish</span>
+                  <span>{t('preview.finish')}</span>
                   <CheckCircle2 className="w-5 h-5" />
                 </>
               ) : (
                 <>
-                  <span>Next</span>
+                  <span>{t('preview.next')}</span>
                   <ChevronRight className="w-5 h-5" />
                 </>
               )}

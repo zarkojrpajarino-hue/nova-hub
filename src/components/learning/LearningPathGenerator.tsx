@@ -20,12 +20,14 @@ import { EvidenceAIGenerator } from '@/components/evidence';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 
+import { useTranslation } from 'react-i18next';
 interface LearningPathGeneratorProps {
   onComplete: (pathId: string) => void;
   onCancel: () => void;
 }
 
 export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGeneratorProps) {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { currentProject } = useCurrentProject();
 
@@ -41,7 +43,7 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
 
   const _handleGenerate = async () => {
     if (!formData.targetRole) {
-      toast.error('Por favor ingresa el rol objetivo');
+      toast.error(t('learning.porFavorIngresaEl'));
       return;
     }
 
@@ -60,10 +62,10 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
 
       if (error) throw error;
 
-      toast.success('Learning Path generado exitosamente');
+      toast.success(t('learning.learningPathGeneradoExitosamente'));
       onComplete(data.pathId);
     } catch (_error) {
-      toast.error('Error al generar: ' + (error instanceof Error ? error.message : 'Error desconocido'));
+      toast.error('Error al generar: ' + (error instanceof Error ? error.message : t('learning.errorDesconocido')));
     } finally {
       setIsGenerating(false);
     }
@@ -80,9 +82,7 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
             </div>
             <div>
               <CardTitle>Generar Learning Path con IA</CardTitle>
-              <CardDescription>
-                La IA creará un plan de aprendizaje personalizado basado en tus objetivos
-              </CardDescription>
+              <CardDescription>{t('learning.laIaCrearáUn')}</CardDescription>
             </div>
           </div>
         </CardHeader>
@@ -99,14 +99,12 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
             </Label>
             <Input
               id="targetRole"
-              placeholder="Ej: Senior Product Manager, Tech Lead, Growth Hacker..."
+              placeholder={t('learning.ejSeniorProductManager')}
               value={formData.targetRole}
               onChange={(e) => setFormData({ ...formData, targetRole: e.target.value })}
               disabled={isGenerating}
             />
-            <p className="text-xs text-muted-foreground">
-              ¿Qué rol quieres alcanzar o en qué quieres mejorar?
-            </p>
+            <p className="text-xs text-muted-foreground">{t('learning.quéRolQuieresAlcanzar')}</p>
           </div>
 
           {/* Current Skills */}
@@ -114,24 +112,20 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
             <Label htmlFor="currentSkills">Habilidades Actuales (opcional)</Label>
             <Textarea
               id="currentSkills"
-              placeholder="Ej: React, Node.js, SQL, Gestión de equipos..."
+              placeholder={t('learning.ejReactNodejsSql')}
               value={formData.currentSkills}
               onChange={(e) => setFormData({ ...formData, currentSkills: e.target.value })}
               disabled={isGenerating}
               rows={3}
             />
-            <p className="text-xs text-muted-foreground">
-              Separa con comas. Ayuda a personalizar el contenido inicial.
-            </p>
+            <p className="text-xs text-muted-foreground">{t('learning.separaConComasAyuda')}</p>
           </div>
 
           {/* Time Commitment & Duration */}
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="timeCommitment" className="flex items-center gap-2">
-                <Clock size={14} />
-                Horas por Semana
-              </Label>
+                <Clock size={14} />{t('learning.horasPorSemana')}</Label>
               <Select
                 value={formData.timeCommitment}
                 onValueChange={(value) => setFormData({ ...formData, timeCommitment: value })}
@@ -152,9 +146,7 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
 
             <div className="space-y-2">
               <Label htmlFor="duration" className="flex items-center gap-2">
-                <TrendingUp size={14} />
-                Duración Total
-              </Label>
+                <TrendingUp size={14} />{t('learning.duraciónTotal')}</Label>
               <Select
                 value={formData.duration}
                 onValueChange={(value) => setFormData({ ...formData, duration: value })}
@@ -176,7 +168,7 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
 
           {/* Difficulty */}
           <div className="space-y-2">
-            <Label htmlFor="difficulty">Nivel de Dificultad</Label>
+            <Label htmlFor="difficulty">{t('learning.nivelDeDificultad')}</Label>
             <Select
               value={formData.difficulty}
               onValueChange={(value) => setFormData({ ...formData, difficulty: value })}
@@ -188,26 +180,20 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
               <SelectContent>
                 <SelectItem value="beginner">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
-                      Principiante
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">Empezando desde cero</span>
+                    <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">{t('learning.principiante')}</Badge>
+                    <span className="text-xs text-muted-foreground">{t('learning.empezandoDesdeCero')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="intermediate">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">
-                      Intermedio
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">Ya tengo experiencia básica</span>
+                    <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">{t('learning.intermedio')}</Badge>
+                    <span className="text-xs text-muted-foreground">{t('learning.yaTengoExperienciaBásica')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="advanced">
                   <div className="flex items-center gap-2">
-                    <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
-                      Avanzado
-                    </Badge>
-                    <span className="text-xs text-muted-foreground">Quiero especializarme</span>
+                    <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">{t('learning.avanzado')}</Badge>
+                    <span className="text-xs text-muted-foreground">{t('learning.quieroEspecializarme')}</span>
                   </div>
                 </SelectItem>
               </SelectContent>
@@ -219,15 +205,13 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
             <Label htmlFor="focusAreas">Áreas de Enfoque (opcional)</Label>
             <Textarea
               id="focusAreas"
-              placeholder="Ej: Liderazgo, Comunicación, Habilidades técnicas, Growth, Analytics..."
+              placeholder={t('learning.ejLiderazgoComunicaciónHabilidades')}
               value={formData.focusAreas}
               onChange={(e) => setFormData({ ...formData, focusAreas: e.target.value })}
               disabled={isGenerating}
               rows={2}
             />
-            <p className="text-xs text-muted-foreground">
-              Áreas específicas en las que quieres mejorar. Separa con comas.
-            </p>
+            <p className="text-xs text-muted-foreground">{t('learning.áreasEspecíficasEnLas')}</p>
           </div>
 
           {/* Info Box */}
@@ -261,9 +245,7 @@ export function LearningPathGenerator({ onComplete, onCancel }: LearningPathGene
                 }
               }}
             />
-            <Button onClick={onCancel} variant="outline" disabled={isGenerating}>
-              Cancelar
-            </Button>
+            <Button onClick={onCancel} variant="outline" disabled={isGenerating}>{t('learning.cancelar')}</Button>
           </div>
         </CardContent>
       </Card>

@@ -12,6 +12,7 @@ import { EmptyState } from '@/components/ui/empty-state';
 import { SkeletonCard } from '@/components/ui/skeleton-card';
 import { EvidenceViewer } from '@/components/evidence/EvidenceViewer';
 
+import { useTranslation } from 'react-i18next';
 interface OBV {
   id: string;
   titulo: string;
@@ -110,11 +111,11 @@ const OBVCard = memo(function OBVCard({
         {obv.es_venta && (
           <div className="grid grid-cols-2 gap-4 p-4 bg-muted rounded-xl">
             <div>
-              <p className="text-xs text-muted-foreground">Producto</p>
+              <p className="text-xs text-muted-foreground">{t('nova.producto')}</p>
               <p className="font-medium">{obv.producto}</p>
             </div>
             <div>
-              <p className="text-xs text-muted-foreground">Facturación</p>
+              <p className="text-xs text-muted-foreground">{t('nova.facturación')}</p>
               <p className="font-bold text-success">€{obv.facturacion}</p>
             </div>
           </div>
@@ -144,7 +145,7 @@ const OBVCard = memo(function OBVCard({
         {isVoting ? (
           <div className="space-y-3 pt-3 border-t border-border">
             <Textarea
-              placeholder="Comentario opcional..."
+              placeholder={t('nova.comentarioOpcional')}
               value={comentario}
               onChange={e => onCommentChange(e.target.value)}
               rows={2}
@@ -155,18 +156,14 @@ const OBVCard = memo(function OBVCard({
                 className="flex-1"
                 onClick={onCancelVoting}
                 disabled={isSubmitting}
-              >
-                Cancelar
-              </Button>
+              >{t('nova.cancelar')}</Button>
               <Button
                 variant="outline"
                 className="flex-1 border-destructive text-destructive hover:bg-destructive/10"
                 onClick={onConfirmReject}
                 disabled={isSubmitting}
               >
-                <X size={16} className="mr-1" />
-                Rechazar
-              </Button>
+                <X size={16} className="mr-1" />{t('nova.rechazar')}</Button>
               <Button
                 className="flex-1 bg-success hover:bg-success/90"
                 onClick={() => onVote(true)}
@@ -175,7 +172,7 @@ const OBVCard = memo(function OBVCard({
                 {isSubmitting ? (
                   <Loader2 size={16} className="animate-spin" />
                 ) : (
-                  <><Check size={16} className="mr-1" /> Aprobar</>
+                  <><Check size={16} className="mr-1" />{t('nova.aprobar')}</>
                 )}
               </Button>
             </div>
@@ -193,6 +190,7 @@ const OBVCard = memo(function OBVCard({
 });
 
 export function OBVValidationList() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [votingId, setVotingId] = useState<string | null>(null);
@@ -241,11 +239,11 @@ export function OBVValidationList() {
 
         return {
           ...obv,
-          owner: owner ? { id: owner.id, nombre: owner.nombre, color: owner.color || '#6366F1' } : { id: '', nombre: 'Unknown', color: '#6366F1' },
+          owner: owner ? { id: owner.id, nombre: owner.nombre, color: owner.color || '#6366F1' } : { id: '', nombre: t('nova.unknown'), color: '#6366F1' },
           project: project ? { nombre: project.nombre, icon: project.icon || '📁', color: project.color || '#6366F1' } : null,
           validations: obvValidations.map(v => ({
             ...v,
-            validator_nombre: profileMap.get(v.validator_id)?.nombre || 'Unknown',
+            validator_nombre: profileMap.get(v.validator_id)?.nombre || t('nova.unknown'),
           })),
         };
       }).filter(obv => {
@@ -279,7 +277,7 @@ export function OBVValidationList() {
       setConfirmReject(null);
       queryClient.invalidateQueries({ queryKey: ['pending_obvs_for_validation'] });
     } catch (_error) {
-      toast.error('Error al votar. Inténtalo de nuevo.');
+      toast.error(t('nova.errorAlVotarInténtalo'));
     } finally {
       setIsSubmitting(false);
     }
@@ -300,8 +298,8 @@ export function OBVValidationList() {
       <div className="bg-card border border-border rounded-2xl">
         <EmptyState
           icon={FileCheck}
-          title="¡Todo al día!"
-          description="No hay OBVs pendientes de validar. Vuelve más tarde cuando tus compañeros suban nuevas OBVs."
+          title={t('nova.todoAlDía')}
+          description={t('nova.noHayObvsPendientes')}
         />
       </div>
     );
@@ -328,10 +326,10 @@ export function OBVValidationList() {
       <ConfirmDialog
         open={!!confirmReject}
         onOpenChange={() => setConfirmReject(null)}
-        title="¿Rechazar esta OBV?"
-        description="Esta acción notificará al propietario de la OBV. Asegúrate de haber dejado un comentario explicando el motivo del rechazo."
-        confirmLabel="Sí, rechazar"
-        cancelLabel="Cancelar"
+        title={t('nova.rechazarEstaObv')}
+        description={t('nova.estaAcciónNotificaráAl')}
+        confirmLabel={t('nova.síRechazar')}
+        cancelLabel={t('nova.cancelar0')}
         variant="destructive"
         onConfirm={() => confirmReject && handleVote(confirmReject, false)}
         isLoading={isSubmitting}

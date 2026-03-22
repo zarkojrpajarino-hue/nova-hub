@@ -9,21 +9,23 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { UserPlus, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
 
 // Roles recommended per phase transition
-const PHASE_ROLE_NEEDS: Record<number, { role: string; reason: string }[]> = {
-  2: [{ role: 'marketing', reason: 'Para escalar la demanda validada necesitas marketing.' }],
+// reasonKey maps to teamRec.marketing, teamRec.operations, etc.
+const PHASE_ROLE_NEEDS: Record<number, { role: string; reasonKey: string }[]> = {
+  2: [{ role: 'marketing', reasonKey: 'teamRec.marketing' }],
   3: [
-    { role: 'operations', reason: 'Revenue requiere procesos operativos documentados.' },
-    { role: 'finance', reason: 'Con ingresos reales, necesitas control financiero.' },
+    { role: 'operations', reasonKey: 'teamRec.operations' },
+    { role: 'finance', reasonKey: 'teamRec.finance' },
   ],
   4: [
-    { role: 'sales', reason: 'Para escalar necesitas un equipo de ventas dedicado.' },
-    { role: 'ai_tech', reason: 'La automatización es clave para escalar sin quemar al equipo.' },
+    { role: 'sales', reasonKey: 'teamRec.sales' },
+    { role: 'ai_tech', reasonKey: 'teamRec.tech' },
   ],
 };
 
@@ -40,6 +42,7 @@ export function TeamRecommendation({
   teamSize,
   existingRoles,
 }: TeamRecommendationProps) {
+  const { t } = useTranslation();
   const [showInvite, setShowInvite] = useState(false);
 
   // Find roles needed for current phase that aren't covered
@@ -58,9 +61,9 @@ export function TeamRecommendation({
         <Lightbulb className="h-5 w-5 text-blue-500 shrink-0 mt-0.5" />
         <div className="flex-1">
           <p className="text-sm font-medium text-blue-800">
-            Tu proyecto necesita un <strong>{roleConfig?.label ?? top.role}</strong>
+            {t('teamRec.needsRole', { role: roleConfig?.label ?? top.role })}
           </p>
-          <p className="text-xs text-blue-600 mt-0.5">{top.reason}</p>
+          <p className="text-xs text-blue-600 mt-0.5">{t(top.reasonKey)}</p>
           <Button
             size="sm"
             variant="outline"
@@ -68,7 +71,7 @@ export function TeamRecommendation({
             onClick={() => setShowInvite(true)}
           >
             <UserPlus className="h-3.5 w-3.5" />
-            Invitar para este rol
+            {t('teamRec.inviteForRole')}
           </Button>
         </div>
       </div>

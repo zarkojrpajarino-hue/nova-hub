@@ -30,7 +30,9 @@ import { useNavigation } from '@/contexts/NavigationContext';
 import { BackButton } from '@/components/navigation/BackButton';
 import { ExplorationDashboardPreviewModal } from '@/components/preview/ExplorationDashboardPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 export function ExplorationDashboard() {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const { goBack, canGoBack } = useNavigation();
   const [activeExplorations, setActiveExplorations] = useState<Record<string, unknown>[]>([]);
@@ -95,7 +97,7 @@ export function ExplorationDashboard() {
       setActiveExplorations(active || []);
       setPastExplorations(past || []);
     } catch (_error) {
-      toast.error('Error al cargar las exploraciones');
+      toast.error(t('explorationDashboard.errorAlCargarLas'));
     } finally {
       setIsLoading(false);
     }
@@ -155,7 +157,7 @@ export function ExplorationDashboard() {
   const handleFeedbackSuccess = () => {
     setSelectedFeedback(null);
     loadPendingFeedback();
-    toast.success('¡Gracias por tu feedback!');
+    toast.success(t('explorationDashboard.graciasPorTuFeedback'));
   };
 
   const loadPhaseProgress = async () => {
@@ -213,7 +215,7 @@ export function ExplorationDashboard() {
         .eq('auth_id', user!.id)
         .single();
 
-      if (!member) throw new Error('Usuario no encontrado');
+      if (!member) throw new Error(t('explorationDashboard.usuarioNoEncontrado'));
 
       const { error } = await supabase.rpc('start_path_to_master', {
         p_member_id: member.id,
@@ -227,7 +229,7 @@ export function ExplorationDashboard() {
       loadCurrentRoles();
       loadExplorations();
     } catch (_error) {
-      toast.error(error instanceof Error ? error.message : 'No se pudo iniciar la exploración');
+      toast.error(error instanceof Error ? error.message : t('explorationDashboard.noSePudoIniciar'));
     }
   };
 
@@ -251,66 +253,62 @@ export function ExplorationDashboard() {
       {/* Header */}
       <div className="px-6">
         <h1 className="text-3xl font-bold flex items-center gap-3">
-          <Rocket className="text-primary" />
-          Exploración de Roles
-        </h1>
-        <p className="text-muted-foreground mt-2">
-          Descubre tu rol ideal a través de la experiencia práctica en proyectos reales
-        </p>
+          <Rocket className="text-primary" />{t('explorationDashboard.exploraciónDeRoles')}</h1>
+        <p className="text-muted-foreground mt-2">{t('explorationDashboard.descubreTuRolIdeal')}</p>
       </div>
 
       {/* How it works */}
       <div className="px-6">
         <HowItWorks
-          title="Cómo funciona"
-          description="Sistema de descubrimiento de rol ideal mediante experimentación práctica"
-          whatIsIt="Proceso de 3 fases donde exploras 7 roles diferentes (CEO, CTO, CMO, etc.) trabajando en proyectos reales durante 2 semanas cada uno. Recibes feedback 360° del equipo, IA calcula tu Fit Score por rol (0-100%), y al final descubres tu Star Role (rol donde mejor performance tienes) y Secondary Role. Sistema peer-to-peer: tú evalúas a otros y ellos te evalúan a ti."
+          title={t('explorationDashboard.cómoFunciona')}
+          description={t('explorationDashboard.sistemaDeDescubrimientoDe')}
+          whatIsIt={t('explorationDashboard.procesoDe3Fases')}
           dataInputs={[
             {
-              from: 'Proyectos',
+              from: t('explorationDashboard.proyectos'),
               items: [
                 'Tareas reales asignadas por rol (ej: si exploras CMO, haces growth hacking)',
-                'Performance medida: tareas completadas, objetivos logrados',
+                t('explorationDashboard.performanceMedidaTareasCompletadas'),
                 'Resultados tangibles (leads, revenue, etc.)',
               ],
             },
             {
               from: 'Equipo (Peer Feedback)',
               items: [
-                'Feedback 360° de compañeros del proyecto',
-                'Evaluaciones sobre soft skills y fit cultural',
-                'Auto-evaluación propia al finalizar exploración',
+                t('explorationDashboard.feedback360DeCompañeros'),
+                t('explorationDashboard.evaluacionesSobreSoftSkills'),
+                t('explorationDashboard.autoevaluaciónPropiaAlFinalizar'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Fit Score por rol',
+              to: t('explorationDashboard.fitScorePorRol'),
               items: [
-                'Puntuación 0-100% que combina: performance + peer feedback + auto-evaluación',
-                'Ranking de tus 7 roles de mejor a peor fit',
+                t('explorationDashboard.puntuación0100QueCombina'),
+                t('explorationDashboard.rankingDeTus7'),
                 'Star Role (top 1) y Secondary Role (top 2)',
               ],
             },
             {
-              to: 'Mi Desarrollo',
+              to: t('explorationDashboard.miDesarrollo'),
               items: [
-                'Tu Fit Score por rol aparece en rendimiento',
-                'Playbooks personalizados según tu Star Role',
-                'Insights IA sobre cómo mejorar',
+                t('explorationDashboard.tuFitScorePor'),
+                t('explorationDashboard.playbooksPersonalizadosSegúnTu'),
+                t('explorationDashboard.insightsIaSobreCómo'),
               ],
             },
             {
-              to: 'Equipo',
+              to: t('explorationDashboard.equipo'),
               items: [
-                'Rankings de quién mejor fit tiene en cada rol',
-                'Path to Master: roadmap para convertirte en Master de tu Star Role',
+                t('explorationDashboard.rankingsDeQuiénMejor'),
+                t('explorationDashboard.pathToMasterRoadmap'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Únete a proyecto → Explora roles 2 semanas c/u → Da/recibe feedback → Descubre Star Role',
-            destination: 'Ve a Mi Desarrollo para ver Fit Scores, Path to Master para roadmap a Master',
+            action: t('explorationDashboard.úneteAProyectoExplora'),
+            destination: t('explorationDashboard.veAMiDesarrollo'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -330,14 +328,10 @@ export function ExplorationDashboard() {
           </TabsTrigger>
 
           <TabsTrigger value="timeline" className="gap-2">
-            <Target size={16} />
-            Mi Progreso
-          </TabsTrigger>
+            <Target size={16} />{t('explorationDashboard.miProgreso')}</TabsTrigger>
 
           <TabsTrigger value="path-to-master" className="gap-2">
-            <Trophy size={16} />
-            Camino a Master
-          </TabsTrigger>
+            <Trophy size={16} />{t('explorationDashboard.caminoAMaster')}</TabsTrigger>
 
           <TabsTrigger value="feedback" className="gap-2">
             <MessageSquare size={16} />
@@ -350,9 +344,7 @@ export function ExplorationDashboard() {
           </TabsTrigger>
 
           <TabsTrigger value="history" className="gap-2">
-            <History size={16} />
-            Historial
-          </TabsTrigger>
+            <History size={16} />{t('explorationDashboard.historial')}</TabsTrigger>
         </TabsList>
 
         {/* Exploraciones Activas */}
@@ -361,10 +353,8 @@ export function ExplorationDashboard() {
             <Card>
               <CardContent className="p-12 text-center">
                 <Rocket size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No tienes exploraciones activas</h3>
-                <p className="text-muted-foreground">
-                  Únete a un proyecto para empezar a explorar roles
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('explorationDashboard.noTienesExploracionesActivas')}</h3>
+                <p className="text-muted-foreground">{t('explorationDashboard.úneteAUnProyecto')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -373,12 +363,12 @@ export function ExplorationDashboard() {
                 <ExplorationProgressCard
                   key={exploration.id}
                   exploration={exploration}
-                  projectName={exploration.project?.nombre || 'Proyecto'}
+                  projectName={exploration.project?.nombre || t('explorationDashboard.proyecto')}
                   onSelfEvaluate={() => {
                     setSelfEvalModal({
                       open: true,
                       exploration: exploration,
-                      projectName: exploration.project?.nombre || 'Proyecto',
+                      projectName: exploration.project?.nombre || t('explorationDashboard.proyecto'),
                     });
                   }}
                   onViewFeedback={() => {
@@ -417,12 +407,8 @@ export function ExplorationDashboard() {
             <Card>
               <CardContent className="p-12 text-center">
                 <MessageSquare size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">
-                  ¡Todo al día!
-                </h3>
-                <p className="text-muted-foreground">
-                  No tienes feedback pendiente por dar
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('explorationDashboard.todoAlDía')}</h3>
+                <p className="text-muted-foreground">{t('explorationDashboard.noTienesFeedbackPendiente')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -446,9 +432,7 @@ export function ExplorationDashboard() {
                       <Button
                         onClick={() => setSelectedFeedback(item)}
                         size="sm"
-                      >
-                        Dar Feedback
-                      </Button>
+                      >{t('explorationDashboard.darFeedback')}</Button>
                     </div>
                   </CardContent>
                 </Card>
@@ -463,10 +447,8 @@ export function ExplorationDashboard() {
             <Card>
               <CardContent className="p-12 text-center">
                 <History size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Sin historial aún</h3>
-                <p className="text-muted-foreground">
-                  Tus exploraciones completadas aparecerán aquí
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('explorationDashboard.sinHistorialAún')}</h3>
+                <p className="text-muted-foreground">{t('explorationDashboard.tusExploracionesCompletadasAparecerán')}</p>
               </CardContent>
             </Card>
           ) : (
@@ -487,7 +469,7 @@ export function ExplorationDashboard() {
                           <div className="text-2xl font-bold text-primary">
                             {exploration.fit_score.toFixed(1)}
                           </div>
-                          <div className="text-xs text-muted-foreground">Fit Score</div>
+                          <div className="text-xs text-muted-foreground">{t('explorationDashboard.fitScore')}</div>
                         </div>
                       )}
 
@@ -495,7 +477,7 @@ export function ExplorationDashboard() {
                         variant={exploration.status === 'completed' ? 'default' : 'secondary'}
                         className="ml-4"
                       >
-                        {exploration.status === 'completed' ? 'Completado' : 'Cancelado'}
+                        {exploration.status === 'completed' ? 'Completado': t('explorationDashboard.cancelado')}
                       </Badge>
                     </div>
                   </CardContent>
@@ -526,10 +508,8 @@ export function ExplorationDashboard() {
             <Card className="border-dashed">
               <CardContent className="p-12 text-center">
                 <Target size={48} className="mx-auto text-muted-foreground mb-4" />
-                <h3 className="text-lg font-semibold mb-2">Cargando tu progreso...</h3>
-                <p className="text-muted-foreground">
-                  Espera un momento mientras cargamos tu información
-                </p>
+                <h3 className="text-lg font-semibold mb-2">{t('explorationDashboard.cargandoTuProgreso')}</h3>
+                <p className="text-muted-foreground">{t('explorationDashboard.esperaUnMomentoMientras')}</p>
               </CardContent>
             </Card>
           )}

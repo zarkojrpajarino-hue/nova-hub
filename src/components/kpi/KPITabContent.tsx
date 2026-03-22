@@ -5,25 +5,26 @@ import { KPIUploadForm } from './KPIUploadForm';
 import { KPIList } from './KPIList';
 import { KPIValidationList } from './KPIValidationList';
 
+import { useTranslation } from 'react-i18next';
 interface KPITabContentProps {
   type: 'lp' | 'bp' | 'cp';
 }
 
 const TYPE_CONFIG = {
   lp: {
-    label: 'Learning Path',
+    label: t('kpi.learningPath'),
     icon: BookOpen,
     color: 'text-warning',
     bgColor: 'bg-warning/20',
   },
   bp: {
-    label: 'Book Point',
+    label: t('kpi.bookPoint'),
     icon: Trophy,
     color: 'text-success',
     bgColor: 'bg-success/20',
   },
   cp: {
-    label: 'Community Point',
+    label: t('kpi.communityPoint'),
     icon: Users,
     color: 'text-pink-500',
     bgColor: 'bg-pink-500/20',
@@ -31,6 +32,7 @@ const TYPE_CONFIG = {
 };
 
 export function KPITabContent({ type }: KPITabContentProps) {
+  const { t } = useTranslation();
   const [showUploadForm, setShowUploadForm] = useState(false);
   const config = TYPE_CONFIG[type];
   const Icon = config.icon;
@@ -46,9 +48,7 @@ export function KPITabContent({ type }: KPITabContentProps) {
           <h3 className="text-lg font-semibold">{config.label}s</h3>
         </div>
         <Button onClick={() => setShowUploadForm(true)}>
-          <Plus className="w-4 h-4 mr-2" />
-          Subir nuevo
-        </Button>
+          <Plus className="w-4 h-4 mr-2" />{t('kpi.subirNuevo')}</Button>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">

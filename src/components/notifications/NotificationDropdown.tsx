@@ -1,6 +1,6 @@
 import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -15,7 +15,9 @@ import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, Noti
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 const getNotificationIcon = (type: string | null) => {
+  const { t } = useTranslation();
   switch (type) {
     case 'obv_nueva':
       return <FileCheck size={16} className="text-primary" />;
@@ -72,29 +74,23 @@ export function NotificationDropdown() {
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end" className="w-80">
         <DropdownMenuLabel className="flex items-center justify-between">
-          <span>Notificaciones</span>
+          <span>{t('notifications.notificaciones')}</span>
           {unreadCount > 0 && (
             <Button
               variant="ghost"
               size="sm"
               className="h-auto py-1 px-2 text-xs text-muted-foreground hover:text-foreground"
               onClick={handleMarkAllAsRead}
-            >
-              Marcar todas como leídas
-            </Button>
+            >{t('notifications.marcarTodasComoLeídas')}</Button>
           )}
         </DropdownMenuLabel>
         <DropdownMenuSeparator />
         
         <ScrollArea className="h-[300px]">
           {isLoading ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              Cargando...
-            </div>
+            <div className="p-4 text-center text-muted-foreground text-sm">{t('notifications.cargando')}</div>
           ) : notifications.length === 0 ? (
-            <div className="p-4 text-center text-muted-foreground text-sm">
-              No tienes notificaciones
-            </div>
+            <div className="p-4 text-center text-muted-foreground text-sm">{t('notifications.noTienesNotificaciones')}</div>
           ) : (
             notifications.slice(0, 10).map((notification) => (
               <DropdownMenuItem
@@ -121,7 +117,7 @@ export function NotificationDropdown() {
                   <p className="text-xs text-muted-foreground mt-1">
                     {notification.created_at && formatDistanceToNow(new Date(notification.created_at), {
                       addSuffix: true,
-                      locale: es,
+                      locale: getDateFnsLocale(),
                     })}
                   </p>
                 </div>
@@ -139,9 +135,7 @@ export function NotificationDropdown() {
             <DropdownMenuItem
               className="text-center text-sm text-primary justify-center"
               onClick={() => navigate('notificaciones')}
-            >
-              Ver todas las notificaciones
-            </DropdownMenuItem>
+            >{t('notifications.verTodasLasNotificaciones')}</DropdownMenuItem>
           </>
         )}
       </DropdownMenuContent>

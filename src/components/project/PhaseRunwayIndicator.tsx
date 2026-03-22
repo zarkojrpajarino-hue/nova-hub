@@ -9,18 +9,20 @@ import { Clock, AlertTriangle, CheckCircle2 } from 'lucide-react';
 import { estimatePhaseRunway, type PhaseRunwayInput } from '@/lib/phase-runway-estimator';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 
+import { useTranslation } from 'react-i18next';
 interface PhaseRunwayIndicatorProps {
   engineData: ProjectEngineData;
   scoreHistory: number[];  // últimas 8 semanas
 }
 
 const CONFIDENCE_LABELS: Record<string, string> = {
-  high: 'Alta confianza',
-  medium: 'Confianza media',
-  low: 'Poca data',
+  high: t('project.altaConfianza'),
+  medium: t('project.confianzaMedia'),
+  low: t('project.pocaData'),
 };
 
 export function PhaseRunwayIndicator({ engineData, scoreHistory }: PhaseRunwayIndicatorProps) {
+  const { t } = useTranslation();
   if (!engineData.phaseState) return null;
 
   const ps = engineData.phaseState;

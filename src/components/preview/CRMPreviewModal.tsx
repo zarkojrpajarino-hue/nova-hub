@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -42,6 +43,7 @@ interface Lead {
 }
 
 export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) => {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedStage, setSelectedStage] = useState<string | null>(null);
   const [_selectedLead, setSelectedLead] = useState<string | null>(null);
@@ -50,39 +52,39 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
   const totalSlides = 7;
 
   const leads: Lead[] = [
-    { id: '1', name: 'Sarah Johnson', email: 'sarah@techcorp.com', company: 'TechCorp Inc', value: 45000, stage: 'lead', owner: 'John Smith', source: 'Website', lastContact: '2h ago' },
-    { id: '2', name: 'Michael Chen', email: 'mchen@innovate.io', company: 'Innovate.io', value: 89000, stage: 'qualified', owner: 'Emma Davis', source: 'Referral', lastContact: '1d ago' },
-    { id: '3', name: 'Lisa Anderson', email: 'lisa@global-ventures.com', company: 'Global Ventures', value: 125000, stage: 'proposal', owner: 'John Smith', source: 'LinkedIn', lastContact: '3h ago' },
-    { id: '4', name: 'David Brown', email: 'dbrown@enterprise.com', company: 'Enterprise Solutions', value: 210000, stage: 'closed', owner: 'Emma Davis', source: 'Cold Email', lastContact: '5d ago' },
-    { id: '5', name: 'Emily Wilson', email: 'emily@startup-hub.com', company: 'Startup Hub', value: 38000, stage: 'lead', owner: 'Mike Johnson', source: 'Website', lastContact: '4h ago' },
-    { id: '6', name: 'Robert Taylor', email: 'rtaylor@cloudify.com', company: 'Cloudify Systems', value: 156000, stage: 'qualified', owner: 'John Smith', source: 'Conference', lastContact: '2d ago' },
-    { id: '7', name: 'Jennifer Lee', email: 'jlee@datastream.com', company: 'DataStream Corp', value: 95000, stage: 'proposal', owner: 'Emma Davis', source: 'Partner', lastContact: '1d ago' },
-    { id: '8', name: 'James Martinez', email: 'jmartinez@nexgen.com', company: 'NexGen Technologies', value: 178000, stage: 'closed', owner: 'Mike Johnson', source: 'Referral', lastContact: '7d ago' },
+    { id: '1', name: t('preview.sarahJohnson'), email: 'sarah@techcorp.com', company: t('preview.techcorpInc'), value: 45000, stage: 'lead', owner: t('preview.johnSmith4'), source: t('preview.website5'), lastContact: '2h ago' },
+    { id: '2', name: t('preview.michaelChen'), email: 'mchen@innovate.io', company: t('preview.innovateio'), value: 89000, stage: 'qualified', owner: t('preview.emmaDavis6'), source: t('preview.referral7'), lastContact: '1d ago' },
+    { id: '3', name: t('preview.lisaAnderson'), email: 'lisa@global-ventures.com', company: t('preview.globalVentures'), value: 125000, stage: 'proposal', owner: t('preview.johnSmith4'), source: t('preview.linkedin8'), lastContact: '3h ago' },
+    { id: '4', name: t('preview.davidBrown'), email: 'dbrown@enterprise.com', company: t('preview.enterpriseSolutions'), value: 210000, stage: 'closed', owner: t('preview.emmaDavis6'), source: t('preview.coldEmail9'), lastContact: '5d ago' },
+    { id: '5', name: t('preview.emilyWilson'), email: 'emily@startup-hub.com', company: t('preview.startupHub'), value: 38000, stage: 'lead', owner: t('preview.mikeJohnson10'), source: t('preview.website5'), lastContact: '4h ago' },
+    { id: '6', name: t('preview.robertTaylor'), email: 'rtaylor@cloudify.com', company: t('preview.cloudifySystems'), value: 156000, stage: 'qualified', owner: t('preview.johnSmith4'), source: t('preview.conference'), lastContact: '2d ago' },
+    { id: '7', name: t('preview.jenniferLee'), email: 'jlee@datastream.com', company: t('preview.datastreamCorp'), value: 95000, stage: 'proposal', owner: t('preview.emmaDavis6'), source: t('preview.partner'), lastContact: '1d ago' },
+    { id: '8', name: t('preview.jamesMartinez'), email: 'jmartinez@nexgen.com', company: t('preview.nexgenTechnologies'), value: 178000, stage: 'closed', owner: t('preview.mikeJohnson10'), source: t('preview.referral7'), lastContact: '7d ago' },
   ];
 
   const stages = [
-    { id: 'lead', name: 'New Lead', color: 'from-blue-500/20 to-blue-600/20', borderColor: 'border-blue-500/30', count: 12 },
-    { id: 'qualified', name: 'Qualified', color: 'from-purple-500/20 to-purple-600/20', borderColor: 'border-purple-500/30', count: 15 },
-    { id: 'proposal', name: 'Proposal', color: 'from-orange-500/20 to-orange-600/20', borderColor: 'border-orange-500/30', count: 8 },
-    { id: 'closed', name: 'Closed Won', color: 'from-green-500/20 to-green-600/20', borderColor: 'border-green-500/30', count: 13 },
+    { id: 'lead', name: t('preview.newLead'), color: 'from-blue-500/20 to-blue-600/20', borderColor: 'border-blue-500/30', count: 12 },
+    { id: 'qualified', name: t('preview.qualified'), color: 'from-purple-500/20 to-purple-600/20', borderColor: 'border-purple-500/30', count: 15 },
+    { id: 'proposal', name: t('preview.proposal'), color: 'from-orange-500/20 to-orange-600/20', borderColor: 'border-orange-500/30', count: 8 },
+    { id: 'closed', name: t('preview.closedWon'), color: 'from-green-500/20 to-green-600/20', borderColor: 'border-green-500/30', count: 13 },
   ];
 
   const activities = [
-    { id: '1', type: 'email', title: 'Email sent to Sarah Johnson', time: '2 hours ago', icon: Mail, color: 'text-blue-400' },
-    { id: '2', type: 'call', title: 'Call with Michael Chen - 45 min', time: '5 hours ago', icon: Phone, color: 'text-green-400' },
-    { id: '3', type: 'meeting', title: 'Demo meeting with Lisa Anderson', time: '1 day ago', icon: Calendar, color: 'text-purple-400' },
-    { id: '4', type: 'email', title: 'Proposal sent to DataStream Corp', time: '1 day ago', icon: FileText, color: 'text-orange-400' },
-    { id: '5', type: 'call', title: 'Follow-up call with Robert Taylor', time: '2 days ago', icon: Phone, color: 'text-green-400' },
-    { id: '6', type: 'meeting', title: 'Contract signing with Enterprise Solutions', time: '5 days ago', icon: CheckCircle2, color: 'text-emerald-400' },
+    { id: '1', type: 'email', title: t('preview.emailSentToSarah'), time: '2 hours ago', icon: Mail, color: 'text-blue-400' },
+    { id: '2', type: 'call', title: t('preview.callWithMichaelChen'), time: '5 hours ago', icon: Phone, color: 'text-green-400' },
+    { id: '3', type: 'meeting', title: t('preview.demoMeetingWithLisa'), time: '1 day ago', icon: Calendar, color: 'text-purple-400' },
+    { id: '4', type: 'email', title: t('preview.proposalSentToDatastream'), time: '1 day ago', icon: FileText, color: 'text-orange-400' },
+    { id: '5', type: 'call', title: t('preview.followupCallWithRobert'), time: '2 days ago', icon: Phone, color: 'text-green-400' },
+    { id: '6', type: 'meeting', title: t('preview.contractSigningWithEnterprise'), time: '5 days ago', icon: CheckCircle2, color: 'text-emerald-400' },
   ];
 
   const integrations = [
-    { name: 'HubSpot', icon: Globe, status: 'Connected', synced: '2,450 contacts', color: 'from-orange-500 to-orange-600' },
-    { name: 'Salesforce', icon: Globe, status: 'Connected', synced: '1,820 leads', color: 'from-blue-500 to-blue-600' },
-    { name: 'Pipedrive', icon: Globe, status: 'Connected', synced: '890 deals', color: 'from-green-500 to-green-600' },
-    { name: 'Gmail', icon: Mail, status: 'Active', synced: '15,230 emails', color: 'from-red-500 to-red-600' },
-    { name: 'Outlook', icon: Mail, status: 'Active', synced: '8,940 emails', color: 'from-blue-600 to-blue-700' },
-    { name: 'Slack', icon: MessageSquare, status: 'Connected', synced: 'Real-time notifications', color: 'from-purple-500 to-purple-600' },
+    { name: t('preview.hubspot'), icon: Globe, status: t('preview.connected'), synced: '2,450 contacts', color: 'from-orange-500 to-orange-600' },
+    { name: t('preview.salesforce'), icon: Globe, status: t('preview.connected'), synced: '1,820 leads', color: 'from-blue-500 to-blue-600' },
+    { name: t('preview.pipedrive'), icon: Globe, status: t('preview.connected'), synced: '890 deals', color: 'from-green-500 to-green-600' },
+    { name: t('preview.gmail'), icon: Mail, status: t('preview.active'), synced: '15,230 emails', color: 'from-red-500 to-red-600' },
+    { name: t('preview.outlook'), icon: Mail, status: t('preview.active'), synced: '8,940 emails', color: 'from-blue-600 to-blue-700' },
+    { name: t('preview.slack'), icon: MessageSquare, status: t('preview.connected'), synced: t('preview.realtimeNotifications'), color: 'from-purple-500 to-purple-600' },
   ];
 
   const nextSlide = () => {
@@ -116,15 +118,11 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
 
             <h2
               className="text-5xl font-bold text-white mb-4"
-            >
-              CRM Global Enterprise
-            </h2>
+            >{t('preview.crmGlobalEnterprise')}</h2>
 
             <p
               className="text-xl text-gray-400 mb-12 max-w-2xl"
-            >
-              Complete lead management and pipeline tracking system with advanced analytics and integrations
-            </p>
+            >{t('preview.completeLeadManagementAnd')}</p>
 
             <div
               className="grid grid-cols-3 gap-8 w-full max-w-4xl"
@@ -134,7 +132,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                   <Users className="w-6 h-6 text-blue-400" />
                 </div>
                 <div className="text-4xl font-bold text-white mb-2">48</div>
-                <div className="text-gray-400">Active Leads</div>
+                <div className="text-gray-400">{t('preview.activeLeads')}</div>
               </div>
 
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm">
@@ -142,7 +140,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                   <DollarSign className="w-6 h-6 text-green-400" />
                 </div>
                 <div className="text-4xl font-bold text-white mb-2">$1.2M</div>
-                <div className="text-gray-400">Pipeline Value</div>
+                <div className="text-gray-400">{t('preview.pipelineValue')}</div>
               </div>
 
               <div className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl p-6 border border-gray-700/50 backdrop-blur-sm">
@@ -150,7 +148,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                   <TrendingUp className="w-6 h-6 text-purple-400" />
                 </div>
                 <div className="text-4xl font-bold text-white mb-2">32%</div>
-                <div className="text-gray-400">Conversion Rate</div>
+                <div className="text-gray-400">{t('preview.conversionRate')}</div>
               </div>
             </div>
 
@@ -158,7 +156,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               className="mt-12 flex items-center gap-2 text-gray-400"
             >
               <ArrowRight className="w-5 h-5" />
-              <span>Explore the full CRM experience</span>
+              <span>{t('preview.exploreTheFullCrm')}</span>
             </div>
           </div>
         );
@@ -167,8 +165,8 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
         return (
           <div className="flex flex-col p-8">
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-white mb-2">Pipeline View</h3>
-              <p className="text-gray-400">Drag and drop leads across stages to update their status</p>
+              <h3 className="text-3xl font-bold text-white mb-2">{t('preview.pipelineView')}</h3>
+              <p className="text-gray-400">{t('preview.dragAndDropLeads')}</p>
             </div>
 
             <div className="flex-1 overflow-x-auto">
@@ -247,9 +245,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                   <h3 className="text-2xl font-bold text-white mb-1">{detailLead.name}</h3>
                   <p className="text-gray-400 mb-2">{detailLead.company}</p>
                   <div className="flex items-center gap-2">
-                    <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium border border-orange-500/30">
-                      Proposal Stage
-                    </span>
+                    <span className="px-3 py-1 bg-orange-500/20 text-orange-400 rounded-lg text-sm font-medium border border-orange-500/30">{t('preview.proposalStage')}</span>
                     <span className="text-2xl font-bold text-green-400">${(detailLead.value / 1000).toFixed(0)}K</span>
                   </div>
                 </div>
@@ -257,7 +253,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
 
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-400 uppercase mb-3">Contact Information</h4>
+                  <h4 className="text-sm font-semibold text-gray-400 uppercase mb-3">{t('preview.contactInformation')}</h4>
                   <div className="space-y-3">
                     <div className="flex items-center gap-3 text-white">
                       <Mail className="w-5 h-5 text-blue-400" />
@@ -279,29 +275,29 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-400 uppercase mb-3">Deal Information</h4>
+                  <h4 className="text-sm font-semibold text-gray-400 uppercase mb-3">{t('preview.dealInformation')}</h4>
                   <div className="grid grid-cols-2 gap-4">
                     <div>
-                      <p className="text-sm text-gray-400 mb-1">Owner</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('preview.owner')}</p>
                       <p className="text-white font-medium">{detailLead.owner}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400 mb-1">Source</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('preview.source')}</p>
                       <p className="text-white font-medium">{detailLead.source}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400 mb-1">Last Contact</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('preview.lastContact')}</p>
                       <p className="text-white font-medium">{detailLead.lastContact}</p>
                     </div>
                     <div>
-                      <p className="text-sm text-gray-400 mb-1">Expected Close</p>
+                      <p className="text-sm text-gray-400 mb-1">{t('preview.expectedClose')}</p>
                       <p className="text-white font-medium">Q1 2026</p>
                     </div>
                   </div>
                 </div>
 
                 <div>
-                  <h4 className="text-sm font-semibold text-gray-400 uppercase mb-3">Notes</h4>
+                  <h4 className="text-sm font-semibold text-gray-400 uppercase mb-3">{t('preview.notes')}</h4>
                   <div className="bg-gray-900/50 rounded-xl p-4 border border-gray-700/30">
                     <p className="text-gray-300 leading-relaxed">
                       Interested in enterprise plan with custom integrations. Discussed pricing and implementation timeline.
@@ -315,15 +311,15 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
             <div
               className="w-80 bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700/50 p-6 overflow-y-auto"
             >
-              <h4 className="text-lg font-semibold text-white mb-4">Activity Timeline</h4>
+              <h4 className="text-lg font-semibold text-white mb-4">{t('preview.activityTimeline')}</h4>
               <div className="space-y-4">
                 {[
-                  { action: 'Proposal sent', time: '3 hours ago', icon: FileText, color: 'text-orange-400' },
-                  { action: 'Demo meeting completed', time: '2 days ago', icon: Calendar, color: 'text-purple-400' },
-                  { action: 'Email sent', time: '3 days ago', icon: Mail, color: 'text-blue-400' },
-                  { action: 'Discovery call - 30 min', time: '5 days ago', icon: Phone, color: 'text-green-400' },
-                  { action: 'Lead qualified', time: '1 week ago', icon: CheckCircle2, color: 'text-emerald-400' },
-                  { action: 'Initial contact', time: '2 weeks ago', icon: AlertCircle, color: 'text-yellow-400' },
+                  { action: t('preview.proposalSent'), time: '3 hours ago', icon: FileText, color: 'text-orange-400' },
+                  { action: t('preview.demoMeetingCompleted'), time: '2 days ago', icon: Calendar, color: 'text-purple-400' },
+                  { action: t('preview.emailSent'), time: '3 days ago', icon: Mail, color: 'text-blue-400' },
+                  { action: t('preview.discoveryCall30Min'), time: '5 days ago', icon: Phone, color: 'text-green-400' },
+                  { action: t('preview.leadQualified'), time: '1 week ago', icon: CheckCircle2, color: 'text-emerald-400' },
+                  { action: t('preview.initialContact'), time: '2 weeks ago', icon: AlertCircle, color: 'text-yellow-400' },
                 ].map((item, idx) => (
                   <div
                     key={idx}
@@ -348,15 +344,15 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
         return (
           <div className="flex flex-col p-8">
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-white mb-2">Advanced Filters</h3>
-              <p className="text-gray-400">Filter and segment your leads with precision</p>
+              <h3 className="text-3xl font-bold text-white mb-2">{t('preview.advancedFilters')}</h3>
+              <p className="text-gray-400">{t('preview.filterAndSegmentYour')}</p>
             </div>
 
             <div className="grid grid-cols-4 gap-4 mb-6">
               {[
-                { label: 'New Lead', value: 'lead', icon: Target, color: 'from-blue-500/20 to-blue-600/20' },
-                { label: 'Qualified', value: 'qualified', icon: CheckCircle2, color: 'from-purple-500/20 to-purple-600/20' },
-                { label: 'Proposal', value: 'proposal', icon: FileText, color: 'from-orange-500/20 to-orange-600/20' },
+                { label: t('preview.newLead'), value: 'lead', icon: Target, color: 'from-blue-500/20 to-blue-600/20' },
+                { label: t('preview.qualified'), value: 'qualified', icon: CheckCircle2, color: 'from-purple-500/20 to-purple-600/20' },
+                { label: t('preview.proposal'), value: 'proposal', icon: FileText, color: 'from-orange-500/20 to-orange-600/20' },
                 { label: 'High Value ($100K+)', value: 'high-value', icon: DollarSign, color: 'from-green-500/20 to-green-600/20' },
               ].map((filter) => (
                 <button
@@ -380,25 +376,25 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               <div
                 className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/50"
               >
-                <label className="text-sm font-medium text-gray-400 mb-2 block">Owner</label>
+                <label className="text-sm font-medium text-gray-400 mb-2 block">{t('preview.owner')}</label>
                 <select className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
-                  <option>All Owners</option>
-                  <option>John Smith</option>
-                  <option>Emma Davis</option>
-                  <option>Mike Johnson</option>
+                  <option>{t('preview.allOwners')}</option>
+                  <option>{t('preview.johnSmith')}</option>
+                  <option>{t('preview.emmaDavis')}</option>
+                  <option>{t('preview.mikeJohnson')}</option>
                 </select>
               </div>
 
               <div
                 className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-xl p-4 border border-gray-700/50"
               >
-                <label className="text-sm font-medium text-gray-400 mb-2 block">Source</label>
+                <label className="text-sm font-medium text-gray-400 mb-2 block">{t('preview.source')}</label>
                 <select className="w-full bg-gray-900/50 border border-gray-700 rounded-lg px-4 py-2 text-white focus:outline-none focus:border-blue-500">
-                  <option>All Sources</option>
-                  <option>Website</option>
-                  <option>Referral</option>
-                  <option>LinkedIn</option>
-                  <option>Cold Email</option>
+                  <option>{t('preview.allSources')}</option>
+                  <option>{t('preview.website')}</option>
+                  <option>{t('preview.referral')}</option>
+                  <option>{t('preview.linkedin')}</option>
+                  <option>{t('preview.coldEmail')}</option>
                 </select>
               </div>
             </div>
@@ -448,16 +444,16 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
         return (
           <div className="flex flex-col p-8">
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-white mb-2">Analytics & Insights</h3>
-              <p className="text-gray-400">Track performance and forecast revenue</p>
+              <h3 className="text-3xl font-bold text-white mb-2">{t('preview.analyticsInsights')}</h3>
+              <p className="text-gray-400">{t('preview.trackPerformanceAndForecast')}</p>
             </div>
 
             <div className="grid grid-cols-4 gap-4 mb-6">
               {[
-                { label: 'Total Pipeline', value: '$1.2M', change: '+12%', icon: DollarSign, color: 'from-green-500/20 to-green-600/20' },
-                { label: 'Conversion Rate', value: '32%', change: '+5%', icon: TrendingUp, color: 'from-blue-500/20 to-blue-600/20' },
-                { label: 'Avg Deal Size', value: '$25K', change: '+8%', icon: Target, color: 'from-purple-500/20 to-purple-600/20' },
-                { label: 'Win Rate', value: '68%', change: '+3%', icon: CheckCircle2, color: 'from-orange-500/20 to-orange-600/20' },
+                { label: t('preview.totalPipeline'), value: '$1.2M', change: '+12%', icon: DollarSign, color: 'from-green-500/20 to-green-600/20' },
+                { label: t('preview.conversionRate11'), value: '32%', change: '+5%', icon: TrendingUp, color: 'from-blue-500/20 to-blue-600/20' },
+                { label: t('preview.avgDealSize'), value: '$25K', change: '+8%', icon: Target, color: 'from-purple-500/20 to-purple-600/20' },
+                { label: t('preview.winRate'), value: '68%', change: '+3%', icon: CheckCircle2, color: 'from-orange-500/20 to-orange-600/20' },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -477,13 +473,13 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               <div
                 className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700/50 p-6"
               >
-                <h4 className="text-lg font-semibold text-white mb-4">Conversion Funnel</h4>
+                <h4 className="text-lg font-semibold text-white mb-4">{t('preview.conversionFunnel')}</h4>
                 <div className="space-y-4">
                   {[
-                    { stage: 'New Leads', count: 48, percentage: 100, color: 'bg-blue-500' },
-                    { stage: 'Qualified', count: 35, percentage: 73, color: 'bg-purple-500' },
-                    { stage: 'Proposal', count: 22, percentage: 46, color: 'bg-orange-500' },
-                    { stage: 'Closed Won', count: 15, percentage: 31, color: 'bg-green-500' },
+                    { stage: t('preview.newLeads'), count: 48, percentage: 100, color: 'bg-blue-500' },
+                    { stage: t('preview.qualified'), count: 35, percentage: 73, color: 'bg-purple-500' },
+                    { stage: t('preview.proposal'), count: 22, percentage: 46, color: 'bg-orange-500' },
+                    { stage: t('preview.closedWon'), count: 15, percentage: 31, color: 'bg-green-500' },
                   ].map((stage) => (
                     <div
                       key={stage.stage}
@@ -505,7 +501,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               <div
                 className="bg-gradient-to-br from-gray-800/50 to-gray-900/50 rounded-2xl border border-gray-700/50 p-6"
               >
-                <h4 className="text-lg font-semibold text-white mb-4">Revenue Forecast</h4>
+                <h4 className="text-lg font-semibold text-white mb-4">{t('preview.revenueForecast')}</h4>
                 <div className="space-y-6">
                   <div className="text-center">
                     <div className="text-4xl font-bold text-white mb-2">$384K</div>
@@ -514,9 +510,9 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
 
                   <div className="space-y-3">
                     {[
-                      { month: 'January', amount: 125, probability: 85 },
-                      { month: 'February', amount: 142, probability: 70 },
-                      { month: 'March', amount: 117, probability: 60 },
+                      { month: t('preview.january'), amount: 125, probability: 85 },
+                      { month: t('preview.february'), amount: 142, probability: 70 },
+                      { month: t('preview.march'), amount: 117, probability: 60 },
                     ].map((forecast) => (
                       <div
                         key={forecast.month}
@@ -547,16 +543,16 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
         return (
           <div className="flex flex-col p-8">
             <div className="mb-6">
-              <h3 className="text-3xl font-bold text-white mb-2">Activity Timeline</h3>
-              <p className="text-gray-400">Track all interactions and engagement across your pipeline</p>
+              <h3 className="text-3xl font-bold text-white mb-2">{t('preview.activityTimeline')}</h3>
+              <p className="text-gray-400">{t('preview.trackAllInteractionsAnd')}</p>
             </div>
 
             <div className="grid grid-cols-4 gap-4 mb-6">
               {[
-                { label: 'Emails Sent', value: '234', icon: Mail, color: 'from-blue-500/20 to-blue-600/20' },
-                { label: 'Calls Made', value: '67', icon: Phone, color: 'from-green-500/20 to-green-600/20' },
-                { label: 'Meetings', value: '42', icon: Calendar, color: 'from-purple-500/20 to-purple-600/20' },
-                { label: 'Tasks Done', value: '189', icon: CheckCircle2, color: 'from-orange-500/20 to-orange-600/20' },
+                { label: t('preview.emailsSent'), value: '234', icon: Mail, color: 'from-blue-500/20 to-blue-600/20' },
+                { label: t('preview.callsMade'), value: '67', icon: Phone, color: 'from-green-500/20 to-green-600/20' },
+                { label: t('preview.meetings'), value: '42', icon: Calendar, color: 'from-purple-500/20 to-purple-600/20' },
+                { label: t('preview.tasksDone'), value: '189', icon: CheckCircle2, color: 'from-orange-500/20 to-orange-600/20' },
               ].map((stat) => (
                 <div
                   key={stat.label}
@@ -595,9 +591,9 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
 
                 {/* Additional activities */}
                 {[
-                  { type: 'email', title: 'Automated follow-up sent to 8 leads', time: '1 week ago', icon: Mail, color: 'text-blue-400' },
-                  { type: 'meeting', title: 'Team pipeline review meeting', time: '1 week ago', icon: Calendar, color: 'text-purple-400' },
-                  { type: 'call', title: 'Cold call to Innovate.io', time: '2 weeks ago', icon: Phone, color: 'text-green-400' },
+                  { type: 'email', title: t('preview.automatedFollowupSentTo'), time: '1 week ago', icon: Mail, color: 'text-blue-400' },
+                  { type: 'meeting', title: t('preview.teamPipelineReviewMeeting'), time: '1 week ago', icon: Calendar, color: 'text-purple-400' },
+                  { type: 'call', title: t('preview.coldCallToInnovateio'), time: '2 weeks ago', icon: Phone, color: 'text-green-400' },
                 ].map((activity, idx) => (
                   <div
                     key={`extra-${idx}`}
@@ -631,8 +627,8 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               <div className="w-20 h-20 bg-gradient-to-br from-purple-500 to-pink-600 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-2xl">
                 <Zap className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-3xl font-bold text-white mb-2">Powerful Integrations</h3>
-              <p className="text-gray-400">Connect with your favorite tools and platforms</p>
+              <h3 className="text-3xl font-bold text-white mb-2">{t('preview.powerfulIntegrations')}</h3>
+              <p className="text-gray-400">{t('preview.connectWithYourFavorite')}</p>
             </div>
 
             <div className="grid grid-cols-2 gap-6 w-full max-w-4xl">
@@ -661,9 +657,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
             <div
               className="mt-12 text-center"
             >
-              <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-semibold hover:shadow-lg hover:scale-105 transition-all">
-                Connect New Integration
-              </button>
+              <button className="px-8 py-3 bg-gradient-to-r from-blue-500 to-purple-600 rounded-xl text-white font-semibold hover:shadow-lg hover:scale-105 transition-all">{t('preview.connectNewIntegration')}</button>
             </div>
           </div>
         );
@@ -677,10 +671,8 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-7xl h-[90vh] p-0 overflow-hidden bg-gradient-to-br from-gray-900 via-gray-900 to-black">
         <VisuallyHidden>
-          <DialogTitle>CRM Global Enterprise Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of the CRM Global Enterprise system
-          </DialogDescription>
+          <DialogTitle>{t('preview.crmGlobalEnterprisePreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfThe')}</DialogDescription>
         </VisuallyHidden>
         <div className="flex flex-col h-full">
           {/* Header */}
@@ -689,8 +681,8 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               <Users className="w-5 h-5 text-white" />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-white">CRM Global Enterprise</h2>
-              <p className="text-sm text-gray-400">Complete Lead Management System</p>
+              <h2 className="text-xl font-bold text-white">{t('preview.crmGlobalEnterprise')}</h2>
+              <p className="text-sm text-gray-400">{t('preview.completeLeadManagementSystem')}</p>
             </div>
           </div>
 
@@ -708,7 +700,7 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
                 className="flex items-center gap-2 px-6 py-3 bg-gray-800/50 hover:bg-gray-700/50 disabled:opacity-30 disabled:cursor-not-allowed rounded-xl text-white transition-all border border-gray-700/50"
               >
                 <ChevronLeft className="w-5 h-5" />
-                <span>Previous</span>
+                <span>{t('preview.previous')}</span>
               </button>
 
               <div className="flex items-center gap-2">
@@ -731,12 +723,12 @@ export const CRMPreviewModal = ({ open, onOpenChange }: CRMPreviewModalProps) =>
               >
                 {currentSlide === totalSlides - 1 ? (
                   <>
-                    <span>Finish</span>
+                    <span>{t('preview.finish')}</span>
                     <CheckCircle2 className="w-5 h-5" />
                   </>
                 ) : (
                   <>
-                    <span>Next</span>
+                    <span>{t('preview.next')}</span>
                     <ChevronRight className="w-5 h-5" />
                   </>
                 )}

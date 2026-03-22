@@ -6,12 +6,14 @@ import { InfoTooltip, METRIC_TOOLTIPS } from '@/components/ui/info-tooltip';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { RolePerformance } from '@/hooks/useDevelopment';
 
+import { useTranslation } from 'react-i18next';
 interface RolePerformanceCardProps {
   performance: RolePerformance;
   ranking?: { position: number; previousPosition: number | null };
 }
 
 export function RolePerformanceCard({ performance, ranking }: RolePerformanceCardProps) {
+  const { t } = useTranslation();
   const roleConfig = ROLE_CONFIG[performance.role_name];
   const RoleIcon = roleConfig?.icon || Target;
   
@@ -56,7 +58,7 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
                   <positionChange.icon size={16} className={positionChange.color} />
                 )}
               </div>
-              <p className="text-xs text-muted-foreground">Ranking</p>
+              <p className="text-xs text-muted-foreground">{t('development.ranking')}</p>
             </div>
           )}
         </div>
@@ -66,7 +68,7 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
         {/* Performance Score */}
         <div>
           <div className="flex items-center justify-between mb-2">
-            <span className="text-sm font-medium">Puntuación General</span>
+            <span className="text-sm font-medium">{t('development.puntuaciónGeneral')}</span>
             <span className="text-sm font-bold">{performance.performance_score}%</span>
           </div>
           <Progress value={performance.performance_score} className="h-2" />
@@ -78,7 +80,7 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
             <CheckCircle2 size={18} className="mx-auto mb-1 text-success" />
             <p className="text-lg font-bold">{performance.task_completion_rate}%</p>
             <div className="flex items-center justify-center gap-1">
-              <p className="text-[10px] text-muted-foreground uppercase">Tareas</p>
+              <p className="text-[10px] text-muted-foreground uppercase">{t('development.tareas')}</p>
               <InfoTooltip {...METRIC_TOOLTIPS.tasksOnTime} iconSize={12} />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -90,7 +92,7 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
             <FileCheck size={18} className="mx-auto mb-1 text-primary" />
             <p className="text-lg font-bold">{performance.validated_obvs}</p>
             <div className="flex items-center justify-center gap-1">
-              <p className="text-[10px] text-muted-foreground uppercase">OBVs</p>
+              <p className="text-[10px] text-muted-foreground uppercase">{t('development.obvs')}</p>
               <InfoTooltip {...METRIC_TOOLTIPS.obvs} iconSize={12} />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -102,7 +104,7 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
             <Users size={18} className="mx-auto mb-1 text-amber-500" />
             <p className="text-lg font-bold">{performance.lead_conversion_rate}%</p>
             <div className="flex items-center justify-center gap-1">
-              <p className="text-[10px] text-muted-foreground uppercase">Leads</p>
+              <p className="text-[10px] text-muted-foreground uppercase">{t('development.leads')}</p>
               <InfoTooltip {...METRIC_TOOLTIPS.leadConversion} iconSize={12} />
             </div>
             <p className="text-xs text-muted-foreground">
@@ -114,18 +116,12 @@ export function RolePerformanceCard({ performance, ranking }: RolePerformanceCar
         {/* Status Badges */}
         <div className="flex items-center gap-2">
           {performance.is_lead && (
-            <Badge variant="secondary" className="bg-amber-500/10 text-amber-500">
-              Lead del Proyecto
-            </Badge>
+            <Badge variant="secondary" className="bg-amber-500/10 text-amber-500">{t('development.leadDelProyecto')}</Badge>
           )}
           {performance.role_accepted ? (
-            <Badge variant="secondary" className="bg-success/10 text-success">
-              Rol Aceptado
-            </Badge>
+            <Badge variant="secondary" className="bg-success/10 text-success">{t('development.rolAceptado')}</Badge>
           ) : (
-            <Badge variant="secondary" className="bg-muted text-muted-foreground">
-              Pendiente de Aceptar
-            </Badge>
+            <Badge variant="secondary" className="bg-muted text-muted-foreground">{t('development.pendienteDeAceptar')}</Badge>
           )}
         </div>
       </CardContent>

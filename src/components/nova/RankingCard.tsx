@@ -2,6 +2,7 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Member } from '@/data/mockData';
 
+import { useTranslation } from 'react-i18next';
 interface RankingCardProps {
   title: string;
   icon: LucideIcon;
@@ -40,7 +41,7 @@ export function RankingCard({
       </div>
 
       <div className="p-4">
-        <ol className="space-y-2" aria-label="Lista de ranking">
+        <ol className="space-y-2" aria-label={t('nova.listaDeRanking')}>
           {members.slice(0, 5).map((member, i) => {
             const value = member[valueKey] as number;
             const progress = (value / objective) * 100;

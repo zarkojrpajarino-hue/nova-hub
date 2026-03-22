@@ -9,6 +9,7 @@ import {
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -35,28 +36,28 @@ interface IntegrationsPreviewModalProps {
 
 // Mock data for integrations marketplace
 const integrations = [
-  { id: 1, name: 'Slack', category: 'Communication', icon: '💬', color: 'bg-purple-100 text-purple-600' },
-  { id: 2, name: 'HubSpot', category: 'CRM', icon: '🎯', color: 'bg-orange-100 text-orange-600' },
-  { id: 3, name: 'Salesforce', category: 'CRM', icon: '☁️', color: 'bg-blue-100 text-blue-600' },
-  { id: 4, name: 'Google Workspace', category: 'Productivity', icon: '📧', color: 'bg-red-100 text-red-600' },
-  { id: 5, name: 'Microsoft Teams', category: 'Communication', icon: '👥', color: 'bg-indigo-100 text-indigo-600' },
-  { id: 6, name: 'Jira', category: 'Project Management', icon: '🎫', color: 'bg-blue-100 text-blue-600' },
-  { id: 7, name: 'Notion', category: 'Productivity', icon: '📝', color: 'bg-gray-100 text-gray-600' },
-  { id: 8, name: 'Asana', category: 'Project Management', icon: '✓', color: 'bg-pink-100 text-pink-600' },
-  { id: 9, name: 'Stripe', category: 'Payments', icon: '💳', color: 'bg-purple-100 text-purple-600' },
-  { id: 10, name: 'Zapier', category: 'Automation', icon: '⚡', color: 'bg-orange-100 text-orange-600' },
-  { id: 11, name: 'GitHub', category: 'Development', icon: '🐙', color: 'bg-gray-100 text-gray-600' },
-  { id: 12, name: 'Intercom', category: 'Customer Support', icon: '💬', color: 'bg-blue-100 text-blue-600' },
+  { id: 1, name: t('preview.slack'), category: t('preview.communication'), icon: '💬', color: 'bg-purple-100 text-purple-600' },
+  { id: 2, name: t('preview.hubspot'), category: 'CRM', icon: '🎯', color: 'bg-orange-100 text-orange-600' },
+  { id: 3, name: t('preview.salesforce'), category: 'CRM', icon: '☁️', color: 'bg-blue-100 text-blue-600' },
+  { id: 4, name: t('preview.googleWorkspace'), category: t('preview.productivity'), icon: '📧', color: 'bg-red-100 text-red-600' },
+  { id: 5, name: t('preview.microsoftTeams'), category: t('preview.communication'), icon: '👥', color: 'bg-indigo-100 text-indigo-600' },
+  { id: 6, name: t('preview.jira'), category: t('preview.projectManagement'), icon: '🎫', color: 'bg-blue-100 text-blue-600' },
+  { id: 7, name: t('preview.notion'), category: t('preview.productivity'), icon: '📝', color: 'bg-gray-100 text-gray-600' },
+  { id: 8, name: t('preview.asana'), category: t('preview.projectManagement'), icon: '✓', color: 'bg-pink-100 text-pink-600' },
+  { id: 9, name: t('preview.stripe'), category: t('preview.payments'), icon: '💳', color: 'bg-purple-100 text-purple-600' },
+  { id: 10, name: t('preview.zapier'), category: t('preview.automation'), icon: '⚡', color: 'bg-orange-100 text-orange-600' },
+  { id: 11, name: t('preview.github'), category: t('preview.development'), icon: '🐙', color: 'bg-gray-100 text-gray-600' },
+  { id: 12, name: t('preview.intercom'), category: t('preview.customerSupport'), icon: '💬', color: 'bg-blue-100 text-blue-600' },
 ];
 
 // Mock data for connected apps
 const connectedApps = [
-  { id: 1, name: 'Slack', status: 'active', lastSync: '2 min ago', events: '1.2K', icon: '💬' },
-  { id: 2, name: 'HubSpot', status: 'active', lastSync: '15 min ago', events: '856', icon: '🎯' },
-  { id: 3, name: 'Google Workspace', status: 'active', lastSync: '1 hour ago', events: '2.4K', icon: '📧' },
-  { id: 4, name: 'Jira', status: 'warning', lastSync: '3 hours ago', events: '432', icon: '🎫' },
-  { id: 5, name: 'Stripe', status: 'active', lastSync: '30 min ago', events: '178', icon: '💳' },
-  { id: 6, name: 'GitHub', status: 'error', lastSync: '2 days ago', events: '0', icon: '🐙' },
+  { id: 1, name: t('preview.slack'), status: 'active', lastSync: '2 min ago', events: '1.2K', icon: '💬' },
+  { id: 2, name: t('preview.hubspot'), status: 'active', lastSync: '15 min ago', events: '856', icon: '🎯' },
+  { id: 3, name: t('preview.googleWorkspace'), status: 'active', lastSync: '1 hour ago', events: '2.4K', icon: '📧' },
+  { id: 4, name: t('preview.jira'), status: 'warning', lastSync: '3 hours ago', events: '432', icon: '🎫' },
+  { id: 5, name: t('preview.stripe'), status: 'active', lastSync: '30 min ago', events: '178', icon: '💳' },
+  { id: 6, name: t('preview.github'), status: 'error', lastSync: '2 days ago', events: '0', icon: '🐙' },
 ];
 
 // Mock data for Slack integration detail
@@ -75,15 +76,15 @@ const slackConfig = {
 
 // Mock data for API access
 const apiKeys = [
-  { id: 1, name: 'Production API Key', key: 'sk_live_51Abc...XYZ123', created: '2024-01-15', lastUsed: '2 hours ago' },
-  { id: 2, name: 'Development API Key', key: 'sk_test_51Def...ABC456', created: '2024-02-01', lastUsed: '5 min ago' },
+  { id: 1, name: t('preview.productionApiKey'), key: 'sk_live_51Abc...XYZ123', created: '2024-01-15', lastUsed: '2 hours ago' },
+  { id: 2, name: t('preview.developmentApiKey'), key: 'sk_test_51Def...ABC456', created: '2024-02-01', lastUsed: '5 min ago' },
 ];
 
 // Mock data for Zapier workflows
 const zapierWorkflows = [
-  { id: 1, name: 'New Lead → Slack Notification', status: 'active', runs: '2.4K', icon: '🎯→💬' },
-  { id: 2, name: 'Form Submit → HubSpot Contact', status: 'active', runs: '1.8K', icon: '📝→🎯' },
-  { id: 3, name: 'Payment Success → Email + Slack', status: 'active', runs: '856', icon: '💳→📧' },
+  { id: 1, name: t('preview.newLeadSlackNotification'), status: 'active', runs: '2.4K', icon: '🎯→💬' },
+  { id: 2, name: t('preview.formSubmitHubspotContact'), status: 'active', runs: '1.8K', icon: '📝→🎯' },
+  { id: 3, name: t('preview.paymentSuccessEmailSlack'), status: 'active', runs: '856', icon: '💳→📧' },
 ];
 
 export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> = ({
@@ -96,6 +97,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
   const totalSlides = 6;
 
   const nextSlide = () => {
+  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }
@@ -135,7 +137,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
             <div className="mb-6 flex h-20 w-20 items-center justify-center rounded-2xl bg-gradient-to-br from-purple-500 to-blue-600 text-white">
               <Plug className="h-10 w-10" />
             </div>
-            <h3 className="mb-3 text-2xl font-bold">Conecta tu Stack Tecnológico</h3>
+            <h3 className="mb-3 text-2xl font-bold">{t('preview.conectaTuStackTecnológico')}</h3>
             <p className="mb-6 max-w-md text-muted-foreground">
               Integra Nova Hub con más de 12 herramientas y plataformas que ya utilizas.
               Sincroniza datos, automatiza workflows y centraliza tu operación.
@@ -143,20 +145,18 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
             <div className="grid grid-cols-3 gap-4 mb-8">
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-2 text-3xl font-bold text-purple-600">12</div>
-                <div className="text-sm text-muted-foreground">Integraciones</div>
+                <div className="text-sm text-muted-foreground">{t('preview.integraciones')}</div>
               </div>
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-2 text-3xl font-bold text-blue-600">API</div>
-                <div className="text-sm text-muted-foreground">Acceso completo</div>
+                <div className="text-sm text-muted-foreground">{t('preview.accesoCompleto')}</div>
               </div>
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-2 text-3xl font-bold text-green-600">∞</div>
-                <div className="text-sm text-muted-foreground">Webhooks</div>
+                <div className="text-sm text-muted-foreground">{t('preview.webhooks')}</div>
               </div>
             </div>
-            <Badge variant="secondary" className="bg-purple-100 text-purple-700">
-              Advanced Plan Feature
-            </Badge>
+            <Badge variant="secondary" className="bg-purple-100 text-purple-700">{t('preview.advancedPlanFeature')}</Badge>
           </div>
         );
 
@@ -166,12 +166,8 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 text-xl font-bold flex items-center gap-2">
-                <Zap className="h-5 w-5 text-purple-600" />
-                Marketplace de Integraciones
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Explora y conecta las herramientas que tu equipo necesita
-              </p>
+                <Zap className="h-5 w-5 text-purple-600" />{t('preview.marketplaceDeIntegraciones')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.exploraYConectaLas')}</p>
             </div>
 
             <div className="grid grid-cols-3 gap-3">
@@ -193,9 +189,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                     size="sm"
                     variant="outline"
                     className="mt-3 w-full group-hover:bg-purple-50 group-hover:border-purple-300"
-                  >
-                    Conectar
-                  </Button>
+                  >{t('preview.conectar')}</Button>
                 </div>
               ))}
             </div>
@@ -208,12 +202,8 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 text-xl font-bold flex items-center gap-2">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                Apps Conectadas
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Gestiona tus integraciones activas y monitorea su estado
-              </p>
+                <CheckCircle className="h-5 w-5 text-green-600" />{t('preview.appsConectadas')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.gestionaTusIntegracionesActivas')}</p>
             </div>
 
             <div className="space-y-3">
@@ -239,7 +229,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                             : 'bg-red-100 text-red-700'
                         }
                       >
-                        {app.status === 'active' ? 'Active' : app.status === 'warning' ? 'Warning' : 'Error'}
+                        {app.status === 'active' ? 'Active': app.status === 'warning' ? 'Warning': t('preview.error')}
                       </Badge>
                     </div>
                     <div className="flex items-center gap-4 text-xs text-muted-foreground">
@@ -268,12 +258,8 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 text-xl font-bold flex items-center gap-2">
-                <span className="text-2xl">💬</span>
-                Configuración de Slack
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Gestiona webhooks, permisos y configuraciones avanzadas
-              </p>
+                <span className="text-2xl">💬</span>{t('preview.configuraciónDeSlack')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.gestionaWebhooksPermisosY')}</p>
             </div>
 
             <div className="space-y-4">
@@ -281,12 +267,8 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-3 flex items-center justify-between">
                   <div className="flex items-center gap-2 font-semibold">
-                    <Webhook className="h-4 w-4 text-purple-600" />
-                    Webhooks
-                  </div>
-                  <Button size="sm" variant="outline">
-                    Add Webhook
-                  </Button>
+                    <Webhook className="h-4 w-4 text-purple-600" />{t('preview.webhooks')}</div>
+                  <Button size="sm" variant="outline">{t('preview.addWebhook')}</Button>
                 </div>
                 <div className="space-y-2">
                   {slackConfig.webhooks.map((webhook) => (
@@ -296,9 +278,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                     >
                       <div className="mb-1 flex items-center justify-between">
                         <span className="font-medium">{webhook.channel}</span>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
-                          Active
-                        </Badge>
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">{t('preview.active')}</Badge>
                       </div>
                       <code className="block truncate text-xs text-muted-foreground">
                         {webhook.url}
@@ -311,9 +291,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
               {/* Scopes Section */}
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-3 flex items-center gap-2 font-semibold">
-                  <Settings className="h-4 w-4 text-blue-600" />
-                  OAuth Scopes
-                </div>
+                  <Settings className="h-4 w-4 text-blue-600" />{t('preview.oauthScopes')}</div>
                 <div className="grid grid-cols-2 gap-2">
                   {slackConfig.scopes.map((scope, index) => (
                     <div
@@ -332,12 +310,8 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                 <div className="flex items-start gap-3">
                   <CheckCircle className="h-5 w-5 text-blue-600 mt-0.5" />
                   <div className="text-sm">
-                    <div className="font-medium text-blue-900 mb-1">
-                      Conectado correctamente
-                    </div>
-                    <div className="text-blue-700">
-                      Workspace: Nova Hub Team • Instalado por: john@novahub.com
-                    </div>
+                    <div className="font-medium text-blue-900 mb-1">{t('preview.conectadoCorrectamente')}</div>
+                    <div className="text-blue-700">{t('preview.workspaceNovaHubTeam')}</div>
                   </div>
                 </div>
               </div>
@@ -351,22 +325,16 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 text-xl font-bold flex items-center gap-2">
-                <Key className="h-5 w-5 text-purple-600" />
-                API Access
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Gestiona tus API keys y accede a la documentación completa
-              </p>
+                <Key className="h-5 w-5 text-purple-600" />{t('preview.apiAccess')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.gestionaTusApiKeys')}</p>
             </div>
 
             <div className="space-y-4">
               {/* API Keys */}
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <div className="font-semibold">API Keys</div>
-                  <Button size="sm" variant="outline">
-                    Generate New Key
-                  </Button>
+                  <div className="font-semibold">{t('preview.apiKeys')}</div>
+                  <Button size="sm" variant="outline">{t('preview.generateNewKey')}</Button>
                 </div>
                 <div className="space-y-3">
                   {apiKeys.map((apiKey) => (
@@ -376,9 +344,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                     >
                       <div className="mb-2 flex items-center justify-between">
                         <span className="font-medium text-sm">{apiKey.name}</span>
-                        <Badge variant="secondary" className="bg-green-100 text-green-700">
-                          Active
-                        </Badge>
+                        <Badge variant="secondary" className="bg-green-100 text-green-700">{t('preview.active')}</Badge>
                       </div>
                       <div className="mb-2 flex items-center gap-2">
                         <code className="flex-1 truncate text-xs bg-background px-2 py-1 rounded">
@@ -407,11 +373,11 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
 
               {/* Rate Limits */}
               <div className="rounded-lg border bg-card p-4">
-                <div className="mb-3 font-semibold">Rate Limits</div>
+                <div className="mb-3 font-semibold">{t('preview.rateLimits')}</div>
                 <div className="space-y-3">
                   <div>
                     <div className="mb-1 flex items-center justify-between text-sm">
-                      <span>Requests this month</span>
+                      <span>{t('preview.requestsThisMonth')}</span>
                       <span className="font-medium">18,432 / 100,000</span>
                     </div>
                     <div className="h-2 rounded-full bg-muted">
@@ -420,11 +386,11 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                   </div>
                   <div className="grid grid-cols-2 gap-3 text-sm">
                     <div className="rounded-md bg-muted p-3">
-                      <div className="text-muted-foreground mb-1">Rate Limit</div>
+                      <div className="text-muted-foreground mb-1">{t('preview.rateLimit')}</div>
                       <div className="font-semibold">1000 req/min</div>
                     </div>
                     <div className="rounded-md bg-muted p-3">
-                      <div className="text-muted-foreground mb-1">Burst Limit</div>
+                      <div className="text-muted-foreground mb-1">{t('preview.burstLimit')}</div>
                       <div className="font-semibold">5000 req/sec</div>
                     </div>
                   </div>
@@ -436,12 +402,8 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                 <div className="flex items-center justify-between">
                   <div>
                     <div className="font-medium text-purple-900 mb-1">
-                      <Code className="inline h-4 w-4 mr-1" />
-                      API Documentation
-                    </div>
-                    <div className="text-sm text-purple-700">
-                      Guías completas, ejemplos y referencia de endpoints
-                    </div>
+                      <Code className="inline h-4 w-4 mr-1" />{t('preview.apiDocumentation')}</div>
+                    <div className="text-sm text-purple-700">{t('preview.guíasCompletasEjemplosY')}</div>
                   </div>
                   <Button size="sm" variant="outline" className="border-purple-300">
                     <ExternalLink className="h-4 w-4" />
@@ -458,22 +420,16 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
           <div className="space-y-4">
             <div>
               <h3 className="mb-2 text-xl font-bold flex items-center gap-2">
-                <Zap className="h-5 w-5 text-orange-600" />
-                Automatización con Zapier
-              </h3>
-              <p className="text-sm text-muted-foreground">
-                Conecta Nova Hub con más de 5,000 apps sin escribir código
-              </p>
+                <Zap className="h-5 w-5 text-orange-600" />{t('preview.automatizaciónConZapier')}</h3>
+              <p className="text-sm text-muted-foreground">{t('preview.conectaNovaHubCon')}</p>
             </div>
 
             <div className="space-y-4">
               {/* Active Workflows */}
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-3 flex items-center justify-between">
-                  <div className="font-semibold">Workflows Activos</div>
-                  <Button size="sm" variant="outline">
-                    Create Workflow
-                  </Button>
+                  <div className="font-semibold">{t('preview.workflowsActivos')}</div>
+                  <Button size="sm" variant="outline">{t('preview.createWorkflow')}</Button>
                 </div>
                 <div className="space-y-2">
                   {zapierWorkflows.map((workflow) => (
@@ -505,24 +461,22 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
               {/* Webhook Triggers */}
               <div className="rounded-lg border bg-card p-4">
                 <div className="mb-3 font-semibold flex items-center gap-2">
-                  <Webhook className="h-4 w-4 text-blue-600" />
-                  Webhook Triggers
-                </div>
+                  <Webhook className="h-4 w-4 text-blue-600" />{t('preview.webhookTriggers')}</div>
                 <div className="space-y-2 text-sm">
                   <div className="rounded-md bg-muted p-3">
-                    <div className="mb-1 font-medium">New Lead Created</div>
+                    <div className="mb-1 font-medium">{t('preview.newLeadCreated')}</div>
                     <code className="block text-xs text-muted-foreground truncate">
                       https://api.novahub.com/webhooks/leads/new
                     </code>
                   </div>
                   <div className="rounded-md bg-muted p-3">
-                    <div className="mb-1 font-medium">Task Completed</div>
+                    <div className="mb-1 font-medium">{t('preview.taskCompleted')}</div>
                     <code className="block text-xs text-muted-foreground truncate">
                       https://api.novahub.com/webhooks/tasks/completed
                     </code>
                   </div>
                   <div className="rounded-md bg-muted p-3">
-                    <div className="mb-1 font-medium">Payment Received</div>
+                    <div className="mb-1 font-medium">{t('preview.paymentReceived')}</div>
                     <code className="block text-xs text-muted-foreground truncate">
                       https://api.novahub.com/webhooks/payments/received
                     </code>
@@ -534,15 +488,15 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
               <div className="grid grid-cols-3 gap-3">
                 <div className="rounded-lg border bg-card p-3 text-center">
                   <div className="mb-1 text-2xl font-bold text-purple-600">5.2K</div>
-                  <div className="text-xs text-muted-foreground">Total Events</div>
+                  <div className="text-xs text-muted-foreground">{t('preview.totalEvents')}</div>
                 </div>
                 <div className="rounded-lg border bg-card p-3 text-center">
                   <div className="mb-1 text-2xl font-bold text-green-600">99.8%</div>
-                  <div className="text-xs text-muted-foreground">Success Rate</div>
+                  <div className="text-xs text-muted-foreground">{t('preview.successRate')}</div>
                 </div>
                 <div className="rounded-lg border bg-card p-3 text-center">
                   <div className="mb-1 text-2xl font-bold text-blue-600">3</div>
-                  <div className="text-xs text-muted-foreground">Zaps Active</div>
+                  <div className="text-xs text-muted-foreground">{t('preview.zapsActive')}</div>
                 </div>
               </div>
             </div>
@@ -559,16 +513,10 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
       <DialogContent className="max-w-4xl max-h-[90vh] overflow-hidden flex flex-col">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
-            <Plug className="h-5 w-5 text-purple-600" />
-            Integraciones
-            <Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-700">
-              Advanced Plan
-            </Badge>
+            <Plug className="h-5 w-5 text-purple-600" />Integraciones<Badge variant="secondary" className="ml-2 bg-purple-100 text-purple-700">{t('preview.advancedPlan')}</Badge>
           </DialogTitle>
           <VisuallyHidden>
-            <DialogDescription>
-              Interactive preview of integrations marketplace and connected apps
-            </DialogDescription>
+            <DialogDescription>{t('preview.interactivePreviewOfIntegrations')}</DialogDescription>
           </VisuallyHidden>
         </DialogHeader>
 
@@ -583,9 +531,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
             onClick={prevSlide}
             disabled={currentSlide === 0}
           >
-            <ChevronLeft className="h-4 w-4 mr-1" />
-            Anterior
-          </Button>
+            <ChevronLeft className="h-4 w-4 mr-1" />{t('preview.anterior')}</Button>
 
           <div className="flex items-center gap-2">
             {Array.from({ length: totalSlides }).map((_, index) => (
@@ -605,14 +551,10 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
             onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : nextSlide}
           >
             {currentSlide === totalSlides - 1 ? (
-              <>
-                Finalizar
-                <CheckCircle2 className="h-4 w-4 ml-1" />
+              <>{t('preview.finalizar')}<CheckCircle2 className="h-4 w-4 ml-1" />
               </>
             ) : (
-              <>
-                Siguiente
-                <ChevronRight className="h-4 w-4 ml-1" />
+              <>{t('preview.siguiente')}<ChevronRight className="h-4 w-4 ml-1" />
               </>
             )}
           </Button>
@@ -623,9 +565,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
           <p className="text-sm text-muted-foreground mb-2">
             Desbloquea integraciones ilimitadas y acceso completo a la API
           </p>
-          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700">
-            Actualizar a Advanced
-          </Button>
+          <Button className="bg-gradient-to-r from-purple-600 to-blue-600 text-white hover:from-purple-700 hover:to-blue-700">{t('preview.actualizarAAdvanced')}</Button>
         </div>
       </DialogContent>
     </Dialog>

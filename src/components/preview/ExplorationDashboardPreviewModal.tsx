@@ -4,6 +4,7 @@ import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
@@ -47,152 +48,153 @@ const roles: Role[] = [
   {
     id: 'ceo',
     title: 'CEO',
-    department: 'Executive',
+    department: t('preview.executive'),
     icon: Users,
-    description: 'Chief Executive Officer - Lidera la visión y estrategia general de la empresa',
-    competencies: ['Liderazgo Estratégico', 'Visión de Negocio', 'Toma de Decisiones', 'Comunicación'],
-    responsibilities: ['Definir visión y estrategia', 'Supervisar operaciones', 'Relaciones con inversores', 'Cultura organizacional'],
-    kpis: ['Crecimiento de ingresos', 'Valoración de empresa', 'Satisfacción de stakeholders', 'Retención de talento'],
+    description: t('preview.chiefExecutiveOfficerLidera'),
+    competencies: [t('preview.liderazgoEstratégico'), t('preview.visiónDeNegocio'), t('preview.tomaDeDecisiones'), t('preview.comunicación')],
+    responsibilities: [t('preview.definirVisiónYEstrategia'), t('preview.supervisarOperaciones'), t('preview.relacionesConInversores'), t('preview.culturaOrganizacional')],
+    kpis: [t('preview.crecimientoDeIngresos'), t('preview.valoraciónDeEmpresa'), t('preview.satisfacciónDeStakeholders'), t('preview.retenciónDeTalento')],
     salary: '$150k - $250k',
   },
   {
     id: 'cto',
     title: 'CTO',
-    department: 'Technology',
+    department: t('preview.technology'),
     icon: Code,
-    description: 'Chief Technology Officer - Dirige la estrategia tecnológica y desarrollo de producto',
-    competencies: ['Arquitectura de Software', 'Gestión Técnica', 'Innovación', 'Escalabilidad'],
-    responsibilities: ['Estrategia tecnológica', 'Supervisar desarrollo', 'Infraestructura técnica', 'Seguridad de sistemas'],
-    kpis: ['Tiempo de desarrollo', 'Calidad del código', 'Uptime del sistema', 'Innovación técnica'],
+    description: t('preview.chiefTechnologyOfficerDirige'),
+    competencies: [t('preview.arquitecturaDeSoftware'), t('preview.gestiónTécnica'), t('preview.innovación'), t('preview.escalabilidad')],
+    responsibilities: [t('preview.estrategiaTecnológica'), t('preview.supervisarDesarrollo'), t('preview.infraestructuraTécnica'), t('preview.seguridadDeSistemas')],
+    kpis: [t('preview.tiempoDeDesarrollo'), t('preview.calidadDelCódigo'), t('preview.uptimeDelSistema'), t('preview.innovaciónTécnica')],
     salary: '$130k - $220k',
   },
   {
     id: 'cmo',
     title: 'CMO',
-    department: 'Marketing',
+    department: t('preview.marketing'),
     icon: Megaphone,
-    description: 'Chief Marketing Officer - Gestiona la estrategia de marketing y marca',
-    competencies: ['Marketing Digital', 'Branding', 'Análisis de Mercado', 'Growth Hacking'],
-    responsibilities: ['Estrategia de marketing', 'Gestión de marca', 'Generación de leads', 'Análisis de mercado'],
-    kpis: ['CAC', 'ROI de marketing', 'Brand awareness', 'Conversión de leads'],
+    description: t('preview.chiefMarketingOfficerGestiona'),
+    competencies: [t('preview.marketingDigital'), t('preview.branding'), t('preview.análisisDeMercado'), t('preview.growthHacking')],
+    responsibilities: [t('preview.estrategiaDeMarketing'), t('preview.gestiónDeMarca'), t('preview.generaciónDeLeads'), t('preview.análisisDeMercado3')],
+    kpis: ['CAC', t('preview.roiDeMarketing'), t('preview.brandAwareness'), t('preview.conversiónDeLeads')],
     salary: '$120k - $200k',
   },
   {
     id: 'cfo',
     title: 'CFO',
-    department: 'Finance',
+    department: t('preview.finance'),
     icon: DollarSign,
-    description: 'Chief Financial Officer - Administra finanzas y estrategia financiera',
-    competencies: ['Finanzas Corporativas', 'Análisis Financiero', 'Fundraising', 'Compliance'],
-    responsibilities: ['Gestión financiera', 'Fundraising', 'Reportes financieros', 'Control de costos'],
-    kpis: ['Burn rate', 'Runway', 'Profit margins', 'Cash flow'],
+    description: t('preview.chiefFinancialOfficerAdministra'),
+    competencies: [t('preview.finanzasCorporativas'), t('preview.análisisFinanciero'), t('preview.fundraising'), t('preview.compliance')],
+    responsibilities: [t('preview.gestiónFinanciera'), t('preview.fundraising'), t('preview.reportesFinancieros'), t('preview.controlDeCostos')],
+    kpis: [t('preview.burnRate'), t('preview.runway'), t('preview.profitMargins'), t('preview.cashFlow')],
     salary: '$130k - $210k',
   },
   {
     id: 'coo',
     title: 'COO',
-    department: 'Operations',
+    department: t('preview.operations'),
     icon: Settings,
-    description: 'Chief Operating Officer - Supervisa operaciones diarias y eficiencia',
-    competencies: ['Gestión de Operaciones', 'Optimización de Procesos', 'Logística', 'Calidad'],
-    responsibilities: ['Operaciones diarias', 'Optimización de procesos', 'Gestión de equipos', 'Eficiencia operativa'],
-    kpis: ['Eficiencia operativa', 'Reducción de costos', 'Calidad de servicio', 'Productividad'],
+    description: t('preview.chiefOperatingOfficerSupervisa'),
+    competencies: [t('preview.gestiónDeOperaciones'), t('preview.optimizaciónDeProcesos'), t('preview.logística'), t('preview.calidad')],
+    responsibilities: [t('preview.operacionesDiarias'), t('preview.optimizaciónDeProcesos4'), t('preview.gestiónDeEquipos'), t('preview.eficienciaOperativa')],
+    kpis: [t('preview.eficienciaOperativa'), t('preview.reducciónDeCostos'), t('preview.calidadDeServicio'), t('preview.productividad')],
     salary: '$120k - $190k',
   },
   {
     id: 'head-product',
-    title: 'Head of Product',
-    department: 'Product',
+    title: t('preview.headOfProduct'),
+    department: t('preview.product'),
     icon: Lightbulb,
-    description: 'Lidera el desarrollo y estrategia de producto',
-    competencies: ['Product Management', 'UX/UI', 'Análisis de Datos', 'Roadmapping'],
-    responsibilities: ['Roadmap de producto', 'Priorización de features', 'User research', 'Product-market fit'],
-    kpis: ['Adopción de producto', 'NPS', 'Feature adoption', 'Time to market'],
+    description: t('preview.lideraElDesarrolloY'),
+    competencies: [t('preview.productManagement'), 'UX/UI', t('preview.análisisDeDatos'), t('preview.roadmapping')],
+    responsibilities: [t('preview.roadmapDeProducto'), t('preview.priorizaciónDeFeatures'), t('preview.userResearch'), t('preview.productmarketFit')],
+    kpis: [t('preview.adopciónDeProducto'), 'NPS', t('preview.featureAdoption'), t('preview.timeToMarket')],
     salary: '$100k - $160k',
   },
   {
     id: 'head-sales',
-    title: 'Head of Sales',
-    department: 'Sales',
+    title: t('preview.headOfSales'),
+    department: t('preview.sales'),
     icon: TrendingUp,
-    description: 'Dirige el equipo de ventas y estrategia comercial',
-    competencies: ['Sales Strategy', 'Negociación', 'CRM', 'Account Management'],
-    responsibilities: ['Estrategia de ventas', 'Gestión de pipeline', 'Cierre de deals', 'Relaciones con clientes'],
-    kpis: ['Revenue', 'Win rate', 'Sales cycle', 'ACV'],
+    description: t('preview.dirigeElEquipoDe'),
+    competencies: [t('preview.salesStrategy'), t('preview.negociación'), 'CRM', t('preview.accountManagement')],
+    responsibilities: [t('preview.estrategiaDeVentas'), t('preview.gestiónDePipeline'), t('preview.cierreDeDeals'), t('preview.relacionesConClientes')],
+    kpis: [t('preview.revenue'), t('preview.winRate'), t('preview.salesCycle'), 'ACV'],
     salary: '$90k - $150k',
   },
   {
     id: 'head-engineering',
-    title: 'Head of Engineering',
-    department: 'Technology',
+    title: t('preview.headOfEngineering'),
+    department: t('preview.technology'),
     icon: Code,
-    description: 'Gestiona el equipo de ingeniería y delivery técnico',
-    competencies: ['Gestión de Equipos', 'Arquitectura', 'Agile', 'Code Review'],
-    responsibilities: ['Gestión de equipo técnico', 'Sprint planning', 'Code quality', 'Technical debt'],
-    kpis: ['Velocity', 'Bug rate', 'Deploy frequency', 'Team satisfaction'],
+    description: t('preview.gestionaElEquipoDe'),
+    competencies: [t('preview.gestiónDeEquipos5'), t('preview.arquitectura'), t('preview.agile'), t('preview.codeReview')],
+    responsibilities: [t('preview.gestiónDeEquipoTécnico'), t('preview.sprintPlanning'), t('preview.codeQuality'), t('preview.technicalDebt')],
+    kpis: [t('preview.velocity'), t('preview.bugRate'), t('preview.deployFrequency'), t('preview.teamSatisfaction')],
     salary: '$110k - $170k',
   },
   {
     id: 'data-scientist',
-    title: 'Data Scientist',
-    department: 'Data',
+    title: t('preview.dataScientist'),
+    department: t('preview.data'),
     icon: BarChart,
-    description: 'Analiza datos y construye modelos predictivos',
-    competencies: ['Machine Learning', 'Estadística', 'Python/R', 'Data Visualization'],
-    responsibilities: ['Análisis de datos', 'Modelos predictivos', 'A/B testing', 'Dashboards'],
-    kpis: ['Model accuracy', 'Data coverage', 'Insights delivered', 'Impact on metrics'],
+    description: t('preview.analizaDatosYConstruye'),
+    competencies: [t('preview.machineLearning'), t('preview.estadística'), 'Python/R', t('preview.dataVisualization')],
+    responsibilities: [t('preview.análisisDeDatos6'), t('preview.modelosPredictivos'), t('preview.abTesting'), t('preview.dashboards')],
+    kpis: [t('preview.modelAccuracy'), t('preview.dataCoverage'), t('preview.insightsDelivered'), t('preview.impactOnMetrics')],
     salary: '$80k - $140k',
   },
   {
     id: 'security-officer',
-    title: 'Security Officer',
-    department: 'Security',
+    title: t('preview.securityOfficer'),
+    department: t('preview.security'),
     icon: Shield,
-    description: 'Protege los sistemas y datos de la empresa',
-    competencies: ['Ciberseguridad', 'Compliance', 'Risk Management', 'Incident Response'],
-    responsibilities: ['Seguridad de sistemas', 'Auditorías de seguridad', 'Compliance', 'Incident response'],
-    kpis: ['Security incidents', 'Compliance score', 'Response time', 'Vulnerabilities fixed'],
+    description: t('preview.protegeLosSistemasY'),
+    competencies: [t('preview.ciberseguridad'), t('preview.compliance'), t('preview.riskManagement'), t('preview.incidentResponse')],
+    responsibilities: [t('preview.seguridadDeSistemas'), t('preview.auditoríasDeSeguridad'), t('preview.compliance'), t('preview.incidentResponse7')],
+    kpis: [t('preview.securityIncidents'), t('preview.complianceScore'), t('preview.responseTime'), t('preview.vulnerabilitiesFixed')],
     salary: '$90k - $150k',
   },
   {
     id: 'hr-manager',
-    title: 'HR Manager',
-    department: 'Human Resources',
+    title: t('preview.hrManager'),
+    department: t('preview.humanResources'),
     icon: Users,
-    description: 'Gestiona talento, cultura y desarrollo del equipo',
-    competencies: ['Reclutamiento', 'Desarrollo Organizacional', 'Cultura', 'Compensation'],
-    responsibilities: ['Reclutamiento', 'Onboarding', 'Desarrollo de talento', 'Cultura empresarial'],
-    kpis: ['Time to hire', 'Retention rate', 'Employee satisfaction', 'Training completion'],
+    description: t('preview.gestionaTalentoCulturaY'),
+    competencies: [t('preview.reclutamiento'), t('preview.desarrolloOrganizacional'), t('preview.cultura'), t('preview.compensation')],
+    responsibilities: [t('preview.reclutamiento'), t('preview.onboarding'), t('preview.desarrolloDeTalento'), t('preview.culturaEmpresarial')],
+    kpis: [t('preview.timeToHire'), t('preview.retentionRate'), t('preview.employeeSatisfaction'), t('preview.trainingCompletion')],
     salary: '$70k - $120k',
   },
   {
     id: 'business-dev',
-    title: 'Business Developer',
-    department: 'Business Development',
+    title: t('preview.businessDeveloper'),
+    department: t('preview.businessDevelopment'),
     icon: Target,
-    description: 'Identifica y desarrolla oportunidades de negocio',
-    competencies: ['Networking', 'Partnerships', 'Negociación', 'Market Analysis'],
-    responsibilities: ['Identificar oportunidades', 'Partnerships estratégicos', 'Expansión de mercado', 'Deal structuring'],
-    kpis: ['Partnership deals', 'Revenue from partnerships', 'Market expansion', 'Deal velocity'],
+    description: t('preview.identificaYDesarrollaOportunidades'),
+    competencies: [t('preview.networking'), t('preview.partnerships'), t('preview.negociación'), t('preview.marketAnalysis')],
+    responsibilities: [t('preview.identificarOportunidades'), t('preview.partnershipsEstratégicos'), t('preview.expansiónDeMercado'), t('preview.dealStructuring')],
+    kpis: [t('preview.partnershipDeals'), t('preview.revenueFromPartnerships'), t('preview.marketExpansion'), t('preview.dealVelocity')],
     salary: '$75k - $130k',
   },
 ];
 
 const departments = [
-  'Executive',
-  'Technology',
-  'Marketing',
-  'Finance',
-  'Operations',
-  'Product',
-  'Sales',
-  'Data',
+  t('preview.executive'),
+  t('preview.technology'),
+  t('preview.marketing'),
+  t('preview.finance'),
+  t('preview.operations'),
+  t('preview.product'),
+  t('preview.sales'),
+  t('preview.data'),
 ];
 
 export function ExplorationDashboardPreviewModal({
   open,
   onOpenChange,
 }: ExplorationDashboardPreviewModalProps) {
+  const { t } = useTranslation();
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [comparisonRoles, setComparisonRoles] = useState<Role[]>([]);
@@ -254,7 +256,7 @@ export function ExplorationDashboardPreviewModal({
             <div className="mb-6 flex h-24 w-24 items-center justify-center rounded-full bg-blue-100">
               <Briefcase className="h-12 w-12 text-blue-600" />
             </div>
-            <h2 className="mb-4 text-3xl font-bold">Explora Roles Ideales</h2>
+            <h2 className="mb-4 text-3xl font-bold">{t('preview.exploraRolesIdeales')}</h2>
             <p className="mb-8 max-w-2xl text-lg text-muted-foreground">
               Descubre qué roles necesitas en tu startup. Explora nuestro catálogo de 12 roles
               profesionales organizados en 8 departamentos clave.
@@ -262,19 +264,19 @@ export function ExplorationDashboardPreviewModal({
             <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
               <div className="flex flex-col items-center">
                 <div className="mb-2 text-4xl font-bold text-blue-600">12</div>
-                <div className="text-sm text-muted-foreground">Roles Disponibles</div>
+                <div className="text-sm text-muted-foreground">{t('preview.rolesDisponibles')}</div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="mb-2 text-4xl font-bold text-green-600">8</div>
-                <div className="text-sm text-muted-foreground">Departamentos</div>
+                <div className="text-sm text-muted-foreground">{t('preview.departamentos')}</div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="mb-2 text-4xl font-bold text-purple-600">3</div>
-                <div className="text-sm text-muted-foreground">Roles Comparables</div>
+                <div className="text-sm text-muted-foreground">{t('preview.rolesComparables')}</div>
               </div>
               <div className="flex flex-col items-center">
                 <div className="mb-2 text-4xl font-bold text-orange-600">AI</div>
-                <div className="text-sm text-muted-foreground">Recomendaciones</div>
+                <div className="text-sm text-muted-foreground">{t('preview.recomendaciones')}</div>
               </div>
             </div>
           </div>
@@ -284,10 +286,8 @@ export function ExplorationDashboardPreviewModal({
         return (
           <div>
             <div className="mb-6">
-              <h2 className="mb-2 text-2xl font-bold">Catálogo de Roles</h2>
-              <p className="text-muted-foreground">
-                Explora nuestros 12 roles disponibles. Haz clic en cualquier rol para ver detalles.
-              </p>
+              <h2 className="mb-2 text-2xl font-bold">{t('preview.catálogoDeRoles')}</h2>
+              <p className="text-muted-foreground">{t('preview.exploraNuestros12Roles')}</p>
             </div>
             <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
               {roles.map((role) => {
@@ -312,7 +312,7 @@ export function ExplorationDashboardPreviewModal({
                     </CardHeader>
                     <CardContent>
                       <div className="flex items-center justify-between text-sm">
-                        <span className="text-muted-foreground">Salario estimado</span>
+                        <span className="text-muted-foreground">{t('preview.salarioEstimado')}</span>
                         <span className="font-semibold text-green-600">{role.salary}</span>
                       </div>
                     </CardContent>
@@ -327,12 +327,8 @@ export function ExplorationDashboardPreviewModal({
         if (!selectedRole) {
           return (
             <div className="flex flex-col items-center justify-center py-12">
-              <p className="text-muted-foreground">
-                Selecciona un rol del catálogo para ver los detalles
-              </p>
-              <Button onClick={() => setCurrentSlide(1)} className="mt-4">
-                Ir al Catálogo
-              </Button>
+              <p className="text-muted-foreground">{t('preview.seleccionaUnRolDel')}</p>
+              <Button onClick={() => setCurrentSlide(1)} className="mt-4">{t('preview.irAlCatálogo')}</Button>
             </div>
           );
         }
@@ -358,7 +354,7 @@ export function ExplorationDashboardPreviewModal({
             <div className="grid gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Competencias Clave</CardTitle>
+                  <CardTitle className="text-lg">{t('preview.competenciasClave')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="flex flex-wrap gap-2">
@@ -374,7 +370,7 @@ export function ExplorationDashboardPreviewModal({
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">KPIs Principales</CardTitle>
+                  <CardTitle className="text-lg">{t('preview.kpisPrincipales')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <ul className="space-y-2">
@@ -390,7 +386,7 @@ export function ExplorationDashboardPreviewModal({
 
               <Card className="md:col-span-2">
                 <CardHeader>
-                  <CardTitle className="text-lg">Responsabilidades</CardTitle>
+                  <CardTitle className="text-lg">{t('preview.responsabilidades')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="grid gap-3 md:grid-cols-2">
@@ -408,18 +404,14 @@ export function ExplorationDashboardPreviewModal({
             </div>
 
             <div className="mt-4 flex gap-2">
-              <Button onClick={() => setCurrentSlide(1)} variant="outline">
-                Volver al Catálogo
-              </Button>
+              <Button onClick={() => setCurrentSlide(1)} variant="outline">{t('preview.volverAlCatálogo')}</Button>
               <Button
                 onClick={() => {
                   toggleComparisonRole(selectedRole);
                   setCurrentSlide(3);
                 }}
                 variant="secondary"
-              >
-                Comparar Rol
-              </Button>
+              >{t('preview.compararRol')}</Button>
             </div>
           </div>
         );
@@ -429,7 +421,7 @@ export function ExplorationDashboardPreviewModal({
         return (
           <div>
             <div className="mb-6">
-              <h2 className="mb-2 text-2xl font-bold">Comparar Roles</h2>
+              <h2 className="mb-2 text-2xl font-bold">{t('preview.compararRoles')}</h2>
               <p className="text-muted-foreground">
                 Selecciona hasta 3 roles para comparar lado a lado. {comparisonRoles.length}/3
                 seleccionados.
@@ -460,7 +452,7 @@ export function ExplorationDashboardPreviewModal({
                 <table className="w-full border-collapse text-sm">
                   <thead>
                     <tr className="border-b">
-                      <th className="p-3 text-left font-semibold">Atributo</th>
+                      <th className="p-3 text-left font-semibold">{t('preview.atributo')}</th>
                       {comparisonRoles.map((role) => (
                         <th key={role.id} className="p-3 text-left font-semibold">
                           <div className="flex items-center gap-2">
@@ -476,7 +468,7 @@ export function ExplorationDashboardPreviewModal({
                   </thead>
                   <tbody>
                     <tr className="border-b bg-muted/50">
-                      <td className="p-3 font-medium">Departamento</td>
+                      <td className="p-3 font-medium">{t('preview.departamento')}</td>
                       {comparisonRoles.map((role) => (
                         <td key={role.id} className="p-3">
                           <Badge variant="secondary">{role.department}</Badge>
@@ -484,7 +476,7 @@ export function ExplorationDashboardPreviewModal({
                       ))}
                     </tr>
                     <tr className="border-b">
-                      <td className="p-3 font-medium">Salario</td>
+                      <td className="p-3 font-medium">{t('preview.salario')}</td>
                       {comparisonRoles.map((role) => (
                         <td key={role.id} className="p-3 font-semibold text-green-600">
                           {role.salary}
@@ -492,7 +484,7 @@ export function ExplorationDashboardPreviewModal({
                       ))}
                     </tr>
                     <tr className="border-b bg-muted/50">
-                      <td className="p-3 font-medium">Competencias</td>
+                      <td className="p-3 font-medium">{t('preview.competencias')}</td>
                       {comparisonRoles.map((role) => (
                         <td key={role.id} className="p-3">
                           <div className="flex flex-col gap-1">
@@ -506,7 +498,7 @@ export function ExplorationDashboardPreviewModal({
                       ))}
                     </tr>
                     <tr className="border-b">
-                      <td className="p-3 font-medium">KPIs</td>
+                      <td className="p-3 font-medium">{t('preview.kpis')}</td>
                       {comparisonRoles.map((role) => (
                         <td key={role.id} className="p-3">
                           <ul className="space-y-1">
@@ -523,9 +515,7 @@ export function ExplorationDashboardPreviewModal({
                 </table>
               </div>
             ) : (
-              <div className="py-12 text-center text-muted-foreground">
-                Selecciona roles para comenzar la comparación
-              </div>
+              <div className="py-12 text-center text-muted-foreground">{t('preview.seleccionaRolesParaComenzar')}</div>
             )}
           </div>
         );
@@ -534,7 +524,7 @@ export function ExplorationDashboardPreviewModal({
         return (
           <div>
             <div className="mb-6">
-              <h2 className="mb-2 text-2xl font-bold">Crea Tu Equipo Ideal</h2>
+              <h2 className="mb-2 text-2xl font-bold">{t('preview.creaTuEquipoIdeal')}</h2>
               <p className="text-muted-foreground">
                 Agrega roles a tu equipo ideal. {teamRoles.length} roles seleccionados.
               </p>
@@ -543,7 +533,7 @@ export function ExplorationDashboardPreviewModal({
             <div className="mb-6 grid grid-cols-1 gap-6 md:grid-cols-2">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-lg">Roles Disponibles</CardTitle>
+                  <CardTitle className="text-lg">{t('preview.rolesDisponibles')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-2">
@@ -653,9 +643,7 @@ export function ExplorationDashboardPreviewModal({
                   ) : (
                     <div className="flex flex-col items-center justify-center py-8 text-center">
                       <Users className="mb-3 h-12 w-12 text-muted-foreground" />
-                      <p className="text-sm text-muted-foreground">
-                        Agrega roles para comenzar a construir tu equipo
-                      </p>
+                      <p className="text-sm text-muted-foreground">{t('preview.agregaRolesParaComenzar')}</p>
                     </div>
                   )}
                 </CardContent>
@@ -673,9 +661,7 @@ export function ExplorationDashboardPreviewModal({
                 <Sparkles className="h-6 w-6 text-yellow-500" />
                 Roles Recomendados por IA
               </h2>
-              <p className="text-muted-foreground">
-                Basado en tu industria, te recomendamos estos roles para tu startup.
-              </p>
+              <p className="text-muted-foreground">{t('preview.basadoEnTuIndustria')}</p>
             </div>
 
             <div className="mb-6">
@@ -701,13 +687,13 @@ export function ExplorationDashboardPreviewModal({
               </div>
               <p className="text-sm text-blue-800">
                 {selectedIndustry === 'saas' &&
-                  'Para una startup SaaS, recomendamos un equipo enfocado en producto, tecnología y growth. Prioriza CTO y Head of Product al inicio.'}
+                  t('preview.paraUnaStartupSaas')}
                 {selectedIndustry === 'fintech' &&
-                  'Para fintech, la seguridad y compliance son críticos. Necesitarás un Security Officer y CFO experimentado desde el inicio.'}
+                  t('preview.paraFintechLaSeguridad')}
                 {selectedIndustry === 'ecommerce' &&
-                  'Para e-commerce, enfócate en marketing, operaciones y datos. El CMO y COO son esenciales para escalar.'}
+                  t('preview.paraEcommerceEnfócateEn')}
                 {selectedIndustry === 'healthtech' &&
-                  'Para healthtech, la seguridad de datos y desarrollo de producto son prioritarios. Business Development te ayudará con partnerships clave.'}
+                  t('preview.paraHealthtechLaSeguridad')}
               </p>
             </div>
 
@@ -721,7 +707,7 @@ export function ExplorationDashboardPreviewModal({
                   >
                     {index === 0 && (
                       <div className="absolute right-2 top-2">
-                        <Badge className="bg-yellow-500">Top Pick</Badge>
+                        <Badge className="bg-yellow-500">{t('preview.topPick')}</Badge>
                       </div>
                     )}
                     <CardHeader>
@@ -734,11 +720,11 @@ export function ExplorationDashboardPreviewModal({
                     <CardContent>
                       <div className="space-y-3">
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Departamento</span>
+                          <span className="text-muted-foreground">{t('preview.departamento')}</span>
                           <Badge variant="secondary">{role.department}</Badge>
                         </div>
                         <div className="flex items-center justify-between text-sm">
-                          <span className="text-muted-foreground">Salario</span>
+                          <span className="text-muted-foreground">{t('preview.salario')}</span>
                           <span className="font-semibold text-green-600">{role.salary}</span>
                         </div>
                         <div className="pt-2">
@@ -749,8 +735,7 @@ export function ExplorationDashboardPreviewModal({
                             variant={teamRoles.find((r) => r.id === role.id) ? 'secondary' : 'default'}
                           >
                             {teamRoles.find((r) => r.id === role.id)
-                              ? 'En tu equipo'
-                              : 'Agregar al equipo'}
+                              ? 'En tu equipo': t('preview.agregarAlEquipo')}
                           </Button>
                         </div>
                       </div>
@@ -779,11 +764,11 @@ export function ExplorationDashboardPreviewModal({
   };
 
   const slideTitle = [
-    'Introducción',
-    'Catálogo de Roles',
-    'Detalle de Rol',
-    'Comparación',
-    'Team Builder',
+    t('preview.introducción'),
+    t('preview.catálogoDeRoles8'),
+    t('preview.detalleDeRol'),
+    t('preview.comparación'),
+    t('preview.teamBuilder'),
     'Recomendaciones IA',
   ][currentSlide];
 
@@ -791,14 +776,12 @@ export function ExplorationDashboardPreviewModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-6xl max-h-[90vh] overflow-y-auto">
         <VisuallyHidden>
-          <DialogTitle>Exploration Dashboard Preview</DialogTitle>
-          <DialogDescription>
-            Interactive preview of the Exploration Dashboard
-          </DialogDescription>
+          <DialogTitle>{t('preview.explorationDashboardPreview')}</DialogTitle>
+          <DialogDescription>{t('preview.interactivePreviewOfThe')}</DialogDescription>
         </VisuallyHidden>
         <div className="mb-6 flex items-center justify-between border-b pb-4">
           <div>
-            <h1 className="text-xl font-bold">Exploración de Roles</h1>
+            <h1 className="text-xl font-bold">{t('preview.exploraciónDeRoles')}</h1>
             <p className="text-sm text-muted-foreground">{slideTitle}</p>
           </div>
           <div className="flex items-center gap-2">
@@ -826,9 +809,7 @@ export function ExplorationDashboardPreviewModal({
             onClick={handlePrevious}
             disabled={currentSlide === 0}
           >
-            <ChevronLeft className="mr-2 h-4 w-4" />
-            Anterior
-          </Button>
+            <ChevronLeft className="mr-2 h-4 w-4" />{t('preview.anterior')}</Button>
 
           <div className="flex gap-2">
             <Badge variant="secondary">
@@ -845,14 +826,10 @@ export function ExplorationDashboardPreviewModal({
             onClick={currentSlide === totalSlides - 1 ? () => onOpenChange(false) : handleNext}
           >
             {currentSlide === totalSlides - 1 ? (
-              <>
-                Finalizar
-                <CheckCircle2 className="ml-2 h-4 w-4" />
+              <>{t('preview.finalizar')}<CheckCircle2 className="ml-2 h-4 w-4" />
               </>
             ) : (
-              <>
-                Siguiente
-                <ChevronRight className="ml-2 h-4 w-4" />
+              <>{t('preview.siguiente')}<ChevronRight className="ml-2 h-4 w-4" />
               </>
             )}
           </Button>

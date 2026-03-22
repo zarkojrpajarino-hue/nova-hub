@@ -18,7 +18,9 @@ import { HowItWorks } from '@/components/ui/how-it-works';
 import { MastersPreviewModal } from '@/components/preview/MastersPreviewModal';
 import type { Master, MasterChallenge, Profile, ProjectMember, EnrichedMaster, MastersByRole } from '@/types/masters';
 
+import { useTranslation } from 'react-i18next';
 export function MastersView() {
+  const { t } = useTranslation();
   const { profile } = useAuth();
 
   // Only real data - no demo mode
@@ -52,7 +54,7 @@ export function MastersView() {
       const userProfile = profiles.find((p: Profile) => p.id === master.user_id);
       return {
         ...master,
-        userName: userProfile?.nombre || 'Usuario',
+        userName: userProfile?.nombre || t('masters.usuario'),
         userAvatar: userProfile?.avatar ?? null,
         userColor: userProfile?.color || '#6366F1',
       };
@@ -89,64 +91,64 @@ export function MastersView() {
   return (
     <>
       <NovaHeader
-        title="Masters de NOVA"
-        subtitle="Hall of Fame de quienes dominan cada rol y mentorea al equipo"
+        title={t('masters.mastersDeNova')}
+        subtitle={t('masters.hallOfFameDe')}
         showBackButton={true}
       />
 
       <div className="p-8">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Galería de Masters actuales y sistema de aplicación/desafío"
-          whatIsIt="Hall of Fame público de quienes han ganado el título de MASTER en cada rol (CEO, CTO, CMO, etc.) tras cumplir requisitos objetivos y ganar desafíos. Los Masters tienen badge especial, aparecen en rankings, y pueden mentorear a otros. Cualquiera puede aplicar para ser Master (votación del equipo) o desafiar al Master actual si cumple requisitos de Camino a Master."
+          title={t('masters.cómoFunciona')}
+          description={t('masters.galeríaDeMastersActuales')}
+          whatIsIt={t('masters.hallOfFamePúblico')}
           dataInputs={[
             {
-              from: 'Camino a Master',
+              from: t('masters.caminoAMaster'),
               items: [
                 'Masters actuales por rol (quién es el #1)',
-                'Requisitos cumplidos para poder desafiar',
-                'Historial de desafíos ganados/perdidos',
+                t('masters.requisitosCumplidosParaPoder'),
+                t('masters.historialDeDesafíosGanadosperdidos'),
               ],
             },
             {
-              from: 'Rankings',
+              from: t('masters.rankings'),
               items: [
-                'Top 3 por rol califican para desafiar',
-                'Performance Score vs Master actual',
+                t('masters.top3PorRol'),
+                t('masters.performanceScoreVsMaster'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Masters actuales',
+              to: t('masters.mastersActuales'),
               items: [
-                'Lista de todos los Masters activos por rol',
-                'Nivel: Junior Master, Senior Master, Grand Master',
-                'Desafíos defendidos exitosamente',
+                t('masters.listaDeTodosLos'),
+                t('masters.nivelJuniorMasterSenior'),
+                t('masters.desafíosDefendidosExitosamente'),
                 'Número de mentees (personas que mentorean)',
               ],
             },
             {
-              to: 'Aplicaciones en votación',
+              to: t('masters.aplicacionesEnVotación'),
               items: [
-                'Aplicaciones nuevas pendientes de votación del equipo',
-                'Votos a favor/en contra',
-                'Deadline de votación',
+                t('masters.aplicacionesNuevasPendientesDe'),
+                t('masters.votosAFavorenContra'),
+                t('masters.deadlineDeVotación'),
               ],
             },
             {
-              to: 'Desafíos activos',
+              to: t('masters.desafíosActivos0'),
               items: [
                 'Challenges en progreso (Master vs Retador)',
-                'Tipo de desafío: Performance Battle, Project Showdown, Peer Vote',
-                'Deadline y progreso',
+                t('masters.tipoDeDesafíoPerformance'),
+                t('masters.deadlineYProgreso'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Revisa Masters actuales → Cumple requisitos → Aplica o Desafía',
-            destination: 'Ve a Camino a Master para explorar roles y cumplir requisitos',
+            action: t('masters.revisaMastersActualesCumple'),
+            destination: t('masters.veACaminoA'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -160,7 +162,7 @@ export function MastersView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.totalMasters}</p>
-                <p className="text-sm text-muted-foreground">Masters Activos</p>
+                <p className="text-sm text-muted-foreground">{t('masters.mastersActivos')}</p>
               </div>
             </CardContent>
           </Card>
@@ -172,7 +174,7 @@ export function MastersView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.pendingApplications}</p>
-                <p className="text-sm text-muted-foreground">En Votación</p>
+                <p className="text-sm text-muted-foreground">{t('masters.enVotación')}</p>
               </div>
             </CardContent>
           </Card>
@@ -184,7 +186,7 @@ export function MastersView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.activeChallenges}</p>
-                <p className="text-sm text-muted-foreground">Desafíos Activos</p>
+                <p className="text-sm text-muted-foreground">{t('masters.desafíosActivos')}</p>
               </div>
             </CardContent>
           </Card>
@@ -196,7 +198,7 @@ export function MastersView() {
               </div>
               <div>
                 <p className="text-2xl font-bold">{stats.myApplications}</p>
-                <p className="text-sm text-muted-foreground">Mis Aplicaciones</p>
+                <p className="text-sm text-muted-foreground">{t('masters.misAplicaciones')}</p>
               </div>
             </CardContent>
           </Card>
@@ -206,9 +208,7 @@ export function MastersView() {
         {!isUserMaster && userRoles.length > 0 && (
           <div className="mb-6">
             <Button onClick={() => setShowApplyDialog(true)} className="gap-2">
-              <Crown size={18} />
-              Aplicar para ser Master
-            </Button>
+              <Crown size={18} />{t('masters.aplicarParaSerMaster')}</Button>
           </div>
         )}
 
@@ -216,9 +216,7 @@ export function MastersView() {
         <Tabs defaultValue="masters" className="space-y-6">
           <TabsList>
             <TabsTrigger value="masters" className="gap-2">
-              <Crown size={16} />
-              Masters
-            </TabsTrigger>
+              <Crown size={16} />{t('masters.masters')}</TabsTrigger>
             <TabsTrigger value="applications" className="gap-2">
               <Star size={16} />
               Aplicaciones
@@ -229,9 +227,7 @@ export function MastersView() {
               )}
             </TabsTrigger>
             <TabsTrigger value="challenges" className="gap-2">
-              <Swords size={16} />
-              Desafíos
-            </TabsTrigger>
+              <Swords size={16} />{t('masters.desafíos')}</TabsTrigger>
           </TabsList>
 
           {/* Masters Tab */}
@@ -240,14 +236,10 @@ export function MastersView() {
               <Card className="border-dashed">
                 <CardContent className="py-10 text-center">
                   <Crown size={48} className="mx-auto text-muted-foreground/50 mb-4" />
-                  <h3 className="font-semibold mb-2">Sin Masters aún</h3>
-                  <p className="text-sm text-muted-foreground mb-4">
-                    Sé el primero en aplicar para convertirte en Master de tu rol
-                  </p>
+                  <h3 className="font-semibold mb-2">{t('masters.sinMastersAún')}</h3>
+                  <p className="text-sm text-muted-foreground mb-4">{t('masters.séElPrimeroEn')}</p>
                   {userRoles.length > 0 && (
-                    <Button onClick={() => setShowApplyDialog(true)}>
-                      Aplicar ahora
-                    </Button>
+                    <Button onClick={() => setShowApplyDialog(true)}>{t('masters.aplicarAhora')}</Button>
                   )}
                 </CardContent>
               </Card>

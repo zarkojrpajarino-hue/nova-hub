@@ -13,6 +13,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useProjects } from '@/hooks/useNovaData';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface InsightFormProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
@@ -22,11 +23,11 @@ interface InsightFormProps {
 }
 
 const TIPOS = [
-  { value: 'aprendizaje', label: 'Aprendizaje' },
-  { value: 'reflexion', label: 'Reflexión' },
-  { value: 'error', label: 'Error' },
-  { value: 'exito', label: 'Éxito' },
-  { value: 'idea', label: 'Idea' },
+  { value: 'aprendizaje', label: t('development.aprendizaje') },
+  { value: 'reflexion', label: t('development.reflexión') },
+  { value: 'error', label: t('development.error') },
+  { value: 'exito', label: t('development.éxito') },
+  { value: 'idea', label: t('development.idea') },
 ];
 
 export function InsightForm({ 
@@ -36,6 +37,7 @@ export function InsightForm({
   defaultProjectId,
   defaultRoleContext 
 }: InsightFormProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: projects = [] } = useProjects();
   const createInsight = useCreateInsight();
@@ -83,7 +85,7 @@ export function InsightForm({
 
   const handleSubmit = async () => {
     if (!titulo.trim() || !contenido.trim() || !profile?.id) {
-      toast.error('Completa título y contenido');
+      toast.error(t('development.completaTítuloYContenido'));
       return;
     }
 
@@ -99,7 +101,7 @@ export function InsightForm({
           tags,
           is_private: isPrivate,
         });
-        toast.success('Insight actualizado');
+        toast.success(t('development.insightActualizado'));
       } else {
         await createInsight.mutateAsync({
           user_id: profile.id,
@@ -111,11 +113,11 @@ export function InsightForm({
           tags,
           is_private: isPrivate,
         });
-        toast.success('Insight guardado');
+        toast.success(t('development.insightGuardado'));
       }
       onOpenChange(false);
     } catch (_error) {
-      toast.error('Error al guardar el insight');
+      toast.error(t('development.errorAlGuardarEl'));
     }
   };
 
@@ -126,35 +128,35 @@ export function InsightForm({
       <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>
-            {insight ? 'Editar Insight' : 'Nuevo Insight'}
+            {insight ? 'Editar Insight': t('development.nuevoInsight')}
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
-            <Label htmlFor="titulo">Título</Label>
+            <Label htmlFor="titulo">{t('development.título')}</Label>
             <Input
               id="titulo"
               value={titulo}
               onChange={e => setTitulo(e.target.value)}
-              placeholder="Ej: Descubrí que los clientes prefieren..."
+              placeholder={t('development.ejDescubríQueLos')}
             />
           </div>
 
           <div>
-            <Label htmlFor="contenido">Contenido</Label>
+            <Label htmlFor="contenido">{t('development.contenido')}</Label>
             <Textarea
               id="contenido"
               value={contenido}
               onChange={e => setContenido(e.target.value)}
-              placeholder="Describe tu aprendizaje, reflexión o idea..."
+              placeholder={t('development.describeTuAprendizajeReflexión')}
               rows={4}
             />
           </div>
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label>Tipo</Label>
+              <Label>{t('development.tipo')}</Label>
               <Select value={tipo} onValueChange={(v) => setTipo(v as UserInsight['tipo'])}>
                 <SelectTrigger>
                   <SelectValue />
@@ -173,10 +175,10 @@ export function InsightForm({
               <Label>Proyecto (opcional)</Label>
               <Select value={projectId || 'none'} onValueChange={(v) => setProjectId(v === 'none' ? null : v)}>
                 <SelectTrigger>
-                  <SelectValue placeholder="Sin proyecto" />
+                  <SelectValue placeholder={t('development.sinProyecto0')} />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">Sin proyecto</SelectItem>
+                  <SelectItem value="none">{t('development.sinProyecto')}</SelectItem>
                   {projects.map(p => (
                     <SelectItem key={p.id} value={p.id}>
                       {p.icon} {p.nombre}
@@ -193,22 +195,20 @@ export function InsightForm({
               id="roleContext"
               value={roleContext}
               onChange={e => setRoleContext(e.target.value)}
-              placeholder="Ej: Comercial, Closer, Técnico..."
+              placeholder={t('development.ejComercialCloserTécnico')}
             />
           </div>
 
           <div>
-            <Label>Tags</Label>
+            <Label>{t('development.tags')}</Label>
             <div className="flex gap-2 mb-2">
               <Input
                 value={tagInput}
                 onChange={e => setTagInput(e.target.value)}
-                placeholder="Añadir tag..."
-                onKeyDown={e => e.key === 'Enter' && (e.preventDefault(), handleAddTag())}
+                placeholder={t('development.añadirTag')}
+                onKeyDown={e => e.key === t('development.enter') && (e.preventDefault(), handleAddTag())}
               />
-              <Button type="button" variant="outline" onClick={handleAddTag}>
-                Añadir
-              </Button>
+              <Button type="button" variant="outline" onClick={handleAddTag}>{t('development.añadir')}</Button>
             </div>
             <div className="flex gap-1.5 flex-wrap">
               {tags.map(tag => (
@@ -236,12 +236,10 @@ export function InsightForm({
           </div>
 
           <div className="flex justify-end gap-2 pt-4">
-            <Button variant="outline" onClick={() => onOpenChange(false)}>
-              Cancelar
-            </Button>
+            <Button variant="outline" onClick={() => onOpenChange(false)}>{t('development.cancelar')}</Button>
             <Button onClick={handleSubmit} disabled={isLoading}>
               {isLoading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {insight ? 'Actualizar' : 'Guardar'}
+              {insight ? 'Actualizar': t('development.guardar')}
             </Button>
           </div>
         </div>

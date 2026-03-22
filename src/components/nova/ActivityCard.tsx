@@ -2,6 +2,7 @@ import { Zap } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Activity } from '@/data/mockData';
 
+import { useTranslation } from 'react-i18next';
 const DOT_COLORS = ['#6366F1', '#22C55E', '#F59E0B', '#EC4899', '#3B82F6'];
 
 interface ActivityCardProps {
@@ -10,6 +11,7 @@ interface ActivityCardProps {
 }
 
 export function ActivityCard({ activities, delay = 4 }: ActivityCardProps) {
+  const { t } = useTranslation();
   return (
     <section
       className={cn(
@@ -17,15 +19,15 @@ export function ActivityCard({ activities, delay = 4 }: ActivityCardProps) {
         `delay-${delay}`
       )}
       style={{ opacity: 0 }}
-      aria-label="Actividad reciente del equipo"
+      aria-label={t('nova.actividadRecienteDelEquipo')}
     >
       <div className="p-5 border-b border-border flex items-center gap-2.5">
         <Zap size={18} className="text-warning" aria-hidden="true" />
-        <h3 className="font-semibold">Actividad Reciente</h3>
+        <h3 className="font-semibold">{t('nova.actividadReciente')}</h3>
       </div>
 
       <div className="p-3">
-        <ul className="space-y-1" role="feed" aria-label="Feed de actividades recientes">
+        <ul className="space-y-1" role="feed" aria-label={t('nova.feedDeActividadesRecientes')}>
           {activities.map((activity, i) => (
             <li
               key={activity.id}

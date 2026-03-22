@@ -31,6 +31,7 @@ import { DataCompletenessGuide } from './DataCompletenessGuide';
 import { GraduationCelebration } from './GraduationCelebration';
 import { InvestorSummary } from './InvestorSummary';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectStats {
   facturacion?: number;
   margen?: number;
@@ -56,6 +57,7 @@ interface ProjectDashboardTabProps {
 }
 
 function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMembers, leadsCount, onNavigateToTab }: ProjectDashboardTabProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const facturacion = Number(stats?.facturacion) || 0;
   const margen = Number(stats?.margen) || 0;
@@ -106,7 +108,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       {/* [B3/U3.2] Ocultar PhaseRoadmap completo en Fase 0-1 (abrumador) — solo mostrar en Fase 2+ */}
       {engineData?.phaseState?.graduated ? (
         <>
-          <GraduationCelebration projectName={project.nombre || 'Mi Proyecto'} projectId={project.id} />
+          <GraduationCelebration projectName={project.nombre || t('project.miProyecto')} projectId={project.id} />
           <CycleDashboard projectId={project.id} graduated={true} />
         </>
       ) : currentPhase >= 2 ? (
@@ -130,19 +132,19 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
           {/* Stats Grid — F19.C.5: adaptadas por fase (no mostrar €0 en fases tempranas) */}
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
             {phaseStats.includes('total_obvs' as PhaseStatKey) && (
-              <StatCard icon={FileCheck} value={totalOBVs} label="OBVs" progress={0} color="#6366F1" delay={1} />
+              <StatCard icon={FileCheck} value={totalOBVs} label={t('project.obvs')} progress={0} color="#6366F1" delay={1} />
             )}
             {phaseStats.includes('leads_count' as PhaseStatKey) && (
-              <StatCard icon={Target} value={leadsCount} label="Leads" progress={0} color="#F59E0B" delay={2} />
+              <StatCard icon={Target} value={leadsCount} label={t('project.leads')} progress={0} color="#F59E0B" delay={2} />
             )}
             {phaseStats.includes('team_count' as PhaseStatKey) && (
-              <StatCard icon={Users} value={teamMembers.length} label="Miembros" progress={0} color="#EC4899" delay={3} />
+              <StatCard icon={Users} value={teamMembers.length} label={t('project.miembros')} progress={0} color="#EC4899" delay={3} />
             )}
             {phaseStats.includes('days_active' as PhaseStatKey) && (
               <StatCard
                 icon={Calendar}
                 value={Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000)}
-                label="Días activo"
+                label={t('project.díasActivo')}
                 progress={0}
                 color="#8B5CF6"
                 delay={4}
@@ -152,20 +154,20 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
               <StatCard
                 icon={TrendingUp}
                 value={`${Math.round((Number(stats?.leads_ganados ?? 0) / Math.max(leadsCount, 1)) * 100)}%`}
-                label="Conversión"
+                label={t('project.conversión')}
                 progress={0}
                 color="#3B82F6"
                 delay={4}
               />
             )}
             {phaseStats.includes('facturacion' as PhaseStatKey) && (
-              <StatCard icon={TrendingUp} value={`€${facturacion}`} label="Facturación" progress={0} color="#3B82F6" delay={4} />
+              <StatCard icon={TrendingUp} value={`€${facturacion}`} label={t('project.facturación')} progress={0} color="#3B82F6" delay={4} />
             )}
             {phaseStats.includes('margen' as PhaseStatKey) && (
-              <StatCard icon={Wallet} value={`€${margen}`} label="Margen" progress={0} color="#22C55E" delay={5} />
+              <StatCard icon={Wallet} value={`€${margen}`} label={t('project.margen')} progress={0} color="#22C55E" delay={5} />
             )}
             {phaseStats.includes('leads_ganados' as PhaseStatKey) && (
-              <StatCard icon={Target} value={Number(stats?.leads_ganados ?? 0)} label="Leads ganados" progress={0} color="#22C55E" delay={5} />
+              <StatCard icon={Target} value={Number(stats?.leads_ganados ?? 0)} label={t('project.leadsGanados0')} progress={0} color="#22C55E" delay={5} />
             )}
           </div>
 
@@ -173,9 +175,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       <div className="grid grid-cols-2 gap-6">
         <div className="bg-card border border-border rounded-2xl p-6">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <Users size={18} className="text-primary" />
-            Equipo
-          </h3>
+            <Users size={18} className="text-primary" />{t('project.equipo')}</h3>
           <div className="space-y-3">
             {teamMembers.map((member: TeamMemberDisplay) => {
               const roleConfig = ROLE_CONFIG[member.role];
@@ -196,9 +196,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
                     )}
                   </div>
                   {member.isLead && (
-                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-md font-medium">
-                      Lead
-                    </span>
+                    <span className="text-xs bg-primary/20 text-primary px-2 py-1 rounded-md font-medium">{t('project.lead')}</span>
                   )}
                 </div>
               );
@@ -209,31 +207,29 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         {/* Quick Actions / Status */}
         <div className="bg-card border border-border rounded-2xl p-6">
           <h3 className="font-semibold mb-4 flex items-center gap-2">
-            <FileCheck size={18} className="text-primary" />
-            Estado del Proyecto
-          </h3>
+            <FileCheck size={18} className="text-primary" />{t('project.estadoDelProyecto')}</h3>
           <div className="space-y-4">
             <div className="p-4 bg-background rounded-xl">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Fase</span>
+                <span className="text-sm text-muted-foreground">{t('project.fase')}</span>
                 <span className="font-medium">{currentPhase} — {PHASE_LABELS[currentPhase]}</span>
               </div>
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-muted-foreground">Tipo</span>
+                <span className="text-sm text-muted-foreground">{t('project.tipo')}</span>
                 <span className="font-medium">
-                  {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                  {project.tipo === 'operacion' ? t('project.enOperación') : t('project.enValidación')}
                 </span>
               </div>
               <div className="flex items-center justify-between">
-                <span className="text-sm text-muted-foreground">Onboarding</span>
+                <span className="text-sm text-muted-foreground">{t('project.onboarding')}</span>
                 <span className={`font-medium ${project.onboarding_completed ? 'text-success' : 'text-warning'}`}>
-                  {project.onboarding_completed ? 'Completado' : 'Pendiente'}
+                  {project.onboarding_completed ? 'Completado': t('project.pendiente')}
                 </span>
               </div>
             </div>
 
             <div className="p-4 bg-success/10 rounded-xl">
-              <p className="text-sm text-muted-foreground mb-1">Leads Ganados</p>
+              <p className="text-sm text-muted-foreground mb-1">{t('project.leadsGanados')}</p>
               <p className="text-2xl font-bold text-success">{stats?.leads_ganados || 0}</p>
             </div>
           </div>
@@ -309,7 +305,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
           {currentPhase >= 2 && (
             <InvestorSummary
               projectId={project.id}
-              projectName={project.nombre || 'Mi Proyecto'}
+              projectName={project.nombre || t('project.miProyecto')}
               engineData={engineData}
             />
           )}

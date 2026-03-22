@@ -12,6 +12,7 @@ import { Button } from '@/components/ui/button';
 import { useNavigate, useParams } from 'react-router-dom';
 import type { NextLevelRequirements } from '@/hooks/useProjectAnalysis';
 
+import { useTranslation } from 'react-i18next';
 interface AnalysisLevelTeaserProps {
   targetLevel: 2 | 3;
   requirements: NextLevelRequirements;
@@ -25,6 +26,7 @@ interface Requirement {
 }
 
 export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevelTeaserProps) {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
 
@@ -44,7 +46,7 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
       met: false,
       icon: <Plug className="h-4 w-4" />,
       cta: {
-        label: 'Conectar integración',
+        label: t('analysis.conectarIntegración'),
         action: () => navigate(`/proyecto/${projectId}/integrations`),
       },
     });
@@ -56,7 +58,7 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
       met: false,
       icon: <Plug className="h-4 w-4" />,
       cta: {
-        label: 'Conectar otra integración',
+        label: t('analysis.conectarOtraIntegración'),
         action: () => navigate(`/proyecto/${projectId}/integrations`),
       },
     });
@@ -71,8 +73,8 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
   }
 
   const levelLabels: Record<number, string> = {
-    2: 'Nivel 2 — Pulso financiero y tracción',
-    3: 'Nivel 3 — Señales cruzadas y Hard Truths',
+    2: t('analysis.nivel2PulsoFinanciero'),
+    3: t('analysis.nivel3SeñalesCruzadas'),
   };
 
   return (

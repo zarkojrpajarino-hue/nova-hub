@@ -24,6 +24,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface Lead {
   id: string;
   nombre: string;
@@ -84,6 +85,7 @@ const STAGE_WIN_PROBABILITY: Record<string, number> = {
 };
 
 export function AILeadScoring({ leads }: AILeadScoringProps) {
+  const { t } = useTranslation();
   const scoredLeads = useMemo(() => {
     const now = new Date();
     const maxValue = Math.max(...leads.map(l => l.valor_potencial || 0), 1);
@@ -227,13 +229,9 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
           <h3 className="text-xl font-semibold flex items-center gap-2">
             Insights con IA
             <Badge variant="outline" className="text-xs">
-              <Sparkles className="w-3 h-3 mr-1" />
-              Beta
-            </Badge>
+              <Sparkles className="w-3 h-3 mr-1" />{t('crm.beta')}</Badge>
           </h3>
-          <p className="text-sm text-muted-foreground">
-            Análisis predictivo y recomendaciones para priorizar leads
-          </p>
+          <p className="text-sm text-muted-foreground">{t('crm.análisisPredictivoYRecomendaciones')}</p>
         </div>
       </div>
 
@@ -241,53 +239,53 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Alta Prioridad</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('crm.altaPrioridad')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-end justify-between">
               <div className="text-3xl font-bold text-red-600">{highPriorityCount}</div>
               <Target className="w-5 h-5 text-red-600" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Leads para enfocar ahora</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('crm.leadsParaEnfocarAhora')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Prob. Cierre Media</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('crm.probCierreMedia')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-end justify-between">
               <div className="text-3xl font-bold text-blue-600">{avgWinProbability}%</div>
               <TrendingUp className="w-5 h-5 text-blue-600" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Del pipeline activo</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('crm.delPipelineActivo')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Valor Potencial</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('crm.valorPotencial')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-end justify-between">
               <div className="text-2xl font-bold">€{Math.round(totalPotentialValue).toLocaleString()}</div>
               <DollarSign className="w-5 h-5 text-muted-foreground" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Pipeline total</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('crm.pipelineTotal')}</p>
           </CardContent>
         </Card>
 
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Valor Ponderado</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('crm.valorPonderado')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="flex items-end justify-between">
               <div className="text-2xl font-bold text-green-600">€{Math.round(weightedValue).toLocaleString()}</div>
               <Sparkles className="w-5 h-5 text-green-600" />
             </div>
-            <p className="text-xs text-muted-foreground mt-1">Por probabilidad</p>
+            <p className="text-xs text-muted-foreground mt-1">{t('crm.porProbabilidad')}</p>
           </CardContent>
         </Card>
       </div>
@@ -296,9 +294,7 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <Zap className="w-5 h-5 text-yellow-500" />
-            Top 10 Leads Priorizados
-          </CardTitle>
+            <Zap className="w-5 h-5 text-yellow-500" />{t('crm.top10LeadsPriorizados')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-3">
@@ -327,7 +323,7 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
                           {lead.priority === 'low' && '📌 Baja'}
                         </Badge>
                       </div>
-                      <p className="text-sm text-muted-foreground">{lead.empresa || 'Sin empresa'}</p>
+                      <p className="text-sm text-muted-foreground">{lead.empresa || t('crm.sinEmpresa')}</p>
                     </div>
                   </div>
 
@@ -335,21 +331,21 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
                     <div className={cn("text-3xl font-bold", getScoreColor(lead.score))}>
                       {lead.score}
                     </div>
-                    <p className="text-xs text-muted-foreground">Score</p>
+                    <p className="text-xs text-muted-foreground">{t('crm.score')}</p>
                   </div>
                 </div>
 
                 <div className="grid grid-cols-2 gap-3 mb-3">
                   <div>
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-muted-foreground">Prob. Cierre</span>
+                      <span className="text-muted-foreground">{t('crm.probCierre')}</span>
                       <span className="font-medium">{lead.winProbability}%</span>
                     </div>
                     <Progress value={lead.winProbability} className="h-1.5" />
                   </div>
                   <div>
                     <div className="flex items-center justify-between text-xs mb-1">
-                      <span className="text-muted-foreground">Valor</span>
+                      <span className="text-muted-foreground">{t('crm.valor')}</span>
                       <span className="font-medium">€{(lead.valor_potencial || 0).toLocaleString()}</span>
                     </div>
                     <Progress
@@ -366,9 +362,7 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
 
                 {/* Score Breakdown (collapsible) */}
                 <details className="mt-3 text-xs">
-                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">
-                    Ver desglose del score
-                  </summary>
+                  <summary className="cursor-pointer text-muted-foreground hover:text-foreground">{t('crm.verDesgloseDelScore')}</summary>
                   <div className="mt-2 grid grid-cols-2 gap-2 p-2 bg-muted/30 rounded">
                     <div>
                       <span className="text-muted-foreground">Valor:</span>

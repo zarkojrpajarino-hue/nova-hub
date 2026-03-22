@@ -13,6 +13,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowRight, CheckCircle2, Users, Plus, Trash2 } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface BuyerPersonasExtendedSectionProps {
   projectId: string;
   onComplete: (data: Record<string, unknown>) => void;
@@ -20,6 +21,7 @@ interface BuyerPersonasExtendedSectionProps {
 }
 
 export function BuyerPersonasExtendedSection({ projectId: _projectId, onComplete, onCancel }: BuyerPersonasExtendedSectionProps) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [personas, setPersonas] = useState([
     { name: '', role: '', goals: '', pain_points: '', buying_behavior: '' }
@@ -51,16 +53,16 @@ export function BuyerPersonasExtendedSection({ projectId: _projectId, onComplete
     onComplete({
       section_id: 'buyer-personas-extended',
       personas: personas.filter(p => p.name),
-      unlocked_tools: ['Persona Builder', 'Journey Mapper'],
+      unlocked_tools: [t('onboarding.personaBuilder'), t('onboarding.journeyMapper')],
     });
-    toast.success('Buyer Personas complete!');
+    toast.success(t('onboarding.buyerPersonasComplete'));
   };
 
   if (isSubmitting) {
     return (
       <Card className="max-w-4xl mx-auto"><CardContent className="pt-12 pb-12 text-center">
         <Loader2 className="h-10 w-10 text-blue-600 animate-spin mx-auto mb-4" />
-        <h3 className="text-2xl font-bold">Creating personas...</h3>
+        <h3 className="text-2xl font-bold">{t('onboarding.creatingPersonas')}</h3>
       </CardContent></Card>
     );
   }
@@ -74,11 +76,10 @@ export function BuyerPersonasExtendedSection({ projectId: _projectId, onComplete
               <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-lg flex items-center justify-center">
                 <Users className="h-6 w-6 text-white" />
               </div>
-              <CardTitle className="text-2xl">Extended Buyer Personas</CardTitle>
+              <CardTitle className="text-2xl">{t('onboarding.extendedBuyerPersonas')}</CardTitle>
             </div>
             <Button onClick={addPersona} disabled={personas.length >= 5} size="sm">
-              <Plus className="h-4 w-4 mr-2" />Add Persona
-            </Button>
+              <Plus className="h-4 w-4 mr-2" />{t('onboarding.addPersona')}</Button>
           </div>
         </CardHeader>
       </Card>
@@ -97,20 +98,20 @@ export function BuyerPersonasExtendedSection({ projectId: _projectId, onComplete
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="grid grid-cols-2 gap-4">
-              <Input placeholder="Name (e.g., Tech-Savvy Maria)"
+              <Input placeholder={t('onboarding.nameEgTechsavvyMaria')}
                 value={persona.name}
                 onChange={(e) => updatePersona(index, 'name', e.target.value)} />
-              <Input placeholder="Role (e.g., Marketing Manager)"
+              <Input placeholder={t('onboarding.roleEgMarketingManager')}
                 value={persona.role}
                 onChange={(e) => updatePersona(index, 'role', e.target.value)} />
             </div>
-            <Textarea placeholder="Goals (what they want to achieve)" rows={2}
+            <Textarea placeholder={t('onboarding.goalsWhatTheyWant')} rows={2}
               value={persona.goals}
               onChange={(e) => updatePersona(index, 'goals', e.target.value)} />
-            <Textarea placeholder="Pain points (what frustrates them)" rows={2}
+            <Textarea placeholder={t('onboarding.painPointsWhatFrustrates')} rows={2}
               value={persona.pain_points}
               onChange={(e) => updatePersona(index, 'pain_points', e.target.value)} />
-            <Textarea placeholder="Buying behavior (how they make decisions)" rows={2}
+            <Textarea placeholder={t('onboarding.buyingBehaviorHowThey')} rows={2}
               value={persona.buying_behavior}
               onChange={(e) => updatePersona(index, 'buying_behavior', e.target.value)} />
           </CardContent>
@@ -118,7 +119,7 @@ export function BuyerPersonasExtendedSection({ projectId: _projectId, onComplete
       ))}
 
       <div className="flex justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
         <div className="flex items-center gap-3">
           <Badge>+10%</Badge>
           <Button onClick={handleSubmit} disabled={!canSubmit()} className="bg-gradient-to-r from-blue-600 to-indigo-600">

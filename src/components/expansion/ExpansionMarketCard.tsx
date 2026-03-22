@@ -2,7 +2,7 @@
  * F22.6 — ExpansionMarketCard
  *
  * Card por mercado con: nombre, score, 6 dimensiones como barras,
- * "por qué para tu negocio", CTA "Ver plan de 5 días".
+ * "por qué para tu negocio", CTA t('expansion.verPlanDe5').
  */
 
 import { useState } from 'react';
@@ -10,6 +10,7 @@ import { MapPin, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExplorationPlanSection } from './ExplorationPlanSection';
 
+import { useTranslation } from 'react-i18next';
 export interface MarketDimensions {
   market_size_fit: number;
   regulatory_ease: number;
@@ -39,15 +40,16 @@ export interface ExpansionMarket {
 }
 
 const DIMENSION_LABELS: Record<keyof MarketDimensions, string> = {
-  market_size_fit: 'Tamaño de mercado',
-  regulatory_ease: 'Facilidad regulatoria',
-  cultural_proximity: 'Proximidad cultural',
-  startup_ecosystem: 'Ecosistema startup',
-  cost_of_exploration: 'Coste de exploración',
-  synergy_potential: 'Potencial de sinergias',
+  market_size_fit: t('expansion.tamañoDeMercado'),
+  regulatory_ease: t('expansion.facilidadRegulatoria'),
+  cultural_proximity: t('expansion.proximidadCultural'),
+  startup_ecosystem: t('expansion.ecosistemaStartup'),
+  cost_of_exploration: t('expansion.costeDeExploración'),
+  synergy_potential: t('expansion.potencialDeSinergias'),
 };
 
 function DimensionBar({ label, value }: { label: string; value: number }) {
+  const { t } = useTranslation();
   const pct = (value / 5) * 100;
   const color = value >= 4 ? 'bg-green-500' : value >= 3 ? 'bg-yellow-500' : 'bg-red-400';
 
@@ -97,8 +99,7 @@ export function ExpansionMarketCard({ market }: { market: ExpansionMarket }) {
           <span className="text-xs text-muted-foreground">
             Coste viaje: €{market.total_trip_cost.min}–{market.total_trip_cost.max}
           </span>
-          <Button size="sm" variant="outline" onClick={() => setShowPlan(true)} className="gap-1">
-            Plan de 5 días <ChevronRight className="h-3.5 w-3.5" />
+          <Button size="sm" variant="outline" onClick={() => setShowPlan(true)} className="gap-1">{t('expansion.planDe5Días')}<ChevronRight className="h-3.5 w-3.5" />
           </Button>
         </div>
       </div>

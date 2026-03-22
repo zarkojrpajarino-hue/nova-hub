@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { TrendingUp } from 'lucide-react';
+import { useTranslation } from 'react-i18next';
 import {
   LineChart,
   Line,
@@ -31,6 +32,7 @@ interface RevenueEvolutionChartProps {
 }
 
 export function RevenueEvolutionChart({ data }: RevenueEvolutionChartProps) {
+  const { t } = useTranslation();
   const chartData = useMemo(() => {
     // Group by month and aggregate
     const monthlyData = new Map<string, { month: string; facturacion: number; margen: number; costes: number }>();
@@ -72,13 +74,9 @@ export function RevenueEvolutionChart({ data }: RevenueEvolutionChartProps) {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <TrendingUp className="w-5 h-5 text-blue-500" />
-            Evolución Mensual
-          </CardTitle>
+            <TrendingUp className="w-5 h-5 text-blue-500" />{t('financiero.evoluciónMensual')}</CardTitle>
         </CardHeader>
-        <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">
-          No hay datos financieros aún
-        </CardContent>
+        <CardContent className="h-[300px] flex items-center justify-center text-muted-foreground">{t('financiero.noHayDatosFinancieros')}</CardContent>
       </Card>
     );
   }
@@ -87,9 +85,7 @@ export function RevenueEvolutionChart({ data }: RevenueEvolutionChartProps) {
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <TrendingUp className="w-5 h-5 text-blue-500" />
-          Evolución Mensual
-        </CardTitle>
+          <TrendingUp className="w-5 h-5 text-blue-500" />{t('financiero.evoluciónMensual')}</CardTitle>
       </CardHeader>
       <CardContent>
         <ResponsiveContainer width="100%" height={300}>
@@ -117,7 +113,7 @@ export function RevenueEvolutionChart({ data }: RevenueEvolutionChartProps) {
             <Line 
               type="monotone" 
               dataKey="facturacion" 
-              name="Facturación"
+              name={t('financiero.facturación')}
               stroke="#3B82F6" 
               strokeWidth={2}
               dot={{ fill: '#3B82F6', r: 4 }}
@@ -126,7 +122,7 @@ export function RevenueEvolutionChart({ data }: RevenueEvolutionChartProps) {
             <Line 
               type="monotone" 
               dataKey="margen" 
-              name="Margen"
+              name={t('financiero.margen')}
               stroke="#22C55E" 
               strokeWidth={2}
               dot={{ fill: '#22C55E', r: 4 }}

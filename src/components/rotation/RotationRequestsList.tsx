@@ -4,43 +4,45 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ArrowRight, Clock, CheckCircle2, XCircle, AlertCircle } from 'lucide-react';
 import { RoleRotationRequest } from '@/hooks/useRoleRotation';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface RotationRequestsListProps {
   requests: RoleRotationRequest[];
 }
 
 const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-  pending: { label: 'Pendiente', variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
-  accepted: { label: 'Aceptada', variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
-  rejected: { label: 'Rechazada', variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
-  cancelled: { label: 'Cancelada', variant: 'outline', icon: <XCircle className="h-3 w-3" /> },
-  completed: { label: 'Completada', variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
+  pending: { label: t('rotation.pendiente'), variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
+  accepted: { label: t('rotation.aceptada'), variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
+  rejected: { label: t('rotation.rechazada'), variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
+  cancelled: { label: t('rotation.cancelada'), variant: 'outline', icon: <XCircle className="h-3 w-3" /> },
+  completed: { label: t('rotation.completada'), variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
 };
 
 const recommendationConfig: Record<string, { label: string; color: string }> = {
-  highly_recommended: { label: 'Muy Recomendado', color: 'text-green-600' },
-  recommended: { label: 'Recomendado', color: 'text-blue-600' },
-  neutral: { label: 'Neutral', color: 'text-yellow-600' },
-  not_recommended: { label: 'No Recomendado', color: 'text-red-600' },
+  highly_recommended: { label: t('rotation.muyRecomendado'), color: 'text-green-600' },
+  recommended: { label: t('rotation.recomendado'), color: 'text-blue-600' },
+  neutral: { label: t('rotation.neutral'), color: 'text-yellow-600' },
+  not_recommended: { label: t('rotation.noRecomendado'), color: 'text-red-600' },
 };
 
 const roleLabels: Record<string, string> = {
-  sales: 'Ventas',
-  finance: 'Finanzas',
-  ai_tech: 'AI/Tech',
-  marketing: 'Marketing',
-  operations: 'Operaciones',
-  strategy: 'Estrategia',
+  sales: t('rotation.ventas'),
+  finance: t('rotation.finanzas'),
+  ai_tech: t('rotation.aitech'),
+  marketing: t('rotation.marketing'),
+  operations: t('rotation.operaciones'),
+  strategy: t('rotation.estrategia'),
 };
 
 export function RotationRequestsList({ requests }: RotationRequestsListProps) {
+  const { t } = useTranslation();
   if (requests.length === 0) {
     return (
       <Card>
         <CardContent className="flex flex-col items-center justify-center py-12">
           <AlertCircle className="h-12 w-12 text-muted-foreground mb-4" />
-          <p className="text-muted-foreground">No hay solicitudes de rotación</p>
+          <p className="text-muted-foreground">{t('rotation.noHaySolicitudesDe')}</p>
         </CardContent>
       </Card>
     );
@@ -95,9 +97,9 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                     </div>
                   ) : (
                     <div className="text-muted-foreground">
-                      <p className="font-medium">Pendiente de asignar</p>
+                      <p className="font-medium">{t('rotation.pendienteDeAsignar')}</p>
                       <p className="text-xs">
-                        {roleLabels[request.target_role || ''] || 'Cualquier rol'}
+                        {roleLabels[request.target_role || ''] || t('rotation.cualquierRol')}
                       </p>
                     </div>
                   )}
@@ -168,7 +170,7 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                   <span>
                     {formatDistanceToNow(new Date(request.created_at), { 
                       addSuffix: true, 
-                      locale: es 
+                      locale: getDateFnsLocale() 
                     })}
                   </span>
                 </div>

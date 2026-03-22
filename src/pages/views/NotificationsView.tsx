@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink, Check } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,12 +13,14 @@ import { DEMO_NOTIFICATIONS } from '@/data/demoData';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { NotificationsPreviewModal } from '@/components/preview/NotificationsPreviewModal';
 
+import { useTranslation } from 'react-i18next';
 interface NotificationsViewProps {
   onNewOBV?: () => void;
   onNavigate: (view: string) => void;
 }
 
 const getNotificationIcon = (type: string | null) => {
+  const { t } = useTranslation();
   switch (type) {
     case 'obv_nueva':
       return <FileCheck size={20} className="text-primary" />;
@@ -100,7 +102,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
   }, {} as Record<string, Notification[]>);
 
   const formatDateHeader = (dateStr: string) => {
-    if (dateStr === 'unknown') return 'Sin fecha';
+    if (dateStr === 'unknown') return t('notifications.sinFecha');
     
     const date = new Date(dateStr);
     const today = new Date();
@@ -110,16 +112,16 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
     if (format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd')) {
       return 'Hoy';
     } else if (format(date, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd')) {
-      return 'Ayer';
+      return t('notifications.ayer');
     } else {
-      return format(date, "d 'de' MMMM, yyyy", { locale: es });
+      return format(date, "d 'de' MMMM, yyyy", { locale: getDateFnsLocale() });
     }
   };
 
   return (
     <div className="min-h-screen bg-background">
       <NovaHeader
-        title="Notificaciones"
+        title={t('notifications.notificaciones')}
         subtitle={`${unreadCount} sin leer`}
         onNewOBV={onNewOBV}
         showBackButton={true}
@@ -129,33 +131,33 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
         {/* How It Works */}
         <div className="mb-6">
           <HowItWorks
-            title="Centro de Notificaciones"
-            description="Mantente informado de todo lo importante"
-            whatIsIt="Sistema de notificaciones en tiempo real que te mantiene al tanto de tareas asignadas, menciones, validaciones de OBVs, leads ganados y eventos importantes. Configura tus preferencias de notificación por email, Slack o in-app."
+            title={t('notifications.centroDeNotificaciones')}
+            description={t('notifications.mantenteInformadoDeTodo')}
+            whatIsIt={t('notifications.sistemaDeNotificacionesEn')}
             dataInputs={[
               {
-                from: "Eventos del sistema",
+                from: t('notifications.eventosDelSistema'),
                 items: [
-                  "Tareas asignadas o completadas",
-                  "Menciones en comentarios",
-                  "Validaciones de OBVs",
+                  t('notifications.tareasAsignadasOCompletadas'),
+                  t('notifications.mencionesEnComentarios'),
+                  t('notifications.validacionesDeObvs'),
                   "Leads ganados y eventos CRM"
                 ]
               }
             ]}
             dataOutputs={[
               {
-                to: "Tu bandeja de notificaciones",
+                to: t('notifications.tuBandejaDeNotificaciones'),
                 items: [
-                  "Notificaciones in-app organizadas",
-                  "Emails según tus preferencias",
-                  "Mensajes de Slack automáticos"
+                  t('notifications.notificacionesInappOrganizadas'),
+                  t('notifications.emailsSegúnTusPreferencias'),
+                  t('notifications.mensajesDeSlackAutomáticos')
                 ]
               }
             ]}
             nextStep={{
-              action: "Configura tus preferencias",
-              destination: "Configuración > Notificaciones"
+              action: t('notifications.configuraTusPreferencias'),
+              destination: t('notifications.configuraciónNotificaciones')
             }}
             onViewPreview={() => setShowPreviewModal(true)}
           />
@@ -165,7 +167,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center gap-2">
             <Bell className="text-primary" size={24} />
-            <h2 className="text-lg font-semibold">Historial de notificaciones</h2>
+            <h2 className="text-lg font-semibold">{t('notifications.historialDeNotificaciones')}</h2>
           </div>
           {unreadCount > 0 && !isDemoMode && (
             <Button
@@ -174,9 +176,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
               onClick={() => markAllAsRead.mutate()}
               disabled={markAllAsRead.isPending}
             >
-              <Check size={16} className="mr-2" />
-              Marcar todas como leídas
-            </Button>
+              <Check size={16} className="mr-2" />{t('notifications.marcarTodasComoLeídas')}</Button>
           )}
         </div>
 
@@ -198,10 +198,8 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
         ) : notifications.length === 0 ? (
           <Card className="p-12 text-center">
             <Bell size={48} className="mx-auto text-muted-foreground mb-4" />
-            <h3 className="text-lg font-medium mb-2">No tienes notificaciones</h3>
-            <p className="text-muted-foreground">
-              Las notificaciones aparecerán aquí cuando haya actividad relevante.
-            </p>
+            <h3 className="text-lg font-medium mb-2">{t('notifications.noTienesNotificaciones')}</h3>
+            <p className="text-muted-foreground">{t('notifications.lasNotificacionesApareceránAquí')}</p>
           </Card>
         ) : (
           <div className="space-y-8">
@@ -236,7 +234,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                             <span className="text-xs text-muted-foreground whitespace-nowrap">
                               {notification.created_at && formatDistanceToNow(new Date(notification.created_at), {
                                 addSuffix: true,
-                                locale: es,
+                                locale: getDateFnsLocale(),
                               })}
                             </span>
                           </div>
@@ -246,7 +244,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                           {notification.link && (
                             <div className="flex items-center gap-1 mt-2 text-xs text-primary">
                               <ExternalLink size={12} />
-                              <span>Ver detalles</span>
+                              <span>{t('notifications.verDetalles')}</span>
                             </div>
                           )}
                         </div>

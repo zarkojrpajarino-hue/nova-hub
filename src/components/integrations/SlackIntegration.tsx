@@ -25,6 +25,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface SlackWebhook {
   id: string;
   project_id: string | null;
@@ -36,12 +37,12 @@ interface SlackWebhook {
 }
 
 const NOTIFICATION_TYPES = [
-  { value: 'lead_won', label: 'Lead ganado', icon: '🎉' },
-  { value: 'obv_validated', label: 'OBV validado', icon: '✅' },
-  { value: 'objective_reached', label: 'Objetivo alcanzado', icon: '🎯' },
-  { value: 'project_milestone', label: 'Hito del proyecto', icon: '🚀' },
-  { value: 'task_completed', label: 'Tarea completada', icon: '✔️' },
-  { value: 'new_member', label: 'Nuevo miembro', icon: '👋' },
+  { value: 'lead_won', label: t('integrations.leadGanado'), icon: '🎉' },
+  { value: 'obv_validated', label: t('integrations.obvValidado'), icon: '✅' },
+  { value: 'objective_reached', label: t('integrations.objetivoAlcanzado'), icon: '🎯' },
+  { value: 'project_milestone', label: t('integrations.hitoDelProyecto'), icon: '🚀' },
+  { value: 'task_completed', label: t('integrations.tareaCompletada'), icon: '✔️' },
+  { value: 'new_member', label: t('integrations.nuevoMiembro'), icon: '👋' },
 ];
 
 interface SlackIntegrationProps {
@@ -50,6 +51,7 @@ interface SlackIntegrationProps {
 }
 
 export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegrationProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
   const [open, setOpen] = useState(false);
   const [webhookUrl, setWebhookUrl] = useState('');
@@ -82,10 +84,10 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
   // Create webhook
   const createWebhook = useMutation({
     mutationFn: async () => {
-      if (!webhookUrl) throw new Error('URL requerida');
+      if (!webhookUrl) throw new Error(t('integrations.urlRequerida'));
 
       const { data: { user } } = await supabase.auth.getUser();
-      if (!user) throw new Error('No autenticado');
+      if (!user) throw new Error(t('integrations.noAutenticado'));
 
       const { data: profile } = await supabase
         .from('profiles')
@@ -103,14 +105,14 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success('Webhook de Slack configurado');
+      toast.success(t('integrations.webhookDeSlackConfigurado'));
       setWebhookUrl('');
       setSelectedTypes(['lead_won', 'obv_validated']);
       setOpen(false);
       queryClient.invalidateQueries({ queryKey: ['slack-webhooks'] });
     },
     onError: (error: Error) => {
-      toast.error(error.message || 'Error al configurar webhook');
+      toast.error(error.message || t('integrations.errorAlConfigurarWebhook'));
     },
   });
 
@@ -136,7 +138,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success('Webhook eliminado');
+      toast.success(t('integrations.webhookEliminado'));
       queryClient.invalidateQueries({ queryKey: ['slack-webhooks'] });
     },
   });
@@ -156,12 +158,12 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
       if (error) throw error;
 
       if (data.success) {
-        toast.success('Mensaje de prueba enviado a Slack');
+        toast.success(t('integrations.mensajeDePruebaEnviado'));
       } else {
-        toast.error('Error al enviar mensaje de prueba');
+        toast.error(t('integrations.errorAlEnviarMensaje'));
       }
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Error al enviar mensaje de prueba');
+      toast.error(err instanceof Error ? err.message : t('integrations.errorAlEnviarMensaje'));
     }
   };
 
@@ -185,26 +187,20 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
               </svg>
             </div>
             <div>
-              <CardTitle>Integración con Slack</CardTitle>
-              <CardDescription>
-                Recibe notificaciones automáticas en tu workspace
-              </CardDescription>
+              <CardTitle>{t('integrations.integraciónConSlack')}</CardTitle>
+              <CardDescription>{t('integrations.recibeNotificacionesAutomáticasEn')}</CardDescription>
             </div>
           </div>
 
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button size="sm" className="gap-2">
-                <Plus size={14} />
-                Añadir Webhook
-              </Button>
+                <Plus size={14} />{t('integrations.añadirWebhook')}</Button>
             </DialogTrigger>
             <DialogContent>
               <DialogHeader>
-                <DialogTitle>Configurar Slack Webhook</DialogTitle>
-                <DialogDescription>
-                  Crea un webhook en Slack para recibir notificaciones automáticas
-                </DialogDescription>
+                <DialogTitle>{t('integrations.configurarSlackWebhook')}</DialogTitle>
+                <DialogDescription>{t('integrations.creaUnWebhookEn')}</DialogDescription>
               </DialogHeader>
 
               <div className="space-y-4 py-4">
@@ -225,8 +221,8 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
                         api.slack.com/messaging/webhooks
                       </a>
                     </li>
-                    <li>Crea una nueva Incoming Webhook</li>
-                    <li>Selecciona el canal donde quieres las notificaciones</li>
+                    <li>{t('integrations.creaUnaNuevaIncoming')}</li>
+                    <li>{t('integrations.seleccionaElCanalDonde')}</li>
                     <li>Copia la Webhook URL</li>
                   </ol>
                 </div>
@@ -236,7 +232,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
                   <Label htmlFor="webhook-url">Webhook URL</Label>
                   <Input
                     id="webhook-url"
-                    placeholder="https://hooks.slack.com/services/..."
+                    placeholder={t('integrations.httpshooksslackcomservices')}
                     value={webhookUrl}
                     onChange={(e) => setWebhookUrl(e.target.value)}
                     className="mt-2"
@@ -245,7 +241,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
 
                 {/* Notification Types */}
                 <div>
-                  <Label>Tipos de notificaciones</Label>
+                  <Label>{t('integrations.tiposDeNotificaciones')}</Label>
                   <div className="grid grid-cols-2 gap-2 mt-2">
                     {NOTIFICATION_TYPES.map((type) => (
                       <div
@@ -269,20 +265,16 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
               </div>
 
               <div className="flex justify-end gap-3">
-                <Button variant="outline" onClick={() => setOpen(false)}>
-                  Cancelar
-                </Button>
+                <Button variant="outline" onClick={() => setOpen(false)}>{t('integrations.cancelar')}</Button>
                 <Button
                   onClick={() => createWebhook.mutate()}
                   disabled={createWebhook.isPending || !webhookUrl}
                 >
                   {createWebhook.isPending ? (
                     <>
-                      <Loader2 size={14} className="mr-2 animate-spin" />
-                      Configurando...
-                    </>
+                      <Loader2 size={14} className="mr-2 animate-spin" />{t('integrations.configurando')}</>
                   ) : (
-                    'Configurar'
+                    t('integrations.configurar')
                   )}
                 </Button>
               </div>
@@ -297,17 +289,14 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
           </div>
         ) : isError && !isDemoMode ? (
           <div className="text-center py-8">
-            <p className="text-sm text-red-600 mb-2">Error al cargar webhooks</p>
-            <p className="text-xs text-muted-foreground">
-              Verifica que la tabla slack_webhooks existe en Supabase
-            </p>
+            <p className="text-sm text-red-600 mb-2">{t('integrations.errorAlCargarWebhooks')}</p>
+            <p className="text-xs text-muted-foreground">{t('integrations.verificaQueLaTabla')}</p>
           </div>
         ) : webhooks.length === 0 ? (
           <div className="text-center py-8">
             <p className="text-sm text-muted-foreground">
               {isDemoMode
-                ? "Configura webhooks para recibir notificaciones automáticas en Slack"
-                : "No hay webhooks configurados. Añade uno para empezar."
+                ? 'Configura webhooks para recibir notificaciones automáticas en Slack': t('integrations.noHayWebhooksConfigurados')
               }
             </p>
           </div>
@@ -322,7 +311,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2 mb-2">
                       <Badge variant={webhook.enabled ? 'default' : 'secondary'}>
-                        {webhook.enabled ? 'Activo' : 'Inactivo'}
+                        {webhook.enabled ? 'Activo': t('integrations.inactivo')}
                       </Badge>
                       {webhook.last_used_at && (
                         <span className="text-xs text-muted-foreground">
@@ -373,7 +362,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
                       size="sm"
                       variant="ghost"
                       onClick={() => {
-                        if (confirm('¿Eliminar este webhook?')) {
+                        if (confirm(t('integrations.eliminarEsteWebhook'))) {
                           deleteWebhook.mutate(webhook.id);
                         }
                       }}

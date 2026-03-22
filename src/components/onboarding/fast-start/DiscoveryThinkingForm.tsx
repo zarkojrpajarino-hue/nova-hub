@@ -1,7 +1,7 @@
 /**
  * DISCOVERY THINKING FORM
  *
- * O5.5 — sub-estado "Sin hipótesis" dentro del path idea.
+ * O5.5 — sub-estado t('onboarding.sinHipótesis') dentro del path idea.
  * Recibe hypothesis_maturity ('none' | 'partial') desde IdeaFastStart.
  *
  * 5 pasos guiados (Design Thinking mínimo):
@@ -39,6 +39,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface DTAnswers {
   usuario_segmento: string;
   problema: string;
@@ -60,10 +61,10 @@ const STEPS = [
     color: 'text-blue-600',
     bg: 'bg-blue-50',
     border: 'border-blue-200',
-    title: 'Usuario / Segmento',
-    question: '¿Quién tiene el problema que quieres resolver?',
-    hint: 'Sé específico: freelancers de diseño, padres de niños menores de 5 años, dueños de pequeños restaurantes...',
-    placeholder: 'Ej: Pequeñas empresas de e-commerce que gestionan inventario manualmente',
+    title: t('onboarding.usuarioSegmento'),
+    question: t('onboarding.quiénTieneElProblema'),
+    hint: t('onboarding.séEspecíficoFreelancersDe'),
+    placeholder: t('onboarding.ejPequeñasEmpresasDe'),
     minLength: 20,
   },
   {
@@ -72,10 +73,10 @@ const STEPS = [
     color: 'text-orange-600',
     bg: 'bg-orange-50',
     border: 'border-orange-200',
-    title: 'Problema',
-    question: '¿Qué dolor o necesidad tiene ese usuario?',
-    hint: 'Describe la frustración real, no la solución. ¿Qué les cuesta tiempo, dinero o estrés?',
-    placeholder: 'Ej: Pierden horas actualizando stock en múltiples canales y cometen errores de inventario frecuentes',
+    title: t('onboarding.problema'),
+    question: t('onboarding.quéDolorONecesidad'),
+    hint: t('onboarding.describeLaFrustraciónReal'),
+    placeholder: t('onboarding.ejPierdenHorasActualizando'),
     minLength: 30,
   },
   {
@@ -84,9 +85,9 @@ const STEPS = [
     color: 'text-purple-600',
     bg: 'bg-purple-50',
     border: 'border-purple-200',
-    title: 'Contexto actual',
-    question: '¿Cómo lo resuelven hoy?',
-    hint: 'Hojas de cálculo, procesos manuales, herramientas inadecuadas, o simplemente no lo resuelven.',
+    title: t('onboarding.contextoActual'),
+    question: t('onboarding.cómoLoResuelvenHoy'),
+    hint: t('onboarding.hojasDeCálculoProcesos'),
     placeholder: 'Ej: Usan hojas de Excel y actualizan manualmente cada plataforma (Shopify, Amazon, Instagram)',
     minLength: 20,
   },
@@ -96,10 +97,10 @@ const STEPS = [
     color: 'text-green-600',
     bg: 'bg-green-50',
     border: 'border-green-200',
-    title: 'Idea de solución',
-    question: '¿Qué podrías construir para resolverlo?',
-    hint: 'No tiene que ser perfecta. ¿Cuál es la idea central? Puede ser un producto, servicio o proceso.',
-    placeholder: 'Ej: Una herramienta que sincroniza el inventario en tiempo real entre todos sus canales automáticamente',
+    title: t('onboarding.ideaDeSolución'),
+    question: t('onboarding.quéPodríasConstruirPara'),
+    hint: t('onboarding.noTieneQueSer'),
+    placeholder: t('onboarding.ejUnaHerramientaQue'),
     minLength: 20,
   },
 ] as const;
@@ -109,6 +110,7 @@ function formatHypothesis(a: DTAnswers): string {
 }
 
 export function DiscoveryThinkingForm({ hypothesisMaturity, onComplete }: DiscoveryThinkingFormProps) {
+  const { t } = useTranslation();
   const [step, setStep] = useState(0); // 0–3: pasos DT, 4: síntesis
   const [answers, setAnswers] = useState<DTAnswers>({
     usuario_segmento: '',
@@ -148,8 +150,8 @@ export function DiscoveryThinkingForm({ hypothesisMaturity, onComplete }: Discov
                 <Lightbulb className="h-6 w-6 text-white" />
               </div>
               <div>
-                <CardTitle className="text-xl">Síntesis</CardTitle>
-                <p className="text-sm text-muted-foreground">Paso 5 de 5 — Hipótesis inicial</p>
+                <CardTitle className="text-xl">{t('onboarding.síntesis')}</CardTitle>
+                <p className="text-sm text-muted-foreground">{t('onboarding.paso5De5')}</p>
               </div>
             </div>
           </CardHeader>
@@ -158,29 +160,24 @@ export function DiscoveryThinkingForm({ hypothesisMaturity, onComplete }: Discov
             <div className="bg-green-50 border-2 border-green-200 rounded-lg p-4">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle2 className="h-4 w-4 text-green-600 shrink-0" />
-                <p className="text-sm font-semibold text-green-800">Hipótesis formulada</p>
+                <p className="text-sm font-semibold text-green-800">{t('onboarding.hipótesisFormulada')}</p>
               </div>
               <p className="text-sm text-green-900 leading-relaxed italic">
                 {formatHypothesis(answers)}
               </p>
             </div>
 
-            <p className="text-xs text-muted-foreground">
-              Esta es tu hipótesis de partida. Podrás refinarla a medida que valides con usuarios reales.
-            </p>
+            <p className="text-xs text-muted-foreground">{t('onboarding.estaEsTuHipótesis')}</p>
 
             {/* Asunción más arriesgada */}
             <div className="space-y-2">
               <Label htmlFor="riskiest_assumption" className="flex items-center gap-2">
-                <TriangleAlert className="h-4 w-4 text-amber-500" />
-                ¿Cuál es la asunción más arriesgada? <span className="text-destructive">*</span>
+                <TriangleAlert className="h-4 w-4 text-amber-500" />{t('onboarding.cuálEsLaAsunción')}<span className="text-destructive">*</span>
               </Label>
-              <p className="text-xs text-muted-foreground">
-                ¿Qué tendría que ser verdad para que tu solución tenga valor? Si esto falla, todo falla.
-              </p>
+              <p className="text-xs text-muted-foreground">{t('onboarding.quéTendríaQueSer')}</p>
               <Input
                 id="riskiest_assumption"
-                placeholder="Ej: Que el dolor sea suficientemente frecuente como para pagar por una solución"
+                placeholder={t('onboarding.ejQueElDolor')}
                 value={riskiestAssumption}
                 onChange={(e) => setRiskiestAssumption(e.target.value)}
               />
@@ -192,32 +189,27 @@ export function DiscoveryThinkingForm({ hypothesisMaturity, onComplete }: Discov
             {/* Nombre del proyecto */}
             <div className="space-y-2">
               <Label htmlFor="project_name" className="flex items-center gap-2">
-                <FileText className="h-4 w-4" />
-                ¿Cómo vas a llamar a tu proyecto? <span className="text-destructive">*</span>
+                <FileText className="h-4 w-4" />{t('onboarding.cómoVasALlamar')}<span className="text-destructive">*</span>
               </Label>
               <Input
                 id="project_name"
-                placeholder="Ej: SyncStock, IdeaFlow, PetCare Pro..."
+                placeholder={t('onboarding.ejSyncstockIdeaflowPetcare')}
                 value={projectName}
                 onChange={(e) => setProjectName(e.target.value)}
               />
               {projectName.trim().length > 0 && projectName.trim().length < 3 && (
-                <p className="text-xs text-destructive">Mínimo 3 caracteres</p>
+                <p className="text-xs text-destructive">{t('onboarding.mínimo3Caracteres')}</p>
               )}
             </div>
 
             <div className="flex gap-3 pt-2">
               <Button variant="outline" onClick={() => setStep(3)} className="flex-1">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Atrás
-              </Button>
+                <ArrowLeft className="h-4 w-4 mr-1" />{t('onboarding.atrás')}</Button>
               <Button
                 onClick={handleComplete}
                 disabled={!isStepValid}
                 className="flex-1 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-              >
-                Empezar a validar
-                <ArrowRight className="h-4 w-4 ml-1" />
+              >{t('onboarding.empezarAValidar')}<ArrowRight className="h-4 w-4 ml-1" />
               </Button>
             </div>
           </CardContent>
@@ -278,25 +270,21 @@ export function DiscoveryThinkingForm({ hypothesisMaturity, onComplete }: Discov
             <span>{currentValue.length} / {current.minLength} caracteres mínimo</span>
             {isStepValid && (
               <span className="text-green-600 flex items-center gap-1">
-                <CheckCircle2 className="h-3 w-3" />
-                Suficiente
-              </span>
+                <CheckCircle2 className="h-3 w-3" />{t('onboarding.suficiente')}</span>
             )}
           </div>
 
           <div className="flex gap-3 pt-2">
             {step > 0 && (
               <Button variant="outline" onClick={() => setStep(step - 1)} className="flex-1">
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Atrás
-              </Button>
+                <ArrowLeft className="h-4 w-4 mr-1" />{t('onboarding.atrás')}</Button>
             )}
             <Button
               onClick={() => setStep(step + 1)}
               disabled={!isStepValid}
               className="flex-1"
             >
-              {step === 3 ? 'Ver hipótesis' : 'Siguiente'}
+              {step === 3 ? t('onboarding.verHipótesis') : t('onboarding.siguiente')}
               <ArrowRight className="h-4 w-4 ml-1" />
             </Button>
           </div>

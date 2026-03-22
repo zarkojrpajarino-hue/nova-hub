@@ -16,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
+import { useTranslation } from 'react-i18next';
 interface LearningPathStep {
   id: string;
   step_number: number;
@@ -39,6 +40,7 @@ interface LearningPathViewerProps {
 }
 
 export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) {
+  const { t } = useTranslation();
   const queryClient = useQueryClient();
 
   // Fetch path details
@@ -110,10 +112,8 @@ export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) 
     return (
       <Card>
         <CardContent className="py-12 text-center">
-          <p className="text-muted-foreground">Learning Path no encontrado</p>
-          <Button onClick={onBack} variant="outline" className="mt-4">
-            Volver
-          </Button>
+          <p className="text-muted-foreground">{t('learning.learningPathNoEncontrado')}</p>
+          <Button onClick={onBack} variant="outline" className="mt-4">{t('learning.volver')}</Button>
         </CardContent>
       </Card>
     );
@@ -157,7 +157,7 @@ export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) 
         <CardHeader>
           <div className="flex items-center justify-between">
             <div>
-              <CardTitle className="text-lg">Tu Progreso</CardTitle>
+              <CardTitle className="text-lg">{t('learning.tuProgreso')}</CardTitle>
               <CardDescription>
                 {completedSteps} de {steps.length} pasos completados
               </CardDescription>

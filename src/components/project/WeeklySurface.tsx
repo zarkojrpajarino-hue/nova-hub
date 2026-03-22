@@ -7,7 +7,7 @@
  * Componentes: signal_changes · engine_warnings · focus_confirmation.
  * En v1: read-only. El founder ve el estado, no lo ajusta.
  *
- * Botón de salida: "Continue execution" → marca review como leída → regresa a Surface 1.
+ * Botón de salida: t('project.continueExecution') → marca review como leída → regresa a Surface 1.
  */
 
 import { CalendarDays, TrendingUp, TrendingDown, ArrowRight, Target } from 'lucide-react';
@@ -19,14 +19,16 @@ import { useProjectContext } from '@/hooks/useProjectContext';
 import { buildNextAction } from '@/lib/build-next-action';
 import { cn } from '@/lib/utils';
 import { format, parseISO } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface WeeklySurfaceProps {
   projectId: string;
   onContinue: () => void; // marca read_at + regresa a Engine
 }
 
 export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
+  const { t } = useTranslation();
   const { data: review, isLoading } = useLatestWeeklyReview(projectId);
 
   // U6.V2.2 — Foco de la próxima semana: buildNextAction() en lugar de next_step estático
@@ -54,8 +56,8 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
     return (
       <div className="max-w-2xl mx-auto py-12 text-center space-y-4">
         <CalendarDays size={40} className="mx-auto text-muted-foreground" />
-        <p className="text-muted-foreground">No hay revisión semanal disponible.</p>
-        <Button onClick={onContinue}>Continuar</Button>
+        <p className="text-muted-foreground">{t('project.noHayRevisiónSemanal')}</p>
+        <Button onClick={onContinue}>{t('project.continuar')}</Button>
       </div>
     );
   }
@@ -67,14 +69,14 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
     raw !== null && typeof raw === 'object' && !Array.isArray(raw)
       ? (raw as Record<string, unknown>)
       : {};
-  const headline   = typeof summaryObj.headline   === 'string'  ? summaryObj.headline   : 'Revisión semanal';
+  const headline   = typeof summaryObj.headline   === 'string'  ? summaryObj.headline   : t('project.revisiónSemanal');
   const highlights = Array.isArray(summaryObj.highlights)       ? (summaryObj.highlights as string[]) : [];
   const warnings   = Array.isArray(summaryObj.warnings)         ? (summaryObj.warnings   as string[]) : [];
   const nextStep   = typeof summaryObj.next_step  === 'string'  ? summaryObj.next_step  : null;
 
   const weekLabel =
     review.week_start_date && review.week_end_date
-      ? `${format(parseISO(review.week_start_date), "d 'de' MMMM", { locale: es })} – ${format(parseISO(review.week_end_date), "d 'de' MMMM", { locale: es })}`
+      ? `${format(parseISO(review.week_start_date), "d 'de' MMMM", { locale: getDateFnsLocale() })} – ${format(parseISO(review.week_end_date), "d 'de' MMMM", { locale: getDateFnsLocale() })}`
       : '';
 
   return (
@@ -86,15 +88,11 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
           <span>Revisión semanal · {weekLabel}</span>
           {review.has_transition && (
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-green-500/10 text-green-600 border-green-500/30">
-              <TrendingUp size={9} className="mr-0.5" />
-              Avance de fase
-            </Badge>
+              <TrendingUp size={9} className="mr-0.5" />{t('project.avanceDeFase')}</Badge>
           )}
           {review.has_regression && (
             <Badge variant="outline" className="text-[10px] px-1.5 py-0 h-4 bg-red-500/10 text-red-600 border-red-500/30">
-              <TrendingDown size={9} className="mr-0.5" />
-              Alerta
-            </Badge>
+              <TrendingDown size={9} className="mr-0.5" />{t('project.alerta')}</Badge>
           )}
         </div>
         <h2 className="text-2xl font-bold leading-snug">{headline}</h2>
@@ -103,9 +101,7 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
       {/* Highlights — signal changes */}
       {highlights.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Lo que avanzó esta semana
-          </h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('project.loQueAvanzóEsta')}</h3>
           <ul className="space-y-1">
             {highlights.map((h, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
@@ -120,16 +116,14 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
       {/* Warnings — engine warnings */}
       {warnings.length > 0 && (
         <div className="space-y-2">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Alertas a tener en cuenta
-          </h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('project.alertasATenerEn')}</h3>
           <ul className="space-y-1">
             {warnings.map((w, i) => (
               <li key={i} className="flex items-start gap-2 text-sm">
                 <span
                   className={cn(
                     'mt-1 w-1.5 h-1.5 rounded-full shrink-0',
-                    w.includes('Regresión') || w.includes('crítico')
+                    w.includes(t('project.regresión')) || w.includes('crítico')
                       ? 'bg-red-500'
                       : 'bg-amber-500',
                   )}
@@ -144,13 +138,9 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
       {/* Focus confirmation — Next Action contexto retrospectivo (read-only) */}
       {nextStep && (
         <div className="bg-card border border-border rounded-2xl p-5 space-y-1">
-          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">
-            Dirección de esta semana
-          </h3>
+          <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">{t('project.direcciónDeEstaSemana')}</h3>
           <p className="text-sm leading-relaxed">{nextStep}</p>
-          <p className="text-[11px] text-muted-foreground">
-            Esta es la dirección del engine — no cambia por la revisión.
-          </p>
+          <p className="text-[11px] text-muted-foreground">{t('project.estaEsLaDirección')}</p>
         </div>
       )}
 
@@ -158,22 +148,16 @@ export function WeeklySurface({ projectId, onContinue }: WeeklySurfaceProps) {
       {weekNextAction && weekNextAction.type !== 'none' && (
         <div className="bg-primary/5 border border-primary/20 rounded-2xl p-5 space-y-2">
           <h3 className="text-xs font-semibold uppercase tracking-wide text-muted-foreground flex items-center gap-1.5">
-            <Target size={12} />
-            Foco de la próxima semana
-          </h3>
+            <Target size={12} />{t('project.focoDeLaPróxima')}</h3>
           <p className="text-sm font-medium leading-snug">{weekNextAction.title}</p>
           <p className="text-sm text-muted-foreground">{weekNextAction.description}</p>
-          <p className="text-[11px] text-muted-foreground">
-            Calculado por el motor en tiempo real — prioridad para la próxima semana.
-          </p>
+          <p className="text-[11px] text-muted-foreground">{t('project.calculadoPorElMotor')}</p>
         </div>
       )}
 
       {/* Exit button — obligatorio per SURFACES_V1.md */}
       <div className="pt-4 flex justify-end">
-        <Button onClick={onContinue} className="gap-2">
-          Continuar ejecución
-          <ArrowRight size={16} />
+        <Button onClick={onContinue} className="gap-2">{t('project.continuarEjecución')}<ArrowRight size={16} />
         </Button>
       </div>
     </div>

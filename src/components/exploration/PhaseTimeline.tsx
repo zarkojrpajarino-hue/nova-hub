@@ -11,6 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface PhaseTimelineProps {
   currentPhase: 1 | 2 | 3;
   phase1StartedAt?: string | null;
@@ -35,11 +36,12 @@ export function PhaseTimeline({
   secondaryRole,
   totalWeeksElapsed = 0,
 }: PhaseTimelineProps) {
+  const { t } = useTranslation();
   const phases = [
     {
       number: 1,
-      title: 'Exploración',
-      description: 'Prueba 4 roles diferentes',
+      title: t('exploration.exploración'),
+      description: t('exploration.prueba4RolesDiferentes'),
       duration: '4 semanas',
       icon: Rocket,
       color: 'bg-blue-500',
@@ -47,12 +49,12 @@ export function PhaseTimeline({
       current: currentPhase === 1,
       details: rolesExploredPhase1.length > 0
         ? `Roles: ${rolesExploredPhase1.join(', ')}`
-        : 'Explora el máximo de roles posibles',
+        : t('exploration.exploraElMáximoDe'),
     },
     {
       number: 2,
-      title: 'Especialización',
-      description: 'Profundiza en tus 2 mejores roles',
+      title: t('exploration.especialización'),
+      description: t('exploration.profundizaEnTus2'),
       duration: '2 semanas',
       icon: Star,
       color: 'bg-amber-500',
@@ -60,20 +62,20 @@ export function PhaseTimeline({
       current: currentPhase === 2,
       details: top2Roles.length > 0
         ? `Roles: ${top2Roles.join(', ')}`
-        : 'Perfecciona tus mejores roles',
+        : t('exploration.perfeccionaTusMejoresRoles'),
     },
     {
       number: 3,
-      title: 'Master',
+      title: t('exploration.master'),
       description: '1 rol estrella + sistema de desafíos',
-      duration: 'Permanente',
+      duration: t('exploration.permanente'),
       icon: Trophy,
       color: 'bg-purple-500',
       completed: !!starRole,
       current: currentPhase === 3,
       details: starRole
         ? `⭐ ${starRole}${secondaryRole ? ` + 🥈 ${secondaryRole}` : ''}`
-        : 'Conviértete en Master de tu rol',
+        : t('exploration.conviérteteEnMasterDe0'),
     },
   ];
 
@@ -84,7 +86,7 @@ export function PhaseTimeline({
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold">Tu Viaje de Especialización</h2>
+          <h2 className="text-2xl font-bold">{t('exploration.tuViajeDeEspecialización')}</h2>
           <p className="text-muted-foreground">
             {totalWeeksElapsed} semana{totalWeeksElapsed !== 1 ? 's' : ''} en progreso
           </p>
@@ -151,15 +153,11 @@ export function PhaseTimeline({
                       </h3>
                       {phase.completed && (
                         <Badge variant="outline" className="text-success border-success">
-                          <Check size={12} className="mr-1" />
-                          Completada
-                        </Badge>
+                          <Check size={12} className="mr-1" />{t('exploration.completada')}</Badge>
                       )}
                       {phase.current && !phase.completed && (
                         <Badge variant="default">
-                          <Clock size={12} className="mr-1 animate-pulse" />
-                          En Progreso
-                        </Badge>
+                          <Clock size={12} className="mr-1 animate-pulse" />{t('exploration.enProgreso')}</Badge>
                       )}
                     </div>
 
@@ -183,20 +181,17 @@ export function PhaseTimeline({
                     {/* Phase-specific info */}
                     {phase.number === 1 && phase.current && (
                       <div className="mt-4 p-3 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 text-sm">
-                        💡 <strong>Objetivo:</strong> Prueba el máximo número de roles posibles para descubrir dónde destacas naturalmente.
-                      </div>
+                        💡 <strong>Objetivo:</strong>{t('exploration.pruebaElMáximoNúmero')}</div>
                     )}
 
                     {phase.number === 2 && phase.current && (
                       <div className="mt-4 p-3 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 text-sm">
-                        💡 <strong>Objetivo:</strong> Sube tu fit score en tus 2 mejores roles para destacar frente a la competencia.
-                      </div>
+                        💡 <strong>Objetivo:</strong>{t('exploration.subeTuFitScore')}</div>
                     )}
 
                     {phase.number === 3 && phase.current && (
                       <div className="mt-4 p-3 rounded-lg bg-purple-500/10 text-purple-700 dark:text-purple-300 text-sm">
-                        💡 <strong>Objetivo:</strong> Conviértete en Master de tu rol estrella y defiende tu título en desafíos.
-                      </div>
+                        💡 <strong>Objetivo:</strong>{t('exploration.conviérteteEnMasterDe')}</div>
                     )}
                   </div>
                 </div>

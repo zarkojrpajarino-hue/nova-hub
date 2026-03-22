@@ -35,6 +35,7 @@ import type { Session } from '@supabase/supabase-js'
 
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 
+import { useTranslation } from 'react-i18next';
 async function getFreshSession(fallback: Session | null): Promise<Session | null> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(fallback), 2000)
@@ -60,6 +61,7 @@ interface SyncResult {
 }
 
 export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
+  const { t } = useTranslation();
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [accessToken, setAccessToken]         = useState('')
@@ -94,18 +96,18 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
           setPortalId(meta?.portal_id ?? null)
           if (data.last_sync_at) setHasPriorSync(true)
         } else if (data.status === 'error') {
-          setConnectionError(data.error_message ?? 'La conexión anterior falló. Vuelve a conectar.')
+          setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
   }, [projectId])
 
   const handleConnect = async () => {
     if (!projectId) {
-      toast.error('No hay proyecto activo')
+      toast.error(t('integrations.noHayProyectoActivo'))
       return
     }
     if (!accessToken.trim()) {
-      toast.error('Introduce tu Private App Token de HubSpot')
+      toast.error(t('integrations.introduceTuPrivateApp'))
       return
     }
 
@@ -113,7 +115,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -140,7 +142,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
       if (!data?.ok) {
         const msg =
           data?.reason === 'invalid_token'
-            ? 'Token inválido — verifica que sea un Private App Token activo de HubSpot'
+            ? t('integrations.tokenInválidoVerificaQue')
             : `Error al conectar: ${data?.reason ?? 'desconocido'}`
         toast.error(msg)
         return
@@ -150,7 +152,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
       setPortalId(data.portal_id ?? null)
       setIsConnected(true)
       setAccessToken('')
-      toast.success('HubSpot conectado — haz clic en "Sincronizar Ahora" para importar tus deals')
+      toast.success('HubSpot conectado — haz clic en Sincronizar Ahora para importar tus deals')
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -161,7 +163,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
   const handleSync = async (overrideConnectionId?: string) => {
     const connId = overrideConnectionId ?? connectionId
     if (!projectId || !connId) {
-      toast.error('Conexión no disponible')
+      toast.error(t('integrations.conexiónNoDisponible'))
       return
     }
 
@@ -170,7 +172,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -241,20 +243,14 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
                   <span className="text-sm font-normal text-muted-foreground">· Portal {portalId}</span>
                 )}
               </CardTitle>
-              <CardDescription>
-                Importa deals del CRM para trackear pipeline de ventas en Optimus
-              </CardDescription>
+              <CardDescription>{t('integrations.importaDealsDelCrm')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
-                <CheckCircle2 size={12} className="mr-1" />
-                Conectado
-              </Badge>
+                <CheckCircle2 size={12} className="mr-1" />{t('integrations.conectado')}</Badge>
             ) : (
               <Badge variant="outline">
-                <AlertCircle size={12} className="mr-1" />
-                Desconectado
-              </Badge>
+                <AlertCircle size={12} className="mr-1" />{t('integrations.desconectado')}</Badge>
             )}
           </div>
         </CardHeader>
@@ -265,7 +261,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Conexión interrumpida.</strong> {connectionError}
+                    <strong>{t('integrations.conexiónInterrumpida')}</strong> {connectionError}
                   </AlertDescription>
                 </Alert>
               )}
@@ -278,27 +274,23 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    Private Apps en HubSpot
-                    <ExternalLink size={12} />
+                  >{t('integrations.privateAppsEnHubspot')}<ExternalLink size={12} />
                   </a>
                   . Asegúrate de activar el scope <span className="font-mono text-xs">crm.objects.deals.read</span>.
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
-                <Label htmlFor="hubspot-token">Private App Token</Label>
+                <Label htmlFor="hubspot-token">{t('integrations.privateAppToken')}</Label>
                 <Input
                   id="hubspot-token"
                   type="password"
-                  placeholder="pat-eu1-..."
+                  placeholder={t('integrations.pateu1')}
                   value={accessToken}
                   onChange={(e) => setAccessToken(e.target.value)}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  El token se cifra con AES-256 y nunca se expone al cliente.
-                </p>
+                <p className="text-xs text-muted-foreground">{t('integrations.elTokenSeCifra')}</p>
               </div>
 
               <Button
@@ -308,25 +300,19 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Conectando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.conectando')}</>
                 ) : connectionError ? (
-                  'Reconectar HubSpot'
+                  t('integrations.reconectarHubspot')
                 ) : (
-                  'Conectar HubSpot'
+                  t('integrations.conectarHubspot')
                 )}
               </Button>
             </>
           ) : (
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-                  Integración activa
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Los deals se sincronizan manualmente. Syncs incrementales automáticos en v2.
-                </p>
+                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.losDealsSeSincronizan')}</p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
                     Última sincronización: {lastSync}
@@ -336,15 +322,15 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
                   <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.entities_synced}</div>
-                      <div className="text-muted-foreground">Procesados</div>
+                      <div className="text-muted-foreground">{t('integrations.procesados')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-mono font-semibold text-green-600">{syncResult.entities_written}</div>
-                      <div className="text-muted-foreground">Importados</div>
+                      <div className="text-muted-foreground">{t('integrations.importados')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.entities_rejected}</div>
-                      <div className="text-muted-foreground">Rechazados</div>
+                      <div className="text-muted-foreground">{t('integrations.rechazados')}</div>
                     </div>
                   </div>
                 )}
@@ -358,14 +344,10 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
               >
                 {isSyncing ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sincronizando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.sincronizando')}</>
                 ) : (
                   <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Sincronizar Ahora
-                  </>
+                    <RefreshCw className="mr-2 h-4 w-4" />{t('integrations.sincronizarAhora')}</>
                 )}
               </Button>
             </div>
@@ -378,16 +360,14 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
         <Card className="border-orange-500/20 bg-orange-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-green-500" />
-              HubSpot conectado — qué pasará a continuación
-            </CardTitle>
+              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.hubspotConectadoQuéPasará')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-sm">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
                 <div>
-                  <p className="font-medium">Pulsa "Sincronizar Ahora"</p>
+                  <p className="font-medium">Pulsa t('integrations.sincronizarAhora0')</p>
                   <p className="text-xs text-muted-foreground">
                     Optimus pedirá a HubSpot todos los deals de tu CRM (portal {portalId}).
                   </p>
@@ -396,7 +376,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
                 <div>
-                  <p className="font-medium">Los deals se almacenan en <span className="font-mono text-xs">integration_entities</span></p>
+                  <p className="font-medium">Los deals se almacenan en<span className="font-mono text-xs">integration_entities</span></p>
                   <p className="text-xs text-muted-foreground">
                     Cada deal importado incluye nombre, stage, importe y fecha de cierre.
                     Los deals sin importe o sin nombre válido se rechazan automáticamente.
@@ -406,7 +386,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
                 <div>
-                  <p className="font-medium">Syncs incrementales</p>
+                  <p className="font-medium">{t('integrations.syncsIncrementales')}</p>
                   <p className="text-xs text-muted-foreground">
                     Los siguientes syncs solo descargan deals modificados desde el último sync.
                     El Sales Agent analizará el pipeline una vez implementado (próxima fase).
@@ -432,28 +412,26 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <ListChecks size={16} className="text-orange-500" />
-            Qué entra · Dónde va · Qué cambia
-          </CardTitle>
+            <ListChecks size={16} className="text-orange-500" />{t('integrations.quéEntraDóndeVa')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-0 divide-y divide-border/50">
             {/* Fila 1 */}
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
-                <p className="font-medium">Deals de HubSpot</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.dealsDeHubspot')}</p>
                 <p className="text-muted-foreground mt-0.5">nombre, stage, importe, fecha cierre, owner</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dónde va</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.dóndeVa')}</p>
                 <p className="font-mono text-[11px]">integration_entities</p>
                 <p className="text-muted-foreground mt-0.5">entity_type='deal'</p>
                 <p className="text-muted-foreground">provider='hubspot'</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Qué cambia</p>
-                <p className="font-medium">Pipeline de ventas real</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéCambia')}</p>
+                <p className="font-medium">{t('integrations.pipelineDeVentasReal')}</p>
                 <p className="text-muted-foreground mt-0.5">base para Sales Agent y análisis de revenue</p>
               </div>
             </div>
@@ -462,17 +440,17 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
                 <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Qué no entra (v1)</p>
-                <p className="font-medium">Contactos, empresas</p>
+                <p className="font-medium">{t('integrations.contactosEmpresas')}</p>
                 <p className="text-muted-foreground mt-0.5">notas, actividades, workflows, custom properties</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Idempotencia</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.idempotencia')}</p>
                 <p className="font-mono text-[11px]">provider='hubspot'</p>
                 <p className="text-muted-foreground mt-0.5">+ external_id (deal ID)</p>
                 <p className="text-muted-foreground">un sync no duplica deals</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Próxima fase</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.próximaFase')}</p>
                 <p className="font-medium">Hidratación CRM (BLOQUE D)</p>
                 <p className="text-muted-foreground mt-0.5">deals → obvs con source='hubspot' — visible en CRM nativo</p>
               </div>

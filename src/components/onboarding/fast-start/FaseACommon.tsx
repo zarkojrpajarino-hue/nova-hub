@@ -15,6 +15,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { ArrowLeft, ArrowRight, CheckCircle2 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 export interface FaseAAnswers {
   generates_revenue: boolean;
   mrr_monthly: number | null;
@@ -77,6 +78,7 @@ function RadioOption({
 // Main component
 // ─────────────────────────────────────────────────────────────────────────────
 export function FaseACommon({ onComplete }: FaseACommonProps) {
+  const { t } = useTranslation();
   // step 1 = Q2, step 9 = Q10
   const [currentStep, setCurrentStep] = useState(1);
   const [goalIsOther, setGoalIsOther] = useState(false);
@@ -158,20 +160,18 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 1:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Generas ingresos hoy?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.generasIngresosHoy')}</h2>
             <div className="space-y-2">
               <RadioOption
                 value="yes"
                 selected={answers.generates_revenue === true}
-                label="Sí, tengo ingresos"
+                label={t('onboarding.síTengoIngresos')}
                 onSelect={() => set('generates_revenue', true)}
               />
               <RadioOption
                 value="no"
                 selected={answers.generates_revenue === false}
-                label="No, aún no genero ingresos"
+                label={t('onboarding.noAúnNoGenero')}
                 onSelect={() => {
                   set('generates_revenue', false);
                   set('mrr_monthly', null);
@@ -188,7 +188,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
                   <Input
                     type="number"
                     min={0}
-                    placeholder="ej. 2000"
+                    placeholder={t('onboarding.ej2000')}
                     className="pl-7"
                     value={answers.mrr_monthly ?? ''}
                     onChange={(e) =>
@@ -196,13 +196,11 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
                     }
                   />
                 </div>
-                <Label className="text-sm font-medium text-gray-700 pt-2">
-                  ¿Cuántos meses llevas operando?
-                </Label>
+                <Label className="text-sm font-medium text-gray-700 pt-2">{t('onboarding.cuántosMesesLlevasOperando')}</Label>
                 <Input
                   type="number"
                   min={0}
-                  placeholder="ej. 6"
+                  placeholder={t('onboarding.ej6')}
                   value={answers.months_operating ?? ''}
                   onChange={(e) =>
                     set('months_operating', e.target.value ? Number(e.target.value) : null)
@@ -217,14 +215,12 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 2:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Cuántos clientes activos tienes?
-            </h2>
-            <p className="text-sm text-gray-500">Pon 0 si aún no tienes clientes.</p>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuántosClientesActivosTienes')}</h2>
+            <p className="text-sm text-gray-500">{t('onboarding.pon0SiAún')}</p>
             <Input
               type="number"
               min={0}
-              placeholder="ej. 12"
+              placeholder={t('onboarding.ej12')}
               value={answers.active_customers ?? ''}
               onChange={(e) =>
                 set('active_customers', e.target.value !== '' ? Number(e.target.value) : null)
@@ -237,14 +233,12 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 3:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Cuántas personas trabajan en esto contigo?
-            </h2>
-            <p className="text-sm text-gray-500">Inclúyete a ti mismo. Solo tú = 1.</p>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuántasPersonasTrabajanEn')}</h2>
+            <p className="text-sm text-gray-500">{t('onboarding.inclúyeteATiMismo')}</p>
             <Input
               type="number"
               min={1}
-              placeholder="ej. 3"
+              placeholder={t('onboarding.ej3')}
               value={answers.team_size}
               onChange={(e) =>
                 set('team_size', Math.max(1, Number(e.target.value) || 1))
@@ -257,9 +251,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 4:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Cuál es tu ticket promedio por cliente?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuálEsTuTicket')}</h2>
             <div className="space-y-2">
               {([
                 { label: 'Menos de €50', value: 25 },
@@ -278,7 +270,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
               <RadioOption
                 value="unknown"
                 selected={answers.avg_ticket === null && currentStep === 4}
-                label="No lo sé aún"
+                label={t('onboarding.noLoSéAún')}
                 onSelect={() => set('avg_ticket', null)}
               />
             </div>
@@ -289,15 +281,13 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 5:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Cuánto tiempo pasa entre tu primer contacto y el pago?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuántoTiempoPasaEntre')}</h2>
             <div className="space-y-2">
               {([
-                { label: 'Menos de 1 semana', value: 'days' as const },
+                { label: t('onboarding.menosDe1Semana'), value: 'days' as const },
                 { label: '1–4 semanas', value: 'weeks' as const },
                 { label: '1–3 meses', value: 'months' as const },
-                { label: 'Más de 3 meses', value: 'quarters' as const },
+                { label: t('onboarding.másDe3Meses'), value: 'quarters' as const },
               ]).map(({ label, value }) => (
                 <RadioOption
                   key={value}
@@ -310,7 +300,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
               <RadioOption
                 value="unknown"
                 selected={answers.sales_cycle === null}
-                label="No lo sé aún"
+                label={t('onboarding.noLoSéAún')}
                 onSelect={() => set('sales_cycle', null)}
               />
             </div>
@@ -321,15 +311,13 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 6:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Cómo monetizas?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cómoMonetizas')}</h2>
             <div className="space-y-2">
               {([
                 { label: 'Venta única (transaccional)', value: 'transaccional' as const },
-                { label: 'Suscripción recurrente', value: 'suscripcion' as const },
-                { label: 'Ticket alto / servicio profesional', value: 'ticket_alto' as const },
-                { label: 'Contrato / proyecto largo', value: 'contrato' as const },
+                { label: t('onboarding.suscripciónRecurrente'), value: 'suscripcion' as const },
+                { label: t('onboarding.ticketAltoServicioProfesional'), value: 'ticket_alto' as const },
+                { label: t('onboarding.contratoProyectoLargo'), value: 'contrato' as const },
               ]).map(({ label, value }) => (
                 <RadioOption
                   key={value}
@@ -342,7 +330,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
               <RadioOption
                 value="unknown"
                 selected={answers.monetization_type === null}
-                label="No lo sé aún"
+                label={t('onboarding.noLoSéAún')}
                 onSelect={() => set('monetization_type', null)}
               />
             </div>
@@ -353,12 +341,10 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 7:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿En qué país operas principalmente?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.enQuéPaísOperas')}</h2>
             <Input
               type="text"
-              placeholder="ej. España, México, USA"
+              placeholder={t('onboarding.ejEspañaMéxicoUsa')}
               value={answers.location_country}
               onChange={(e) => set('location_country', e.target.value)}
             />
@@ -375,9 +361,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 8:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Tu mercado es local o global?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.tuMercadoEsLocal')}</h2>
             <div className="space-y-2">
               <RadioOption
                 value="local"
@@ -405,15 +389,13 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 9:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">
-              ¿Cuál es tu objetivo principal en los próximos 90 días?
-            </h2>
+            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuálEsTuObjetivo')}</h2>
             <div className="space-y-2">
               {([
-                'Validar que hay mercado',
-                'Conseguir los primeros clientes',
-                'Crecer el revenue existente',
-                'Levantar inversión',
+                t('onboarding.validarQueHayMercado'),
+                t('onboarding.conseguirLosPrimerosClientes'),
+                t('onboarding.crecerElRevenueExistente'),
+                t('onboarding.levantarInversión'),
               ]).map((label) => (
                 <RadioOption
                   key={label}
@@ -430,7 +412,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
               <RadioOption
                 value="otro"
                 selected={goalIsOther}
-                label="Otro"
+                label={t('onboarding.otro')}
                 onSelect={() => {
                   setGoalIsOther(true);
                   set('goal_90d', goalOtroText);
@@ -439,7 +421,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
               {goalIsOther && (
                 <Input
                   type="text"
-                  placeholder="Describe tu objetivo"
+                  placeholder={t('onboarding.describeTuObjetivo')}
                   value={goalOtroText}
                   autoFocus
                   onChange={(e) => {
@@ -491,16 +473,14 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
             onClick={handleBack}
             className="gap-2"
           >
-            <ArrowLeft className="h-4 w-4" />
-            Atrás
-          </Button>
+            <ArrowLeft className="h-4 w-4" />{t('onboarding.atrás')}</Button>
         )}
         <Button
           className="flex-1 gap-2"
           onClick={handleNext}
           disabled={!canAdvance()}
         >
-          {currentStep === 9 ? 'Completar' : 'Continuar'}
+          {currentStep === 9 ? 'Completar': t('onboarding.continuar')}
           {currentStep < 9 && <ArrowRight className="h-4 w-4" />}
         </Button>
       </div>

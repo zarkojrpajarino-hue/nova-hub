@@ -17,36 +17,37 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { Loader2, ArrowLeft, CheckCircle, Siren } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 // ── Tipos de crisis y sus 3 tareas por defecto ───────────────────────────────
 
 const CRISIS_TYPES = [
   {
     id:       'cash_crisis',
-    label:    'Crisis de caja',
+    label:    t('emergencyOnboarding.crisisDeCaja'),
     emoji:    '💸',
-    subtitle: 'Me quedo sin dinero pronto',
+    subtitle: t('emergencyOnboarding.meQuedoSinDinero'),
     tasks: [
-      'Calcular runway real: cuántos meses quedan a burn actual',
-      'Listar los 3 mayores gastos y evaluar cuáles pueden cortarse esta semana',
-      'Contactar a los 3 clientes más cercanos a cerrar para acelerar el pago',
+      t('emergencyOnboarding.calcularRunwayRealCuántos'),
+      t('emergencyOnboarding.listarLos3Mayores'),
+      t('emergencyOnboarding.contactarALos3'),
     ],
   },
   {
     id:       'sales_stalled',
-    label:    'Ventas paradas',
+    label:    t('emergencyOnboarding.ventasParadas'),
     emoji:    '📉',
-    subtitle: 'No estamos generando nuevos clientes',
+    subtitle: t('emergencyOnboarding.noEstamosGenerandoNuevos'),
     tasks: [
-      'Analizar por qué fallaron los últimos 3 deals — patrón común',
-      'Identificar el segmento de cliente donde más rápido se cierra',
+      t('emergencyOnboarding.analizarPorQuéFallaron'),
+      t('emergencyOnboarding.identificarElSegmentoDe'),
       'Planificar 5 conversaciones de venta esta semana (no demos — ventas)',
     ],
   },
   {
     id:       'runway_risk',
-    label:    'Riesgo de runway',
+    label:    t('emergencyOnboarding.riesgoDeRunway'),
     emoji:    '⏱',
-    subtitle: 'Menos de 3 meses para sobrevivir',
+    subtitle: t('emergencyOnboarding.menosDe3Meses'),
     tasks: [
       'Preparar un plan de reducción de costes urgente (objetivo: -30% burn)',
       'Evaluar opciones de financiación de emergencia (inversores, préstamos, revenue-based)',
@@ -55,24 +56,24 @@ const CRISIS_TYPES = [
   },
   {
     id:       'product_pivot',
-    label:    'Pivote urgente',
+    label:    t('emergencyOnboarding.pivoteUrgente'),
     emoji:    '🔄',
-    subtitle: 'El producto no está funcionando',
+    subtitle: t('emergencyOnboarding.elProductoNoEstá'),
     tasks: [
-      'Hacer 5 entrevistas con clientes actuales esta semana: ¿qué valorarían más?',
-      'Definir la hipótesis del pivote en 1 frase y cómo validarla en 2 semanas',
-      'Decidir qué eliminar del producto actual para liberar capacidad',
+      t('emergencyOnboarding.hacer5EntrevistasCon'),
+      t('emergencyOnboarding.definirLaHipótesisDel'),
+      t('emergencyOnboarding.decidirQuéEliminarDel'),
     ],
   },
   {
     id:       'team_conflict',
-    label:    'Conflicto de equipo',
+    label:    t('emergencyOnboarding.conflictoDeEquipo'),
     emoji:    '🤝',
-    subtitle: 'Problemas graves con co-founders o equipo',
+    subtitle: t('emergencyOnboarding.problemasGravesConCofounders'),
     tasks: [
       'Programar una conversación directa y honesta con la(s) persona(s) involucrada(s)',
-      'Revisar el acuerdo de co-founders o contratos — qué dice exactamente',
-      'Consultar con un advisor o mentor externo antes de tomar decisiones irreversibles',
+      t('emergencyOnboarding.revisarElAcuerdoDe'),
+      t('emergencyOnboarding.consultarConUnAdvisor'),
     ],
   },
 ] as const;
@@ -82,6 +83,7 @@ type CrisisId = typeof CRISIS_TYPES[number]['id'];
 // ── Componente ────────────────────────────────────────────────────────────────
 
 export function EmergencyOnboardingPage() {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate     = useNavigate();
 
@@ -140,7 +142,7 @@ export function EmergencyOnboardingPage() {
       }, 1500);
 
     } catch (_err) {
-      toast.error('Error al configurar el proyecto');
+      toast.error(t('emergencyOnboarding.errorAlConfigurarEl'));
       setSaving(false);
     }
   };
@@ -152,18 +154,16 @@ export function EmergencyOnboardingPage() {
         {/* Header */}
         <div className="mb-8 text-center">
           <div className="inline-flex items-center gap-2 rounded-full bg-red-500/20 border border-red-400/30 px-4 py-1.5 text-sm text-red-300 font-semibold mb-4">
-            <Siren className="h-4 w-4" />
-            Modo Emergencia
-          </div>
+            <Siren className="h-4 w-4" />{t('emergencyOnboarding.modoEmergencia')}</div>
           <h1 className="text-2xl font-bold text-white">
-            {step === 1 && '¿Cuál es tu crisis más urgente?'}
-            {step === 2 && '¿Algo más que debamos saber?'}
-            {step === 3 && '¡Listo!'}
+            {step === 1 && t('emergencyOnboarding.cuálEsTuCrisis')}
+            {step === 2 && t('emergencyOnboarding.algoMásQueDebamos')}
+            {step === 3 && t('emergencyOnboarding.listo')}
           </h1>
           <p className="text-sm text-slate-400 mt-1">
-            {step === 1 && 'Toca el tipo de crisis — eso es todo por ahora'}
-            {step === 2 && 'Opcional. Cuéntanos brevemente el contexto.'}
-            {step === 3 && 'Creando tus 3 tareas urgentes...'}
+            {step === 1 && t('emergencyOnboarding.tocaElTipoDe')}
+            {step === 2 && t('emergencyOnboarding.opcionalCuéntanosBrevementeEl')}
+            {step === 3 && t('emergencyOnboarding.creandoTus3Tareas')}
           </p>
         </div>
 
@@ -187,9 +187,7 @@ export function EmergencyOnboardingPage() {
               onClick={() => navigate('/select-onboarding-type')}
               className="mt-4 flex items-center gap-2 text-xs text-slate-500 hover:text-slate-300"
             >
-              <ArrowLeft className="h-3 w-3" />
-              Volver a elegir tipo de onboarding
-            </button>
+              <ArrowLeft className="h-3 w-3" />{t('emergencyOnboarding.volverAElegirTipo')}</button>
           </div>
         )}
 
@@ -207,11 +205,10 @@ export function EmergencyOnboardingPage() {
 
             {/* Contexto */}
             <div>
-              <label className="block text-sm font-medium text-slate-300 mb-2">
-                Contexto adicional <span className="text-slate-500 font-normal">(opcional)</span>
+              <label className="block text-sm font-medium text-slate-300 mb-2">Contexto adicional<span className="text-slate-500 font-normal">(opcional)</span>
               </label>
               <Textarea
-                placeholder="Ej: llevamos 2 meses sin cerrar ningún deal a pesar de tener demos..."
+                placeholder={t('emergencyOnboarding.ejLlevamos2Meses')}
                 value={context}
                 onChange={e => setContext(e.target.value)}
                 rows={2}
@@ -241,9 +238,7 @@ export function EmergencyOnboardingPage() {
                 className="border-white/10 text-slate-300 hover:bg-white/5"
                 onClick={() => setStep(1)}
               >
-                <ArrowLeft className="h-4 w-4 mr-1" />
-                Cambiar
-              </Button>
+                <ArrowLeft className="h-4 w-4 mr-1" />{t('emergencyOnboarding.cambiar')}</Button>
               <Button
                 className="flex-1 bg-red-600 hover:bg-red-700 text-white font-semibold"
                 onClick={handleConfirm}

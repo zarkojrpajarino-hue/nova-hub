@@ -1,6 +1,7 @@
 import { useMemo, memo } from 'react';
 import { Crown, TrendingUp, BookOpen } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 interface TopMember {
   id: string;
   nombre: string;
@@ -20,6 +21,7 @@ interface TopRankingsWidgetProps {
 }
 
 function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
+  const { t } = useTranslation();
   const topByOBVs = useMemo(
     () => [...members].sort((a, b) => b.obvs - a.obvs).slice(0, 3),
     [members]
@@ -98,7 +100,7 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
       <div className="bg-card border border-border rounded-2xl p-4 animate-fade-in">
         <div className="flex items-center gap-2 mb-3">
           <Crown size={16} className="text-warning" />
-          <span className="text-sm font-semibold">Top OBVs</span>
+          <span className="text-sm font-semibold">{t('dashboard.topObvs')}</span>
         </div>
         {renderPodium(
           topByOBVs.map(m => ({ ...m, value: m.obvs })),
@@ -111,7 +113,7 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
       <div className="bg-card border border-border rounded-2xl p-4 animate-fade-in">
         <div className="flex items-center gap-2 mb-3">
           <TrendingUp size={16} className="text-success" />
-          <span className="text-sm font-semibold">Top Facturación</span>
+          <span className="text-sm font-semibold">{t('dashboard.topFacturación')}</span>
         </div>
         {renderPodium(
           topByFacturacion.map(m => ({ ...m, value: m.facturacion })),
@@ -124,7 +126,7 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
       <div className="bg-card border border-border rounded-2xl p-4 animate-fade-in">
         <div className="flex items-center gap-2 mb-3">
           <BookOpen size={16} className="text-primary" />
-          <span className="text-sm font-semibold">Top LPs</span>
+          <span className="text-sm font-semibold">{t('dashboard.topLps')}</span>
         </div>
         {renderPodium(
           topByLPs.map(m => ({ ...m, value: m.lps })),

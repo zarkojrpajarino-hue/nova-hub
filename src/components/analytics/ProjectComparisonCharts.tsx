@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Download } from 'lucide-react';
 import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Legend, Cell } from 'recharts';
 
+import { useTranslation } from 'react-i18next';
 interface ProjectStat {
   id?: string;
   nombre?: string;
@@ -20,21 +21,22 @@ interface ProjectComparisonChartsProps {
 }
 
 export function ProjectComparisonCharts({ projectStats, onExportCSV }: ProjectComparisonChartsProps) {
+  const { t } = useTranslation();
   const billingData = projectStats.map(p => ({
-    name: p.nombre || 'Sin nombre',
+    name: p.nombre || t('analytics.sinNombre'),
     facturacion: Number(p.facturacion) || 0,
     margen: Number(p.margen) || 0,
     color: p.color || '#6366F1',
   }));
 
   const obvsData = projectStats.map(p => ({
-    name: p.nombre || 'Sin nombre',
+    name: p.nombre || t('analytics.sinNombre'),
     obvs: Number(p.total_obvs) || 0,
     color: p.color || '#6366F1',
   }));
 
   const leadsData = projectStats.map(p => ({
-    name: p.nombre || 'Sin nombre',
+    name: p.nombre || t('analytics.sinNombre'),
     total: Number(p.total_leads) || 0,
     ganados: Number(p.leads_ganados) || 0,
     conversion: p.total_leads ? Math.round((Number(p.leads_ganados) / Number(p.total_leads)) * 100) : 0,
@@ -62,7 +64,7 @@ export function ProjectComparisonCharts({ projectStats, onExportCSV }: ProjectCo
       {/* Billing Chart */}
       <Card>
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Facturación y Margen por Proyecto</CardTitle>
+          <CardTitle>{t('analytics.facturaciónYMargenPor')}</CardTitle>
           <Button variant="ghost" size="sm" onClick={() => onExportCSV(billingData)}>
             <Download className="w-4 h-4" />
           </Button>
@@ -91,7 +93,7 @@ export function ProjectComparisonCharts({ projectStats, onExportCSV }: ProjectCo
         {/* OBVs Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>OBVs por Proyecto</CardTitle>
+            <CardTitle>{t('analytics.obvsPorProyecto')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -100,7 +102,7 @@ export function ProjectComparisonCharts({ projectStats, onExportCSV }: ProjectCo
                   <XAxis dataKey="name" tick={{ fontSize: 11 }} angle={-30} textAnchor="end" height={60} />
                   <YAxis />
                   <Tooltip content={<CustomTooltip />} />
-                  <Bar dataKey="obvs" name="OBVs" radius={[4, 4, 0, 0]}>
+                  <Bar dataKey="obvs" name={t('analytics.obvs')} radius={[4, 4, 0, 0]}>
                     {obvsData.map((entry, index) => (
                       <Cell key={index} fill={entry.color} />
                     ))}
@@ -114,7 +116,7 @@ export function ProjectComparisonCharts({ projectStats, onExportCSV }: ProjectCo
         {/* Leads Conversion Chart */}
         <Card>
           <CardHeader>
-            <CardTitle>Leads: Convertidos vs Total</CardTitle>
+            <CardTitle>{t('analytics.leadsConvertidosVsTotal')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="h-64">
@@ -137,8 +139,8 @@ export function ProjectComparisonCharts({ projectStats, onExportCSV }: ProjectCo
                     }}
                   />
                   <Legend />
-                  <Bar dataKey="total" name="Total Leads" fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
-                  <Bar dataKey="ganados" name="Ganados" fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="total" name={t('analytics.totalLeads')} fill="hsl(var(--muted-foreground))" radius={[4, 4, 0, 0]} />
+                  <Bar dataKey="ganados" name={t('analytics.ganados')} fill="hsl(var(--chart-2))" radius={[4, 4, 0, 0]} />
                 </BarChart>
               </ResponsiveContainer>
             </div>

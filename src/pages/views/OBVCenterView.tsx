@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { HelpWidget } from '@/components/ui/section-help';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 const TABS = [
   { id: 'subir', label: '📤 Subir OBV' },
   { id: 'validar', label: '✅ Validar' },
@@ -33,12 +34,13 @@ interface OBVCenterViewProps {
 }
 
 const OUTCOME_OPTIONS = [
-  { value: 'success', label: 'Éxito',    icon: CheckCircle2, color: 'text-success',     bg: 'bg-success/10 border-success/40' },
-  { value: 'partial', label: 'Parcial',  icon: MinusCircle,  color: 'text-warning',     bg: 'bg-warning/10 border-warning/40' },
-  { value: 'fail',    label: 'No validó', icon: XCircle,     color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/40' },
+  { value: 'success', label: t('oBVCenter.éxito'),    icon: CheckCircle2, color: 'text-success',     bg: 'bg-success/10 border-success/40' },
+  { value: 'partial', label: t('oBVCenter.parcial'),  icon: MinusCircle,  color: 'text-warning',     bg: 'bg-warning/10 border-warning/40' },
+  { value: 'fail',    label: t('oBVCenter.noValidó'), icon: XCircle,     color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/40' },
 ] as const;
 
 export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState('subir');
   const [showForm, setShowForm] = useState(true);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -83,9 +85,9 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
       .update({ obv_outcome: outcome || null })
       .eq('id', obvId);
     if (error) {
-      toast.error('Error al actualizar el resultado');
+      toast.error(t('oBVCenter.errorAlActualizarEl'));
     } else {
-      toast.success('Resultado registrado');
+      toast.success(t('oBVCenter.resultadoRegistrado'));
       queryClient.invalidateQueries({ queryKey: ['my_obvs', profile?.id] });
     }
     setEditingOutcomeId(null);
@@ -136,17 +138,17 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
   const getStatusLabel = (status: string) => {
     switch (status) {
-      case 'validated': return 'Validada';
-      case 'rejected': return 'Rechazada';
-      default: return 'Pendiente';
+      case 'validated': return t('oBVCenter.validada');
+      case 'rejected': return t('oBVCenter.rechazada');
+      default: return t('oBVCenter.pendiente');
     }
   };
 
   return (
     <>
       <NovaHeader
-        title="Centro OBVs"
-        subtitle="Ejecuta objetivos validados y genera tareas para el equipo"
+        title={t('oBVCenter.centroObvs')}
+        subtitle={t('oBVCenter.ejecutaObjetivosValidadosY')}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -154,48 +156,48 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
       <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
-          title="Cómo funciona"
-          description="Convierte objetivos validados en tareas ejecutables"
-          whatIsIt="Centro de ejecución donde creas OBVs (Objective-Based Validations) basadas en experimentos aprobados. Cada OBV se convierte en tareas asignadas al equipo. Sistema peer-to-peer: el equipo valida tus OBVs antes de ejecutarlas."
+          title={t('oBVCenter.cómoFunciona')}
+          description={t('oBVCenter.convierteObjetivosValidadosEn')}
+          whatIsIt={t('oBVCenter.centroDeEjecuciónDonde')}
           dataInputs={[
             {
-              from: 'Validaciones',
+              from: t('oBVCenter.validaciones'),
               items: [
-                'Experimentos aprobados por el equipo',
+                t('oBVCenter.experimentosAprobadosPorEl'),
                 'Objetivos específicos (Ej: "100 leads en 2 semanas")',
-                'Criterios de éxito definidos',
+                t('oBVCenter.criteriosDeÉxitoDefinidos'),
               ],
             },
           ]}
           dataOutputs={[
             {
-              to: 'Tareas',
+              to: t('oBVCenter.tareas'),
               items: [
-                'Tareas específicas por rol',
-                'Asignaciones automáticas según expertise',
-                'Deadlines basados en objetivos',
+                t('oBVCenter.tareasEspecíficasPorRol'),
+                t('oBVCenter.asignacionesAutomáticasSegúnExpertise'),
+                t('oBVCenter.deadlinesBasadosEnObjetivos'),
               ],
             },
             {
               to: 'CRM',
               items: [
                 'Leads a contactar (si OBV es de ventas)',
-                'Scripts de prospección',
-                'Seguimiento de conversiones',
+                t('oBVCenter.scriptsDeProspección'),
+                t('oBVCenter.seguimientoDeConversiones'),
               ],
             },
             {
-              to: 'KPIs',
+              to: t('oBVCenter.kpis'),
               items: [
-                'Métricas a trackear en tiempo real',
-                'Progress hacia objetivo',
-                'Alertas si vas retrasado',
+                t('oBVCenter.métricasATrackearEn'),
+                t('oBVCenter.progressHaciaObjetivo'),
+                t('oBVCenter.alertasSiVasRetrasado'),
               ],
             },
           ]}
           nextStep={{
-            action: 'Crea OBV → El equipo la valida → Se generan tareas automáticamente',
-            destination: 'Ejecuta tareas asignadas y trackea progreso en KPIs',
+            action: t('oBVCenter.creaObvElEquipo'),
+            destination: t('oBVCenter.ejecutaTareasAsignadasY'),
           }}
           onViewPreview={() => setShowPreviewModal(true)}
         />
@@ -241,7 +243,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-border flex items-center gap-2.5">
               <FileCheck size={18} className="text-primary" />
-              <h3 className="font-semibold">Mis OBVs</h3>
+              <h3 className="font-semibold">{t('oBVCenter.misObvs')}</h3>
             </div>
 
             {loadingMyOBVs ? (
@@ -249,9 +251,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : myOBVs.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                No has subido ninguna OBV todavía
-              </div>
+              <div className="p-8 text-center text-muted-foreground">{t('oBVCenter.noHasSubidoNinguna')}</div>
             ) : (
               <div className="divide-y divide-border">
                 {myOBVs.map(obv => {
@@ -274,7 +274,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                         <div className="flex-1 min-w-0">
                           <p className="font-semibold truncate">{obv.titulo}</p>
                           <p className="text-sm text-muted-foreground">
-                            {obv.project?.icon} {obv.project?.nombre || 'Sin proyecto'} • {obv.fecha}
+                            {obv.project?.icon} {obv.project?.nombre || t('oBVCenter.sinProyecto')} • {obv.fecha}
                           </p>
                         </div>
 
@@ -295,7 +295,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                                 'flex items-center gap-1.5 px-2.5 py-1 rounded-lg text-xs font-medium border',
                                 outcomeOpt.bg, outcomeOpt.color
                               )}
-                              title="Cambiar resultado"
+                              title={t('oBVCenter.cambiarResultado')}
                             >
                               <outcomeOpt.icon size={12} />
                               {outcomeOpt.label}
@@ -325,7 +325,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                       {/* Inline outcome picker */}
                       {isEditingThis && (
                         <div className="mt-3 flex items-center gap-2 flex-wrap">
-                          <span className="text-xs text-muted-foreground">¿Cuál fue el resultado?</span>
+                          <span className="text-xs text-muted-foreground">{t('oBVCenter.cuálFueElResultado')}</span>
                           {OUTCOME_OPTIONS.map((opt) => (
                             <button
                               key={opt.value}
@@ -345,9 +345,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                             <button
                               onClick={() => handleSetOutcome(obv.id, '')}
                               className="text-xs text-muted-foreground hover:text-destructive transition-colors"
-                            >
-                              Quitar
-                            </button>
+                            >{t('oBVCenter.quitar')}</button>
                           )}
                         </div>
                       )}
@@ -364,7 +362,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
           <div className="bg-card border border-border rounded-2xl overflow-hidden">
             <div className="p-5 border-b border-border flex items-center gap-2.5">
               <FileCheck size={18} className="text-primary" />
-              <h3 className="font-semibold">Todas las OBVs</h3>
+              <h3 className="font-semibold">{t('oBVCenter.todasLasObvs')}</h3>
             </div>
 
             {loadingAllOBVs ? (
@@ -372,9 +370,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                 <Loader2 className="w-8 h-8 animate-spin text-primary" />
               </div>
             ) : allOBVs.length === 0 ? (
-              <div className="p-8 text-center text-muted-foreground">
-                No hay OBVs registradas
-              </div>
+              <div className="p-8 text-center text-muted-foreground">{t('oBVCenter.noHayObvsRegistradas')}</div>
             ) : (
               <div className="divide-y divide-border">
                 {allOBVs.map(obv => (

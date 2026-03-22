@@ -22,6 +22,7 @@ import {
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface PathToMasterProgressProps {
   explorationId: string;
   role: string;
@@ -66,6 +67,7 @@ export function PathToMasterProgress({
   masterName,
   masterFitScore,
 }: PathToMasterProgressProps) {
+  const { t } = useTranslation();
   const [timeRemaining, setTimeRemaining] = useState<string>('');
   const [progressPercent, setProgressPercent] = useState<number>(0);
 
@@ -77,7 +79,7 @@ export function PathToMasterProgress({
       const diff = end.getTime() - now.getTime();
 
       if (diff <= 0) {
-        setTimeRemaining('¡Exploración completada!');
+        setTimeRemaining(t('exploration.exploraciónCompletada'));
         return;
       }
 
@@ -122,63 +124,63 @@ export function PathToMasterProgress({
   const requirements: Requirement[] = [
     {
       id: 'fit_score',
-      label: 'Fit Score',
+      label: t('exploration.fitScore'),
       current: safeFitScore,
       target: 4.2,
       unit: '',
       met: safeFitScore >= 4.2,
       icon: <TrendingUp size={16} />,
-      description: 'Promedio de rendimiento en el rol',
+      description: t('exploration.promedioDeRendimientoEn'),
     },
     {
       id: 'weeks',
-      label: 'Semanas Explorando',
+      label: t('exploration.semanasExplorando'),
       current: safeWeeksExplored,
       target: 4,
       unit: 'sem',
       met: safeWeeksExplored >= 4,
       icon: <Clock size={16} />,
-      description: 'Experiencia mínima requerida',
+      description: t('exploration.experienciaMínimaRequerida'),
     },
     {
       id: 'ranking',
-      label: 'Ranking',
+      label: t('exploration.ranking'),
       current: safeRanking,
       target: 3,
       unit: '',
       met: currentRanking !== null && currentRanking <= 3,
       icon: <Trophy size={16} />,
-      description: 'Posición en el leaderboard del rol',
+      description: t('exploration.posiciónEnElLeaderboard'),
     },
     {
       id: 'tasks_on_time',
-      label: 'Tareas a Tiempo',
+      label: t('exploration.tareasATiempo'),
       current: safeTasksOnTimePercent,
       target: 80,
       unit: '%',
       met: safeTasksOnTimePercent >= 80,
       icon: <Target size={16} />,
-      description: 'Consistencia en entregas',
+      description: t('exploration.consistenciaEnEntregas'),
     },
     {
       id: 'feedback',
-      label: 'Feedback Positivo',
+      label: t('exploration.feedbackPositivo'),
       current: safePositiveFeedback,
       target: 3,
       unit: '',
       met: safePositiveFeedback >= 3,
       icon: <CheckCircle2 size={16} />,
-      description: 'Validación del equipo',
+      description: t('exploration.validaciónDelEquipo'),
     },
     {
       id: 'obvs',
-      label: 'OBVs Validados',
+      label: t('exploration.obvsValidados'),
       current: safeObvsValidated,
       target: 2,
       unit: '',
       met: safeObvsValidated >= 2,
       icon: <CheckCircle2 size={16} />,
-      description: 'Objetivos de negocio completados',
+      description: t('exploration.objetivosDeNegocioCompletados'),
     },
   ];
 
@@ -200,9 +202,7 @@ export function PathToMasterProgress({
               </div>
               <div>
                 <h3 className="text-2xl font-bold">Camino a Master - {role}</h3>
-                <p className="text-sm text-muted-foreground font-normal">
-                  Tu progreso hacia el desafío
-                </p>
+                <p className="text-sm text-muted-foreground font-normal">{t('exploration.tuProgresoHaciaEl')}</p>
               </div>
             </div>
             <div className="text-right">
@@ -210,14 +210,14 @@ export function PathToMasterProgress({
                 <Clock size={24} />
                 {timeRemaining}
               </div>
-              <p className="text-xs text-muted-foreground">Tiempo restante</p>
+              <p className="text-xs text-muted-foreground">{t('exploration.tiempoRestante')}</p>
             </div>
           </CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-2">
             <div className="flex items-center justify-between text-sm">
-              <span className="text-muted-foreground">Progreso general</span>
+              <span className="text-muted-foreground">{t('exploration.progresoGeneral')}</span>
               <span className="font-medium">{Math.round(progressPercent)}%</span>
             </div>
             <Progress value={progressPercent} className="h-3" />
@@ -235,8 +235,8 @@ export function PathToMasterProgress({
           <div className="space-y-2">
             <div className="flex items-center gap-2">
               <CheckCircle2 className="text-green-500" size={20} />
-              <h4 className="font-semibold">Semana 1-2: Exploración Básica</h4>
-              <Badge variant="secondary">Completado</Badge>
+              <h4 className="font-semibold">{t('exploration.semana12ExploraciónBásica')}</h4>
+              <Badge variant="secondary">{t('exploration.completado')}</Badge>
             </div>
             <div className="ml-7 space-y-1 text-sm">
               <div className="flex items-center gap-2">
@@ -262,11 +262,11 @@ export function PathToMasterProgress({
               ) : (
                 <Circle className="text-muted-foreground" size={20} />
               )}
-              <h4 className="font-semibold">Semana 3-4: Especialización</h4>
+              <h4 className="font-semibold">{t('exploration.semana34Especialización')}</h4>
               {weeksExplored >= 3 ? (
-                <Badge variant="secondary">En progreso</Badge>
+                <Badge variant="secondary">{t('exploration.enProgreso')}</Badge>
               ) : (
-                <Badge variant="outline">Bloqueado</Badge>
+                <Badge variant="outline">{t('exploration.bloqueado')}</Badge>
               )}
             </div>
             <div className="ml-7 space-y-1 text-sm">
@@ -309,13 +309,11 @@ export function PathToMasterProgress({
               ) : (
                 <Lock className="text-muted-foreground" size={20} />
               )}
-              <h4 className="font-semibold">Semana 5+: Elegible para Desafiar</h4>
+              <h4 className="font-semibold">{t('exploration.semana5ElegiblePara')}</h4>
               {allRequirementsMet ? (
-                <Badge variant="default" className="bg-amber-500">
-                  ¡Disponible!
-                </Badge>
+                <Badge variant="default" className="bg-amber-500">{t('exploration.disponible')}</Badge>
               ) : (
-                <Badge variant="outline">Bloqueado</Badge>
+                <Badge variant="outline">{t('exploration.bloqueado')}</Badge>
               )}
             </div>
             <div className="ml-7 space-y-1 text-sm">
@@ -420,17 +418,17 @@ export function PathToMasterProgress({
                       </p>
                       <p className="text-muted-foreground">
                         {nextReq.id === 'fit_score' &&
-                          'Sugerencia: Completa más tareas a tiempo y recibe feedback positivo'}
+                          t('exploration.sugerenciaCompletaMásTareas')}
                         {nextReq.id === 'weeks' &&
                           `Sugerencia: Continúa trabajando, faltan ${Math.ceil(gap)} semanas`}
                         {nextReq.id === 'ranking' &&
-                          'Sugerencia: Sube tu fit score para mejorar tu posición'}
+                          t('exploration.sugerenciaSubeTuFit')}
                         {nextReq.id === 'tasks_on_time' &&
                           `Sugerencia: Planifica mejor tus tareas para cumplir deadlines`}
                         {nextReq.id === 'feedback' &&
-                          'Sugerencia: Pide feedback a tus compañeros sobre tu trabajo'}
+                          t('exploration.sugerenciaPideFeedbackA')}
                         {nextReq.id === 'obvs' &&
-                          'Sugerencia: Propón y completa objetivos de negocio'}
+                          t('exploration.sugerenciaPropónYCompleta')}
                       </p>
                     </div>
                   );
@@ -462,9 +460,7 @@ export function PathToMasterProgress({
             </div>
             {allRequirementsMet && (
               <Button size="lg" className="gap-2">
-                <Trophy size={16} />
-                Crear Desafío
-              </Button>
+                <Trophy size={16} />{t('exploration.crearDesafío')}</Button>
             )}
           </div>
         </CardContent>

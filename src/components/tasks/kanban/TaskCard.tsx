@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import type { Task } from '@/hooks/useTaskKanban';
 import type { DraggableProvidedDragHandleProps, DraggableProvidedDraggableProps } from '@hello-pangea/dnd';
 
+import { useTranslation } from 'react-i18next';
 const PRIORITY_COLORS: Record<number, string> = {
   1: '#EF4444', // Alta
   2: '#F59E0B', // Media
@@ -11,10 +12,10 @@ const PRIORITY_COLORS: Record<number, string> = {
 };
 
 const FUNCTION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  demand:   { label: 'Demanda',  color: '#F59E0B' },
-  delivery: { label: 'Delivery', color: '#3B82F6' },
-  cash:     { label: 'Cash',     color: '#22C55E' },
-  support:  { label: 'Soporte',  color: '#A855F7' },
+  demand:   { label: t('tasks.demanda'),  color: '#F59E0B' },
+  delivery: { label: t('tasks.delivery'), color: '#3B82F6' },
+  cash:     { label: t('tasks.cash'),     color: '#22C55E' },
+  support:  { label: t('tasks.soporte'),  color: '#A855F7' },
 };
 
 interface Member {
@@ -55,6 +56,7 @@ export const TaskCard = memo(function TaskCard({
   innerRef,
   isHighRelevance = false,
 }: TaskCardProps) {
+  const { t } = useTranslation();
   const isOverdue = task.fecha_limite &&
     new Date(task.fecha_limite) < new Date() &&
     task.status !== 'done';
@@ -76,7 +78,7 @@ export const TaskCard = memo(function TaskCard({
           <div
             className="w-2 h-2 rounded-full"
             style={{ backgroundColor: PRIORITY_COLORS[task.prioridad] }}
-            title={`Prioridad ${task.prioridad === 1 ? 'Alta' : task.prioridad === 2 ? 'Media' : 'Baja'}`}
+            title={`Prioridad ${task.prioridad === 1 ? Alta : task.prioridad === 2 ? Media : t('tasks.baja')}`}
           />
         )}
         {task.ai_generated && (
@@ -105,7 +107,7 @@ export const TaskCard = memo(function TaskCard({
         )}>
           {/* F19.B.5 — punto de color para tareas de alta relevancia en la fase actual */}
           {isHighRelevance && (
-            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" title="Alta relevancia para tu fase actual" />
+            <span className="h-1.5 w-1.5 rounded-full bg-primary shrink-0" title={t('tasks.altaRelevanciaParaTu')} />
           )}
           {task.titulo}
         </p>
@@ -156,10 +158,10 @@ export const TaskCard = memo(function TaskCard({
                 onPlaybookClick(task);
               }}
               className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 transition-colors"
-              title="Ver Playbook"
+              title={t('tasks.verPlaybook')}
             >
               <BookOpen size={12} />
-              <span>Playbook</span>
+              <span>{t('tasks.playbook')}</span>
             </button>
           )}
         </div>
@@ -172,7 +174,7 @@ export const TaskCard = memo(function TaskCard({
                 onDeleteClick(task);
               }}
               className="p-1 rounded hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors"
-              title="Eliminar tarea"
+              title={t('tasks.eliminarTarea')}
             >
               <Trash2 size={14} />
             </button>

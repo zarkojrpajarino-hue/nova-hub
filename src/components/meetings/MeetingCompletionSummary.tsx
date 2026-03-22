@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
+import { useTranslation } from 'react-i18next';
 // ── M18.22: helpers para quality score ───────────────────────────────────────
 
 export interface AlignmentData {
@@ -60,10 +61,10 @@ function computeQualityScore(
 }
 
 function qualityLabel(score: number): string {
-  if (score >= 75) return 'Reunión muy ejecutiva'
-  if (score >= 50) return 'Reunión operativa'
-  if (score >= 30) return 'Reunión estratégica'
-  return 'Reunión de alineación'
+  if (score >= 75) return t('meetings.reuniónMuyEjecutiva')
+  if (score >= 50) return t('meetings.reuniónOperativa')
+  if (score >= 30) return t('meetings.reuniónEstratégica')
+  return t('meetings.reuniónDeAlineación')
 }
 
 interface MeetingCompletionSummaryProps {
@@ -100,6 +101,7 @@ export function MeetingCompletionSummary({
   onViewDetails,
   onClose,
 }: MeetingCompletionSummaryProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // M18.22: quality score
@@ -119,48 +121,48 @@ export function MeetingCompletionSummary({
   const items = [
     {
       count: results.tasks,
-      label: 'Tareas',
-      labelSingular: 'Tarea',
+      label: t('meetings.tareas'),
+      labelSingular: t('meetings.tarea'),
       icon: Target,
       color: 'blue',
       link: '/proyectos',
     },
     {
       count: results.decisions,
-      label: 'Decisiones',
-      labelSingular: 'Decisión',
+      label: t('meetings.decisiones'),
+      labelSingular: t('meetings.decisión'),
       icon: CheckCircle2,
       color: 'green',
       link: '/proyectos',
     },
     {
       count: results.leads,
-      label: 'Leads',
-      labelSingular: 'Lead',
+      label: t('meetings.leads'),
+      labelSingular: t('meetings.lead'),
       icon: Briefcase,
       color: 'purple',
       link: '/crm',
     },
     {
       count: results.obv_updates,
-      label: 'OBVs Actualizados',
-      labelSingular: 'OBV Actualizado',
+      label: t('meetings.obvsActualizados'),
+      labelSingular: t('meetings.obvActualizado'),
       icon: Target,
       color: 'orange',
       link: '/obvs',
     },
     {
       count: results.blockers,
-      label: 'Blockers',
-      labelSingular: 'Blocker',
+      label: t('meetings.blockers'),
+      labelSingular: t('meetings.blocker'),
       icon: AlertTriangle,
       color: 'red',
       link: '/proyectos',
     },
     {
       count: results.metrics,
-      label: 'Métricas',
-      labelSingular: 'Métrica',
+      label: t('meetings.métricas'),
+      labelSingular: t('meetings.métrica'),
       icon: BarChart3,
       color: 'indigo',
       link: '/kpis',
@@ -173,7 +175,7 @@ export function MeetingCompletionSummary({
       <Alert className="bg-green-50 border-green-200">
         <CheckCircle2 className="h-5 w-5 text-green-600" />
         <AlertDescription className="text-green-900">
-          <strong>¡Reunión procesada exitosamente!</strong>
+          <strong>{t('meetings.reuniónProcesadaExitosamente')}</strong>
           <br />
           Se han creado {totalCreated} elementos en tu proyecto basados en la reunión.
         </AlertDescription>
@@ -185,7 +187,7 @@ export function MeetingCompletionSummary({
           <Sparkles className="h-6 w-6 text-primary" />
           {meetingTitle}
         </h2>
-        <p className="text-gray-600 mt-1">Resumen de la reunión completada</p>
+        <p className="text-gray-600 mt-1">{t('meetings.resumenDeLaReunión')}</p>
       </div>
 
       {/* Summary Card */}
@@ -193,9 +195,7 @@ export function MeetingCompletionSummary({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <FileText className="h-5 w-5" />
-              Resumen Ejecutivo
-            </CardTitle>
+              <FileText className="h-5 w-5" />{t('meetings.resumenEjecutivo')}</CardTitle>
           </CardHeader>
           <CardContent>
             <p className="text-gray-700">{meetingSummary}</p>
@@ -208,9 +208,7 @@ export function MeetingCompletionSummary({
         <Card>
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Target className="h-5 w-5" />
-              Puntos Clave
-            </CardTitle>
+              <Target className="h-5 w-5" />{t('meetings.puntosClave')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ul className="space-y-2">
@@ -245,9 +243,7 @@ export function MeetingCompletionSummary({
                   <div className="text-sm text-gray-600">
                     {item.count === 1 ? item.labelSingular : item.label}
                   </div>
-                  <div className="mt-2 flex items-center text-xs text-primary hover:underline">
-                    Ver en proyecto
-                    <ArrowRight className="h-3 w-3 ml-1" />
+                  <div className="mt-2 flex items-center text-xs text-primary hover:underline">Ver en proyecto<ArrowRight className="h-3 w-3 ml-1" />
                   </div>
                 </CardContent>
               </Card>
@@ -257,9 +253,7 @@ export function MeetingCompletionSummary({
         {/* Empty state si no hay nada */}
         {items.filter((item) => item.count > 0).length === 0 && (
           <Card className="col-span-2 md:col-span-3">
-            <CardContent className="py-8 text-center text-gray-500">
-              No se crearon elementos accionables en esta reunión
-            </CardContent>
+            <CardContent className="py-8 text-center text-gray-500">{t('meetings.noSeCrearonElementos')}</CardContent>
           </Card>
         )}
       </div>
@@ -314,9 +308,7 @@ export function MeetingCompletionSummary({
               )}
             </div>
           ) : (
-            <p className="text-xs text-gray-500">
-              Evaluando alineación estratégica…
-            </p>
+            <p className="text-xs text-gray-500">{t('meetings.evaluandoAlineaciónEstratégica')}</p>
           )}
         </CardContent>
       </Card>
@@ -339,7 +331,7 @@ export function MeetingCompletionSummary({
           <CardContent className="space-y-3">
             {transcriptionConfidence !== undefined && (
               <div className="flex items-center justify-between">
-                <span className="text-sm text-gray-600">Confianza de transcripción</span>
+                <span className="text-sm text-gray-600">{t('meetings.confianzaDeTranscripción')}</span>
                 <Badge
                   className={
                     transcriptionConfidence >= 0.75
@@ -391,18 +383,12 @@ export function MeetingCompletionSummary({
       {/* Actions */}
       <div className="flex gap-3 justify-end">
         {onViewDetails && (
-          <Button onClick={onViewDetails} variant="outline">
-            Ver Detalles Completos
-          </Button>
+          <Button onClick={onViewDetails} variant="outline">{t('meetings.verDetallesCompletos')}</Button>
         )}
         <Button onClick={() => navigate('/proyectos')} className="gap-2">
-          <Target className="h-4 w-4" />
-          Ver Tareas Creadas
-        </Button>
+          <Target className="h-4 w-4" />{t('meetings.verTareasCreadas')}</Button>
         {onClose && (
-          <Button onClick={onClose} variant="secondary">
-            Cerrar
-          </Button>
+          <Button onClick={onClose} variant="secondary">{t('meetings.cerrar')}</Button>
         )}
       </div>
 

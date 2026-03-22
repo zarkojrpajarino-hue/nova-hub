@@ -38,6 +38,7 @@ import {
 } from 'lucide-react';
 import { Loader2 } from 'lucide-react';
 
+import { useTranslation } from 'react-i18next';
 type OnboardingType = 'generative' | 'idea' | 'existing';
 
 interface DeepSetupSection {
@@ -53,6 +54,7 @@ interface DeepSetupSection {
 }
 
 function DeepSetupList() {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -72,14 +74,14 @@ function DeepSetupList() {
         .single();
 
       if (error) {
-        toast.error('Error loading project');
+        toast.error(t('deepSetup.errorLoadingProject'));
         return;
       }
 
       const od = project?.onboarding_data as Record<string, unknown> | null;
 
       if (!od?.fast_start_completed) {
-        toast.error('Please complete Fast Start first');
+        toast.error(t('deepSetup.pleaseCompleteFastStart'));
         navigate(`/onboarding/${projectId}`);
         return;
       }
@@ -106,206 +108,206 @@ function DeepSetupList() {
       generative: [
         {
           id: 'business-ideas',
-          name: 'Refine Business Ideas',
-          description: 'Deep dive into your 3 AI-generated ideas with market analysis',
+          name: t('deepSetup.refineBusinessIdeas'),
+          description: t('deepSetup.deepDiveIntoYour'),
           icon: Sparkles,
           progressValue: 10,
           locked: false,
-          unlocksTools: ['SWOT Matrix', 'Market Research'],
+          unlocksTools: [t('deepSetup.swotMatrix'), t('deepSetup.marketResearch')],
         },
         {
           id: 'location-intelligence',
-          name: 'Location Intelligence',
-          description: 'Local investors, accelerators, costs, grants, and events',
+          name: t('deepSetup.locationIntelligence'),
+          description: t('deepSetup.localInvestorsAcceleratorsCosts'),
           icon: Target,
           progressValue: 8,
           locked: false,
-          unlocksTools: ['Investor Map', 'Grant Finder'],
+          unlocksTools: [t('deepSetup.investorMap'), t('deepSetup.grantFinder')],
         },
         {
           id: 'founder-profile',
-          name: 'Founder Profile',
-          description: 'Build your founder profile with skills, experience, and vision',
+          name: t('deepSetup.founderProfile'),
+          description: t('deepSetup.buildYourFounderProfile'),
           icon: Users,
           progressValue: 10,
           locked: false,
-          unlocksTools: ['Team Builder', 'Co-founder Matcher'],
+          unlocksTools: [t('deepSetup.teamBuilder'), t('deepSetup.cofounderMatcher')],
         },
         {
           id: 'financial-planning',
-          name: 'Financial Planning',
-          description: 'Budget, runway, and funding strategy',
+          name: t('deepSetup.financialPlanning'),
+          description: t('deepSetup.budgetRunwayAndFunding'),
           icon: DollarSign,
           progressValue: 12,
           locked: progress < 50,
           unlockRequirement: 50,
-          unlocksTools: ['Financial Projections', 'Fundraising Roadmap'],
+          unlocksTools: [t('deepSetup.financialProjections'), t('deepSetup.fundraisingRoadmap')],
         },
         {
           id: 'validation-experiments',
-          name: 'Validation Experiments',
-          description: 'Design experiments to validate your chosen idea',
+          name: t('deepSetup.validationExperiments'),
+          description: t('deepSetup.designExperimentsToValidate'),
           icon: BarChart3,
           progressValue: 15,
           locked: progress < 50,
           unlockRequirement: 50,
-          unlocksTools: ['Experiment Designer', 'Results Tracker'],
+          unlocksTools: [t('deepSetup.experimentDesigner'), t('deepSetup.resultsTracker')],
         },
         {
           id: 'go-to-market',
-          name: 'Go-to-Market Strategy',
-          description: 'Launch plan, channels, and early customer acquisition',
+          name: t('deepSetup.gotomarketStrategy'),
+          description: t('deepSetup.launchPlanChannelsAnd'),
           icon: Rocket,
           progressValue: 20,
           locked: progress < 75,
           unlockRequirement: 75,
-          unlocksTools: ['GTM Planner', 'Channel Optimizer', 'Launch Checklist'],
+          unlocksTools: [t('deepSetup.gtmPlanner'), t('deepSetup.channelOptimizer'), t('deepSetup.launchChecklist')],
         },
       ],
       idea: [
         {
           id: 'business-model-deep',
-          name: 'Deep Business Model',
-          description: 'Complete Business Model Canvas with all 9 blocks in detail',
+          name: t('deepSetup.deepBusinessModel'),
+          description: t('deepSetup.completeBusinessModelCanvas'),
           icon: Sparkles,
           progressValue: 10,
           locked: false,
-          unlocksTools: ['BMC Editor', 'Value Prop Designer'],
+          unlocksTools: [t('deepSetup.bmcEditor'), t('deepSetup.valuePropDesigner')],
         },
         {
           id: 'buyer-personas-extended',
-          name: 'Extended Buyer Personas',
-          description: 'Create 3-5 detailed personas with jobs-to-be-done',
+          name: t('deepSetup.extendedBuyerPersonas'),
+          description: t('deepSetup.create35DetailedPersonas'),
           icon: Users,
           progressValue: 10,
           locked: false,
-          unlocksTools: ['Persona Builder', 'Journey Mapper'],
+          unlocksTools: [t('deepSetup.personaBuilder'), t('deepSetup.journeyMapper')],
         },
         {
           id: 'competitive-analysis',
-          name: 'Competitive Analysis',
-          description: 'SWOT vs competitors + market gaps identification',
+          name: t('deepSetup.competitiveAnalysis'),
+          description: t('deepSetup.swotVsCompetitorsMarket'),
           icon: Target,
           progressValue: 12,
           locked: false,
-          unlocksTools: ['Competitor Tracker', 'Market Gap Analyzer'],
+          unlocksTools: [t('deepSetup.competitorTracker'), t('deepSetup.marketGapAnalyzer')],
         },
         {
           id: 'location-intelligence',
-          name: 'Location Intelligence',
-          description: 'Local market insights and opportunities',
+          name: t('deepSetup.locationIntelligence'),
+          description: t('deepSetup.localMarketInsightsAnd'),
           icon: Target,
           progressValue: 8,
           locked: false,
-          unlocksTools: ['Local Market Data'],
+          unlocksTools: [t('deepSetup.localMarketData')],
         },
         {
           id: 'sales-playbook-advanced',
-          name: 'Advanced Sales Playbook',
-          description: 'Sales process, scripts, objection handling, and pricing',
+          name: t('deepSetup.advancedSalesPlaybook'),
+          description: t('deepSetup.salesProcessScriptsObjection'),
           icon: DollarSign,
           progressValue: 12,
           locked: progress < 50,
           unlockRequirement: 50,
-          unlocksTools: ['Sales Simulator', 'Script Generator'],
+          unlocksTools: [t('deepSetup.salesSimulator'), t('deepSetup.scriptGenerator')],
         },
         {
           id: 'mvp-roadmap',
-          name: 'MVP Roadmap',
-          description: 'Feature prioritization and development timeline',
+          name: t('deepSetup.mvpRoadmap'),
+          description: t('deepSetup.featurePrioritizationAndDevelopment'),
           icon: Rocket,
           progressValue: 15,
           locked: progress < 50,
           unlockRequirement: 50,
-          unlocksTools: ['Feature Prioritizer', 'Timeline Planner'],
+          unlocksTools: [t('deepSetup.featurePrioritizer'), t('deepSetup.timelinePlanner')],
         },
         {
           id: 'validation-plan',
-          name: 'Validation Plan',
-          description: 'Lean experiments to validate assumptions',
+          name: t('deepSetup.validationPlan'),
+          description: t('deepSetup.leanExperimentsToValidate'),
           icon: BarChart3,
           progressValue: 15,
           locked: progress < 75,
           unlockRequirement: 75,
-          unlocksTools: ['Experiment Designer', 'Metrics Dashboard'],
+          unlocksTools: [t('deepSetup.experimentDesigner'), t('deepSetup.metricsDashboard')],
         },
       ],
       existing: [
         {
           id: 'health-diagnostic',
-          name: 'Business Health Diagnostic',
-          description: 'Deep analysis of your current state with truth-o-meter',
+          name: t('deepSetup.businessHealthDiagnostic'),
+          description: t('deepSetup.deepAnalysisOfYour'),
           icon: BarChart3,
           progressValue: 10,
           locked: false,
-          unlocksTools: ['Health Dashboard', 'Diagnostic Report'],
+          unlocksTools: [t('deepSetup.healthDashboard'), t('deepSetup.diagnosticReport')],
         },
         {
           id: 'data-integration',
-          name: 'Data Integration',
-          description: 'Connect Stripe, GA, Mixpanel for automated insights',
+          name: t('deepSetup.dataIntegration'),
+          description: t('deepSetup.connectStripeGaMixpanel'),
           icon: Sparkles,
           progressValue: 8,
           locked: false,
-          unlocksTools: ['Auto-sync', 'Real-time Metrics'],
+          unlocksTools: [t('deepSetup.autosync'), t('deepSetup.realtimeMetrics')],
         },
         {
           id: 'team-alignment',
-          name: 'Team & Culture',
-          description: 'Team structure, roles, and culture assessment',
+          name: t('deepSetup.teamCulture'),
+          description: t('deepSetup.teamStructureRolesAnd'),
           icon: Users,
           progressValue: 10,
           locked: false,
-          unlocksTools: ['Team Builder', 'Culture Tracker'],
+          unlocksTools: [t('deepSetup.teamBuilder'), t('deepSetup.cultureTracker')],
         },
         {
           id: 'growth-bottlenecks',
-          name: 'Growth Bottlenecks',
-          description: 'Identify and prioritize what is blocking growth',
+          name: t('deepSetup.growthBottlenecks'),
+          description: t('deepSetup.identifyAndPrioritizeWhat'),
           icon: Target,
           progressValue: 12,
           locked: false,
-          unlocksTools: ['Bottleneck Analyzer', 'Action Prioritizer'],
+          unlocksTools: [t('deepSetup.bottleneckAnalyzer'), t('deepSetup.actionPrioritizer')],
         },
         {
           id: 'unit-economics',
-          name: 'Unit Economics',
-          description: 'CAC, LTV, payback period, and profitability analysis',
+          name: t('deepSetup.unitEconomics'),
+          description: t('deepSetup.cacLtvPaybackPeriod'),
           icon: DollarSign,
           progressValue: 12,
           locked: progress < 50,
           unlockRequirement: 50,
-          unlocksTools: ['Economics Calculator', 'Cohort Analysis'],
+          unlocksTools: [t('deepSetup.economicsCalculator'), t('deepSetup.cohortAnalysis')],
         },
         {
           id: 'retention-optimization',
-          name: 'Retention & Churn',
-          description: 'Churn analysis and retention improvement strategies',
+          name: t('deepSetup.retentionChurn'),
+          description: t('deepSetup.churnAnalysisAndRetention'),
           icon: TrendingUp,
           progressValue: 12,
           locked: progress < 50,
           unlockRequirement: 50,
-          unlocksTools: ['Churn Predictor', 'Retention Playbook'],
+          unlocksTools: [t('deepSetup.churnPredictor'), t('deepSetup.retentionPlaybook')],
         },
         {
           id: 'scaling-roadmap',
-          name: 'Scaling Roadmap',
+          name: t('deepSetup.scalingRoadmap'),
           description: '3 scenarios (status quo, fix, growth) with action plan',
           icon: Rocket,
           progressValue: 15,
           locked: progress < 75,
           unlockRequirement: 75,
-          unlocksTools: ['Scenario Planner', 'Growth Model', 'OKR Tracker'],
+          unlocksTools: [t('deepSetup.scenarioPlanner'), t('deepSetup.growthModel'), t('deepSetup.okrTracker')],
         },
         {
           id: 'competitive-moat',
-          name: 'Competitive Moat',
-          description: 'Build defensibility and sustainable competitive advantage',
+          name: t('deepSetup.competitiveMoat'),
+          description: t('deepSetup.buildDefensibilityAndSustainable'),
           icon: Award,
           progressValue: 13,
           locked: progress < 75,
           unlockRequirement: 75,
-          unlocksTools: ['Moat Builder', 'Strategy Canvas'],
+          unlocksTools: [t('deepSetup.moatBuilder'), t('deepSetup.strategyCanvas')],
         },
       ],
     };
@@ -319,9 +321,9 @@ function DeepSetupList() {
   // Calculate milestone badges
   const getMilestoneBadges = () => {
     const badges = [];
-    if (currentProgress >= 50) badges.push({ name: 'Intermediate', icon: Star, color: 'text-blue-600' });
-    if (currentProgress >= 75) badges.push({ name: 'Advanced', icon: Zap, color: 'text-purple-600' });
-    if (currentProgress >= 100) badges.push({ name: 'Master', icon: Trophy, color: 'text-yellow-600' });
+    if (currentProgress >= 50) badges.push({ name: t('deepSetup.intermediate'), icon: Star, color: 'text-blue-600' });
+    if (currentProgress >= 75) badges.push({ name: t('deepSetup.advanced'), icon: Zap, color: 'text-purple-600' });
+    if (currentProgress >= 100) badges.push({ name: t('deepSetup.master'), icon: Trophy, color: 'text-yellow-600' });
     return badges;
   };
 
@@ -347,16 +349,12 @@ function DeepSetupList() {
             onClick={() => navigate(`/proyecto/${projectId}`)}
             className="mb-4"
           >
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back to Dashboard
-          </Button>
+            <ArrowLeft className="h-4 w-4 mr-2" />{t('deepSetup.backToDashboard')}</Button>
 
           <div className="flex items-center justify-between flex-wrap gap-4">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 mb-2">Deep Setup</h1>
-              <p className="text-gray-600">
-                Complete sections to unlock advanced tools and features
-              </p>
+              <h1 className="text-3xl font-bold text-gray-900 mb-2">{t('deepSetup.deepSetup')}</h1>
+              <p className="text-gray-600">{t('deepSetup.completeSectionsToUnlock')}</p>
             </div>
 
             {/* Badges */}
@@ -376,7 +374,7 @@ function DeepSetupList() {
           <CardContent className="pt-6">
             <div className="flex items-center justify-between mb-4">
               <div>
-                <h3 className="text-xl font-bold text-gray-900">Your Progress</h3>
+                <h3 className="text-xl font-bold text-gray-900">{t('deepSetup.yourProgress')}</h3>
                 <p className="text-sm text-gray-600">
                   {completedSections} of {totalSections} sections complete
                 </p>
@@ -398,7 +396,7 @@ function DeepSetupList() {
               {currentProgress >= 100 && (
                 <div className="flex items-center gap-1">
                   <Trophy className="h-4 w-4 text-yellow-600" />
-                  <span>All features unlocked!</span>
+                  <span>{t('deepSetup.allFeaturesUnlocked')}</span>
                 </div>
               )}
             </div>
@@ -441,7 +439,7 @@ function DeepSetupList() {
                             +{section.progressValue}%
                           </Badge>
                           {section.completed && (
-                            <Badge className="text-xs bg-green-600">Completed</Badge>
+                            <Badge className="text-xs bg-green-600">{t('deepSetup.completed')}</Badge>
                           )}
                           {section.locked && (
                             <Badge className="text-xs bg-gray-500">
@@ -480,7 +478,7 @@ function DeepSetupList() {
                       }
                     }}
                   >
-                    {section.completed ? 'Completed' : section.locked ? 'Locked' : 'Start Section'}
+                    {section.completed ? 'Completed': section.locked ? 'Locked': t('deepSetup.startSection')}
                   </Button>
                 </CardContent>
               </Card>

@@ -15,6 +15,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { useTranslation } from 'react-i18next';
 import {
   Sparkles,
   Clock,
@@ -54,6 +55,7 @@ export function AIFacilitator({
   recordingTime,
   isMinimized = false,
 }: AIFacilitatorProps) {
+  const { t } = useTranslation();
   const [recommendations, setRecommendations] = useState<Recommendation[]>([]);
   const [minimized, setMinimized] = useState(isMinimized);
 
@@ -78,9 +80,9 @@ export function AIFacilitator({
         id: 'time-90',
         type: 'warning',
         icon: AlertTriangle,
-        title: 'Tiempo casi agotado',
+        title: t('meetings.tiempoCasiAgotado'),
         message: `Quedan ${minutesRemaining} minutos. Considera comenzar a cerrar la reunión.`,
-        action: 'Cerrar temas',
+        action: t('meetings.cerrarTemas'),
         dismissed: false,
       });
     } else if (timeProgress >= 75) {
@@ -88,9 +90,9 @@ export function AIFacilitator({
         id: 'time-75',
         type: 'warning',
         icon: Clock,
-        title: 'Entrando en el tramo final',
+        title: t('meetings.entrandoEnElTramo'),
         message: `Quedan ${minutesRemaining} minutos. Es buen momento para resumir acuerdos.`,
-        action: 'Resumir',
+        action: t('meetings.resumir'),
         dismissed: false,
       });
     } else if (timeProgress >= 50) {
@@ -98,8 +100,8 @@ export function AIFacilitator({
         id: 'time-50',
         type: 'info',
         icon: Clock,
-        title: 'Mitad del tiempo',
-        message: 'Llevas el 50% del tiempo. Verifica que estés avanzando según lo planeado.',
+        title: t('meetings.mitadDelTiempo'),
+        message: t('meetings.llevasEl50Del'),
         dismissed: false,
       });
     }
@@ -118,9 +120,9 @@ export function AIFacilitator({
         id: `energy-${minutesElapsed}`,
         type: 'tip',
         icon: Zap,
-        title: 'Momento para un break',
+        title: t('meetings.momentoParaUnBreak'),
         message: `Llevas ${minutesElapsed} minutos. Considera hacer una pausa de 2-3 minutos.`,
-        action: 'Pausar',
+        action: t('meetings.pausar'),
         dismissed: false,
       });
     }
@@ -131,8 +133,8 @@ export function AIFacilitator({
         id: 'objectives-reminder',
         type: 'info',
         icon: Target,
-        title: 'Verifica los objetivos',
-        message: 'Revisa que estés abordando los objetivos planteados para esta reunión.',
+        title: t('meetings.verificaLosObjetivos'),
+        message: t('meetings.revisaQueEstésAbordando'),
         dismissed: false,
       });
     }
@@ -289,8 +291,8 @@ function getMeetingTypeRecommendations(
           id: 'sprint-15',
           type: 'info',
           icon: Target,
-          title: 'Sprint Planning Check',
-          message: '¿Ya revisaste las user stories y su priorización?',
+          title: t('meetings.sprintPlanningCheck'),
+          message: t('meetings.yaRevisasteLasUser'),
           dismissed: false,
         });
       }
@@ -299,8 +301,8 @@ function getMeetingTypeRecommendations(
           id: 'sprint-70',
           type: 'tip',
           icon: CheckCircle2,
-          title: 'Cierre de Sprint Planning',
-          message: 'Asegúrate de tener: capacidad del equipo, tareas estimadas y sprint goal claro.',
+          title: t('meetings.cierreDeSprintPlanning'),
+          message: t('meetings.asegúrateDeTenerCapacidad'),
           dismissed: false,
         });
       }
@@ -312,8 +314,8 @@ function getMeetingTypeRecommendations(
           id: 'retro-10',
           type: 'tip',
           icon: Users,
-          title: 'Fomenta la participación',
-          message: '¿Todos han compartido al menos una opinión? Pregunta a quienes no han hablado.',
+          title: t('meetings.fomentaLaParticipación'),
+          message: t('meetings.todosHanCompartidoAl'),
           dismissed: false,
         });
       }
@@ -322,8 +324,8 @@ function getMeetingTypeRecommendations(
           id: 'retro-60',
           type: 'info',
           icon: TrendingUp,
-          title: 'Define acciones concretas',
-          message: 'Momento de convertir feedback en action items para el próximo sprint.',
+          title: t('meetings.defineAccionesConcretas'),
+          message: t('meetings.momentoDeConvertirFeedback'),
           dismissed: false,
         });
       }
@@ -335,8 +337,8 @@ function getMeetingTypeRecommendations(
           id: '1on1-5',
           type: 'tip',
           icon: Users,
-          title: 'Crea espacio seguro',
-          message: 'Pregunta cómo se siente la persona antes de entrar en temas de trabajo.',
+          title: t('meetings.creaEspacioSeguro'),
+          message: t('meetings.preguntaCómoSeSiente'),
           dismissed: false,
         });
       }
@@ -345,8 +347,8 @@ function getMeetingTypeRecommendations(
           id: '1on1-75',
           type: 'info',
           icon: Target,
-          title: 'Define próximos pasos',
-          message: '¿Quedaron claros los objetivos y el apoyo que darás?',
+          title: t('meetings.definePróximosPasos'),
+          message: t('meetings.quedaronClarosLosObjetivos'),
           dismissed: false,
         });
       }
@@ -358,8 +360,8 @@ function getMeetingTypeRecommendations(
           id: 'quarterly-20',
           type: 'info',
           icon: Target,
-          title: 'Revisa OKRs',
-          message: '¿Ya definieron los Objectives y Key Results principales del trimestre?',
+          title: t('meetings.revisaOkrs'),
+          message: t('meetings.yaDefinieronLosObjectives'),
           dismissed: false,
         });
       }
@@ -368,8 +370,8 @@ function getMeetingTypeRecommendations(
           id: 'quarterly-80',
           type: 'warning',
           icon: AlertTriangle,
-          title: 'Verifica alineación',
-          message: 'Asegúrate de que los OKRs estén alineados con la estrategia de la compañía.',
+          title: t('meetings.verificaAlineación'),
+          message: t('meetings.asegúrateDeQueLos'),
           dismissed: false,
         });
       }
@@ -381,8 +383,8 @@ function getMeetingTypeRecommendations(
           id: 'demo-5',
           type: 'tip',
           icon: Sparkles,
-          title: 'Comienza con contexto',
-          message: 'Recuerda al cliente el problema que resuelven las features que mostrarás.',
+          title: t('meetings.comienzaConContexto'),
+          message: t('meetings.recuerdaAlClienteEl'),
           dismissed: false,
         });
       }
@@ -391,8 +393,8 @@ function getMeetingTypeRecommendations(
           id: 'demo-65',
           type: 'info',
           icon: Target,
-          title: 'Recolecta feedback',
-          message: 'Pregunta específicamente qué les gustó y qué mejorarían.',
+          title: t('meetings.recolectaFeedback'),
+          message: t('meetings.preguntaEspecíficamenteQuéLes'),
           dismissed: false,
         });
       }
@@ -404,8 +406,8 @@ function getMeetingTypeRecommendations(
           id: 'daily-10',
           type: 'warning',
           icon: Clock,
-          title: 'Daily muy largo',
-          message: 'Los standups deben ser breves (5-15 min). Considera tomar temas offline.',
+          title: t('meetings.dailyMuyLargo'),
+          message: t('meetings.losStandupsDebenSer'),
           dismissed: false,
         });
       }
@@ -418,8 +420,8 @@ function getMeetingTypeRecommendations(
           id: 'general-20',
           type: 'info',
           icon: CheckCircle2,
-          title: 'Check de progreso',
-          message: '¿Estás avanzando en los temas clave? Ajusta si es necesario.',
+          title: t('meetings.checkDeProgreso'),
+          message: t('meetings.estásAvanzandoEnLos'),
           dismissed: false,
         });
       }

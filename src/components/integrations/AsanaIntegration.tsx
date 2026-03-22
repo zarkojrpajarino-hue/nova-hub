@@ -33,6 +33,7 @@ import type { Session } from '@supabase/supabase-js'
 
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 
+import { useTranslation } from 'react-i18next';
 async function getFreshSession(fallback: Session | null): Promise<Session | null> {
   return new Promise((resolve) => {
     const timer = setTimeout(() => resolve(fallback), 2000)
@@ -59,6 +60,7 @@ interface SyncResult {
 }
 
 export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
+  const { t } = useTranslation();
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [pat, setPat]                           = useState('')
@@ -93,18 +95,18 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
           setWorkspaceName(meta?.workspace_name ?? null)
           if (data.last_sync_at) setHasPriorSync(true)
         } else if (data.status === 'error') {
-          setConnectionError(data.error_message ?? 'La conexión anterior falló. Vuelve a conectar.')
+          setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
   }, [projectId])
 
   const handleConnect = async () => {
     if (!projectId) {
-      toast.error('No hay proyecto activo')
+      toast.error(t('integrations.noHayProyectoActivo'))
       return
     }
     if (!pat.trim()) {
-      toast.error('Introduce tu Personal Access Token de Asana')
+      toast.error(t('integrations.introduceTuPersonalAccess'))
       return
     }
 
@@ -112,7 +114,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -138,8 +140,8 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
       if (!res.ok) throw new Error(data?.message ?? `HTTP ${res.status}`)
       if (!data?.ok) {
         const msg =
-          data?.reason === 'invalid_pat' ? 'PAT inválido — verifica que sea correcto en Asana' :
-          data?.reason === 'no_workspace' ? 'No se encontró ningún workspace en tu cuenta de Asana' :
+          data?.reason === 'invalid_pat' ? t('integrations.patInválidoVerificaQue') :
+          data?.reason === 'no_workspace' ? t('integrations.noSeEncontróNingún') :
           `Error al conectar: ${data?.reason ?? 'desconocido'}`
         toast.error(msg)
         return
@@ -149,7 +151,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
       setWorkspaceName(data.workspace_name ?? null)
       setIsConnected(true)
       setPat('')
-      toast.success('Asana conectado — haz clic en "Sincronizar Ahora" para importar tus tareas')
+      toast.success('Asana conectado — haz clic en Sincronizar Ahora para importar tus tareas')
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -160,7 +162,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
   const handleSync = async (overrideConnectionId?: string) => {
     const connId = overrideConnectionId ?? connectionId
     if (!projectId || !connId) {
-      toast.error('Conexión no disponible')
+      toast.error(t('integrations.conexiónNoDisponible'))
       return
     }
 
@@ -169,7 +171,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
     try {
       const freshSession = await getFreshSession(session)
       if (!freshSession) {
-        toast.error('Sesión expirada — recarga la página e inicia sesión de nuevo')
+        toast.error(t('integrations.sesiónExpiradaRecargaLa'))
         return
       }
 
@@ -241,20 +243,14 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
                   <span className="text-sm font-normal text-muted-foreground">· {workspaceName}</span>
                 )}
               </CardTitle>
-              <CardDescription>
-                Importa tareas del workspace para trackear ejecución real en Optimus
-              </CardDescription>
+              <CardDescription>{t('integrations.importaTareasDelWorkspace')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
-                <CheckCircle2 size={12} className="mr-1" />
-                Conectado
-              </Badge>
+                <CheckCircle2 size={12} className="mr-1" />{t('integrations.conectado')}</Badge>
             ) : (
               <Badge variant="outline">
-                <AlertCircle size={12} className="mr-1" />
-                Desconectado
-              </Badge>
+                <AlertCircle size={12} className="mr-1" />{t('integrations.desconectado')}</Badge>
             )}
           </div>
         </CardHeader>
@@ -266,7 +262,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
                 <Alert variant="destructive">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>
-                    <strong>Conexión interrumpida.</strong> {connectionError}
+                    <strong>{t('integrations.conexiónInterrumpida')}</strong> {connectionError}
                   </AlertDescription>
                 </Alert>
               )}
@@ -279,26 +275,22 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-primary hover:underline inline-flex items-center gap-1"
-                  >
-                    My Apps en Asana
-                    <ExternalLink size={12} />
+                  >{t('integrations.myAppsEnAsana')}<ExternalLink size={12} />
                   </a>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
-                <Label htmlFor="asana-pat">Personal Access Token</Label>
+                <Label htmlFor="asana-pat">{t('integrations.personalAccessToken')}</Label>
                 <Input
                   id="asana-pat"
                   type="password"
-                  placeholder="1/12345:abc..."
+                  placeholder={t('integrations.112345abc')}
                   value={pat}
                   onChange={(e) => setPat(e.target.value)}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">
-                  El PAT se cifra con AES-256 y nunca se expone al cliente.
-                </p>
+                <p className="text-xs text-muted-foreground">{t('integrations.elPatSeCifra')}</p>
               </div>
 
               <Button
@@ -308,25 +300,19 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
               >
                 {isLoading ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Conectando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.conectando')}</>
                 ) : connectionError ? (
-                  'Reconectar Asana'
+                  t('integrations.reconectarAsana')
                 ) : (
-                  'Conectar Asana'
+                  t('integrations.conectarAsana')
                 )}
               </Button>
             </>
           ) : (
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">
-                  Integración activa
-                </p>
-                <p className="text-xs text-muted-foreground">
-                  Las tareas se sincronizan manualmente.
-                </p>
+                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.lasTareasSeSincronizan')}</p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
                     Última sincronización: {lastSync}
@@ -336,15 +322,15 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
                   <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.entities_synced}</div>
-                      <div className="text-muted-foreground">Procesadas</div>
+                      <div className="text-muted-foreground">{t('integrations.procesadas')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-mono font-semibold text-green-600">{syncResult.tasks_written}</div>
-                      <div className="text-muted-foreground">Escritas</div>
+                      <div className="text-muted-foreground">{t('integrations.escritas')}</div>
                     </div>
                     <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.tasks_skipped}</div>
-                      <div className="text-muted-foreground">Sin cambios</div>
+                      <div className="text-muted-foreground">{t('integrations.sinCambios')}</div>
                     </div>
                   </div>
                 )}
@@ -358,14 +344,10 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
               >
                 {isSyncing ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Sincronizando...
-                  </>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.sincronizando')}</>
                 ) : (
                   <>
-                    <RefreshCw className="mr-2 h-4 w-4" />
-                    Sincronizar Ahora
-                  </>
+                    <RefreshCw className="mr-2 h-4 w-4" />{t('integrations.sincronizarAhora')}</>
                 )}
               </Button>
             </div>
@@ -378,16 +360,14 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
         <Card className="border-pink-500/20 bg-pink-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-green-500" />
-              Asana conectado — qué pasará a continuación
-            </CardTitle>
+              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.asanaConectadoQuéPasará')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-sm">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
                 <div>
-                  <p className="font-medium">Pulsa "Sincronizar Ahora"</p>
+                  <p className="font-medium">Pulsa t('integrations.sincronizarAhora0')</p>
                   <p className="text-xs text-muted-foreground">
                     Optimus pedirá a Asana la lista de tareas de tu workspace ({workspaceName}).
                   </p>
@@ -396,7 +376,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
                 <div>
-                  <p className="font-medium">Las tareas se escriben en <span className="font-mono text-xs">tasks</span></p>
+                  <p className="font-medium">Las tareas se escriben en<span className="font-mono text-xs">tasks</span></p>
                   <p className="text-xs text-muted-foreground">
                     Cada tarea de Asana aparece en tu vista de Tareas junto a las tareas manuales.
                     Las tareas importadas se identifican con <span className="font-mono text-xs">external_provider='asana'</span>.
@@ -406,7 +386,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
                 <div>
-                  <p className="font-medium">Syncs incrementales</p>
+                  <p className="font-medium">{t('integrations.syncsIncrementales')}</p>
                   <p className="text-xs text-muted-foreground">
                     Los siguientes syncs solo descargan tareas modificadas desde el último sync.
                     Las tareas completadas antes de conectar Asana se marcan como históricas.
@@ -432,28 +412,26 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <ListChecks size={16} className="text-pink-500" />
-            Qué entra · Dónde va · Qué cambia
-          </CardTitle>
+            <ListChecks size={16} className="text-pink-500" />{t('integrations.quéEntraDóndeVa')}</CardTitle>
         </CardHeader>
         <CardContent>
           <div className="space-y-0 divide-y divide-border/50">
             {/* Fila 1 */}
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dato de entrada</p>
-                <p className="font-medium">Tareas de Asana</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.tareasDeAsana')}</p>
                 <p className="text-muted-foreground mt-0.5">nombre, estado (open/completed), fecha límite, sección</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Dónde va</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.dóndeVa')}</p>
                 <p className="font-mono text-[11px]">integration_entities</p>
                 <p className="text-muted-foreground mt-0.5">→ tabla <span className="font-mono">tasks</span></p>
                 <p className="text-muted-foreground">vía write guard</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Qué cambia</p>
-                <p className="font-medium">Tareas reales visibles</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéCambia')}</p>
+                <p className="font-medium">{t('integrations.tareasRealesVisibles')}</p>
                 <p className="text-muted-foreground mt-0.5">sin entrada manual — junto a tareas de Optimus</p>
               </div>
             </div>
@@ -461,18 +439,18 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
             {/* Fila 2 */}
             <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Qué no entra</p>
-                <p className="font-medium">Subtareas, dependencias</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéNoEntra')}</p>
+                <p className="font-medium">{t('integrations.subtareasDependencias')}</p>
                 <p className="text-muted-foreground mt-0.5">custom fields, attachments, comentarios</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Idempotencia</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.idempotencia')}</p>
                 <p className="font-mono text-[11px]">external_provider='asana'</p>
                 <p className="text-muted-foreground mt-0.5">+ external_id (GID)</p>
                 <p className="text-muted-foreground">un sync no duplica tareas</p>
               </div>
               <div>
-                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>Tareas históricas</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.tareasHistóricas')}</p>
                 <p className="font-medium">status=done_historical</p>
                 <p className="text-muted-foreground mt-0.5">completadas antes de conectar — no cuentan en execution_rate</p>
               </div>

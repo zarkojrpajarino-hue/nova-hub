@@ -13,13 +13,14 @@
 import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip'
 import type { EvidenceType, ProviderSlug } from '@/lib/evidence'
 
+import { useTranslation } from 'react-i18next';
 // Nombres legibles de proveedores para el tooltip
 const PROVIDER_LABELS: Record<ProviderSlug, string> = {
-  stripe:          'Stripe',
-  hubspot:         'HubSpot',
-  asana:           'Asana',
-  google_calendar: 'Google Calendar',
-  holded:          'Holded',
+  stripe:          t('evidence.stripe'),
+  hubspot:         t('evidence.hubspot'),
+  asana:           t('evidence.asana'),
+  google_calendar: t('evidence.googleCalendar'),
+  holded:          t('evidence.holded'),
   user_manual:     'el usuario',
   ai_inferred:     'el sistema',
 }
@@ -33,23 +34,23 @@ interface EvidenceConfig {
 const EVIDENCE_CONFIG: Record<EvidenceType, EvidenceConfig> = {
   observed:  {
     dot:     'bg-green-500',
-    text:    'Dato verificado',
+    text:    t('evidence.datoVerificado'),
     tooltip: 'Medido directamente por {source}',
   },
   declared: {
     dot:     'bg-blue-500',
-    text:    'Dato declarado',
-    tooltip: 'Introducido manualmente — sin verificación externa',
+    text:    t('evidence.datoDeclarado'),
+    tooltip: t('evidence.introducidoManualmenteSinVerificación'),
   },
   inferred: {
     dot:     'bg-amber-500',
-    text:    'Inferido',
-    tooltip: 'Calculado por el sistema a partir de otras señales',
+    text:    t('evidence.inferido'),
+    tooltip: t('evidence.calculadoPorElSistema'),
   },
   estimated: {
     dot:     'bg-gray-400',
-    text:    'Estimado',
-    tooltip: 'Aproximación — sin dato concreto disponible',
+    text:    t('evidence.estimado'),
+    tooltip: t('evidence.aproximaciónSinDatoConcreto'),
   },
 }
 
@@ -60,6 +61,7 @@ interface EvidenceBadgeProps {
 }
 
 export function EvidenceBadge({ type, source, compact = false }: EvidenceBadgeProps) {
+  const { t } = useTranslation();
   const cfg = EVIDENCE_CONFIG[type] ?? EVIDENCE_CONFIG.inferred
 
   const tooltipText = source && type === 'observed'

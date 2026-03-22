@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { formatDistanceToNow } from 'date-fns';
-import { es } from 'date-fns/locale';
+import { getDateFnsLocale } from '@/i18n';
 
+import { useTranslation } from 'react-i18next';
 interface MasterCardProps {
   master: {
     id: string;
@@ -26,12 +27,13 @@ interface MasterCardProps {
 }
 
 const LEVEL_CONFIG = {
-  1: { label: 'Master', icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  2: { label: 'Senior Master', icon: Shield, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-  3: { label: 'Grand Master', icon: Star, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+  1: { label: t('masters.master'), icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+  2: { label: t('masters.seniorMaster'), icon: Shield, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+  3: { label: t('masters.grandMaster'), icon: Star, color: 'text-rose-500', bg: 'bg-rose-500/10' },
 };
 
 export function MasterCard({ master, canChallenge, onChallenge }: MasterCardProps) {
+  const { t } = useTranslation();
   const roleConfig = ROLE_CONFIG[master.role_name];
   const levelConfig = LEVEL_CONFIG[master.level as keyof typeof LEVEL_CONFIG] || LEVEL_CONFIG[1];
   const LevelIcon = levelConfig.icon;
@@ -72,32 +74,28 @@ export function MasterCard({ master, canChallenge, onChallenge }: MasterCardProp
         
         <div className="space-y-2 mb-4">
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Rol</span>
+            <span className="text-muted-foreground">{t('masters.rol')}</span>
             <Badge variant="outline" style={{ borderColor: roleConfig?.color, color: roleConfig?.color }}>
               {roleConfig?.label || master.role_name}
             </Badge>
           </div>
           
           <div className="flex items-center justify-between text-sm">
-            <span className="text-muted-foreground">Desde hace</span>
+            <span className="text-muted-foreground">{t('masters.desdeHace')}</span>
             <span className="font-medium">
-              {formatDistanceToNow(new Date(master.appointed_at), { locale: es })}
+              {formatDistanceToNow(new Date(master.appointed_at), { locale: getDateFnsLocale() })}
             </span>
           </div>
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground flex items-center gap-1">
-              <Users size={14} />
-              Mentees
-            </span>
+              <Users size={14} />{t('masters.mentees')}</span>
             <span className="font-medium">{master.total_mentees}</span>
           </div>
           
           <div className="flex items-center justify-between text-sm">
             <span className="text-muted-foreground flex items-center gap-1">
-              <Shield size={14} />
-              Defensas
-            </span>
+              <Shield size={14} />{t('masters.defensas')}</span>
             <span className="font-medium text-success">{master.successful_defenses}</span>
           </div>
         </div>
@@ -109,9 +107,7 @@ export function MasterCard({ master, canChallenge, onChallenge }: MasterCardProp
             className="w-full gap-2 text-destructive hover:text-destructive hover:bg-destructive/10"
             onClick={onChallenge}
           >
-            <Swords size={14} />
-            Desafiar
-          </Button>
+            <Swords size={14} />{t('masters.desafiar')}</Button>
         )}
       </CardContent>
     </Card>

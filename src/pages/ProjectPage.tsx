@@ -47,22 +47,24 @@ import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { MemberOnboarding } from '@/components/roles/MemberOnboarding';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 const GeneratedBusinessDashboard = lazy(() => import('@/components/generative/GeneratedBusinessDashboard').then(m => ({ default: m.GeneratedBusinessDashboard })));
 const ExpansionIntelligencePage = lazy(() => import('@/components/expansion/ExpansionIntelligencePage').then(m => ({ default: m.ExpansionIntelligencePage })));
 // RoleAcceptanceGate eliminado - los roles se auto-aceptan tras onboarding
 
 const TABS = [
-  { id: 'dashboard', label: 'Dashboard', icon: LayoutDashboard },
-  { id: 'equipo', label: 'Equipo', icon: Users },
+  { id: 'dashboard', label: t('project.dashboard'), icon: LayoutDashboard },
+  { id: 'equipo', label: t('project.equipo'), icon: Users },
   { id: 'crm', label: 'CRM', icon: Target },
-  { id: 'tareas', label: 'Tareas', icon: Kanban },
-  { id: 'obvs', label: 'OBVs', icon: FileCheck },
-  { id: 'financiero', label: 'Financiero', icon: TrendingUp },
+  { id: 'tareas', label: t('project.tareas'), icon: Kanban },
+  { id: 'obvs', label: t('project.obvs'), icon: FileCheck },
+  { id: 'financiero', label: t('project.financiero'), icon: TrendingUp },
   { id: 'negocio-ia', label: 'Negocio IA', icon: Sparkles },
-  { id: 'expansion', label: 'Expansión', icon: Globe },
+  { id: 'expansion', label: t('project.expansión'), icon: Globe },
 ];
 
 export default function ProjectPage() {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const { profile } = useAuth();
@@ -159,11 +161,9 @@ export default function ProjectPage() {
   if (!project) {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
-        <p className="text-xl text-muted-foreground">Proyecto no encontrado</p>
+        <p className="text-xl text-muted-foreground">{t('project.proyectoNoEncontrado')}</p>
         <Button onClick={() => navigate('/')}>
-          <ArrowLeft size={16} className="mr-2" />
-          Volver
-        </Button>
+          <ArrowLeft size={16} className="mr-2" />{t('project.volver')}</Button>
       </div>
     );
   }
@@ -192,7 +192,7 @@ export default function ProjectPage() {
             <div className="flex-1">
               <h1 className="text-xl font-bold">{project.nombre}</h1>
               <p className="text-sm text-muted-foreground">
-                Fase {project.phase_state?.current_phase ?? 1} • {project.tipo === 'operacion' ? 'En operación' : 'En validación'}
+                Fase {project.phase_state?.current_phase ?? 1} • {project.tipo === 'operacion' ? t('project.enOperación') : t('project.enValidación')}
               </p>
             </div>
 
@@ -221,9 +221,7 @@ export default function ProjectPage() {
                         className="cursor-pointer text-destructive focus:text-destructive"
                         onSelect={(e) => e.preventDefault()}
                       >
-                        <Trash2 size={16} className="mr-2" />
-                        Eliminar Proyecto
-                      </DropdownMenuItem>
+                        <Trash2 size={16} className="mr-2" />{t('project.eliminarProyecto')}</DropdownMenuItem>
                     }
                   />
                 </DropdownMenuContent>
@@ -376,11 +374,11 @@ export default function ProjectPage() {
               </TabsContent>
 
               <TabsContent value="negocio-ia">
-                <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Cargando...</div>}><GeneratedBusinessDashboard /></Suspense>
+                <Suspense fallback={<div className="py-8 text-center text-muted-foreground">{t('project.cargando')}</div>}><GeneratedBusinessDashboard /></Suspense>
               </TabsContent>
 
               <TabsContent value="expansion">
-                <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Cargando...</div>}><ExpansionIntelligencePage projectId={projectId!} /></Suspense>
+                <Suspense fallback={<div className="py-8 text-center text-muted-foreground">{t('project.cargando')}</div>}><ExpansionIntelligencePage projectId={projectId!} /></Suspense>
               </TabsContent>
             </Tabs>
           </>

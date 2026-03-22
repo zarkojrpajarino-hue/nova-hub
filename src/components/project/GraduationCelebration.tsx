@@ -7,6 +7,7 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { GraduationCap, Share2, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -16,6 +17,7 @@ interface GraduationCelebrationProps {
 }
 
 export function GraduationCelebration({ projectName, projectId }: GraduationCelebrationProps) {
+  const { t } = useTranslation();
   const storageKey = `graduation_celebrated_${projectId}`;
   const [dismissed, setDismissed] = useState(() => localStorage.getItem(storageKey) === 'true');
 
@@ -41,7 +43,7 @@ export function GraduationCelebration({ projectName, projectId }: GraduationCele
       <button
         onClick={handleDismiss}
         className="absolute top-3 right-3 text-amber-400 hover:text-amber-600 transition-colors"
-        aria-label="Cerrar"
+        aria-label={t('project.cerrar')}
       >
         <X className="h-4 w-4" />
       </button>
@@ -53,11 +55,10 @@ export function GraduationCelebration({ projectName, projectId }: GraduationCele
 
         <div className="flex-1">
           <h3 className="text-lg font-bold text-amber-900 mb-1">
-            ¡Graduación completada!
+            {t('graduation.title')}
           </h3>
           <p className="text-sm text-amber-700 mb-4">
-            <strong>{projectName}</strong> ha superado las 4 fases de validación.
-            Ahora entras en la etapa de ciclos estratégicos de 90 días. Comparte este logro:
+            {t('graduation.message', { name: projectName })}
           </p>
 
           <div className="flex items-center gap-2">
@@ -68,7 +69,7 @@ export function GraduationCelebration({ projectName, projectId }: GraduationCele
               onClick={() => window.open(tweetUrl, '_blank', 'width=550,height=420')}
             >
               <Share2 className="h-3.5 w-3.5" />
-              Twitter
+              {t('graduation.twitter')}
             </Button>
             <Button
               size="sm"
@@ -77,7 +78,7 @@ export function GraduationCelebration({ projectName, projectId }: GraduationCele
               onClick={() => window.open(linkedInUrl, '_blank', 'width=550,height=420')}
             >
               <Share2 className="h-3.5 w-3.5" />
-              LinkedIn
+              {t('graduation.linkedin')}
             </Button>
             <Button
               size="sm"
@@ -85,7 +86,7 @@ export function GraduationCelebration({ projectName, projectId }: GraduationCele
               className="text-amber-600"
               onClick={handleDismiss}
             >
-              Ahora no
+              {t('graduation.notNow')}
             </Button>
           </div>
         </div>

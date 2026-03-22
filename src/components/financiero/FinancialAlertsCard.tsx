@@ -2,6 +2,7 @@ import { AlertTriangle, TrendingDown, CheckCircle2 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 
+import { useTranslation } from 'react-i18next';
 interface FinancialAlert {
   type: 'error' | 'warning' | 'success';
   title: string;
@@ -21,6 +22,7 @@ export function FinancialAlertsCard({
   marginPercent,
   monthlyGrowth 
 }: FinancialAlertsCardProps) {
+  const { t } = useTranslation();
   const alerts: FinancialAlert[] = [];
 
   // Check for overdue payments
@@ -36,7 +38,7 @@ export function FinancialAlertsCard({
   if (marginPercent < 30) {
     alerts.push({
       type: 'warning',
-      title: 'Margen bajo',
+      title: t('financiero.margenBajo'),
       description: `Margen actual ${marginPercent.toFixed(0)}% - objetivo mínimo 30%`,
     });
   }
@@ -45,13 +47,13 @@ export function FinancialAlertsCard({
   if (monthlyGrowth > 10) {
     alerts.push({
       type: 'success',
-      title: 'Crecimiento positivo',
+      title: t('financiero.crecimientoPositivo'),
       description: `+${monthlyGrowth.toFixed(0)}% respecto al mes anterior`,
     });
   } else if (monthlyGrowth < -10) {
     alerts.push({
       type: 'warning',
-      title: 'Descenso en facturación',
+      title: t('financiero.descensoEnFacturación'),
       description: `${monthlyGrowth.toFixed(0)}% respecto al mes anterior`,
     });
   }
@@ -60,8 +62,8 @@ export function FinancialAlertsCard({
   if (alerts.length === 0) {
     alerts.push({
       type: 'success',
-      title: '¡Todo en orden!',
-      description: 'No hay alertas financieras pendientes',
+      title: t('financiero.todoEnOrden'),
+      description: t('financiero.noHayAlertasFinancieras'),
     });
   }
 
@@ -85,9 +87,7 @@ export function FinancialAlertsCard({
     <Card>
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
-          <AlertTriangle className="w-5 h-5 text-amber-500" />
-          Alertas Financieras
-        </CardTitle>
+          <AlertTriangle className="w-5 h-5 text-amber-500" />{t('financiero.alertasFinancieras')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
         {alerts.map((alert, i) => (

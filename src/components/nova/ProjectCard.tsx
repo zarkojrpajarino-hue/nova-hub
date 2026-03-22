@@ -4,6 +4,7 @@ import { cn } from '@/lib/utils';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { PHASE_LABELS } from '@/lib/engine';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -36,6 +37,7 @@ interface ProjectCardProps {
 }
 
 function ProjectCardComponent({ project, currentPhase, members, roles, showRoles = false }: ProjectCardProps) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   // Only show members/roles if onboarding is completed
@@ -80,7 +82,7 @@ function ProjectCardComponent({ project, currentPhase, members, roles, showRoles
             ? "bg-success/15 text-success" 
             : "bg-warning/15 text-warning"
         )}>
-          {project.tipo === 'operacion' ? 'Operación' : 'Validación'}
+          {project.tipo === 'operacion' ? t('nova.operación') : t('nova.validación')}
         </span>
       </div>
 
@@ -146,15 +148,15 @@ function ProjectCardComponent({ project, currentPhase, members, roles, showRoles
       <div className="grid grid-cols-3 gap-3 pt-4 border-t border-border">
         <div className="text-center">
           <p className="font-bold text-lg">-</p>
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">OBVs</p>
+          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{t('nova.obvs')}</p>
         </div>
         <div className="text-center">
           <p className="font-bold text-lg">-</p>
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Leads</p>
+          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{t('nova.leads')}</p>
         </div>
         <div className="text-center">
           <p className="font-bold text-lg">-</p>
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">Facturado</p>
+          <p className="text-[11px] text-muted-foreground uppercase tracking-wide">{t('nova.facturado')}</p>
         </div>
       </div>
     </div>

@@ -10,6 +10,7 @@ import { LeadForm } from '../LeadForm';
 import { LeadDetail } from '../LeadDetail';
 import type { Lead, ViewMode } from '@/hooks/useCRMPipeline';
 
+import { useTranslation } from 'react-i18next';
 interface Project {
   id: string;
   nombre: string;
@@ -40,6 +41,7 @@ export function CRMPipelineContainer({
   isLoading,
   defaultView = 'kanban'
 }: CRMPipelineContainerProps) {
+  const { t } = useTranslation();
   const {
     showForm,
     setShowForm,
@@ -72,7 +74,7 @@ export function CRMPipelineContainer({
       {/* Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
-          <h3 className="font-semibold">Pipeline de Leads</h3>
+          <h3 className="font-semibold">{t('crm.pipelineDeLeads')}</h3>
           <p className="text-sm text-muted-foreground">
             {filteredLeads.length} leads • €{filteredLeads.reduce((s, l) => s + (l.valor_potencial || 0), 0).toLocaleString()} valor total
           </p>
@@ -86,7 +88,7 @@ export function CRMPipelineContainer({
                 "p-2 rounded-md transition-all",
                 viewMode === 'kanban' ? "bg-background shadow-sm" : "hover:bg-background/50"
               )}
-              title="Vista Kanban"
+              title={t('crm.vistaKanban')}
             >
               <LayoutGrid size={16} />
             </button>
@@ -96,7 +98,7 @@ export function CRMPipelineContainer({
                 "p-2 rounded-md transition-all",
                 viewMode === 'list' ? "bg-background shadow-sm" : "hover:bg-background/50"
               )}
-              title="Vista Lista"
+              title={t('crm.vistaLista')}
             >
               <List size={16} />
             </button>
@@ -106,7 +108,7 @@ export function CRMPipelineContainer({
                 "p-2 rounded-md transition-all",
                 viewMode === 'table' ? "bg-background shadow-sm" : "hover:bg-background/50"
               )}
-              title="Vista Tabla"
+              title={t('crm.vistaTabla')}
             >
               <TableIcon size={16} />
             </button>
@@ -116,7 +118,7 @@ export function CRMPipelineContainer({
           <div className="relative flex-1 sm:w-60">
             <Search size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Buscar leads..."
+              placeholder={t('crm.buscarLeads')}
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="pl-9"
@@ -125,7 +127,7 @@ export function CRMPipelineContainer({
 
           <Button onClick={() => handleAddLead()}>
             <Plus size={16} className="mr-2" />
-            <span className="hidden sm:inline">Añadir Lead</span>
+            <span className="hidden sm:inline">{t('crm.añadirLead')}</span>
           </Button>
         </div>
       </div>

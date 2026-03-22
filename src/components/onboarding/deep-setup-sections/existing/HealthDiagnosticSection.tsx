@@ -19,6 +19,7 @@ import { Badge } from '@/components/ui/badge';
 import { Loader2, ArrowRight, CheckCircle2, Activity, TrendingUp, TrendingDown, Minus } from 'lucide-react';
 import { toast } from 'sonner';
 
+import { useTranslation } from 'react-i18next';
 interface HealthDiagnosticSectionProps {
   projectId: string;
   onComplete: (data: Record<string, unknown>) => void;
@@ -26,6 +27,7 @@ interface HealthDiagnosticSectionProps {
 }
 
 export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onCancel }: HealthDiagnosticSectionProps) {
+  const { t } = useTranslation();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [metrics, setMetrics] = useState({
@@ -51,16 +53,16 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
       section_id: 'health-diagnostic',
       metrics,
       health_score: 72,
-      unlocked_tools: ['Health Dashboard', 'Diagnostic Report'],
+      unlocked_tools: [t('onboarding.healthDashboard'), t('onboarding.diagnosticReport')],
     });
-    toast.success('Health Diagnostic complete!');
+    toast.success(t('onboarding.healthDiagnosticComplete'));
   };
 
   if (isAnalyzing) {
     return (
       <Card className="max-w-4xl mx-auto"><CardContent className="pt-12 pb-12 text-center">
         <Loader2 className="h-10 w-10 text-purple-600 animate-spin mx-auto mb-4" />
-        <h3 className="text-2xl font-bold">Analyzing business health...</h3>
+        <h3 className="text-2xl font-bold">{t('onboarding.analyzingBusinessHealth')}</h3>
       </CardContent></Card>
     );
   }
@@ -73,8 +75,8 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
           <CardContent className="pt-6">
             <div className="text-center">
               <div className="text-6xl font-bold text-green-600 mb-2">{healthScore}%</div>
-              <h3 className="text-2xl font-bold mb-2">Business Health Score</h3>
-              <p className="text-gray-600">Your business is in good shape with room for improvement</p>
+              <h3 className="text-2xl font-bold mb-2">{t('onboarding.businessHealthScore')}</h3>
+              <p className="text-gray-600">{t('onboarding.yourBusinessIsIn')}</p>
             </div>
           </CardContent>
         </Card>
@@ -82,23 +84,23 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
         <div className="grid grid-cols-3 gap-4">
           <Card><CardContent className="pt-6 text-center">
             <TrendingUp className="h-8 w-8 text-green-600 mx-auto mb-2" />
-            <div className="font-bold text-green-600">Strong</div>
-            <div className="text-sm text-gray-600">Revenue Growth</div>
+            <div className="font-bold text-green-600">{t('onboarding.strong')}</div>
+            <div className="text-sm text-gray-600">{t('onboarding.revenueGrowth')}</div>
           </CardContent></Card>
           <Card><CardContent className="pt-6 text-center">
             <Minus className="h-8 w-8 text-yellow-600 mx-auto mb-2" />
-            <div className="font-bold text-yellow-600">Average</div>
-            <div className="text-sm text-gray-600">Customer Retention</div>
+            <div className="font-bold text-yellow-600">{t('onboarding.average')}</div>
+            <div className="text-sm text-gray-600">{t('onboarding.customerRetention')}</div>
           </CardContent></Card>
           <Card><CardContent className="pt-6 text-center">
             <TrendingDown className="h-8 w-8 text-red-600 mx-auto mb-2" />
-            <div className="font-bold text-red-600">Needs Work</div>
-            <div className="text-sm text-gray-600">Product-Market Fit</div>
+            <div className="font-bold text-red-600">{t('onboarding.needsWork')}</div>
+            <div className="text-sm text-gray-600">{t('onboarding.productmarketFit')}</div>
           </CardContent></Card>
         </div>
 
         <div className="flex justify-between pt-6 border-t">
-          <Button variant="outline" onClick={onCancel}>Cancel</Button>
+          <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
           <div className="flex items-center gap-3">
             <Badge>+10%</Badge>
             <Button onClick={handleComplete} className="bg-gradient-to-r from-purple-600 to-pink-600">
@@ -118,18 +120,18 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
             <div className="w-12 h-12 bg-gradient-to-br from-purple-500 to-pink-600 rounded-lg flex items-center justify-center">
               <Activity className="h-6 w-6 text-white" />
             </div>
-            <CardTitle className="text-2xl">Business Health Diagnostic</CardTitle>
+            <CardTitle className="text-2xl">{t('onboarding.businessHealthDiagnostic')}</CardTitle>
           </div>
         </CardHeader>
       </Card>
 
       <Card>
-        <CardHeader><CardTitle>Current State Assessment</CardTitle></CardHeader>
+        <CardHeader><CardTitle>{t('onboarding.currentStateAssessment')}</CardTitle></CardHeader>
         <CardContent className="space-y-4">
           <div>
             <Label>Revenue Trend (Last 3 months)</Label>
             <Select value={metrics.revenue_trend} onValueChange={(v) => setMetrics({...metrics, revenue_trend: v})}>
-              <SelectTrigger><SelectValue placeholder="Select trend" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t('onboarding.selectTrend')} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="growing">Growing ({'>'}10%)</SelectItem>
                 <SelectItem value="stable">Stable (±5%)</SelectItem>
@@ -138,20 +140,20 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
             </Select>
           </div>
           <div>
-            <Label>Customer Acquisition</Label>
+            <Label>{t('onboarding.customerAcquisition')}</Label>
             <Select value={metrics.customer_acquisition} onValueChange={(v) => setMetrics({...metrics, customer_acquisition: v})}>
-              <SelectTrigger><SelectValue placeholder="Select status" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t('onboarding.selectStatus')} /></SelectTrigger>
               <SelectContent>
-                <SelectItem value="strong">Strong & Predictable</SelectItem>
-                <SelectItem value="moderate">Moderate</SelectItem>
-                <SelectItem value="weak">Struggling</SelectItem>
+                <SelectItem value="strong">{t('onboarding.strongPredictable')}</SelectItem>
+                <SelectItem value="moderate">{t('onboarding.moderate')}</SelectItem>
+                <SelectItem value="weak">{t('onboarding.struggling')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
           <div>
-            <Label>Monthly Churn Rate</Label>
+            <Label>{t('onboarding.monthlyChurnRate')}</Label>
             <Select value={metrics.churn_rate} onValueChange={(v) => setMetrics({...metrics, churn_rate: v})}>
-              <SelectTrigger><SelectValue placeholder="Select rate" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t('onboarding.selectRate')} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="low">Low (less than 5%)</SelectItem>
                 <SelectItem value="medium">Medium (5-10%)</SelectItem>
@@ -160,9 +162,9 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
             </Select>
           </div>
           <div>
-            <Label>Product-Market Fit</Label>
+            <Label>{t('onboarding.productmarketFit')}</Label>
             <Select value={metrics.product_market_fit} onValueChange={(v) => setMetrics({...metrics, product_market_fit: v})}>
-              <SelectTrigger><SelectValue placeholder="Select fit" /></SelectTrigger>
+              <SelectTrigger><SelectValue placeholder={t('onboarding.selectFit')} /></SelectTrigger>
               <SelectContent>
                 <SelectItem value="strong">Strong (NPS more than 50)</SelectItem>
                 <SelectItem value="moderate">Moderate (NPS 20-50)</SelectItem>
@@ -174,7 +176,7 @@ export function HealthDiagnosticSection({ projectId: _projectId, onComplete, onC
       </Card>
 
       <div className="flex justify-between pt-6 border-t">
-        <Button variant="outline" onClick={onCancel}>Cancel</Button>
+        <Button variant="outline" onClick={onCancel}>{t('onboarding.cancel')}</Button>
         <div className="flex items-center gap-3">
           <Badge>+10%</Badge>
           <Button onClick={handleAnalyze} disabled={!canAnalyze()} className="bg-gradient-to-r from-purple-600 to-pink-600">
