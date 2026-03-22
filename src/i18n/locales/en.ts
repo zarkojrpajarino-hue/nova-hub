@@ -1,4 +1,4 @@
-// Auto-generated — 6516 keys
+// Auto-generated — 6545 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
@@ -1842,7 +1842,23 @@ export const en = {
     "añadirCompromiso": "Add commitment",
     "saltarPorAhora": "Skip for now",
     "creandoCiclo": "Creating cycle...",
-    "comenzarCiclo": "Start cycle"
+    "comenzarCiclo": "Start cycle",
+    "ejecuciónDelCiclo": "Cycle execution",
+    "tareasPorSemana": "tasks/week",
+    "días": "days",
+    "contextoRevenue": "Revenue for the period",
+    "dóndePusisteFoco": "Where you focused",
+    "real": "Actual",
+    "prometido": "Committed",
+    "sobreinvertisteEn": "You over-invested in",
+    "subinvertisteEn": "You under-invested in",
+    "tareasEn": "tasks in",
+    "sinActividadFinanciera": "Without financial activity, the engine cannot assess sustainability.",
+    "categoríaSinActividad": "This category had no activity during the entire cycle.",
+    "resumenDelCiclo": "Cycle summary",
+    "loQuePrometiste": "What you committed to",
+    "meta": "Target",
+    "tareasYObvsInternas": "Optimus-K internal tasks and OBVs"
   },
   "rootRedirect": {
     "cargando": "Loading..."
@@ -6690,5 +6706,20 @@ export const en = {
         "navlink": "NavLink"
       }
     }
+  },
+  "transparency": {
+    "motorDelProyecto": "Project Engine",
+    "motorDeViabilidad": "Viability Engine",
+    "motorDeExpansion": "Expansion Engine",
+    "motorYAgentesIA": "Engine + AI Agents",
+    "detectorDeMomentos": "Moment Detector",
+    "optimusIA": "Optimus AI",
+    "alertasAutomaticas": "Automatic Alerts",
+    "prediccionLineal": "Linear Forecasting",
+    "iaFinanciera": "Financial AI",
+    "iaLeadScoring": "Lead Scoring AI",
+    "tareasYOBVs": "Internal Tasks & OBVs",
+    "weeklyReview": "Automatic Weekly Review",
+    "pipelineOBVs": "OBV Pipeline"
   }
 } as const;
