@@ -485,8 +485,11 @@ Gate: todas las condiciones simultáneas → `hard_signal_met = TRUE` (solo info
 
 | Campo | Tipo | Rol |
 |---|---|---|
-| `project_phase_state.current_phase` | SMALLINT (1–4) | **Source of truth** — output del engine |
-| `projects.fase` | ENUM `project_phase` (6 valores) | Legacy/manual — modelo de producto distinto |
+| `project_phase_state.current_phase` | SMALLINT (0–4) | **Source of truth** — output del engine. Phase 0 = Exploración (FASE 23) |
+| `project_phase_state.entry_mode` | TEXT | `'bootcamp'` / `'fast_track'` / `'cycle_direct'` (FASE 23) |
+| `project_phase_state.graduated` | BOOLEAN | TRUE cuando Phase 4 score ≥75 sostenido 28 días (FASE 23) |
+| `project_phase_state.graduation_eligible_since` | TIMESTAMPTZ | Timestamp desde que score ≥75 se mantiene (FASE 23) |
+| `projects.fase` | ENUM `project_phase` (6 valores) | Legacy/manual — NO usar en engines |
 
 `projects.fase` tiene valores (`'idea'`, `'problema_validado'`, `'solucion_validada'`, `'mvp'`, `'traccion'`, `'crecimiento'`) que **no mapean 1-to-1** con las 4 fases del engine. Son modelos semánticos distintos. Forzar un mapeo introduciría semántica inventada.
 

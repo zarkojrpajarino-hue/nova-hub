@@ -75,10 +75,8 @@ serve(async (req) => {
     let enrichedData;
     try {
       enrichedData = JSON.parse(cleanContent);
-    } catch (_e) {
-          if (error instanceof Response) return error;
-console.error('Parse error');
-      console.error('Raw content:', content);
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr, 'Raw:', content?.substring(0, 200));
       throw new Error('Failed to parse AI response');
     }
 

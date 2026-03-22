@@ -205,10 +205,8 @@ Devuelve SOLO el JSON, sin markdown.`;
 
     try {
       analysis = JSON.parse(cleanContent);
-    } catch (e) {
-          if (error instanceof Response) return error;
-console.error('Parse error:', e);
-      console.error('Raw content:', content);
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr, 'Raw:', content?.substring(0, 200));
       throw new Error('Failed to parse AI response as JSON');
     }
 
