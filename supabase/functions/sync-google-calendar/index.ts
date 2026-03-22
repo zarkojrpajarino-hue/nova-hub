@@ -92,7 +92,11 @@ Deno.serve(async (req) => {
   let sync_run_id: string | null = null
 
   try {
-    await validateAuth(req)
+    // Service role bypass for cron calls
+    const authToken = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
+    let isServiceRole = false
+    try { const p = JSON.parse(atob(authToken.split('.')[1] ?? '')); isServiceRole = p?.role === 'service_role' } catch {}
+    if (!isServiceRole) { await validateAuth(req) }
     const { project_id, connection_id } = await req.json()
 
     if (!project_id || !connection_id) {
@@ -340,6 +344,7 @@ Deno.serve(async (req) => {
     // ──────────────────────────────────────────────────────────────────────────
     // Paso 8: Respuesta
     // ──────────────────────────────────────────────────────────────────────────
+// Agent post-sync: generate insights automatically    let agentResult = { insights_emitted: 0, insights_skipped: 0, agent_type: 'google_calendar' }    try {      const { runPostSyncAgents } = await import('../_shared/agent-runner.ts')      agentResult = await runPostSyncAgents(serviceClient, project_id, connection_id, 'google_calendar', sync_run_id!)    } catch (agentErr) { console.error('[sync-google-calendar] Agent error (non-blocking):', agentErr) }
     return new Response(
       JSON.stringify({
         ok:                   true,

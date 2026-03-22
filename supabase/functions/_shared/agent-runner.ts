@@ -166,9 +166,18 @@ export async function runPostSyncAgents(
   switch (provider) {
     case 'stripe':
       return runFinanceAgentServer(serviceClient, projectId, connectionId, syncRunId)
-    // Future: case 'hubspot': return runSalesAgentServer(...)
-    // Future: case 'asana': return runExecutionAgentServer(...)
-    // Future: case 'google_calendar': return runCalendarAgentServer(...)
+    case 'hubspot': {
+      const { runSalesAgentServer } = await import('./agent-runner-providers.ts')
+      return runSalesAgentServer(serviceClient, projectId, syncRunId)
+    }
+    case 'asana': {
+      const { runExecutionAgentServer } = await import('./agent-runner-providers.ts')
+      return runExecutionAgentServer(serviceClient, projectId, syncRunId)
+    }
+    case 'google_calendar': {
+      const { runCalendarAgentServer } = await import('./agent-runner-providers.ts')
+      return runCalendarAgentServer(serviceClient, projectId, syncRunId)
+    }
     default:
       return { insights_emitted: 0, insights_skipped: 0, agent_type: provider }
   }
