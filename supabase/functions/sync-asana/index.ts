@@ -378,7 +378,14 @@ Deno.serve(async (req) => {
     // ──────────────────────────────────────────────────────────────────────────
     // Paso 9: Respuesta
     // ──────────────────────────────────────────────────────────────────────────
-// Agent post-sync: generate insights automatically    let agentResult = { insights_emitted: 0, insights_skipped: 0, agent_type: 'asana' }    try {      const { runPostSyncAgents } = await import('../_shared/agent-runner.ts')      agentResult = await runPostSyncAgents(serviceClient, project_id, connection_id, 'asana', sync_run_id!)    } catch (agentErr) { console.error('[sync-asana] Agent error (non-blocking):', agentErr) }
+    // Agent post-sync: generate insights automatically
+    let agentResult = { insights_emitted: 0, insights_skipped: 0, agent_type: 'asana' }
+    try {
+      const { runPostSyncAgents } = await import('../_shared/agent-runner.ts')
+      agentResult = await runPostSyncAgents(serviceClient, project_id, connection_id, 'asana', sync_run_id!)
+    } catch (agentErr) {
+      console.error('[sync-asana] Agent error (non-blocking):', agentErr)
+    }
     return new Response(
       JSON.stringify({
         ok:                   true,
