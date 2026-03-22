@@ -48,6 +48,14 @@ interface RitualResponses {
   key_meeting_decisions: string;
 }
 
+/** F31 v1 — Commitment for the next cycle */
+interface CycleCommitment {
+  text: string;
+  /** Mapping: 'team' in commitments = 'support' in tasks.function_type */
+  category: 'demand' | 'delivery' | 'cash' | 'team';
+  measurable_target?: string;
+}
+
 interface OptimusOutput {
   cycle_evaluation: 'progress' | 'stagnation' | 'regression';
   summary: string;
@@ -447,11 +455,165 @@ function RitualOutput({
 }
 
 // =============================================================================
+// Phase: Commitments (F31 v1 — captured before starting next cycle)
+// =============================================================================
+
+const CATEGORY_OPTIONS: { value: CycleCommitment['category']; label: string; color: string }[] = [
+  { value: 'demand', label: 'Demand', color: 'bg-amber-500' },
+  { value: 'delivery', label: 'Delivery', color: 'bg-blue-500' },
+  { value: 'cash', label: 'Cash', color: 'bg-green-500' },
+  // 'team' in commitments maps to 'support' in tasks.function_type
+  { value: 'team', label: 'Team', color: 'bg-purple-500' },
+];
+
+function CommitmentsForm({
+  onComplete,
+  projectId,
+}: {
+  onComplete: (commitments: CycleCommitment[]) => void;
+  projectId: string;
+}) {
+  const { t } = useTranslation();
+  const [commitments, setCommitments] = useState<CycleCommitment[]>([
+    { text: '', category: 'demand' },
+  ]);
+  const [saving, setSaving] = useState(false);
+
+  const addCommitment = () => {
+    if (commitments.length >= 5) return;
+    setCommitments([...commitments, { text: '', category: 'delivery' }]);
+  };
+
+  const removeCommitment = (idx: number) => {
+    if (commitments.length <= 1) return;
+    setCommitments(commitments.filter((_, i) => i !== idx));
+  };
+
+  const updateCommitment = (idx: number, field: keyof CycleCommitment, value: string) => {
+    setCommitments(commitments.map((c, i) =>
+      i === idx ? { ...c, [field]: value } : c
+    ));
+  };
+
+  const validCommitments = commitments.filter(c => c.text.trim().length > 0);
+  const canSubmit = validCommitments.length >= 1 && !saving;
+
+  const handleSubmit = async () => {
+    setSaving(true);
+    onComplete(validCommitments);
+  };
+
+  const handleSkip = () => {
+    onComplete([]);
+  };
+
+  return (
+    <div className="max-w-2xl mx-auto py-10 space-y-6">
+      <div className="space-y-2">
+        <div className="flex items-center gap-2 text-muted-foreground text-sm">
+          <Target size={15} />
+          <span>{t('project.nuevosCiclo')}</span>
+        </div>
+        <h2 className="text-2xl font-bold leading-snug">
+          {t('project.quéTeComprometes')}
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          {t('project.defineEntre1Y')}
+        </p>
+      </div>
+
+      <div className="space-y-4">
+        {commitments.map((c, idx) => (
+          <div key={idx} className="bg-card border border-border rounded-xl p-4 space-y-3">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-medium text-muted-foreground">
+                {t('project.compromiso')} {idx + 1}
+              </span>
+              {commitments.length > 1 && (
+                <button
+                  onClick={() => removeCommitment(idx)}
+                  className="text-xs text-muted-foreground hover:text-destructive"
+                >
+                  {t('common.delete')}
+                </button>
+              )}
+            </div>
+
+            <Textarea
+              value={c.text}
+              onChange={e => updateCommitment(idx, 'text', e.target.value)}
+              placeholder={t('project.commitmentPlaceholder')}
+              rows={2}
+            />
+
+            <div className="flex items-center gap-2">
+              <span className="text-xs text-muted-foreground">{t('project.categoría')}:</span>
+              <div className="flex gap-1.5">
+                {CATEGORY_OPTIONS.map(opt => (
+                  <button
+                    key={opt.value}
+                    onClick={() => updateCommitment(idx, 'category', opt.value)}
+                    className={cn(
+                      'px-2.5 py-1 rounded-md text-xs font-medium transition-all',
+                      c.category === opt.value
+                        ? `${opt.color} text-white`
+                        : 'bg-muted text-muted-foreground hover:bg-muted/80'
+                    )}
+                  >
+                    {opt.label}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Input
+              value={c.measurable_target || ''}
+              onChange={e => updateCommitment(idx, 'measurable_target', e.target.value)}
+              placeholder={t('project.metaMedibleOpcional')}
+              className="text-sm"
+            />
+          </div>
+        ))}
+      </div>
+
+      {commitments.length < 5 && (
+        <button
+          onClick={addCommitment}
+          className="text-sm text-primary hover:underline"
+        >
+          + {t('project.añadirCompromiso')}
+        </button>
+      )}
+
+      <div className="flex items-center justify-between pt-4">
+        <button
+          onClick={handleSkip}
+          className="text-xs text-muted-foreground hover:text-foreground"
+        >
+          {t('project.saltarPorAhora')}
+        </button>
+        <Button
+          onClick={handleSubmit}
+          disabled={!canSubmit}
+          className="gap-2"
+        >
+          {saving ? (
+            <><Loader2 size={15} className="animate-spin" />{t('project.creandoCiclo')}</>
+          ) : (
+            <>{t('project.comenzarCiclo')} <ArrowRight size={15} /></>
+          )}
+        </Button>
+      </div>
+    </div>
+  );
+}
+
+// =============================================================================
 // Main component
 // =============================================================================
 
 export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProps) {
-  const [phase, setPhase] = useState<'form' | 'loading' | 'output'>('form');
+  const [phase, setPhase] = useState<'form' | 'loading' | 'output' | 'commitments'>('form');
   const [responses, setResponses] = useState<RitualResponses>(EMPTY_RESPONSES);
   const [cycleEval, setCycleEval] = useState<'progress' | 'stagnation' | 'regression' | null>(null);
   const [optimusOutput, setOptimusOutput] = useState<OptimusOutput | null>(null);
@@ -518,12 +680,53 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
     return <RitualLoading />;
   }
 
+  // F31 v1: commitments phase — capture what the founder commits to for the next cycle
+  const handleCommitmentsComplete = async (commitments: CycleCommitment[]) => {
+    // Save commitments to the NEXT cycle (the one about to be created)
+    // The cycle creation is handled by onComplete() which triggers the cycle generation.
+    // We store commitments temporarily and pass them via the cycle creation flow.
+    if (commitments.length > 0) {
+      try {
+        // Get the latest cycle for this project (the one just closed)
+        const { data: latestCycle } = await supabase
+          .from('strategic_cycles')
+          .select('id, cycle_index')
+          .eq('project_id', projectId)
+          .order('cycle_index', { ascending: false })
+          .limit(1)
+          .single();
+
+        if (latestCycle) {
+          // Store commitments on the closed cycle for now — they represent
+          // what the founder committed to AFTER seeing the results.
+          // When the next cycle is created, compute_cycle_delta will read these.
+          await supabase
+            .from('strategic_cycles')
+            .update({ commitments_json: commitments as unknown as Record<string, unknown>[] })
+            .eq('id', latestCycle.id);
+        }
+      } catch {
+        // Non-blocking — cycle creation proceeds even if commitments fail to save
+      }
+    }
+    onComplete();
+  };
+
+  if (phase === 'commitments') {
+    return (
+      <CommitmentsForm
+        onComplete={handleCommitmentsComplete}
+        projectId={projectId}
+      />
+    );
+  }
+
   if (phase === 'output' && cycleEval) {
     return (
       <RitualOutput
         cycleEval={cycleEval}
         optimus={optimusOutput}
-        onComplete={onComplete}
+        onComplete={() => setPhase('commitments')}
         projectId={projectId}
         userId={profile?.id ?? ''}
       />

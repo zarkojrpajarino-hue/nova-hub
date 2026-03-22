@@ -7,38 +7,55 @@
 
 import { useState } from 'react';
 import { ChevronDown, ChevronUp, CheckCircle2, XCircle, PauseCircle } from 'lucide-react';
-import { useCycleHistory, type StrategicCycle } from '@/hooks/useStrategicCycles';
-
 import { useTranslation } from 'react-i18next';
+import { useCycleHistory, type StrategicCycle } from '@/hooks/useStrategicCycles';
+import { CycleDeltaCard } from './CycleDeltaCard';
+
 interface CycleHistoryProps {
   projectId: string;
 }
 
-const STATUS_CONFIG: Record<string, { icon: typeof CheckCircle2; label: string; color: string }> = {
-  completed:  { icon: CheckCircle2, label: t('project.completado'), color: 'text-green-500' },
-  revised:    { icon: PauseCircle,  label: t('project.revisado'),   color: 'text-blue-500' },
-  abandoned:  { icon: XCircle,      label: t('project.abandonado'), color: 'text-red-500' },
-  paused:     { icon: PauseCircle,  label: t('project.pausado'),    color: 'text-orange-500' },
-};
+function getStatusConfig(status: string, t: (key: string) => string) {
+  const configs: Record<string, { icon: typeof CheckCircle2; label: string; color: string }> = {
+    completed:  { icon: CheckCircle2, label: t('project.completado'), color: 'text-green-500' },
+    revised:    { icon: PauseCircle,  label: t('project.revisado'),   color: 'text-blue-500' },
+    abandoned:  { icon: XCircle,      label: t('project.abandonado'), color: 'text-red-500' },
+    paused:     { icon: PauseCircle,  label: t('project.pausado'),    color: 'text-orange-500' },
+  };
+  return configs[status] ?? configs.completed;
+}
 
 function CycleCard({ cycle }: { cycle: StrategicCycle }) {
   const { t } = useTranslation();
-  const config = STATUS_CONFIG[cycle.status] ?? STATUS_CONFIG.completed;
+  const [showDelta, setShowDelta] = useState(false);
+  const config = getStatusConfig(cycle.status, t);
   const Icon = config.icon;
   const score = Math.round(cycle.cycle_score);
 
   return (
-    <div className="flex items-center gap-3 py-2 border-b last:border-0">
-      <Icon className={`h-4 w-4 ${config.color} shrink-0`} />
-      <div className="flex-1 min-w-0">
-        <p className="text-sm font-medium truncate">
-          {cycle.title || `Ciclo ${cycle.cycle_index}`}
-        </p>
-        <p className="text-[11px] text-muted-foreground">
-          {cycle.start_date} → {cycle.end_date} · {config.label}
-        </p>
-      </div>
-      <span className="text-sm font-semibold tabular-nums shrink-0">{score}%</span>
+    <div className="border-b last:border-0">
+      <button
+        type="button"
+        onClick={() => setShowDelta(!showDelta)}
+        className="flex items-center gap-3 py-2 w-full text-left hover:bg-muted/30 rounded-lg px-1 transition-colors"
+      >
+        <Icon className={`h-4 w-4 ${config.color} shrink-0`} />
+        <div className="flex-1 min-w-0">
+          <p className="text-sm font-medium truncate">
+            {cycle.title || `Ciclo ${cycle.cycle_index}`}
+          </p>
+          <p className="text-[11px] text-muted-foreground">
+            {cycle.start_date} → {cycle.end_date} · {config.label}
+          </p>
+        </div>
+        <span className="text-sm font-semibold tabular-nums shrink-0">{score}%</span>
+      </button>
+      {/* F31 v1: Cycle delta insights */}
+      {showDelta && (
+        <div className="pb-3 px-1">
+          <CycleDeltaCard cycleId={cycle.id} />
+        </div>
+      )}
     </div>
   );
 }
