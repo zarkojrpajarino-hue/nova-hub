@@ -162,6 +162,9 @@ verify_jwt = false
 [functions.generate-strategic-cycle]
 verify_jwt = false
 
+[functions.stripe-webhooks]
+verify_jwt = false
+
 [functions.generate-task-completion-questions]
 verify_jwt = false
 

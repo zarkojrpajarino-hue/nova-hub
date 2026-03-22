@@ -6663,6 +6663,97 @@ export type Database = {
           },
         ]
       }
+      project_subscriptions: {
+        Row: {
+          billing_cycle: string | null
+          created_at: string | null
+          current_period_end: string | null
+          current_period_start: string | null
+          id: string
+          plan_id: string
+          project_id: string
+          status: string
+          stripe_customer_id: string | null
+          stripe_subscription_id: string | null
+          trial_ends_at: string | null
+          trial_started_at: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id: string
+          project_id: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          billing_cycle?: string | null
+          created_at?: string | null
+          current_period_end?: string | null
+          current_period_start?: string | null
+          id?: string
+          plan_id?: string
+          project_id?: string
+          status?: string
+          stripe_customer_id?: string | null
+          stripe_subscription_id?: string | null
+          trial_ends_at?: string | null
+          trial_started_at?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "subscription_plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_subscriptions_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: true
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_user_state: {
         Row: {
           last_seen_at: string | null
@@ -7791,6 +7882,72 @@ export type Database = {
           },
         ]
       }
+      subscription_plans: {
+        Row: {
+          advanced_analytics: boolean | null
+          ai_requests_month: number | null
+          ai_role_generation: boolean | null
+          ai_task_generation: boolean | null
+          api_access: boolean | null
+          created_at: string | null
+          custom_domain: boolean | null
+          display_name: string
+          id: string
+          max_leads: number | null
+          max_members: number | null
+          max_obvs: number | null
+          max_tasks: number | null
+          name: string
+          price_monthly: number | null
+          price_yearly: number | null
+          priority_support: boolean | null
+          trial_days: number | null
+          white_label: boolean | null
+        }
+        Insert: {
+          advanced_analytics?: boolean | null
+          ai_requests_month?: number | null
+          ai_role_generation?: boolean | null
+          ai_task_generation?: boolean | null
+          api_access?: boolean | null
+          created_at?: string | null
+          custom_domain?: boolean | null
+          display_name: string
+          id: string
+          max_leads?: number | null
+          max_members?: number | null
+          max_obvs?: number | null
+          max_tasks?: number | null
+          name: string
+          price_monthly?: number | null
+          price_yearly?: number | null
+          priority_support?: boolean | null
+          trial_days?: number | null
+          white_label?: boolean | null
+        }
+        Update: {
+          advanced_analytics?: boolean | null
+          ai_requests_month?: number | null
+          ai_role_generation?: boolean | null
+          ai_task_generation?: boolean | null
+          api_access?: boolean | null
+          created_at?: string | null
+          custom_domain?: boolean | null
+          display_name?: string
+          id?: string
+          max_leads?: number | null
+          max_members?: number | null
+          max_obvs?: number | null
+          max_tasks?: number | null
+          name?: string
+          price_monthly?: number | null
+          price_yearly?: number | null
+          priority_support?: boolean | null
+          trial_days?: number | null
+          white_label?: boolean | null
+        }
+        Relationships: []
+      }
       tasks: {
         Row: {
           ai_generated: boolean | null
@@ -8017,6 +8174,30 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      user_account_limits: {
+        Row: {
+          created_at: string | null
+          has_used_free_trial: boolean | null
+          payment_method_verified: boolean | null
+          stripe_customer_id: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          has_used_free_trial?: boolean | null
+          payment_method_verified?: boolean | null
+          stripe_customer_id?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          has_used_free_trial?: boolean | null
+          payment_method_verified?: boolean | null
+          stripe_customer_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       user_insights: {
         Row: {
@@ -10011,6 +10192,10 @@ export type Database = {
         }
         Returns: string
       }
+      create_project_trial: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: undefined
+      }
       decrypt_integration_credential: {
         Args: {
           p_app_secret: string
@@ -10021,6 +10206,7 @@ export type Database = {
       }
       detect_meeting_patterns: { Args: { p_project_id: string }; Returns: Json }
       detect_meeting_triggers: { Args: { p_project_id: string }; Returns: Json }
+      expire_trials: { Args: never; Returns: undefined }
       generate_all_weekly_reviews: { Args: never; Returns: undefined }
       generate_invitation_token: { Args: never; Returns: string }
       generate_weekly_review_for_project: {
