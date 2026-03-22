@@ -102,7 +102,8 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
   // [D5.2] Merge accumulated progress into objectives
   const objectives = ((cycle.objectives ?? []) as CycleObjective[]).map(obj => ({
     ...obj,
-    current_value: obj.current_value + (progressData?.[obj.id] ?? 0),
+    // Use progress from cycle_objective_progress if available, otherwise fall back to JSONB value
+    current_value: (progressData?.[obj.id] !== undefined) ? progressData[obj.id] : obj.current_value,
   }));
   const score = Math.round(cycle.cycle_score);
 
