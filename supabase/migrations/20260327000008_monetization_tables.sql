@@ -81,9 +81,22 @@ CREATE POLICY "project_subs: members read"
     )
   );
 
-CREATE POLICY "project_subs: system write"
+CREATE POLICY "project_subs: leader write"
   ON project_subscriptions FOR ALL TO authenticated
-  WITH CHECK (true);  -- Webhooks y admin escriben via service role
+  USING (
+    project_id IN (
+      SELECT pm.project_id FROM project_members pm
+      WHERE pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
+        AND pm.is_lead = TRUE
+    )
+  )
+  WITH CHECK (
+    project_id IN (
+      SELECT pm.project_id FROM project_members pm
+      WHERE pm.member_id = (SELECT id FROM profiles WHERE auth_id = auth.uid())
+        AND pm.is_lead = TRUE
+    )
+  );
 
 -- ---------------------------------------------------------------------------
 -- 3. user_account_limits

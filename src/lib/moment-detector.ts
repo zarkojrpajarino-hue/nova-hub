@@ -17,7 +17,8 @@ export type MomentType =
   | 'stagnation_warning'
   | 'hard_signal_close'
   | 'cycle_ending_soon'
-  | 'regression_risk';
+  | 'regression_risk'
+  | 'bottleneck_alert';
 
 export type MomentSeverity = 'celebration' | 'info' | 'warning';
 
@@ -175,7 +176,7 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
   if (input.activeBlockDays >= 14
     && !input.seenMoments.includes(`bottleneck_alert_${weekKey}`)) {
     moments.push({
-      type: 'bottleneck_alert' as MomentType,
+      type: 'bottleneck_alert',
       severity: 'warning',
       title: 'Bloqueo activo prolongado',
       message: `Tienes un bloqueo activo desde hace ${input.activeBlockDays} días. Los bloqueos >14 días correlacionan con regresión de fase.`,
