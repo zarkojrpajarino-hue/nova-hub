@@ -30,11 +30,13 @@ export interface SourceBadgeProps {
   className?: string
 }
 
-const TYPE_CONFIG: Record<SourceType, { label: string; className: string; dot: string }> = {
-  observed:  { label: t('shared.observado'),  className: 'bg-green-100  text-green-800  border-green-200',  dot: 'bg-green-500'  },
-  declared:  { label: t('shared.declarado'),  className: 'bg-blue-100   text-blue-800   border-blue-200',   dot: 'bg-blue-500'   },
-  estimated: { label: t('shared.estimado'),   className: 'bg-orange-100 text-orange-800 border-orange-200', dot: 'bg-orange-500' },
-  inferred:  { label: t('shared.inferido'),   className: 'bg-gray-100   text-gray-700   border-gray-200',   dot: 'bg-gray-400'   },
+function getTypeConfig(t: (key: string) => string): Record<SourceType, { label: string; className: string; dot: string }> {
+  return {
+    observed:  { label: t('shared.observado'),  className: 'bg-green-100  text-green-800  border-green-200',  dot: 'bg-green-500'  },
+    declared:  { label: t('shared.declarado'),  className: 'bg-blue-100   text-blue-800   border-blue-200',   dot: 'bg-blue-500'   },
+    estimated: { label: t('shared.estimado'),   className: 'bg-orange-100 text-orange-800 border-orange-200', dot: 'bg-orange-500' },
+    inferred:  { label: t('shared.inferido'),   className: 'bg-gray-100   text-gray-700   border-gray-200',   dot: 'bg-gray-400'   },
+  };
 }
 
 function buildTooltip(props: SourceBadgeProps): string | null {
@@ -72,7 +74,7 @@ export function SourceBadge({
   className,
 }: SourceBadgeProps) {
   const { t } = useTranslation();
-  const config = TYPE_CONFIG[type]
+  const config = getTypeConfig(t)[type]
   const displayLabel = label ?? config.label
   const tooltip = buildTooltip({ type, source, reliability, timestamp })
 

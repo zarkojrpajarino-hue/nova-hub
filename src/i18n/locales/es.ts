@@ -1858,7 +1858,8 @@ export const es = {
     "categoríaSinActividad": "Esta categoría no tuvo actividad en todo el ciclo.",
     "resumenDelCiclo": "Resumen del ciclo",
     "loQuePrometiste": "Lo que prometiste",
-    "meta": "Meta"
+    "meta": "Meta",
+    "tareasYObvsInternas": "Tareas y OBVs internas de Optimus-K"
   },
   "rootRedirect": {
     "cargando": "Cargando..."

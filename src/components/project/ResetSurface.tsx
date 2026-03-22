@@ -30,6 +30,7 @@ import { getNextAction } from '@/lib/next-action';
 import { trackRitualCompleted } from '@/lib/analytics';
 import { useAuth } from '@/hooks/useAuth';
 import { OptimusFeedback } from '@/components/project/OptimusFeedback';
+import { CycleDeltaCard } from '@/components/project/CycleDeltaCard';
 
 import { useTranslation } from 'react-i18next';
 // =============================================================================
@@ -346,12 +347,14 @@ function RitualOutput({
   onComplete,
   projectId,
   userId,
+  closedCycleId,
 }: {
   cycleEval: 'progress' | 'stagnation' | 'regression';
   optimus: OptimusOutput | null;
   onComplete: () => void;
   projectId: string;
   userId: string;
+  closedCycleId: string | null;
 }) {
   const { t } = useTranslation();
   const evalCfg = cycleEvalConfig(cycleEval, t);
@@ -443,10 +446,15 @@ function RitualOutput({
         </div>
       )}
 
+      {/* F31 v1: Cycle delta insights — what you did vs what you promised */}
+      {closedCycleId && (
+        <CycleDeltaCard cycleId={closedCycleId} />
+      )}
+
       {/* Exit button — solo aparece tras output completo */}
       <div className="pt-2 flex justify-end">
         <Button onClick={onComplete} className="gap-2">
-          Comenzar ciclo N+1
+          {t('project.comenzarCiclo')}
           <ArrowRight size={15} />
         </Button>
       </div>
@@ -618,6 +626,7 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
   const [cycleEval, setCycleEval] = useState<'progress' | 'stagnation' | 'regression' | null>(null);
   const [optimusOutput, setOptimusOutput] = useState<OptimusOutput | null>(null);
   const [submitError, setSubmitError] = useState<string | null>(null);
+  const [closedCycleId, setClosedCycleId] = useState<string | null>(null);
   // EC13.1d — doble submit desde otra pestaña: el ciclo ya está cerrado, el usuario puede continuar.
   const [alreadyCompleted, setAlreadyCompleted] = useState(false);
 
@@ -638,6 +647,16 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
     setPhase('loading');
 
     try {
+      // Capture the cycle ID before closing (for CycleDeltaCard in output)
+      const { data: activeCycle } = await supabase
+        .from('strategic_cycles')
+        .select('id')
+        .eq('project_id', projectId)
+        .eq('status', 'active')
+        .limit(1)
+        .single();
+      if (activeCycle) setClosedCycleId(activeCycle.id);
+
       // 1. Submit ritual — cierra el ciclo y devuelve cycle_evaluation
       const evaluation = await submitRitual({ projectId, responses });
       setCycleEval(evaluation);
@@ -730,6 +749,7 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
         onComplete={() => setPhase('commitments')}
         projectId={projectId}
         userId={profile?.id ?? ''}
+        closedCycleId={closedCycleId}
       />
     );
   }

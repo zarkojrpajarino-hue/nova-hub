@@ -18,6 +18,7 @@ import { useTranslation } from 'react-i18next';
 import { BarChart3, AlertTriangle, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
+import { SourceBadge } from '@/components/shared/SourceBadge';
 
 // ── Types ─────────────────────────────────────────────────────
 
@@ -252,7 +253,16 @@ export function CycleDeltaCard({ cycleId }: CycleDeltaCardProps) {
 
   return (
     <div className="bg-card border border-border rounded-2xl p-6 space-y-5">
-      <h3 className="text-base font-bold">{t('project.resumenDelCiclo')}</h3>
+      <div className="flex items-center justify-between">
+        <h3 className="text-base font-bold">{t('project.resumenDelCiclo')}</h3>
+        {/* F17 Transparency: show data source */}
+        <SourceBadge
+          type="declared"
+          source={t('project.tareasYObvsInternas')}
+          reliability={0.6}
+          size="sm"
+        />
+      </div>
 
       <ExecutionSummary delta={delta} />
       <FocusDistribution delta={delta} />
