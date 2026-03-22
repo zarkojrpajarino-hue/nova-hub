@@ -35,8 +35,8 @@ import { z } from 'zod';
 import { mapAuthError, logError } from '@/lib/errorMapper';
 
 import { useTranslation } from 'react-i18next';
-const emailSchema = z.string().email(t('auth.emailInválido'));
-const passwordSchema = z.string().min(8, t('auth.mínimo8Caracteres'));
+const emailSchema = z.string().email('Email inválido');
+const passwordSchema = z.string().min(8, 'Mínimo 8 caracteres');
 const nameSchema = z.string().min(2, t('auth.nombreMuyCorto')).max(50, t('auth.nombreMuyLargo'));
 
 export default function AuthPage() {
