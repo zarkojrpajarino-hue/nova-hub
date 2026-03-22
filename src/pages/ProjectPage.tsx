@@ -1,4 +1,4 @@
-import { useState, useMemo, useEffect, useRef } from 'react';
+import { useState, useMemo, useEffect, useRef, lazy, Suspense } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
 import { useParams, useNavigate } from 'react-router-dom';
 import {
@@ -46,8 +46,8 @@ import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { Lock } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import { GeneratedBusinessDashboard } from '@/components/generative/GeneratedBusinessDashboard';
-import { ExpansionIntelligencePage } from '@/components/expansion/ExpansionIntelligencePage';
+const GeneratedBusinessDashboard = lazy(() => import('@/components/generative/GeneratedBusinessDashboard').then(m => ({ default: m.GeneratedBusinessDashboard })));
+const ExpansionIntelligencePage = lazy(() => import('@/components/expansion/ExpansionIntelligencePage').then(m => ({ default: m.ExpansionIntelligencePage })));
 // RoleAcceptanceGate eliminado - los roles se auto-aceptan tras onboarding
 
 const TABS = [
@@ -375,11 +375,11 @@ export default function ProjectPage() {
               </TabsContent>
 
               <TabsContent value="negocio-ia">
-                <GeneratedBusinessDashboard />
+                <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Cargando...</div>}><GeneratedBusinessDashboard /></Suspense>
               </TabsContent>
 
               <TabsContent value="expansion">
-                <ExpansionIntelligencePage projectId={projectId!} />
+                <Suspense fallback={<div className="py-8 text-center text-muted-foreground">Cargando...</div>}><ExpansionIntelligencePage projectId={projectId!} /></Suspense>
               </TabsContent>
             </Tabs>
           </>

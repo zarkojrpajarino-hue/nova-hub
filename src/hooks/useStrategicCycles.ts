@@ -41,6 +41,7 @@ export interface StrategicCycle {
 export function useActiveCycle(projectId: string | undefined) {
   return useQuery({
     queryKey: ['strategic-cycles', projectId, 'active'],
+    staleTime: 10 * 60_000,  // Ciclos cambian ~c/semana
     queryFn: async () => {
       const { data, error } = await supabase
         .from('strategic_cycles')
@@ -59,6 +60,7 @@ export function useActiveCycle(projectId: string | undefined) {
 export function useCycleHistory(projectId: string | undefined) {
   return useQuery({
     queryKey: ['strategic-cycles', projectId, 'history'],
+    staleTime: 10 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('strategic_cycles')

@@ -1136,6 +1136,41 @@ export type Database = {
         }
         Relationships: []
       }
+      cycle_objective_progress: {
+        Row: {
+          cycle_id: string
+          id: string
+          notes: string | null
+          objective_id: string
+          recorded_at: string
+          value: number
+        }
+        Insert: {
+          cycle_id: string
+          id?: string
+          notes?: string | null
+          objective_id: string
+          recorded_at?: string
+          value: number
+        }
+        Update: {
+          cycle_id?: string
+          id?: string
+          notes?: string | null
+          objective_id?: string
+          recorded_at?: string
+          value?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "cycle_objective_progress_cycle_id_fkey"
+            columns: ["cycle_id"]
+            isOneToOne: false
+            referencedRelation: "strategic_cycles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       decision_events: {
         Row: {
           decided_at: string
@@ -1320,6 +1355,114 @@ export type Database = {
           is_active?: boolean
           motor?: string
           notes?: string | null
+        }
+        Relationships: []
+      }
+      expansion_analysis_cache: {
+        Row: {
+          expires_at: string
+          generated_at: string
+          id: string
+          input_snapshot: Json
+          markets: Json
+          output: Json
+          project_id: string
+        }
+        Insert: {
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          input_snapshot?: Json
+          markets?: Json
+          output?: Json
+          project_id: string
+        }
+        Update: {
+          expires_at?: string
+          generated_at?: string
+          id?: string
+          input_snapshot?: Json
+          markets?: Json
+          output?: Json
+          project_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "expansion_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expansion_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expansion_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "expansion_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "expansion_analysis_cache_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      expansion_events: {
+        Row: {
+          city: string | null
+          cost_eur_approx: number | null
+          country: string
+          created_at: string
+          event_date: string | null
+          event_name: string
+          id: string
+          reference_hubs: Json | null
+          sector: string[]
+          url: string | null
+          why_relevant_template: string | null
+        }
+        Insert: {
+          city?: string | null
+          cost_eur_approx?: number | null
+          country: string
+          created_at?: string
+          event_date?: string | null
+          event_name: string
+          id?: string
+          reference_hubs?: Json | null
+          sector?: string[]
+          url?: string | null
+          why_relevant_template?: string | null
+        }
+        Update: {
+          city?: string | null
+          cost_eur_approx?: number | null
+          country?: string
+          created_at?: string
+          event_date?: string | null
+          event_name?: string
+          id?: string
+          reference_hubs?: Json | null
+          sector?: string[]
+          url?: string | null
+          why_relevant_template?: string | null
         }
         Relationships: []
       }
@@ -4505,6 +4648,75 @@ export type Database = {
           },
         ]
       }
+      optimus_profile: {
+        Row: {
+          feedback_summary: Json
+          preferred_depth: string
+          project_id: string
+          response_style: string
+          risk_tolerance: string
+          total_feedbacks: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          feedback_summary?: Json
+          preferred_depth?: string
+          project_id: string
+          response_style?: string
+          risk_tolerance?: string
+          total_feedbacks?: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          feedback_summary?: Json
+          preferred_depth?: string
+          project_id?: string
+          response_style?: string
+          risk_tolerance?: string
+          total_feedbacks?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "optimus_profile_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimus_profile_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimus_profile_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "optimus_profile_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "optimus_profile_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       pending_validations: {
         Row: {
           created_at: string | null
@@ -5361,6 +5573,132 @@ export type Database = {
           },
         ]
       }
+      project_invitations: {
+        Row: {
+          accepted_at: string | null
+          accepted_by: string | null
+          created_at: string
+          email: string | null
+          expires_at: string
+          id: string
+          invited_by: string
+          max_uses: number
+          project_id: string
+          role: Database["public"]["Enums"]["specialization_role"]
+          status: string
+          token: string
+          uses_count: number
+        }
+        Insert: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at: string
+          id?: string
+          invited_by: string
+          max_uses?: number
+          project_id: string
+          role: Database["public"]["Enums"]["specialization_role"]
+          status?: string
+          token: string
+          uses_count?: number
+        }
+        Update: {
+          accepted_at?: string | null
+          accepted_by?: string | null
+          created_at?: string
+          email?: string | null
+          expires_at?: string
+          id?: string
+          invited_by?: string
+          max_uses?: number
+          project_id?: string
+          role?: Database["public"]["Enums"]["specialization_role"]
+          status?: string
+          token?: string
+          uses_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "project_invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "project_invitations_accepted_by_fkey"
+            columns: ["accepted_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "member_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "pending_payments"
+            referencedColumns: ["responsable_id"]
+          },
+          {
+            foreignKeyName: "project_invitations_invited_by_fkey"
+            columns: ["invited_by"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "project_invitations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "project_invitations_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       project_members: {
         Row: {
           id: string
@@ -5374,6 +5712,7 @@ export type Database = {
           role: Database["public"]["Enums"]["specialization_role"] | null
           role_accepted: boolean | null
           role_accepted_at: string | null
+          role_profile: Json | null
           role_responsibilities: Json | null
         }
         Insert: {
@@ -5388,6 +5727,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["specialization_role"] | null
           role_accepted?: boolean | null
           role_accepted_at?: string | null
+          role_profile?: Json | null
           role_responsibilities?: Json | null
         }
         Update: {
@@ -5402,6 +5742,7 @@ export type Database = {
           role?: Database["public"]["Enums"]["specialization_role"] | null
           role_accepted?: boolean | null
           role_accepted_at?: string | null
+          role_profile?: Json | null
           role_responsibilities?: Json | null
         }
         Relationships: [
@@ -5650,6 +5991,9 @@ export type Database = {
           consecutive_low_score: number
           current_phase: number
           engine_version: string
+          entry_mode: string | null
+          graduated: boolean
+          graduation_eligible_since: string | null
           hard_signal_met: boolean
           inputs_sources: Json | null
           last_calculated_at: string
@@ -5664,6 +6008,9 @@ export type Database = {
           consecutive_low_score?: number
           current_phase: number
           engine_version: string
+          entry_mode?: string | null
+          graduated?: boolean
+          graduation_eligible_since?: string | null
           hard_signal_met?: boolean
           inputs_sources?: Json | null
           last_calculated_at?: string
@@ -5678,6 +6025,9 @@ export type Database = {
           consecutive_low_score?: number
           current_phase?: number
           engine_version?: string
+          entry_mode?: string | null
+          graduated?: boolean
+          graduation_eligible_since?: string | null
           hard_signal_met?: boolean
           inputs_sources?: Json | null
           last_calculated_at?: string
@@ -6451,6 +6801,7 @@ export type Database = {
       }
       projects: {
         Row: {
+          archived_at: string | null
           cluster: string | null
           color: string | null
           country: string | null
@@ -6467,10 +6818,12 @@ export type Database = {
           nombre: string
           onboarding_completed: boolean | null
           onboarding_data: Json | null
+          paused_at: string | null
           tipo: Database["public"]["Enums"]["project_type"] | null
           updated_at: string | null
         }
         Insert: {
+          archived_at?: string | null
           cluster?: string | null
           color?: string | null
           country?: string | null
@@ -6487,10 +6840,12 @@ export type Database = {
           nombre: string
           onboarding_completed?: boolean | null
           onboarding_data?: Json | null
+          paused_at?: string | null
           tipo?: Database["public"]["Enums"]["project_type"] | null
           updated_at?: string | null
         }
         Update: {
+          archived_at?: string | null
           cluster?: string | null
           color?: string | null
           country?: string | null
@@ -6507,6 +6862,7 @@ export type Database = {
           nombre?: string
           onboarding_completed?: boolean | null
           onboarding_data?: Json | null
+          paused_at?: string | null
           tipo?: Database["public"]["Enums"]["project_type"] | null
           updated_at?: string | null
         }
@@ -7248,43 +7604,67 @@ export type Database = {
         Row: {
           close_reason: string | null
           closed_at: string | null
+          completed_at: string | null
           cycle_evaluation: string | null
           cycle_index: number
+          cycle_score: number | null
           decision_event_id: string | null
+          description: string | null
           end_date: string
           engine_snapshot: Json
+          generation_context: Json | null
           id: string
+          objectives: Json | null
+          previous_cycle_id: string | null
           project_id: string
           ritual_responses: Json | null
           start_date: string
+          status: string
+          title: string | null
           urgent_reset_requested: boolean
         }
         Insert: {
           close_reason?: string | null
           closed_at?: string | null
+          completed_at?: string | null
           cycle_evaluation?: string | null
           cycle_index: number
+          cycle_score?: number | null
           decision_event_id?: string | null
+          description?: string | null
           end_date: string
           engine_snapshot?: Json
+          generation_context?: Json | null
           id?: string
+          objectives?: Json | null
+          previous_cycle_id?: string | null
           project_id: string
           ritual_responses?: Json | null
           start_date: string
+          status?: string
+          title?: string | null
           urgent_reset_requested?: boolean
         }
         Update: {
           close_reason?: string | null
           closed_at?: string | null
+          completed_at?: string | null
           cycle_evaluation?: string | null
           cycle_index?: number
+          cycle_score?: number | null
           decision_event_id?: string | null
+          description?: string | null
           end_date?: string
           engine_snapshot?: Json
+          generation_context?: Json | null
           id?: string
+          objectives?: Json | null
+          previous_cycle_id?: string | null
           project_id?: string
           ritual_responses?: Json | null
           start_date?: string
+          status?: string
+          title?: string | null
           urgent_reset_requested?: boolean
         }
         Relationships: [
@@ -7293,6 +7673,13 @@ export type Database = {
             columns: ["decision_event_id"]
             isOneToOne: false
             referencedRelation: "decision_events"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "strategic_cycles_previous_cycle_id_fkey"
+            columns: ["previous_cycle_id"]
+            isOneToOne: false
+            referencedRelation: "strategic_cycles"
             referencedColumns: ["id"]
           },
           {
@@ -9474,6 +9861,7 @@ export type Database = {
         }
         Returns: undefined
       }
+      accept_invitation: { Args: { p_token: string }; Returns: Json }
       activate_challenge: {
         Args: { p_activated_by: string; p_challenge_id: string }
         Returns: undefined
@@ -9492,6 +9880,7 @@ export type Database = {
         Args: { p_notification_id: string }
         Returns: undefined
       }
+      archive_project: { Args: { p_project_id: string }; Returns: undefined }
       auth_is_project_member: {
         Args: { p_project_id: string }
         Returns: boolean
@@ -9538,6 +9927,7 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: number
       }
+      compute_cycle_score: { Args: { p_cycle_id: string }; Returns: number }
       compute_data_completeness: {
         Args: { p_project_id: string }
         Returns: number
@@ -9558,10 +9948,15 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: number
       }
+      compute_optimus_profile: {
+        Args: { p_project_id: string; p_user_id: string }
+        Returns: undefined
+      }
       compute_org_capacity_risk: {
         Args: { p_project_id: string }
         Returns: number
       }
+      compute_phase0_score: { Args: { p_project_id: string }; Returns: number }
       compute_phase2_o21: { Args: { p_project_id: string }; Returns: number }
       compute_phase2_o22: { Args: { p_project_id: string }; Returns: number }
       compute_phase2_o23: { Args: { p_project_id: string }; Returns: number }
@@ -9627,6 +10022,7 @@ export type Database = {
       detect_meeting_patterns: { Args: { p_project_id: string }; Returns: Json }
       detect_meeting_triggers: { Args: { p_project_id: string }; Returns: Json }
       generate_all_weekly_reviews: { Args: never; Returns: undefined }
+      generate_invitation_token: { Args: never; Returns: string }
       generate_weekly_review_for_project: {
         Args: { p_project_id: string }
         Returns: undefined
@@ -9634,8 +10030,13 @@ export type Database = {
       get_active_engine_version: { Args: { p_motor: string }; Returns: string }
       get_engine_snapshot: { Args: { p_project_id: string }; Returns: Json }
       get_evidence_audit: { Args: { p_project_id: string }; Returns: Json }
+      get_invitation_by_token: { Args: { p_token: string }; Returns: Json }
       get_meeting_fulfillment: { Args: { p_meeting_id: string }; Returns: Json }
       get_optimus_context: {
+        Args: { p_project_id: string; p_user_id?: string }
+        Returns: Json
+      }
+      get_optimus_context_with_profile: {
         Args: { p_project_id: string; p_user_id?: string }
         Returns: Json
       }
@@ -9653,6 +10054,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      is_project_active: { Args: { p_project_id: string }; Returns: boolean }
       mark_all_notifications_read: {
         Args: { p_user_id: string }
         Returns: number
@@ -9697,11 +10099,20 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: undefined
       }
+      pause_project: { Args: { p_project_id: string }; Returns: undefined }
       refresh_behavioral_block_candidates: {
         Args: { p_project_id: string }
         Returns: undefined
       }
       refresh_bet_invalidations: { Args: never; Returns: undefined }
+      remove_project_member: {
+        Args: {
+          p_member_id: string
+          p_project_id: string
+          p_reassign_to?: string
+        }
+        Returns: Json
+      }
       restore_project: {
         Args: { p_project_id: string; p_restored_by: string }
         Returns: undefined
@@ -9761,6 +10172,8 @@ export type Database = {
         Args: { p_project_id: string }
         Returns: Json
       }
+      unpause_project: { Args: { p_project_id: string }; Returns: undefined }
+      update_all_optimus_profiles: { Args: never; Returns: undefined }
       update_member_performance_scores: {
         Args: { p_project_id: string }
         Returns: undefined

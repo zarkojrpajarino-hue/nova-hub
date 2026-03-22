@@ -89,7 +89,7 @@ Deno.serve(async (req) => {
     console.log('Generating tasks for project:', projectId);
 
     // ==================== EVIDENCE INSTRUMENTATION ====================
-    const evidenceMode = (validation.data as Record<string, unknown>).evidence_mode as string || 'hypothesis';
+    const evidenceMode = 'hypothesis'; // evidence_mode not in request schema — always hypothesis
     const evidenceTracker = new EvidenceMetricsTracker(
       'task_generation',
       'tasks',
@@ -345,9 +345,8 @@ Deno.serve(async (req) => {
     let parsed;
     try {
       parsed = JSON.parse(cleanContent);
-    } catch (_e) {
-          if (error instanceof Response) return error;
-console.error('Parse error, content preview:', cleanContent.substring(0, 200));
+    } catch (parseErr) {
+      console.error('JSON parse error:', parseErr, 'content preview:', cleanContent.substring(0, 200));
       return new Response(
         JSON.stringify({ error: 'Failed to parse AI response' }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
