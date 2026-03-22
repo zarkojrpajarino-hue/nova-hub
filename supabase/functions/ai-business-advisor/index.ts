@@ -10,7 +10,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
@@ -112,6 +112,8 @@ serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
 
     console.log(`🤖 AI Advisor: "${message}"`);
 

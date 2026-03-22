@@ -84,6 +84,16 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
     };
   }
 
+  // [B3/U3.1] Fase 0 — Exploración pre-idea
+  if (phase === 0) {
+    return {
+      title: 'Explora ideas y define tu problema',
+      description: 'Tu primer paso es identificar un problema real que quieras resolver. Escribe al menos 3 ideas y valida cuál tiene más potencial.',
+      actionType: 'create_task',
+      ctaLabel: 'Ver tareas',
+    };
+  }
+
   // 3. Fase 1
   if (phase === 1) {
     if (!hardSignalMet || demandWeak) {

@@ -12,7 +12,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { classifyInsightImpact } from '../_shared/meeting-agent.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
@@ -74,6 +74,8 @@ serve(async (req) => {
         { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    await verifyProjectMembership(supabase, user.id, (meeting as MeetingRecord).project_id, origin);
 
     // 4. Obtener insights aprobados
     const { data: insights, error: insightsError } = await supabase

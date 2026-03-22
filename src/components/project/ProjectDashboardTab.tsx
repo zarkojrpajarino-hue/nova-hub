@@ -74,8 +74,10 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
 
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Trial Countdown Banner */}
-      <TrialCountdownBanner projectId={project.id} />
+      {/* Trial Countdown Banner — [B3/U3.5] No mostrar Day 0-2 (ansiedad innecesaria) */}
+      {Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000) >= 3 && (
+        <TrialCountdownBanner projectId={project.id} />
+      )}
 
       {/* O5.9 — Primeros pasos (visible una vez, post-onboarding) */}
       <FirstStepsPanel projectId={project.id} />
@@ -97,19 +99,22 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       />
 
       {/* V24.1-4 / CE25.9 — Phase Roadmap o Cycle Dashboard según graduación */}
+      {/* [B3/U3.2] Ocultar PhaseRoadmap completo en Fase 0-1 (abrumador) — solo mostrar en Fase 2+ */}
       {engineData?.phaseState?.graduated ? (
         <CycleDashboard projectId={project.id} graduated={true} />
-      ) : (
+      ) : currentPhase >= 2 ? (
         <PhaseRoadmap engineData={engineData} />
-      )}
+      ) : null}
 
-      {/* EQ26.10 — Team Recommendation (sugiere roles según fase) */}
-      <TeamRecommendation
-        projectId={project.id}
-        currentPhase={currentPhase}
-        teamSize={teamMembers.length}
-        existingRoles={teamMembers.map(m => m.role)}
-      />
+      {/* EQ26.10 — Team Recommendation (solo Fase 2+ — en Fase 0-1 el founder está solo) */}
+      {currentPhase >= 2 && (
+        <TeamRecommendation
+          projectId={project.id}
+          currentPhase={currentPhase}
+          teamSize={teamMembers.length}
+          existingRoles={teamMembers.map(m => m.role)}
+        />
+      )}
 
       {/* Layout: Sidebar + Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -234,20 +239,24 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
             onNavigateToTab={onNavigateToTab}
           />
 
-          {/* Probability breakdown — U6.4 */}
-          <ProbabilityBreakdown
-            probability={engineData?.probability ?? null}
-            probabilityHistory={engineData?.probabilityHistory ?? []}
-            onCTA={onNavigateToTab ? () => onNavigateToTab('financiero') : undefined}
-            onNavigateToTab={onNavigateToTab}
-          />
+          {/* Probability breakdown — U6.4 — [B3/U3.2] Ocultar en Fase 0-1 */}
+          {currentPhase >= 2 && (
+            <ProbabilityBreakdown
+              probability={engineData?.probability ?? null}
+              probabilityHistory={engineData?.probabilityHistory ?? []}
+              onCTA={onNavigateToTab ? () => onNavigateToTab('financiero') : undefined}
+              onNavigateToTab={onNavigateToTab}
+            />
+          )}
 
-          {/* Risk breakdown — U6.5 */}
-          <RiskBreakdown
-            risk={engineData?.risk ?? null}
-            riskHistory={engineData?.riskHistory ?? []}
-            onNavigateToTab={onNavigateToTab}
-          />
+          {/* Risk breakdown — U6.5 — [B3/U3.2] Ocultar en Fase 0-1 */}
+          {currentPhase >= 2 && (
+            <RiskBreakdown
+              risk={engineData?.risk ?? null}
+              riskHistory={engineData?.riskHistory ?? []}
+              onNavigateToTab={onNavigateToTab}
+            />
+          )}
 
           {/* Weekly Review: movido a WeeklySurface (V11.3 — Rule 2: 1 surface = 1 time context) */}
 

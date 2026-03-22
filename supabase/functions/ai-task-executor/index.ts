@@ -25,7 +25,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 serve(async (req) => {
@@ -49,6 +49,11 @@ serve(async (req) => {
     }
 
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    const projectId = (project_context?.project_id as string) || '';
+    if (projectId) {
+      await verifyProjectMembership(supabaseClient, user_id, projectId, origin);
+    }
 
     const rateLimitResult = await checkRateLimit(user_id, 'ai-task-executor', RateLimitPresets.AI_GENERATION);
     if (!rateLimitResult.allowed) {

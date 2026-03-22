@@ -16,7 +16,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 interface Insight {
@@ -48,7 +48,7 @@ serve(async (req) => {
   }
 
     const body = await req.json() as Record<string, unknown>;
-    const { user_id, context } = body as { user_id: string; context?: string };
+    const { user_id, project_id: projectId, context } = body as { user_id: string; project_id?: string; context?: string };
 
     if (!user_id) {
       throw new Error('user_id is required');
@@ -58,6 +58,10 @@ serve(async (req) => {
 
     // Initialize Supabase client
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    if (projectId) {
+      await verifyProjectMembership(supabaseClient, user_id, projectId, origin);
+    }
 
     const insights: Insight[] = [];
     const suggestedActions: SuggestedAction[] = [];
