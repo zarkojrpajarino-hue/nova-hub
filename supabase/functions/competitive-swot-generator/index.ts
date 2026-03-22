@@ -281,11 +281,8 @@ Devuelve SOLO el JSON.`;
   });
 
   const text = (message.content[0] as { type: string; text: string }).text;
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
-
-  if (!jsonMatch) {
-    throw new Error('Failed to parse competitive SWOT response');
-  }
-
-  return JSON.parse(jsonMatch[0]);
+  const { safeJsonParse } = await import('../_shared/safe-json-parse.ts');
+  const result = safeJsonParse(text);
+  if (!result.ok) throw new Error(`Failed to parse competitive SWOT: ${result.error}`);
+  return result.data;
 }

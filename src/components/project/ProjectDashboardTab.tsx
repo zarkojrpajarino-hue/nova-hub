@@ -281,6 +281,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
             onAction={onNavigateToTab ? (actionType) => {
               if (actionType === 'create_obv') onNavigateToTab('obvs');
               else if (actionType === 'add_metrics') onNavigateToTab('financiero');
+              else if (actionType === 'create_task') onNavigateToTab('tareas');
               else if (actionType === 'define_channel') {
                 const el = document.getElementById('acquisition-channel-editor');
                 if (el) {

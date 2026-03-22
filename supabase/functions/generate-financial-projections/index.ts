@@ -107,7 +107,22 @@ serve(async (req) => {
       );
     }
 
+    // [B10] Cap growth_rate to reasonable bounds (max 50% monthly, min -20%)
+    const cappedGrowthRate = Math.max(-20, Math.min(50, growth_rate_monthly));
+
     console.log('📊 Generating financial projections for', years, 'years');
+
+    // [B10] Fetch latest real MRR for sanity cap
+    const { data: latestMetric } = await supabaseClient
+      .from('key_metrics')
+      .select('mrr')
+      .eq('project_id', projectId)
+      .order('date', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    const realMrr = latestMetric?.mrr ?? 0;
+    // Cap projected MRR to ±5x of real MRR (if real MRR > 0)
+    const mrrCap = realMrr > 0 ? realMrr * 5 : Infinity;
 
     // Generate month-by-month projections
     const projections: MonthlyProjection[] = [];
@@ -119,7 +134,7 @@ serve(async (req) => {
       const month = ((month_index - 1) % 12) + 1;
 
       // Calculate new customers (growth rate applied)
-      const growth_multiplier = month_index === 1 ? 1 : Math.pow(1 + growth_rate_monthly / 100, month_index - 1);
+      const growth_multiplier = month_index === 1 ? 1 : Math.pow(1 + cappedGrowthRate / 100, month_index - 1);
       const target_new_customers = pricing.reduce((sum, tier) => sum + tier.target_customers_month1, 0);
       const new_customers = Math.round(target_new_customers * growth_multiplier);
 
@@ -129,7 +144,8 @@ serve(async (req) => {
 
       // Calculate revenue (weighted average of pricing tiers)
       const avg_price = pricing.reduce((sum, tier) => sum + tier.price, 0) / pricing.length;
-      const mrr = total_customers * avg_price;
+      // [B10] Cap MRR to ±5x of real historical MRR to avoid hallucinated projections
+      const mrr = Math.min(total_customers * avg_price, mrrCap);
       const revenue = mrr;
 
       // Calculate costs

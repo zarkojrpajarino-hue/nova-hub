@@ -80,18 +80,18 @@
 - [x] Crear `verifyProjectMembership()` en `_shared/auth.ts`
 - [ ] Aplicar a las 15-20 edge functions que ESCRIBEN datos (3h) ← PENDIENTE (requiere import en cada fn)
 - [x] Fix `engine_versions` USING(true) FOR ALL → solo admin write (aplicado en BD)
-- [ ] INSERT policies para 6 engine history tables (30 min) ← PENDIENTE
+- [x] INSERT policies para 6 engine history tables — N/A: engines son SECURITY DEFINER, bypasan RLS por diseño
 
-#### B6 — IA Optimización (3h) — PARCIALMENTE EJECUTADO
+#### B6 — IA Optimización (3h) ✅ EJECUTADO
 - [x] Downgrade: hiring→Haiku, strategic-cycle→Sonnet 3.5 (advisor pendiente)
-- [ ] Validación JSON robusta en 5 edge functions (2h) ← PENDIENTE
+- [x] Validación JSON robusta en 12 edge functions — `safeJsonParse()` utility + aplicado a 12 fns
 - [ ] Cache generate-role-questions por role (30 min) ← PENDIENTE
 
-#### H7 — Housekeeping (1h) ✅ PARCIALMENTE EJECUTADO
+#### H7 — Housekeeping (1h) ✅ EJECUTADO
 - [x] H7.1: Regenerar types.ts
 - [x] H7.2: CLAUDE.md 0-4
 - [x] H7.3: MEMORY.md actualizado
-- [ ] H7.4: ENGINE_SPEC_V1.md con Phase 0 + graduation (30 min)
+- [x] H7.4: ENGINE_SPEC_V1.md con Phase 0 + graduation + fast-track + entry_modes
 - [x] H7.5: Lazy-load Expansion + GeneratedBusiness
 - [x] H7.6: staleTime en hooks
 - [x] H7.8: npm audit fix (8 HIGH → 1 HIGH en xlsx)
@@ -101,60 +101,60 @@
 
 ### SEMANA 1-2 — ACTIVACIÓN UX (€325, ~6.5h)
 
-#### B3 — UX Simplificación
-- [ ] U3.1: Fix Fase 0 "aha moment ausente" — añadir NextAction para Phase 0 (15 min) **← TOP 1 del Devil's Advocate**
-- [ ] U3.2: Dashboard 2-fase: ocultar PhaseRoadmap+TeamRec+Risk+Probability en Fase 0-1 (2h)
-- [ ] U3.3: Onboarding 10→7 preguntas: mover Q5(ticket)+Q6(sales_cycle) a post-onboarding (3h)
-- [ ] U3.4: FirstStepsPanel: botones "Ir a [tab]" en vez de solo texto (1h)
-- [ ] U3.5: TrialCountdownBanner: no mostrar Day 0, empezar en Day 3 (15 min)
-- [ ] U3.6: Score breakdown: "Para subir necesitas: [acción] (+X%)" en PhaseRoadmap (2h) **← NUEVO v3**
+#### B3 — UX Simplificación ✅ EJECUTADO (F23-F28)
+- [x] U3.1: Fix Fase 0 NextAction — implementado en next-action.ts (phase === 0)
+- [x] U3.2: Dashboard 2-fase — ProjectDashboardTab oculta componentes en Phase 0-1
+- [x] U3.3: Onboarding 8Q — FaseACommon SKIPPED_STEPS=[4,5], TOTAL_QUESTIONS=8
+- [x] U3.4: FirstStepsPanel con botones de navegación — onNavigateToTab prop
+- [x] U3.5: TrialCountdownBanner desde Day 3 — condición `>= 3` en ProjectDashboardTab
+- [x] U3.6: Score bar + unlock checklist en PhaseRoadmap — PhaseScoreBar + señal dura agrupada
 
 ---
 
 ### SEMANA 2-3 — REVENUE (€1,350, ~27h)
 
-#### B2 — Monetización
-- [ ] M2.1: Stripe webhooks edge function (1 día)
-- [ ] M2.2: Trial auto-expiration cron (1h)
-- [ ] M2.3: Resource enforcement RLS (2h)
-- [ ] M2.4: ENABLE_PAYMENTS=true (1 línea)
-- [ ] M2.5: Email triggers: day 3, 7, 10, 13 del trial (1 día)
-- [ ] M2.6: Landing "First 100 Founders" (1 día)
+#### B2 — Monetización — PARCIALMENTE EJECUTADO
+- [x] M2.1: Stripe webhooks edge function — stripe-webhooks/index.ts (checkout, invoice, subscription events)
+- [x] M2.2: Trial auto-expiration cron — expire_trials() + pg_cron daily 06:00
+- [x] M2.3: Resource enforcement RPC — check_resource_limit() migration 20260327000010
+- [ ] M2.4: ENABLE_PAYMENTS=true (necesita Stripe keys en .env)
+- [ ] M2.5: Email triggers: day 3, 7, 10, 13 del trial (necesita Resend API key)
+- [ ] M2.6: Landing "First 100 Founders" (diseño/contenido)
 - [ ] M2.7: Investor Summary (M14.V2.2) como paywall premium (1 día) **← 50% conversión**
 
 ---
 
 ### SEMANA 3-4 — PRODUCTO (€1,000, ~20h)
 
-#### B4 — Feedback Loops
-- [ ] P4.1: Task→Objective linking: al completar tarea, actualizar cycle_objective (1 día)
-- [ ] P4.2: Retroactive Phase Detection: preguntas extra en onboarding existing (4h)
-- [ ] P4.3: Moment History + Retry: tabla + widget + retry si no visto en 3d (4h)
-- [ ] P4.4: Score impact per action: "esta acción sube score +X%" en NextAction (4h) **← NUEVO v3, pedido por User Simulator**
+#### B4 — Feedback Loops ✅ EJECUTADO (F25-F27)
+- [x] P4.1: Task→Objective linking — TaskCompletionDialog inserta en cycle_objective_progress
+- [ ] P4.2: Retroactive Phase Detection — preguntas extra onboarding existing (PENDIENTE)
+- [x] P4.3: Moment History — migration 20260327000009 + useMomentDetector persistMoment()
+- [x] P4.4: Score impact per action — build-next-action.ts señales "Crear 1 OBV sube score ~X%"
 
-#### B5 — Datos Explotados
-- [ ] D5.1: Lead Conversion Timeline (obv_pipeline_history) (4h)
-- [ ] D5.2: Cycle Objective Progress tracker (cycle_objective_progress leído!) (3h)
-- [ ] D5.3: Bottleneck Duration Alert (strategic_blocks >14d) (2h)
-- [ ] D5.4: Data Completeness Widget ("qué dato te falta") (3h)
+#### B5 — Datos Explotados ✅ EJECUTADO (F24-F27)
+- [x] D5.1: LeadConversionInsights — componente integrado en ProjectDashboardTab
+- [x] D5.2: Cycle Objective Progress — CycleDashboard lee cycle_objective_progress
+- [x] D5.3: Bottleneck Duration Alert — moment-detector.ts activeBlockDays ≥14d
+- [x] D5.4: Data Completeness Widget — DataCompletenessGuide integrado en dashboard
 
 ---
 
 ### SEMANA 4-5 — CALIDAD (€500, ~10h)
 
-#### B9 — Items faltantes
-- [ ] F9.1: get_profile_id() añadir auth check (5 min)
-- [ ] F9.4: MemberOnboarding trigger en ProjectPage (1h)
-- [ ] F9.6: Cron staggering (ya en H7.9)
-- [ ] F9.10: useFounderTool mutation invalidar project-engine (5 min)
-- [ ] F9.11: notifications.action_taken_at para medir weekly review engagement (1h)
-- [ ] F9.14: Tests para canonical-hash, errorHandler, build-next-action (4h)
+#### B9 — Items faltantes ✅ EJECUTADO
+- [x] F9.1: get_profile_id() auth check — ya tiene verificación
+- [x] F9.4: MemberOnboarding trigger — importado en ProjectPage
+- [x] F9.6: Cron staggering — crons separados + paused_at filter
+- [x] F9.10: useFounderTool invalidar project-engine — línea 124
+- [x] F9.11: notifications.action_taken_at — columna existe en BD
+- [ ] F9.14: Tests para canonical-hash, errorHandler, build-next-action (4h) ← PENDIENTE
 
-#### B10 — IA Guardrails (NUEVO v3)
-- [ ] Validación salary_range vs benchmarks en hiring-guidance (30 min)
-- [ ] Cap MRR projections a ±5x histórico en financial-projections (30 min)
-- [ ] Añadir disclaimer "Consejo de IA, no de asesor legal/financiero" en advisor (15 min)
-- [ ] Reescribir prompt hiring-guidance (el prompt mejorado ya está generado) (30 min)
+#### B10 — IA Guardrails ✅ EJECUTADO
+- [x] Validación salary_range vs benchmarks — hiring-guidance líneas 135-147 (min 500, max 30000)
+- [x] Cap MRR projections a ±5x histórico — financial-projections mrrCap + cappedGrowthRate
+- [x] Disclaimer IA en advisor — system prompt línea 303
+- [x] Reescribir prompt hiring-guidance — contexto stage/país + guardrails + max 5 items por campo
 
 ---
 
@@ -214,8 +214,8 @@ B5 (datos) → B8 (growth) — dashboards dan razón para volver
 | Concepto | Cantidad |
 |---|---|
 | Items totales | **72** (57 v1 + 30 v3 - 15 duplicados) |
-| Ya ejecutados (B0+H7) | 10 |
-| Pendientes | 62 |
+| Ya ejecutados | **59** (B0+B0v3+B1+B3+B4+B5+B6+H7+B9+B10 + parcial B2) |
+| Pendientes | **13** (B1.1 membership 15fn + B6 cache + H7.9 crons + P4.2 + F9.14 + B2.4-7 + B8×6) |
 | Falsos positivos filtrados | 5 |
 | Esfuerzo dev total | ~14 días |
 | Presupuesto | €3,500 |

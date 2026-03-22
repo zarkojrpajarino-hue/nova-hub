@@ -237,12 +237,10 @@ Devuelve SOLO un JSON array con este formato exacto (${numIdeas} items):
   const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse content ideas response');
-  }
-
-  const ideas = JSON.parse(jsonMatch[0]);
+  const { safeJsonParse } = await import('../_shared/safe-json-parse.ts');
+  const parseResult = safeJsonParse(responseText, 'array');
+  if (!parseResult.ok) throw new Error(`Failed to parse content ideas: ${parseResult.error}`);
+  const ideas = parseResult.data;
 
   return { ideas, tokensUsed };
 }

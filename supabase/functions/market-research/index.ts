@@ -232,12 +232,10 @@ Devuelve SOLO un JSON array con este formato exacto:
   const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON from response
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse trends analysis response');
-  }
-
-  return JSON.parse(jsonMatch[0]);
+  const { safeJsonParse } = await import('../_shared/safe-json-parse.ts');
+  const result = safeJsonParse(responseText, 'array');
+  if (!result.ok) throw new Error(`Failed to parse trends analysis: ${result.error}`);
+  return result.data;
 }
 
 /**
@@ -314,13 +312,10 @@ Devuelve SOLO un JSON array con este formato exacto:
 
   const responseText = (message.content[0] as { type: string; text: string }).text;
 
-  // Extract JSON from response
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse social media analysis response');
-  }
-
-  return JSON.parse(jsonMatch[0]);
+  const { safeJsonParse: safeParse2 } = await import('../_shared/safe-json-parse.ts');
+  const result2 = safeParse2(responseText, 'array');
+  if (!result2.ok) throw new Error(`Failed to parse social media analysis: ${result2.error}`);
+  return result2.data;
 }
 
 /**
@@ -375,12 +370,10 @@ Devuelve SOLO un JSON con este formato exacto:
   const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON from response
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse market size response');
-  }
-
-  return JSON.parse(jsonMatch[0]);
+  const { safeJsonParse: safeParse3 } = await import('../_shared/safe-json-parse.ts');
+  const result3 = safeParse3(responseText);
+  if (!result3.ok) throw new Error(`Failed to parse market size: ${result3.error}`);
+  return result3.data;
 }
 
 /**
@@ -494,12 +487,9 @@ Devuelve SOLO un JSON con este formato exacto:
   const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
-  // Extract JSON from response
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse analysis response');
-  }
-
-  const analysis = JSON.parse(jsonMatch[0]);
+  const { safeJsonParse: safeParse4 } = await import('../_shared/safe-json-parse.ts');
+  const result4 = safeParse4(responseText);
+  if (!result4.ok) throw new Error(`Failed to parse analysis: ${result4.error}`);
+  const analysis = result4.data as Record<string, unknown>;
   return { ...analysis, tokensUsed };
 }

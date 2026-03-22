@@ -309,10 +309,8 @@ Devuelve SOLO un JSON array de 10 slides con este formato EXACTO:
   const responseText = (message.content[0] as { type: string; text: string }).text;
 
   // Extract JSON array from response
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse pitch deck slides response');
-  }
-
-  return JSON.parse(jsonMatch[0]);
+  const { safeJsonParse } = await import('../_shared/safe-json-parse.ts');
+  const result = safeJsonParse(responseText, 'array');
+  if (!result.ok) throw new Error(`Failed to parse pitch deck slides: ${result.error}`);
+  return result.data;
 }

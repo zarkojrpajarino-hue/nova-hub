@@ -42,7 +42,7 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 export type NextAction = {
   title: string;
   description: string;
-  actionType?: 'create_obv' | 'add_metrics' | 'define_channel';
+  actionType?: 'create_obv' | 'add_metrics' | 'define_channel' | 'create_task' | 'open_meeting';
   ctaLabel?: string;
 } | null;
 

@@ -80,7 +80,7 @@ interface UnlockModeCardProps {
   engineData: ProjectEngineData | null | undefined;
   nextAction: NextAction;
   viabilityStatus?: string;
-  onCTA?: (actionType: 'create_obv' | 'add_metrics' | 'define_channel') => void;
+  onCTA?: (actionType: 'create_obv' | 'add_metrics' | 'define_channel' | 'create_task' | 'open_meeting') => void;
 }
 
 export function UnlockModeCard({ engineData, nextAction, viabilityStatus, onCTA }: UnlockModeCardProps) {

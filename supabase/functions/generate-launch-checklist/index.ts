@@ -226,12 +226,10 @@ Devuelve SOLO un JSON array:
   const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
-  const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-  if (!jsonMatch) {
-    throw new Error('Failed to parse checklist response');
-  }
-
-  const items: ChecklistItem[] = JSON.parse(jsonMatch[0]);
+  const { safeJsonParse } = await import('../_shared/safe-json-parse.ts');
+  const parseResult = safeJsonParse<ChecklistItem[]>(responseText, 'array');
+  if (!parseResult.ok) throw new Error(`Failed to parse checklist: ${parseResult.error}`);
+  const items: ChecklistItem[] = parseResult.data;
 
   return { items, tokensUsed };
 }

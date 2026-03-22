@@ -84,16 +84,29 @@ Deno.serve(async (req) => {
     const phase = phaseState?.current_phase ?? 1;
     const stageLabel = phase <= 1 ? 'pre-seed/seed' : phase <= 3 ? 'early-stage' : 'growth';
 
-    const systemPrompt = `Eres un experto en hiring para startups. Genera guía de contratación.
+    const systemPrompt = `Eres un experto en hiring y talent acquisition para startups en ${country}.
+
+CONTEXTO:
+- Stage del proyecto: ${stageLabel}
+- País: ${country}
+- Fase del motor: ${phase}/4
+
+REGLAS:
+- salary_range SIEMPRE en EUR mensuales brutos. Rango realista para ${country} y el stage ${stageLabel}.
+- Para pre-seed/seed: priorizar alternativas (freelancers, herramientas) sobre contratación full-time.
+- interview_questions: máximo 5, específicas para el rol, no genéricas.
+- red_flags: señales concretas de mala contratación para este rol en una startup.
+- DISCLAIMER: Esto es orientativo. Consultar con un asesor laboral para condiciones contractuales.
 
 RESPONDE SOLO con JSON válido:
 {
   "salary_range": { "min": number, "max": number, "currency": "EUR", "period": "monthly" },
   "equity_guidance": "string (% típico para este stage)",
-  "hiring_channels": ["string"],
-  "interview_questions": ["string"],
-  "red_flags": ["string"],
-  "alternative": "string (qué hacer si no puede contratar)"
+  "hiring_channels": ["string (máximo 5, ordenados por efectividad para startups)"],
+  "interview_questions": ["string (máximo 5, específicas para el rol)"],
+  "red_flags": ["string (máximo 5)"],
+  "alternative": "string (qué hacer si no puede contratar: freelancer, herramienta, o reorganizar equipo)",
+  "disclaimer": "Orientativo. Consultar asesor laboral para condiciones contractuales."
 }`;
 
     const response = await fetch('https://api.anthropic.com/v1/messages', {

@@ -59,6 +59,50 @@ No existe `user_id` en `project_members`. Todo SQL nuevo usa `member_id`.
 
 ---
 
+## 1.5. Fase 0 — Exploración (F23, migration 20260327000001)
+
+### Propósito
+Fase pre-idea para fundadores que aún no tienen un problema definido. Proyectos tipo `generative` entran aquí.
+
+### Fórmula canónica
+```
+phase0_score = (O0.1 × 0.50) + (O0.2 × 0.30) + (O0.3 × 0.20)
+```
+
+- **O0.1 (50%)**: `onboarding_data.interests` array con ≥3 items → 100, else proporcional
+- **O0.2 (30%)**: COUNT obvs tipo='exploracion' ≥3 → 100, else proporcional
+- **O0.3 (20%)**: `onboarding_data.selected_idea` existe y no está vacío → 100
+
+### Hard signal para salir de Fase 0
+```
+selected_idea IS NOT NULL
+AND LENGTH(segment_text) >= 10
+```
+Ambas condiciones obligatorias: el founder debe haber elegido una idea Y definido un segmento.
+
+### Fast-track cascade
+Cuando `trigger_source = 'onboarding_fast_track'`, el motor evalúa fases en cascada usando gates alternativos basados en datos del onboarding (MRR, customers, months_operating) en lugar de los gates normales del engine.
+
+### Entry modes
+- `bootcamp`: flujo normal fase por fase
+- `fast_track`: evaluación cascada desde onboarding (startups existentes)
+- `cycle_direct`: entrada directa a ciclos estratégicos (futuro)
+
+### Graduación (Phase 4 → Ciclos Estratégicos)
+```sql
+-- Si score >= 75: setear graduation_eligible_since (si NULL)
+-- Si score < 75: resetear graduation_eligible_since a NULL
+-- Si graduation_eligible_since + 28 days <= NOW(): graduated = TRUE
+```
+
+### Regresión de graduación
+```sql
+-- Si graduated = TRUE AND consecutive_low_score >= 2 (score < 50):
+--   graduated = FALSE, graduation_eligible_since = NULL
+```
+
+---
+
 ## 2. Fase 1 — Descubrimiento (congelada)
 
 Ya implementada en migration 00005. **No modificar.**

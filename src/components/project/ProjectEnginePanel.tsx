@@ -314,7 +314,7 @@ interface ProjectEnginePanelProps {
   projectId?: string;
   engineData: ProjectEngineData | null | undefined;
   isLoading?: boolean;
-  onAction?: (actionType: 'create_obv' | 'add_metrics' | 'define_channel') => void;
+  onAction?: (actionType: 'create_obv' | 'add_metrics' | 'define_channel' | 'create_task' | 'open_meeting') => void;
   viabilityStatus?: string;
   functionOwners?: FunctionOwner[];
   fastStartCompleted?: boolean;
