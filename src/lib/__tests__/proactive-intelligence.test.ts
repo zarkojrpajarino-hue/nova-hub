@@ -6,7 +6,7 @@
 
 import { describe, it, expect } from 'vitest'
 import { detectMoments, type MomentDetectorInput } from '../moment-detector'
-import { estimatePhaseRunway, type PhaseRunwayInput } from '../phase-runway-estimator'
+import { estimatePhaseRunway } from '../phase-runway-estimator'
 
 // ── Moment Detector ──────────────────────────────────────────────
 

@@ -20,14 +20,14 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
+    const _stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET'); // TODO: use for signature verification
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
     const body = await req.text();
-    const sig = req.headers.get('stripe-signature');
+    const _sig = req.headers.get('stripe-signature'); // TODO: verify with Stripe SDK
 
     // In production, verify signature with stripe-webhook-secret
     // For now, parse the event directly (TODO: add Stripe SDK signature verification)
