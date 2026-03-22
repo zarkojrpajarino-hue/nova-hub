@@ -48,6 +48,8 @@ export interface MomentDetectorInput {
   // Cycle
   activeCycleDaysRemaining: number | null;  // null if no active cycle
   activeCycleScore: number | null;
+  // Bottleneck
+  activeBlockDays: number;         // days of oldest active strategic_block (0 if none)
   // Previously seen moments (to avoid repeating)
   seenMoments: string[];         // array of moment types already shown
 }
@@ -166,6 +168,18 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       title: 'Riesgo de regresión',
       message: `Tu score lleva ${input.consecutiveLowScore} semanas por debajo de 50. Si continúa, podrías regresar de fase.`,
       data: { consecutiveWeeks: input.consecutiveLowScore },
+    });
+  }
+
+  // [D5.3] Bottleneck duration alert (strategic_block active >14 days)
+  if (input.activeBlockDays >= 14
+    && !input.seenMoments.includes(`bottleneck_alert_${weekKey}`)) {
+    moments.push({
+      type: 'regression_risk',
+      severity: 'warning',
+      title: 'Bloqueo activo prolongado',
+      message: `Tienes un bloqueo activo desde hace ${input.activeBlockDays} días. Los bloqueos >14 días correlacionan con regresión de fase.`,
+      data: { blockDays: input.activeBlockDays },
     });
   }
 

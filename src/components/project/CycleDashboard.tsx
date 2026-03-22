@@ -9,7 +9,9 @@
 
 import { Sparkles, Clock, Target, AlertTriangle, Plus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useQuery } from '@tanstack/react-query';
 import { useActiveCycle, useCompleteCycle, useGenerateCycle, type CycleObjective } from '@/hooks/useStrategicCycles';
+import { supabase } from '@/integrations/supabase/client';
 import { CycleHistory } from './CycleHistory';
 
 interface CycleDashboardProps {
@@ -46,6 +48,25 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
   const completeCycle = useCompleteCycle();
   const generateCycle = useGenerateCycle();
 
+  // [D5.2] Read accumulated progress from cycle_objective_progress
+  const { data: progressData } = useQuery({
+    queryKey: ['cycle-progress', cycle?.id],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('cycle_objective_progress')
+        .select('objective_id, value')
+        .eq('cycle_id', cycle!.id);
+      // Aggregate: sum values per objective
+      const sums: Record<string, number> = {};
+      for (const row of data ?? []) {
+        sums[row.objective_id] = (sums[row.objective_id] ?? 0) + Number(row.value);
+      }
+      return sums;
+    },
+    enabled: !!cycle?.id,
+    staleTime: 5 * 60_000,
+  });
+
   if (isLoading) return null;
 
   // No active cycle → CTA to create one
@@ -78,7 +99,11 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
   const today = new Date();
   const daysRemaining = Math.max(0, Math.ceil((endDate.getTime() - today.getTime()) / 86_400_000));
   const isExpired = daysRemaining === 0;
-  const objectives = (cycle.objectives ?? []) as CycleObjective[];
+  // [D5.2] Merge accumulated progress into objectives
+  const objectives = ((cycle.objectives ?? []) as CycleObjective[]).map(obj => ({
+    ...obj,
+    current_value: obj.current_value + (progressData?.[obj.id] ?? 0),
+  }));
   const score = Math.round(cycle.cycle_score);
 
   // CE25.8 — Regresión: graduated=false pero ciclo activo

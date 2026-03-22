@@ -56,7 +56,7 @@ export function useMomentDetector(projectId: string | undefined) {
   const { data: extraData } = useQuery({
     queryKey: ['moment-detector-data', projectId],
     queryFn: async () => {
-      const [saleResult, mrrResult, teamResult, scoreHistoryResult] = await Promise.all([
+      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult] = await Promise.all([
         supabase
           .from('obvs')
           .select('id')
@@ -81,6 +81,15 @@ export function useMomentDetector(projectId: string | undefined) {
           .eq('project_id', projectId!)
           .order('calculated_at', { ascending: false })
           .limit(8),
+        // [D5.3] Oldest active strategic_block
+        supabase
+          .from('strategic_blocks')
+          .select('created_at')
+          .eq('project_id', projectId!)
+          .eq('status', 'active')
+          .order('created_at', { ascending: true })
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       const mrrData = mrrResult.data ?? [];
@@ -89,6 +98,10 @@ export function useMomentDetector(projectId: string | undefined) {
       const members = teamResult.data ?? [];
       const weekAgo = new Date(Date.now() - 7 * 86_400_000).toISOString();
       const newMembers = members.filter(m => m.joined_at && m.joined_at >= weekAgo).length;
+      const oldestBlock = blocksResult.data?.created_at;
+      const activeBlockDays = oldestBlock
+        ? Math.floor((Date.now() - new Date(oldestBlock).getTime()) / 86_400_000)
+        : 0;
 
       return {
         hasFirstSale: !!saleResult.data,
@@ -97,6 +110,7 @@ export function useMomentDetector(projectId: string | undefined) {
         teamSize: members.length,
         newMembersThisWeek: newMembers,
         scoreHistory: (scoreHistoryResult.data ?? []).reverse().map(h => Number(h.phase_score)),
+        activeBlockDays,
       };
     },
     enabled: !!projectId,
@@ -132,6 +146,7 @@ export function useMomentDetector(projectId: string | undefined) {
       weeksInPhase,
       scoreChange4w,
       consecutiveLowScore: ps.consecutive_low_score ?? 0,
+      activeBlockDays: extraData.activeBlockDays,
       teamSize: extraData.teamSize,
       newMembersThisWeek: extraData.newMembersThisWeek,
       activeCycleDaysRemaining: cycleDaysRemaining,

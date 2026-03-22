@@ -26,6 +26,8 @@ import { MomentBanner } from './MomentBanner';
 import { OptimusProfileCard } from './OptimusProfileCard';
 import { ProjectTimeline } from './ProjectTimeline';
 import { TeamRecommendation } from './TeamRecommendation';
+import { LeadConversionInsights } from './LeadConversionInsights';
+import { DataCompletenessGuide } from './DataCompletenessGuide';
 
 interface ProjectStats {
   facturacion?: number;
@@ -297,6 +299,8 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
               onNavigateToTeam={onNavigateToTab ? () => onNavigateToTab('equipo') : undefined}
             />
           )}
+          <DataCompletenessGuide projectId={project.id} />
+          <LeadConversionInsights projectId={project.id} />
           <ProjectTimeline projectId={project.id} />
         </div>
       </div>
