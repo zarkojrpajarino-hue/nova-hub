@@ -68,24 +68,24 @@
 - [x] E0.3: Fix evidence_mode schema
 - [x] E0.4: Commitear 20 archivos
 
-#### B0-v3 — Emergencias nuevas (1h)
-- [ ] Fix `ai-task-executor` variable shadowing en catch (5 min)
-- [ ] Fix `export-excel` auth — verificar si existe, si sí añadir membership (15 min)
-- [ ] Responsive grid dashboard: `grid-cols-1 lg:grid-cols-12` (10 min)
-- [ ] Tipo Project: añadir `paused_at`, `archived_at`, `created_by` (10 min)
-- [ ] Fix O4.3 NULL query: `owner_user_id IS NOT NULL AND != founder` (15 min)
-- [ ] Fix optimus_profile thresholds: reducir 20% (>50%→>35%, >70%→>55%) (15 min)
+#### B0-v3 — Emergencias nuevas (45 min) ✅ EJECUTADO
+- [x] Fix `ai-task-executor` variable shadowing en catch
+- [x] ~~Fix `export-excel` auth~~ FALSO POSITIVO — archivo no existe
+- [x] Responsive grid dashboard: `grid-cols-1 lg:grid-cols-12`
+- [x] Tipo Project: añadir `paused_at`, `archived_at`, `created_by`
+- [x] ~~Fix O4.3 NULL query~~ FALSO POSITIVO — frontend maneja correctamente
+- [x] Fix optimus_profile thresholds: reducido 20% (>50→>35, >70→>55, >30→>25)
 
-#### B1 — Seguridad (4h) — AJUSTADO por Devil's Advocate
-- [ ] Crear `verifyProjectMembership()` en `_shared/auth.ts` (30 min)
-- [ ] Aplicar a las 15-20 edge functions que ESCRIBEN datos (no 63 — RLS cubre lectura) (3h)
-- [ ] Fix `engine_versions` USING(true) FOR ALL → solo admin write (15 min)
-- [ ] INSERT policies para 6 engine history tables (30 min)
+#### B1 — Seguridad (4h) — PARCIALMENTE EJECUTADO
+- [x] Crear `verifyProjectMembership()` en `_shared/auth.ts`
+- [ ] Aplicar a las 15-20 edge functions que ESCRIBEN datos (3h) ← PENDIENTE (requiere import en cada fn)
+- [x] Fix `engine_versions` USING(true) FOR ALL → solo admin write (aplicado en BD)
+- [ ] INSERT policies para 6 engine history tables (30 min) ← PENDIENTE
 
-#### B6 — IA Optimización (3h)
-- [ ] Downgrade: advisor→Haiku, hiring→lookup, strategic-cycle→Sonnet 3.5 (30 min)
-- [ ] Validación JSON robusta en 5 edge functions (2h)
-- [ ] Cache generate-role-questions por role (30 min)
+#### B6 — IA Optimización (3h) — PARCIALMENTE EJECUTADO
+- [x] Downgrade: hiring→Haiku, strategic-cycle→Sonnet 3.5 (advisor pendiente)
+- [ ] Validación JSON robusta en 5 edge functions (2h) ← PENDIENTE
+- [ ] Cache generate-role-questions por role (30 min) ← PENDIENTE
 
 #### H7 — Housekeeping (1h) ✅ PARCIALMENTE EJECUTADO
 - [x] H7.1: Regenerar types.ts
@@ -94,8 +94,8 @@
 - [ ] H7.4: ENGINE_SPEC_V1.md con Phase 0 + graduation (30 min)
 - [x] H7.5: Lazy-load Expansion + GeneratedBusiness
 - [x] H7.6: staleTime en hooks
-- [ ] H7.8: npm audit fix (8 HIGH) (15 min)
-- [ ] H7.9: Cron staggering: 14 jobs separados por 5 min (15 min)
+- [x] H7.8: npm audit fix (8 HIGH → 1 HIGH en xlsx)
+- [ ] H7.9: Cron staggering: 14 jobs separados por 5 min (15 min) ← PENDIENTE
 
 ---
 
