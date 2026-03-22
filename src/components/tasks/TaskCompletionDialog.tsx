@@ -9,6 +9,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
+import { useActiveCycle, type CycleObjective } from '@/hooks/useStrategicCycles';
 
 // AUD.B.4 — validación semántica mínima para siguiente_accion
 // Reglas: ≥15 chars + no todo mayúsculas (evita "LLAMAR LLAMAR LLAMAR")
@@ -83,6 +84,11 @@ export function TaskCompletionDialog({
   const [resolvedFunctionType, setResolvedFunctionType] = useState<string | null>(
     task.function_type ?? null
   );
+
+  // [P4.1] Task→Objective linking
+  const { data: activeCycle } = useActiveCycle(projectId);
+  const [selectedObjectiveId, setSelectedObjectiveId] = useState<string | null>(null);
+  const cycleObjectives = (activeCycle?.objectives ?? []) as CycleObjective[];
 
   // Reset step when dialog opens/closes
   useEffect(() => {
@@ -171,6 +177,16 @@ export function TaskCompletionDialog({
 
     try {
       await onComplete(task.id, feedback);
+
+      // [P4.1] Si seleccionó objetivo del ciclo y tarea fue exitosa, registrar progreso
+      if (selectedObjectiveId && activeCycle && resultado === 'exito') {
+        await supabase.from('cycle_objective_progress').insert({
+          cycle_id: activeCycle.id,
+          objective_id: selectedObjectiveId,
+          value: 1,  // +1 incremento por tarea completada
+          notes: `Tarea completada: ${task.titulo?.slice(0, 80)}`,
+        });
+      }
 
       // F19.B.1: si hay siguiente_accion, mostrar paso follow-up
       const hasSiguiente = isValidSiguienteAccion(siguienteAccion);
@@ -302,6 +318,41 @@ export function TaskCompletionDialog({
         {step === 'feedback' && (
         <>
         <div className="flex-1 overflow-y-auto space-y-6 py-4">
+          {/* [P4.1] Vincular a objetivo del ciclo */}
+          {cycleObjectives.length > 0 && (
+            <div className="space-y-2">
+              <Label className="text-sm font-medium">¿A qué objetivo contribuyó?</Label>
+              <div className="grid gap-1.5">
+                {cycleObjectives.map((obj) => (
+                  <button
+                    key={obj.id}
+                    type="button"
+                    onClick={() => setSelectedObjectiveId(selectedObjectiveId === obj.id ? null : obj.id)}
+                    className={cn(
+                      'text-left px-3 py-2 rounded-lg border text-xs transition-all',
+                      selectedObjectiveId === obj.id
+                        ? 'border-blue-500 bg-blue-50 text-blue-900'
+                        : 'border-border hover:border-muted-foreground/30'
+                    )}
+                  >
+                    <span className="font-medium">{obj.title}</span>
+                    <span className="text-muted-foreground ml-1">({Math.round(obj.weight * 100)}%)</span>
+                  </button>
+                ))}
+                <button
+                  type="button"
+                  onClick={() => setSelectedObjectiveId(null)}
+                  className={cn(
+                    'text-left px-3 py-2 rounded-lg border text-xs',
+                    !selectedObjectiveId ? 'border-muted-foreground/30 bg-muted/30' : 'border-border'
+                  )}
+                >
+                  Ninguno / No aplica
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* Resultado */}
           <div className="space-y-3">
             <Label className="text-sm font-medium">¿Cómo fue el resultado?</Label>

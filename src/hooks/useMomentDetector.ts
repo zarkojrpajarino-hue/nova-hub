@@ -31,6 +31,23 @@ export function markMomentSeen(projectId: string, momentKey: string) {
   }
 }
 
+// [P4.3] Persist moment to moment_history for retry + historical view
+export async function persistMoment(projectId: string, moment: { type: string; severity: string; title: string; message: string; data?: Record<string, unknown> }) {
+  try {
+    await supabase.from('moment_history').insert({
+      project_id: projectId,
+      moment_type: moment.type,
+      moment_severity: moment.severity,
+      title: moment.title,
+      message: moment.message,
+      data: moment.data ?? null,
+      seen_at: new Date().toISOString(),
+    });
+  } catch {
+    // Silent — history is nice-to-have, not critical
+  }
+}
+
 export function useMomentDetector(projectId: string | undefined) {
   const { data: engineData } = useProjectEngineData(projectId);
   const { data: activeCycle } = useActiveCycle(projectId);

@@ -9,7 +9,7 @@
 import { useEffect, useState } from 'react';
 import { X, PartyPopper, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMomentDetector, markMomentSeen } from '@/hooks/useMomentDetector';
+import { useMomentDetector, markMomentSeen, persistMoment } from '@/hooks/useMomentDetector';
 import confetti from '@/lib/confetti';
 import type { Moment } from '@/lib/moment-detector';
 
@@ -68,13 +68,17 @@ export function MomentBanner({ projectId }: MomentBannerProps) {
   const [dismissed, setDismissed] = useState(false);
   const [confettiFired, setConfettiFired] = useState(false);
 
-  // Fire confetti for celebrations
+  // Fire confetti for celebrations + persist to history
   useEffect(() => {
     if (topMoment?.severity === 'celebration' && !confettiFired) {
       confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
       setConfettiFired(true);
     }
-  }, [topMoment, confettiFired]);
+    // [P4.3] Persist moment to history for retry + tracking
+    if (topMoment && projectId) {
+      persistMoment(projectId, topMoment);
+    }
+  }, [topMoment, confettiFired, projectId]);
 
   if (!topMoment || dismissed) return null;
 

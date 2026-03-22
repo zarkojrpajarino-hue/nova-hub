@@ -164,6 +164,17 @@ export function buildNextAction(
     } else if (score < 75 && score >= 50 && phase < 4) {
       signals.push(`Score en fricción (${Math.round(score)}/75). Necesitas más evidencia para avanzar.`)
     }
+    // [P4.4] Score impact estimado por acción según fase
+    if (score < 75 && phase < 4) {
+      const gap = 75 - Math.round(score)
+      if (phase <= 1) {
+        signals.push(`💡 Crear 1 OBV validada puede subir score ~${Math.min(15, gap)}%.`)
+      } else if (phase === 2) {
+        signals.push(`💡 Registrar 1 pago verificado puede subir score ~${Math.min(20, gap)}%.`)
+      } else if (phase === 3) {
+        signals.push(`💡 Completar 3 tareas esta semana puede subir score ~${Math.min(10, gap)}%.`)
+      }
+    }
   }
 
   // AUD.M.12 — ajustar urgency según operationalComplexity:
