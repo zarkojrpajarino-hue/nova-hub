@@ -335,6 +335,27 @@ Deno.serve(async (req) => {
       .eq('id', connection_id)
 
     // ──────────────────────────────────────────────────────────────────────────
+    // Paso 11b: Run Finance Agent post-sync → generate insights
+    // Previously agents only ran client-side (browser). Now they run
+    // server-side automatically after every sync.
+    // ──────────────────────────────────────────────────────────────────────────
+    let agentResult = { insights_emitted: 0, insights_skipped: 0, agent_type: 'finance' }
+    try {
+      const { runPostSyncAgents } = await import('../_shared/agent-runner.ts')
+      agentResult = await runPostSyncAgents(
+        serviceClient,
+        project_id,
+        connection_id,
+        'stripe',
+        sync_run_id!,
+      )
+      console.log(`[sync-stripe] Agent result: ${agentResult.insights_emitted} insights emitted`)
+    } catch (agentErr) {
+      // Agent failure is non-blocking — sync data is already persisted
+      console.error('[sync-stripe] Agent error (non-blocking):', agentErr)
+    }
+
+    // ──────────────────────────────────────────────────────────────────────────
     // Paso 12: Respuesta — mrr en CENTAVOS. Frontend divide por 100 para display.
     // ──────────────────────────────────────────────────────────────────────────
     return new Response(
@@ -346,6 +367,7 @@ Deno.serve(async (req) => {
         entities_synced:      rawSubscriptions.length,
         log_id,
         write_status,
+        agent: agentResult,
       }),
       { status: 200, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
     )
