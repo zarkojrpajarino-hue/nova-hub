@@ -99,8 +99,7 @@ interface ResetSurfaceProps {
 // Helpers
 // =============================================================================
 
-function cycleEvalConfig(evaluation: string) {
-  const { t } = useTranslation();
+function cycleEvalConfig(evaluation: string, t: (key: string) => string) {
   switch (evaluation) {
     case 'progress':
       return { label: t('project.cicloDeAvance'), color: 'text-green-600', bg: 'bg-green-500/10', border: 'border-green-500/30', icon: TrendingUp };
@@ -111,7 +110,7 @@ function cycleEvalConfig(evaluation: string) {
   }
 }
 
-function confidenceLabel(confidence: string) {
+function confidenceLabel(confidence: string, t: (key: string) => string) {
   switch (confidence) {
     case 'high':   return { label: t('project.altaConfianza'),  color: 'text-green-600' };
     case 'low':    return { label: t('project.bajaConfianza'),  color: 'text-amber-600' };
@@ -354,9 +353,10 @@ function RitualOutput({
   projectId: string;
   userId: string;
 }) {
-  const evalCfg = cycleEvalConfig(cycleEval);
+  const { t } = useTranslation();
+  const evalCfg = cycleEvalConfig(cycleEval, t);
   const EvalIcon = evalCfg.icon;
-  const conf = optimus ? confidenceLabel(optimus.confidence) : null;
+  const conf = optimus ? confidenceLabel(optimus.confidence, t) : null;
 
   return (
     <div className="max-w-2xl mx-auto py-10 space-y-6">
@@ -680,26 +680,27 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
     return <RitualLoading />;
   }
 
-  // F31 v1: commitments phase — capture what the founder commits to for the next cycle
+  // F31 v1: commitments phase — capture what the founder commits to for the next cycle.
+  //
+  // Storage strategy: commitments are saved on the CLOSED cycle (N).
+  // They represent "what I promise to do in the NEXT cycle".
+  // compute_cycle_delta(N+1) reads commitments from the PREVIOUS cycle (N)
+  // to compare promised vs actual. This way:
+  //   - Cycle N closes → founder writes commitments → saved on cycle N
+  //   - Cycle N+1 runs → at close, delta reads cycle N's commitments
+  //   - The first cycle (N=1) has no delta (no previous commitments) — correct.
   const handleCommitmentsComplete = async (commitments: CycleCommitment[]) => {
-    // Save commitments to the NEXT cycle (the one about to be created)
-    // The cycle creation is handled by onComplete() which triggers the cycle generation.
-    // We store commitments temporarily and pass them via the cycle creation flow.
     if (commitments.length > 0) {
       try {
-        // Get the latest cycle for this project (the one just closed)
         const { data: latestCycle } = await supabase
           .from('strategic_cycles')
-          .select('id, cycle_index')
+          .select('id')
           .eq('project_id', projectId)
           .order('cycle_index', { ascending: false })
           .limit(1)
           .single();
 
         if (latestCycle) {
-          // Store commitments on the closed cycle for now — they represent
-          // what the founder committed to AFTER seeing the results.
-          // When the next cycle is created, compute_cycle_delta will read these.
           await supabase
             .from('strategic_cycles')
             .update({ commitments_json: commitments as unknown as Record<string, unknown>[] })
