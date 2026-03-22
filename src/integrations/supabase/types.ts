@@ -3740,6 +3740,81 @@ export type Database = {
           },
         ]
       }
+      moment_history: {
+        Row: {
+          created_at: string
+          data: Json | null
+          dismissed_at: string | null
+          id: string
+          message: string | null
+          moment_severity: string
+          moment_type: string
+          project_id: string
+          seen_at: string | null
+          title: string
+        }
+        Insert: {
+          created_at?: string
+          data?: Json | null
+          dismissed_at?: string | null
+          id?: string
+          message?: string | null
+          moment_severity: string
+          moment_type: string
+          project_id: string
+          seen_at?: string | null
+          title: string
+        }
+        Update: {
+          created_at?: string
+          data?: Json | null
+          dismissed_at?: string | null
+          id?: string
+          message?: string | null
+          moment_severity?: string
+          moment_type?: string
+          project_id?: string
+          seen_at?: string | null
+          title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "moment_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "active_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moment_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "deleted_projects"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moment_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "financial_metrics"
+            referencedColumns: ["project_id"]
+          },
+          {
+            foreignKeyName: "moment_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "project_stats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "moment_history_project_id_fkey"
+            columns: ["project_id"]
+            isOneToOne: false
+            referencedRelation: "projects"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       notification_health_snapshots: {
         Row: {
           captured_at: string
@@ -3767,6 +3842,7 @@ export type Database = {
       notifications: {
         Row: {
           action_label: string | null
+          action_taken_at: string | null
           action_url: string | null
           archived: boolean | null
           created_at: string | null
@@ -3785,6 +3861,7 @@ export type Database = {
         }
         Insert: {
           action_label?: string | null
+          action_taken_at?: string | null
           action_url?: string | null
           archived?: boolean | null
           created_at?: string | null
@@ -3803,6 +3880,7 @@ export type Database = {
         }
         Update: {
           action_label?: string | null
+          action_taken_at?: string | null
           action_url?: string | null
           archived?: boolean | null
           created_at?: string | null
