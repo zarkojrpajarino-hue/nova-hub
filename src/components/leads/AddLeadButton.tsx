@@ -56,10 +56,10 @@ export function AddLeadButton({
     onAddLead?.();
   };
 
-  const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
-    // TODO: Implementar upgrade en Fase 7
+  const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
+    console.info('[Upgrade] Plan selected:', { planId, billingCycle, context: 'leads' });
     setShowUpgradeModal(false);
-    toast.success(t('leads.planActualizadoYaPuedes'));
+    toast.info(t('subscription.upgradeComingSoon'));
   };
 
   return (

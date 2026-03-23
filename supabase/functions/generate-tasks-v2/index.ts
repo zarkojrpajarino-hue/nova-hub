@@ -5,6 +5,7 @@ import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectC
 import { TasksGenerationRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
+import { validateAuth } from '../_shared/auth.ts';
 
 
 // Role labels for display
@@ -27,34 +28,8 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Verify the user token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const authUserId = claims.claims.sub;
+    const { user } = await validateAuth(req);
+    const authUserId = user.id;
 
     // Rate limiting - AI generation is expensive
     const rateLimitResult = await checkRateLimit(
@@ -81,6 +56,7 @@ Deno.serve(async (req) => {
     const { projectId } = validation.data;
 
     // Use service role for data operations (bypasses RLS for cross-table reads)
+    const supabaseUrl = requireEnv('SUPABASE_URL');
     const supabaseServiceKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }

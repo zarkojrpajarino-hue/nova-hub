@@ -12,6 +12,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import type { SupabaseClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
@@ -113,9 +114,19 @@ serve(async (req) => {
       );
     }
 
+    // Sanitize user message
+    const sanitizedMsg = sanitizePromptInput(message, SanitizerPresets.LONG_INPUT);
+    if (sanitizedMsg.blocked) {
+      return new Response(
+        JSON.stringify({ error: sanitizedMsg.reason }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      );
+    }
+    const safeMessage = sanitizedMsg.sanitized;
+
     await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
 
-    console.log(`🤖 AI Advisor: "${message}"`);
+    console.log(`AI Advisor: processing message`);
 
     // Get or create chat
     let chat: ChatRecord | null = null;
@@ -168,12 +179,12 @@ serve(async (req) => {
 
     // Generate response with context
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
-    const response = await generateAdvisorResponse(anthropic, message, context, chat.messages, personalNote);
+    const response = await generateAdvisorResponse(anthropic, safeMessage, context, chat.messages, personalNote);
 
     // Update chat history
     const updatedMessages = [
       ...chat.messages,
-      { id: crypto.randomUUID(), role: 'user', content: message, created_at: new Date().toISOString() },
+      { id: crypto.randomUUID(), role: 'user', content: safeMessage, created_at: new Date().toISOString() },
       {
         id: crypto.randomUUID(),
         role: 'assistant',

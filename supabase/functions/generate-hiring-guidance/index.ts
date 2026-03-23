@@ -12,32 +12,24 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
   if (req.method === 'OPTIONS') return handleCorsPreflightRequest(origin);
 
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
-    }
+    const { user, serviceClient: supabase } = await validateAuth(req);
 
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
     const anthropicKey = requireEnv('ANTHROPIC_API_KEY');
 
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    if (claimsError || !claims?.claims) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'generate-hiring-guidance', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     const body = await req.json();
@@ -48,19 +40,19 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
 
-    // Get project context
-    const supabaseServiceKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
+    // Sanitize user input
+    const roleNameSanitized = sanitizePromptInput(roleName, SanitizerPresets.SHORT_INPUT);
+    if (roleNameSanitized.blocked) {
+      return new Response(JSON.stringify({ error: roleNameSanitized.reason }),
+        { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
 
     // Verify user is a member of the project
-    const authUserId = claims.claims.sub;
     const { data: memberCheck } = await supabase
       .from('project_members')
       .select('id')
       .eq('project_id', projectId)
-      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', authUserId).single()).data?.id ?? '')
+      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', user.id).single()).data?.id ?? '')
       .maybeSingle();
 
     if (!memberCheck) {
@@ -122,7 +114,7 @@ RESPONDE SOLO con JSON válido:
         system: systemPrompt,
         messages: [{
           role: 'user',
-          content: `Proyecto: ${project?.nombre}. País: ${country}. Stage: ${stageLabel}. Rol a contratar: ${roleName}. Genera la guía de contratación.`,
+          content: `Proyecto: ${project?.nombre}. País: ${country}. Stage: ${stageLabel}. Rol a contratar: ${roleNameSanitized.sanitized}. Genera la guía de contratación.`,
         }],
       }),
     });
@@ -135,15 +127,12 @@ RESPONDE SOLO con JSON válido:
     const aiResult = await response.json();
     const content = aiResult.content?.[0]?.text ?? '';
 
-    let guidance;
-    try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON');
-      guidance = JSON.parse(jsonMatch[0]);
-    } catch {
+    const parsed = safeJsonParse(content);
+    if (!parsed.ok) {
       return new Response(JSON.stringify({ error: 'Error parsing AI response' }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
+    const guidance = parsed.data as Record<string, unknown>;
 
     // [B10] Validate salary_range is reasonable
     const salary = guidance?.salary_range;
@@ -163,6 +152,7 @@ RESPONDE SOLO con JSON válido:
       { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
 
   } catch (error: unknown) {
+    if (error instanceof Response) return error;
     console.error('Error in generate-hiring-guidance:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });

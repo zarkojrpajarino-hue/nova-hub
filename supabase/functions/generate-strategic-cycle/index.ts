@@ -11,7 +11,9 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -21,38 +23,15 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Auth
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
+    const { user, serviceClient: supabase } = await validateAuth(req);
 
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    const supabaseServiceKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const anthropicKey = requireEnv('ANTHROPIC_API_KEY');
 
-    // Auth client for user verification
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'generate-strategic-cycle', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
-
-    // Service role client for data operations
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
 
     // Parse input
     const body = await req.json();
@@ -69,12 +48,11 @@ Deno.serve(async (req) => {
     }
 
     // Verify user is a member of the project
-    const authUserId = claims.claims.sub;
     const { data: memberCheck } = await supabase
       .from('project_members')
       .select('id')
       .eq('project_id', projectId)
-      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', authUserId).single()).data?.id ?? '')
+      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', user.id).single()).data?.id ?? '')
       .maybeSingle();
 
     if (!memberCheck) {
@@ -224,18 +202,15 @@ REGLAS:
     const content = aiResult.content?.[0]?.text ?? '';
 
     // Parse JSON from AI response
-    let cycleData: { title: string; description: string; objectives: unknown[] };
-    try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON found');
-      cycleData = JSON.parse(jsonMatch[0]);
-    } catch {
+    const parsed = safeJsonParse<{ title: string; description: string; objectives: unknown[] }>(content);
+    if (!parsed.ok) {
       console.error('Failed to parse AI response:', content);
       return new Response(
         JSON.stringify({ error: 'Error parseando respuesta de IA' }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+    const cycleData = parsed.data;
 
     // Validate objectives: weights must sum to ~1.0, min 2 objectives
     const objectives = cycleData.objectives as Array<{ weight: number; target_value: number }>;
@@ -291,6 +266,7 @@ REGLAS:
     );
 
   } catch (error: unknown) {
+    if (error instanceof Response) return error;
     console.error('Error in generate-strategic-cycle:', error);
     return new Response(
       JSON.stringify({ error: 'Internal server error' }),

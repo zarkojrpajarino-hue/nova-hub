@@ -8,7 +8,7 @@ vi.mock('date-fns', () => ({
 }));
 
 vi.mock('date-fns/locale', () => ({
-  es: {},
+  es: {}, enUS: {}, fr: {}, de: {}, pt: {}, it: {},
 }));
 
 describe('RoleHistoryList', () => {

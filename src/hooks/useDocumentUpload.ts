@@ -28,17 +28,16 @@ export function useDocumentUpload(projectId: string) {
   const [isUploading, setIsUploading] = useState(false);
 
   /**
-   * Extract text from PDF using pdf-parse
+   * Extract text from PDF.
+   * NOTE: Client-side PDF parsing is not implemented.
+   * A server-side Edge Function with pdf-parse is required for real extraction.
+   * This stub returns empty content so callers handle it gracefully.
    */
   async function extractPDFText(file: File): Promise<{ text: string; pages: number }> {
-    // For MVP, we'll use a simpler approach with FileReader
-    // In production, use pdf-parse or PDF.js on server side
-
-    // TODO: Implement server-side PDF extraction in Edge Function
-    // For now, return placeholder
+    console.warn(`[useDocumentUpload] PDF text extraction not implemented. File: ${file.name}. Requires server-side Edge Function.`);
     return {
-      text: `[PDF content from ${file.name}]\nThis is a placeholder. Implement server-side PDF extraction using pdf-parse in an Edge Function.`,
-      pages: 1,
+      text: '',
+      pages: 0,
     };
   }
 
@@ -72,15 +71,11 @@ export function useDocumentUpload(projectId: string) {
   }
 
   /**
-   * Extract data from XLSX (simplified - needs xlsx library)
+   * XLSX parsing is not supported (xlsx library was removed).
+   * Callers should not send .xlsx files; the upload function rejects them below.
    */
-  async function extractXLSXData(file: File): Promise<{ text: string; data: Record<string, unknown> }> {
-    // TODO: Implement XLSX parsing with xlsx library
-    // For now, return placeholder
-    return {
-      text: `[XLSX content from ${file.name}]\nInstall xlsx library for full support.`,
-      data: { sheets: [] },
-    };
+  async function extractXLSXData(_file: File): Promise<{ text: string; data: Record<string, unknown> }> {
+    throw new Error('XLSX parsing is not supported. The xlsx library has been removed. Please convert to CSV before uploading.');
   }
 
   /**
@@ -116,8 +111,8 @@ export function useDocumentUpload(projectId: string) {
       // Determine file type
       const fileType = file.name.split('.').pop()?.toLowerCase() || 'unknown';
 
-      if (!['pdf', 'csv', 'xlsx', 'txt'].includes(fileType)) {
-        throw new Error(`Unsupported file type: ${fileType}`);
+      if (!['pdf', 'csv', 'txt'].includes(fileType)) {
+        throw new Error(`Unsupported file type: ${fileType}. Supported formats: PDF, CSV, TXT.`);
       }
 
       // Update: extracting

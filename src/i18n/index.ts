@@ -5,12 +5,9 @@ import {
   es as esDateFns, enUS, fr as frDateFns, de as deDateFns,
   pt as ptDateFns, it as itDateFns,
 } from 'date-fns/locale';
+
+// S5.1 — Only import fallback locale statically; others load on demand
 import { es } from './locales/es';
-import { en } from './locales/en';
-import { fr } from './locales/fr';
-import { de } from './locales/de';
-import { pt } from './locales/pt';
-import { it } from './locales/it';
 
 export const SUPPORTED_LANGUAGES = [
   { code: 'es', label: 'Español', flag: '🇪🇸' },
@@ -37,17 +34,29 @@ export function getDateFnsLocale(): Locale {
   return DATE_FNS_LOCALES[lang] ?? esDateFns;
 }
 
+/** Lazy-load a locale bundle and add it to i18n */
+const loadedLocales = new Set<string>(['es']);
+
+async function loadLocale(lang: string): Promise<void> {
+  if (loadedLocales.has(lang)) return;
+
+  try {
+    // Vite dynamic import — each locale becomes its own chunk
+    const module = await import(`./locales/${lang}.ts`);
+    const key = Object.keys(module)[0]; // export name varies (en, fr, de, pt, it)
+    i18n.addResourceBundle(lang, 'translation', module[key], true, true);
+    loadedLocales.add(lang);
+  } catch (err) {
+    console.warn(`[i18n] Failed to load locale "${lang}":`, err);
+  }
+}
+
 i18n
   .use(LanguageDetector)
   .use(initReactI18next)
   .init({
     resources: {
       es: { translation: es },
-      en: { translation: en },
-      fr: { translation: fr },
-      de: { translation: de },
-      pt: { translation: pt },
-      it: { translation: it },
     },
     fallbackLng: 'es',
     interpolation: { escapeValue: false },
@@ -56,5 +65,18 @@ i18n
       caches: ['localStorage'],
     },
   });
+
+// After init, load the detected language if it's not the fallback
+const detectedLang = i18n.language?.split('-')[0] ?? 'es';
+if (detectedLang !== 'es') {
+  // Load the detected locale immediately (before first render settles)
+  loadLocale(detectedLang);
+}
+
+// Load locale on every language change
+i18n.on('languageChanged', (lng: string) => {
+  const lang = lng.split('-')[0];
+  loadLocale(lang);
+});
 
 export default i18n;

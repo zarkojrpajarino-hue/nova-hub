@@ -13,17 +13,13 @@
  */
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
+import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 
 serve(async (req) => {
+  const origin = req.headers.get('Origin');
   try {
     if (req.method === 'OPTIONS') {
-      return new Response('ok', {
-        headers: {
-          'Access-Control-Allow-Origin': '*',
-          'Access-Control-Allow-Methods': 'POST',
-          'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-        },
-      });
+      return handleCorsPreflightRequest(origin);
     }
 
     const adminSecret = Deno.env.get('ADMIN_SECRET');
@@ -31,7 +27,7 @@ serve(async (req) => {
     if (!adminSecret || authHeader !== `Bearer ${adminSecret}`) {
       return new Response(JSON.stringify({ error: 'Admin access required' }), {
         status: 401,
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
@@ -108,10 +104,10 @@ serve(async (req) => {
         deployment_id: deployment.id,
         project_name: deployment.name,
         ready_state: deployment.readyState,
-        message: '🚀 Website deployed successfully to Vercel',
+        message: 'Website deployed successfully to Vercel',
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,
       }
     );
@@ -123,7 +119,7 @@ serve(async (req) => {
         details: 'Make sure VERCEL_TOKEN is configured in Supabase secrets',
       }),
       {
-        headers: { 'Content-Type': 'application/json' },
+        headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 500,
       }
     );

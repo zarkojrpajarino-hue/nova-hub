@@ -176,27 +176,29 @@ export async function downloadPDF(
 export async function downloadExcel(
   data: Record<string, unknown>[],
   filename: string,
-  sheetName: string = 'Datos'
+  _sheetName: string = 'Datos'
 ): Promise<void> {
-  // Lazy load xlsx
-  const XLSX = await import('xlsx');
-
-  const worksheet = XLSX.utils.json_to_sheet(data);
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, sheetName);
-
-  // Auto-size columns
-  const maxWidth = 50;
-  const wscols = Object.keys(data[0] || {}).map((key) => {
-    const maxLen = Math.max(
-      key.length,
-      ...data.map((row) => String(row[key] || '').length)
-    );
-    return { wch: Math.min(maxLen + 2, maxWidth) };
-  });
-  worksheet['!cols'] = wscols;
-
-  XLSX.writeFile(workbook, `${filename}_${format(new Date(), 'yyyy-MM-dd')}.xlsx`);
+  // Replaced xlsx library (HIGH vuln) with CSV export
+  if (data.length === 0) return;
+  const headers = Object.keys(data[0]);
+  const csvRows = [
+    headers.join(','),
+    ...data.map(row =>
+      headers.map(h => {
+        const val = String(row[h] ?? '');
+        return val.includes(',') || val.includes('"') || val.includes('\n')
+          ? `"${val.replace(/"/g, '""')}"`
+          : val;
+      }).join(',')
+    ),
+  ];
+  const blob = new Blob([csvRows.join('\n')], { type: 'text/csv;charset=utf-8;' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `${filename}_${format(new Date(), 'yyyy-MM-dd')}.csv`;
+  a.click();
+  URL.revokeObjectURL(url);
 }
 
 // ============================================

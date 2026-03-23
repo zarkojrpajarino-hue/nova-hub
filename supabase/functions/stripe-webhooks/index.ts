@@ -20,17 +20,60 @@ Deno.serve(async (req) => {
   try {
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-    const _stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET'); // TODO: use for signature verification
+    const stripeWebhookSecret = Deno.env.get('STRIPE_WEBHOOK_SECRET');
 
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
 
     const body = await req.text();
-    const _sig = req.headers.get('stripe-signature'); // TODO: verify with Stripe SDK
+    const sig = req.headers.get('stripe-signature');
 
-    // In production, verify signature with stripe-webhook-secret
-    // For now, parse the event directly (TODO: add Stripe SDK signature verification)
+    // Verify Stripe signature — CRITICAL for production security
+    if (!stripeWebhookSecret || !sig) {
+      console.error('Missing STRIPE_WEBHOOK_SECRET or stripe-signature header');
+      return new Response(JSON.stringify({ error: 'Missing signature' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
+
+    // Manual HMAC verification (Stripe SDK not available in Deno — use Web Crypto)
+    const encoder = new TextEncoder();
+    const parts = sig.split(',').reduce((acc: Record<string, string>, part: string) => {
+      const [k, v] = part.split('=');
+      acc[k] = v;
+      return acc;
+    }, {} as Record<string, string>);
+
+    const timestamp = parts['t'];
+    const expectedSig = parts['v1'];
+
+    if (!timestamp || !expectedSig) {
+      return new Response(JSON.stringify({ error: 'Invalid signature format' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
+
+    // Reject events older than 5 minutes (replay protection)
+    const tolerance = 300; // 5 minutes
+    if (Math.abs(Date.now() / 1000 - parseInt(timestamp)) > tolerance) {
+      return new Response(JSON.stringify({ error: 'Timestamp too old' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
+
+    // Compute expected signature: HMAC-SHA256(timestamp + "." + body)
+    const signedPayload = `${timestamp}.${body}`;
+    const key = await crypto.subtle.importKey(
+      'raw', encoder.encode(stripeWebhookSecret),
+      { name: 'HMAC', hash: 'SHA-256' }, false, ['sign']
+    );
+    const mac = await crypto.subtle.sign('HMAC', key, encoder.encode(signedPayload));
+    const computedSig = Array.from(new Uint8Array(mac)).map(b => b.toString(16).padStart(2, '0')).join('');
+
+    if (computedSig !== expectedSig) {
+      console.error('Stripe signature verification failed');
+      return new Response(JSON.stringify({ error: 'Invalid signature' }),
+        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    }
+
     let event: { type: string; data: { object: Record<string, unknown> } };
     try {
       event = JSON.parse(body);

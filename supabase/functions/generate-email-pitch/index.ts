@@ -28,6 +28,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -75,6 +77,27 @@ serve(async (req) => {
 
     // Auth: verifica token JWT y que user_id coincide con el usuario autenticado
     const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user_id, 'generate-email-pitch', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
+
+    // Sanitize free-text user inputs
+    const sanitizeField = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT) : null;
+    const fieldsToSanitize = { recipient_name, recipient_company, recipient_role, your_product, pain_points, call_to_action };
+    for (const [key, val] of Object.entries(fieldsToSanitize)) {
+      if (val) {
+        const result = sanitizeField(val);
+        if (result?.blocked) {
+          return new Response(
+            JSON.stringify({ error: `Invalid ${key}: ${result.reason}` }),
+            { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+          );
+        }
+      }
+    }
 
     if (project_id) {
       await verifyProjectMembership(supabaseClient, user_id, project_id, origin);

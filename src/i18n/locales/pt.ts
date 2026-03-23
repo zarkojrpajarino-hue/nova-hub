@@ -6818,7 +6818,8 @@ export const pt = {
     "diseñaLogosProfesionalesEn": "Crie logos profissionais em segundos",
     "análisisDeMercadoY": "Análise de mercado e perfis de cliente ideal",
     "respuestaEnMenosDe": "Resposta em menos de 2 horas",
-    "funcionalidadPremium": "Funcionalidade premium"
+    "funcionalidadPremium": "Funcionalidade premium",
+    "upgradeComingSoon": "O sistema de pagamentos estará disponível em breve. Sua seleção foi registrada."
   },
   "tasks": {
     "aiTaskExecutor": "AI Task Executor",
@@ -7265,6 +7266,13 @@ export const pt = {
     "dockDocs": "Features",
     "dockPricing": "Preços",
     "dockDemo": "Demo",
+    "sidebarWhy": "Por que Optimus?",
+    "sidebarChangelog": "Changelog",
+    "sidebarDocs": "Docs",
+    "sidebarCompany": "Empresa",
+    "sidebarStore": "Planos",
+    "sidebarOpenApp": "Abrir app",
+    "sidebarTrash": "Lixeira",
     "pathsTitle": "Escolha seu caminho",
     "pathsSub": "Estruture sua startup passo a passo com guia de IA",
     "path1Title": "Ideia a MVP",

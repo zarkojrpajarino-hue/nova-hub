@@ -1,8 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { PlaybookRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { validateAuth } from '../_shared/auth.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -12,38 +13,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Verify the user token and get user ID
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const authUserId = claims.claims.sub;
+    const { user, serviceClient: supabase } = await validateAuth(req);
 
     // Rate limiting - AI generation is expensive
     const rateLimitResult = await checkRateLimit(
-      authUserId,
+      user.id,
       'generate-playbook',
       RateLimitPresets.AI_GENERATION
     );
@@ -71,7 +45,7 @@ Deno.serve(async (req) => {
     const { data: requestingProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('auth_id', authUserId)
+      .eq('auth_id', user.id)
       .single();
 
     if (!requestingProfile || requestingProfile.id !== userId) {
@@ -214,17 +188,12 @@ Responde con este JSON exacto:
     const aiContent = aiData.content?.[0]?.text;
     
     // Parse AI response
+    const parseResult = safeJsonParse(aiContent);
     let playbookContent;
-    try {
-      // Clean the response - remove markdown code blocks if present
-      const cleanedContent = aiContent
-        .replace(/```json\n?/g, '')
-        .replace(/```\n?/g, '')
-        .trim();
-      playbookContent = JSON.parse(cleanedContent);
-    } catch (_parseError) {
-          if (error instanceof Response) return error;
-console.error('Failed to parse AI response');
+    if (parseResult.ok) {
+      playbookContent = parseResult.data as Record<string, unknown>;
+    } else {
+      console.error('Failed to parse AI response');
       // Fallback content
       playbookContent = {
         sections: [

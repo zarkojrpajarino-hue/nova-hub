@@ -24,6 +24,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 interface ConversationMessage {
   role: string;
@@ -76,7 +77,24 @@ serve(async (req) => {
     return handleCorsPreflightRequest(origin);
   }
 
-    const { user_id, message, session_id, topic } = await req.json();
+    const body = await req.json();
+    const { user_id, message, session_id, topic } = body;
+
+    // Sanitize user message
+    if (message) {
+      const sanitizedMsg = sanitizePromptInput(message, SanitizerPresets.LONG_INPUT);
+      if (sanitizedMsg.blocked) {
+        return new Response(
+          JSON.stringify({ error: sanitizedMsg.reason }),
+          { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+        );
+      }
+      body.message = sanitizedMsg.sanitized;
+    }
+    if (topic) {
+      const sanitizedTopic = sanitizePromptInput(topic, SanitizerPresets.SHORT_INPUT);
+      if (!sanitizedTopic.blocked) body.topic = sanitizedTopic.sanitized;
+    }
 
     if (!user_id || !message) {
       throw new Error('user_id and message are required');

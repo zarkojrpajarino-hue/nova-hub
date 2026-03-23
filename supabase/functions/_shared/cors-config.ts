@@ -10,6 +10,8 @@ const ALLOWED_ORIGINS = Deno.env.get('ALLOWED_ORIGINS')?.split(',') || [
   'http://localhost:8080',
   'http://localhost:3000',
   'https://localhost:5173',
+  'https://nova-hub-zarkojrpajarino-7837s-projects.vercel.app',
+  'https://nova-hub-zarkojrpajarino-7837-zarkojrpajarino-7837s-projects.vercel.app',
 ];
 
 /**

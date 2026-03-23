@@ -423,7 +423,9 @@ export function useProjectComplete(projectId: string | undefined) {
 
 /**
  * Hook global para todos los project_members (mantener para vistas que lo necesiten)
- * DEPRECADO: Usar useProjectTeamMembers(projectId) cuando sea posible
+ * @deprecated Use useProjectTeamMembers(projectId) instead.
+ * This hook fetches ALL project_members across ALL projects (N+1 risk).
+ * Callers should migrate to the project-scoped version.
  */
 export function useProjectMembers() {
   return useQuery({
@@ -449,12 +451,14 @@ export function useProjectMembers() {
         member: pm.member as Profile,
       })) as ProjectMemberWithProfile[];
     },
+    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
   });
 }
 
 /**
  * Hook global para todos los leads
- * DEPRECADO: Usar useProjectLeads(projectId) cuando sea posible
+ * @deprecated Use useProjectLeads(projectId) instead.
+ * This hook fetches ALL leads across ALL projects (N+1 risk).
  */
 export function useLeads() {
   return useQuery({
@@ -468,12 +472,14 @@ export function useLeads() {
       if (error) throw error;
       return data as Lead[];
     },
+    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
   });
 }
 
 /**
  * Hook para pipeline global (todas las stages de todos los proyectos)
- * DEPRECADO: Usar useProjectLeads(projectId) cuando sea posible
+ * @deprecated Use useProjectLeads(projectId) instead.
+ * This hook fetches ALL pipeline data across ALL projects.
  */
 export function usePipelineGlobal() {
   return useQuery({
@@ -486,12 +492,14 @@ export function usePipelineGlobal() {
       if (error) throw error;
       return data;
     },
+    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
   });
 }
 
 /**
  * Hook para stats globales de proyectos
- * DEPRECADO: Usar useProjectStats(projectId) cuando sea posible
+ * @deprecated Use useProjectStats(projectId) instead.
+ * This hook fetches stats for ALL projects.
  */
 export function useProjectStatsGlobal() {
   return useQuery({
@@ -504,6 +512,7 @@ export function useProjectStatsGlobal() {
       if (error) throw error;
       return data;
     },
+    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
   });
 }
 

@@ -27,15 +27,22 @@ interface LogAICallParams {
 function estimateCost(modelUsed: string, tokensUsed?: number): number {
   if (!tokensUsed) return 0;
 
-  // Precios aproximados (input + output promediado)
+  // Precios aproximados por token (promedio input/output)
+  // Input/Output per 1M tokens:
+  //   claude-sonnet-4-6:         $3 / $15  -> avg ~$9/1M
+  //   claude-haiku-4-5:          $0.25 / $1.25 -> avg ~$0.75/1M
+  //   claude-3-5-sonnet-20241022: $3 / $15  -> avg ~$9/1M
+  //   claude-3-opus:             $15 / $75  -> avg ~$45/1M
   const prices: Record<string, number> = {
-    'claude-3-5-sonnet-20241022': 0.000015, // $15 per 1M tokens (promedio input/output)
-    'claude-3-opus': 0.00006, // $60 per 1M tokens
-    'gpt-4': 0.00006, // $60 per 1M tokens
-    'gpt-3.5-turbo': 0.000002, // $2 per 1M tokens
+    'claude-sonnet-4-6': 0.000009,           // $9 per 1M tokens (avg input/output)
+    'claude-haiku-4-5': 0.00000075,          // $0.75 per 1M tokens (avg input/output)
+    'claude-3-5-sonnet-20241022': 0.000009,  // $9 per 1M tokens (avg input/output)
+    'claude-3-opus': 0.000045,               // $45 per 1M tokens (avg input/output)
+    'gpt-4': 0.00006,                        // $60 per 1M tokens
+    'gpt-3.5-turbo': 0.000002,               // $2 per 1M tokens
   };
 
-  const pricePerToken = prices[modelUsed] || 0.000015;
+  const pricePerToken = prices[modelUsed] || 0.000009; // Default to Sonnet pricing
   return tokensUsed * pricePerToken;
 }
 
@@ -83,6 +90,24 @@ export async function logAICall(params: LogAICallParams): Promise<void> {
     // Swallow error - logging is not critical
   }
 }
+
+/**
+ * AI CACHING STATUS
+ *
+ * Functions that already cache results (via ai_analysis_cache table):
+ *   - analyze-project-v4: Caches full analysis for 24h per project+context combo
+ *
+ * Functions that SHOULD implement caching (high cost, repetitive inputs):
+ *   - generate-business-ideas: Cache per project (ideas don't change hourly)
+ *   - generate-complete-business: Cache per project+idea combo
+ *   - generate-buyer-persona-v2: Cache per project (persona is stable)
+ *   - generate-financial-projections: Cache per project (recalc daily at most)
+ *   - generate-brand-kit-v2: Cache per project (branding is stable)
+ *   - generate-sales-playbook-v2: Cache per project
+ *
+ * Pattern to follow: see analyze-project-v4/index.ts for the ai_analysis_cache
+ * upsert pattern with TTL-based invalidation.
+ */
 
 /**
  * Wrapper para medir tiempo de ejecución y loguear automáticamente

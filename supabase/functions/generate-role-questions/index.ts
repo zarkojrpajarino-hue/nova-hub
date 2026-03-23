@@ -2,6 +2,8 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { validateAuth } from '../_shared/auth.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 // [B6] In-memory cache by role label (survives between Deno Deploy invocations)
 const roleCache = new Map<string, { questions: unknown[]; cachedAt: number }>();
@@ -16,31 +18,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    // Verify the user token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
-    
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const authUserId = claims.claims.sub;
+    const { user } = await validateAuth(req);
 
     // Rate limiting - AI generation is expensive
     const rateLimitResult = await checkRateLimit(
-      authUserId,
+      user.id,
       'generate-role-questions',
       RateLimitPresets.AI_GENERATION
     );
@@ -167,13 +149,11 @@ Formato JSON (array):
     const content = aiResponse.content?.[0]?.text || '';
 
     // Parse JSON from Claude response
-    try {
-      const jsonMatch = content.match(/\[[\s\S]*\]/);
-      if (jsonMatch) {
-        questions = JSON.parse(jsonMatch[0]);
-      }
-    } catch (_e) {
-      console.error('Error parsing Claude response');
+    const parseResult = safeJsonParse<Array<{ pregunta: string; objetivo: string }>>(content, 'array');
+    if (parseResult.ok) {
+      questions = parseResult.data;
+    } else {
+      console.error('Error parsing Claude response:', parseResult.error);
     }
 
     console.log('Generated questions:', questions.length);

@@ -1,6 +1,7 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 
 serve(async (req) => {
@@ -10,27 +11,12 @@ serve(async (req) => {
   }
 
   try {
-    // Check authorization
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader) {
-      return new Response(
-        JSON.stringify({ error: 'Authorization required' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
+    const { user } = await validateAuth(req);
 
-    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
-    const supabaseAnonKey = Deno.env.get('SUPABASE_ANON_KEY')!;
-    const supabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    const { data: { user }, error: authError } = await supabase.auth.getUser();
-    if (authError || !user) {
-      return new Response(
-        JSON.stringify({ error: 'Invalid token' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'export-excel', RateLimitPresets.DATA_MUTATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     const { exportType, data, metadata } = await req.json();
@@ -50,6 +36,7 @@ serve(async (req) => {
     );
 
   } catch (error: unknown) {
+    if (error instanceof Response) return error;
     console.error('Error generating Excel:', error);
     const errorMessage = error instanceof Error ? error.message : 'Unknown error';
     return new Response(

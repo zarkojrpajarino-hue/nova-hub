@@ -5,14 +5,17 @@
  * SIN datos demo - Solo datos reales.
  */
 
-import { useMemo, useState, useEffect } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, Zap, CheckCircle2, Activity } from 'lucide-react';
+import { useMemo, useState, useEffect, lazy, Suspense } from 'react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, Zap, CheckCircle2, Activity, Plus, Sparkles, ShoppingCart } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
-import { WeeklyEvolutionChart } from '@/components/dashboard/WeeklyEvolutionChart';
+// S5.2 — Lazy load chart components (recharts is heavy)
+const WeeklyEvolutionChart = lazy(() =>
+  import('@/components/dashboard/WeeklyEvolutionChart').then(m => ({ default: m.WeeklyEvolutionChart }))
+);
 import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
@@ -146,6 +149,31 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       />
 
       <div className="p-8 space-y-6">
+        {/* S4.5 — Quick Actions Bar */}
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => navigate(projectId ? `/proyecto/${projectId}/obvs?new=true` : '/tasks?new=true')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-primary/10 hover:bg-primary/20 text-primary text-sm font-medium transition-colors border border-primary/20"
+          >
+            <Plus size={16} />
+            {t('dashboard.quickNewTask')}
+          </button>
+          <button
+            onClick={() => navigate(projectId ? `/proyecto/${projectId}/obvs?new=true` : '/obv-center?new=true')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-green-500/10 hover:bg-green-500/20 text-green-700 dark:text-green-400 text-sm font-medium transition-colors border border-green-500/20"
+          >
+            <ShoppingCart size={16} />
+            {t('dashboard.quickNewSale')}
+          </button>
+          <button
+            onClick={() => navigate(projectId ? `/proyecto/${projectId}/analisis-ia` : '/ai-analysis')}
+            className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-sm font-medium transition-colors border border-purple-500/20"
+          >
+            <Sparkles size={16} />
+            {t('dashboard.quickAIAnalysis')}
+          </button>
+        </div>
+
         {/* O5.V2.2 — Empty state for Day 1 */}
         {projectId && hasZeroData && (
           <EmptyStateDashboard
@@ -261,7 +289,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
           <div className="lg:col-span-2">
             <OsWindow title={t('dashboard.evoluciónSemanal')} icon={TrendingUp}>
-              <WeeklyEvolutionChart hideHeader />
+              <Suspense fallback={<div className="flex items-center justify-center h-64 bg-muted/30 rounded-lg animate-pulse"><Loader2 className="w-6 h-6 animate-spin text-muted-foreground" /></div>}>
+                <WeeklyEvolutionChart hideHeader />
+              </Suspense>
             </OsWindow>
           </div>
           <OsWindow title={t('dashboard.alertasInteligentes')} icon={AlertTriangle}>

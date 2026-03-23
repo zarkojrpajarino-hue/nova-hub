@@ -11,6 +11,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
 
@@ -46,6 +48,12 @@ serve(async (req) => {
   try {
         const { user, serviceClient: supabaseClient } = await validateAuth(req);
 
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'generate-content-calendar', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
+
     const body: ContentCalendarRequest = await req.json();
     const { projectId, businessIdea, targetCustomer, industry, keywords = [], numIdeas = 50 } = body;
 
@@ -54,6 +62,17 @@ serve(async (req) => {
         JSON.stringify({ error: 'Missing required fields' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
+    }
+
+    // Sanitize user free-text inputs
+    for (const [name, val] of Object.entries({ businessIdea, targetCustomer, industry })) {
+      const result = sanitizePromptInput(String(val), SanitizerPresets.LONG_INPUT);
+      if (result.blocked) {
+        return new Response(
+          JSON.stringify({ error: `Invalid ${name}: ${result.reason}` }),
+          { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+        );
+      }
     }
 
     await verifyProjectMembership(supabaseClient, user.id, projectId, origin);

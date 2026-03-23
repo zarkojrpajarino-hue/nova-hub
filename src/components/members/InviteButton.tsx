@@ -58,10 +58,10 @@ export function InviteButton({
     setShowInviteWizard(true);
   };
 
-  const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
-    // TODO: Implementar upgrade en Fase 7
+  const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
+    console.info('[Upgrade] Plan selected:', { planId, billingCycle, context: 'members' });
     setShowUpgradeModal(false);
-    toast.success(t('members.planActualizadoYaPuedes'));
+    toast.info(t('subscription.upgradeComingSoon'));
   };
 
   const handleInviteSuccess = () => {

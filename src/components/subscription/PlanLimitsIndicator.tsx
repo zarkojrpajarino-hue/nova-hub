@@ -50,8 +50,8 @@ export function PlanLimitsIndicator({
     setShowUpgradeModal(true);
   };
 
-  const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
-    // TODO: Implementar upgrade en Fase 7
+  const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
+    console.info('[Upgrade] Plan selected:', { planId, billingCycle, context: 'plan-limits' });
     setShowUpgradeModal(false);
   };
 

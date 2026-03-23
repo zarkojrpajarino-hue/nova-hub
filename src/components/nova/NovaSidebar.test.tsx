@@ -2,6 +2,7 @@ import { describe, it, expect, vi } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { MemoryRouter } from 'react-router-dom';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { NovaSidebar } from './NovaSidebar';
 
 // Mock subscription hooks
@@ -19,6 +20,18 @@ vi.mock('@/components/subscription/PlanSelectionModal', () => ({
   PlanSelectionModal: () => null,
 }));
 
+// Mock useProjectContext to avoid needing real Supabase
+vi.mock('@/hooks/useProjectContext', () => ({
+  useProjectContext: () => ({
+    currentProject: null,
+    userRole: null,
+    isAdmin: false,
+    isLoading: false,
+    phaseState: null,
+    engineData: null,
+  }),
+}));
+
 const mockUser = {
   nombre: 'Juan Pérez',
   color: '#6366F1',
@@ -31,18 +44,22 @@ const defaultProps = {
   onSignOut: vi.fn(),
 };
 
+const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+
 function renderSidebar(props = {}) {
   return render(
-    <MemoryRouter initialEntries={['/']}>
-      <NovaSidebar {...defaultProps} {...props} />
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <MemoryRouter initialEntries={['/']}>
+        <NovaSidebar {...defaultProps} {...props} />
+      </MemoryRouter>
+    </QueryClientProvider>
   );
 }
 
 describe('NovaSidebar', () => {
   it('renders sidebar with aria-label', () => {
     renderSidebar();
-    expect(screen.getByLabelText('Navegación principal')).toBeInTheDocument();
+    expect(screen.getByLabelText('Navegacion principal')).toBeInTheDocument();
   });
 
   it('renders OPTIMUS-K brand', () => {
@@ -130,15 +147,15 @@ describe('NovaSidebar', () => {
 
   it('renders sign out button', () => {
     renderSidebar();
-    expect(screen.getByLabelText('Cerrar sesión')).toBeInTheDocument();
-    expect(screen.getByText('Cerrar sesión')).toBeInTheDocument();
+    expect(screen.getByLabelText('Cerrar sesion')).toBeInTheDocument();
+    expect(screen.getByText('Cerrar sesion')).toBeInTheDocument();
   });
 
   it('calls onSignOut when sign out button is clicked', async () => {
     const user = userEvent.setup();
     const onSignOut = vi.fn();
     renderSidebar({ onSignOut });
-    await user.click(screen.getByLabelText('Cerrar sesión'));
+    await user.click(screen.getByLabelText('Cerrar sesion'));
     expect(onSignOut).toHaveBeenCalledTimes(1);
   });
 
@@ -182,16 +199,16 @@ describe('NovaSidebar', () => {
 
   it('renders section toggle buttons', () => {
     renderSidebar();
-    expect(screen.getByText(/Core/i)).toBeInTheDocument();
+    expect(screen.getByText(/Principal/i)).toBeInTheDocument();
   });
 
   it('opens another section when clicked', async () => {
     const user = userEvent.setup();
     renderSidebar();
-    // Click on 'Crear & Validar' section to open it
-    const sectionButton = screen.getByText(/Crear & Validar/i).closest('button');
+    // Click on 'Crear y Validar' section to open it
+    const sectionButton = screen.getByText(/Crear y Validar/i).closest('button');
     await user.click(sectionButton!);
-    // After clicking, Centro OBVs should be visible
-    expect(screen.getByText('Centro OBVs')).toBeInTheDocument();
+    // After clicking, Centro OBV should be visible
+    expect(screen.getByText('Centro OBV')).toBeInTheDocument();
   });
 });

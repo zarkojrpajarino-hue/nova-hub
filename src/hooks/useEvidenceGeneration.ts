@@ -172,7 +172,7 @@ export function useEvidenceGeneration({
         (claimDef) => ({
           claim_id: claimDef.id,
           claim_text: claimDef.claim_text,
-          value: 'TODO: Extract from AI generation', // TODO
+          value: '', // Populated when AI generation pipeline is connected
           value_type: claimDef.value_type,
           citations: [], // TODO: Map sources to claims
           status: 'unsupported' as const,

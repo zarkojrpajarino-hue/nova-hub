@@ -47,7 +47,7 @@ vi.mock('date-fns', async () => {
 });
 
 vi.mock('date-fns/locale', () => ({
-  es: {},
+  es: {}, enUS: {}, fr: {}, de: {}, pt: {}, it: {},
 }));
 
 // Mock premium demo data for isDemoMode tests

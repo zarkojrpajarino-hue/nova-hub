@@ -22,6 +22,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -42,6 +44,12 @@ serve(async (req) => {
     }
 
         const { serviceClient: supabaseClient } = await validateAuthWithUserId(req, user_id);
+
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user_id, 'generate-complete-business', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
+    }
 
     await verifyProjectMembership(supabaseClient, user_id, project_id, origin);
 
@@ -70,7 +78,19 @@ serve(async (req) => {
         industry: extractIndustry(idea.idea_description),
       };
     } else if (business_info) {
-      // Manual input
+      // Manual input — sanitize free-text fields
+      for (const key of ['idea_name', 'description', 'problem', 'solution', 'target_customer', 'industry']) {
+        if (business_info[key] && typeof business_info[key] === 'string') {
+          const result = sanitizePromptInput(business_info[key], SanitizerPresets.LONG_INPUT);
+          if (result.blocked) {
+            return new Response(
+              JSON.stringify({ error: `Invalid ${key}: ${result.reason}` }),
+              { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+            );
+          }
+          business_info[key] = result.sanitized;
+        }
+      }
       businessContext = business_info;
     } else {
       throw new Error('Either idea_id or business_info is required');

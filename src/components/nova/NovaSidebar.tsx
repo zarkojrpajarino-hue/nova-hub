@@ -10,6 +10,7 @@ import { useTranslation } from 'react-i18next';
 import { ThemeToggle, LanguageToggle } from '@/components/ui/theme-toggle';
 import { PlanSelectionModal } from '@/components/subscription/PlanSelectionModal';
 import { useAvailablePlans } from '@/hooks/useSubscription';
+import { useProjectContext } from '@/hooks/useProjectContext';
 import { Badge } from '@/components/ui/badge';
 import {
   Tooltip,
@@ -112,15 +113,27 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
   const { canUseFeature } = useFeatureAccess(projectId);
   const availablePlans = useAvailablePlans();
 
-  // Estado para controlar qué secciones están abiertas (solo una a la vez)
-  const [openSection, setOpenSection] = useState<string>('core');
+  // S4.6 — Solo founder mode: hide team section when team_size <= 1
+  const { data: projectContext } = useProjectContext(projectId);
+  const isSoloMode = projectContext?.mode === 'solo';
+
+  // Estado para controlar que secciones estan abiertas (permite multiples)
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set(['core']));
 
   // Estado para modal de upgrade
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const [_selectedLockedFeature, setSelectedLockedFeature] = useState<{ name: string; requiredPlan: string } | null>(null);
 
   const toggleSection = (section: string) => {
-    setOpenSection(openSection === section ? '' : section);
+    setOpenSections(prev => {
+      const next = new Set(prev);
+      if (next.has(section)) {
+        next.delete(section);
+      } else {
+        next.add(section);
+      }
+      return next;
+    });
   };
 
   const renderSection = (
@@ -129,7 +142,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
     title: string,
     items: NavItem[]
   ) => {
-    const isOpen = openSection === id;
+    const isOpen = openSections.has(id);
 
     return (
       <div key={id} className="mb-1">
@@ -228,30 +241,10 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
         {renderSection('core', '🏠', t('nav.sections.core'), coreItems)}
         {renderSection('create', '🚀', t('nav.sections.createValidate'), createValidateItems)}
         {renderSection('execute', '💼', t('nav.sections.execute'), executeItems)}
-        {renderSection('team', '👥', t('nav.sections.team'), teamItems)}
+        {/* S4.6 — Hide team section in solo mode */}
+        {!isSoloMode && renderSection('team', '👥', t('nav.sections.team'), teamItems)}
         {renderSection('measure', '📊', t('nav.sections.measure'), measureItems)}
         {renderSection('system', '⚙️', t('nav.sections.system'), systemItems)}
-
-        {/* SISTEMA - deprecated old code below this line */}
-        <div className="hidden">
-          <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground px-3 mb-2">
-            ⚙️ Sistema
-          </p>
-          {systemItems.map((item) => (
-            <NavItem
-              key={item.id}
-              item={item}
-              isActive={item.route ? location.pathname === item.route : currentView === item.id}
-              onClick={() => {
-                if (item.route) {
-                  navigate(item.route);
-                } else {
-                  setCurrentView(item.id);
-                }
-              }}
-            />
-          ))}
-        </div>
       </nav>
 
       {/* User Section */}
@@ -290,8 +283,8 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           setShowUpgradeModal(false);
           setSelectedLockedFeature(null);
         }}
-        onSelectPlan={(_planId, _billingCycle) => {
-          // TODO: Implementar upgrade en Fase 7
+        onSelectPlan={(planId, billingCycle) => {
+          console.info('[Upgrade] Plan selected:', { planId, billingCycle, context: 'sidebar' });
           setShowUpgradeModal(false);
           setSelectedLockedFeature(null);
         }}
@@ -370,8 +363,7 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
           <TooltipContent side="right" className="max-w-xs">
             <p className="font-semibold mb-1">{translatedLabel}</p>
             <p className="text-xs text-muted-foreground mb-2">
-              Esta funcionalidad requiere el plan{' '}
-              <span className="font-semibold text-foreground">{item.requiredPlan}</span>
+              {t('nav.featureRequiresPlan', { plan: item.requiredPlan })}
             </p>
             <p className="text-xs text-primary">{t('nova.clickParaVerPlanes')}</p>
           </TooltipContent>

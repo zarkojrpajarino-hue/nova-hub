@@ -79,14 +79,14 @@ export const PLAN_LIMITS = {
     maxTeamMembers: 5,
     maxStorageGB: 5,
     aiRequestsPerMonth: 50,
-    analyticsHistory: 30, // días
+    analyticsHistory: 30, // days
   },
   PRO: {
     maxProjects: 25,
     maxTeamMembers: 25,
     maxStorageGB: 100,
     aiRequestsPerMonth: 1000,
-    analyticsHistory: 365, // días
+    analyticsHistory: 365, // days
   },
   ENTERPRISE: {
     maxProjects: -1, // unlimited
@@ -96,6 +96,65 @@ export const PLAN_LIMITS = {
     analyticsHistory: -1, // unlimited
   },
 };
+
+// ============================================================================
+// PLAN TIERS — Canonical tier definitions for monetization
+// ============================================================================
+
+/**
+ * PLAN_TIERS: Single source of truth for plan pricing, limits, and feature gates.
+ *
+ * Prices are in cents (USD). -1 means unlimited.
+ * These tiers are used by:
+ *   - PlanSelectionModal (display)
+ *   - FeatureGate (access control)
+ *   - useSubscription (limit checking)
+ *
+ * NOTE: Stripe product/price IDs are NOT included here.
+ * They must be configured by the developer in Stripe Dashboard
+ * and mapped via environment variables when ENABLE_PAYMENTS = true.
+ */
+export const PLAN_TIERS = {
+  free: {
+    name: 'Starter',
+    price: 0, // cents/month
+    projects: 1,
+    members: 3,
+    aiCalls: 10,
+    analyticsWindow: 30, // days
+    integrations: false,
+    meetingIntelligence: false,
+    benchmarking: false,
+    api: false,
+  },
+  pro: {
+    name: 'Pro',
+    price: 2900, // $29/month
+    projects: 5,
+    members: 10,
+    aiCalls: 100,
+    analyticsWindow: 365, // days
+    integrations: true,
+    meetingIntelligence: true,
+    benchmarking: false,
+    api: false,
+  },
+  scale: {
+    name: 'Scale',
+    price: 7900, // $79/month
+    projects: -1, // unlimited
+    members: -1, // unlimited
+    aiCalls: 500,
+    analyticsWindow: -1, // unlimited
+    integrations: true,
+    meetingIntelligence: true,
+    benchmarking: true,
+    api: true,
+  },
+} as const;
+
+export type PlanTierKey = keyof typeof PLAN_TIERS;
+export type PlanTier = (typeof PLAN_TIERS)[PlanTierKey];
 
 // ============================================================================
 // 📝 NOTAS PARA EL FUTURO

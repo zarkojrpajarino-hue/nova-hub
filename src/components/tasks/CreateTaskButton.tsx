@@ -56,10 +56,10 @@ export function CreateTaskButton({
     onCreateTask?.();
   };
 
-  const handlePlanSelected = (_planId: string, _billingCycle: 'monthly' | 'yearly') => {
-    // TODO: Implementar upgrade en Fase 7
+  const handlePlanSelected = (planId: string, billingCycle: 'monthly' | 'yearly') => {
+    console.info('[Upgrade] Plan selected:', { planId, billingCycle, context: 'tasks' });
     setShowUpgradeModal(false);
-    toast.success(t('tasks.planActualizadoYaPuedes'));
+    toast.info(t('subscription.upgradeComingSoon'));
   };
 
   return (

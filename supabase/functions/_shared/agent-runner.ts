@@ -241,39 +241,59 @@ export async function runPostSyncAgents(
   provider: string,
   syncRunId: string,
 ): Promise<PostSyncResult> {
+  let providerResult: PostSyncResult | null = null
   switch (provider) {
     case 'stripe':
-      return runFinanceAgentServer(serviceClient, projectId, connectionId, syncRunId)
+      providerResult = await runFinanceAgentServer(serviceClient, projectId, connectionId, syncRunId)
+      break
     case 'hubspot': {
       const { runSalesAgentServer } = await import('./agent-runner-providers.ts')
-      return runSalesAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runSalesAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
     case 'asana': {
       const { runExecutionAgentServer } = await import('./agent-runner-providers.ts')
-      return runExecutionAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runExecutionAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
     case 'google_calendar': {
       const { runCalendarAgentServer } = await import('./agent-runner-providers.ts')
-      return runCalendarAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runCalendarAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
     case 'holded': {
       const { runHoldedFinanceAgentServer } = await import('./agent-runner-providers.ts')
-      return runHoldedFinanceAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runHoldedFinanceAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
     case 'trello': {
       const { runTrelloExecutionAgentServer } = await import('./agent-runner-providers.ts')
-      return runTrelloExecutionAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runTrelloExecutionAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
     case 'slack': {
       const { runSlackCommunicationAgentServer } = await import('./agent-runner-providers.ts')
-      return runSlackCommunicationAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runSlackCommunicationAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
     case 'notion': {
       const { runNotionKnowledgeAgentServer } = await import('./agent-runner-providers.ts')
-      return runNotionKnowledgeAgentServer(serviceClient, projectId, syncRunId)
+      providerResult = await runNotionKnowledgeAgentServer(serviceClient, projectId, syncRunId)
+      break
     }
-    default:
-      return { insights_emitted: 0, insights_skipped: 0, agent_type: provider }
+  }
+
+  // Always run Team Agent after any sync (if team has 2+ members)
+  try {
+    const { runTeamAgentServer } = await import('./agent-runner-providers.ts')
+    const teamResult = await runTeamAgentServer(serviceClient, projectId, syncRunId)
+    return {
+      insights_emitted: (providerResult?.insights_emitted ?? 0) + teamResult.insights_emitted,
+      insights_skipped: (providerResult?.insights_skipped ?? 0) + teamResult.insights_skipped,
+      agent_type: provider,
+    }
+  } catch {
+    return providerResult ?? { insights_emitted: 0, insights_skipped: 0, agent_type: provider }
   }
 }
 

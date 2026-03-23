@@ -9,33 +9,23 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+import { validateAuth } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
   if (req.method === 'OPTIONS') return handleCorsPreflightRequest(origin);
 
   try {
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
-    }
+    const { user, serviceClient: supabase } = await validateAuth(req);
 
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    const supabaseServiceKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
     const anthropicKey = requireEnv('ANTHROPIC_API_KEY');
 
-    // Auth
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    if (claimsError || !claims?.claims) {
-      return new Response(JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
+    // Rate limit
+    const rateLimitResult = await checkRateLimit(user.id, 'analyze-expansion-v1', RateLimitPresets.AI_GENERATION);
+    if (!rateLimitResult.allowed) {
+      return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
 
     const body = await req.json();
@@ -45,16 +35,11 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
 
-    const supabase = createClient(supabaseUrl, supabaseServiceKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
-
     // Verify user is a member of the project
-    const authUserId = claims.claims.sub;
     const { data: userProfile } = await supabase
       .from('profiles')
       .select('id')
-      .eq('auth_id', authUserId)
+      .eq('auth_id', user.id)
       .single();
 
     if (!userProfile) {
@@ -187,16 +172,13 @@ REGLAS:
     const aiResult = await response.json();
     const content = aiResult.content?.[0]?.text ?? '';
 
-    let analysisData: { markets: unknown[]; runner_ups?: unknown[] };
-    try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) throw new Error('No JSON');
-      analysisData = JSON.parse(jsonMatch[0]);
-    } catch {
+    const parsed = safeJsonParse<{ markets: unknown[]; runner_ups?: unknown[] }>(content);
+    if (!parsed.ok) {
       console.error('Parse error:', content);
       return new Response(JSON.stringify({ error: 'Error parsing analysis' }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
+    const analysisData = parsed.data;
 
     // Validate: must have 3 markets
     if (!analysisData.markets || analysisData.markets.length < 2) {
@@ -224,6 +206,7 @@ REGLAS:
       { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
 
   } catch (error: unknown) {
+    if (error instanceof Response) return error;
     console.error('Error in analyze-expansion-v1:', error);
     return new Response(JSON.stringify({ error: 'Internal server error' }),
       { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });

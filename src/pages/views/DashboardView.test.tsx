@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { DashboardView } from './DashboardView';
 
 // Mock NovaHeader (uses SearchContext and NavigationContext which aren't provided in tests)
@@ -107,7 +108,9 @@ describe('DashboardView', () => {
   const renderComponent = () => {
     return render(
       <QueryClientProvider client={queryClient}>
-        <DashboardView />
+        <MemoryRouter>
+          <DashboardView />
+        </MemoryRouter>
       </QueryClientProvider>
     );
   };

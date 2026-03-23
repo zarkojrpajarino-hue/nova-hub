@@ -1,5 +1,111 @@
 import "@testing-library/jest-dom";
 import { vi } from 'vitest';
+import React from 'react';
+import { es } from '@/i18n/locales/es';
+
+/**
+ * Resolve a dotted key like 'financiero.cobrosPendientes' against the
+ * nested Spanish translation object so tests that assert on visible
+ * text still pass.  Falls back to the key itself when no translation exists.
+ */
+function resolve(key: string, opts?: Record<string, unknown>): string {
+  const parts = key.split('.');
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  let node: any = es;
+  for (const p of parts) {
+    if (node && typeof node === 'object' && p in node) {
+      node = node[p];
+    } else {
+      return key; // key not found - return as-is
+    }
+  }
+  let result = typeof node === 'string' ? node : key;
+  if (opts && typeof opts === 'object') {
+    for (const [k, v] of Object.entries(opts)) {
+      result = result.replace(new RegExp(`\\{\\{${k}\\}\\}`, 'g'), String(v));
+    }
+  }
+  return result;
+}
+
+// Expose t() as a global so module-level constants like
+// `const LABELS = { x: t('key') }` don't crash with "t is not defined".
+// This mirrors what happens in production where i18n.t is available globally
+// after i18n initialization.
+(globalThis as Record<string, unknown>).t = resolve;
+
+// Mock react-i18next globally, resolving keys against the real Spanish translations
+vi.mock('react-i18next', () => ({
+  useTranslation: () => ({
+    t: resolve,
+    i18n: {
+      language: 'es',
+      changeLanguage: vi.fn().mockResolvedValue(undefined),
+      exists: vi.fn().mockReturnValue(true),
+    },
+  }),
+  Trans: ({ children }: { children: React.ReactNode }) => children,
+  initReactI18next: { type: '3rdParty', init: vi.fn() },
+  I18nextProvider: ({ children }: { children: React.ReactNode }) => children,
+}));
+
+// Mock i18next to provide a global t() for module-level usage (outside components)
+vi.mock('i18next', () => {
+  const i18nInstance = {
+    t: resolve,
+    language: 'es',
+    changeLanguage: vi.fn().mockResolvedValue(undefined),
+    use: vi.fn().mockReturnThis(),
+    init: vi.fn().mockResolvedValue(undefined),
+    on: vi.fn(),
+    addResourceBundle: vi.fn(),
+    exists: vi.fn().mockReturnValue(true),
+  };
+  return { default: i18nInstance, ...i18nInstance };
+});
+
+// Mock date-fns/locale with minimal valid locale stubs so i18n/index.ts doesn't crash
+// and date-fns format/formatDistanceToNow can work without errors.
+const fakeLocale = {
+  code: 'es',
+  formatDistance: (_token: string, count: number) => `${count}`,
+  formatRelative: (_token: string) => '',
+  localize: {
+    ordinalNumber: (n: number) => `${n}`,
+    era: () => '',
+    quarter: () => '',
+    month: (_n: number) => '',
+    day: (_n: number) => '',
+    dayPeriod: () => '',
+  },
+  formatLong: {
+    date: () => ({ format: () => 'dd/MM/yyyy' }),
+    time: () => ({ format: () => 'HH:mm' }),
+    dateTime: () => ({ format: () => 'dd/MM/yyyy HH:mm' }),
+  },
+  match: {
+    ordinalNumber: () => null,
+    era: () => null,
+    quarter: () => null,
+    month: () => null,
+    day: () => null,
+    dayPeriod: () => null,
+  },
+  options: { weekStartsOn: 1, firstWeekContainsDate: 4 },
+} as unknown as Record<string, unknown>;
+vi.mock('date-fns/locale', () => ({
+  es: fakeLocale,
+  enUS: fakeLocale,
+  fr: fakeLocale,
+  de: fakeLocale,
+  pt: fakeLocale,
+  it: fakeLocale,
+}));
+
+// Mock i18next-browser-languagedetector
+vi.mock('i18next-browser-languagedetector', () => ({
+  default: { type: 'languageDetector', init: vi.fn(), detect: () => 'es', cacheUserLanguage: vi.fn() },
+}));
 
 Object.defineProperty(window, "matchMedia", {
   writable: true,

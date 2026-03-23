@@ -14,6 +14,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
 // ── TTL por nivel ─────────────────────────────────────────────────────────────
@@ -80,6 +81,22 @@ serve(async (req) => {
     };
 
     const { project_id, mode = 'generate' } = body;
+
+    // Sanitize free-text user inputs
+    if (body.additional_context) {
+      const s = sanitizePromptInput(body.additional_context, SanitizerPresets.LONG_INPUT);
+      if (s.blocked) return new Response(JSON.stringify({ error: s.reason }), { status: 400, headers });
+      body.additional_context = s.sanitized;
+    }
+    if (body.question) {
+      const s = sanitizePromptInput(body.question, SanitizerPresets.LONG_INPUT);
+      if (s.blocked) return new Response(JSON.stringify({ error: s.reason }), { status: 400, headers });
+      body.question = s.sanitized;
+    }
+    if (body.focus_area) {
+      const s = sanitizePromptInput(body.focus_area, SanitizerPresets.MEDIUM_INPUT);
+      if (!s.blocked) body.focus_area = s.sanitized;
+    }
 
     // ── Follow-up chat mode ──────────────────────────────────────────────
     if (mode === 'followup') {

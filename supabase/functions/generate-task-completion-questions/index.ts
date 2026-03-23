@@ -2,6 +2,8 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { requireEnv } from '../_shared/env-validation.ts';
 import { TaskCompletionQuestionsRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { validateAuth } from '../_shared/auth.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 interface Question {
   pregunta: string;
@@ -18,31 +20,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    // Verify the user token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await supabase.auth.getClaims(token);
-    
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const authUserId = claims.claims.sub;
+    const { user } = await validateAuth(req);
 
     // Rate limiting - AI generation is expensive
     const rateLimitResult = await checkRateLimit(
-      authUserId,
+      user.id,
       'generate-task-completion-questions',
       RateLimitPresets.AI_GENERATION
     );
@@ -155,16 +137,11 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
 
     // Parse the response
     let questions: Question[] = [];
-    try {
-      // Try to extract JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        const parsed = JSON.parse(jsonMatch[0]);
-        questions = parsed.questions || [];
-      }
-    } catch (_parseErr) {
-          if (error instanceof Response) return error;
-console.error('Error parsing AI response');
+    const parseResult = safeJsonParse<{ questions: Question[] }>(content);
+    if (parseResult.ok) {
+      questions = parseResult.data.questions || [];
+    } else {
+      console.error('Error parsing AI response:', parseResult.error);
       // Use fallback questions
       questions = [
         {

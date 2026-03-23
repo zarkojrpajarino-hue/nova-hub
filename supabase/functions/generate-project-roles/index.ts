@@ -11,10 +11,11 @@
  * - Respeta límites del plan de suscripción
  */
 
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { requireEnv } from '../_shared/env-validation.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { validateAuth } from '../_shared/auth.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
 
@@ -44,38 +45,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Verify the user token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const authUserId = claims.claims.sub;
+    const { user, serviceClient: supabaseAdmin } = await validateAuth(req);
 
     // Rate limiting - AI generation is expensive
     const rateLimitResult = await checkRateLimit(
-      authUserId,
+      user.id,
       'generate-project-roles',
       RateLimitPresets.AI_GENERATION
     );
@@ -96,11 +70,13 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Use service role for data operations
-    const supabaseKey = requireEnv('SUPABASE_SERVICE_ROLE_KEY');
-    const supabaseAdmin = createClient(supabaseUrl, supabaseKey, {
-      auth: { autoRefreshToken: false, persistSession: false }
-    });
+    // Sanitize user free-text inputs
+    const sanitizedBizIdea = sanitizePromptInput(business_idea, SanitizerPresets.LONG_INPUT);
+    if (sanitizedBizIdea.blocked) {
+      return new Response(JSON.stringify({ error: sanitizedBizIdea.reason }), {
+        status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+      });
+    }
 
     // No generar roles si work_mode es 'no_roles'
     if (work_mode === 'no_roles') {
@@ -146,7 +122,7 @@ Deno.serve(async (req) => {
     const { data: userProfile } = await supabaseAdmin
       .from('profiles')
       .select('id')
-      .eq('auth_id', authUserId)
+      .eq('auth_id', user.id)
       .single();
 
     if (!userProfile) {
@@ -262,12 +238,9 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
     const content = openAIData.choices[0].message.content;
 
     // Parse respuesta
-    let parsedContent;
-    try {
-      parsedContent = JSON.parse(content);
-    } catch (_e) {
-          if (error instanceof Response) return error;
-console.error('Failed to parse OpenAI response:', content);
+    const parseResult = safeJsonParse<{ roles: GeneratedRole[] }>(content);
+    if (!parseResult.ok) {
+      console.error('Failed to parse OpenAI response:', content);
       return new Response(JSON.stringify({
         error: 'Invalid response format from AI'
       }), {
@@ -277,7 +250,7 @@ console.error('Failed to parse OpenAI response:', content);
     }
 
     // Extraer array de roles
-    const generatedRoles: GeneratedRole[] = parsedContent.roles || [];
+    const generatedRoles: GeneratedRole[] = parseResult.data.roles || [];
 
     if (generatedRoles.length === 0) {
       return new Response(JSON.stringify({

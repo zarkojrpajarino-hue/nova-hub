@@ -1,8 +1,9 @@
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
 import { RoleQuestionsV2RequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { validateAuth } from '../_shared/auth.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 // Types for nested Supabase query results
 interface ProfileNested {
@@ -109,38 +110,11 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Verify authentication
-    const authHeader = req.headers.get('Authorization');
-    if (!authHeader?.startsWith('Bearer ')) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const supabaseUrl = requireEnv('SUPABASE_URL');
-    const supabaseAnonKey = requireEnv('SUPABASE_ANON_KEY');
-    
-    const authSupabase = createClient(supabaseUrl, supabaseAnonKey, {
-      global: { headers: { Authorization: authHeader } }
-    });
-
-    // Verify the user token
-    const token = authHeader.replace('Bearer ', '');
-    const { data: claims, error: claimsError } = await authSupabase.auth.getClaims(token);
-    
-    if (claimsError || !claims?.claims) {
-      return new Response(
-        JSON.stringify({ error: 'Unauthorized' }),
-        { status: 401, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
-
-    const authUserId = claims.claims.sub;
+    const { user, serviceClient: supabase } = await validateAuth(req);
 
     // Rate limiting - AI generation is expensive
     const rateLimitResult = await checkRateLimit(
-      authUserId,
+      user.id,
       'generate-role-questions-v2',
       RateLimitPresets.AI_GENERATION
     );
@@ -173,8 +147,6 @@ Deno.serve(async (req) => {
 
     const sanitizedMeetingType = sanitizeText(meetingType, 50);
     const sanitizedDuration = duracionMinutos ?? 60;
-
-    // Use service role for data queries
 
     console.log('Generating questions for role:', roleName);
 
@@ -315,18 +287,15 @@ Deno.serve(async (req) => {
     }
 
     // Parse response
-    const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    let parsed;
-    try {
-      parsed = JSON.parse(cleanContent);
-    } catch (_e) {
-          if (error instanceof Response) return error;
-console.error('Parse error');
+    const parseResult = safeJsonParse<{ questions: unknown[]; agenda_sugerida: unknown }>(content);
+    if (!parseResult.ok) {
+      console.error('Parse error:', parseResult.error);
       return new Response(
         JSON.stringify({ error: 'Failed to process AI response' }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+    const parsed = parseResult.data;
 
     return new Response(
       JSON.stringify({ 
