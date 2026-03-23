@@ -39,6 +39,9 @@ import { ExecutionIntelligencePanel } from '@/components/integrations/panels/Exe
 import { TeamIntelligencePanel } from '@/components/integrations/panels/TeamIntelligencePanel';
 import { CalendarIntelligencePanel } from '@/components/integrations/panels/CalendarIntelligencePanel';
 import { IntegrationHealthPanel } from '@/components/integrations/panels/IntegrationHealthPanel';
+import { UpgradePromptModal } from '@/components/subscription/UpgradePromptModal';
+import { usePlanTierLimits } from '@/hooks/useSubscription';
+import { isPaymentsEnabled } from '@/config/features';
 
 import { useTranslation } from 'react-i18next';
 // AUD.B.7 — Badge de calidad de sync (migration 20260326000009)
@@ -96,6 +99,11 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
   const { getStatus, isLoading, connections } = useIntegrationConnections(currentProject?.id);
   const { data: syncQuality = {} } = useSyncQuality(currentProject?.id);
   const hasAnyActive = !isLoading && Object.values(connections).some((c) => c.status === 'active');
+
+  // Integration plan limit check
+  const { canUseFeatureByTier } = usePlanTierLimits(currentProject?.id);
+  const [showIntegrationUpgrade, setShowIntegrationUpgrade] = useState(false);
+  const integrationsAllowed = canUseFeatureByTier('integrations');
 
   // T17.27 — Sheet de preferencias de fuente
   const [sourcePrefsOpen, setSourcePrefsOpen] = useState(false);
@@ -155,6 +163,34 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             <Settings2 size={14} />{t('integrations.configurarFuentes')}</button>
         )}
       </div>
+
+      {/* Integration upgrade banner for Free plan */}
+      {isPaymentsEnabled() && !integrationsAllowed && (
+        <Alert className="border-purple-200 bg-purple-50">
+          <AlertDescription className="flex items-center justify-between">
+            <span className="text-sm text-purple-800 font-medium">
+              {t('pricing.integrationsRequirePro')}
+            </span>
+            <Button
+              size="sm"
+              onClick={() => setShowIntegrationUpgrade(true)}
+              className="bg-purple-600 hover:bg-purple-700 ml-4"
+            >
+              {t('pricing.viewPlans')}
+            </Button>
+          </AlertDescription>
+        </Alert>
+      )}
+
+      {/* Integration upgrade modal */}
+      <UpgradePromptModal
+        isOpen={showIntegrationUpgrade}
+        onClose={() => setShowIntegrationUpgrade(false)}
+        title={t('pricing.integrationsUpgradeTitle')}
+        description={t('pricing.integrationsUpgradeDesc')}
+        recommendedPlan="pro"
+        variant="integration"
+      />
 
       {/* T17.27 — Sheet de preferencias de fuente */}
       <Sheet open={sourcePrefsOpen} onOpenChange={setSourcePrefsOpen}>

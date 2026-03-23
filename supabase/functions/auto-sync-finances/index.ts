@@ -1,3 +1,4 @@
+// ZOMBIE: DEPRECATED. Replaced by sync-stripe/sync-hubspot/sync-asana. Returns 410 Gone. Safe to delete. (Audit: 2026-03-23)
 /**
  * AUTO SYNC FINANCES — DEPRECADO
  *

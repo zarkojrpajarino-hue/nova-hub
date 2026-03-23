@@ -9,9 +9,11 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { UserPlus, Lock } from 'lucide-react';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
-import { useFeatureAccess, useAvailablePlans } from '@/hooks/useSubscription';
+import { useFeatureAccess, useAvailablePlans, usePlanTierLimits } from '@/hooks/useSubscription';
 import { PlanSelectionModal } from '@/components/subscription/PlanSelectionModal';
+import { UpgradePromptModal } from '@/components/subscription/UpgradePromptModal';
 import { InviteMemberWizard } from '@/components/roles/InviteMemberWizard';
+import { isPaymentsEnabled } from '@/config/features';
 import { toast } from 'sonner';
 import { cn } from '@/lib/utils';
 
@@ -34,13 +36,18 @@ export function InviteButton({
   const { t } = useTranslation();
   const { currentProject } = useCurrentProject();
   const { getLimitInfo } = useFeatureAccess(currentProject?.id);
+  const { tier } = usePlanTierLimits(currentProject?.id);
   const { data: availablePlans = [] } = useAvailablePlans();
 
   const [showInviteWizard, setShowInviteWizard] = useState(false);
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
 
   const membersLimit = getLimitInfo('members');
-  const canInvite = membersLimit.isUnlimited || membersLimit.current < membersLimit.max;
+  // Use PLAN_TIERS limit when payments enabled, otherwise use DB-backed limit
+  const tierMemberLimit = tier.members;
+  const canInvite = isPaymentsEnabled()
+    ? (tierMemberLimit === -1 || membersLimit.current < tierMemberLimit)
+    : (membersLimit.isUnlimited || membersLimit.current < (membersLimit.max ?? Infinity));
 
   const handleClick = () => {
     if (!currentProject) {
@@ -49,7 +56,6 @@ export function InviteButton({
     }
 
     if (!canInvite) {
-      toast.error(`Has alcanzado el límite de ${membersLimit.max} miembros en tu plan actual`);
       setShowUpgradeModal(true);
       return;
     }
@@ -99,12 +105,14 @@ export function InviteButton({
         />
       )}
 
-      {/* Upgrade Modal */}
-      <PlanSelectionModal
+      {/* Upgrade Modal — PLAN_TIERS aware */}
+      <UpgradePromptModal
         isOpen={showUpgradeModal}
         onClose={() => setShowUpgradeModal(false)}
-        onSelectPlan={handlePlanSelected}
-        availablePlans={availablePlans}
+        title={t('pricing.memberLimitTitle', { limit: tierMemberLimit === -1 ? '?' : tierMemberLimit })}
+        description={t('pricing.memberLimitDesc')}
+        recommendedPlan="pro"
+        variant="member"
       />
     </>
   );

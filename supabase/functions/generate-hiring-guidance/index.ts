@@ -109,7 +109,7 @@ RESPONDE SOLO con JSON válido:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-haiku-20241022',  // [B6] Downgrade: hiring es lookup+template, Haiku basta
+        model: 'claude-haiku-4-5-20251001',  // [SCALE] Updated to Haiku 4.5
         max_tokens: 1500,
         system: systemPrompt,
         messages: [{

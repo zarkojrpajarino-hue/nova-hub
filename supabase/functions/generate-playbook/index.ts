@@ -163,7 +163,7 @@ Responde con este JSON exacto:
         'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'claude-3-5-sonnet-20241022',
+        model: 'claude-haiku-4-5-20251001',  // [SCALE] Downgrade: playbook is structured generation, Haiku suffices
         max_tokens: 4096,
         system: systemPrompt,
         messages: [
@@ -245,7 +245,7 @@ Responde con este JSON exacto:
         fortalezas: playbookContent.fortalezas || [],
         areas_mejora: playbookContent.areas_mejora || [],
         objetivos_sugeridos: playbookContent.objetivos_sugeridos || [],
-        ai_model: 'claude-3-5-sonnet-20241022',
+        ai_model: 'claude-haiku-4-5-20251001',
         is_active: true,
       })
       .select()

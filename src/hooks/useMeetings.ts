@@ -8,6 +8,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 
 // Types
 export interface Meeting {
@@ -57,7 +58,7 @@ export interface CreateMeetingInput {
  */
 export function useProjectMeetings(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['meetings', projectId],
+    queryKey: queryKeys.meetings.byProject(projectId!),
     queryFn: async () => {
       if (!projectId) {
         return [];
@@ -91,7 +92,7 @@ export function useProjectMeetings(projectId: string | undefined) {
  */
 export function useMeeting(meetingId: string | undefined) {
   return useQuery({
-    queryKey: ['meeting', meetingId],
+    queryKey: queryKeys.meetings.detail(meetingId!),
     queryFn: async () => {
       if (!meetingId) return null;
 
@@ -180,7 +181,7 @@ export function useCreateMeeting() {
       return meeting;
     },
     onSuccess: (meeting) => {
-      queryClient.invalidateQueries({ queryKey: ['meetings', meeting.project_id] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.byProject(meeting.project_id) });
       toast.success('Reunión creada exitosamente');
     },
     onError: (error: Error) => {
@@ -219,8 +220,8 @@ export function useUpdateMeetingStatus() {
       return data;
     },
     onSuccess: (meeting) => {
-      queryClient.invalidateQueries({ queryKey: ['meeting', meeting.id] });
-      queryClient.invalidateQueries({ queryKey: ['meetings', meeting.project_id] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.detail(meeting.id) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.byProject(meeting.project_id) });
     },
   });
 }
@@ -230,7 +231,7 @@ export function useUpdateMeetingStatus() {
  */
 export function useMeetingParticipants(meetingId: string | undefined) {
   return useQuery({
-    queryKey: ['meeting-participants', meetingId],
+    queryKey: queryKeys.meetings.participants(meetingId!),
     queryFn: async () => {
       if (!meetingId) return [];
 
@@ -254,7 +255,7 @@ export function useMeetingParticipants(meetingId: string | undefined) {
  */
 export function useMeetingInsights(meetingId: string | undefined) {
   return useQuery({
-    queryKey: ['meeting-insights', meetingId],
+    queryKey: queryKeys.meetings.insights(meetingId!),
     queryFn: async () => {
       if (!meetingId) return [];
 
@@ -276,7 +277,7 @@ export function useMeetingInsights(meetingId: string | undefined) {
  */
 export function useMeetingAIQuestions(meetingId: string | undefined) {
   return useQuery({
-    queryKey: ['meeting-ai-questions', meetingId],
+    queryKey: queryKeys.meetings.aiQuestions(meetingId!),
     queryFn: async () => {
       if (!meetingId) return [];
 
@@ -298,7 +299,7 @@ export function useMeetingAIQuestions(meetingId: string | undefined) {
  */
 export function useMeetingAIRecommendations(meetingId: string | undefined) {
   return useQuery({
-    queryKey: ['meeting-ai-recommendations', meetingId],
+    queryKey: queryKeys.meetings.aiRecommendations(meetingId!),
     queryFn: async () => {
       if (!meetingId) return [];
 
@@ -320,7 +321,7 @@ export function useMeetingAIRecommendations(meetingId: string | undefined) {
  */
 export function useMeetingDecisions(meetingId: string | undefined) {
   return useQuery({
-    queryKey: ['meeting-decisions', meetingId],
+    queryKey: queryKeys.meetings.decisions(meetingId!),
     queryFn: async () => {
       if (!meetingId) return [];
 
@@ -361,8 +362,8 @@ export function useTranscribeMeeting() {
       return data;
     },
     onSuccess: (_data, meetingId) => {
-      queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
-      queryClient.invalidateQueries({ queryKey: ['meetings'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.detail(meetingId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.all });
       toast.success('Transcripción completada correctamente');
     },
     onError: (error: Error) => {
@@ -395,9 +396,9 @@ export function useAnalyzeMeeting() {
       return data;
     },
     onSuccess: (data, { meetingId }) => {
-      queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
-      queryClient.invalidateQueries({ queryKey: ['meetings'] });
-      queryClient.invalidateQueries({ queryKey: ['meeting-insights', meetingId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.detail(meetingId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.insights(meetingId) });
       toast.success(`Análisis completado: ${data.insightsCount} insights extraídos`);
     },
     onError: (error: Error) => {
@@ -430,10 +431,10 @@ export function useApplyMeetingInsights() {
       return data;
     },
     onSuccess: (data, meetingId) => {
-      queryClient.invalidateQueries({ queryKey: ['meeting', meetingId] });
-      queryClient.invalidateQueries({ queryKey: ['meetings'] });
-      queryClient.invalidateQueries({ queryKey: ['meeting-insights', meetingId] });
-      queryClient.invalidateQueries({ queryKey: ['tasks'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.detail(meetingId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.meetings.insights(meetingId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 
       const { results } = data;
       const total = results.tasks + results.decisions + results.leads + results.obv_updates + results.blockers + results.metrics;

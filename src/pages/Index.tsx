@@ -46,6 +46,7 @@ const AIAnalysisPage = lazy(() => import('./AIAnalysisPage'));
 const FounderToolkitPage = lazy(() => import('./FounderToolkitPage'));
 const StartupOSView = lazy(() => import('./views/StartupOSView').then(m => ({ default: m.StartupOSView })));
 const MiModeloView = lazy(() => import('./views/MiModeloView').then(m => ({ default: m.MiModeloView })));
+const PricingPageView = lazy(() => import('@/components/subscription/PricingPage').then(m => ({ default: m.PricingPage })));
 
 function IndexContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -244,6 +245,7 @@ function IndexContent() {
               <Route path="settings" element={<SettingsView onNewOBV={handleNewOBV} />} />
               <Route path="integrations" element={<IntegrationsView />} />
               <Route path="notificaciones" element={<NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />} />
+              <Route path="pricing" element={<PricingPageView />} />
             </Routes>
           </Suspense>
         </main>

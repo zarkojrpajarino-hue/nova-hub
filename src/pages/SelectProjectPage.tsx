@@ -5,21 +5,32 @@
  * Permite seleccionar cuál proyecto quiere trabajar
  */
 
+import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
-import { useProjectPlan } from '@/hooks/useSubscription';
+import { useProjectPlan, usePlanTierLimits } from '@/hooks/useSubscription';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Plus, ArrowRight, Clock, Crown, Zap } from 'lucide-react';
+import { Plus, ArrowRight, Clock, Crown, Zap, Lock } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
+import { UpgradePromptModal } from '@/components/subscription/UpgradePromptModal';
+import { isPaymentsEnabled } from '@/config/features';
 
 import { useTranslation } from 'react-i18next';
 export function SelectProjectPage() {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { userProjects, isLoading, setCurrentProject } = useCurrentProject();
+  const [showProjectUpgrade, setShowProjectUpgrade] = useState(false);
+
+  // Use first project to read current tier (all projects share user's tier for project counting)
+  const firstProjectId = userProjects?.[0]?.id;
+  const { tier } = usePlanTierLimits(firstProjectId);
+
+  const projectLimit = tier.projects;
+  const canCreateProject = !isPaymentsEnabled() || projectLimit === -1 || userProjects.length < projectLimit;
 
   const handleSelectProject = (project: Record<string, unknown> & { id: string }) => {
     setCurrentProject(project);
@@ -27,6 +38,10 @@ export function SelectProjectPage() {
   };
 
   const handleCreateNewProject = () => {
+    if (!canCreateProject) {
+      setShowProjectUpgrade(true);
+      return;
+    }
     navigate('/select-onboarding-type');
   };
 
@@ -67,18 +82,38 @@ export function SelectProjectPage() {
 
           {/* Create New Project Card */}
           <Card
-            className="border-2 border-dashed border-gray-300 hover:border-primary cursor-pointer transition-all hover:shadow-lg"
+            className={`border-2 border-dashed cursor-pointer transition-all hover:shadow-lg ${
+              canCreateProject ? 'border-gray-300 hover:border-primary' : 'border-gray-200 opacity-75'
+            }`}
             onClick={handleCreateNewProject}
           >
             <CardContent className="flex flex-col items-center justify-center h-full min-h-[250px] p-6">
-              <div className="rounded-full bg-primary/10 p-4 mb-4">
-                <Plus className="h-8 w-8 text-primary" />
+              <div className={`rounded-full p-4 mb-4 ${canCreateProject ? 'bg-primary/10' : 'bg-gray-100'}`}>
+                {canCreateProject ? (
+                  <Plus className="h-8 w-8 text-primary" />
+                ) : (
+                  <Lock className="h-8 w-8 text-gray-400" />
+                )}
               </div>
               <h3 className="font-semibold text-lg mb-2">{t('selectProject.crearNuevoProyecto')}</h3>
-              <p className="text-sm text-gray-600 text-center">{t('selectProject.empiezaUnNuevoProyecto')}</p>
+              <p className="text-sm text-gray-600 text-center">
+                {canCreateProject
+                  ? t('selectProject.empiezaUnNuevoProyecto')
+                  : t('pricing.projectLimitReached', { limit: projectLimit })}
+              </p>
             </CardContent>
           </Card>
         </div>
+
+        {/* Project limit upgrade modal */}
+        <UpgradePromptModal
+          isOpen={showProjectUpgrade}
+          onClose={() => setShowProjectUpgrade(false)}
+          title={t('pricing.projectLimitTitle', { limit: projectLimit })}
+          description={t('pricing.projectLimitDesc')}
+          recommendedPlan="pro"
+          variant="project"
+        />
       </div>
     </div>
   );

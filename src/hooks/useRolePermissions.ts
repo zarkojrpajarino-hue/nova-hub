@@ -9,6 +9,7 @@
 
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { queryKeys } from '@/lib/queryKeys';
 
 export interface RolePermissions {
   role: string | null;
@@ -104,7 +105,7 @@ function computePermissions(role: string | null, isLead: boolean): RolePermissio
 
 export function useRolePermissions(projectId: string | undefined) {
   const { data, isLoading } = useQuery({
-    queryKey: ['role-permissions', projectId],
+    queryKey: queryKeys.rolePermissions(projectId!),
     staleTime: 30 * 60_000,  // Permisos rara vez cambian
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();

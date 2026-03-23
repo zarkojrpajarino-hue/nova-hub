@@ -22,7 +22,7 @@
 > | FASE 11 — Features por fase | ✅ CERRADA v1 10/10 + 2 v2 pendientes | PostHog instalado, VITE_POSTHOG_KEY pendiente |
 > | FASE 12 — Sistemas avanzados | ✅ CERRADA 8/8 | Pausar/archivar, timeline, member removal |
 > | FASE 13 — Edge Cases | ✅ CERRADA v1 8/10 + 2 v2 pendientes | EC13.5 + EC13.9 diferidos con criterio |
-> | FASE 14 — Monetización | ⏸ POST-VALIDACIÓN 0/5 + 1 v2 pendiente | Solo tras usuarios validados |
+> | FASE 14 — Monetización | 🔄 EN CURSO 3/5 + 2 v2 pendientes | PLAN_TIERS wired, upgrade prompts, PricingPage |
 > | FASE 15 — Integraciones y agentes | ✅ CERRADA v1 (2026-03-18) + 2 v2 pendientes | 4 providers · 4 agentes · motor writes en prod |
 > | FASE 16 — Adquisición y validación | 🔄 ACTIVA + 2 v2 pendientes | |
 > | FASE 17 — Evidencia, fiabilidad y transparencia | ✅ CERRADA v1 32/32 + 4/5 v2 completadas | T17.V2.3 diferido hasta FASE 18 |
@@ -640,13 +640,15 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## FASE 14 — MONETIZACIÓN 0/5
+## FASE 14 — MONETIZACIÓN 3/5
 > Solo cuando el producto está validado con usuarios reales.
+> M14.1 wired PLAN_TIERS→useSubscription. M14.2 client-side enforcement via usePlanTierLimits + useAICallCounter.
+> M14.4 upgrade prompts at 5 key moments. PricingPage + UpgradePromptModal created.
 
-- [ ] **M14.1** Definir tiers de plan (Free / Pro / Business con límites por feature)
-- [ ] **M14.2** Implementar plan limits enforcement en backend
+- [x] **M14.1** Definir tiers de plan (Free / Pro / Business con límites por feature)
+- [~] **M14.2** Implementar plan limits enforcement en backend
 - [ ] **M14.3** Activar ENABLE_PAYMENTS = true + configurar Stripe
-- [ ] **M14.4** Upgrade hints en momentos de valor percibido
+- [x] **M14.4** Upgrade hints en momentos de valor percibido
 - [ ] **M14.5** Onboarding a planes (después del onboarding A, no durante)
 
 ### Mejoras v2 — Adaptación a FASE 19 (Phase-adaptive upgrade hints)
@@ -3379,7 +3381,7 @@ ORDER  BY critical_count DESC, total DESC;
 | 11   | Features por fase y modo            | 10    | 10    | ✅ 100%                  | Fases 4+5             |
 | 12   | Sistemas avanzados                  | 0     | 8     | ❌ 0% (post-MVP)         | Post-MVP              |
 | 13   | Edge cases                          | 8     | 10    | ✅ v1 (2 dif.)           | Antes lanzar          |
-| 14   | Monetización                        | 0     | 5     | ❌ 0%                    | Prod. validado        |
+| 14   | Monetización                        | 3     | 5     | 🔄 60%                   | PLAN_TIERS wired      |
 | 15   | Integraciones y agentes             | 25    | 157   | ✅ v1 cerrada            | F14 + usuarios        |
 | 16   | Adquisición y validación            | 0     | 6     | 🔄 ACTIVA                | —                     |
 | 17   | Evidencia, fiabilidad y transparencia   | 0     | 32    | ⏸ post-F16 Bloque A     | F16 + 1 integración   |

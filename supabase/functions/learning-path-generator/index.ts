@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. Replaced by generate-learning-path. Safe to delete. (Audit: 2026-03-23)
 /**
  * LEARNING PATH GENERATOR (CAPA 6)
  *

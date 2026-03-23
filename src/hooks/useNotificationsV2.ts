@@ -13,6 +13,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
+import { queryKeys } from '@/lib/queryKeys';
 import { toast } from 'sonner';
 import type {
   Notification,
@@ -65,8 +66,8 @@ export function useNotifications(filters?: NotificationFilters, limit = PAGE_SIZ
           }
 
           // Invalidate queries to refetch
-          queryClient.invalidateQueries({ queryKey: ['notifications'] });
-          queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+          queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+          queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] as const });
         }
       )
       .subscribe();
@@ -77,7 +78,7 @@ export function useNotifications(filters?: NotificationFilters, limit = PAGE_SIZ
   }, [profile?.id, queryClient]);
 
   return useQuery({
-    queryKey: ['notifications', profile?.id, filters, limit],
+    queryKey: queryKeys.notifications.byUser(profile?.id!, filters, limit),
     queryFn: async () => {
       if (!profile?.id) return [];
 
@@ -133,7 +134,7 @@ export function useUnreadNotificationsCount() {
   const { profile } = useAuth();
 
   return useQuery({
-    queryKey: ['notifications-unread-count', profile?.id],
+    queryKey: queryKeys.notifications.unreadCountV2(profile?.id!),
     queryFn: async () => {
       if (!profile?.id) return 0;
 
@@ -168,8 +169,8 @@ export function useMarkNotificationRead() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] as const });
     },
   });
 }
@@ -192,8 +193,8 @@ export function useMarkAllNotificationsRead() {
     },
     onSuccess: (count) => {
       toast.success(i18next.t('notifications.notificacionesMarcadasLeidas', { count }));
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] as const });
     },
   });
 }
@@ -213,7 +214,7 @@ export function useSnoozeNotification() {
     },
     onSuccess: (_, variables) => {
       toast.success(i18next.t('notifications.notificacionPospuesta', { minutes: variables.minutes }));
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
     },
   });
 }
@@ -232,8 +233,8 @@ export function useArchiveNotification() {
     },
     onSuccess: () => {
       toast.success(i18next.t('notifications.notificacionArchivada'));
-      queryClient.invalidateQueries({ queryKey: ['notifications'] });
-      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.notifications.all });
+      queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] as const });
     },
   });
 }

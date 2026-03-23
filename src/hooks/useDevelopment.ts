@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { queryKeys } from '@/lib/queryKeys';
 
 // Types for development system
 export interface RolePerformance {
@@ -87,7 +88,7 @@ export interface RoleRanking {
 // Hook for role performance data
 export function useRolePerformance(userId?: string) {
   return useQuery({
-    queryKey: ['role_performance', userId],
+    queryKey: queryKeys.development.rolePerformance(userId!),
     queryFn: async () => {
       let query = supabase
         .from('user_role_performance')
@@ -108,7 +109,7 @@ export function useRolePerformance(userId?: string) {
 // Hook for user insights
 export function useInsights(userId?: string) {
   return useQuery({
-    queryKey: ['user_insights', userId],
+    queryKey: queryKeys.development.userInsights(userId!),
     queryFn: async () => {
       let query = supabase
         .from('user_insights')
@@ -142,7 +143,7 @@ export function useCreateInsight() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_insights'] });
+      queryClient.invalidateQueries({ queryKey: ['user_insights'] as const });
     },
   });
 }
@@ -164,7 +165,7 @@ export function useUpdateInsight() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_insights'] });
+      queryClient.invalidateQueries({ queryKey: ['user_insights'] as const });
     },
   });
 }
@@ -183,7 +184,7 @@ export function useDeleteInsight() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_insights'] });
+      queryClient.invalidateQueries({ queryKey: ['user_insights'] as const });
     },
   });
 }
@@ -191,7 +192,7 @@ export function useDeleteInsight() {
 // Hook for user playbooks
 export function usePlaybooks(userId?: string) {
   return useQuery({
-    queryKey: ['user_playbooks', userId],
+    queryKey: queryKeys.development.userPlaybooks(userId!),
     queryFn: async () => {
       let query = supabase
         .from('user_playbooks')
@@ -213,7 +214,7 @@ export function usePlaybooks(userId?: string) {
 // Hook to get playbook for a specific role
 export function usePlaybookForRole(userId: string | undefined, roleName: string | undefined) {
   return useQuery({
-    queryKey: ['user_playbook', userId, roleName],
+    queryKey: queryKeys.development.userPlaybook(userId!, roleName!),
     queryFn: async () => {
       if (!userId || !roleName) return null;
       
@@ -237,7 +238,7 @@ export function usePlaybookForRole(userId: string | undefined, roleName: string 
 // Hook for role rankings
 export function useRoleRankings(roleName?: string) {
   return useQuery({
-    queryKey: ['role_rankings', roleName],
+    queryKey: queryKeys.development.roleRankings(roleName!),
     queryFn: async () => {
       let query = supabase
         .from('role_rankings')
@@ -332,8 +333,8 @@ export function useGeneratePlaybook() {
       return newPlaybook;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_playbooks'] });
-      queryClient.invalidateQueries({ queryKey: ['user_playbook'] });
+      queryClient.invalidateQueries({ queryKey: ['user_playbooks'] as const });
+      queryClient.invalidateQueries({ queryKey: ['user_playbook'] as const });
     },
   });
 }

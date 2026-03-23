@@ -2,6 +2,7 @@ import { useState, useCallback } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 import { taskService } from '@/services/TaskService';
 import type { DropResult } from '@hello-pangea/dnd';
 import type { Database, Json } from '@/integrations/supabase/types';
@@ -49,7 +50,7 @@ export function useTaskKanban(projectId: string) {
 
   // Fetch tasks
   const { data: tasks = [], isLoading } = useQuery({
-    queryKey: ['project_tasks', projectId],
+    queryKey: queryKeys.tasks.byProject(projectId),
     queryFn: async () => {
       const data = await taskService.getByProject(projectId);
       return data as Task[];
@@ -76,10 +77,10 @@ export function useTaskKanban(projectId: string) {
     }
 
     // For other movements, update directly
-    const previousTasks = queryClient.getQueryData<Task[]>(['project_tasks', projectId]);
+    const previousTasks = queryClient.getQueryData<Task[]>(queryKeys.tasks.byProject(projectId));
 
     // Optimistic update
-    queryClient.setQueryData(['project_tasks', projectId], (old: Task[] | undefined) =>
+    queryClient.setQueryData(queryKeys.tasks.byProject(projectId), (old: Task[] | undefined) =>
       old?.map(t => t.id === taskId ? { ...t, status: newStatus } : t)
     );
 
@@ -92,7 +93,7 @@ export function useTaskKanban(projectId: string) {
       toast.success(`Tarea movida a ${TASK_COLUMNS.find(c => c.id === newStatus)?.label}`);
     } catch (_error) {
       // Rollback on failure
-      queryClient.setQueryData(['project_tasks', projectId], previousTasks);
+      queryClient.setQueryData(queryKeys.tasks.byProject(projectId), previousTasks);
       toast.error('Error al mover la tarea. Se ha revertido el cambio.');
     }
   }, [tasks, projectId, queryClient]);
@@ -115,7 +116,7 @@ export function useTaskKanban(projectId: string) {
         task.id,
         newStatus as Database["public"]["Enums"]["task_status"]
       );
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
     } catch (_error) {
       toast.error('Error al actualizar tarea');
     }
@@ -136,7 +137,7 @@ export function useTaskKanban(projectId: string) {
       );
 
       toast.success('¡Tarea completada! Feedback guardado.');
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
       setTaskToComplete(null);
     } catch (_error) {
@@ -153,7 +154,7 @@ export function useTaskKanban(projectId: string) {
       await taskService.delete(taskToDelete.id);
 
       toast.success('Tarea eliminada');
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
     } catch (_error) {
       toast.error('Error al eliminar la tarea');

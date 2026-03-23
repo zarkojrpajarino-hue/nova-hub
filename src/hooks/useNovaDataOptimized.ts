@@ -14,6 +14,7 @@
 import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { queryKeys } from '@/lib/queryKeys';
 
 // ============================================================================
 // TYPES (mantener compatibilidad con useNovaData original)
@@ -111,7 +112,7 @@ export interface Objective {
  */
 export function useProfiles() {
   return useQuery({
-    queryKey: ['profiles'],
+    queryKey: queryKeys.members.profiles,
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return [] as Profile[];
@@ -138,7 +139,7 @@ export function useProfiles() {
  */
 export function useProjects() {
   return useQuery({
-    queryKey: ['projects', 'with-phase-state'],
+    queryKey: queryKeys.projects.withPhaseState,
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return [];
@@ -171,7 +172,7 @@ export function useProjects() {
  */
 export function useMemberStats() {
   return useQuery({
-    queryKey: ['member_stats'],
+    queryKey: queryKeys.members.stats,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('member_stats')
@@ -188,7 +189,7 @@ export function useMemberStats() {
  */
 export function useObjectives() {
   return useQuery({
-    queryKey: ['objectives'],
+    queryKey: queryKeys.objectives,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('objectives')
@@ -205,7 +206,7 @@ export function useObjectives() {
  */
 export function useCurrentMemberStats(email: string | undefined) {
   return useQuery({
-    queryKey: ['member_stats', email],
+    queryKey: queryKeys.members.statsByEmail(email!),
     queryFn: async () => {
       if (!email) return null;
       const { data, error } = await supabase
@@ -242,7 +243,7 @@ export function useCurrentMemberStats(email: string | undefined) {
  */
 export function useProjectTeamMembers(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-team-members', projectId],
+    queryKey: queryKeys.members.byProject(projectId!),
     queryFn: async () => {
       if (!projectId) return [];
 
@@ -286,7 +287,7 @@ export function useProjectTeamMembers(projectId: string | undefined) {
  */
 export function useProjectLeads(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-leads', projectId],
+    queryKey: queryKeys.leads.byProject(projectId!),
     queryFn: async () => {
       if (!projectId) return [];
 
@@ -316,7 +317,7 @@ export function useProjectLeads(projectId: string | undefined) {
  */
 export function useProjectStats(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-stats', projectId],
+    queryKey: queryKeys.projects.stats(projectId!),
     queryFn: async () => {
       if (!projectId) return null;
 
@@ -339,7 +340,7 @@ export function useProjectStats(projectId: string | undefined) {
  */
 export function useProjectWithStats(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-with-stats', projectId],
+    queryKey: queryKeys.projects.withStats(projectId!),
     queryFn: async () => {
       if (!projectId) return null;
 
@@ -374,7 +375,7 @@ export function useProjectWithStats(projectId: string | undefined) {
  */
 export function useProjectComplete(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-complete', projectId],
+    queryKey: queryKeys.projects.complete(projectId!),
     queryFn: async () => {
       if (!projectId) return null;
 
@@ -429,11 +430,12 @@ export function useProjectComplete(projectId: string | undefined) {
  */
 export function useProjectMembers() {
   return useQuery({
-    queryKey: ['project_members'],
+    queryKey: queryKeys.members.all,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('project_members')
-        .select('id, project_id, member_id, role, created_at, member:members!member_id(id, auth_id, email, nombre, avatar, color, especialization, created_at)');
+        .select('id, project_id, member_id, role, created_at, member:members!member_id(id, auth_id, email, nombre, avatar, color, especialization, created_at)')
+        .limit(500);  // [SCALE] Safety cap — prevents runaway queries
 
       if (error) throw error;
 
@@ -462,12 +464,13 @@ export function useProjectMembers() {
  */
 export function useLeads() {
   return useQuery({
-    queryKey: ['leads'],
+    queryKey: queryKeys.leads.all,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('leads')
         .select('*')
-        .order('created_at', { ascending: false });
+        .order('created_at', { ascending: false })
+        .limit(500);  // [SCALE] Safety cap — prevents runaway queries
 
       if (error) throw error;
       return data as Lead[];
@@ -483,11 +486,12 @@ export function useLeads() {
  */
 export function usePipelineGlobal() {
   return useQuery({
-    queryKey: ['pipeline_global'],
+    queryKey: queryKeys.leads.pipeline,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pipeline_global')
-        .select('*');
+        .select('*')
+        .limit(500);  // [SCALE] Safety cap — prevents runaway queries
 
       if (error) throw error;
       return data;
@@ -503,7 +507,7 @@ export function usePipelineGlobal() {
  */
 export function useProjectStatsGlobal() {
   return useQuery({
-    queryKey: ['project_stats'],
+    queryKey: queryKeys.projects.statsGlobal,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('project_stats')
@@ -604,7 +608,7 @@ export interface RiskEngineData {
 
 export function useProjectPhaseData(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-engine', projectId, 'phase'],
+    queryKey: queryKeys.engine.phase(projectId!),
     queryFn: async (): Promise<PhaseEngineData> => {
       const [stateResult, historyResult] = await Promise.all([
         supabase
@@ -632,7 +636,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
 
 export function useProjectProbabilityData(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-engine', projectId, 'probability'],
+    queryKey: queryKeys.engine.probability(projectId!),
     queryFn: async (): Promise<ProbabilityEngineData> => {
       const [probResult, historyResult] = await Promise.all([
         supabase
@@ -660,7 +664,7 @@ export function useProjectProbabilityData(projectId: string | undefined) {
 
 export function useProjectRiskData(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-engine', projectId, 'risk'],
+    queryKey: queryKeys.engine.risk(projectId!),
     queryFn: async (): Promise<RiskEngineData> => {
       const [riskResult, historyResult] = await Promise.all([
         supabase
@@ -688,7 +692,7 @@ export function useProjectRiskData(projectId: string | undefined) {
 
 export function useProjectCoverageData(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-engine', projectId, 'coverage'],
+    queryKey: queryKeys.engine.coverage(projectId!),
     queryFn: async (): Promise<ProjectEngineData['coverage']> => {
       const { data, error } = await supabase
         .from('project_function_coverage')
@@ -743,7 +747,7 @@ export interface ViabilityStateData {
 
 export function useProjectViabilityState(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-viability', projectId],
+    queryKey: queryKeys.projects.viability(projectId!),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('project_viability_state')
@@ -793,7 +797,7 @@ export interface WeeklyReview {
 
 export function useLatestWeeklyReview(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['weekly-review', projectId],
+    queryKey: queryKeys.weeklyReview(projectId!),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('weekly_reviews')
@@ -825,7 +829,7 @@ export function useStrategicCyclesWhileAway(
   lastSeenAt: string | null,
 ) {
   return useQuery({
-    queryKey: ['cycles-while-away', projectId, lastSeenAt],
+    queryKey: queryKeys.cycles.cyclesWhileAway(projectId!, lastSeenAt!),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('strategic_cycles')
@@ -853,7 +857,7 @@ export function useProjectUserState(
   userId: string | undefined,
 ) {
   return useQuery({
-    queryKey: ['project-user-state', projectId, userId],
+    queryKey: queryKeys.projects.userState(projectId!, userId!),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('project_user_state')
@@ -871,7 +875,7 @@ export function useProjectUserState(
 // Hook: ritual_pending = cycle_due OR urgent_reset_requested
 export function useRitualPending(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['ritual-pending', projectId],
+    queryKey: queryKeys.ritualPending(projectId!),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('strategic_cycles')
@@ -905,7 +909,7 @@ export function useMarkWeeklyReviewRead() {
     },
     onSuccess: (_data, variables) => {
       // Invalidar para que hasUnreadWeekly recalcule
-      queryClient.invalidateQueries({ queryKey: ['weekly-review', variables.projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.weeklyReview(variables.projectId) });
     },
   });
 }
@@ -959,9 +963,9 @@ export function useSubmitRitual() {
     onSuccess: (_data, { projectId }) => {
       // SR10.V2.1 — el ritual puede cambiar phase_score y execution_rate.
       // Invalidar engine para que el Focus Block muestre datos frescos.
-      queryClient.invalidateQueries({ queryKey: ['project-engine', projectId] });
-      queryClient.invalidateQueries({ queryKey: ['project_context', projectId] });
-      queryClient.invalidateQueries({ queryKey: ['ritual-pending', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.engine.all(projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.context(projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ritualPending(projectId) });
     },
   });
 }
@@ -980,7 +984,7 @@ export function useCloseCycleForPivot() {
       return data as string | null; // cycle_evaluation or null (no active cycle)
     },
     onSuccess: (_data, projectId) => {
-      queryClient.invalidateQueries({ queryKey: ['ritual-pending', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.ritualPending(projectId) });
     },
   });
 }
@@ -989,7 +993,7 @@ export function useCloseCycleForPivot() {
 // Devuelve hasOwner=true si owner_user_id IS NOT NULL (sin resolver nombre — v1)
 export function useProjectFunctions(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['project-functions', projectId],
+    queryKey: queryKeys.projects.functions(projectId!),
     queryFn: async () => {
       const { data, error } = await supabase
         .from('project_functions')
@@ -1009,7 +1013,7 @@ export function useProjectFunctions(projectId: string | undefined) {
 // Hook: ciclos estratégicos cerrados (closed_at IS NOT NULL)
 export function useClosedCyclesCount(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['closed-cycles-count', projectId],
+    queryKey: queryKeys.cycles.closedCount(projectId!),
     queryFn: async () => {
       const { count, error } = await supabase
         .from('strategic_cycles')
@@ -1045,7 +1049,7 @@ export function useUpsertOBVParticipants() {
       if (error) throw error;
     },
     onSuccess: (_data, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: ['project_obvs', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.obvs.byProject(projectId) });
     },
   });
 }

@@ -99,7 +99,7 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
         "anthropic-version": "2023-06-01",
       },
       body: JSON.stringify({
-        model: "claude-3-5-sonnet-20241022",
+        model: "claude-haiku-4-5-20251001",  // [SCALE] Downgrade: task completion questions are simple, Haiku suffices
         max_tokens: 1024,
         system: systemPrompt,
         messages: [

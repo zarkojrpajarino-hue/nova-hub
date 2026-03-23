@@ -11,6 +11,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 
 import { useTranslation } from 'react-i18next';
 interface TaskFormProps {
@@ -100,8 +101,8 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       if (error) throw error;
 
       toast.success(t('tasks.tareaCreada'));
-      queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
-      queryClient.invalidateQueries({ queryKey: ['my_tasks'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 
       setFormData({ titulo: '', descripcion: '', assigneeId: '', leaderId: '', prioridad: '2', fechaLimite: '', functionType: '' });
       onOpenChange(false);

@@ -2,6 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 import { leadService } from '@/services/LeadService';
 import { PIPELINE_STAGES } from '@/components/crm/pipeline-stages';
 import type { DropResult } from '@hello-pangea/dnd';
@@ -111,11 +112,11 @@ export function useCRMPipeline(
       const stageName = PIPELINE_STAGES.find(s => s.id === newStatus)?.label;
       toast.success(`Lead movido a ${stageName}`);
 
-      queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
-      queryClient.invalidateQueries({ queryKey: ['project_leads'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
+      queryClient.invalidateQueries({ queryKey: ['project_leads'] as const });
     } catch (_error) {
       toast.error('Error al mover el lead');
-      queryClient.invalidateQueries({ queryKey: ['pipeline_global'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
     }
   }, [profile?.id, queryClient]);
 

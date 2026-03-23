@@ -32,6 +32,7 @@ import { GenerativeFastStart } from './fast-start/GenerativeFastStart';
 import { IdeaFastStart } from './fast-start/IdeaFastStart';
 import { ExistingFastStart } from './fast-start/ExistingFastStart';
 import { OnboardingProfileCard } from './OnboardingProfileCard';
+import { InstantDiagnostic } from './InstantDiagnostic';
 import type { BusinessIdea } from '@/lib/ai-generators';
 import { PHASE_LABELS } from '@/lib/engine';
 
@@ -391,15 +392,32 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
               </div>
             )}
 
-            <Button
-              size="lg"
-              onClick={onComplete}
-              className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
-            >
-              <Rocket className="h-5 w-5" />Ir al dashboard<ArrowRight className="h-5 w-5" />
-            </Button>
+            {/* Instant Diagnostic — 3 static insights based on onboarding answers */}
+            {faseAAnswers && (
+              <div className="max-w-md mx-auto mb-6 w-full">
+                <InstantDiagnostic
+                  industry={cachedOD.selected_industry as string | undefined}
+                  teamSize={faseAAnswers.team_size}
+                  generatesRevenue={faseAAnswers.generates_revenue}
+                  onGoDashboard={onComplete}
+                  onConnectTools={() => navigate(`/proyecto/${projectId}?tab=integraciones`)}
+                />
+              </div>
+            )}
 
-            <p className="text-sm text-gray-500 mt-6">{t('onboarding.redirigiendoAutomáticamenteEn8')}</p>
+            {!faseAAnswers && (
+              <>
+                <Button
+                  size="lg"
+                  onClick={onComplete}
+                  className="gap-2 bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700"
+                >
+                  <Rocket className="h-5 w-5" />Ir al dashboard<ArrowRight className="h-5 w-5" />
+                </Button>
+
+                <p className="text-sm text-gray-500 mt-6">{t('onboarding.redirigiendoAutomáticamenteEn8')}</p>
+              </>
+            )}
           </CardContent>
         </Card>
       </div>

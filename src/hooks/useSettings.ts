@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { queryKeys } from '@/lib/queryKeys';
 
 export interface NotificationSettings {
   nuevas_obvs: boolean;
@@ -34,7 +35,7 @@ export function useUserSettings() {
   const { profile } = useAuth();
 
   return useQuery({
-    queryKey: ['user_settings', profile?.id],
+    queryKey: queryKeys.settings.user(profile?.id!),
     queryFn: async () => {
       if (!profile?.id) return null;
       
@@ -115,7 +116,7 @@ export function useUpdateUserSettings() {
       }
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user_settings'] });
+      queryClient.invalidateQueries({ queryKey: ['user_settings'] as const });
     },
   });
 }
@@ -141,9 +142,9 @@ export function useUpdateProfile() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['profile'] });
-      queryClient.invalidateQueries({ queryKey: ['profiles'] });
-      queryClient.invalidateQueries({ queryKey: ['member_stats'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.settings.profile });
+      queryClient.invalidateQueries({ queryKey: queryKeys.members.profiles });
+      queryClient.invalidateQueries({ queryKey: queryKeys.members.stats });
     },
   });
 }
@@ -161,7 +162,7 @@ export function useUpdateObjective() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['objectives'] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.objectives });
     },
   });
 }

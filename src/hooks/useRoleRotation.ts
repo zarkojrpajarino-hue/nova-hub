@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
 import { mapDatabaseError, logError } from '@/lib/errorMapper';
+import { queryKeys } from '@/lib/queryKeys';
 
 export interface RoleRotationRequest {
   id: string;
@@ -79,7 +80,7 @@ type RotationRequestInsert = {
 // Fetch rotation requests
 export function useRotationRequests(status?: string) {
   return useQuery({
-    queryKey: ['rotation_requests', status],
+    queryKey: queryKeys.roleRotation.requests(status),
     queryFn: async () => {
       let query = supabase
         .from('role_rotation_requests')
@@ -108,7 +109,7 @@ export function useMyRotationRequests() {
   const { profile } = useAuth();
 
   return useQuery({
-    queryKey: ['my_rotation_requests', profile?.id],
+    queryKey: queryKeys.roleRotation.myRequests(profile?.id!),
     queryFn: async () => {
       if (!profile?.id) return [];
 
@@ -134,7 +135,7 @@ export function useMyRotationRequests() {
 // Fetch role history
 export function useRoleHistory(userId?: string) {
   return useQuery({
-    queryKey: ['role_history', userId],
+    queryKey: queryKeys.roleRotation.history(userId!),
     queryFn: async () => {
       let query = supabase
         .from('role_history')
@@ -213,8 +214,8 @@ export function useCreateRotationRequest() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['rotation_requests'] });
-      queryClient.invalidateQueries({ queryKey: ['my_rotation_requests'] });
+      queryClient.invalidateQueries({ queryKey: ['rotation_requests'] as const });
+      queryClient.invalidateQueries({ queryKey: ['my_rotation_requests'] as const });
       toast.success('Solicitud de rotación creada');
     },
     onError: (error) => {
@@ -260,9 +261,9 @@ export function useRespondToRotation() {
       return data;
     },
     onSuccess: (data) => {
-      queryClient.invalidateQueries({ queryKey: ['rotation_requests'] });
-      queryClient.invalidateQueries({ queryKey: ['my_rotation_requests'] });
-      queryClient.invalidateQueries({ queryKey: ['project_members'] });
+      queryClient.invalidateQueries({ queryKey: ['rotation_requests'] as const });
+      queryClient.invalidateQueries({ queryKey: ['my_rotation_requests'] as const });
+      queryClient.invalidateQueries({ queryKey: queryKeys.members.all });
       
       if (data.status === 'completed') {
         toast.success('¡Rotación completada! Los roles han sido intercambiados.');
@@ -293,8 +294,8 @@ export function useCancelRotationRequest() {
       if (error) throw error;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['rotation_requests'] });
-      queryClient.invalidateQueries({ queryKey: ['my_rotation_requests'] });
+      queryClient.invalidateQueries({ queryKey: ['rotation_requests'] as const });
+      queryClient.invalidateQueries({ queryKey: ['my_rotation_requests'] as const });
       toast.success('Solicitud cancelada');
     },
     onError: (error) => {

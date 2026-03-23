@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. Replaced by generate-weekly-insights. Safe to delete. (Audit: 2026-03-23)
 /**
  * GENERATE WEEKLY REVIEWS (Edge Function)
  *

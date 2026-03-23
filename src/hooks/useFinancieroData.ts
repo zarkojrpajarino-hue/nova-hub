@@ -1,6 +1,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { queryKeys } from '@/lib/queryKeys';
 import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_MEMBERS, DEMO_FINANCIAL, DEMO_FINANCIAL_METRICS, DEMO_PENDING_PAYMENTS } from '@/data/demoData';
@@ -13,7 +14,7 @@ export function useFinancieroData() {
   const members = isDemoMode ? DEMO_MEMBERS : realMembers;
   
   const { data: realFinancialMetrics = [] } = useQuery({
-    queryKey: ['financial_metrics_secure'],
+    queryKey: queryKeys.financial.metricsSecure,
     queryFn: async () => {
       const { data, error } = await supabase.rpc('get_financial_metrics_secure');
       if (error) throw error;
@@ -26,7 +27,7 @@ export function useFinancieroData() {
   const financialMetrics = isDemoMode ? DEMO_FINANCIAL_METRICS : (Array.isArray(realFinancialMetrics) ? realFinancialMetrics : []);
 
   const { data: realPendingPayments = [] } = useQuery({
-    queryKey: ['pending_payments'],
+    queryKey: queryKeys.financial.pendingPayments,
     queryFn: async () => {
       const { data, error } = await supabase
         .from('pending_payments')

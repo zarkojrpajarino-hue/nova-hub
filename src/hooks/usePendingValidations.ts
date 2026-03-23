@@ -2,6 +2,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from './useAuth';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 
 export interface PendingValidation {
   id: string;
@@ -24,7 +25,7 @@ export function usePendingValidations(limit = 10) {
   const profileId = profile?.id;
 
   return useQuery({
-    queryKey: ['pending_validations', profileId, limit],
+    queryKey: queryKeys.validations.pending(profileId!, limit),
     queryFn: async () => {
       if (!profileId) return [];
 
@@ -182,12 +183,12 @@ export function useValidate() {
     onSuccess: (_, { approved }) => {
       toast.success(approved ? '✓ Aprobado' : '✗ Rechazado');
       // Invalidate all related queries
-      queryClient.invalidateQueries({ queryKey: ['pending_validations'] });
-      queryClient.invalidateQueries({ queryKey: ['pending_validations_dashboard'] });
-      queryClient.invalidateQueries({ queryKey: ['pending_obvs_for_validation'] });
-      queryClient.invalidateQueries({ queryKey: ['pending_kpis'] });
-      queryClient.invalidateQueries({ queryKey: ['obvs'] });
-      queryClient.invalidateQueries({ queryKey: ['kpis'] });
+      queryClient.invalidateQueries({ queryKey: ['pending_validations'] as const });
+      queryClient.invalidateQueries({ queryKey: queryKeys.validations.dashboard });
+      queryClient.invalidateQueries({ queryKey: queryKeys.validations.forValidation });
+      queryClient.invalidateQueries({ queryKey: queryKeys.kpis.pending });
+      queryClient.invalidateQueries({ queryKey: queryKeys.obvs.all });
+      queryClient.invalidateQueries({ queryKey: queryKeys.kpis.all });
     },
     onError: (_error) => {
       toast.error('Error al validar');

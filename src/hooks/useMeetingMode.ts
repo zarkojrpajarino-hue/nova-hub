@@ -9,8 +9,10 @@
  * - team: flujo completo con participantes y asignaciones
  */
 
+
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 
 export interface MeetingMode {
   mode:        'solo' | 'team'
@@ -19,7 +21,7 @@ export interface MeetingMode {
 
 export function useMeetingMode(projectId: string | undefined) {
   return useQuery({
-    queryKey:  ['meeting-mode', projectId],
+    queryKey: queryKeys.meetings.mode(projectId!),
     enabled:   !!projectId,
     staleTime: 5 * 60_000,
     queryFn:   async (): Promise<MeetingMode> => {

@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 
 export interface MeetingTrigger {
   key:     string
@@ -26,7 +27,7 @@ export interface MeetingTriggersResult {
 
 export function useMeetingTriggers(projectId: string | undefined) {
   return useQuery({
-    queryKey:  ['meeting_triggers', projectId],
+    queryKey: queryKeys.meetings.triggers(projectId!),
     enabled:   !!projectId,
     staleTime: 5 * 60_000,
     queryFn:   async (): Promise<MeetingTriggersResult> => {

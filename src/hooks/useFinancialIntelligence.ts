@@ -8,6 +8,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 
 // ── MRR Forecast (FI30.1) ───────────────────────────────────────────────────
 
@@ -46,7 +47,7 @@ async function fetchMRRForecast(projectId: string, monthsAhead: number = 6): Pro
 
 export function useMRRForecast(projectId: string | undefined, monthsAhead: number = 6) {
   return useQuery({
-    queryKey: ['mrr_forecast', projectId, monthsAhead],
+    queryKey: queryKeys.financial.mrrForecast(projectId!, monthsAhead),
     enabled: !!projectId,
     staleTime: 10 * 60_000,
     queryFn: () => fetchMRRForecast(projectId!, monthsAhead),
@@ -86,7 +87,7 @@ async function fetchStressTest(projectId: string): Promise<StressTestData> {
 
 export function useStressTest(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['stress_test', projectId],
+    queryKey: queryKeys.financial.stressTest(projectId!),
     enabled: !!projectId,
     staleTime: 10 * 60_000,
     queryFn: () => fetchStressTest(projectId!),
@@ -118,7 +119,7 @@ async function fetchFinancialRisks(projectId: string): Promise<FinancialRisksDat
 
 export function useFinancialRisks(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['financial_risks', projectId],
+    queryKey: queryKeys.financial.risks(projectId!),
     enabled: !!projectId,
     staleTime: 5 * 60_000,
     queryFn: () => fetchFinancialRisks(projectId!),

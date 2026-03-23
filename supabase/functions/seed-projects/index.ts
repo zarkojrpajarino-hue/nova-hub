@@ -1,3 +1,4 @@
+// ZOMBIE: Dev/admin utility, not referenced from frontend. Safe to delete in production. (Audit: 2026-03-23)
 // SECURITY: Admin secret is now MANDATORY (not optional) - deploy trigger
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';

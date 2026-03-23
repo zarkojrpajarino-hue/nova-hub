@@ -7,6 +7,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 
 export interface WeeklyTasks {
   demand: number
@@ -66,7 +67,7 @@ export function useExecutionTrends(
   weeks: number = 12,
 ) {
   return useQuery({
-    queryKey: ['execution_trends', projectId, weeks],
+    queryKey: queryKeys.executionTrends(projectId!, weeks),
     enabled: !!projectId,
     staleTime: 10 * 60_000, // 10 min — trends don't change fast
     queryFn: () => fetchExecutionTrends(projectId!, weeks),

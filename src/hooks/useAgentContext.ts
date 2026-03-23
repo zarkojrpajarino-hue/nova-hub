@@ -13,6 +13,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 import {
   synthesizeAgentContext,
   computeAgentRiskModifier,
@@ -148,7 +149,7 @@ async function fetchAgentContext(projectId: string): Promise<AgentContextData> {
 
 export function useAgentContext(projectId: string | undefined) {
   return useQuery({
-    queryKey:  ['agent_context', projectId],
+    queryKey: queryKeys.agent.context(projectId!),
     enabled:   !!projectId,
     staleTime: 60_000,
     queryFn:   () => fetchAgentContext(projectId!),

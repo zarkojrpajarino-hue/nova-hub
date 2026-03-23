@@ -71,7 +71,7 @@ EJEMPLOS:
 Devuelve SOLO el testimonial (sin comillas, sin JSON, solo el texto):`;
 
     const message = await anthropic.messages.create({
-      model: 'claude-3-5-sonnet-20241022',
+      model: 'claude-haiku-4-5-20251001',  // [SCALE] Downgrade: testimonial is template-based, Haiku suffices
       max_tokens: 300,
       messages: [{ role: 'user', content: prompt }],
     });

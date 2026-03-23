@@ -34,10 +34,11 @@ interface FaseACommonProps {
   onComplete: (answers: FaseAAnswers) => void;
 }
 
-const TOTAL_QUESTIONS = 8;  // [B3/U3.3] Reducido de 10: Q5(ticket) y Q6(sales_cycle) movidos a post-onboarding
+const TOTAL_QUESTIONS = 4;  // [SCALE/UX] Reducido de 8 a 4: solo las esenciales. Resto → post-onboarding.
 
 // Steps que se saltan en el flujo (se pueden preguntar después en FaseBPanel)
-const SKIPPED_STEPS = [4, 5];  // step 4=Q5(ticket), step 5=Q6(sales_cycle)
+// step 2=Q3(customers), step 4=Q5(ticket), step 5=Q6(sales_cycle), step 6=Q7(monetization), step 8=Q9(market_scope)
+const SKIPPED_STEPS = [2, 4, 5, 6, 8];
 
 // ─────────────────────────────────────────────────────────────────────────────
 // Radio option component
@@ -148,10 +149,10 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
   };
 
   // ───────────────────────────── Render helpers ───────────────────────────────
-  // [B3/U3.3] Número visual de pregunta (sin contar las saltadas)
+  // [SCALE/UX] Número visual de pregunta (sin contar las saltadas)
   const visibleStepsBefore = Array.from({ length: currentStep }, (_, i) => i + 1)
     .filter(s => !SKIPPED_STEPS.includes(s)).length;
-  const questionNumber = visibleStepsBefore + 1;
+  const questionNumber = visibleStepsBefore; // No +1: Q1 ya no se cuenta externamente en el total de 4
   const progressPct = (questionNumber / TOTAL_QUESTIONS) * 100;
 
   const renderStep = () => {
@@ -446,7 +447,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       <div className="mb-6">
         <div className="flex justify-between items-center mb-2">
           <span className="text-sm font-medium text-gray-600">
-            Pregunta {questionNumber} de {TOTAL_QUESTIONS}
+            {t('onboarding.preguntaDe', { current: questionNumber, total: TOTAL_QUESTIONS })}
           </span>
           <span className="text-sm text-gray-400">{Math.round(progressPct)}%</span>
         </div>
@@ -480,7 +481,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
           onClick={handleNext}
           disabled={!canAdvance()}
         >
-          {currentStep === 9 ? 'Completar': t('onboarding.continuar')}
+          {currentStep === 9 ? t('onboarding.completar') : t('onboarding.continuar')}
           {currentStep < 9 && <ArrowRight className="h-4 w-4" />}
         </Button>
       </div>

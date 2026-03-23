@@ -10,6 +10,7 @@ import { useState } from 'react';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 import type { ToolType } from '@/lib/toolkit-unlock-engine';
 
 // ── Slug de edge function por herramienta ─────────────────────────────────────
@@ -65,7 +66,7 @@ export function useFounderTool<T = Record<string, unknown>>(
 
   // Leer caché
   const { data: cached, isLoading } = useQuery({
-    queryKey: ['founder-tool', projectId, toolType],
+    queryKey: queryKeys.founderTool.byType(projectId!, toolType),
     enabled: !!projectId,
     staleTime: 60_000,
     queryFn: async () => {
@@ -118,10 +119,10 @@ export function useFounderTool<T = Record<string, unknown>>(
       });
       if (response.error) throw response.error;
 
-      await queryClient.invalidateQueries({ queryKey: ['founder-tool', projectId, toolType] });
-      await queryClient.invalidateQueries({ queryKey: ['toolkit-unlocks', projectId] });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.founderTool.byType(projectId!, toolType) });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.founderTool.unlocks(projectId!) });
       // [F9.10] Tool execution puede impactar phase score
-      await queryClient.invalidateQueries({ queryKey: ['project-engine', projectId], exact: false });
+      await queryClient.invalidateQueries({ queryKey: queryKeys.engine.all(projectId!), exact: false });
       toast.success(`${TOOL_LABEL[toolType]} generado`);
     } catch (_err) {
       toast.error(`Error generando ${TOOL_LABEL[toolType]}`);

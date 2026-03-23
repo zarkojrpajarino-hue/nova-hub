@@ -10,6 +10,7 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 
 export interface CycleObjective {
   id: string;
@@ -40,7 +41,7 @@ export interface StrategicCycle {
 /** Ciclo activo del proyecto (máximo 1) */
 export function useActiveCycle(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['strategic-cycles', projectId, 'active'],
+    queryKey: queryKeys.cycles.active(projectId!),
     staleTime: 10 * 60_000,  // Ciclos cambian ~c/semana
     queryFn: async () => {
       const { data, error } = await supabase
@@ -59,7 +60,7 @@ export function useActiveCycle(projectId: string | undefined) {
 /** Historial de ciclos completados/revisados/abandonados */
 export function useCycleHistory(projectId: string | undefined) {
   return useQuery({
-    queryKey: ['strategic-cycles', projectId, 'history'],
+    queryKey: queryKeys.cycles.history(projectId!),
     staleTime: 10 * 60_000,
     queryFn: async () => {
       const { data, error } = await supabase
@@ -104,7 +105,7 @@ export function useCompleteCycle() {
       return response.data;
     },
     onSuccess: (_data, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: ['strategic-cycles', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.cycles.all(projectId!) });
       toast.success('Ciclo completado. Nuevo ciclo generado.');
     },
     onError: () => {
@@ -133,7 +134,7 @@ export function useGenerateCycle() {
       return response.data;
     },
     onSuccess: (_data, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: ['strategic-cycles', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.cycles.all(projectId!) });
       toast.success('Ciclo estratégico generado.');
     },
     onError: () => {
@@ -156,7 +157,7 @@ export function usePauseCycle() {
       return { projectId };
     },
     onSuccess: (_data, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: ['strategic-cycles', projectId] });
+      queryClient.invalidateQueries({ queryKey: queryKeys.cycles.all(projectId!) });
       toast.info('Ciclo pausado. Tu proyecto ha vuelto al bootcamp.');
     },
     onError: () => {

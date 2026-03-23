@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. WARNING: may be called from other edge functions (e.g., notification functions). Verify before deleting. (Audit: 2026-03-23)
 /**
  * SEND EMAIL REAL - Resend Integration
  *

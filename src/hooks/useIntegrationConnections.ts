@@ -10,6 +10,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 
 export type ConnectionStatus = 'active' | 'error' | 'disconnected' | 'not_connected'
 
@@ -70,7 +71,7 @@ export interface SyncQuality {
 
 export function useSyncQuality(projectId: string | undefined) {
   return useQuery({
-    queryKey:  ['sync_quality', projectId],
+    queryKey: queryKeys.integrations.syncQuality(projectId!),
     enabled:   !!projectId,
     staleTime: 60_000,
     queryFn:   async () => {
@@ -91,7 +92,7 @@ export function useSyncQuality(projectId: string | undefined) {
 
 export function useIntegrationConnections(projectId: string | undefined) {
   const { data, isLoading, error, refetch } = useQuery({
-    queryKey: ['integration_connections', projectId],
+    queryKey: queryKeys.integrations.connections(projectId!),
     enabled: !!projectId,
     staleTime: 30_000,
     queryFn: async () => {

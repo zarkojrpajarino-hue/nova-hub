@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. Safe to delete. (Audit: 2026-03-23)
 /**
  * GROWTH PLAYBOOK GENERATOR (ONBOARDING EXISTENTE - CAPA 4)
  *

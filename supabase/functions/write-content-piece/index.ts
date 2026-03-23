@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. Safe to delete. (Audit: 2026-03-23)
 /**
  * AI CONTENT WRITER
  *

@@ -1,5 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { queryKeys } from '@/lib/queryKeys';
 
 // Types for Master system
 export interface MasterApplication {
@@ -71,7 +72,7 @@ type Json = any;
 // Hook for master applications
 export function useMasterApplications(status?: string) {
   return useQuery({
-    queryKey: ['master_applications', status],
+    queryKey: queryKeys.masters.applications(status),
     queryFn: async () => {
       let query = supabase
         .from('master_applications')
@@ -92,7 +93,7 @@ export function useMasterApplications(status?: string) {
 // Hook for user's own applications
 export function useMyMasterApplications(userId?: string) {
   return useQuery({
-    queryKey: ['master_applications', 'my', userId],
+    queryKey: queryKeys.masters.myApplications(userId!),
     queryFn: async () => {
       if (!userId) return [];
       
@@ -112,7 +113,7 @@ export function useMyMasterApplications(userId?: string) {
 // Hook for team masters
 export function useTeamMasters(roleName?: string) {
   return useQuery({
-    queryKey: ['team_masters', roleName],
+    queryKey: queryKeys.masters.teamMasters(roleName!),
     queryFn: async () => {
       let query = supabase
         .from('team_masters')
@@ -134,7 +135,7 @@ export function useTeamMasters(roleName?: string) {
 // Hook for master votes on an application
 export function useMasterVotes(applicationId?: string) {
   return useQuery({
-    queryKey: ['master_votes', applicationId],
+    queryKey: queryKeys.masters.votes(applicationId!),
     queryFn: async () => {
       if (!applicationId) return [];
       
@@ -153,7 +154,7 @@ export function useMasterVotes(applicationId?: string) {
 // Hook for master challenges
 export function useMasterChallenges(masterId?: string) {
   return useQuery({
-    queryKey: ['master_challenges', masterId],
+    queryKey: queryKeys.masters.challenges(masterId!),
     queryFn: async () => {
       let query = supabase
         .from('master_challenges')
@@ -174,7 +175,7 @@ export function useMasterChallenges(masterId?: string) {
 // Hook to check eligibility
 export function useCheckMasterEligibility(userId?: string, roleName?: string) {
   return useQuery({
-    queryKey: ['master_eligibility', userId, roleName],
+    queryKey: queryKeys.masters.eligibility(userId!, roleName!),
     queryFn: async () => {
       if (!userId || !roleName) return null;
       
@@ -217,7 +218,7 @@ export function useCreateMasterApplication() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['master_applications'] });
+      queryClient.invalidateQueries({ queryKey: ['master_applications'] as const });
     },
   });
 }
@@ -243,8 +244,8 @@ export function useVoteOnApplication() {
       return data;
     },
     onSuccess: (_, variables) => {
-      queryClient.invalidateQueries({ queryKey: ['master_applications'] });
-      queryClient.invalidateQueries({ queryKey: ['master_votes', variables.application_id] });
+      queryClient.invalidateQueries({ queryKey: ['master_applications'] as const });
+      queryClient.invalidateQueries({ queryKey: queryKeys.masters.votes(variables.application_id) });
     },
   });
 }
@@ -274,7 +275,7 @@ export function useCreateChallenge() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['master_challenges'] });
+      queryClient.invalidateQueries({ queryKey: ['master_challenges'] as const });
     },
   });
 }
@@ -296,8 +297,8 @@ export function useUpdateChallenge() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['master_challenges'] });
-      queryClient.invalidateQueries({ queryKey: ['team_masters'] });
+      queryClient.invalidateQueries({ queryKey: ['master_challenges'] as const });
+      queryClient.invalidateQueries({ queryKey: ['team_masters'] as const });
     },
   });
 }

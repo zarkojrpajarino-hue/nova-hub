@@ -12,6 +12,7 @@
 
 import { useQuery } from '@tanstack/react-query'
 import { supabase } from '@/integrations/supabase/client'
+import { queryKeys } from '@/lib/queryKeys'
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized'
 import type { ProjectContext } from '@/lib/build-next-action'
 
@@ -59,7 +60,7 @@ export function useProjectContext(projectId: string | undefined) {
   const currentPhase = engineData?.phaseState?.current_phase ?? 1
 
   return useQuery<ProjectContext>({
-    queryKey:  ['project_context', projectId],
+    queryKey: queryKeys.projects.context(projectId!),
     enabled:   !!projectId,
     staleTime: 5 * 60_000,
     queryFn:   async () => {

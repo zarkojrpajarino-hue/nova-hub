@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. Replaced by generate-buyer-persona-v2. Safe to delete. (Audit: 2026-03-23)
 /**
  * SUGGEST BUYER PERSONA - Edge Function
  *

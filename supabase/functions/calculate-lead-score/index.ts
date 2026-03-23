@@ -1,3 +1,4 @@
+// ZOMBIE: not referenced from frontend. Replaced by OBV pipeline scoring. Safe to delete. (Audit: 2026-03-23)
 /**
  * CALCULATE LEAD SCORE - Edge Function
  *

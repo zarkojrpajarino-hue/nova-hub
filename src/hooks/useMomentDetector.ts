@@ -8,6 +8,7 @@
 import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
+import { queryKeys } from '@/lib/queryKeys';
 import { detectMoments, type Moment, type MomentDetectorInput } from '@/lib/moment-detector';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { useActiveCycle } from '@/hooks/useStrategicCycles';
@@ -54,7 +55,7 @@ export function useMomentDetector(projectId: string | undefined) {
 
   // Additional data: first sale, MRR, team
   const { data: extraData } = useQuery({
-    queryKey: ['moment-detector-data', projectId],
+    queryKey: queryKeys.momentDetector(projectId!),
     queryFn: async () => {
       const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult] = await Promise.all([
         supabase

@@ -1,0 +1,5 @@
+# Prevent accidental commit of sensitive files
+.env filter=clean
+.env.txt filter=clean
+.env.local filter=clean
+*.key filter=clean

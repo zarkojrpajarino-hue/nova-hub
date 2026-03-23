@@ -10,6 +10,7 @@
 import { useMutation, useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { queryKeys } from '@/lib/queryKeys';
 
 export interface BusinessIdea {
   idea_name: string;
@@ -152,7 +153,7 @@ export function useGenerativeBusiness(projectId?: string) {
     isLoading: loadingPreviews,
     refetch: refetchPreviews,
   } = useQuery({
-    queryKey: ['generation-previews', projectId],
+    queryKey: queryKeys.generative.previews(projectId!),
     queryFn: async () => {
       if (!projectId) return [];
 
@@ -177,7 +178,7 @@ export function useGenerativeBusiness(projectId?: string) {
     isLoading: loadingIdeas,
     refetch: refetchIdeas,
   } = useQuery({
-    queryKey: ['business-ideas', projectId],
+    queryKey: queryKeys.generative.ideas(projectId!),
     queryFn: async () => {
       if (!projectId) return [];
 

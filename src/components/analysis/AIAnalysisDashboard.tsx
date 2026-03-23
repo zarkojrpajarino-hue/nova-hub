@@ -7,7 +7,8 @@
  */
 
 import { useState } from 'react';
-import { RefreshCw, Loader2, Clock, AlertTriangle } from 'lucide-react';
+import { RefreshCw, Loader2, Clock, AlertTriangle, Crown, Rocket } from 'lucide-react';
+import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { SourceBadge } from '@/components/shared/SourceBadge';
@@ -19,6 +20,10 @@ import { CrossSignalsSection, HardTruthsSection } from './sections/Level3Section
 import { AnalysisChat } from './AnalysisChat';
 import { AnalysisDiff } from './AnalysisDiff';
 import { InvestorExport } from './InvestorExport';
+import { UpgradePromptModal } from '@/components/subscription/UpgradePromptModal';
+import { useAICallsRemaining } from '@/hooks/useAICallCounter';
+import { useCurrentPlanTier } from '@/hooks/useSubscription';
+import { isPaymentsEnabled } from '@/config/features';
 import type { ProjectAnalysisState } from '@/hooks/useProjectAnalysis';
 import { formatDistanceToNow } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
@@ -53,6 +58,13 @@ export function AIAnalysisDashboard({
   const [showSources, setShowSources] = useState(false);
   const [showPreReview, setShowPreReview] = useState(false);
   const [activeTab, setActiveTab] = useState<'analysis' | 'diff'>('analysis');
+  const [showUpgradeModal, setShowUpgradeModal] = useState(false);
+  const [showLevelUpgradeModal, setShowLevelUpgradeModal] = useState(false);
+
+  // AI call limit tracking
+  const aiCalls = useAICallsRemaining(projectId);
+  // Plan tier for level gating
+  const { tierKey } = useCurrentPlanTier(projectId);
 
   const {
     unlockedLevel,
@@ -69,6 +81,11 @@ export function AIAnalysisDashboard({
   const sections = cachedAnalysis?.sections ?? {};
 
   const handleGenerateClick = () => {
+    // Check AI call limit before allowing generation
+    if (isPaymentsEnabled() && aiCalls.limitReached) {
+      setShowUpgradeModal(true);
+      return;
+    }
     if (!canRegenerate) return;
     setShowPreReview(true);
   };
@@ -118,6 +135,14 @@ export function AIAnalysisDashboard({
             {isStale && (
               <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
                 <AlertTriangle className="h-3 w-3 mr-1" />{t('analysis.datosActualizadosRegenerar')}</Badge>
+            )}
+            {isPaymentsEnabled() && !aiCalls.isUnlimited && (
+              <Badge
+                variant="outline"
+                className={`text-xs ${aiCalls.limitReached ? 'text-red-600 border-red-300' : 'text-gray-500'}`}
+              >
+                {t('pricing.aiUsageBadge', { used: aiCalls.used, limit: aiCalls.limit })}
+              </Badge>
             )}
           </div>
           {cachedAnalysis && (
@@ -255,8 +280,19 @@ export function AIAnalysisDashboard({
             <ContradictionsSection data={sections.contradictions} />
           )}
 
-          {/* Nivel 2 — gated o visible */}
-          {unlockedLevel >= 2 ? (
+          {/* Nivel 2 — plan-gated (requires Pro+) then data-gated */}
+          {isPaymentsEnabled() && tierKey === 'free' ? (
+            <Card className="border-purple-200 bg-purple-50/50 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setShowLevelUpgradeModal(true)}>
+              <CardContent className="flex items-center gap-3 py-4">
+                <Crown className="h-5 w-5 text-purple-600" />
+                <div>
+                  <p className="font-semibold text-purple-800 text-sm">{t('pricing.level2RequiresPro')}</p>
+                  <p className="text-xs text-purple-600">{t('pricing.upgradeForDeeper')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : unlockedLevel >= 2 ? (
             <>
               {sections.financial_pulse && (
                 <FinancialPulseSection data={sections.financial_pulse} />
@@ -269,8 +305,19 @@ export function AIAnalysisDashboard({
             <AnalysisLevelTeaser targetLevel={2} requirements={nextLevelRequirements} />
           )}
 
-          {/* Nivel 3 — gated o visible */}
-          {unlockedLevel >= 3 ? (
+          {/* Nivel 3 — plan-gated (requires Scale) then data-gated */}
+          {isPaymentsEnabled() && (tierKey === 'free' || tierKey === 'pro') && unlockedLevel >= 2 ? (
+            <Card className="border-blue-200 bg-blue-50/50 cursor-pointer hover:shadow-md transition-shadow"
+                  onClick={() => setShowLevelUpgradeModal(true)}>
+              <CardContent className="flex items-center gap-3 py-4">
+                <Rocket className="h-5 w-5 text-blue-600" />
+                <div>
+                  <p className="font-semibold text-blue-800 text-sm">{t('pricing.level3RequiresScale')}</p>
+                  <p className="text-xs text-blue-600">{t('pricing.upgradeForCrossSignals')}</p>
+                </div>
+              </CardContent>
+            </Card>
+          ) : unlockedLevel >= 3 ? (
             <>
               {sections.cross_signals && sections.cross_signals.length > 0 && (
                 <CrossSignalsSection data={sections.cross_signals} />
@@ -301,6 +348,26 @@ export function AIAnalysisDashboard({
         isGenerating={isGenerating}
         onGenerate={handleConfirmGenerate}
         onClose={() => setShowPreReview(false)}
+      />
+
+      {/* AI call limit upgrade prompt */}
+      <UpgradePromptModal
+        isOpen={showUpgradeModal}
+        onClose={() => setShowUpgradeModal(false)}
+        title={t('pricing.aiLimitReachedTitle', { used: aiCalls.used, limit: aiCalls.limit })}
+        description={t('pricing.aiLimitReachedDesc')}
+        recommendedPlan="pro"
+        variant="ai"
+      />
+
+      {/* Analysis level upgrade prompt */}
+      <UpgradePromptModal
+        isOpen={showLevelUpgradeModal}
+        onClose={() => setShowLevelUpgradeModal(false)}
+        title={t('pricing.analysisLevelUpgradeTitle')}
+        description={t('pricing.analysisLevelUpgradeDesc')}
+        recommendedPlan={tierKey === 'free' ? 'pro' : 'scale'}
+        variant="analysis"
       />
     </div>
   );

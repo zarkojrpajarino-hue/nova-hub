@@ -11,7 +11,8 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useMemo, useCallback } from 'react';
-import { isPaymentsEnabled } from '@/config/features';
+import { isPaymentsEnabled, PLAN_TIERS, type PlanTierKey } from '@/config/features';
+import { queryKeys } from '@/lib/queryKeys';
 
 // =====================================================
 // TYPES
@@ -149,7 +150,7 @@ export function useAvailablePlans() {
  */
 export function useProjectPlan(projectId: string | undefined) {
   return useQuery<ProjectSubscription | null>({
-    queryKey: ['project-subscription', projectId],
+    queryKey: queryKeys.subscription.project(projectId!),
     queryFn: async () => {
       // 🎯 FEATURE FLAG: If payments disabled, don't query subscriptions
       if (!isPaymentsEnabled()) {
@@ -190,7 +191,7 @@ export function useUserLimits() {
   const { user } = useAuth();
 
   return useQuery<UserAccountLimits | null>({
-    queryKey: ['user-limits', user?.id],
+    queryKey: queryKeys.subscription.userLimits(user?.id!),
     queryFn: async () => {
       if (!user) return null;
 
@@ -528,11 +529,102 @@ export function useCreateProjectWithSubscription() {
       return project;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-limits'] });
-      queryClient.invalidateQueries({ queryKey: ['projects'] });
-      queryClient.invalidateQueries({ queryKey: ['user-projects'] });
+      queryClient.invalidateQueries({ queryKey: ['user-limits'] as const });
+      queryClient.invalidateQueries({ queryKey: queryKeys.projects.all });
+      queryClient.invalidateQueries({ queryKey: ['user-projects'] as const });
     },
   });
+}
+
+// =====================================================
+// HOOK: useCurrentPlanTier
+// =====================================================
+
+/**
+ * Resolves the current plan tier key from the project subscription.
+ * Maps DB plan names to PLAN_TIERS keys (free/pro/scale).
+ * Default: 'free' if no subscription or payments disabled.
+ */
+export function useCurrentPlanTier(projectId: string | undefined): {
+  tierKey: PlanTierKey;
+  tier: (typeof PLAN_TIERS)[PlanTierKey];
+  isLoading: boolean;
+} {
+  const { data: subscription, isLoading } = useProjectPlan(projectId);
+
+  return useMemo(() => {
+    if (!isPaymentsEnabled()) {
+      // When payments disabled, treat as Scale (all features unlocked)
+      return { tierKey: 'scale' as PlanTierKey, tier: PLAN_TIERS.scale, isLoading: false };
+    }
+
+    if (!subscription?.plan) {
+      return { tierKey: 'free' as PlanTierKey, tier: PLAN_TIERS.free, isLoading };
+    }
+
+    // Map DB plan name to PLAN_TIERS key
+    const planName = subscription.plan.name?.toLowerCase() ?? '';
+    let tierKey: PlanTierKey = 'free';
+
+    if (planName.includes('scale') || planName.includes('enterprise') || planName.includes('advanced')) {
+      tierKey = 'scale';
+    } else if (planName.includes('pro')) {
+      tierKey = 'pro';
+    } else {
+      tierKey = 'free';
+    }
+
+    return { tierKey, tier: PLAN_TIERS[tierKey], isLoading };
+  }, [subscription, isLoading]);
+}
+
+// =====================================================
+// HOOK: usePlanTierLimits
+// =====================================================
+
+/**
+ * Returns numeric limits from PLAN_TIERS for the current project plan.
+ * Use this to check limits like aiCalls, projects, members, integrations.
+ */
+export function usePlanTierLimits(projectId: string | undefined) {
+  const { tierKey, tier, isLoading } = useCurrentPlanTier(projectId);
+
+  const checkLimit = useCallback(
+    (resource: 'projects' | 'members' | 'aiCalls', current: number): {
+      current: number;
+      limit: number;
+      remaining: number;
+      limitReached: boolean;
+      isUnlimited: boolean;
+    } => {
+      const limit = tier[resource] as number;
+      const isUnlimited = limit === -1;
+      return {
+        current,
+        limit,
+        remaining: isUnlimited ? Infinity : Math.max(0, limit - current),
+        limitReached: !isUnlimited && current >= limit,
+        isUnlimited,
+      };
+    },
+    [tier],
+  );
+
+  const canUseFeatureByTier = useCallback(
+    (feature: 'integrations' | 'meetingIntelligence' | 'benchmarking' | 'api'): boolean => {
+      if (!isPaymentsEnabled()) return true;
+      return !!tier[feature];
+    },
+    [tier],
+  );
+
+  return {
+    tierKey,
+    tier,
+    checkLimit,
+    canUseFeatureByTier,
+    isLoading,
+  };
 }
 
 // =====================================================
