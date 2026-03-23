@@ -19,8 +19,7 @@ import { useTranslation } from 'react-i18next';
 // Phase status
 // =============================================================================
 
-function phaseStatusConfig(status: string) {
-  const { t } = useTranslation();
+function phaseStatusConfig(status: string, t: (k: string) => string) {
   switch (status) {
     case 'healthy':  return { label: t('project.saludable'), color: 'text-success',      bg: 'bg-success/10' };
     case 'critical': return { label: t('project.crítico'),   color: 'text-destructive',  bg: 'bg-destructive/10' };
@@ -398,7 +397,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
   const phaseScore  = engineData?.phaseState?.phase_score   ?? 0;
   const phaseStatus = engineData?.phaseState?.phase_status  ?? 'friction';
   const hardSignal  = engineData?.phaseState?.hard_signal_met ?? false;
-  const statusCfg   = phaseStatusConfig(phaseStatus);
+  const statusCfg   = phaseStatusConfig(phaseStatus, t);
 
   // Probability
   const prob         = engineData?.probability;

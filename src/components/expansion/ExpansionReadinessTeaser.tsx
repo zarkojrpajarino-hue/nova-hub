@@ -19,7 +19,6 @@ interface ExpansionReadinessTeaserProps {
 }
 
 function ConditionRow({ met, label }: { met: boolean | 'stale'; label: string }) {
-  const { t } = useTranslation();
   const icon = met === true
     ? <CheckCircle2 className="h-4 w-4 text-green-500 shrink-0" />
     : <Circle className="h-4 w-4 text-muted-foreground shrink-0" />;

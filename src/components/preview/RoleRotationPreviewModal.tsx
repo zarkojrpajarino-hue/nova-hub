@@ -212,7 +212,6 @@ export const RoleRotationPreviewModal: React.FC<RoleRotationPreviewModalProps> =
   const totalSlides = 6;
 
   const handleNext = () => {
-  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }

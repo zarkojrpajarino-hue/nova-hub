@@ -48,7 +48,6 @@ export const SettingsPreviewModal: React.FC<SettingsPreviewModalProps> = ({
   const totalSlides = 6;
 
   const nextSlide = () => {
-  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }

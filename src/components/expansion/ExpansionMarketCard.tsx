@@ -6,11 +6,11 @@
  */
 
 import { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { MapPin, ChevronRight } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ExplorationPlanSection } from './ExplorationPlanSection';
 
-import { useTranslation } from 'react-i18next';
 export interface MarketDimensions {
   market_size_fit: number;
   regulatory_ease: number;
@@ -39,14 +39,16 @@ export interface ExpansionMarket {
   total_trip_cost: { min: number; max: number; currency: string };
 }
 
-const DIMENSION_LABELS: Record<keyof MarketDimensions, string> = {
-  market_size_fit: t('expansion.tamañoDeMercado'),
-  regulatory_ease: t('expansion.facilidadRegulatoria'),
-  cultural_proximity: t('expansion.proximidadCultural'),
-  startup_ecosystem: t('expansion.ecosistemaStartup'),
-  cost_of_exploration: t('expansion.costeDeExploración'),
-  synergy_potential: t('expansion.potencialDeSinergias'),
-};
+function getDimensionLabels(t: (k: string) => string): Record<keyof MarketDimensions, string> {
+  return {
+    market_size_fit: t('expansion.tamañoDeMercado'),
+    regulatory_ease: t('expansion.facilidadRegulatoria'),
+    cultural_proximity: t('expansion.proximidadCultural'),
+    startup_ecosystem: t('expansion.ecosistemaStartup'),
+    cost_of_exploration: t('expansion.costeDeExploración'),
+    synergy_potential: t('expansion.potencialDeSinergias'),
+  };
+}
 
 function DimensionBar({ label, value }: { label: string; value: number }) {
   const pct = (value / 5) * 100;
@@ -64,6 +66,8 @@ function DimensionBar({ label, value }: { label: string; value: number }) {
 }
 
 export function ExpansionMarketCard({ market }: { market: ExpansionMarket }) {
+  const { t } = useTranslation();
+  const DIMENSION_LABELS = getDimensionLabels(t);
   const [showPlan, setShowPlan] = useState(false);
 
   return (

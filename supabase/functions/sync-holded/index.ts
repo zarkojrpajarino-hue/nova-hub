@@ -164,7 +164,7 @@ Deno.serve(async (req) => {
     let currentPage = 1
     let isPartial = false
 
-    do {
+    for (; currentPage <= MAX_PAGES; currentPage++) {
       const { result: pageData } = await withRetry(() =>
         fetch(`${HOLDED_API}/invoicing/v1/documents/invoice?page=${currentPage}&limit=${PAGE_SIZE}`, {
           headers: { 'key': apiKey }
@@ -177,21 +177,12 @@ Deno.serve(async (req) => {
         })
       )
 
-      // Holded returns an array of invoices directly
       const pageInvoices = Array.isArray(pageData) ? pageData : []
       rawInvoices.push(...pageInvoices)
-      currentPage++
 
-      // Si la pagina devolvio menos de PAGE_SIZE, no hay mas paginas
-      if (pageInvoices.length < PAGE_SIZE) {
-        break
-      }
-
-      if (currentPage > MAX_PAGES) {
-        isPartial = true
-        break
-      }
-    } while (true)
+      if (pageInvoices.length < PAGE_SIZE) break
+    }
+    if (currentPage > MAX_PAGES) isPartial = true
 
     // ──────────────────────────────────────────────────────────────────────────
     // Paso 5: Normalizar + almacenar en integration_entities (ContractEntity)

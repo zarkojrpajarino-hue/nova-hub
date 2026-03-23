@@ -129,6 +129,7 @@ function PerformerCard({
 }
 
 export function TopPerformers({ obvs, facturacion, leads, tareas }: TopPerformersProps) {
+  const { t } = useTranslation();
   return (
     <Card className="elevation-2">
       <CardHeader>

@@ -32,7 +32,6 @@ function getFallbackRed(t: (k: string) => string) { return { title: t('project.e
 // ── sessionStorage helpers ────────────────────────────────────────────────────
 
 function dismissKey(projectId: string, status: string, trigger: string | null) {
-  const { t } = useTranslation();
   return `viability:${projectId}:${status}:${trigger ?? 'none'}:dismissed`;
 }
 

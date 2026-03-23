@@ -93,8 +93,7 @@ const PLAN_STYLES = {
 /**
  * Iconos por tipo de feature
  */
-function getFeatureIcon(featureName: string) {
-  const { t } = useTranslation();
+function getFeatureIcon(featureName: string, t: (k: string) => string) {
   if (featureName.includes('IA') || featureName.includes(t('subscription.inteligencia'))) return Sparkles;
   if (featureName.includes(t('subscription.analytics')) || featureName.includes(t('subscription.análisis'))) return TrendingUp;
   if (featureName.includes('API')) return Code;
@@ -114,6 +113,7 @@ export function LockedFeatureOverlay({
   variant = 'default',
   className,
 }: LockedFeatureOverlayProps) {
+  const { t } = useTranslation();
   const [showUpgradeModal, setShowUpgradeModal] = useState(false);
   const availablePlans = useAvailablePlans();
 
@@ -121,7 +121,7 @@ export function LockedFeatureOverlay({
   const normalizedRequiredPlan = requiredPlan.toLowerCase().replace(/\s+/g, '');
   const planStyle = PLAN_STYLES[normalizedRequiredPlan as keyof typeof PLAN_STYLES] || PLAN_STYLES.pro;
 
-  const FeatureIcon = getFeatureIcon(featureName);
+  const FeatureIcon = getFeatureIcon(featureName, t);
   const PlanIcon = planStyle.icon;
 
   const handleUpgrade = () => {

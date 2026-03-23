@@ -26,6 +26,7 @@ function fieldStatus(value: string) {
 }
 
 export function StrategyEditor({ projectId }: StrategyEditorProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isSaving, setIsSaving] = useState(false);

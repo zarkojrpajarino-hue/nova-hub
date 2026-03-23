@@ -14,44 +14,32 @@ import { Tooltip, TooltipTrigger, TooltipContent } from '@/components/ui/tooltip
 import type { EvidenceType, ProviderSlug } from '@/lib/evidence'
 
 import { useTranslation } from 'react-i18next';
-// Nombres legibles de proveedores para el tooltip
-const PROVIDER_LABELS: Record<ProviderSlug, string> = {
-  stripe:          t('evidence.stripe'),
-  hubspot:         t('evidence.hubspot'),
-  asana:           t('evidence.asana'),
-  google_calendar: t('evidence.googleCalendar'),
-  holded:          t('evidence.holded'),
-  user_manual:     'el usuario',
-  ai_inferred:     'el sistema',
-}
 
 interface EvidenceConfig {
-  dot:     string   // clase de color del punto
-  text:    string   // etiqueta corta
-  tooltip: string   // texto completo del tooltip (sin source interpolado)
+  dot:     string
+  text:    string
+  tooltip: string
 }
 
-const EVIDENCE_CONFIG: Record<EvidenceType, EvidenceConfig> = {
-  observed:  {
-    dot:     'bg-green-500',
-    text:    t('evidence.datoVerificado'),
-    tooltip: 'Medido directamente por {source}',
-  },
-  declared: {
-    dot:     'bg-blue-500',
-    text:    t('evidence.datoDeclarado'),
-    tooltip: t('evidence.introducidoManualmenteSinVerificación'),
-  },
-  inferred: {
-    dot:     'bg-amber-500',
-    text:    t('evidence.inferido'),
-    tooltip: t('evidence.calculadoPorElSistema'),
-  },
-  estimated: {
-    dot:     'bg-gray-400',
-    text:    t('evidence.estimado'),
-    tooltip: t('evidence.aproximaciónSinDatoConcreto'),
-  },
+function getProviderLabels(t: (k: string) => string): Record<ProviderSlug, string> {
+  return {
+    stripe:          t('evidence.stripe'),
+    hubspot:         t('evidence.hubspot'),
+    asana:           t('evidence.asana'),
+    google_calendar: t('evidence.googleCalendar'),
+    holded:          t('evidence.holded'),
+    user_manual:     'el usuario',
+    ai_inferred:     'el sistema',
+  };
+}
+
+function getEvidenceConfig(t: (k: string) => string): Record<EvidenceType, EvidenceConfig> {
+  return {
+    observed:  { dot: 'bg-green-500', text: t('evidence.datoVerificado'), tooltip: 'Medido directamente por {source}' },
+    declared:  { dot: 'bg-blue-500', text: t('evidence.datoDeclarado'), tooltip: t('evidence.introducidoManualmenteSinVerificación') },
+    inferred:  { dot: 'bg-amber-500', text: t('evidence.inferido'), tooltip: t('evidence.calculadoPorElSistema') },
+    estimated: { dot: 'bg-gray-400', text: t('evidence.estimado'), tooltip: t('evidence.aproximaciónSinDatoConcreto') },
+  };
 }
 
 interface EvidenceBadgeProps {
@@ -61,6 +49,9 @@ interface EvidenceBadgeProps {
 }
 
 export function EvidenceBadge({ type, source, compact = false }: EvidenceBadgeProps) {
+  const { t } = useTranslation();
+  const EVIDENCE_CONFIG = getEvidenceConfig(t);
+  const PROVIDER_LABELS = getProviderLabels(t);
   const cfg = EVIDENCE_CONFIG[type] ?? EVIDENCE_CONFIG.inferred
 
   const tooltipText = source && type === 'observed'
