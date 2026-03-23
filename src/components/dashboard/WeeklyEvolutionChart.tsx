@@ -6,7 +6,7 @@ import { startOfWeek, endOfWeek, subWeeks, format } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
 
 import { useTranslation } from 'react-i18next';
-export function WeeklyEvolutionChart() {
+export function WeeklyEvolutionChart({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const { data: chartData = [], isLoading } = useQuery({
     queryKey: ['weekly_evolution'],
@@ -84,11 +84,13 @@ export function WeeklyEvolutionChart() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
-      <div className="flex items-center gap-2.5 mb-4">
-        <TrendingUp size={18} className="text-primary" />
-        <h3 className="font-semibold">{t('dashboard.evoluciónSemanal')}</h3>
-      </div>
+    <div className={hideHeader ? 'animate-fade-in' : 'bg-card border border-border rounded-2xl p-6 animate-fade-in'}>
+      {!hideHeader && (
+        <div className="flex items-center gap-2.5 mb-4">
+          <TrendingUp size={18} className="text-primary" />
+          <h3 className="font-semibold">{t('dashboard.evoluciónSemanal')}</h3>
+        </div>
+      )}
 
       <div className="h-[220px]">
         <ResponsiveContainer width="100%" height="100%">

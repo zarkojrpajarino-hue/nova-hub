@@ -37,7 +37,7 @@ const ACTION_CONFIG: Record<string, { icon: typeof FileCheck; color: string; lab
   task_completed: { icon: CheckCircle2, color: '#22C55E', label: 'completó tarea' },
 };
 
-export function RecentActivityFeed() {
+export function RecentActivityFeed({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
   useProjects(); // Keep for potential future use
@@ -103,11 +103,13 @@ export function RecentActivityFeed() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in">
-      <div className="p-5 border-b border-border flex items-center gap-2.5">
-        <Zap size={18} className="text-warning" />
-        <h3 className="font-semibold">{t('dashboard.actividadReciente')}</h3>
-      </div>
+    <div className={hideHeader ? 'overflow-hidden animate-fade-in' : 'bg-card border border-border rounded-2xl overflow-hidden animate-fade-in'}>
+      {!hideHeader && (
+        <div className="p-5 border-b border-border flex items-center gap-2.5">
+          <Zap size={18} className="text-warning" />
+          <h3 className="font-semibold">{t('dashboard.actividadReciente')}</h3>
+        </div>
+      )}
 
       <div className="p-3 max-h-[400px] overflow-y-auto">
         {enrichedActivities.length === 0 ? (

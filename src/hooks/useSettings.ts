@@ -6,6 +6,10 @@ export interface NotificationSettings {
   nuevas_obvs: boolean;
   validaciones: boolean;
   tareas: boolean;
+  alertas_motor: boolean;
+  reuniones: boolean;
+  ciclos: boolean;
+  equipo: boolean;
   resumen_semanal: boolean;
 }
 
@@ -19,6 +23,10 @@ const defaultNotifications: NotificationSettings = {
   nuevas_obvs: true,
   validaciones: true,
   tareas: true,
+  alertas_motor: true,
+  reuniones: true,
+  ciclos: true,
+  equipo: true,
   resumen_semanal: false,
 };
 
@@ -121,7 +129,7 @@ export function useUpdateProfile() {
       if (!user?.id) throw new Error('No user');
 
       const { error } = await supabase
-        .from('members')
+        .from('profiles')
         .update({
           nombre: data.nombre,
           color: data.color,

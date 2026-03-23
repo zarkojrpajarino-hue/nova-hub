@@ -17,7 +17,7 @@ interface Alert {
   icon: typeof AlertTriangle;
 }
 
-export function SmartAlertsWidget() {
+export function SmartAlertsWidget({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
   const { data: projects = [] } = useProjects();
@@ -123,12 +123,14 @@ export function SmartAlertsWidget() {
 
   if (isLoading) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
-        <div className="flex items-center gap-2.5 mb-4">
-          <AlertTriangle size={18} className="text-warning" />
-          <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
-        <SourceBadge type="inferred" source={t('transparency.alertasAutomaticas')} reliability={0.5} size="sm" />
-        </div>
+      <div className={hideHeader ? 'animate-fade-in' : 'bg-card border border-border rounded-2xl p-6 animate-fade-in'}>
+        {!hideHeader && (
+          <div className="flex items-center gap-2.5 mb-4">
+            <AlertTriangle size={18} className="text-warning" />
+            <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
+            <SourceBadge type="inferred" source={t('transparency.alertasAutomaticas')} reliability={0.5} size="sm" />
+          </div>
+        )}
         <div className="flex items-center justify-center py-8">
           <Loader2 className="w-6 h-6 animate-spin text-primary" />
         </div>
@@ -138,11 +140,13 @@ export function SmartAlertsWidget() {
 
   if (alerts.length === 0) {
     return (
-      <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
-        <div className="flex items-center gap-2.5 mb-4">
-          <AlertTriangle size={18} className="text-success" />
-          <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
-        </div>
+      <div className={hideHeader ? 'animate-fade-in' : 'bg-card border border-border rounded-2xl p-6 animate-fade-in'}>
+        {!hideHeader && (
+          <div className="flex items-center gap-2.5 mb-4">
+            <AlertTriangle size={18} className="text-success" />
+            <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
+          </div>
+        )}
         <div className="text-center py-6 text-muted-foreground">
           <span className="text-2xl mb-2 block">✅</span>
           <p className="text-sm">{t('dashboard.todoEnOrdenSigue')}</p>
@@ -152,16 +156,18 @@ export function SmartAlertsWidget() {
   }
 
   return (
-    <div className="bg-card border border-border rounded-2xl p-6 animate-fade-in">
-      <div className="flex items-center justify-between mb-4">
-        <div className="flex items-center gap-2.5">
-          <AlertTriangle size={18} className="text-warning" />
-          <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
+    <div className={hideHeader ? 'animate-fade-in' : 'bg-card border border-border rounded-2xl p-6 animate-fade-in'}>
+      {!hideHeader && (
+        <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center gap-2.5">
+            <AlertTriangle size={18} className="text-warning" />
+            <h3 className="font-semibold">{t('dashboard.alertas')}</h3>
+          </div>
+          <span className="text-xs font-bold bg-warning/20 text-warning px-2.5 py-1 rounded-lg">
+            {alerts.length}
+          </span>
         </div>
-        <span className="text-xs font-bold bg-warning/20 text-warning px-2.5 py-1 rounded-lg">
-          {alerts.length}
-        </span>
-      </div>
+      )}
 
       <div className="space-y-3">
         {alerts.map((alert) => {

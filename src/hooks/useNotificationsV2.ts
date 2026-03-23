@@ -22,6 +22,7 @@ import type {
 } from '@/types/notifications';
 import { isToday, isYesterday, startOfWeek } from 'date-fns';
 import { es } from 'date-fns/locale';
+import i18next from 'i18next';
 
 const PAGE_SIZE = 20;
 
@@ -51,7 +52,7 @@ export function useNotifications(filters?: NotificationFilters, limit = PAGE_SIZ
             toast(newNotification.title, {
               description: newNotification.message,
               action: newNotification.action_url ? {
-                label: newNotification.action_label || 'Ver',
+                label: newNotification.action_label || i18next.t('notifications.ver'),
                 onClick: () => window.location.href = newNotification.action_url!,
               } : undefined,
             });
@@ -190,7 +191,7 @@ export function useMarkAllNotificationsRead() {
       return data;
     },
     onSuccess: (count) => {
-      toast.success(`${count} notificaciones marcadas como leídas`);
+      toast.success(i18next.t('notifications.notificacionesMarcadasLeidas', { count }));
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
     },
@@ -211,7 +212,7 @@ export function useSnoozeNotification() {
       if (error) throw error;
     },
     onSuccess: (_, variables) => {
-      toast.success(`Notificación pospuesta por ${variables.minutes} minutos`);
+      toast.success(i18next.t('notifications.notificacionPospuesta', { minutes: variables.minutes }));
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
     },
   });
@@ -230,7 +231,7 @@ export function useArchiveNotification() {
       if (error) throw error;
     },
     onSuccess: () => {
-      toast.success('Notificación archivada');
+      toast.success(i18next.t('notifications.notificacionArchivada'));
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notifications-unread-count'] });
     },
@@ -264,16 +265,16 @@ export function useGroupedNotifications(filters?: NotificationFilters, limit = P
   });
 
   if (today.length > 0) {
-    grouped.push({ date: 'today', label: 'Hoy', notifications: today });
+    grouped.push({ date: 'today', label: i18next.t('notifications.hoy'), notifications: today });
   }
   if (yesterday.length > 0) {
-    grouped.push({ date: 'yesterday', label: 'Ayer', notifications: yesterday });
+    grouped.push({ date: 'yesterday', label: i18next.t('notifications.ayer'), notifications: yesterday });
   }
   if (thisWeek.length > 0) {
-    grouped.push({ date: 'this-week', label: 'Esta semana', notifications: thisWeek });
+    grouped.push({ date: 'this-week', label: i18next.t('notifications.estaSemana'), notifications: thisWeek });
   }
   if (older.length > 0) {
-    grouped.push({ date: 'older', label: 'Anteriores', notifications: older });
+    grouped.push({ date: 'older', label: i18next.t('notifications.anteriores'), notifications: older });
   }
 
   return grouped;

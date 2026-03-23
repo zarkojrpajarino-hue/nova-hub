@@ -87,7 +87,7 @@ export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboa
                 </div>
                 <div>
                   <CardTitle className="text-base">{roleConfig?.label || roleName}</CardTitle>
-                  <p className="text-xs text-muted-foreground">{roleRankings.length} participantes</p>
+                  <p className="text-xs text-muted-foreground">{roleRankings.length} {t('gamification.participants')}</p>
                 </div>
               </div>
             </CardHeader>
@@ -133,7 +133,7 @@ export function RankingLeaderboard({ rankings, currentUserId }: RankingLeaderboa
                           <p className="font-semibold truncate">
                             {ranking.userName}
                             {isCurrentUser && (
-                              <Badge variant="outline" className="ml-2 text-xs">Tú</Badge>
+                              <Badge variant="outline" className="ml-2 text-xs">{t('gamification.you')}</Badge>
                             )}
                           </p>
                           <p className="text-xs text-muted-foreground flex items-center gap-1">

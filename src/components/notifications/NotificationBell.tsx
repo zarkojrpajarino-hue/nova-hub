@@ -17,12 +17,14 @@ import {
 import { NotificationList } from './NotificationList';
 import { cn } from '@/lib/utils';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
+import { useTranslation } from 'react-i18next';
 
 interface NotificationBellProps {
   userId: string;
 }
 
 export function NotificationBell({ userId }: NotificationBellProps) {
+  const { t } = useTranslation();
   const [unreadCount, setUnreadCount] = useState(0);
   const [isOpen, setIsOpen] = useState(false);
   const { currentProject } = useCurrentProject();
@@ -94,7 +96,7 @@ export function NotificationBell({ userId }: NotificationBellProps) {
           variant="ghost"
           size="icon"
           className="relative"
-          aria-label={`Notificaciones${unreadCount > 0 ? ` (${unreadCount} sin leer)` : ''}`}
+          aria-label={`${t('notifications.notificaciones')}${unreadCount > 0 ? ` (${unreadCount} ${t('notifications.sinLeerCount')})` : ''}`}
         >
           <Bell size={20} className={cn(unreadCount > 0 && 'text-primary animate-pulse')} />
           {unreadCount > 0 && (

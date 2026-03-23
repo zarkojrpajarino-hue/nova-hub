@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { Bell, FileCheck, Check, ClipboardList, Mail, Loader2 } from 'lucide-react';
+import { Bell, FileCheck, Check, ClipboardList, Mail, Loader2, AlertTriangle, Calendar, RefreshCw, Users } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Switch } from '@/components/ui/switch';
 import { Button } from '@/components/ui/button';
@@ -34,6 +34,38 @@ function getNOTIFICATION_OPTIONS(t: (k: string) => string) {
     bgColor: 'bg-primary/15',
   },
   {
+    key: 'alertas_motor' as const,
+    label: t('settings.alertasMotor'),
+    description: t('settings.alertasMotorDesc'),
+    icon: AlertTriangle,
+    color: 'text-red-500',
+    bgColor: 'bg-red-500/15',
+  },
+  {
+    key: 'reuniones' as const,
+    label: t('settings.reuniones'),
+    description: t('settings.reunionesDesc'),
+    icon: Calendar,
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/15',
+  },
+  {
+    key: 'ciclos' as const,
+    label: t('settings.ciclos'),
+    description: t('settings.ciclosDesc'),
+    icon: RefreshCw,
+    color: 'text-purple-500',
+    bgColor: 'bg-purple-500/15',
+  },
+  {
+    key: 'equipo' as const,
+    label: t('settings.equipo'),
+    description: t('settings.equipoDesc'),
+    icon: Users,
+    color: 'text-emerald-500',
+    bgColor: 'bg-emerald-500/15',
+  },
+  {
     key: 'resumen_semanal' as const,
     label: t('settings.resumenSemanal'),
     description: t('settings.recibirResumenPorEmail'),
@@ -55,6 +87,10 @@ export function NotificationSettings() {
     nuevas_obvs: true,
     validaciones: true,
     tareas: true,
+    alertas_motor: true,
+    reuniones: true,
+    ciclos: true,
+    equipo: true,
     resumen_semanal: false,
   });
 

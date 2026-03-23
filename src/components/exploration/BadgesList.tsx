@@ -40,15 +40,15 @@ interface BadgesListProps {
   allBadges: BadgeDefinition[];
 }
 
-const CATEGORY_CONFIG = {
-  challenge: { label: t('exploration.desafíos'), color: 'text-red-500', icon: Trophy },
-  phase: { label: t('exploration.fases'), color: 'text-blue-500', icon: Star },
-  contribution: { label: t('exploration.contribución'), color: 'text-green-500', icon: Zap },
-  achievement: { label: t('exploration.logros'), color: 'text-purple-500', icon: Trophy },
-};
-
 export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
   const { t } = useTranslation();
+
+  const CATEGORY_CONFIG = {
+    challenge: { label: t('exploration.desafíos'), color: 'text-red-500', icon: Trophy },
+    phase: { label: t('exploration.fases'), color: 'text-blue-500', icon: Star },
+    contribution: { label: t('exploration.contribución'), color: 'text-green-500', icon: Zap },
+    achievement: { label: t('exploration.logros'), color: 'text-purple-500', icon: Trophy },
+  };
   const earnedKeys = new Set(earnedBadges.map((b) => b.badge_key));
   const totalPoints = earnedBadges.reduce((sum, b) => {
     const def = allBadges.find((d) => d.badge_key === b.badge_key);
@@ -156,7 +156,7 @@ export function BadgesList({ earnedBadges, allBadges }: BadgesListProps) {
                           <p className="font-semibold text-sm">{badge.badge_name}</p>
                           {badge.is_rare && (
                             <Badge variant="outline" className="text-xs mt-1">
-                              ⭐ Raro
+                              {t('exploration.raro')}
                             </Badge>
                           )}
                         </div>

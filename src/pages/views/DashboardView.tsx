@@ -6,8 +6,8 @@
  */
 
 import { useMemo, useState, useEffect } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2 } from 'lucide-react';
-import { useParams } from 'react-router-dom';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, Zap, CheckCircle2, Activity } from 'lucide-react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { HowItWorks } from '@/components/ui/how-it-works';
@@ -17,11 +17,13 @@ import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
 import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
+import { EmptyStateDashboard } from '@/components/dashboard/EmptyStateDashboard';
 import { HelpWidget } from '@/components/ui/section-help';
 import { DashboardPreviewModal } from '@/components/preview/DashboardPreviewModal';
 import { OnboardingProgressBanner } from '@/components/onboarding/OnboardingProgressBanner';
 import { RegenerationTriggersWidget } from '@/components/onboarding/RegenerationTriggersWidget';
 import { GamificationWidget } from '@/components/onboarding/GamificationWidget';
+import { OsWindow } from '@/components/ui/os-window';
 import { supabase } from '@/integrations/supabase/client';
 
 import { useTranslation } from 'react-i18next';
@@ -31,6 +33,7 @@ interface DashboardViewProps {
 
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [onboardingProgress, setOnboardingProgress] = useState<{ progress: number; fastStartCompleted: boolean; deepSetupSections: string[]; onboardingType: string } | null>(null);
@@ -119,6 +122,12 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     facturacion: Number(m.facturacion) || 0,
   }));
 
+  // O5.V2.2 — Check if user has zero data
+  const hasZeroData = members.length === 0
+    && totals.obvs === 0
+    && totals.lps === 0
+    && totals.facturacion === 0;
+
   if (loadingMembers) {
     return (
       <div className="flex items-center justify-center h-screen">
@@ -137,6 +146,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       />
 
       <div className="p-8 space-y-6">
+        {/* O5.V2.2 — Empty state for Day 1 */}
+        {projectId && hasZeroData && (
+          <EmptyStateDashboard
+            projectId={projectId}
+            onNavigate={(path) => navigate(path)}
+          />
+        )}
+
         {/* Onboarding Progress Banner */}
         {projectId && onboardingProgress && onboardingProgress.progress < 100 && (
           <OnboardingProgressBanner
@@ -181,71 +198,75 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         />
 
         {/* KPIs Grid */}
-        <div className="grid grid-cols-6 gap-4">
-          <StatCard
-            icon={FileCheck}
-            value={totals.obvs}
-            label={t('dashboard.obvsTotales')}
-            progress={(totals.obvs / teamObjectives.obvs) * 100}
-            target={teamObjectives.obvs}
-            color="#6366F1"
-            delay={1}
-          />
-          <StatCard
-            icon={BookOpen}
-            value={totals.lps}
-            label={t('dashboard.learningPaths')}
-            progress={(totals.lps / teamObjectives.lps) * 100}
-            target={teamObjectives.lps}
-            color="#F59E0B"
-            delay={2}
-          />
-          <StatCard
-            icon={Trophy}
-            value={totals.bps}
-            label={t('dashboard.bookPoints')}
-            progress={(totals.bps / teamObjectives.bps) * 100}
-            target={teamObjectives.bps}
-            color="#22C55E"
-            delay={3}
-          />
-          <StatCard
-            icon={Users}
-            value={totals.cps}
-            label={t('dashboard.communityPoints')}
-            progress={(totals.cps / teamObjectives.cps) * 100}
-            target={teamObjectives.cps}
-            color="#EC4899"
-            delay={4}
-          />
-          <StatCard
-            icon={TrendingUp}
-            value={`€${(totals.facturacion/1000).toFixed(1)}K`}
-            label={t('dashboard.facturación')}
-            progress={(totals.facturacion / teamObjectives.facturacion) * 100}
-            target={`€${teamObjectives.facturacion/1000}K`}
-            color="#3B82F6"
-            delay={5}
-          />
-          <StatCard
-            icon={Wallet}
-            value={`€${(totals.margen/1000).toFixed(1)}K`}
-            label={t('dashboard.margenBruto')}
-            progress={(totals.margen / teamObjectives.margen) * 100}
-            target={`€${teamObjectives.margen/1000}K`}
-            color="#22C55E"
-            delay={6}
-          />
-        </div>
+        <OsWindow title={t('dashboard.kpisDelEquipo')} icon={TrendingUp} variant="compact">
+          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-4">
+            <StatCard
+              icon={FileCheck}
+              value={totals.obvs}
+              label={t('dashboard.obvsTotales')}
+              progress={(totals.obvs / teamObjectives.obvs) * 100}
+              target={teamObjectives.obvs}
+              color="#6366F1"
+              delay={1}
+            />
+            <StatCard
+              icon={BookOpen}
+              value={totals.lps}
+              label={t('dashboard.learningPaths')}
+              progress={(totals.lps / teamObjectives.lps) * 100}
+              target={teamObjectives.lps}
+              color="#F59E0B"
+              delay={2}
+            />
+            <StatCard
+              icon={Trophy}
+              value={totals.bps}
+              label={t('dashboard.bookPoints')}
+              progress={(totals.bps / teamObjectives.bps) * 100}
+              target={teamObjectives.bps}
+              color="#22C55E"
+              delay={3}
+            />
+            <StatCard
+              icon={Users}
+              value={totals.cps}
+              label={t('dashboard.communityPoints')}
+              progress={(totals.cps / teamObjectives.cps) * 100}
+              target={teamObjectives.cps}
+              color="#EC4899"
+              delay={4}
+            />
+            <StatCard
+              icon={TrendingUp}
+              value={`€${(totals.facturacion/1000).toFixed(1)}K`}
+              label={t('dashboard.facturación')}
+              progress={(totals.facturacion / teamObjectives.facturacion) * 100}
+              target={`€${teamObjectives.facturacion/1000}K`}
+              color="#3B82F6"
+              delay={5}
+            />
+            <StatCard
+              icon={Wallet}
+              value={`€${(totals.margen/1000).toFixed(1)}K`}
+              label={t('dashboard.margenBruto')}
+              progress={(totals.margen / teamObjectives.margen) * 100}
+              target={`€${teamObjectives.margen/1000}K`}
+              color="#22C55E"
+              delay={6}
+            />
+          </div>
+        </OsWindow>
 
-        {/* Charts & Rankings Row */}
-        <div className="grid grid-cols-3 gap-6">
-          <div className="col-span-2">
-            <WeeklyEvolutionChart />
+        {/* Charts & Alerts Row */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="lg:col-span-2">
+            <OsWindow title={t('dashboard.evoluciónSemanal')} icon={TrendingUp}>
+              <WeeklyEvolutionChart hideHeader />
+            </OsWindow>
           </div>
-          <div>
-            <SmartAlertsWidget />
-          </div>
+          <OsWindow title={t('dashboard.alertasInteligentes')} icon={AlertTriangle}>
+            <SmartAlertsWidget hideHeader />
+          </OsWindow>
         </div>
 
         {/* Onboarding Widgets - Only show if Fast Start completed */}
@@ -257,12 +278,18 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         )}
 
         {/* Top 3 Rankings */}
-        <TopRankingsWidget members={membersForRanking} />
+        <OsWindow title={t('dashboard.topPerformers')} icon={Trophy}>
+          <TopRankingsWidget members={membersForRanking} hideHeader />
+        </OsWindow>
 
         {/* Activity & Validations */}
-        <div className="grid grid-cols-2 gap-6">
-          <RecentActivityFeed />
-          <PendingValidationsWidget />
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <OsWindow title={t('dashboard.actividadReciente')} icon={Zap}>
+            <RecentActivityFeed hideHeader />
+          </OsWindow>
+          <OsWindow title={t('dashboard.validacionesPendientes')} icon={CheckCircle2}>
+            <PendingValidationsWidget hideHeader />
+          </OsWindow>
         </div>
       </div>
 

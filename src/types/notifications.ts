@@ -46,7 +46,15 @@ export type NotificationType =
   | 'risk_elevated'
   | 'bottleneck_detected'
   // ── Layer 1: Task urgency ─────────────────────────────────────────────────
-  | 'overdue_tasks_warning';
+  | 'overdue_tasks_warning'
+  // ── Layer 6: Feature events (F17-F28) ───────────────────────────────────
+  | 'meeting_action_due'
+  | 'cycle_started'
+  | 'cycle_ending'
+  | 'team_invite_accepted'
+  | 'proactive_moment'
+  | 'focus_block_suggestion'
+  | 'expansion_readiness';
 
 export interface Notification {
   id: string;
@@ -263,33 +271,81 @@ export const NOTIFICATION_CONFIG: Record<NotificationType, {
     bgColor: 'bg-red-500/10',
     defaultPriority: 'high',
   },
+  // ── Layer 6: Feature events (F17-F28) ──────────────────────────────────
+  meeting_action_due: {
+    icon: '📅',
+    color: 'text-blue-600',
+    bgColor: 'bg-blue-500/10',
+    defaultPriority: 'high',
+  },
+  cycle_started: {
+    icon: '🔄',
+    color: 'text-green-600',
+    bgColor: 'bg-green-500/10',
+    defaultPriority: 'medium',
+  },
+  cycle_ending: {
+    icon: '⏳',
+    color: 'text-amber-600',
+    bgColor: 'bg-amber-500/10',
+    defaultPriority: 'high',
+  },
+  team_invite_accepted: {
+    icon: '🤝',
+    color: 'text-blue-500',
+    bgColor: 'bg-blue-500/10',
+    defaultPriority: 'low',
+  },
+  proactive_moment: {
+    icon: '💡',
+    color: 'text-purple-600',
+    bgColor: 'bg-purple-500/10',
+    defaultPriority: 'medium',
+  },
+  focus_block_suggestion: {
+    icon: '🎯',
+    color: 'text-indigo-600',
+    bgColor: 'bg-indigo-500/10',
+    defaultPriority: 'medium',
+  },
+  expansion_readiness: {
+    icon: '🌍',
+    color: 'text-emerald-600',
+    bgColor: 'bg-emerald-500/10',
+    defaultPriority: 'medium',
+  },
 };
 
 export const PRIORITY_CONFIG: Record<NotificationPriority, {
+  labelKey: string;
   label: string;
   color: string;
   badgeColor: string;
   sortOrder: number;
 }> = {
   critical: {
+    labelKey: 'notifications.prioridadCritica',
     label: 'Crítica',
     color: 'text-red-600',
     badgeColor: 'bg-red-500/20 text-red-600 border-red-500/30',
     sortOrder: 0,
   },
   high: {
+    labelKey: 'notifications.prioridadAlta2',
     label: 'Alta',
     color: 'text-orange-600',
     badgeColor: 'bg-orange-500/20 text-orange-600 border-orange-500/30',
     sortOrder: 1,
   },
   medium: {
+    labelKey: 'notifications.prioridadMedia',
     label: 'Media',
     color: 'text-blue-600',
     badgeColor: 'bg-blue-500/20 text-blue-600 border-blue-500/30',
     sortOrder: 2,
   },
   low: {
+    labelKey: 'notifications.prioridadBaja',
     label: 'Baja',
     color: 'text-gray-600',
     badgeColor: 'bg-gray-500/20 text-gray-600 border-gray-500/30',

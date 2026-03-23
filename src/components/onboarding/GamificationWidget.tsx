@@ -18,7 +18,7 @@ import {
   Target,
   Sparkles,
 } from 'lucide-react';
-import { GamificationSystem, ACHIEVEMENTS, BADGES } from '@/lib/gamification';
+import { GamificationSystem, getAchievements, getBadges } from '@/lib/gamification';
 import type { Achievement } from '@/lib/gamification';
 
 import { useTranslation } from 'react-i18next';
@@ -67,11 +67,13 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
   const levelProgress = ((gamData.points % 1000) / 1000) * 100;
 
   const unlockedAchievements = gamData.achievements || [];
-  const lockedAchievements = ACHIEVEMENTS.filter(
+  const allAchievements = getAchievements();
+  const lockedAchievements = allAchievements.filter(
     a => !unlockedAchievements.some((ua: Achievement) => ua.id === a.id)
   );
 
-  const userBadges = BADGES.filter(b => gamData.badges?.includes(b.id));
+  const allBadges = getBadges();
+  const userBadges = allBadges.filter(b => gamData.badges?.includes(b.id));
 
   return (
     <Card className="border-2 border-yellow-200">
@@ -83,7 +85,7 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
             </div>
             <div>
               <CardTitle className="text-lg">{t('onboarding.yourProgress')}</CardTitle>
-              <CardDescription>Level {gamData.level} Founder</CardDescription>
+              <CardDescription>{t('gamification.level')} {gamData.level} {t('gamification.founder')}</CardDescription>
             </div>
           </div>
 
@@ -99,10 +101,10 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
         <div>
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">
-              Level {gamData.level}
+              {t('gamification.level')} {gamData.level}
             </span>
             <span className="text-sm text-gray-600">
-              {pointsToNextLevel} pts to Level {gamData.level + 1}
+              {pointsToNextLevel} {t('gamification.ptsToLevel')} {gamData.level + 1}
             </span>
           </div>
           <Progress value={levelProgress} className="h-3" />
@@ -132,10 +134,10 @@ export function GamificationWidget({ projectId, userId }: GamificationWidgetProp
         <Tabs defaultValue="unlocked" className="w-full">
           <TabsList className="grid w-full grid-cols-2">
             <TabsTrigger value="unlocked">
-              Unlocked ({unlockedAchievements.length})
+              {t('gamification.unlocked')} ({unlockedAchievements.length})
             </TabsTrigger>
             <TabsTrigger value="locked">
-              Locked ({lockedAchievements.length})
+              {t('gamification.locked')} ({lockedAchievements.length})
             </TabsTrigger>
           </TabsList>
 

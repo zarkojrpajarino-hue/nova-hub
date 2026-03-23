@@ -21,7 +21,7 @@ import {
   TrendingUp,
   Clock,
   CheckCheck,
-  Trash2,
+  Archive,
 } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
@@ -51,14 +51,18 @@ interface NotificationListProps {
 // N7.V2.3 — tipos relevantes por fase (acumulativos)
 const PHASE_RELEVANT_TYPES: Record<number, string[]> = {
   1: ['info', 'warning', 'risk_critical', 'risk_changed', 'probability_drop', 'probability_change',
-      'idea_validation', 'weekly_review', 'overdue_tasks_warning'],
+      'idea_validation', 'weekly_review', 'overdue_tasks_warning',
+      'focus_block_suggestion', 'proactive_moment'],
   2: ['info', 'warning', 'risk_critical', 'risk_changed', 'probability_drop', 'probability_change',
       'idea_validation', 'weekly_review', 'overdue_tasks_warning',
-      'revenue_signals', 'validation_progress', 'success'],
+      'revenue_signals', 'validation_progress', 'success',
+      'focus_block_suggestion', 'proactive_moment', 'cycle_started', 'cycle_ending'],
   3: ['info', 'warning', 'success', 'risk_critical', 'risk_changed', 'probability_drop', 'probability_change',
       'idea_validation', 'weekly_review', 'overdue_tasks_warning',
       'revenue_signals', 'validation_progress',
-      'performance', 'deadline', 'feedback', 'bottleneck_detected', 'meeting_suggested'],
+      'performance', 'deadline', 'feedback', 'bottleneck_detected', 'meeting_suggested',
+      'meeting_action_due', 'cycle_started', 'cycle_ending', 'focus_block_suggestion',
+      'proactive_moment', 'expansion_readiness'],
   4: [], // vacío = mostrar todo
 };
 
@@ -102,6 +106,7 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
         .from('notifications')
         .select('*')
         .eq('user_id', userId)
+        .eq('archived', false)
         .order('created_at', { ascending: false })
         .limit(50);
 
@@ -169,14 +174,16 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
     }
   };
 
-  const deleteNotification = async (notificationId: string) => {
+  const archiveNotification = async (notificationId: string) => {
     try {
-      const { error } = await supabase.from('notifications').delete().eq('id', notificationId);
+      const { error } = await supabase.rpc('archive_notification', {
+        p_notification_id: notificationId,
+      });
 
       if (error) throw error;
 
       setNotifications((prev) => prev.filter((n) => n.id !== notificationId));
-      toast.success(t('notifications.notificaciónEliminada'));
+      toast.success(t('notifications.notificacionArchivada'));
     } catch (_error) {
       toast.error(t('notifications.errorAlEliminar'));
     }
@@ -217,16 +224,16 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
 
         <Tabs value={filter} onValueChange={(v) => setFilter(v as 'all' | 'unread' | 'phase')} className="w-full">
           <TabsList className="w-full">
-            <TabsTrigger value="all" className={phase ? 'flex-1' : 'flex-1'}>
-              Todas {notifications.length > 0 && `(${notifications.length})`}
+            <TabsTrigger value="all" className="flex-1">
+              {t('notifications.todasTab')} {notifications.length > 0 && `(${notifications.length})`}
             </TabsTrigger>
             <TabsTrigger value="unread" className="flex-1">
-              Sin leer {unreadCount > 0 && `(${unreadCount})`}
+              {t('notifications.sinLeerTab')} {unreadCount > 0 && `(${unreadCount})`}
             </TabsTrigger>
             {/* N7.V2.3 — tab de fase: solo si se pasa el prop phase */}
             {phase && (
               <TabsTrigger value="phase" className="flex-1">
-                Fase {phase}
+                {t('notifications.faseTab')} {phase}
               </TabsTrigger>
             )}
           </TabsList>
@@ -239,7 +246,7 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
           <div className="p-12 text-center">
             <Bell size={48} className="mx-auto text-muted-foreground mb-4 opacity-50" />
             <p className="text-muted-foreground">
-              {filter === 'unread' ? 'No tienes notificaciones sin leer': t('notifications.noTienesNotificaciones')}
+              {filter === 'unread' ? t('notifications.noTienesNotificacionesSin') : t('notifications.noTienesNotificaciones')}
             </p>
           </div>
         ) : (
@@ -285,13 +292,14 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();
-                        deleteNotification(notification.id);
+                        archiveNotification(notification.id);
                       }}
                       variant="ghost"
                       size="icon"
                       className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                      title={t('notifications.archivar')}
                     >
-                      <Trash2 size={16} />
+                      <Archive size={16} />
                     </Button>
                   </div>
                 </div>

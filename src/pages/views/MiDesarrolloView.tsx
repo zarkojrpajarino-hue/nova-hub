@@ -81,18 +81,10 @@ export function MiDesarrolloView() {
 
   const loadBadges = async () => {
     try {
-      const { data: member } = await supabase
-        .from('members')
-        .select('id')
-        .eq('auth_id', profile!.id)
-        .single();
-
-      if (!member) return;
-
       const { data: earned } = await supabase
         .from('member_badges')
         .select('*')
-        .eq('member_id', member.id);
+        .eq('member_id', profile!.id);
 
       const { data: all } = await supabase
         .from('badge_definitions')
@@ -164,7 +156,7 @@ export function MiDesarrolloView() {
               from: t('miDesarrollo.centroObvs'),
               items: [
                 t('miDesarrollo.obvsCompletadasPorTi'),
-                'OBVs validadas (quality score)',
+                t('gamification.obvsValidadasQuality'),
                 t('miDesarrollo.objetivosCumplidos'),
               ],
             },
@@ -187,9 +179,9 @@ export function MiDesarrolloView() {
               ],
             },
             {
-              to: 'Insights IA',
+              to: t('gamification.insightsIA'),
               items: [
-                'Qué estás haciendo bien (fortalezas)',
+                t('gamification.queEstasHaciendoBien'),
                 t('miDesarrollo.áreasDeMejoraEspecíficas'),
                 t('miDesarrollo.accionesRecomendadasParaSubir'),
               ],
@@ -197,7 +189,7 @@ export function MiDesarrolloView() {
             {
               to: t('miDesarrollo.playbooksPersonalizados'),
               items: [
-                'Best practices para tu rol (ej: cómo hacer growth hacking si eres CMO)',
+                t('gamification.bestPractices'),
                 t('miDesarrollo.templatesYFrameworksEspecíficos'),
                 t('miDesarrollo.recursosDeAprendizajeCurados'),
               ],
@@ -275,7 +267,7 @@ export function MiDesarrolloView() {
                 <BookOpen size={16} />{t('miDesarrollo.playbook')}</TabsTrigger>
               <TabsTrigger value="coach" className="gap-2">
                 <Sparkles size={16} />
-                Coach IA
+                {t('gamification.coachIA')}
               </TabsTrigger>
               <TabsTrigger value="learning-paths" className="gap-2">
                 <GraduationCap size={16} />{t('miDesarrollo.learningPaths')}</TabsTrigger>

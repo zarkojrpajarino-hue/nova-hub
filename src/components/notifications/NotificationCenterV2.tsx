@@ -52,22 +52,27 @@ const ACTIVITY_TYPES = new Set([
   'probability_drop', 'probability_critical', 'probability_recovered',
   'viability_critical', 'viability_monitoring', 'viability_resolved', 'cash_flow_alert',
   'risk_critical', 'risk_elevated', 'bottleneck_detected',
+  // Layer 6: Feature events
+  'meeting_action_due', 'cycle_started', 'cycle_ending',
+  'proactive_moment', 'focus_block_suggestion', 'expansion_readiness',
 ]);
 
 const SYSTEM_TYPES = new Set([
-  'welcome', 'project_deleted', 'role_accepted',
+  'welcome', 'project_deleted', 'role_accepted', 'team_invite_accepted',
 ]);
 
 // ── Filter tabs ───────────────────────────────────────────────────────────────
 
 type FilterTab = 'all' | 'unread' | 'activity' | 'system';
 
-const FILTER_TABS: { id: FilterTab; label: string }[] = [
-  { id: 'all',      label: t('notifications.todas')      },
-  { id: 'unread',   label: t('notifications.sinLeer')   },
-  { id: 'activity', label: t('notifications.actividad')  },
-  { id: 'system',   label: t('notifications.sistema')    },
-];
+function getFilterTabs(t: (k: string) => string): { id: FilterTab; label: string }[] {
+  return [
+    { id: 'all',      label: t('notifications.todas')      },
+    { id: 'unread',   label: t('notifications.sinLeer')   },
+    { id: 'activity', label: t('notifications.actividad')  },
+    { id: 'system',   label: t('notifications.sistema')    },
+  ];
+}
 
 function tabToFilters(tab: FilterTab): NotificationFilters {
   switch (tab) {
@@ -143,7 +148,7 @@ function NotificationItem({ notification, onRead, onArchive }: NotificationItemP
               variant="outline"
               className={cn('text-[10px] px-1.5 py-0 h-4 shrink-0', priorityConfig.badgeColor)}
             >
-              {priorityConfig.label}
+              {t(priorityConfig.labelKey)}
             </Badge>
           </div>
 
@@ -159,7 +164,7 @@ function NotificationItem({ notification, onRead, onArchive }: NotificationItemP
             <div className="flex items-center gap-1">
               {notification.action_url && (
                 <Button size="sm" variant="ghost" className="h-6 px-2 text-[11px]" onClick={handleAction}>
-                  {notification.action_label || 'Ver'}
+                  {notification.action_label || t('notifications.ver')}
                   <ExternalLink size={11} className="ml-1" />
                 </Button>
               )}
@@ -196,9 +201,11 @@ function NotificationItem({ notification, onRead, onArchive }: NotificationItemP
 // ── Main component ────────────────────────────────────────────────────────────
 
 export function NotificationCenterV2() {
+  const { t } = useTranslation();
   const [open, setOpen]         = useState(false);
   const [activeTab, setActiveTab] = useState<FilterTab>('all');
   const [limit, setLimit]       = useState(PAGE_SIZE);
+  const FILTER_TABS = getFilterTabs(t);
 
   const filters = tabToFilters(activeTab);
 
@@ -241,7 +248,7 @@ export function NotificationCenterV2() {
             <div>
               <DialogTitle className="text-lg">{t('notifications.notificaciones')}</DialogTitle>
               <p className="text-xs text-muted-foreground mt-0.5">
-                {unreadCount > 0 ? `${unreadCount} sin leer` : t('notifications.todoAlDía')}
+                {unreadCount > 0 ? `${unreadCount} ${t('notifications.sinLeerCount')}` : t('notifications.todoAlDía')}
               </p>
             </div>
 

@@ -18,9 +18,10 @@ interface TopRankingsWidgetProps {
     facturacion: number;
     lps: number;
   }>;
+  hideHeader?: boolean;
 }
 
-function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
+function TopRankingsWidgetComponent({ members, hideHeader = false }: TopRankingsWidgetProps) {
   const { t } = useTranslation();
   const topByOBVs = useMemo(
     () => [...members].sort((a, b) => b.obvs - a.obvs).slice(0, 3),
@@ -97,11 +98,13 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
   return (
     <div className="grid grid-cols-3 gap-4">
       {/* Top OBVs */}
-      <div className="bg-card border border-border rounded-2xl p-4 animate-fade-in">
-        <div className="flex items-center gap-2 mb-3">
-          <Crown size={16} className="text-warning" />
-          <span className="text-sm font-semibold">{t('dashboard.topObvs')}</span>
-        </div>
+      <div className={hideHeader ? 'p-4 animate-fade-in' : 'bg-card border border-border rounded-2xl p-4 animate-fade-in'}>
+        {!hideHeader && (
+          <div className="flex items-center gap-2 mb-3">
+            <Crown size={16} className="text-warning" />
+            <span className="text-sm font-semibold">{t('dashboard.topObvs')}</span>
+          </div>
+        )}
         {renderPodium(
           topByOBVs.map(m => ({ ...m, value: m.obvs })),
           (v) => `${v}`,
@@ -110,11 +113,13 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
       </div>
 
       {/* Top Facturación */}
-      <div className="bg-card border border-border rounded-2xl p-4 animate-fade-in">
-        <div className="flex items-center gap-2 mb-3">
-          <TrendingUp size={16} className="text-success" />
-          <span className="text-sm font-semibold">{t('dashboard.topFacturación')}</span>
-        </div>
+      <div className={hideHeader ? 'p-4 animate-fade-in' : 'bg-card border border-border rounded-2xl p-4 animate-fade-in'}>
+        {!hideHeader && (
+          <div className="flex items-center gap-2 mb-3">
+            <TrendingUp size={16} className="text-success" />
+            <span className="text-sm font-semibold">{t('dashboard.topFacturación')}</span>
+          </div>
+        )}
         {renderPodium(
           topByFacturacion.map(m => ({ ...m, value: m.facturacion })),
           (v) => `€${(v/1000).toFixed(1)}K`,
@@ -123,11 +128,13 @@ function TopRankingsWidgetComponent({ members }: TopRankingsWidgetProps) {
       </div>
 
       {/* Top LPs */}
-      <div className="bg-card border border-border rounded-2xl p-4 animate-fade-in">
-        <div className="flex items-center gap-2 mb-3">
-          <BookOpen size={16} className="text-primary" />
-          <span className="text-sm font-semibold">{t('dashboard.topLps')}</span>
-        </div>
+      <div className={hideHeader ? 'p-4 animate-fade-in' : 'bg-card border border-border rounded-2xl p-4 animate-fade-in'}>
+        {!hideHeader && (
+          <div className="flex items-center gap-2 mb-3">
+            <BookOpen size={16} className="text-primary" />
+            <span className="text-sm font-semibold">{t('dashboard.topLps')}</span>
+          </div>
+        )}
         {renderPodium(
           topByLPs.map(m => ({ ...m, value: m.lps })),
           (v) => `${v}`,

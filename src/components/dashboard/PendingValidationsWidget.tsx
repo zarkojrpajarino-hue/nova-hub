@@ -19,7 +19,7 @@ interface PendingItem {
   created_at: string;
 }
 
-export function PendingValidationsWidget() {
+export function PendingValidationsWidget({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const { data: profiles = [] } = useProfiles();
@@ -144,16 +144,18 @@ export function PendingValidationsWidget() {
   const totalPending = pendingItems.length;
 
   return (
-    <div className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in">
-      <div className="p-5 border-b border-border flex items-center justify-between">
-        <h3 className="font-semibold flex items-center gap-2.5">
-          <CheckCircle2 size={18} className="text-success" />{t('dashboard.validacionesPendientes')}</h3>
-        {totalPending > 0 && (
-          <span className="text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-lg">
-            {totalPending}
-          </span>
-        )}
-      </div>
+    <div className={hideHeader ? 'overflow-hidden animate-fade-in' : 'bg-card border border-border rounded-2xl overflow-hidden animate-fade-in'}>
+      {!hideHeader && (
+        <div className="p-5 border-b border-border flex items-center justify-between">
+          <h3 className="font-semibold flex items-center gap-2.5">
+            <CheckCircle2 size={18} className="text-success" />{t('dashboard.validacionesPendientes')}</h3>
+          {totalPending > 0 && (
+            <span className="text-xs font-bold bg-primary text-primary-foreground px-2.5 py-1 rounded-lg">
+              {totalPending}
+            </span>
+          )}
+        </div>
+      )}
 
       <div className="p-4 space-y-3">
         {isLoading ? (
