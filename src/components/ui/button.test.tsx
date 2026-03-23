@@ -95,7 +95,7 @@ describe('Button', () => {
       render(<Button data-testid="button">Default Size</Button>);
       const button = screen.getByTestId('button');
       expect(button).toHaveClass('h-10');
-      expect(button).toHaveClass('px-4');
+      expect(button).toHaveClass('px-5');
     });
 
     it('applies small size', () => {
@@ -106,7 +106,7 @@ describe('Button', () => {
       );
       const button = screen.getByTestId('button');
       expect(button).toHaveClass('h-9');
-      expect(button).toHaveClass('px-3');
+      expect(button).toHaveClass('px-3.5');
     });
 
     it('applies large size', () => {

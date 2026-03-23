@@ -27,9 +27,14 @@ vi.mock('@/hooks/useProjectContext', () => ({
     userRole: null,
     isAdmin: false,
     isLoading: false,
-    phaseState: null,
+    phaseState: { current_phase: 3 },
     engineData: null,
   }),
+}));
+
+// Mock usePhaseFeatures to return Phase 3 (most features visible)
+vi.mock('@/hooks/usePhaseFeatures', () => ({
+  usePhaseFeatures: () => ({ phase: 3 }),
 }));
 
 const mockUser = {

@@ -72,7 +72,7 @@ describe('OBVCenterView', () => {
 
   it('renders subir obv tab', () => {
     renderComponent();
-    expect(screen.getByText('📤 Subir OBV')).toBeInTheDocument();
+    expect(screen.getByText('Subir OBV')).toBeInTheDocument();
   });
 
   it('renders validar tab', () => {

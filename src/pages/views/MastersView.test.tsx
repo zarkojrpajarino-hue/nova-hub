@@ -81,9 +81,9 @@ describe('MastersView', () => {
     </QueryClientProvider>
   );
 
-  it('renders masters de nova title', () => {
+  it('renders masters de Optimus-K title', () => {
     renderComponent();
-    expect(screen.getByText('Masters de NOVA')).toBeInTheDocument();
+    expect(screen.getByText('Masters de OPTIMUS-K')).toBeInTheDocument();
   });
 
   it('renders masters activos stat', () => {

@@ -13,7 +13,7 @@ describe('Card Components', () => {
     it('applies base classes', () => {
       const { container } = render(<Card>Content</Card>);
       const card = container.firstChild as HTMLElement;
-      expect(card).toHaveClass('rounded-lg');
+      expect(card).toHaveClass('rounded-xl');
       expect(card).toHaveClass('border');
       expect(card).toHaveClass('bg-card');
       expect(card).toHaveClass('shadow-sm');
