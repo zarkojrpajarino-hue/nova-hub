@@ -23,6 +23,6 @@ const NavLink = forwardRef<HTMLAnchorElement, NavLinkCompatProps>(
   },
 );
 
-NavLink.displayName = t('navLink.tsx.navlink');
+NavLink.displayName = 'NavLink';
 
 export { NavLink };
