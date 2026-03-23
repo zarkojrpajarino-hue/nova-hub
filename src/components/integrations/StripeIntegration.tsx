@@ -26,6 +26,7 @@ import { FinanceInsightsCard } from './FinanceInsightsCard'
 import type { EngineSnapshot } from '@/lib/engine-delta'
 import { runFinanceAgent } from '@/services/financeAgentService'
 import type { Session } from '@supabase/supabase-js'
+import { trackIntegrationConnected, trackIntegrationSyncCompleted, trackIntegrationInsightGenerated, trackIntegrationError } from '@/lib/analytics'
 
 import { useTranslation } from 'react-i18next';
 // Obtiene el token más fresco posible.
@@ -146,6 +147,8 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
       setConnectionId(data.connection_id)
       setIsConnected(true)
       setApiKey('')
+      // I15.103 — Track connection event
+      if (projectId) trackIntegrationConnected({ project_id: projectId, provider: 'stripe', action: 'connected' })
       toast.success('Stripe conectado — haz clic en Sincronizar Ahora para importar tus datos')
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
@@ -204,6 +207,8 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
       void queryClient.invalidateQueries({ queryKey: ['sync_runs', connId] })
       // mrr viene en CENTAVOS — dividir por 100 para mostrar en euros
       const mrrEuros = data.mrr != null ? (data.mrr / 100).toFixed(2) : '0.00'
+      // I15.104 — Track sync event
+      if (projectId) trackIntegrationSyncCompleted({ project_id: projectId, provider: 'stripe', status: 'completed', entities_synced: data.entities_synced })
       toast.success(`Sync completado — ${data.entities_synced} suscripciones, MRR €${mrrEuros}`)
       // I15.78 — Finance Agent: analizar entidades post-sync y emitir insights
       if (projectId && connId) {
@@ -211,12 +216,18 @@ export function StripeIntegration({ projectId }: StripeIntegrationProps) {
           if (result.insights_emitted > 0) {
             // Invalidar para que FinanceInsightsCard recargue
             void queryClient.invalidateQueries({ queryKey: ['finance_insights', projectId] })
+            // I15.105 — Track insight generated events
+            for (const it of result.insight_types) {
+              trackIntegrationInsightGenerated({ project_id: projectId, agent_type: 'finance', insight_type: it, severity: 'info' })
+            }
           }
         }).catch((_err) => {
           // El Finance Agent falla silenciosamente — no interrumpe el flujo de sync
         })
       }
     } catch (err) {
+      // I15.107 — Track sync error
+      if (projectId) trackIntegrationError({ project_id: projectId, provider: 'stripe', error_type: 'sync_failed', error_message: err instanceof Error ? err.message : String(err) })
       toast.error('Error en sincronización: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
       setIsSyncing(false)

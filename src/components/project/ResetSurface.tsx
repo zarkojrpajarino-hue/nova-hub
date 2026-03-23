@@ -32,6 +32,7 @@ import { trackRitualCompleted } from '@/lib/analytics';
 import { useAuth } from '@/hooks/useAuth';
 import { OptimusFeedback } from '@/components/project/OptimusFeedback';
 import { CycleDeltaCard } from '@/components/project/CycleDeltaCard';
+import { toast } from 'sonner';
 
 import { useTranslation } from 'react-i18next';
 // =============================================================================
@@ -528,6 +529,92 @@ const CATEGORY_OPTIONS: { value: CycleCommitment['category']; label: string; col
   { value: 'team', label: 'Team', color: 'bg-purple-500' },
 ];
 
+/** F31 Upgrade 2: Commitment coaching — show guidance based on founder patterns */
+function CommitmentCoachingBanner({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
+  const { data: patterns } = useQuery({
+    queryKey: ['founder-patterns-coaching', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('founder_patterns')
+        .select('pattern_type, description, confidence, evidence, recommendation')
+        .eq('project_id', projectId)
+        .eq('status', 'active')
+        .order('detected_at', { ascending: false })
+        .limit(10);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!projectId,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  if (!patterns || patterns.length === 0) return null;
+
+  // Extract coaching insights
+  const commitmentGap = patterns.find(p => p.pattern_type === 'commitment_gap');
+  const optimismBias = patterns.find(p => p.pattern_type === 'optimism_bias');
+  const cashBlindspot = patterns.find(p => p.pattern_type === 'cash_blindspot');
+  const categoryImbalance = patterns.find(p => p.pattern_type === 'category_imbalance');
+
+  // Build coaching messages
+  const messages: string[] = [];
+
+  if (optimismBias) {
+    const evidence = Array.isArray(optimismBias.evidence) ? optimismBias.evidence[0] : null;
+    const gapPct = evidence && typeof evidence === 'object' && 'gap_pct' in evidence
+      ? (evidence as Record<string, number>).gap_pct
+      : null;
+    if (gapPct) {
+      messages.push(t('project.coachingRatioCumplimiento', { pct: Math.round(100 - gapPct) }));
+    }
+  } else if (commitmentGap) {
+    const evidence = Array.isArray(commitmentGap.evidence) ? commitmentGap.evidence[0] : null;
+    if (evidence && typeof evidence === 'object') {
+      const ev = evidence as Record<string, number>;
+      if (ev.committed && ev.completed !== undefined) {
+        messages.push(t('project.coachingMenosCompromisos', {
+          committed: ev.committed,
+          completed: ev.completed,
+        }));
+      }
+    }
+  }
+
+  if (cashBlindspot) {
+    messages.push(t('project.coachingCashBlindspot'));
+  }
+
+  if (categoryImbalance) {
+    messages.push(categoryImbalance.recommendation || t('project.coachingCategoríaIgnorada'));
+  }
+
+  // Suggest commitment count based on history
+  if (optimismBias || commitmentGap) {
+    messages.push(t('project.coachingSugerenciaConteo'));
+  }
+
+  if (messages.length === 0) return null;
+
+  return (
+    <div className="border border-blue-500/30 bg-blue-500/5 rounded-xl p-4 space-y-2">
+      <div className="flex items-center gap-2">
+        <Lightbulb size={14} className="text-blue-600 shrink-0" />
+        <span className="text-sm font-medium text-blue-700">
+          {t('project.coachingTitle')}
+        </span>
+      </div>
+      <ul className="space-y-1 pl-6">
+        {messages.map((msg, i) => (
+          <li key={i} className="text-xs text-blue-700/80 list-disc">
+            {msg}
+          </li>
+        ))}
+      </ul>
+    </div>
+  );
+}
+
 function CommitmentsForm({
   onComplete,
   projectId,
@@ -583,6 +670,9 @@ function CommitmentsForm({
           {t('project.defineEntre1Y')}
         </p>
       </div>
+
+      {/* F31 Upgrade 2: Commitment coaching banner */}
+      <CommitmentCoachingBanner projectId={projectId} />
 
       <div className="space-y-4">
         {commitments.map((c, idx) => (
@@ -675,6 +765,7 @@ function CommitmentsForm({
 // =============================================================================
 
 export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProps) {
+  const { t } = useTranslation();
   const [phase, setPhase] = useState<'form' | 'loading' | 'output' | 'commitments'>('form');
   const [responses, setResponses] = useState<RitualResponses>(EMPTY_RESPONSES);
   const [cycleEval, setCycleEval] = useState<'progress' | 'stagnation' | 'regression' | null>(null);
@@ -763,17 +854,22 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
   //   - Cycle N+1 runs → at close, delta reads cycle N's commitments
   //   - The first cycle (N=1) has no delta (no previous commitments) — correct.
   const handleCommitmentsComplete = async (commitments: CycleCommitment[]) => {
+    let savedCycleId: string | null = null;
+    let cycleEndDate: string | null = null;
+
     if (commitments.length > 0) {
       try {
         const { data: latestCycle } = await supabase
           .from('strategic_cycles')
-          .select('id')
+          .select('id, end_date')
           .eq('project_id', projectId)
           .order('cycle_index', { ascending: false })
           .limit(1)
           .single();
 
         if (latestCycle) {
+          savedCycleId = latestCycle.id;
+          cycleEndDate = latestCycle.end_date;
           await supabase
             .from('strategic_cycles')
             .update({ commitments_json: commitments as unknown as Record<string, unknown>[] })
@@ -781,6 +877,34 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
         }
       } catch {
         // Non-blocking — cycle creation proceeds even if commitments fail to save
+      }
+
+      // F31 Upgrade 4: Auto-create draft tasks from commitments
+      try {
+        const taskRows = commitments.map(c => ({
+          project_id: projectId,
+          titulo: c.text,
+          function_type: c.category === 'team' ? 'support' : c.category,
+          fecha_limite: cycleEndDate || null,
+          status: 'todo' as const,
+          prioridad: 3,
+          ai_generated: false,
+          assignee_id: profile?.id || null,
+          metadata: {
+            source: 'cycle_commitment',
+            cycle_id: savedCycleId,
+          },
+        }));
+
+        const { error: taskErr } = await supabase
+          .from('tasks')
+          .insert(taskRows);
+
+        if (!taskErr) {
+          toast.success(t('project.tareasDesdeCompromisos', { count: commitments.length }));
+        }
+      } catch {
+        // Non-blocking — tasks are a convenience, not critical
       }
     }
     onComplete();

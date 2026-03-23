@@ -26,6 +26,7 @@ import {
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
+import { trackIntegrationConnected, trackIntegrationSyncCompleted, trackIntegrationError } from '@/lib/analytics'
 import { SyncHealthCard } from './SyncHealthCard'
 import { ExecutionInsightsCard } from './ExecutionInsightsCard'
 import { ApiKeyGuide } from './ApiKeyGuide'
@@ -153,6 +154,7 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
       setWorkspaceName(data.workspace_name ?? null)
       setIsConnected(true)
       setPat('')
+      if (projectId) trackIntegrationConnected({ project_id: projectId, provider: 'asana', action: 'connected' })
       toast.success('Asana conectado — haz clic en Sincronizar Ahora para importar tus tareas')
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))

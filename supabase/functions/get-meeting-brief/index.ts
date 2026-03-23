@@ -71,7 +71,7 @@ serve(async (req) => {
 
     // 1. Estado del motor
     const { data: engineContext } = await supabase
-      .rpc('get_optimus_context', { p_project_id: project_id, p_user_id: user.id })
+      .rpc('get_optimus_context_enriched', { p_project_id: project_id, p_user_id: user.id })
 
     // AUD.M.5: delta_probability — comparar probabilidad actual vs hace 7 días
     const { data: probHistory } = await supabase

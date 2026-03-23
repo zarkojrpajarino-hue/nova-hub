@@ -28,6 +28,7 @@ import {
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
+import { trackIntegrationConnected, trackIntegrationSyncCompleted, trackIntegrationError } from '@/lib/analytics'
 import { SyncHealthCard } from './SyncHealthCard'
 import { SalesInsightsCard } from './SalesInsightsCard'
 import { runSalesAgent } from '@/services/salesAgentService'
@@ -153,6 +154,7 @@ export function HubSpotIntegration({ projectId }: HubSpotIntegrationProps) {
       setPortalId(data.portal_id ?? null)
       setIsConnected(true)
       setAccessToken('')
+      if (projectId) trackIntegrationConnected({ project_id: projectId, provider: 'hubspot', action: 'connected' })
       toast.success('HubSpot conectado — haz clic en Sincronizar Ahora para importar tus deals')
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))

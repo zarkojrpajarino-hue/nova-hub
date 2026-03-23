@@ -32,6 +32,13 @@ import { supabase } from '@/integrations/supabase/client';
 import { useIntegrationConnections, useSyncQuality, type IntegrationConnectionStatus, type SyncQuality } from '@/hooks/useIntegrationConnections';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from '@/components/ui/sheet';
 import { SourcePreferencesPanel } from '@/components/evidence/SourcePreferencesPanel';
+import { TrustScreen } from '@/components/integrations/TrustScreen';
+import { FinancialIntelligencePanel } from '@/components/integrations/panels/FinancialIntelligencePanel';
+import { SalesIntelligencePanel } from '@/components/integrations/panels/SalesIntelligencePanel';
+import { ExecutionIntelligencePanel } from '@/components/integrations/panels/ExecutionIntelligencePanel';
+import { TeamIntelligencePanel } from '@/components/integrations/panels/TeamIntelligencePanel';
+import { CalendarIntelligencePanel } from '@/components/integrations/panels/CalendarIntelligencePanel';
+import { IntegrationHealthPanel } from '@/components/integrations/panels/IntegrationHealthPanel';
 
 import { useTranslation } from 'react-i18next';
 // AUD.B.7 — Badge de calidad de sync (migration 20260326000009)
@@ -478,6 +485,12 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           <TabsTrigger value="api" disabled>
             <Code size={16} />
             API
+          </TabsTrigger>
+          <TabsTrigger value="intelligence" className="gap-2">
+            <TrendingUp size={16} />{t('integrations.intelligence')}
+          </TabsTrigger>
+          <TabsTrigger value="trust" className="gap-2">
+            <Settings2 size={16} />{t('integrations.trustTab')}
           </TabsTrigger>
         </TabsList>
 
@@ -1058,6 +1071,21 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               <CardDescription>{t('integrations.próximamenteDisponible')}</CardDescription>
             </CardHeader>
           </Card>
+        </TabsContent>
+
+        {/* I15.98–102 + I15.108 — Intelligence & Health Tab */}
+        <TabsContent value="intelligence" className="space-y-6">
+          <FinancialIntelligencePanel projectId={currentProject?.id} />
+          <SalesIntelligencePanel projectId={currentProject?.id} />
+          <ExecutionIntelligencePanel projectId={currentProject?.id} />
+          <TeamIntelligencePanel projectId={currentProject?.id} />
+          <CalendarIntelligencePanel projectId={currentProject?.id} />
+          <IntegrationHealthPanel projectId={currentProject?.id} />
+        </TabsContent>
+
+        {/* I15.116–121 — Trust & Transparency Tab */}
+        <TabsContent value="trust" className="space-y-6">
+          <TrustScreen projectId={currentProject?.id} />
         </TabsContent>
       </Tabs>
 

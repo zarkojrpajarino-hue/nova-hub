@@ -38,9 +38,15 @@ export interface TrendDirections {
   revenue: TrendDirection
 }
 
+export interface SeasonalityData {
+  day_pattern?: string // e.g. 'friday'
+  weekly_pattern?: string // 'week1_higher' | 'week4_higher'
+}
+
 export interface ExecutionTrendsData {
   weekly: WeeklyTrend[]
   trends: TrendDirections
+  seasonality?: SeasonalityData
 }
 
 async function fetchExecutionTrends(

@@ -50,11 +50,21 @@ function agentTypeLabel(agentType: string): string {
   return labels[agentType] ?? agentType
 }
 
+/** F20.V2.3 — Urgent decision from AI analysis (ai_analysis_cache) */
+export interface AnalysisUrgentDecision {
+  title: string
+  context: string
+  consequence: string
+  cta: { label: string; view: string }
+}
+
 export function buildNextAction(
   engineData:    ProjectEngineData | null | undefined,
   agentInsights: SynthesizedInsight[],
-  taskStats:     { overdueCount: number },
+  taskStats:     { overdueCount: number; oldestOverdueDays?: number },
   context:       ProjectContext,
+  /** F20.V2.3 — urgent decisions from latest AI analysis */
+  urgentDecisions?: AnalysisUrgentDecision[],
 ): EnrichedNextAction {
   const signals: string[] = []
   const riskLevel = engineData?.risk?.risk_level ?? 'low'
@@ -91,6 +101,10 @@ export function buildNextAction(
     signals.push(
       `${taskStats.overdueCount} tarea${taskStats.overdueCount > 1 ? 's' : ''} vencida${taskStats.overdueCount > 1 ? 's' : ''}`,
     )
+    // F19.V2.2 — Task Loop → Meeting escalation: 30+ days overdue
+    if ((taskStats.oldestOverdueDays ?? 0) >= 30) {
+      signals.push('Esta tarea lleva más de 30 días sin resolverse — puede necesitar una decisión en reunión')
+    }
   }
 
   // ── 3. Agent insight crítico ─────────────────────────────────────────────────
@@ -122,6 +136,15 @@ export function buildNextAction(
     }
   }
 
+  // ── 4. F20.V2.3 — AI analysis urgent decisions (ia_analysis signal) ─────────
+  if (urgentDecisions && urgentDecisions.length > 0) {
+    const topDecision = urgentDecisions[0]
+    signals.push(`Análisis estratégico: ${topDecision.title}`)
+    if (urgentDecisions.length > 1) {
+      signals.push(`+${urgentDecisions.length - 1} decisión${urgentDecisions.length > 1 ? 'es' : ''} urgente${urgentDecisions.length > 1 ? 's' : ''} más`)
+    }
+  }
+
   // ── 5. Señales de warning de agents (secundarias) ────────────────────────────
   const warningInsights = agentInsights.filter((i) => i.content.severity === 'warning')
   for (const w of warningInsights.slice(0, 2)) {
@@ -149,9 +172,19 @@ export function buildNextAction(
   }
   const mappedType = base.actionType ? (typeMap[base.actionType] ?? 'obv') : 'obv'
 
+  // F19.V2.2 — Promote to meeting if oldest overdue > 30 days in team mode
+  const escalateToMeeting =
+    taskStats.overdueCount >= 1
+    && (taskStats.oldestOverdueDays ?? 0) >= 30
+    && context.mode === 'team'
+
   // Filtrar tipo 'meeting' para solo founders
   const finalType: EnrichedNextAction['type'] =
-    mappedType === 'meeting' && context.mode === 'solo' ? 'task' : mappedType
+    escalateToMeeting
+      ? 'meeting'
+      : mappedType === 'meeting' && context.mode === 'solo'
+        ? 'task'
+        : mappedType
 
   const phase = engineData?.phaseState?.current_phase ?? 1
   const score = engineData?.phaseState?.phase_score ?? 0

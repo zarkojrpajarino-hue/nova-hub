@@ -18,6 +18,11 @@ import { FunctionDelegationHint } from './FunctionDelegationHint';
 import { PHASE_LABELS } from '@/lib/engine';
 import { NextActionFocusBlock } from './NextActionFocusBlock';
 import { DataCompletenessCard } from './DataCompletenessCard';
+import { ExecutionTrendsCard } from './ExecutionTrendsCard';
+import { WhatIfSimulator } from './WhatIfSimulator';
+import { PipelineVelocityCard } from './PipelineVelocityCard';
+import { TeamContributionHeatmap } from './TeamContributionHeatmap';
+import { useExecutionTrends } from '@/hooks/useExecutionTrends';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
 import { PhaseRoadmap } from './PhaseRoadmap';
@@ -68,6 +73,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
   const { data: functionOwners } = useProjectFunctions(project.id);
   const phaseFeatures = usePhaseFeatures(project.id);
   const phaseStats = phaseFeatures.getPhaseStats();
+  const { data: trendsData } = useExecutionTrends(currentPhase >= 2 ? project.id : undefined);
 
   const fastStartCompleted = project.onboarding_data?.fast_start_completed === true;
 
@@ -241,6 +247,18 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
             engineData={engineData}
             onNavigateToTab={onNavigateToTab}
           />
+
+          {/* F29 — Execution trends + Pipeline velocity (phase 2+) */}
+          {currentPhase >= 2 && (
+            <>
+              <ExecutionTrendsCard projectId={project.id} />
+              {trendsData?.weekly && trendsData.weekly.length >= 4 && (
+                <WhatIfSimulator projectId={project.id} trends={trendsData.weekly} />
+              )}
+              <TeamContributionHeatmap projectId={project.id} />
+              <PipelineVelocityCard projectId={project.id} />
+            </>
+          )}
 
           {/* Probability breakdown — U6.4 — [B3/U3.2] Ocultar en Fase 0-1 */}
           {currentPhase >= 2 && (

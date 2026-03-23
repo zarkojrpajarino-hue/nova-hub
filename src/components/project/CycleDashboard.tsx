@@ -15,6 +15,8 @@ import { useActiveCycle, useCompleteCycle, useGenerateCycle, type CycleObjective
 import { supabase } from '@/integrations/supabase/client';
 import { CycleHistory } from './CycleHistory';
 import { FounderPatternsCard } from './FounderPatternsCard';
+import { CycleWeeklyPulse } from './CycleWeeklyPulse';
+import { CycleComparisonChart } from './CycleComparisonChart';
 
 interface CycleDashboardProps {
   projectId: string;
@@ -165,6 +167,19 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
         </div>
       )}
 
+      {/* F31 Upgrade 1: Weekly pulse — micro-deltas during active cycle */}
+      {cycle.status === 'active' && !isExpired && (
+        <CycleWeeklyPulse
+          projectId={projectId}
+          cycleId={cycle.id}
+          commitments={
+            ((cycle as unknown as Record<string, unknown>).commitments_json as Array<{ text: string; category: string }>) ?? []
+          }
+          startDate={cycle.start_date}
+          endDate={cycle.end_date}
+        />
+      )}
+
       {/* Objectives */}
       {objectives.length > 0 && (
         <div className="space-y-3">
@@ -179,6 +194,9 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
 
       {/* F31 Bloque B — Founder patterns */}
       <FounderPatternsCard projectId={projectId} />
+
+      {/* F31 Upgrade 3: Cycle comparison radar chart */}
+      <CycleComparisonChart projectId={projectId} />
 
       {/* Complete CTA if score >= 75 and not expired */}
       {!isExpired && score >= 75 && (

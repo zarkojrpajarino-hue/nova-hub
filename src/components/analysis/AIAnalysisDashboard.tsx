@@ -16,6 +16,9 @@ import { PreAnalysisDataReview, buildDataRows } from './PreAnalysisDataReview';
 import { ExecutiveSummarySection, PhaseFitSection, UrgentDecisionsSection, ContradictionsSection } from './sections/Level1Sections';
 import { FinancialPulseSection, PipelineTractionSection } from './sections/Level2Sections';
 import { CrossSignalsSection, HardTruthsSection } from './sections/Level3Sections';
+import { AnalysisChat } from './AnalysisChat';
+import { AnalysisDiff } from './AnalysisDiff';
+import { InvestorExport } from './InvestorExport';
 import type { ProjectAnalysisState } from '@/hooks/useProjectAnalysis';
 import { formatDistanceToNow } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
@@ -35,7 +38,7 @@ interface AIAnalysisDashboardProps {
 }
 
 export function AIAnalysisDashboard({
-  projectId: _projectId,
+  projectId,
   projectName,
   analysisState,
   currentPhase,
@@ -49,6 +52,7 @@ export function AIAnalysisDashboard({
   const { t } = useTranslation();
   const [showSources, setShowSources] = useState(false);
   const [showPreReview, setShowPreReview] = useState(false);
+  const [activeTab, setActiveTab] = useState<'analysis' | 'diff'>('analysis');
 
   const {
     unlockedLevel,
@@ -69,9 +73,9 @@ export function AIAnalysisDashboard({
     setShowPreReview(true);
   };
 
-  const handleConfirmGenerate = async (additionalContext?: string) => {
+  const handleConfirmGenerate = async (additionalContext?: string, focusArea?: string) => {
     setShowPreReview(false);
-    await generateAnalysis(additionalContext);
+    await generateAnalysis(additionalContext, focusArea);
   };
 
   const dataRows = buildDataRows(level, {
@@ -130,6 +134,24 @@ export function AIAnalysisDashboard({
           )}
         </div>
 
+        <div className="flex items-center gap-2 shrink-0">
+        {/* Investor Export — Upgrade 5 */}
+        {cachedAnalysis && (
+          <InvestorExport
+            projectId={projectId}
+            analysis={{
+              sections: cachedAnalysis.sections,
+              confidence_overall: cachedAnalysis.confidence_overall,
+              generated_at: cachedAnalysis.generated_at,
+            }}
+            projectName={projectName}
+            currentPhase={currentPhase}
+            probability={probability}
+            mrr={mrr}
+            runway={runway}
+          />
+        )}
+
         {/* Botón Regenerar */}
         <Button
           size="sm"
@@ -146,6 +168,7 @@ export function AIAnalysisDashboard({
             <>{t('analysis.generarAnálisis')}</>
           )}
         </Button>
+        </div>
       </div>
 
       {/* Rate limit info */}
@@ -181,8 +204,43 @@ export function AIAnalysisDashboard({
         </div>
       )}
 
-      {/* Secciones Nivel 1 */}
+      {/* Tab switcher — Upgrade 2 */}
       {cachedAnalysis && (
+        <div className="flex gap-1 border-b border-gray-200 dark:border-gray-700">
+          <button
+            onClick={() => setActiveTab('analysis')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'analysis'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t('analysis.tabAnalysis')}
+          </button>
+          <button
+            onClick={() => setActiveTab('diff')}
+            className={`px-4 py-2 text-sm font-medium border-b-2 transition-colors ${
+              activeTab === 'diff'
+                ? 'border-blue-600 text-blue-600'
+                : 'border-transparent text-gray-500 hover:text-gray-700'
+            }`}
+          >
+            {t('analysis.tabChanges')}
+          </button>
+        </div>
+      )}
+
+      {/* Diff tab — Upgrade 2 */}
+      {cachedAnalysis && activeTab === 'diff' && (
+        <AnalysisDiff
+          projectId={projectId}
+          currentAnalysis={{ sections: cachedAnalysis.sections }}
+          level={level}
+        />
+      )}
+
+      {/* Secciones Nivel 1 */}
+      {cachedAnalysis && activeTab === 'analysis' && (
         <div className="space-y-4">
           {sections.executive_summary && (
             <ExecutiveSummarySection data={sections.executive_summary} />
@@ -191,7 +249,7 @@ export function AIAnalysisDashboard({
             <PhaseFitSection data={sections.phase_fit} />
           )}
           {sections.urgent_decisions && sections.urgent_decisions.length > 0 && (
-            <UrgentDecisionsSection data={sections.urgent_decisions} />
+            <UrgentDecisionsSection data={sections.urgent_decisions} projectId={projectId} />
           )}
           {sections.contradictions && sections.contradictions.length > 0 && (
             <ContradictionsSection data={sections.contradictions} />
@@ -218,13 +276,21 @@ export function AIAnalysisDashboard({
                 <CrossSignalsSection data={sections.cross_signals} />
               )}
               {sections.hard_truths && sections.hard_truths.length > 0 && (
-                <HardTruthsSection data={sections.hard_truths} />
+                <HardTruthsSection data={sections.hard_truths} projectId={projectId} />
               )}
             </>
           ) : unlockedLevel >= 2 && nextLevelRequirements && (
             <AnalysisLevelTeaser targetLevel={3} requirements={nextLevelRequirements} />
           )}
         </div>
+      )}
+
+      {/* Follow-up Chat — Upgrade 1 */}
+      {cachedAnalysis && activeTab === 'analysis' && (
+        <AnalysisChat
+          projectId={projectId}
+          analysisResult={cachedAnalysis.sections as unknown as Record<string, unknown>}
+        />
       )}
 
       {/* Pre-review modal */}

@@ -226,10 +226,20 @@
   /* === Desktop OS aesthetic === */
   .os-desktop-bg {
     background:
-      radial-gradient(ellipse at 50% 0%, hsl(263 70% 18% / 0.5) 0%, transparent 55%),
-      radial-gradient(ellipse at 80% 90%, hsl(280 60% 12% / 0.4) 0%, transparent 45%),
-      radial-gradient(ellipse at 15% 60%, hsl(250 50% 14% / 0.3) 0%, transparent 40%),
-      linear-gradient(180deg, #0D0A1A 0%, #110d24 40%, #0D0A1A 100%);
+      radial-gradient(ellipse 80% 50% at 15% 20%, hsl(263 60% 85% / 0.5) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 40% at 80% 25%, hsl(30 80% 88% / 0.6) 0%, transparent 45%),
+      radial-gradient(ellipse 50% 40% at 60% 80%, hsl(200 60% 88% / 0.4) 0%, transparent 45%),
+      radial-gradient(ellipse 40% 30% at 25% 75%, hsl(330 50% 90% / 0.3) 0%, transparent 40%),
+      linear-gradient(180deg, #f0ebe3 0%, #e8e0d4 40%, #ede6dc 100%);
+  }
+
+  .dark .os-desktop-bg {
+    background:
+      radial-gradient(ellipse 80% 60% at 10% 15%, hsl(263 60% 30% / 0.4) 0%, transparent 55%),
+      radial-gradient(ellipse 70% 50% at 85% 20%, hsl(30 60% 30% / 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 60% 50% at 70% 75%, hsl(200 50% 25% / 0.3) 0%, transparent 50%),
+      radial-gradient(ellipse 50% 40% at 20% 80%, hsl(330 40% 25% / 0.2) 0%, transparent 40%),
+      linear-gradient(180deg, #1a1520 0%, #151020 50%, #1a1520 100%);
   }
 
   .os-dot-grid {
@@ -239,10 +249,14 @@
     content: '';
     position: absolute;
     inset: 0;
-    background-image: radial-gradient(circle, hsl(263 70% 58% / 0.06) 1px, transparent 1px);
-    background-size: 28px 28px;
+    background-image: radial-gradient(circle, rgba(0 0 0 / 0.06) 1px, transparent 1px);
+    background-size: 24px 24px;
     pointer-events: none;
     z-index: 0;
+  }
+
+  .dark .os-dot-grid::before {
+    background-image: radial-gradient(circle, rgba(255 255 255 / 0.05) 1px, transparent 1px);
   }
 
   .os-desktop-icon {
@@ -262,23 +276,8 @@
     transform: translateY(-2px);
   }
 
-  .os-dock {
-    background: hsl(260 40% 10% / 0.7);
-    backdrop-filter: blur(16px);
-    -webkit-backdrop-filter: blur(16px);
-    border: 1px solid hsl(260 25% 20% / 0.6);
-    border-radius: 1rem;
-    padding: 0.5rem;
-  }
-
-  .os-dock-item {
-    padding: 0.5rem;
-    border-radius: 0.625rem;
-    transition: all 0.2s ease;
-  }
-  .os-dock-item:hover {
-    background: hsl(263 70% 58% / 0.15);
-    transform: scale(1.15);
+  .os-desktop-icon:hover {
+    background: rgba(124, 58, 237, 0.08);
   }
 }
 
@@ -331,4 +330,23 @@
 /* Smooth transitions for all interactive elements */
 .transition-smooth {
   transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* F20.V2.2 — Print-specific styles for Investor Export PDF */
+@media print {
+  /* Hide everything except the print container */
+  body > *:not(#investor-export-print) {
+    display: none !important;
+  }
+  #investor-export-print {
+    display: block !important;
+    position: static !important;
+    width: 100% !important;
+    padding: 24px !important;
+    font-family: 'Inter', system-ui, sans-serif !important;
+    color: #1a1a1a !important;
+    background: #fff !important;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
 }

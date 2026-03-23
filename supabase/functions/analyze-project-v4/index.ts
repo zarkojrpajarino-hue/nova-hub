@@ -69,10 +69,74 @@ serve(async (req) => {
     const rl = await checkRateLimit(supabase, user.id, 'analyze-project-v4', RateLimitPresets.AI_GENERATION);
     if (!rl.allowed) return createRateLimitResponse(rl, headers);
 
-    const { project_id, level, additional_context } = await req.json() as {
+    const body = await req.json() as {
+      mode?: 'generate' | 'followup';
       project_id: string;
+      level?: 1 | 2 | 3;
+      additional_context?: string;
+      focus_area?: string;
+      question?: string;
+      analysis_context?: Record<string, unknown>;
+    };
+
+    const { project_id, mode = 'generate' } = body;
+
+    // ── Follow-up chat mode ──────────────────────────────────────────────
+    if (mode === 'followup') {
+      const { question, analysis_context } = body;
+      if (!project_id || !question || !analysis_context) {
+        return new Response(JSON.stringify({ error: 'project_id, question y analysis_context son requeridos para followup' }), {
+          status: 400, headers,
+        });
+      }
+
+      // Verify membership
+      const { data: membership } = await supabase
+        .from('project_members')
+        .select('id')
+        .eq('project_id', project_id)
+        .eq('member_id', user.id)
+        .maybeSingle();
+      if (!membership) {
+        const { data: proj } = await supabase
+          .from('projects')
+          .select('id')
+          .eq('id', project_id)
+          .eq('created_by', user.id)
+          .maybeSingle();
+        if (!proj) {
+          return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
+        }
+      }
+
+      const anthropic = new Anthropic({
+        apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '',
+      });
+
+      const followupMessage = await anthropic.messages.create({
+        model: 'claude-sonnet-4-6',
+        max_tokens: 300,
+        system: `Eres Optimus, el motor de inteligencia estrategica de Nova Hub.
+El usuario tiene un analisis generado de su proyecto y hace una pregunta de seguimiento.
+Responde directamente en 2-3 oraciones. Se conciso, honesto y accionable.
+No repitas el analisis completo. Si no tienes datos suficientes para responder, dilo.`,
+        messages: [{
+          role: 'user',
+          content: `Contexto del analisis:\n${JSON.stringify(analysis_context, null, 2).slice(0, 3000)}\n\nPregunta del founder: ${question}`,
+        }],
+      });
+
+      const answerText = followupMessage.content[0].type === 'text' ? followupMessage.content[0].text : '';
+
+      return new Response(JSON.stringify({ answer: answerText }), { status: 200, headers });
+    }
+
+    // ── Standard generation mode ─────────────────────────────────────────
+    const { level, additional_context, focus_area } = body as {
       level: 1 | 2 | 3;
       additional_context?: string;
+      focus_area?: string;
+      project_id: string;
     };
 
     if (!project_id || ![1, 2, 3].includes(level)) {
@@ -108,6 +172,8 @@ serve(async (req) => {
       .select('*')
       .eq('project_id', project_id)
       .eq('analysis_level', level)
+      .order('generated_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
     // Máximo updated_at de fuentes externas (para stale detection)
@@ -262,11 +328,23 @@ serve(async (req) => {
 ${topInsightsSummary.map((ins, i) => `${i + 1}. [${ins.agent_type ?? 'agente'}] ${JSON.stringify(ins.payload ?? {}).slice(0, 200)} (confianza: ${ins.confidence ?? 'n/a'})`).join('\n')}\n`
       : '';
 
+    // F20 Upgrade 4: focus area deepening
+    const FOCUS_AREA_PROMPTS: Record<string, string> = {
+      finanzas: 'Profundiza especialmente en: runway, burn rate, MRR trends, pricing strategy, unit economics. Da recomendaciones financieras concretas.',
+      equipo: 'Profundiza especialmente en: estructura del equipo, roles faltantes, velocidad de ejecucion, skills gaps, contrataciones criticas.',
+      producto: 'Profundiza especialmente en: product-market fit, iteracion, feedback loops, feature prioritization, metricas de uso.',
+      ventas: 'Profundiza especialmente en: pipeline health, conversion rates, sales cycle, customer acquisition cost, deal velocity.',
+      ejecucion: 'Profundiza especialmente en: velocidad de iteracion, cumplimiento de deadlines, bloqueos, deuda tecnica, ritmo de sprints.',
+    };
+    const focusBlock = focus_area && FOCUS_AREA_PROMPTS[focus_area]
+      ? `\nFOCO ESPECIAL SOLICITADO POR EL FOUNDER:\n${FOCUS_AREA_PROMPTS[focus_area]}\n`
+      : '';
+
     const userPrompt = `Analiza este proyecto y genera el informe estratégico nivel ${level}.
 
 DATOS DEL PROYECTO:
 ${JSON.stringify(dataPayload, null, 2)}
-${topInsightsBlock}
+${topInsightsBlock}${focusBlock}
 SCHEMA DE SALIDA REQUERIDO:
 ${JSON.stringify(outputSchema, null, 2)}
 
@@ -312,7 +390,8 @@ REGLAS PARA "contradictions":
     const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
     const now = new Date().toISOString();
 
-    await supabase.from('ai_analysis_cache').upsert({
+    // Insert (not upsert) — keeps history for AnalysisDiff comparison
+    await supabase.from('ai_analysis_cache').insert({
       project_id,
       analysis_level: level,
       generated_at: now,
@@ -322,8 +401,8 @@ REGLAS PARA "contradictions":
       output: analysisOutput,
       tokens_used: tokensUsed,
       model: 'claude-sonnet-4-6',
-      additional_context: additional_context ?? null,  // F20.V2.4
-    }, { onConflict: 'project_id,analysis_level' });
+      additional_context: additional_context ?? null,
+    });
 
     // ── AUD.M.7: auto-crear hasta 3 tareas desde urgent_decisions ─────────
     // Cada urgent_decision con action_plan genera una tarea con el day=1 action como título.

@@ -22,7 +22,6 @@ import {
 import { getNextAction } from '@/lib/next-action';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 import {
   computeReentryPayload,
   PHASE_LABEL,

@@ -38,6 +38,7 @@ import {
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
+import { trackIntegrationConnected, trackIntegrationSyncCompleted, trackIntegrationError } from '@/lib/analytics'
 import { SyncHealthCard } from './SyncHealthCard'
 import { CalendarInsightsCard } from './CalendarInsightsCard'
 import { runCalendarAgent } from '@/services/calendarAgentService'
@@ -265,6 +266,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
       setConnectionId(data.connection_id)
       setAccountEmail(data.account_email ?? null)
       setIsConnected(true)
+      if (projectId) trackIntegrationConnected({ project_id: projectId, provider: 'google_calendar', action: 'connected' })
       toast.success('Google Calendar conectado — haz clic en Sincronizar Ahora para importar tus eventos')
     } catch (err) {
       toast.error('Error al completar OAuth: ' + (err instanceof Error ? err.message : String(err)))

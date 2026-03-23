@@ -168,29 +168,29 @@ export default function LandingPage() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#0D0A1A] text-white overflow-x-hidden">
+    <div className="min-h-screen bg-[#f0ebe3] text-gray-900 overflow-x-hidden">
       {/* ─── NAV ─── */}
-      <nav className="fixed top-0 w-full z-50 border-b border-white/5 bg-[#0D0A1A]/80 backdrop-blur-xl">
+      <nav className="fixed top-0 w-full z-50 border-b border-black/5 bg-[#f0ebe3]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
             <div className="w-7 h-7 rounded-lg nova-gradient flex items-center justify-center">
               <span className="text-xs font-bold text-white">O</span>
             </div>
-            <span className="text-sm font-bold tracking-tight">OPTIMUS-K</span>
+            <span className="text-sm font-bold tracking-tight text-gray-900">OPTIMUS-K</span>
           </div>
-          <div className="hidden md:flex items-center gap-8 text-sm text-white/50">
-            <a href="#features" className="hover:text-white transition-colors">{t('nav.features')}</a>
-            <a href="#pricing" className="hover:text-white transition-colors">{t('nav.pricing')}</a>
+          <div className="hidden md:flex items-center gap-8 text-sm text-gray-500">
+            <a href="#features" className="hover:text-gray-900 transition-colors">{t('nav.features')}</a>
+            <a href="#pricing" className="hover:text-gray-900 transition-colors">{t('nav.pricing')}</a>
           </div>
           <div className="flex items-center gap-2">
             <LanguageToggle />
             <ThemeToggle />
-            <Link to="/auth" className="text-sm text-white/50 hover:text-white transition-colors hidden sm:block">
+            <Link to="/auth" className="text-sm text-gray-500 hover:text-gray-900 transition-colors hidden sm:block">
               {t('nav.signIn')}
             </Link>
             <Link
               to="/auth?tab=signup"
-              className="text-sm nova-gradient text-white px-4 py-2 rounded-lg font-medium transition-all hover:opacity-90"
+              className="text-sm bg-primary hover:bg-primary/90 text-white px-4 py-2 rounded-lg font-medium transition-all"
             >
               {t('nav.startFree')}
             </Link>
@@ -206,10 +206,10 @@ export default function LandingPage() {
           <div className="hidden lg:flex flex-col gap-1 absolute left-6 top-24">
             {DESKTOP_ICONS.map(({ Icon, labelKey }) => (
               <Link key={labelKey} to="/auth?tab=signup" className="os-desktop-icon group">
-                <div className="w-12 h-12 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center group-hover:bg-primary/15 group-hover:border-primary/30 transition-all">
-                  <Icon className="h-5 w-5 text-white/60 group-hover:text-primary transition-colors" />
+                <div className="w-12 h-12 rounded-xl bg-white/80 border border-gray-200 shadow-sm flex items-center justify-center group-hover:bg-primary/10 group-hover:border-primary/30 group-hover:shadow-md transition-all">
+                  <Icon className="h-5 w-5 text-gray-600 group-hover:text-primary transition-colors" />
                 </div>
-                <span className="text-[10px] text-white/40 group-hover:text-white/70 transition-colors leading-tight">
+                <span className="text-[10px] text-gray-500 group-hover:text-gray-800 transition-colors leading-tight font-medium">
                   {t(labelKey)}
                 </span>
               </Link>
@@ -217,15 +217,15 @@ export default function LandingPage() {
           </div>
 
           {/* Dock — Right (lg+) */}
-          <div className="hidden lg:flex flex-col gap-2 absolute right-6 top-1/2 -translate-y-1/2 os-dock">
+          <div className="hidden lg:flex flex-col gap-2 absolute right-6 top-1/2 -translate-y-1/2 bg-white/60 backdrop-blur-xl border border-gray-200/80 rounded-2xl p-2 shadow-lg">
             {DOCK_ITEMS.map(({ Icon, href, labelKey }) => (
               <a
                 key={labelKey}
                 href={href}
-                className="os-dock-item flex items-center justify-center"
+                className="p-2.5 rounded-xl hover:bg-primary/10 transition-all"
                 title={t(labelKey)}
               >
-                <Icon className="h-5 w-5 text-white/50 hover:text-white transition-colors" />
+                <Icon className="h-5 w-5 text-gray-500 hover:text-primary transition-colors" />
               </a>
             ))}
           </div>
@@ -234,7 +234,7 @@ export default function LandingPage() {
           <div className="w-full max-w-3xl lg:max-w-4xl">
             <OsWindow
               title="optimus-k.app"
-              className="border-white/10 bg-[#110d24]/90 backdrop-blur-sm shadow-2xl shadow-primary/10"
+              className="bg-white border-gray-200 shadow-2xl shadow-black/10"
               contentClassName="!p-0"
             >
               <div className="p-6 md:p-10 lg:p-12 text-center">
@@ -243,23 +243,23 @@ export default function LandingPage() {
                   <div className="w-10 h-10 rounded-xl nova-gradient flex items-center justify-center shadow-lg shadow-primary/30">
                     <span className="text-lg font-bold text-white">O</span>
                   </div>
-                  <span className="text-xl font-extrabold tracking-tight text-white">OPTIMUS-K</span>
+                  <span className="text-xl font-extrabold tracking-tight text-gray-900">OPTIMUS-K</span>
                 </div>
 
                 {/* Badge */}
-                <div className="inline-flex items-center gap-2 text-xs font-medium text-white/50 bg-white/5 border border-white/10 rounded-full px-4 py-1.5 mb-6">
+                <div className="inline-flex items-center gap-2 text-xs font-medium text-gray-500 bg-gray-50 border border-gray-200 rounded-full px-4 py-1.5 mb-6">
                   <span className="w-1.5 h-1.5 rounded-full bg-primary animate-pulse" />
                   {t('landing.badge')}
                 </div>
 
                 {/* Hero */}
-                <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] mb-5">
+                <h1 className="text-3xl md:text-5xl lg:text-6xl font-extrabold tracking-tight leading-[1.08] mb-5 text-gray-900">
                   {t('landing.heroTitle1')}
                   <br />
-                  <span className="bg-clip-text text-transparent nova-gradient">{t('landing.heroTitle2')}</span>
+                  <span className="bg-clip-text text-transparent" style={{ backgroundImage: 'linear-gradient(135deg, #7C3AED, #A855F7, #C084FC, #E879F9)' }}>{t('landing.heroTitle2')}</span>
                 </h1>
 
-                <p className="text-base md:text-lg text-white/50 max-w-2xl mx-auto mb-8 leading-relaxed">
+                <p className="text-base md:text-lg text-gray-500 max-w-2xl mx-auto mb-8 leading-relaxed">
                   {t('landing.heroSub')}
                 </p>
 
@@ -267,21 +267,21 @@ export default function LandingPage() {
                 <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mb-10">
                   <Link
                     to="/auth?tab=signup"
-                    className="group flex items-center gap-2 nova-gradient text-white px-8 py-3.5 rounded-lg font-semibold text-base transition-all hover:opacity-90 shadow-lg shadow-primary/25"
+                    className="group flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-lg font-semibold text-base transition-all shadow-lg shadow-primary/25"
                   >
                     {t('landing.ctaPrimary')}
                     <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
                   </Link>
                   <Link
                     to="/auth?tab=signup"
-                    className="flex items-center gap-2 text-white/50 hover:text-white px-8 py-3.5 rounded-lg font-medium text-base border border-white/10 hover:border-white/25 transition-all"
+                    className="flex items-center gap-2 text-gray-500 hover:text-gray-900 px-8 py-3.5 rounded-lg font-medium text-base border border-gray-200 hover:border-gray-400 transition-all"
                   >
                     {t('landing.ctaSecondary')}
                   </Link>
                 </div>
 
                 {/* Phase Tabs */}
-                <div className="inline-flex items-center gap-1 bg-white/5 rounded-lg p-1 mb-8 border border-white/5">
+                <div className="inline-flex items-center gap-1 bg-gray-100 rounded-lg p-1 mb-8">
                   {PHASES.map((phase) => (
                     <button
                       key={phase.id}
@@ -289,8 +289,8 @@ export default function LandingPage() {
                       className={cn(
                         'px-4 py-2 rounded-md text-sm font-medium transition-all',
                         activePhase === phase.id
-                          ? 'nova-gradient text-white shadow-md'
-                          : 'text-white/40 hover:text-white/70'
+                          ? 'bg-primary text-white shadow-md'
+                          : 'text-gray-400 hover:text-gray-700'
                       )}
                     >
                       {t(phase.labelKey)}
@@ -303,12 +303,12 @@ export default function LandingPage() {
                   {PHASE_APPS[activePhase].map(({ Icon, labelKey }) => (
                     <div
                       key={labelKey}
-                      className="flex flex-col items-center gap-2.5 p-4 rounded-xl bg-white/[0.03] border border-white/5 hover:bg-white/[0.06] hover:border-primary/20 transition-all cursor-default group"
+                      className="flex flex-col items-center gap-2.5 p-4 rounded-xl bg-gray-50 border border-gray-100 hover:bg-primary/5 hover:border-primary/20 transition-all cursor-default group"
                     >
                       <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center group-hover:bg-primary/20 transition-colors">
                         <Icon className="h-6 w-6 text-primary" />
                       </div>
-                      <span className="text-xs font-medium text-white/60 group-hover:text-white/80 transition-colors">
+                      <span className="text-xs font-medium text-gray-500 group-hover:text-gray-800 transition-colors">
                         {t(labelKey)}
                       </span>
                     </div>
@@ -320,31 +320,12 @@ export default function LandingPage() {
         </div>
       </section>
 
-      {/* ─── SOCIAL PROOF ─── */}
-      <section className="py-12 border-y border-white/5 bg-[#0D0A1A]">
-        <div className="max-w-4xl mx-auto px-6">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
-            {[
-              { value: '5', label: t('landing.stat1') },
-              { value: '90d', label: t('landing.stat2') },
-              { value: '8+', label: t('landing.stat3') },
-              { value: '14d', label: t('landing.stat4') },
-            ].map((stat) => (
-              <div key={stat.label}>
-                <div className="text-2xl font-bold text-white">{stat.value}</div>
-                <div className="text-xs text-white/40 mt-1">{stat.label}</div>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* ─── PATHS ─── */}
-      <section id="how" className="py-24 px-6 bg-[#0D0A1A]">
+      <section id="how" className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">{t('landing.pathsTitle')}</h2>
-            <p className="text-white/40 max-w-xl mx-auto">{t('landing.pathsSub')}</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">{t('landing.pathsTitle')}</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">{t('landing.pathsSub')}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6">
@@ -357,14 +338,14 @@ export default function LandingPage() {
                   'transition-all hover:-translate-y-1',
                   path.highlight
                     ? 'border-primary/30 bg-primary/5'
-                    : 'border-white/10 bg-[#110d24]/80'
+                    : 'border-gray-200 bg-white'
                 )}
                 contentClassName="!p-5"
               >
-                <p className="text-sm text-white/50 mb-5 leading-relaxed">{path.desc}</p>
+                <p className="text-sm text-gray-500 mb-5 leading-relaxed">{path.desc}</p>
                 <ul className="space-y-2 mb-6">
                   {Array.isArray(path.items) && path.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm text-white/50">
+                    <li key={item} className="flex items-start gap-2 text-sm text-gray-500">
                       <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
                       {item}
                     </li>
@@ -375,8 +356,8 @@ export default function LandingPage() {
                   className={cn(
                     'block text-center text-sm font-medium py-2.5 rounded-lg transition-colors',
                     path.highlight
-                      ? 'nova-gradient text-white'
-                      : 'border border-white/10 hover:border-primary/30 text-white/50 hover:text-white'
+                      ? 'bg-primary hover:bg-primary/90 text-white'
+                      : 'border border-gray-200 hover:border-primary/30 text-gray-500 hover:text-gray-900'
                   )}
                 >
                   {path.cta} →
@@ -388,24 +369,24 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FEATURES ─── */}
-      <section id="features" className="py-24 px-6 bg-[#0a0816]">
+      <section id="features" className="py-24 px-6 bg-gray-50">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">{t('landing.featuresTitle')}</h2>
-            <p className="text-white/40 max-w-xl mx-auto">{t('landing.featuresSub')}</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">{t('landing.featuresTitle')}</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">{t('landing.featuresSub')}</p>
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {features.map((feat) => (
               <div
                 key={feat.title}
-                className="rounded-xl p-5 border border-white/5 hover:border-primary/20 transition-all bg-white/[0.02] hover:bg-white/[0.04] group"
+                className="rounded-xl p-5 border border-gray-200 hover:border-primary/30 transition-all bg-white hover:shadow-md group"
               >
                 <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center mb-3 group-hover:bg-primary/20 transition-colors">
                   <feat.icon className="h-5 w-5 text-primary" />
                 </div>
-                <h3 className="font-semibold text-sm mb-1.5 text-white">{feat.title}</h3>
-                <p className="text-xs text-white/40 leading-relaxed">{feat.desc}</p>
+                <h3 className="font-semibold text-sm mb-1.5 text-gray-900">{feat.title}</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">{feat.desc}</p>
               </div>
             ))}
           </div>
@@ -413,11 +394,11 @@ export default function LandingPage() {
       </section>
 
       {/* ─── PRICING ─── */}
-      <section id="pricing" className="py-24 px-6 bg-[#0D0A1A]">
+      <section id="pricing" className="py-24 px-6 bg-white">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">{t('landing.pricingTitle')}</h2>
-            <p className="text-white/40 max-w-xl mx-auto">{t('landing.pricingSub')}</p>
+            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">{t('landing.pricingTitle')}</h2>
+            <p className="text-gray-500 max-w-xl mx-auto">{t('landing.pricingSub')}</p>
           </div>
 
           <div className="grid md:grid-cols-3 gap-6 max-w-4xl mx-auto">
@@ -428,25 +409,25 @@ export default function LandingPage() {
                 className={cn(
                   plan.highlight
                     ? 'border-primary/40 bg-primary/5 ring-1 ring-primary/20'
-                    : 'border-white/10 bg-[#110d24]/80'
+                    : 'border-gray-200 bg-white'
                 )}
                 contentClassName="!p-6"
               >
                 {plan.highlight && (
                   <div className="flex justify-center -mt-1 mb-3">
-                    <span className="text-xs font-semibold nova-gradient text-white px-3 py-0.5 rounded-full">
+                    <span className="text-xs font-semibold bg-primary text-white px-3 py-0.5 rounded-full">
                       {t('landing.popular')}
                     </span>
                   </div>
                 )}
-                <p className="text-xs text-white/40 mb-4">{plan.desc}</p>
+                <p className="text-xs text-gray-500 mb-4">{plan.desc}</p>
                 <div className="mb-6">
-                  <span className="text-3xl font-bold text-white">{plan.price}€</span>
-                  <span className="text-white/40 text-sm">{t('landing.perMonth')}</span>
+                  <span className="text-3xl font-bold text-gray-900">{plan.price}€</span>
+                  <span className="text-gray-400 text-sm">{t('landing.perMonth')}</span>
                 </div>
                 <ul className="space-y-2.5 mb-6 text-sm">
                   {plan.items.map((item) => (
-                    <li key={item} className="flex items-center gap-2 text-white/50">
+                    <li key={item} className="flex items-center gap-2 text-gray-500">
                       <Check className="h-3.5 w-3.5 text-primary" /> {item}
                     </li>
                   ))}
@@ -456,8 +437,8 @@ export default function LandingPage() {
                   className={cn(
                     'block text-center text-sm font-medium py-2.5 rounded-lg transition-colors',
                     plan.highlight
-                      ? 'nova-gradient text-white'
-                      : 'border border-white/10 hover:border-primary/30 text-white/50 hover:text-white'
+                      ? 'bg-primary hover:bg-primary/90 text-white'
+                      : 'border border-gray-200 hover:border-primary/30 text-gray-500 hover:text-gray-900'
                   )}
                 >
                   {plan.cta}
@@ -469,13 +450,13 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FINAL CTA ─── */}
-      <section className="py-24 px-6 bg-[#0a0816]">
+      <section className="py-24 px-6 bg-gray-50">
         <div className="max-w-2xl mx-auto text-center">
-          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-white">{t('landing.finalTitle')}</h2>
-          <p className="text-white/40 mb-8">{t('landing.finalSub')}</p>
+          <h2 className="text-3xl md:text-4xl font-bold mb-4 text-gray-900">{t('landing.finalTitle')}</h2>
+          <p className="text-gray-500 mb-8">{t('landing.finalSub')}</p>
           <Link
             to="/auth?tab=signup"
-            className="group inline-flex items-center gap-2 nova-gradient text-white px-8 py-3.5 rounded-lg font-semibold text-base transition-all hover:opacity-90 shadow-lg shadow-primary/25"
+            className="group inline-flex items-center gap-2 bg-primary hover:bg-primary/90 text-white px-8 py-3.5 rounded-lg font-semibold text-base transition-all shadow-lg shadow-primary/25"
           >
             {t('landing.finalCta')}
             <ArrowRight className="h-4 w-4 group-hover:translate-x-0.5 transition-transform" />
@@ -484,15 +465,15 @@ export default function LandingPage() {
       </section>
 
       {/* ─── FOOTER ─── */}
-      <footer className="border-t border-white/5 py-8 px-6 bg-[#0D0A1A]">
+      <footer className="border-t border-gray-200 py-8 px-6 bg-white">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
             <div className="w-6 h-6 rounded-md nova-gradient flex items-center justify-center">
               <span className="text-[10px] font-bold text-white">O</span>
             </div>
-            <span className="text-sm font-bold tracking-tight text-white">OPTIMUS-K</span>
+            <span className="text-sm font-bold tracking-tight text-gray-900">OPTIMUS-K</span>
           </div>
-          <span className="text-xs text-white/30">
+          <span className="text-xs text-gray-400">
             {t('landing.copyright', { year: new Date().getFullYear() })}
           </span>
         </div>

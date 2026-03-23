@@ -23,7 +23,6 @@ import { getDateFnsLocale } from '@/i18n';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface WeeklySurfaceProps {
   projectId: string;
   onContinue: () => void; // marca read_at + regresa a Engine

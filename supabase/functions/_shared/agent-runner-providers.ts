@@ -774,3 +774,83 @@ export async function runNotionKnowledgeAgentServer(
 
   return writeInsights(client, projectId, syncRunId, 'notion_knowledge', candidates)
 }
+
+// ══════════════════════════════════════════════════════════════════
+// Team Agent (internal data — project_members + tasks) — 3 insights
+// Runs proactively after ANY sync (not just specific provider).
+// ══════════════════════════════════════════════════════════════════
+
+export async function runTeamAgentServer(
+  client: SupabaseClient, projectId: string, syncRunId: string,
+): Promise<PostSyncResult> {
+  // Read team members with activity stats
+  const { data: raw } = await client.rpc('get_project_task_stats', { p_project_id: projectId })
+  const stats = raw as { overdue_count: number; done_this_week: number; total_open: number } | null
+
+  const { data: members } = await client
+    .from('project_members')
+    .select('member_id, is_lead')
+    .eq('project_id', projectId)
+    .eq('role_accepted', true)
+
+  if (!members || members.length < 2) return { insights_emitted: 0, insights_skipped: 0, agent_type: 'team' }
+
+  const candidates: InsightData[] = []
+  const ts = new Date().toISOString()
+  const conf = 0.85
+
+  // 1. Team overdue tasks
+  const overdueCount = stats?.overdue_count ?? 0
+  if (overdueCount >= 3) {
+    candidates.push({
+      insight_type: 'team_overdue_tasks',
+      signal: { metric_name: 'team_overdue_count', current_value: overdueCount, period_days: 0, data_points: members.length },
+      content: {
+        summary: `${overdueCount} tareas vencidas en el equipo (${members.length} miembros).`,
+        implication: overdueCount >= 5 ? 'Deuda de ejecución alta — el equipo no da abasto.' : 'Tareas acumulándose — priorizar antes de crear nuevas.',
+        severity: overdueCount >= 5 ? 'warning' : 'attention',
+        action_hint: `Prioriza ${overdueCount} tareas vencidas antes de crear nuevas.`,
+      },
+      confidence: conf, entity_ids: [], include_in_context: true, expires_hours: 24,
+      evidence_type: 'observed', sources_used: [{ source: 'internal', confidence: 0.9, timestamp: ts, entity_count: members.length }], sources_discarded: [],
+    })
+  }
+
+  // 2. Execution velocity
+  const doneThisWeek = stats?.done_this_week ?? 0
+  const totalOpen = stats?.total_open ?? 0
+  if (totalOpen > 0) {
+    const weeklyRate = doneThisWeek
+    const weeksToClose = weeklyRate > 0 ? Math.round(totalOpen / weeklyRate) : 999
+    candidates.push({
+      insight_type: 'team_velocity',
+      signal: { metric_name: 'tasks_done_7d', current_value: doneThisWeek, period_days: 7, data_points: members.length },
+      content: {
+        summary: `${doneThisWeek} tareas/semana. ${totalOpen} abiertas. ${weeksToClose < 999 ? weeksToClose + ' semanas para cerrar backlog.' : 'Sin velocidad.'}`,
+        implication: doneThisWeek === 0 ? 'Sin actividad esta semana.' : weeksToClose > 8 ? 'Backlog creciendo más rápido que la ejecución.' : 'Ritmo aceptable.',
+        severity: doneThisWeek === 0 ? 'warning' : weeksToClose > 8 ? 'attention' : 'info',
+        action_hint: doneThisWeek === 0 ? 'El equipo no completó tareas esta semana. Verifica si hay bloqueos.' : undefined,
+      },
+      confidence: conf, entity_ids: [], include_in_context: doneThisWeek === 0 || weeksToClose > 8, expires_hours: 24,
+      evidence_type: 'observed', sources_used: [{ source: 'internal', confidence: 0.9, timestamp: ts, entity_count: members.length }], sources_discarded: [],
+    })
+  }
+
+  // 3. Team size signal
+  if (members.length >= 2) {
+    const leads = members.filter(m => m.is_lead).length
+    candidates.push({
+      insight_type: 'team_composition',
+      signal: { metric_name: 'team_size', current_value: members.length, period_days: 0, data_points: members.length },
+      content: {
+        summary: `Equipo: ${members.length} miembros (${leads} lead${leads !== 1 ? 's' : ''}).`,
+        implication: members.length > 5 ? 'Equipo grande — asegura que los roles están bien definidos.' : 'Equipo compacto.',
+        severity: 'info',
+      },
+      confidence: conf, entity_ids: [], include_in_context: false, expires_hours: 7 * 24,
+      evidence_type: 'observed', sources_used: [{ source: 'internal', confidence: 0.95, timestamp: ts, entity_count: members.length }], sources_discarded: [],
+    })
+  }
+
+  return writeInsights(client, projectId, syncRunId, 'team', candidates)
+}

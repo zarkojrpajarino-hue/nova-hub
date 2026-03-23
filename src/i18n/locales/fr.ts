@@ -1,4 +1,4 @@
-// Auto-generated — 7040 keys
+// Auto-generated — 7274 keys
 /* eslint-disable */
 export const fr = {
   "aIAnalysis": {
@@ -753,7 +753,98 @@ export const fr = {
     "vuelveAPantallaPegaHolded": "Revenez à cet écran et collez l'API Key dans le champ ci-dessus.",
     "vuelveAPantallaPegaStripe": "Revenez à cet écran et collez la Secret Key dans le champ ci-dessus.",
     "análisisDeComunicación": "Analyse de communication",
-    "análisisDeDocumentación": "Analyse de documentation"
+    "análisisDeDocumentación": "Analyse de documentation",
+    "intelligence": "Inteligencia",
+    "trustTab": "Confianza",
+    "financialIntelligenceTitle": "Inteligencia Financiera",
+    "financialIntelligenceDesc": "Resumen consolidado de insights del Finance Agent (Stripe, Holded)",
+    "financeAgentInsights": "Insights financieros",
+    "salesIntelligenceTitle": "Inteligencia de Ventas",
+    "salesIntelligenceDesc": "Resumen consolidado de insights del Sales Agent (HubSpot)",
+    "salesAgentInsights": "Insights de ventas",
+    "executionIntelligenceTitle": "Inteligencia de Ejecucion",
+    "executionIntelligenceDesc": "Resumen consolidado de insights del Execution Agent (Asana)",
+    "executionAgentInsights": "Insights de ejecucion",
+    "teamIntelligenceTitle": "Inteligencia de Equipo",
+    "teamIntelligenceDesc": "Resumen consolidado de insights del Team Agent (actividad de miembros)",
+    "teamAgent": "Team Agent",
+    "teamAgentInsights": "Insights del equipo",
+    "projectMembers": "Miembros del proyecto",
+    "calendarIntelligenceTitle": "Inteligencia de Agenda",
+    "calendarIntelligenceDesc": "Resumen consolidado de insights del Calendar Agent (Google Calendar)",
+    "calendarAgentInsights": "Insights de agenda",
+    "trust": {
+      "title": "Seguridad y transparencia",
+      "description": "Optimus-K solo accede a los datos estrictamente necesarios. Aqui puedes ver exactamente que datos se leen, que no se toca y que permisos tiene cada integracion.",
+      "whatWeCollect": "Datos que leemos",
+      "whatWeDoNotCollect": "Datos que NO accedemos",
+      "permissions": "Permisos",
+      "recentActivity": "Actividad reciente",
+      "syncRun": "Sincronizacion",
+      "entities": "entidades",
+      "valueGenerated": "Valor generado",
+      "insightsGenerated": "insights",
+      "noActiveIntegrations": "No hay integraciones activas. Conecta un proveedor para ver los detalles de seguridad.",
+      "stripe": {
+        "collected": {
+          "subscriptions": "Suscripciones activas (estado, precio)",
+          "mrr": "MRR agregado",
+          "customerCount": "Numero de clientes"
+        },
+        "notCollected": {
+          "cardDetails": "Datos de tarjetas de credito",
+          "personalData": "Datos personales de clientes",
+          "bankInfo": "Informacion bancaria"
+        }
+      },
+      "hubspot": {
+        "collected": {
+          "deals": "Deals y oportunidades",
+          "pipeline": "Estado del pipeline",
+          "dealAmounts": "Importes de deals"
+        },
+        "notCollected": {
+          "contacts": "Contactos personales",
+          "emails": "Contenido de emails",
+          "sequences": "Secuencias de marketing"
+        }
+      },
+      "asana": {
+        "collected": {
+          "tasks": "Tareas y estados",
+          "status": "Estado de completitud",
+          "dueDates": "Fechas de vencimiento"
+        },
+        "notCollected": {
+          "attachments": "Archivos adjuntos",
+          "comments": "Comentarios de tareas",
+          "privateProjects": "Proyectos privados"
+        }
+      },
+      "gcal": {
+        "collected": {
+          "eventTimes": "Horarios de eventos",
+          "duration": "Duracion de reuniones",
+          "attendeeCount": "Numero de asistentes"
+        },
+        "notCollected": {
+          "eventContent": "Contenido de eventos",
+          "attendeeEmails": "Emails de asistentes",
+          "privateCalendars": "Calendarios privados"
+        }
+      }
+    },
+    "health": {
+      "title": "Estado de integraciones",
+      "description": "Resumen de salud de todas las conexiones y sincronizaciones",
+      "activeConnections": "Conexiones activas",
+      "errors": "Errores",
+      "syncSuccessRate": "Tasa de exito sync",
+      "totalSyncs": "Total syncs",
+      "connectionStatus": "Estado de conexiones",
+      "noConnections": "Sin conexiones configuradas",
+      "failedSyncs": "Syncs fallidos recientes"
+    }
   },
   "invite": {
     "invitaciónNoVálida": "Invitation invalide",
@@ -2047,7 +2138,22 @@ export const fr = {
     "confidence_pattern": "Modèle",
     "patronesDetectados": "Modèles détectés des cycles précédents :",
     "patronesBannerCollapse": "Masquer les modèles",
-    "patronesBannerExpand": "Voir les modèles détectés"
+    "patronesBannerExpand": "Voir les modèles détectés",
+    "pulsoSemanal": "Pouls hebdomadaire",
+    "semanaDeCiclo": "Semaine {{week}}/{{total}}",
+    "pulsoAlertaSinActividad": "Si vous n'agissez pas sur {{category}}, vous répéterez le schéma",
+    "pulsoCompletado": "complété",
+    "comparaciónDeCiclos": "Comparaison de cycles",
+    "radarUnCiclo": "Promis vs réel de votre dernier cycle.",
+    "radarMultipleCiclos": "Derniers {{count}} cycles superposés — promis (pointillé) vs réel (solide).",
+    "ciclo": "Cycle",
+    "coachingTitle": "Coaching basé sur vos schémas",
+    "coachingRatioCumplimiento": "Votre taux de conformité est {{pct}}%. Recommandation : moins d'engagements, plus de focus.",
+    "coachingMenosCompromisos": "Vous avez promis {{committed}} engagements mais vous n'avez rempli l'activité que dans {{completed}} catégories. Moins d'engagements = plus de focus.",
+    "coachingCashBlindspot": "Au cours de vos derniers cycles, cash n'a eu aucune activité. Envisagez d'ajouter un engagement cash.",
+    "coachingCategoríaIgnorada": "Il y a des catégories ignorées de manière récurrente. Vérifiez si elles sont pertinentes pour votre phase.",
+    "coachingSugerenciaConteo": "Sur la base de votre historique, 3 engagements est plus réaliste que 5.",
+    "tareasDesdeCompromisos": "{{count}} tâches brouillon créées à partir de vos engagements"
   },
   "rootRedirect": {
     "cargando": "Chargement..."
@@ -3279,7 +3385,63 @@ export const fr = {
     "díasMásDeActividad": "{{count}} jours d'activité supplémentaires",
     "conectar1Integración": "Connecter au moins 1 intégration (Stripe ou HubSpot)",
     "dosIntegracionesActivas": "2 intégrations actives",
-    "decisionesMásRegistradas": "{{count}} décisions stratégiques supplémentaires enregistrées"
+    "decisionesMásRegistradas": "{{count}} décisions stratégiques supplémentaires enregistrées",
+    "chatTitle": "Pregunta sobre tu análisis",
+    "chatSubtitle": "{{remaining}} de {{max}} preguntas restantes en esta sesión",
+    "chatPlaceholder": "¿Por qué dices que mi pipeline es débil?",
+    "chatLimitReached": "Límite de preguntas alcanzado para esta sesión",
+    "chatNoResponse": "No se obtuvo respuesta. Intenta de nuevo.",
+    "chatError": "Error al procesar tu pregunta",
+    "diffNoPrevious": "Primer análisis — no hay comparación disponible",
+    "diffNew": "Nuevo desde último análisis",
+    "diffResolved": "Resuelto",
+    "diffPersists": "Persiste",
+    "diffWorsened": "Empeoró",
+    "diffImproved": "Mejoró",
+    "diffNoChanges": "Sin cambios significativos respecto al análisis anterior",
+    "diffComparedTo": "Comparado con análisis del {{date}}",
+    "diffTypeRisk": "Riesgo",
+    "diffTypeDecision": "Decisión",
+    "diffTypeContradiction": "Contradicción",
+    "diffTypeTruth": "Hard Truth",
+    "diffTypeSignal": "Señal",
+    "tabAnalysis": "Análisis",
+    "tabChanges": "Cambios",
+    "createTask": "Crear tarea",
+    "taskCreated": "Tarea creada",
+    "taskCreatedFromAnalysis": "Tarea creada desde el análisis",
+    "taskCreateError": "Error al crear la tarea",
+    "focusAreaLabel": "Área de foco",
+    "focusGeneral": "General",
+    "focusFinanzas": "Finanzas",
+    "focusEquipo": "Equipo",
+    "focusProducto": "Producto",
+    "focusVentas": "Ventas",
+    "focusEjecucion": "Ejecución",
+    "investorExportBtn": "Exportar para Investors",
+    "investorExportTitle": "Exportar resumen para inversores",
+    "investorExportDesc": "Este resumen omite Hard Truths y datos internos sensibles. Revísalo antes de compartir.",
+    "investorReportTitle": "Resumen Estratégico",
+    "investorPhase": "Fase",
+    "investorProbability": "Probabilidad de éxito",
+    "investorDate": "Fecha de análisis",
+    "investorKeyMetrics": "Métricas clave",
+    "investorMRRTrend": "Tendencia MRR",
+    "investorVerdict": "Veredicto",
+    "investorFooter": "Generado por Optimus-K — Plataforma de gestión estratégica",
+    "investorCopied": "Resumen copiado al portapapeles",
+    "investorCopyError": "Error al copiar. Selecciona y copia manualmente.",
+    "investorCopiedBtn": "Copiado",
+    "investorCopyBtn": "Copiar al portapapeles",
+    "benchmarkTitle": "Benchmark",
+    "benchmarkMRRGrowth": "MRR Growth",
+    "benchmarkIterationVelocity": "Velocidad de iteración",
+    "benchmarkTeamProductivity": "Productividad del equipo",
+    "benchmarkPlaceholder": "Benchmark disponible cuando haya 30+ proyectos en la plataforma. Verás tu percentil comparado con startups en fase similar.",
+    "investorDownloadPDF": "Exporter en PDF",
+    "investorPDFReady": "PDF pret. Si votre navigateur ne l'a pas telecharge, selectionnez 'Enregistrer en PDF' dans la boite de dialogue.",
+    "investorDataSources": "Sources de donnees",
+    "confidenceLabel": "Confiance"
   },
   "challenges": {
     "progresoGeneral": "Progrès général",
@@ -3575,7 +3737,7 @@ export const fr = {
     "puntuaciónGeneral": "Score Global",
     "tareas": "Tâches",
     "obvs": "OBVs",
-    "leads": "Leads",
+    "leads": "Prospects",
     "leadDelProyecto": "Lead du Projet",
     "rolAceptado": "Rôle Accepté",
     "pendienteDeAceptar": "En Attente d'Acceptation"
@@ -7176,7 +7338,25 @@ export const fr = {
     "insightBothUp": "Quand vos tâches augmentent, les OBVs ont tendance à augmenter aussi. Bon rythme.",
     "insightTasksDown": "Vos tâches complétées baissent depuis des semaines. Quand l'exécution baisse, les résultats ont tendance à suivre.",
     "manualData": "Basé sur des données manuelles",
-    "enrichedWith": "Enrichi avec {{providers}}"
+    "enrichedWith": "Enrichi avec {{providers}}",
+    "correlationsTitle": "Correlaciones",
+    "corrDemandVenta": "Demanda → Ventas",
+    "corrDeliveryValidacion": "Delivery → Validacion",
+    "corrTotalRevenue": "Tareas totales → Revenue",
+    "corr_strong": "fuerte",
+    "corr_moderate": "moderada",
+    "corr_weak": "debil",
+    "correlationDisclaimer": "Correlacion no implica causalidad — indica direccion",
+    "seasonalityDay": "Tu actividad cae los {{day}}",
+    "seasonalityWeek1Higher": "Semana 1 del mes: 2x mas tareas",
+    "seasonalityWeek4Higher": "Semana 4 del mes: 2x mas tareas",
+    "day_monday": "lunes",
+    "day_tuesday": "martes",
+    "day_wednesday": "miercoles",
+    "day_thursday": "jueves",
+    "day_friday": "viernes",
+    "day_saturday": "sabados",
+    "day_sunday": "domingos"
   },
   "pipelineVelocity": {
     "title": "Vélocité du pipeline",
@@ -7194,7 +7374,11 @@ export const fr = {
     "status_negociacion": "Négociation",
     "status_cerrado_ganado": "Remporté",
     "status_cerrado_perdido": "Perdu",
-    "focusSignal": "Votre {{metric}} augmente de manière constante depuis {{weeks}} semaines"
+    "focusSignal": "Votre {{metric}} augmente de manière constante depuis {{weeks}} semaines",
+    "drillDownLabel": "Ver detalle por tipo de OBV",
+    "noTipoData": "Sin datos suficientes por tipo de OBV para esta transicion",
+    "bottleneckSuggestion": "Tu cuello de botella esta en {{from}} → {{to}}. Programa una sesion de validacion esta semana.",
+    "viewPendingOBVs": "Ver OBVs pendientes de validacion"
   },
   "financialIntelligence": {
     "forecastTitle": "Projection MRR",
@@ -7232,6 +7416,88 @@ export const fr = {
     "risk_churn_signal": "Signal de churn",
     "risk_pipeline_risk": "Risque de pipeline",
     "lowRunwayBanner": "Votre runway est de {{months}} mois. Vérifiez votre stratégie financière.",
-    "lowRunwayBannerTitle": "Alerte de runway"
+    "lowRunwayBannerTitle": "Alerte de runway",
+    "scenarioTitle": "Constructeur de Scénarios",
+    "scenarioSubtitle": "Définissez des scénarios what-if et mesurez leur impact sur votre runway",
+    "scenarioReset": "Réinitialiser",
+    "scenarioHires": "Recruter {{count}} personnes",
+    "scenarioCostPerHire": "Coste mensual/persona:",
+    "scenarioPricing": "Subir pricing {{pct}}%",
+    "scenarioLoseTopClient": "Perder cliente top ({{pct}}% del MRR)",
+    "scenarioCashInjection": "Inyeccion de cash (una vez)",
+    "scenarioResult": "Resultado del escenario",
+    "scenarioMetric": "Metrica",
+    "scenarioBase": "Base",
+    "scenarioNew": "Nuevo",
+    "scenarioRunway": "Runway",
+    "scenarioProfitable": "Rentable (sin fecha zero)",
+    "scenarioMonths": "meses",
+    "scenarioCashZero": "Fecha cash-zero",
+    "scenarioNoCashZero": "No hay cash-zero — eres rentable",
+    "scenarioEmpty": "Ajusta los parametros para ver el impacto en tu runway",
+    "scenarioInsufficientData": "Datos insuficientes para el constructor de escenarios",
+    "cashTimelineTitle": "Timeline de Cash Flow",
+    "cashTimelineSubtitle": "Evolucion mensual de cash on hand: historico + proyectado",
+    "cashTimelineHistorical": "Historico",
+    "cashTimelineProjected": "Proyectado",
+    "cashTimelineProfitable": "Rentable — sin fecha cash-zero",
+    "cashTimelineCashZero": "Cash zero: {{date}}",
+    "predictionBadge": "Prediccion",
+    "predictionMRRDecline": "A este ritmo, en {{months}} meses tu MRR sera €{{value}} (zona critica)",
+    "predictionBurnRunway": "Sin cambios, tu runway se agota en {{months}} meses",
+    "predictionLowRunway": "Al ritmo actual, tu cash llega a cero en {{months}} meses",
+    "burnDecompTitle": "Desglose del Burn Rate",
+    "burnDecompSubtitle": "Tu burn rate actual es €{{burn}}/mes",
+    "burnDecompConfigure": "Configurar desglose",
+    "burnDecompEmpty": "Desglose no disponible — configura categorias de gasto",
+    "burnDecompTotal": "Total: {{total}}%",
+    "burnDecompSave": "Guardar",
+    "burnDecompInsight": "Tu coste de personal es {{personalPct}}% del burn. Un hire mas lo sube ~{{hireImpact}}pp.",
+    "burnCategory_personal": "Personal",
+    "burnCategory_infrastructure": "Infraestructura",
+    "burnCategory_marketing": "Marketing",
+    "burnCategory_other": "Otros",
+    "rqTitle": "Revenue Quality Score",
+    "rqSubtitle": "Puntuacion compuesta de calidad de ingresos (0-10)",
+    "rqRecurrence": "Recurrencia",
+    "rqRecurrenceGood": "Bueno: MRR consistente mes a mes",
+    "rqDiversification": "Diversificacion",
+    "rqDiversificationGood": "Bueno: ningun cliente >20% del MRR",
+    "rqGrowth": "Crecimiento",
+    "rqGrowthGood": "Bueno: MRR creciendo mes a mes",
+    "rqStability": "Estabilidad",
+    "rqStabilityGood": "Bueno: baja desviacion del MRR",
+    "crossSignalTitle": "Cross-Signal: Ejecucion x Financiero",
+    "crossSignalSubtitle": "Correlaciones entre tu ejecucion operativa y metricas financieras",
+    "crossSignalInsufficient": "Se necesitan al menos 4 semanas de datos de ejecucion y financieros",
+    "crossSignalDemandMRRUp": "Tus tareas de demanda subieron {{demandPct}}% este mes Y tu MRR subio — senal positiva",
+    "crossSignalPipelineNoMRR": "Tu pipeline velocity mejoro pero tu MRR no reacciono — posible problema de pricing",
+    "crossSignalRevenueVsMRR": "Tu revenue de ejecucion sube pero tu MRR baja — revisa churn y pricing",
+    "crossSignalDeliveryMRR": "Tus entregas subieron {{deliveryPct}}% y el MRR crece — ejecucion sana",
+    "crossSignalDemandMRRDown": "Tus tareas de demanda bajaron {{demandPct}}% y tu MRR cae — problema de demanda",
+    "crossSignalStable": "Ejecucion y finanzas estables — sin senales criticas"
+  },
+  "whatIfSimulator": {
+    "title": "Simulador What-If",
+    "subtitle": "Estima el impacto de hacer mas tareas basado en tu historial",
+    "additionalTasks": "Tareas adicionales por semana",
+    "categoryDemand": "Demanda",
+    "categoryDelivery": "Delivery",
+    "categoryCash": "Cash",
+    "result": "Si haces {{count}} tareas mas de {{category}}/semana, tus OBVs subirian ~{{obvImpact}}/semana y el revenue ~{{revenueImpact}}",
+    "confidence_high": "Confianza: alta",
+    "confidence_medium": "Confianza: media",
+    "confidence_low": "Confianza: baja",
+    "disclaimer": "Estimacion basada en correlacion historica, no prediccion"
+  },
+  "teamContribution": {
+    "title": "Contribucion del equipo",
+    "subtitle": "Quien contribuye a cada funcion (ultimos 30 dias)",
+    "member": "Miembro",
+    "demand": "Demanda",
+    "delivery": "Delivery",
+    "cash": "Cash",
+    "concentrationRisk": "Riesgo de concentracion",
+    "riskDetail": "{{name}}: {{percentage}}% de {{category}}. Si {{name}} se va, {{category}} cae {{percentage}}%"
   }
 } as const;

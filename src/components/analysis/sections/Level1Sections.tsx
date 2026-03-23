@@ -5,12 +5,15 @@
  * Siempre visibles cuando level >= 1 desbloqueado.
  */
 
-import { Gauge, Target, AlertTriangle, ArrowRight, CheckCircle2, XCircle, MinusCircle, GitCompareArrows } from 'lucide-react';
+import { useState } from 'react';
+import { Gauge, Target, AlertTriangle, ArrowRight, CheckCircle2, XCircle, MinusCircle, GitCompareArrows, ListPlus, BarChart3 } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 import { useNavigate, useParams } from 'react-router-dom';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis';
 
 import { useTranslation } from 'react-i18next';
@@ -22,6 +25,13 @@ export function ExecutiveSummarySection({ data }: { data: NonNullable<AnalysisSe
   const score = data.momentum_score ?? 0;
   const scoreColor = score >= 7 ? 'text-green-600' : score >= 4 ? 'text-amber-600' : 'text-red-600';
   const scoreBg = score >= 7 ? 'bg-green-50 border-green-200' : score >= 4 ? 'bg-amber-50 border-amber-200' : 'bg-red-50 border-red-200';
+
+  // Upgrade 6: benchmark placeholder metrics
+  const benchmarkMetrics = [
+    { label: t('analysis.benchmarkMRRGrowth'), percentile: null },
+    { label: t('analysis.benchmarkIterationVelocity'), percentile: null },
+    { label: t('analysis.benchmarkTeamProductivity'), percentile: null },
+  ];
 
   return (
     <Card>
@@ -65,6 +75,32 @@ export function ExecutiveSummarySection({ data }: { data: NonNullable<AnalysisSe
               ))}
             </ul>
           </div>
+        </div>
+
+        {/* Upgrade 6: Benchmark placeholder */}
+        <div className="rounded-lg border border-gray-200 dark:border-gray-700 bg-gray-50/50 dark:bg-gray-900/50 p-4 space-y-3">
+          <div className="flex items-center gap-2">
+            <BarChart3 className="h-4 w-4 text-gray-400" />
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide">
+              {t('analysis.benchmarkTitle')}
+            </p>
+          </div>
+          <div className="space-y-2">
+            {benchmarkMetrics.map((metric, i) => (
+              <div key={i} className="space-y-1">
+                <div className="flex justify-between text-xs text-gray-400">
+                  <span>{metric.label}</span>
+                  <span>—</span>
+                </div>
+                <div className="h-2 rounded-full bg-gray-200 dark:bg-gray-700 overflow-hidden">
+                  <div className="h-full rounded-full bg-gray-300 dark:bg-gray-600" style={{ width: '0%' }} />
+                </div>
+              </div>
+            ))}
+          </div>
+          <p className="text-xs text-gray-400 italic">
+            {t('analysis.benchmarkPlaceholder')}
+          </p>
         </div>
       </CardContent>
     </Card>
@@ -174,10 +210,39 @@ export function ContradictionsSection({ data }: { data: NonNullable<AnalysisSect
 
 // ── Urgent Decisions ──────────────────────────────────────────────────────────
 
-export function UrgentDecisionsSection({ data }: { data: NonNullable<AnalysisSection['urgent_decisions']> }) {
+export function UrgentDecisionsSection({ data, projectId: propProjectId }: { data: NonNullable<AnalysisSection['urgent_decisions']>; projectId?: string }) {
   const { t } = useTranslation();
-  const { projectId } = useParams<{ projectId: string }>();
+  const { projectId: paramProjectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
+  const [creatingTask, setCreatingTask] = useState<number | null>(null);
+  const [createdTasks, setCreatedTasks] = useState<Set<number>>(new Set());
+
+  const pid = propProjectId ?? paramProjectId;
+
+  const handleCreateTask = async (decision: NonNullable<AnalysisSection['urgent_decisions']>[number], index: number) => {
+    if (!pid || createdTasks.has(index)) return;
+    setCreatingTask(index);
+    try {
+      const { error } = await supabase.from('tasks').insert({
+        project_id: pid,
+        titulo: decision.title.slice(0, 250),
+        descripcion: decision.context,
+        status: 'todo',
+        ai_generated: true,
+        metadata: {
+          source: 'ai_analysis',
+          insight_type: 'urgent_decision',
+        },
+      });
+      if (error) throw error;
+      setCreatedTasks(prev => new Set(prev).add(index));
+      toast.success(t('analysis.taskCreatedFromAnalysis'));
+    } catch {
+      toast.error(t('analysis.taskCreateError'));
+    } finally {
+      setCreatingTask(null);
+    }
+  };
 
   return (
     <Card>
@@ -201,17 +266,30 @@ export function UrgentDecisionsSection({ data }: { data: NonNullable<AnalysisSec
             <p className="text-xs text-red-600 dark:text-red-400">
               <span className="font-medium">{t('analysis.siNoDecides')}: </span>{decision.consequence}
             </p>
-            {decision.cta?.label && (
+            <div className="flex items-center gap-2 mt-1">
+              {decision.cta?.label && (
+                <Button
+                  size="sm"
+                  variant="outline"
+                  className="h-7 px-2 text-xs gap-1"
+                  onClick={() => navigate(`/proyecto/${pid}/${decision.cta.view}`)}
+                >
+                  {decision.cta.label}
+                  <ArrowRight className="h-3 w-3" />
+                </Button>
+              )}
+              {/* Upgrade 3: Create task button */}
               <Button
                 size="sm"
-                variant="outline"
-                className="h-7 px-2 text-xs gap-1 mt-1"
-                onClick={() => navigate(`/proyecto/${projectId}/${decision.cta.view}`)}
+                variant="ghost"
+                className="h-7 px-2 text-xs gap-1"
+                onClick={() => handleCreateTask(decision, i)}
+                disabled={creatingTask === i || createdTasks.has(i)}
               >
-                {decision.cta.label}
-                <ArrowRight className="h-3 w-3" />
+                <ListPlus className="h-3 w-3" />
+                {createdTasks.has(i) ? t('analysis.taskCreated') : t('analysis.createTask')}
               </Button>
-            )}
+            </div>
           </div>
         ))}
       </CardContent>

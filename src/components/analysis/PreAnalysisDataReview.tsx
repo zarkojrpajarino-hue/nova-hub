@@ -28,7 +28,7 @@ interface PreAnalysisDataReviewProps {
   level: 1 | 2 | 3;
   dataRows: DataRow[];
   isGenerating: boolean;
-  onGenerate: (additionalContext?: string) => void;
+  onGenerate: (additionalContext?: string, focusArea?: string) => void;
   onClose: () => void;
 }
 
@@ -51,12 +51,25 @@ export function PreAnalysisDataReview({
   const { t } = useTranslation();
   const LEVEL_LABELS = getLevelLabels(t);
   const [additionalContext, setAdditionalContext] = useState('');
+  const [focusArea, setFocusArea] = useState('general');
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
 
   const handleGenerate = () => {
-    onGenerate(additionalContext.trim() || undefined);
+    onGenerate(
+      additionalContext.trim() || undefined,
+      focusArea !== 'general' ? focusArea : undefined,
+    );
   };
+
+  const FOCUS_OPTIONS = [
+    { value: 'general', label: t('analysis.focusGeneral') },
+    { value: 'finanzas', label: t('analysis.focusFinanzas') },
+    { value: 'equipo', label: t('analysis.focusEquipo') },
+    { value: 'producto', label: t('analysis.focusProducto') },
+    { value: 'ventas', label: t('analysis.focusVentas') },
+    { value: 'ejecucion', label: t('analysis.focusEjecucion') },
+  ];
 
   return (
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
@@ -117,6 +130,27 @@ export function PreAnalysisDataReview({
             </Button>
           </div>
         )}
+
+        {/* Focus area selector — Upgrade 4 */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium">{t('analysis.focusAreaLabel')}</Label>
+          <div className="flex flex-wrap gap-2">
+            {FOCUS_OPTIONS.map(opt => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setFocusArea(opt.value)}
+                className={`px-3 py-1.5 rounded-full text-xs font-medium border transition-colors ${
+                  focusArea === opt.value
+                    ? 'bg-blue-600 text-white border-blue-600'
+                    : 'bg-white dark:bg-gray-800 text-gray-600 dark:text-gray-400 border-gray-200 dark:border-gray-700 hover:border-blue-300'
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         {/* Contexto adicional */}
         <div className="space-y-2">

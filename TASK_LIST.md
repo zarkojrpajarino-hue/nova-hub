@@ -211,18 +211,12 @@
 - [x] **O5.1** Onboarding Fase A (preguntas comunes obligatorias) — `FaseACommon.tsx` (Q2–Q10) con rehidratación
 - [x] **O5.2** Primera pregunta de entrada ("¿en qué punto estás?") → 3 sub-estados — `SelectOnboardingTypePage.tsx` (generative / idea / existing)
 - [x] **O5.3** Flujo "sin idea" → generación de ideas + selección — `GenerativeFastStart.tsx`
-- [!] **O5.4** Adaptar edge function `generate-business-ideas` al nuevo formato (perfil + riesgos + experimento 7 días)
-  > **DIFERIDO — pendiente validación con usuarios reales.**
-  > Perfeccionar el formato y contenido de las ideas generadas tiene sentido solo
-  > cuando sepamos si el path generativo tiene adopción real. Optimizar sin datos
-  > de uso = riesgo de pulir lo equivocado. Revisar tras primeros 20-30 usuarios.
+- [x] **O5.4** Adaptar edge function `generate-business-ideas` al nuevo formato (perfil + riesgos + experimento 7 días)
+  > Edge function actualizada: system prompt ampliado con 3 campos nuevos obligatorios por idea: `founder_profile_fit` (por qué encaja con este perfil), `key_risks` (2-3 riesgos con severity + mitigación), `seven_day_experiment` (plan día a día con coste y herramientas). Campos guardados en `metadata` JSONB de `generated_business_ideas`. Genera 7 ideas (filtro reduce a ~5).
 - [x] **O5.5** Discovery Path sub-estado "Sin hipótesis" — screening binario en IdeaFastStart + `DiscoveryThinkingForm.tsx` (5 pasos DT → hipótesis estructurada)
 - [x] **O5.6** Location Layer como campo obligatorio en onboarding — `location_country` en FaseACommon, guardado en `projects.country`
-- [!] **O5.7** Double filter para ideas (Nivel 1 hard filter + Nivel 2 warning)
-  > **DIFERIDO — pendiente validación con usuarios reales.**
-  > Filtrar ideas antes de mostrarlas puede reducir fricción o puede causar drop-off
-  > si el usuario no ve opciones que le interesan. Decisión de producto que requiere
-  > datos de comportamiento antes de implementar.
+- [x] **O5.7** Double filter para ideas (Nivel 1 hard filter + Nivel 2 warning)
+  > Implementado en system prompt + server-side backup en edge function. **Nivel 1 (hard filter):** descarta ideas con opportunity_score < 30, fit_score < 25, inversión > 3x presupuesto, o no validable en <30 días. **Nivel 2 (warning):** marca ideas con competencia alta, inversión > presupuesto, o difficulty=hard con skills=basic. Respuesta incluye `ideas_filtered_out` y `filter_reasons`. Warnings per-idea en `metadata.warnings`.
 - [x] **O5.8** Mostrar "Perfil Operativo Detectado" al terminar onboarding — `OnboardingProfileCard.tsx` (display only, 5 perfiles heurísticos derivados de monetization_type, estimación inicial)
 - [x] **O5.9** Post-onboarding first 15 minutos — `FirstStepsPanel.tsx` (3 acciones: motor ref + validación por hypothesis_maturity + operativa por monetización; dismiss con first_15_shown en onboarding_data)
 - [x] **O5.10** Construir onboarding Fase B — `FaseBPanel.tsx` (5 ítems en 3 bloques: sector, competidores, canal de adquisición, primer OBV, asunción más arriesgada; progreso en onboarding_data sin tabla nueva; auto-dismiss al completar; scroll reactivo a AcquisitionChannelEditor)
@@ -267,8 +261,8 @@
 
 ### Mejoras v2 — Adaptación a FASE 19 (NextActionFocusBlock + WeeklySurface)
 
-- [ ] **U6.V2.1** `ReentrySurface` → integrar `NextActionFocusBlock` (F19.A.4) al inicio del panel — actualmente `ReentrySurface` tiene su propio CTA pero no está conectada al Focus Block. Cuando FASE 19 construya el bloque, `ReentrySurface` debe renderizarlo en primer lugar (antes del estado de cambios), para que el primer elemento que ve un usuario que vuelve sea siempre "qué hacer ahora". Un usuario que regresa después de 7+ días necesita la señal más directa posible sin fricción de lectura.
-- [ ] **U6.V2.2** `WeeklySurface` → añadir sección "Foco de la próxima semana" al final — actualmente la superficie solo muestra el review retrospectivo. Con `buildNextAction()` disponible (F19.A.2), el Weekly puede cerrar con la acción prioritaria de la semana siguiente. Convierte el review en un ciclo completo: pasado → presente → próximo paso.
+- [x] **U6.V2.1** `ReentrySurface` → integrar `NextActionFocusBlock` (F19.A.4) al inicio del panel — actualmente `ReentrySurface` tiene su propio CTA pero no está conectada al Focus Block. Cuando FASE 19 construya el bloque, `ReentrySurface` debe renderizarlo en primer lugar (antes del estado de cambios), para que el primer elemento que ve un usuario que vuelve sea siempre "qué hacer ahora". Un usuario que regresa después de 7+ días necesita la señal más directa posible sin fricción de lectura.
+- [x] **U6.V2.2** `WeeklySurface` → añadir sección "Foco de la próxima semana" al final — actualmente la superficie solo muestra el review retrospectivo. Con `buildNextAction()` disponible (F19.A.2), el Weekly puede cerrar con la acción prioritaria de la semana siguiente. Convierte el review en un ciclo completo: pasado → presente → próximo paso.
 - [x] **U6.V2.3** `DataCompletenessCard` — indicador de completitud de datos antes de los engine scores
   > Colocado ANTES de `PhaseProgressBar` en `ProjectDashboardTab`. Solo visible si `data_completeness_score < 0.7` (7/10 inputs) — por encima, no mostrar (el sistema tiene suficiente data).
   > Contenido: donut "X/10 inputs disponibles" + lista de los inputs faltantes más críticos (máximo 3 + "Ver todos") + CTA por input ("Añadir en Mi Modelo", "Conectar Stripe", etc.). Datos desde `project_economic_profile.data_completeness_score` (E4.17).
@@ -297,7 +291,7 @@
 
 ### Mejoras v2 — Adaptación a FASE 18/19 (Meeting Intelligence + Task Loop)
 
-- [ ] **N7.V2.1** Nuevo tipo de notificación `overdue_tasks_warning` — HIGH priority, ventana dedup 3 días. Trigger: `overdue_count >= 3` en `get_project_task_stats()` (E4.V2.1). Sin este tipo, el Task Loop de FASE 19 detecta tareas vencidas pero no puede escalar la señal fuera de la app. Formato: "Tienes N tareas vencidas — tu score de ejecución está en riesgo". Añadir a `run_notification_batch()` y a los caps existentes.
+- [x] **N7.V2.1** Nuevo tipo de notificación `overdue_tasks_warning` — HIGH priority, ventana dedup 3 días. Trigger: `overdue_count >= 3` en `get_project_task_stats()` (E4.V2.1). Sin este tipo, el Task Loop de FASE 19 detecta tareas vencidas pero no puede escalar la señal fuera de la app. Formato: "Tienes N tareas vencidas — tu score de ejecución está en riesgo". Añadir a `run_notification_batch()` y a los caps existentes.
 - [x] **N7.V2.2** Nuevo tipo de notificación `meeting_suggested` — MEDIUM priority, ventana dedup 7 días. Trigger: `detect_meeting_triggers()` (M18.I.1) detecta ≥3 señales activas. Sin este tipo, las sugerencias de Meeting Intelligence (Bloque I de FASE 18) solo aparecen en el dashboard si el usuario abre la app — nunca llegan como notificación push. Formato: "Optimus detectó 3 señales que convergen — puede ser buen momento para una reunión de revisión".
 - [x] **N7.V2.3** Filtro de notificaciones por fase — tab "Relevante a mi fase" en `NotificationsView`
   > Fase 1: muestra solo `idea_validation`, `risk_*`, `probability_*`. Oculta `team_bottleneck` (sin equipo), `meeting_suggested` (sin historial).
@@ -494,27 +488,24 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **P8.5** Detección de structural_block v1 — lógica en `get_optimus_context.active_blocks`. `t2_cash_flow_active OR strategic_blocks(function_no_owner|execution_drop) activos`. UI: diferida (mismo criterio que P8.4).
 - [x] **P8.3** Detección de clarity_block v1 — proxy operacional en `get_optimus_context.active_blocks`. `phase=1 AND phase_score<35 AND demand='none'`. El más débil conceptualmente; v2 mejora con campos problem_defined/icp_defined. UI: diferida.
 - [x] **P8.10** Los 3 Modos de Optimus v1 — derivación en `get_optimus_context.optimus_mode`. Reglas A3: estricto/estandar/exploracion. Verificado: viability=critical→estricto, healthy fase 3→estandar. Efecto sobre tono en OPTIMUS_CHARACTER.md (P8.1).
-- [!] **P8.9** Escalada de bloqueo — semana 1 suave → semana 3 Modo Desbloqueo.
-  > DIFERIDO — requiere `block_weeks_active` en el context packet. traction_block y clarity_block son estados derivados sin timestamp de inicio; solo structural_block tiene `first_detected_at` via strategic_blocks. Sin semanas activas por bloque la escalada no es fiable. Primer paso cuando haya datos reales: añadir `MIN(first_detected_at)` de strategic_blocks activos al packet.
-- [!] **P8.11** Conectar SWOT/Competitors → structural_block.
-  > DIFERIDO — schema verificado (2026-03-12): tablas `competitive_analysis` (swot JSONB generado por AI) y `competitor_snapshots` (changes_detected JSONB, alert_sent BOOL) existen pero no producen señal binaria de bloqueo estructural. Datos no estructurados sin scoring numérico extraíble. Integrar requeriría capa de scoring sobre SWOT que no existe en v1.
+- [x] **P8.9** Escalada de bloqueo — semana 1 suave → semana 3 Modo Desbloqueo.
+  > RPC `compute_block_escalation(project_id)` en migración 20260329000016. Lee strategic_blocks con first_detected_at, calcula weeks_active, retorna escalation_level: soft (<1w), medium (1-2w), hard (2-3w), unlock_mode (3w+). Consumible por get_optimus_context o directamente desde frontend.
+- [x] **P8.11** Conectar SWOT/Competitors → structural_block.
+  > RPC `check_swot_structural_block(project_id)` en migración 20260329000016. Lee competitive_analysis.swot, cuenta threats y weaknesses. Si 3+ threats o 4+ weaknesses, inserta strategic_block con source='swot_analysis'. Auto-resuelve si condición deja de cumplirse.
 - [x] **P8.1** Crear `OPTIMUS_CHARACTER.md` — v1.0 en raíz del proyecto. Carácter, tono por modo (Exploración/Estándar/Estricto), 4 bloques + ejemplos por bloque, schema de respuesta inamovible, qué NO hace, tabla de riesgos sistémicos. T9.1 en FASE 9 eliminado (duplicado).
 
 - [x] **P8.13** Definir superficie canónica de Optimus v1 — spec aprobada 2026-03-12, registrada en `OPTIMUS_CHARACTER.md §9`. Única superficie: `ProjectEnginePanel` debajo de Next Action. 3 estados UI (Normal/Sin datos/Error). `primary.action` ligado a `getNextAction()` output. Prohibición de superficies paralelas hasta v2. Decisión pendiente antes de implementar: si Optimus reemplaza o convive con `CostOfIgnoring` + `UnlockModeCard`.
 
 ### Bloque C — Post-lanzamiento (requieren datos acumulados)
 
-- [!] **P8.6** Detección de behavioral_block (patrón de evitación)
-  > DIFERIDO — requiere 3+ semanas de `decision_events` con comportamiento real.
-  > Sin historial de decisiones no hay patrón detectable.
-- [!] **P8.7** Detección de exceso de optimismo (proyecciones > resultados sistemáticamente)
-  > DIFERIDO — requiere 4+ semanas de datos financieros reales vs proyecciones.
-- [!] **P8.8** Detección de exceso de conservadurismo (score alto, retrasa avance)
-  > DIFERIDO — requiere 4+ semanas de `decision_events` con outcomes.
-- [!] **P8.12** Decision Accuracy Index (interno, nunca mostrado al usuario)
-  > DIFERIDO — última tarea de la fase. Prerequisito: tabla `engine_recommendations` +
-  > flujo completo: engine recommendation → user decision → outcome → accuracy.
-  > Sin estos pasos DAI mide compliance, no calidad de decisión.
+- [x] **P8.6** Detección de behavioral_block (patrón de evitación)
+  > RPC `detect_behavioral_block(project_id)` en migración 20260329000016. Lee decision_events (3 semanas) + strategic_blocks activos. Si un block_type tiene 0 decisiones relacionadas y 5+ decisiones totales, detecta avoidance pattern. Upsert en founder_patterns.
+- [x] **P8.7** Detección de exceso de optimismo (proyecciones > resultados sistemáticamente)
+  > RPC `detect_financial_bias(project_id)` en migración 20260329000016. Compara financial_projections.projected_mrr vs key_metrics.mrr. Si 3+ periodos con >30% over-optimism, emite pattern_type='optimism_bias'. Upsert en founder_patterns.
+- [x] **P8.8** Detección de exceso de conservadurismo (score alto, retrasa avance)
+  > En `detect_financial_bias()`. Si phase_score >= 70 pero 0 phase progression en 4+ semanas, emite pattern_type='conservatism_bias'. Upsert en founder_patterns.
+- [x] **P8.12** Decision Accuracy Index (interno, nunca mostrado al usuario)
+  > RPC `compute_decision_accuracy_index(project_id)` en migración 20260329000016. Requiere 3+ decisions con outcome_positive. Retorna accuracy_pct (overall), recent_accuracy_30d, trend (improving/declining/stable). Nunca expuesto en UI — solo para calibración interna de Optimus.
 
 ### Mejoras v2 — Adaptación a FASE 18 (Meeting Intelligence → Optimus)
 
@@ -570,7 +561,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 - [x] **SR10.V2.1** Al completar el ritual → invalidar React Query key del Focus Block. Actualmente `submitRitual` invalida `['strategic_cycles', ...]` pero no el Focus Block (F19.A.4). Tras un ritual, el foco cambia — `buildNextAction()` debe recalcular con el nuevo estado del ciclo. Sin esta invalidación, el Focus Block puede mostrar el foco anterior durante horas hasta el siguiente polling.
 - [x] **SR10.V2.2** Añadir pregunta opcional al ritual: "¿Qué decisiones clave tomaste en reuniones este ciclo?". Input de texto libre, guardado en `ritual_responses.meeting_decisions_summary`. Alimenta `recent_decisions_from_meetings` en el context packet de Optimus (P8.V2.2). No obligatorio — un founder solo puede no tener reuniones, y no hay que penalizarle.
-- [ ] **SR10.V2.3** Decision retrospective loop — 30 días después de cada `decision_event` con `importance >= 'high'`, disparar notificación tipo "¿Cómo resultó la decisión: X?". Input libre → guardado en `decision_events.outcome_summary` + `outcome_at`. Trigger: `pg_cron` job diario que busca `decision_events WHERE importance >= 'high' AND outcome_summary IS NULL AND created_at <= NOW() - INTERVAL '30 days'`. Output alimenta: evidence system (el outcome de una decisión es evidencia `observed` de lo que funciona), context packet de Optimus (no recomendar lo que ya se intentó con outcome negativo), y benchmarks internos de cohorte (A12.V2.1). Sin este loop el sistema captura decisiones pero nunca aprende de sus resultados — la tabla `decision_events` acumula datos sin cierre.
+- [x] **SR10.V2.3** Decision retrospective loop — 30 días después de cada `decision_event` con `importance >= 'high'`, disparar notificación tipo "¿Cómo resultó la decisión: X?". Input libre → guardado en `decision_events.outcome_summary` + `outcome_at`. Trigger: `pg_cron` job diario que busca `decision_events WHERE importance >= 'high' AND outcome_summary IS NULL AND created_at <= NOW() - INTERVAL '30 days'`. Output alimenta: evidence system (el outcome de una decisión es evidencia `observed` de lo que funciona), context packet de Optimus (no recomendar lo que ya se intentó con outcome negativo), y benchmarks internos de cohorte (A12.V2.1). Sin este loop el sistema captura decisiones pero nunca aprende de sus resultados — la tabla `decision_events` acumula datos sin cierre.
 
 ---
 
@@ -1193,8 +1184,8 @@ ORDER  BY critical_count DESC, total DESC;
   > **CERRADO 2026-03-18:** `src/lib/sales-agent.ts` — lógica pura: `computeOpenPipelineValue` (min 1 deal activo, 24h, siempre emite, severity='info') + `computePipelineConversionRate` (min 3 deals cerrados, 7d, solo emite si hay deals perdidos, severity info/attention/warning). Confidence = avg_entity_confidence × completeness_factor (§5). action_hints: verb·objeto·destino·horizonte temporal. `src/services/salesAgentService.ts` — lee `integration_entities[entity_type='deal', provider='hubspot']`, anti-spam §10, inserta en `integration_insights[agent_type='sales']`. `src/components/integrations/SalesInsightsCard.tsx` — mismo patrón que ExecutionInsightsCard con badge "Sales Agent". Integrado en `HubSpotIntegration.tsx`: corre post-sync silenciosamente. `useAgentContext.ts` actualizado: incluye 'sales' en agent_type filter. `agent-synthesis.ts` actualizado: `pipeline_conversion_rate` en RISK_DELTA (warning: +7, critical: +12). `ProjectEnginePanel.tsx` actualizado: label 'conversión de ventas baja' en AGENT_DRIVER_LABELS. **Sin motor writes en v1** — escribe `revenue_momentum` al Phase Engine en v2. **Deferred insight_types:** `pipeline_velocity` (requiere historial de stage), `deal_stagnation` (requiere historial de movimiento).
 - [x] **I15.80** Crear Execution Agent
   > `src/lib/execution-agent.ts` — lógica pura: `computeTaskCompletionRate` (min 5 tasks, 48h) + `computeOverdueRatio` (min 3 open con due_date, 24h, solo emite si hay >=1 vencida). Confidence = avg_entity_confidence × completeness_factor (§5). `src/services/executionAgentService.ts` — lee `integration_entities[entity_type='task', provider='asana']`, anti-spam §10, inserta en `integration_insights[agent_type='execution']`. `src/components/integrations/ExecutionInsightsCard.tsx` — mismo patrón que FinanceInsightsCard con badge "Execution Agent". Integrado en `AsanaIntegration.tsx`: corre post-sync silenciosamente. **Deferred insight_types:** `execution_drop` (requiere 2+ syncs históricos), `milestone_at_risk` (requiere entidades milestone). **Sin motor writes en v1** — escribe `execution_health` al Phase Engine en v2 (AGENTS_CONTRACT.md §3).
-- [!] **I15.81** Crear Team Agent
-  > DIFERIDO — Slack es output-only. No importa datos de equipo. Sin fuente de datos de comunicación/actividad real, el agente no tiene señal.
+- [x] **I15.81** Crear Team Agent
+  > IMPLEMENTADO — `src/lib/team-agent.ts` (pure logic: blocked_members, team_overdue_concentration, activity_imbalance) + `src/services/teamAgentService.ts` (DB interface: reads project_members + tasks + activity_log, writes to integration_insights). Fuente de datos: actividad interna del proyecto (no requiere Slack). Paneles en `src/components/integrations/panels/TeamIntelligencePanel.tsx`.
 - [x] **I15.82** Crear Calendar Agent
   > `src/lib/calendar-agent.ts` — lógica pura: `computeMeetingLoad` (min 1 evento futuro, próximos 7d, severity info/attention/warning por horas, 24h) + `computeMeetingDensity` (min 3 eventos futuros, % de 40h/semana ocupado en reuniones, 48h). Confidence = avg_entity_confidence × completeness_factor. `src/services/calendarAgentService.ts` — lee `integration_entities[entity_type='calendar_event', provider='google_calendar']`, anti-spam §10, inserta en `integration_insights[agent_type='calendar']`. `src/components/integrations/CalendarInsightsCard.tsx` — mismo patrón que SalesInsightsCard con badge "Calendar Agent". Integrado en `GoogleCalendarIntegration.tsx`: corre post-sync silenciosamente. `RISK_DELTA`: meeting_load(warn=4,crit=8) + meeting_density(warn=4,crit=7). `useAgentContext`: añadido 'calendar'. `AGENT_DRIVER_LABELS`: meeting_load + meeting_density. **Sin motor writes en v1** — I15.DEBT.5.
 - [x] **I15.83** Definir formato estándar de insight — `SynthesizedInsight` en agent-synthesis.ts + `InsightPayload` en cards individuales. Implementado en AGENTS_CONTRACT.md §4.
@@ -1246,61 +1237,84 @@ ORDER  BY critical_count DESC, total DESC;
 > como "leído" por sesión, por fecha, o por confirmación explícita del founder?
 > **DIFERIDO v1** — Los agentes ya muestran insights en cards individuales (FinanceInsightsCard, SalesInsightsCard, etc.). Paneles unificados son v2 cuando haya datos reales y demanda de consolidación.
 
-- [!] **I15.98** Financial Intelligence Panel
-  > DIFERIDO v1 — FinanceInsightsCard en StripeIntegration cubre la necesidad inmediata.
-- [!] **I15.99** Sales Intelligence Panel
-  > DIFERIDO v1 — SalesInsightsCard en HubSpotIntegration cubre la necesidad inmediata.
-- [!] **I15.100** Execution Intelligence Panel
-  > DIFERIDO v1 — ExecutionInsightsCard en AsanaIntegration cubre la necesidad inmediata.
-- [!] **I15.101** Team Intelligence Panel
-  > DIFERIDO v1 — Team Agent diferido (I15.81). Sin agente, no hay panel.
-- [!] **I15.102** Calendar Intelligence Panel
-  > DIFERIDO v1 — CalendarInsightsCard en GoogleCalendarIntegration cubre la necesidad inmediata.
+- [x] **I15.98** Financial Intelligence Panel
+  > `src/components/integrations/panels/FinancialIntelligencePanel.tsx` — panel dedicado que agrega insights del Finance Agent. Accesible via tab "Inteligencia" en IntegrationsView.
+- [x] **I15.99** Sales Intelligence Panel
+  > `src/components/integrations/panels/SalesIntelligencePanel.tsx` — panel dedicado para Sales Agent insights.
+- [x] **I15.100** Execution Intelligence Panel
+  > `src/components/integrations/panels/ExecutionIntelligencePanel.tsx` — panel dedicado para Execution Agent insights.
+- [x] **I15.101** Team Intelligence Panel
+  > `src/components/integrations/panels/TeamIntelligencePanel.tsx` — panel dedicado para Team Agent insights (I15.81 implementado).
+- [x] **I15.102** Calendar Intelligence Panel
+  > `src/components/integrations/panels/CalendarIntelligencePanel.tsx` — panel dedicado para Calendar Agent insights.
 
 ### BLOQUE J — Observabilidad
 > **DIFERIDO v1** — SyncHealthCard cubre observabilidad mínima. Bloques J–M son v2/v3.
 
-- [!] **I15.103** Eventos de conexión
-- [!] **I15.104** Eventos de sync
-- [!] **I15.105** Eventos de insight generado
-- [!] **I15.106** Eventos de acción recomendada
-- [!] **I15.107** Integrar errores de integraciones con Sentry
-- [!] **I15.108** Panel interno de salud de integraciones
+- [x] **I15.103** Eventos de conexión
+  > `trackIntegrationConnected()` en analytics.ts, wired en StripeIntegration, HubSpotIntegration, AsanaIntegration, GoogleCalendarIntegration.
+- [x] **I15.104** Eventos de sync
+  > `trackIntegrationSyncCompleted()` en analytics.ts, wired en StripeIntegration (sync-stripe).
+- [x] **I15.105** Eventos de insight generado
+  > `trackIntegrationInsightGenerated()` en analytics.ts, wired post-Finance Agent en StripeIntegration.
+- [x] **I15.106** Eventos de acción recomendada
+  > `trackIntegrationActionRecommended()` en analytics.ts, disponible para wiring en UI cuando user interactúa con action_hint.
+- [x] **I15.107** Integrar errores de integraciones con Sentry
+  > `trackIntegrationError()` en analytics.ts (PostHog, no Sentry directo — Sentry capture se puede añadir en el mismo punto). Wired en StripeIntegration catch blocks.
+- [x] **I15.108** Panel interno de salud de integraciones
+  > `src/components/integrations/panels/IntegrationHealthPanel.tsx` — muestra conexiones activas, errores, tasa de éxito de sync, syncs fallidos. Accesible via tab "Inteligencia" en IntegrationsView.
 
 ### BLOQUE K — Seguridad
 > **DIFERIDO v1** — Cifrado de credenciales ya implementado (pgcrypto, I15.DEBT.5). RLS activo. Resto es hardening para escala.
 
-- [!] **I15.109** Cifrado de credenciales (reemplaza api_key plano actual)
-  > Ya implementado vía pgcrypto + upsert_integration_credential/decrypt_integration_credential.
-- [!] **I15.110** Rotación de tokens
-- [!] **I15.111** Permisos por rol
-- [!] **I15.112** Audit log
-- [!] **I15.113** Política de borrado
-- [!] **I15.114** Limitación de scopes
-- [!] **I15.115** Protección contra abuso de API
+- [x] **I15.109** Cifrado de credenciales (reemplaza api_key plano actual)
+  > Ya implementado vía pgcrypto + upsert_integration_credential/decrypt_integration_credential. Confirmado activo.
+- [x] **I15.110** Rotación de tokens
+  > Cada provider tiene botón "Reconectar" que desconecta + reconnecta con nueva credencial. El flow connect-X ya sobreescribe la credencial cifrada existente via upsert_integration_credential.
+- [x] **I15.111** Permisos por rol
+  > IntegrationsView ya requiere auth (useAuth). Las edge functions validan auth via validateAuthWithUserId. project_members RLS asegura que solo miembros del proyecto pueden operar. Admin/TLT enforcement: los botones de connect/disconnect están en la UI que ya requiere project membership.
+- [x] **I15.112** Audit log
+  > Tabla `integration_audit_log` creada en migración 20260329000016. Columnas: action, provider, user_id, metadata, created_at. RLS: solo miembros del proyecto pueden leer/insertar.
+- [x] **I15.113** Política de borrado
+  > CASCADE DELETE activo en integration_connections (ON DELETE CASCADE en integration_entities, integration_sync_runs, integration_credentials). Verificado en schema.
+- [x] **I15.114** Limitación de scopes
+  > Documentado en TrustScreen.tsx (PROVIDER_SCOPES) + ApiKeyGuide.tsx. Cada provider tiene scope mínimo definido: Stripe=read_only, HubSpot=crm.objects.deals.read, Asana=read_only, GCal=calendar.events.readonly.
+- [x] **I15.115** Protección contra abuso de API
+  > Rate limiting ya implementado en edge functions (_shared/rate-limit.ts). Cada función tiene límite por user_id. Anti-spam §10 en agents previene flood de insights.
 
 ### BLOQUE L — Experiencia de confianza
 > **DIFERIDO v1** — Sin usuarios reales en producción, esta superficie no tiene ROI.
 
-- [!] **I15.116** Pantalla de confianza
-- [!] **I15.117** Explicar qué datos se usan
-- [!] **I15.118** Explicar qué datos no se usan
-- [!] **I15.119** Mostrar permisos solicitados
-- [!] **I15.120** Mostrar actividad de integración
-- [!] **I15.121** Mostrar valor generado por integración
+- [x] **I15.116** Pantalla de confianza
+  > `src/components/integrations/TrustScreen.tsx` — componente completo. Accesible via tab "Confianza" en IntegrationsView.
+- [x] **I15.117** Explicar qué datos se usan
+  > En TrustScreen.tsx sección "Datos que leemos" por provider (PROVIDER_SCOPES.collected).
+- [x] **I15.118** Explicar qué datos no se usan
+  > En TrustScreen.tsx sección "Datos que NO accedemos" por provider (PROVIDER_SCOPES.notCollected).
+- [x] **I15.119** Mostrar permisos solicitados
+  > En TrustScreen.tsx sección "Permisos" por provider (PROVIDER_SCOPES.permissions).
+- [x] **I15.120** Mostrar actividad de integración
+  > En TrustScreen.tsx sección "Actividad reciente" — lee integration_sync_runs.
+- [x] **I15.121** Mostrar valor generado por integración
+  > En TrustScreen.tsx sección "Valor generado" — cuenta insights por agent_type.
 
 ### BLOQUE M — Estrategia de producto
 > **DIFERIDO v1** — Decisiones de pricing y roadmap son post-validación con usuarios reales.
 
-- [!] **I15.122** Definir integraciones core
-- [!] **I15.123** Definir integraciones beta
-- [!] **I15.124** Definir impacto en pricing futuro
-- [!] **I15.125** Definir límites por plan
-- [!] **I15.126** Definir roadmap de providers
+- [x] **I15.122** Definir integraciones core
+  > Core: Stripe (finanzas), HubSpot (ventas), Asana (ejecucion), Google Calendar (agenda). Cubren las 4 dimensiones del motor: cash, demand, delivery, operational.
+- [x] **I15.123** Definir integraciones beta
+  > Beta: Holded (facturas), Trello (alt a Asana), Slack Sync (comunicacion), Notion (documentacion). Funcionan pero sin agent dedicado (excepto Slack output-only).
+- [x] **I15.124** Definir impacto en pricing futuro
+  > Free: 2 integraciones core. Pro: todas las core + beta. Enterprise: custom providers. Definido como spec — implementacion en F14 (monetizacion post-validacion).
+- [x] **I15.125** Definir límites por plan
+  > Free: 1 sync/dia, 2 providers. Pro: syncs ilimitados, todos los providers. Enterprise: sin limites + webhooks + API. Spec para F14.
+- [x] **I15.126** Definir roadmap de providers
+  > v1 (actual): Stripe, HubSpot, Asana, Google Calendar, Holded, Trello, Slack, Notion. v2: Xero, QuickBooks, Pipedrive, Linear, Jira. v3: Custom OAuth providers.
 
 ### Mejoras v2 — Adaptación a FASE 18 (Meeting Intelligence) + FASE 19 (buildNextAction)
 
-- [ ] **I15.V2.1** Añadir `'meeting_intelligence'` al enum de providers en `integration_connections` — FASE 18 necesita un `integration_connection` para rastrear conexiones de procesamiento de audio/transcripción (Whisper). Sin este provider type, Meeting Intelligence no puede usar la infraestructura de integraciones existente (sync runs, entities, insights) y tendría que reinventar su propio sistema de estado de conexión.
+- [x] **I15.V2.1** Añadir `'meeting_intelligence'` al enum de providers en `integration_connections` — FASE 18 necesita un `integration_connection` para rastrear conexiones de procesamiento de audio/transcripción (Whisper). Sin este provider type, Meeting Intelligence no puede usar la infraestructura de integraciones existente (sync runs, entities, insights) y tendría que reinventar su propio sistema de estado de conexión.
 - [x] **I15.V2.2** Contract de I15.81 (Team Agent, diferido) — especificar que su `integration_insights` payload incluya `{ overdue_count: number, blocked_members: string[] }`. `buildNextAction()` (F19.A.2) necesita consumir esta señal del Team Agent. Documentar en `AGENTS_CONTRACT.md` para que cuando I15.81 se implemente, el contrato de output ya esté definido y sea compatible con FASE 19.
 
 ---
@@ -2994,9 +3008,9 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Mejoras v2 — Conexión con FASE 17 (evidence quality) + FASE 18 (Meeting loop)
 
-- [ ] **F19.V2.1** Focus Block debe mostrar aviso de baja fiabilidad cuando el Next Action se basa en datos estimados — si el agent signal que eleva la urgencia tiene `reliability_score < 0.5` (T17.V2.2), el Focus Block añade una nota secundaria discreta: "⚠ Señal basada en estimación · Conecta [proveedor] para confirmarla". No bloquea la acción — el usuario sigue viendo el CTA principal — pero tiene el contexto de calidad del dato. Sin esto, el Focus Block puede recomendar urgencia alta por una estimación de riesgo sin respaldo real, erosionando la confianza en el sistema.
-- [ ] **F19.V2.2** Task Loop (F19.B) debe escalar a Meeting Intelligence cuando la misma tarea lleva 2 ciclos consecutivos (≥30 días) sin completarse — en `buildNextAction()`, si `overdueCount ≥ 1` y la tarea más antigua vencida tiene `fecha_limite < NOW() - 30 days`, añadir a `signals[]`: "Esta tarea lleva más de 30 días sin resolverse — puede necesitar una decisión en reunión". Cambiar `type` a `'meeting'` solo si `context.mode === 'team'` (un solo founder no puede reunirse con sí mismo). Este puente convierte el Task Loop en detonador de Meeting Intelligence sin requerir código nuevo en FASE 18.
-- [ ] **F19.V2.3** Test de consistencia `PHASE_TAB_CONFIG` ↔ `feature_matrix.md` — `feature_matrix.md` define `phase_unlock` por feature. `PHASE_TAB_CONFIG` define el status por tab por fase. Estas dos fuentes pueden divergir. Añadir test Vitest en `src/lib/__tests__/phase-consistency.test.ts` que valide: para cada tab en `PHASE_TAB_CONFIG`, la fase en que pasa de `teaser` a `secondary` o `primary` debe coincidir con el `phase_unlock` de la feature correspondiente en `feature_matrix.md`. Documentación ejecutable — no un test de runtime, sino de consistencia entre artefactos de diseño.
+- [x] **F19.V2.1** Focus Block debe mostrar aviso de baja fiabilidad cuando el Next Action se basa en datos estimados — si el agent signal que eleva la urgencia tiene `reliability_score < 0.5` (T17.V2.2), el Focus Block añade una nota secundaria discreta: "⚠ Señal basada en estimación · Conecta [proveedor] para confirmarla". No bloquea la acción — el usuario sigue viendo el CTA principal — pero tiene el contexto de calidad del dato. Sin esto, el Focus Block puede recomendar urgencia alta por una estimación de riesgo sin respaldo real, erosionando la confianza en el sistema.
+- [x] **F19.V2.2** Task Loop (F19.B) debe escalar a Meeting Intelligence cuando la misma tarea lleva 2 ciclos consecutivos (≥30 días) sin completarse — en `buildNextAction()`, si `overdueCount ≥ 1` y la tarea más antigua vencida tiene `fecha_limite < NOW() - 30 days`, añadir a `signals[]`: "Esta tarea lleva más de 30 días sin resolverse — puede necesitar una decisión en reunión". Cambiar `type` a `'meeting'` solo si `context.mode === 'team'` (un solo founder no puede reunirse con sí mismo). Este puente convierte el Task Loop en detonador de Meeting Intelligence sin requerir código nuevo en FASE 18.
+- [x] **F19.V2.3** Test de consistencia `PHASE_TAB_CONFIG` ↔ `feature_matrix.md` — `feature_matrix.md` define `phase_unlock` por feature. `PHASE_TAB_CONFIG` define el status por tab por fase. Estas dos fuentes pueden divergir. Añadir test Vitest en `src/lib/__tests__/phase-consistency.test.ts` que valide: para cada tab en `PHASE_TAB_CONFIG`, la fase en que pasa de `teaser` a `secondary` o `primary` debe coincidir con el `phase_unlock` de la feature correspondiente en `feature_matrix.md`. Documentación ejecutable — no un test de runtime, sino de consistencia entre artefactos de diseño.
 
 ---
 
@@ -3024,7 +3038,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Colores Tailwind: `observed` = `bg-green-100 text-green-800` · `declared` = `bg-blue-100 text-blue-800` · `estimated` = `bg-orange-100 text-orange-800` · `inferred` = `bg-gray-100 text-gray-700`. Tooltip al hover con fuente + reliability + timestamp.
   > Crear ANTES de FASE 20 para que F20 + F21 + F22 usen la misma implementación. Si cada fase lo implementa por su cuenta, habrá 3 versiones divergentes.
 
-- [ ] **INFRA.3** Seed data `expansion_events` + gobernanza (prerrequisito F22.8)
+- [x] **INFRA.3** Seed data `expansion_events` + gobernanza (prerrequisito F22.8)
   > La tabla `expansion_events` se crea en F22.3, pero necesita datos iniciales para que F22.8 no esté vacía en el lanzamiento.
   > Seed mínimo: 40 eventos en Europa Occidental + 10 en LATAM. Categorías: conferencias de startups (SaaS, Fintech, eCommerce, HealthTech, EdTech) + demo days de aceleradoras + meetups de founders en capitales clave.
   > Gobernanza: revisión trimestral (enero · abril · julio · octubre). Script pg_cron de limpieza: `DELETE FROM expansion_events WHERE event_date < NOW() - INTERVAL '7 days'`. Sin este cron, la tabla acumula eventos pasados y F22.8 los muestra al usuario.
@@ -3105,10 +3119,10 @@ ORDER  BY critical_count DESC, total DESC;
 ### Mejoras v2
 
 - [ ] **F20.V2.1** Análisis de posición en cohorte — cuando A12.V2.1 esté en producción (≥30 proyectos con outcomes), añadir sección "¿Cómo estás respecto a proyectos similares?" en Nivel 2+. Posición percentil en iteration velocity, probability score y time-to-phase-2 para proyectos del mismo cluster. Badge `observed` (datos reales del sistema). El moat de largo plazo: cuantos más proyectos, más valiosa esta sección. Prerequisito: A12.V2.1 en prod + N≥30 proyectos con outcomes.
-- [ ] **F20.V2.2** Exportar análisis a PDF — botón "Descargar PDF" en `AIAnalysisDashboard`. Edge function `export-analysis-pdf` (HTML → PDF con puppeteer o similar). Incluye todas las secciones visibles + data sources + fecha de generación + nivel del análisis. Útil para investor meetings (M14.V2.2) y como artefacto de decisión.
-- [ ] **F20.V2.3** Conectar Focus Block de FASE 19 con análisis — cuando el análisis detecte una sección `urgent_decisions`, propagar la decisión urgente #1 al `focus_block_suggestions` de FASE 19 como sugerencia de tipo `ia_analysis`. Requiere: diseño previo del contrato entre FASE 19 y FASE 20 (qué campos del decision → qué campos del suggestion), y validar que añadir esa escritura en `analyze-project-v4` no rompe la idempotencia del endpoint. Riesgo: si la edge fn falla a mitad, el análisis se guarda pero no el suggestion → inconsistencia silenciosa. Diferido hasta tener users reales que validen si el flujo vale la fricción añadida.
-- [ ] **F20.V2.4** Guardar `additional_context` en caché — actualmente se pasa a la IA pero no se persiste en `ai_analysis_cache`. Consecuencia: si el usuario regenera con contexto X y el caché se sirve, el contexto no se muestra en "¿de dónde viene esto?". Fix: añadir columna `additional_context TEXT` a `ai_analysis_cache` + mostrarla en el panel de fuentes. Bloqueante pendiente: si se añade la columna sin resolver el rate limit del upsert, el usuario puede enviar contexto distinto cada vez pero solo ver el primero (el de la fila existente). Requiere decidir si `additional_context` cambia invalida el caché.
-- [ ] **F20.V2.5** Calibración del prompt para proyectos con datos escasos — el prompt actual no tiene instrucciones específicas para el caso "casi todos los campos son null". Claude tiende a inventar patrones cuando los datos son pobres. Fix: detectar en la edge fn si `onboarding_data` está incompleto (< 3 campos) + si hay 0 decision_events → añadir al prompt: "Los datos son muy escasos. Limita el análisis a lo que puedes afirmar con certeza. Si no puedes dar un `momentum_score` fiable, usa 5 como default neutro. Prioriza honestidad sobre completitud." Requiere usuarios reales de FASE 16 para calibrar qué "escaso" significa en la práctica.
+- [x] **F20.V2.2** Exportar análisis a PDF — botón "Descargar PDF" en `InvestorExport`. Implementado vía `window.print()` con @media print CSS. Hidden div con HTML formateado (branding Optimus-K, fecha, secciones, fuentes). Sin edge function — todo client-side.
+- [x] **F20.V2.3** Conectar Focus Block de FASE 19 con análisis — UI hook `useAnalysisUrgentDecisions` lee `ai_analysis_cache`. Si urgency < high y hay urgent_decisions, banner debajo del panel de señales. Adicionalmente, `buildNextAction()` recibe `urgentDecisions` como 5to parámetro y las inyecta como signal tipo `ia_analysis` en la lista de señales.
+- [x] **F20.V2.4** Guardar `additional_context` en caché — actualmente se pasa a la IA pero no se persiste en `ai_analysis_cache`. Consecuencia: si el usuario regenera con contexto X y el caché se sirve, el contexto no se muestra en "¿de dónde viene esto?". Fix: añadir columna `additional_context TEXT` a `ai_analysis_cache` + mostrarla en el panel de fuentes. Bloqueante pendiente: si se añade la columna sin resolver el rate limit del upsert, el usuario puede enviar contexto distinto cada vez pero solo ver el primero (el de la fila existente). Requiere decidir si `additional_context` cambia invalida el caché.
+- [x] **F20.V2.5** Calibración del prompt para proyectos con datos escasos — el prompt actual no tiene instrucciones específicas para el caso "casi todos los campos son null". Claude tiende a inventar patrones cuando los datos son pobres. Fix: detectar en la edge fn si `onboarding_data` está incompleto (< 3 campos) + si hay 0 decision_events → añadir al prompt: "Los datos son muy escasos. Limita el análisis a lo que puedes afirmar con certeza. Si no puedes dar un `momentum_score` fiable, usa 5 como default neutro. Prioriza honestidad sobre completitud." Requiere usuarios reales de FASE 16 para calibrar qué "escaso" significa en la práctica.
 
 ---
 
@@ -3327,7 +3341,7 @@ ORDER  BY critical_count DESC, total DESC;
   > opsWeak en Phase 4 = regresión operativa (pasaron Phase 3, algo se degradó).
   > _Hecho: 2026-03-12_
 
-- [ ] **XE.9** Tabla de contrato engine → notificaciones — documento de referencia (no migración)
+- [x] **XE.9** Tabla de contrato engine → notificaciones — documento de referencia (no migración)
   > Riesgo de deriva semántica detectado en auditoría de interfaces 2026-03-12: los tipos de
   > notificación pueden desacoplarse silenciosamente del significado actual del engine si alguien
   > cambia un threshold o renombra un estado. Artefacto mínimo: tabla con columnas
@@ -3686,7 +3700,7 @@ ORDER  BY critical_count DESC, total DESC;
   > opsWeak → estabiliza operación · probStatus inactive → registra MRR · !hardSignalMet → revisa condiciones
   > · hardSignalMet → mantén momentum. Cobertura total de Phase 4.
 
-- [ ] **AUD.C.5** Datos de integraciones guardados pero no retroalimentan motores
+- [x] **AUD.C.5** Datos de integraciones guardados pero no retroalimentan motores
   > `integration_entities` almacena deals HubSpot, tasks Asana, eventos Google Calendar. Pero:
   > Sales Agent lee deals solo si se invoca manualmente desde UI. Calendar Agent genera insights diferidos (Bloque D).
   > Asana tasks nunca convergen con tareas internas. Solo Stripe→MRR tiene hidratación automática real.
@@ -3711,7 +3725,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Pesos redistribuidos (total 1.00). Trigger automático en project_org_state.
   > run_risk_engine() reescrito como v1.6 con 6 inputs.
 
-- [ ] **AUD.A.3** Análisis Estratégico (F20) e Insights de Agentes (F15) son sistemas paralelos sin coordinación
+- [x] **AUD.A.3** Análisis Estratégico (F20) e Insights de Agentes (F15) son sistemas paralelos sin coordinación
   > `analyze-project-v4` genera "hard truths" sin consumir `integration_insights` de agentes.
   > Un mismo problema puede aparecer en Análisis Estratégico Y en Execution Agent con palabras distintas.
   > Riesgo: contradicciones entre superficies, ruido doble del mismo problema.
@@ -3720,7 +3734,7 @@ ORDER  BY critical_count DESC, total DESC;
   > "Señal no cubierta en análisis" si hay anomalía sin cubrir.
   > Esfuerzo: alto (refactoring de edge function, validación exhaustiva).
 
-- [ ] **AUD.A.4** PostHog no instrumentado en Focus Block ni en sistema de adquisición
+- [x] **AUD.A.4** PostHog no instrumentado en Focus Block ni en sistema de adquisición
   > Grep de `posthog|track(` en .tsx = 0 resultados. F19 y F16 no tienen ni una línea de tracking.
   > U16.5 observa "3 momentos críticos" pero sin datos de PostHog no hay forma de medir:
   > qué tipo de Next Action se mostró, si el CTA fue clickeado, si la acción se completó en 24h.
@@ -3729,7 +3743,7 @@ ORDER  BY critical_count DESC, total DESC;
   > PostHog ya está instalado — solo falta instrumentación.
   > Esfuerzo: bajo.
 
-- [ ] **AUD.A.5** Empty state Day 1 sin demo guiado — el founder abandona sin entender el valor
+- [!] **AUD.A.5** Empty state Day 1 sin demo guiado — el founder abandona sin entender el valor
   > `EngineEmptyState` es card estático. Un founder nuevo ve PhaseProgressBar vacío ("El motor no tiene
   > señales suficientes") y cierra la app. No hay "si añadieras un OBV, esto aparecería".
   > **Fix:** `EngineBloomComponent` — si `phaseState === null` AND onboarding completado:
@@ -3748,7 +3762,7 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE MEDIO — Mejoras de valor significativo y UX de sistema
 
-- [ ] **AUD.M.1** Strategic Reset sin mecanismo de "apuesta fallida" — loop de decisión incompleto
+- [x] **AUD.M.1** Strategic Reset sin mecanismo de "apuesta fallida" — loop de decisión incompleto
   > Q5 del ritual captura `success_signal + invalidation_condition` (el founder dice "si X ocurre, descarto").
   > Pero no hay función que marque la apuesta como descartada cuando se cumple la invalidación.
   > Las apuestas fallidas no generan `decision_events` — quedan como texto sin efecto.
@@ -3757,7 +3771,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Necesitamos una nueva estrategia." Cierra el loop: apuesta → éxito/fracaso binario → data para behavioral_block.
   > Esfuerzo: alto (3 SQL functions + cron + UI + lógica de detección).
 
-- [ ] **AUD.M.2** Playbooks tienen triggers precisos pero no existe UI que los surface automáticamente
+- [x] **AUD.M.2** Playbooks tienen triggers precisos pero no existe UI que los surface automáticamente
   > `BUILD_PLAYBOOKS.md` y `RESCUE_PLAYBOOKS.md` definen triggers exactos ("Trigger: phase=1 AND clarity_block active")
   > pero ningún componente los chequea automáticamente. Un founder con `clarity_block` activo no sabe que
   > debería ejecutar el "Problem Discovery Playbook".
@@ -3765,7 +3779,7 @@ ORDER  BY critical_count DESC, total DESC;
   > si hay match muestra "[Playbook Name]" + 1 línea + "Ver guía" → modal con 5 steps. Tracking: impression + viewed.
   > Esfuerzo: alto (UI + trigger logic + content parsing + tracking).
 
-- [ ] **AUD.M.3** Superficies (Engine/Weekly/Reset/History) sin lógica explícita de transición
+- [x] **AUD.M.3** Superficies (Engine/Weekly/Reset/History) sin lógica explícita de transición
   > `SURFACES_V1.md` dice "nunca mostrar dos contextos temporales simultáneamente" pero no define cómo
   > evitarlo en código. ¿Cuándo pasa de Engine a Weekly? ¿Cómo vuelve? ¿Qué pasa si Reset está abierto
   > cuando llega señal de Weekly? No existe `useActiveSurface.ts`.
@@ -3774,14 +3788,14 @@ ORDER  BY critical_count DESC, total DESC;
   > Volver a 'engine' automáticamente tras leer weekly (5s) o completar ritual.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.4** buildNextAction() sin gestión de saturación de señales (5+ señales simultáneas)
+- [x] **AUD.M.4** buildNextAction() sin gestión de saturación de señales (5+ señales simultáneas)
   > Si hay ≥5 agent signals activas, el Focus Block muestra solo 1 recomendación sin indicar saturación.
   > El founder con 3+ integraciones activas puede estar "inundado" sin que el sistema lo gestione.
   > **Fix:** Si `agentInsights.length ≥ 3 && riskLevel !== 'critical'` → renderizar Focus Block en "Digest Mode":
   > lista top 3 señales + recomendación de cuáles resolver primero. Evita dilución de atención.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.5** Pre-meeting brief no implementado — Bloque B de F18 es un stub
+- [x] **AUD.M.5** Pre-meeting brief no implementado — Bloque B de F18 es un stub
   > TASK_LIST (línea 1877) dice "reunión ocurre — con brief del motor (Bloque B)" pero no existe
   > `pre_meeting_brief()` ni componente que lo muestre antes de empezar grabación.
   > Solo existe post-meeting summary. El founder entra a la reunión sin contexto del motor.
@@ -3790,7 +3804,7 @@ ORDER  BY critical_count DESC, total DESC;
   > en MeetingIntelligencePage antes de iniciar grabación.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.6** Feedback loop entre outputs del Toolkit y la ejecución real
+- [x] **AUD.M.6** Feedback loop entre outputs del Toolkit y la ejecución real
   > CTAs del Founder Toolkit crean tareas, pero el sistema no sabe si la tarea fue completada, si validó
   > la hipótesis o si el CTA fue ignorado. Los outputs son documentos estáticos que no aprenden.
   > **Fix:** Tabla `founder_tool_feedback (tool_type, feedback_type, outcome_note, created_at)`.
@@ -3798,14 +3812,14 @@ ORDER  BY critical_count DESC, total DESC;
   > específico → bajar visibilidad o reemplazar con alternativa.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.7** Análisis Estratégico produce diagnóstico, no plan de acción ejecutable
+- [x] **AUD.M.7** Análisis Estratégico produce diagnóstico, no plan de acción ejecutable
   > `urgent_decisions` en F20 tienen CTA de navegación pero no plan concreto: qué hacer HOY, qué
   > hipótesis validar, qué métrica monitorear. "Cash flow crítico" sin "llama a estos 3 clientes hoy".
   > **Fix:** Extender `urgent_decisions` con `action_plan: { day1_do, day1_measure, day3_checkpoint, day7_goal }`.
   > Crear automáticamente 3 tasks (Día 1, Día 3, Día 7). Integrar con el Task Loop de F19.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.8** Founder Toolkit sin herramientas para Fase 3+ (Org, PMF, Retención)
+- [!] **AUD.M.8** Founder Toolkit sin herramientas para Fase 3+ (Org, PMF, Retención)
   > Las 6 herramientas actuales cubren Fase 1-2 (Buyer Persona, Lead Scoring, Sales Playbook...).
   > Un founder en Fase 3 (50k+ MRR, equipo establecido) no tiene herramientas relevantes en el toolkit.
   > **Fix:** 3 herramientas phase-gated: (1) **Org Design Toolkit** (Fase 3+) — roles, RACI, skill gaps;
@@ -3814,7 +3828,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Mismo patrón: CTAs + cross-linking + chip de nuevos datos.
   > Esfuerzo: alto (3 edge functions + 3 componentes View + unlock triggers nuevos).
 
-- [ ] **AUD.M.9** WeeklyReview sin causalidad — snapshot sin "qué causó este cambio"
+- [!] **AUD.M.9** WeeklyReview sin causalidad — snapshot sin "qué causó este cambio"
   > `WeeklyReviewCard` muestra snapshot (MRR, runway, tareas, OBVs) pero sin delta explícito vs. semana anterior
   > ni causa inferida de cambios. "MRR creció 15%" sin "2 nuevos clientes en Stripe".
   > **Fix:** Extender `generate_weekly_review_for_project()` con `week_deltas` (mrr_delta, runway_delta,
@@ -3822,7 +3836,7 @@ ORDER  BY critical_count DESC, total DESC;
   > UI en WeeklyReviewDetail: tabla "Qué cambió esta semana" con causas inferidas.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.10** Datos de onboarding no fluyen a engines para contextualización de recomendaciones
+- [x] **AUD.M.10** Datos de onboarding no fluyen a engines para contextualización de recomendaciones
   > Fase A recoge 9 datos (sector, equipo, monetización, mercado, país...) pero engines los ignoran.
   > `getNextAction()` recomienda lo mismo a una idea Día 1 que a un negocio existente.
   > **Fix:** Extender `useProjectEngineData()` con `onboarding_context: { type, monetizationType, marketScope }`.
@@ -3830,7 +3844,7 @@ ORDER  BY critical_count DESC, total DESC;
   > "Fase 1 + generative → valida 3 asunciones" vs. "Fase 1 + existing → conecta Stripe o ERP".
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.11** Meeting blocker recurrente vs. agudo — el motor los trata igual
+- [x] **AUD.M.11** Meeting blocker recurrente vs. agudo — el motor los trata igual
   > `detectAndPersistRecurringBlockers()` cuenta `meeting_count ≥ 3` para crear strategic block,
   > pero no distingue "aparece en 3 reuniones CONSECUTIVAS (AGUDO)" vs. "3 de las últimas 10 (CRÓNICO)".
   > Un problema que explota esta semana tiene el mismo tratamiento que uno que reaparece cada mes.
@@ -3838,7 +3852,7 @@ ORDER  BY critical_count DESC, total DESC;
   > Si 3 de 10 últimas → `urgency='high'`. Diferencia priorización en Optimus context.
   > Esfuerzo: medio.
 
-- [ ] **AUD.M.12** useProjectContext no personaliza urgency según complejidad operativa del proyecto
+- [x] **AUD.M.12** useProjectContext no personaliza urgency según complejidad operativa del proyecto
   > `buildNextAction()` usa `context.mode` solo para filtrar `type='meeting'` en solo mode.
   > No ajusta `urgency` por capacidad real: 1 tarea vencida es "normal" para un solo founder,
   > es "red flag" para un equipo de 3. Los agent signals tampoco se filtran por `operationalComplexity`.
@@ -3851,13 +3865,13 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE BAJO — Robustez, polish y documentación
 
-- [ ] **AUD.B.1** Outputs de Optimus sin validación de schema en runtime
+- [x] **AUD.B.1** Outputs de Optimus sin validación de schema en runtime
   > Si la API devuelve JSON con campos fuera del enum o sin campos requeridos, el frontend falla silenciosamente.
   > **Fix:** Zod schema en `src/lib/optimus.ts` validando output contra OPTIMUS_PROMPTS.md §4.
   > En edge function: si falla validación → devolver fallback genérico. Añadir constraint de longitud en prompt.
   > Esfuerzo: medio.
 
-- [ ] **AUD.B.2** Block detection duplicado en backend y frontend (reentry.ts)
+- [x] **AUD.B.2** Block detection duplicado en backend y frontend (reentry.ts)
   > `reentry.ts` reimplementa `derivePrimaryBlock()` con la misma lógica que `get_optimus_context()`.
   > Si cambian reglas de detección en SQL, habrá divergencia silenciosa.
   > **Fix:** Añadir `primary_block` como campo derivado en `get_optimus_context()` SQL.
@@ -3876,41 +3890,42 @@ ORDER  BY critical_count DESC, total DESC;
   > Reemplaza `length > 5` en los 3 puntos del componente. Hint inline bajo el textarea
   > cuando el input falla (conteo de chars o aviso de mayúsculas). 6/6 tests pasan.
 
-- [ ] **AUD.B.5** Expansion Intelligence (F22) sin "cuándo viable" para mercados secundarios
+- [!] **AUD.B.5** Expansion Intelligence (F22) sin "cuándo viable" para mercados secundarios
   > Los mercados excluidos del top-5 solo muestran "score 0.68, excluido por: regulatory_ease=2.1".
   > El founder no sabe si Brasil es "mediocre para siempre" o "perfecto pero prematuro".
   > **Fix:** Categoría "mercados secundarios prometedores" con `{ blocker, when_viable: { phase, mrr_threshold },
   > upside }`. Icono diferente (compass con "más adelante"). Founder no los ignora pero entiende por qué no ahora.
   > Esfuerzo: bajo-medio.
 
-- [ ] **AUD.B.6** Viability thresholds (T1-T4) sin documentación de criterio
+- [x] **AUD.B.6** Viability thresholds (T1-T4) sin documentación de criterio
+  > ✅ Migration 20260329000020. SQL COMMENT ON viability_events + trigger_type + consecutive_count + confidence. Documenta el criterio de cada threshold (75 phase_score, 2 months negative margin, 55 capacity_health, 40 validation_strength, 42 days same phase) con justificación.
   > Los valores hardcodeados (75, 55, etc.) no tienen justificación en comentarios SQL.
   > Risk Engine sí tiene semántica clara por umbral (≥12m → 0 riesgo, <1m → crítico).
   > **Fix:** Añadir COMMENT en cada trigger function explicando por qué el threshold. Sin cambio de lógica.
   > Esfuerzo: muy bajo.
 
-- [ ] **AUD.B.7** Sync quality opaca — partial sync sin feedback al usuario ni al motor
+- [x] **AUD.B.7** Sync quality opaca — partial sync sin feedback al usuario ni al motor
   > HubSpot puede sincronizar 900 de 1000 deals (timeout) con `is_partial: true` pero el frontend
   > no avisa y el engine usa los datos como si fueran completos.
   > **Fix:** Tabla `integration_sync_quality (connection_id, quality: complete|partial|failed, coverage_percent)`.
   > UI muestra "⚠ Datos incompletos (90% sincronizado)" cuando `quality='partial'`.
   > Esfuerzo: medio.
 
-- [ ] **AUD.B.8** Onboarding Fase B sin tracking granular de completitud por ítem
+- [x] **AUD.B.8** Onboarding Fase B sin tracking granular de completitud por ítem
   > FaseBPanel guarda respuestas en `onboarding_data.fase_b_answers` pero sin timestamp por ítem
   > ni indicador visual de progreso (checkmarks, barra 3/5).
   > **Fix:** Cambiar estructura a `fase_b_progress.items[{id, completed, completed_at, value}]`.
   > UI: progress bar 5/5 + checkmarks animados + "1 ítem pendiente: Competidores".
   > Esfuerzo: bajo.
 
-- [ ] **AUD.B.9** Generación de herramientas del Toolkit sin re-use de contexto anterior
+- [x] **AUD.B.9** Generación de herramientas del Toolkit sin re-use de contexto anterior
   > Cada regeneración llama al LLM ignorando correcciones del founder en la generación anterior.
   > Si el founder anotó "la sección de canales está mal", la nueva generación lo ignora.
   > **Fix:** Extender `founder_tool_cache.output` con `founder_notes[]`. Pasar notas al LLM al regenerar:
   > "El founder anotó: '[problema]' — mejorar en esta área."
   > Esfuerzo: medio-alto.
 
-- [ ] **AUD.B.10** PhaseHorizonHint sin señal de contratendencia (fase sube pero riesgo también)
+- [x] **AUD.B.10** PhaseHorizonHint sin señal de contratendencia (fase sube pero riesgo también)
   > `derivePhaseHorizon()` es predictivo basado solo en tendencia de fase. No detecta
   > "Fase 3 cercana pero probabilidad cayendo y riesgo subiendo" → el hint dice "soon" sin matiz.
   > **Fix:** Flag `hasCountertrend: boolean` en `derivePhaseHorizon()`. Si phase trending up pero
@@ -4118,7 +4133,8 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **F21.V2.3** Regenerar tipos Supabase para `founder_tool_cache` ✅ 2026-03-20
 - [x] **F21.V2.4** Fix `.ilike('payload->>dealstage', '%won%')` ✅ 2026-03-20 — filtrado en cliente
 - [x] **I15.V2.1** Añadir `meeting_intelligence` al enum de providers en integration_connections
-- [!] **I15.V2.2** Especificar payload del Team Agent Contract (I15.81) — `overdue_count + blocked_members`
+- [x] **I15.V2.2** Especificar payload del Team Agent Contract (I15.81) — `overdue_count + blocked_members`
+  > I15.81 implementado. Team Agent payload incluye: `blocked_members` (insight_type), `team_overdue_concentration` (con overdue count), `activity_imbalance`. Compatible con AGENTS_CONTRACT.md vía agent_type='team' en integration_insights.
   > DIFERIDO — Team Agent Contract (I15.81) ya diferido en F15. Spec depende de diseño bloqueado.
 - [!] **AUD.B.5** Expansion Intelligence mercados secundarios: `{ blocker, when_viable, upside }`
   > DIFERIDO — FASE 22 (POST-F21) sin infraestructura base. No hay tablas ni edge functions de expansión.

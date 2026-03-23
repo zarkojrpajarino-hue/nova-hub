@@ -6,9 +6,13 @@
  * Umbral mínimo de fiabilidad 0.6 para Hard Truths.
  */
 
-import { GitMerge, Eye } from 'lucide-react';
+import { useState } from 'react';
+import { GitMerge, Eye, ListPlus } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
 import { SourceBadge } from '@/components/shared/SourceBadge';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis';
 
 import { useTranslation } from 'react-i18next';
@@ -73,8 +77,41 @@ export function CrossSignalsSection({ data }: { data: NonNullable<AnalysisSectio
 
 // ── Hard Truths ───────────────────────────────────────────────────────────────
 
-function TruthCard({ truth, i }: { truth: NonNullable<AnalysisSection['hard_truths']>[number]; i: number }) {
+function TruthCard({ truth, i, projectId, onTaskCreated, taskCreated }: {
+  truth: NonNullable<AnalysisSection['hard_truths']>[number];
+  i: number;
+  projectId?: string;
+  onTaskCreated?: (index: number) => void;
+  taskCreated?: boolean;
+}) {
   const { t } = useTranslation();
+  const [creating, setCreating] = useState(false);
+
+  const handleCreateTask = async () => {
+    if (!projectId || taskCreated) return;
+    setCreating(true);
+    try {
+      const { error } = await supabase.from('tasks').insert({
+        project_id: projectId,
+        titulo: truth.truth.slice(0, 250),
+        descripcion: truth.data_support,
+        status: 'todo',
+        ai_generated: true,
+        metadata: {
+          source: 'ai_analysis',
+          insight_type: 'hard_truth',
+        },
+      });
+      if (error) throw error;
+      onTaskCreated?.(i);
+      toast.success(t('analysis.taskCreatedFromAnalysis'));
+    } catch {
+      toast.error(t('analysis.taskCreateError'));
+    } finally {
+      setCreating(false);
+    }
+  };
+
   return (
     <div
       key={i}
@@ -96,14 +133,32 @@ function TruthCard({ truth, i }: { truth: NonNullable<AnalysisSection['hard_trut
           <span className="font-medium">{t('analysis.siLoIgnoras')}: </span>{truth.risk_if_ignored}
         </p>
       </div>
+      {/* Upgrade 3: Create task button */}
+      {projectId && (
+        <Button
+          size="sm"
+          variant="ghost"
+          className="h-7 px-2 text-xs gap-1"
+          onClick={handleCreateTask}
+          disabled={creating || taskCreated}
+        >
+          <ListPlus className="h-3 w-3" />
+          {taskCreated ? t('analysis.taskCreated') : t('analysis.createTask')}
+        </Button>
+      )}
     </div>
   );
 }
 
-export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection['hard_truths']> }) {
+export function HardTruthsSection({ data, projectId }: { data: NonNullable<AnalysisSection['hard_truths']>; projectId?: string }) {
   const { t } = useTranslation();
+  const [createdTasks, setCreatedTasks] = useState<Set<number>>(new Set());
   const strong = data.filter(item => item.reliability >= 0.6);
   const uncertain = data.filter(item => item.reliability < 0.6);
+
+  const handleTaskCreated = (index: number) => {
+    setCreatedTasks(prev => new Set(prev).add(index));
+  };
 
   if (!strong.length && !uncertain.length) {
     return (
@@ -130,7 +185,7 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
           </CardHeader>
           <CardContent className="space-y-3">
             {strong.map((truth, i) => (
-              <TruthCard key={i} truth={truth} i={i} />
+              <TruthCard key={i} truth={truth} i={i} projectId={projectId} onTaskCreated={handleTaskCreated} taskCreated={createdTasks.has(i)} />
             ))}
           </CardContent>
         </Card>

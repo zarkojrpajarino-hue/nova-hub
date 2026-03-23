@@ -29,10 +29,8 @@ import {
   trackFocusBlockCTAClicked,
 } from '@/lib/analytics'
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis'
-import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface NextActionFocusBlockProps {
   projectId:      string
   onNavigateToTab?: (tab: string) => void
@@ -64,13 +62,23 @@ function useOverdueTasks(projectId: string) {
     queryKey:  ['overdue_tasks', projectId],
     staleTime: 2 * 60_000,
     queryFn:   async () => {
-      const { count } = await supabase
+      // F19.V2.2 — Also fetch oldest overdue task for meeting escalation
+      const { data, count } = await supabase
         .from('tasks')
-        .select('id', { count: 'exact', head: true })
+        .select('fecha_limite', { count: 'exact' })
         .eq('project_id', projectId)
         .neq('status', 'done')
         .lt('fecha_limite', new Date().toISOString())
-      return count ?? 0
+        .order('fecha_limite', { ascending: true })
+        .limit(1)
+      const overdueCount = count ?? 0
+      let oldestOverdueDays = 0
+      if (data?.[0]?.fecha_limite) {
+        oldestOverdueDays = Math.floor(
+          (Date.now() - new Date(data[0].fecha_limite).getTime()) / 86_400_000,
+        )
+      }
+      return { overdueCount, oldestOverdueDays }
     },
   })
 }
@@ -111,7 +119,9 @@ export function NextActionFocusBlock({
   const { data: engineData } = useProjectEngineData(projectId)
   const { data: agentCtx }   = useAgentContext(projectId)
   const { data: projectCtx } = useProjectContext(projectId)
-  const { data: overdueCount = 0 } = useOverdueTasks(projectId)
+  const { data: overdueData } = useOverdueTasks(projectId)
+  const overdueCount = overdueData?.overdueCount ?? 0
+  const oldestOverdueDays = overdueData?.oldestOverdueDays ?? 0
   const { data: urgentDecisions = [] } = useAnalysisUrgentDecisions(projectId)
   const { data: trendsData } = useExecutionTrends(projectId, 4)
 
@@ -134,8 +144,9 @@ export function NextActionFocusBlock({
   const nextAction = buildNextAction(
     engineData,
     agentInsights,
-    { overdueCount },
+    { overdueCount, oldestOverdueDays },
     projectCtx ?? { mode: 'solo', teamSize: 0, operationalComplexity: 'low' },
+    urgentDecisions,
   )
 
   // AUD.A.4 — PostHog: impression cuando el bloque se muestra

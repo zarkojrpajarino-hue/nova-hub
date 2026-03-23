@@ -16,11 +16,20 @@ import { ProjectBreakdownChart } from '@/components/financiero/ProjectBreakdownC
 import { PendingPaymentsCard } from '@/components/financiero/PendingPaymentsCard';
 import { FinancialAlertsCard } from '@/components/financiero/FinancialAlertsCard';
 import { AIForecastWidget } from '@/components/financiero/AIForecastWidget';
+import { MRRForecastCard } from '@/components/financiero/MRRForecastCard';
+import { CashFlowStressCard } from '@/components/financiero/CashFlowStressCard';
+import { FinancialRiskAlerts } from '@/components/financiero/FinancialRiskAlerts';
+import { ScenarioBuilder } from '@/components/financiero/ScenarioBuilder';
+import { CashFlowTimeline } from '@/components/financiero/CashFlowTimeline';
+import { BurnDecomposition } from '@/components/financiero/BurnDecomposition';
+import { RevenueQualityScore } from '@/components/financiero/RevenueQualityScore';
+import { CrossSignalCard } from '@/components/financiero/CrossSignalCard';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';
 import { HelpWidget } from '@/components/ui/section-help';
 import { useFinancieroData } from '@/hooks/useFinancieroData';
+import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { ExportButton } from '@/components/export/ExportButton';
 import { FinancieroPreviewModal } from '@/components/preview/FinancieroPreviewModal';
 
@@ -31,6 +40,7 @@ interface FinancieroViewProps {
 
 export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
   const { t } = useTranslation();
+  const { currentProject } = useCurrentProject();
   const [viewMode, setViewMode] = useState<'dashboard' | 'cobros' | 'proyecciones'>('dashboard');
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -185,9 +195,15 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
               <ProjectBreakdownChart data={financialMetrics} />
             </div>
 
+            {/* Burn Decomposition + Revenue Quality Score */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <BurnDecomposition projectId={currentProject?.id ?? ''} />
+              <RevenueQualityScore projectId={currentProject?.id ?? ''} />
+            </div>
+
             {/* Alerts and Quick Stats */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <FinancialAlertsCard 
+              <FinancialAlertsCard
                 totalPending={totalPending}
                 overdueCount={overdueCount}
                 marginPercent={margenPromedio}
@@ -340,6 +356,14 @@ export function FinancieroView({ onNewOBV }: FinancieroViewProps) {
           </TabsContent>
 
           <TabsContent value="proyecciones" className="space-y-6">
+            {/* F30 — MRR Forecast + Stress Test + Risk Alerts */}
+            <MRRForecastCard projectId={currentProject?.id ?? ''} />
+            <CashFlowTimeline projectId={currentProject?.id ?? ''} />
+            <CashFlowStressCard projectId={currentProject?.id ?? ''} />
+            <ScenarioBuilder projectId={currentProject?.id ?? ''} />
+            <FinancialRiskAlerts projectId={currentProject?.id ?? ''} />
+            <CrossSignalCard projectId={currentProject?.id ?? ''} />
+
             {/* AI Forecast Widget */}
             <AIForecastWidget />
 

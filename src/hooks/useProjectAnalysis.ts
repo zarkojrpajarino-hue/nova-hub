@@ -103,7 +103,7 @@ export interface ProjectAnalysisState {
   isGenerating: boolean;
   canRegenerate: boolean;       // false si dentro de 24h y no stale
   nextRegenerationAt: Date | null;
-  generateAnalysis: (additionalContext?: string) => Promise<void>;
+  generateAnalysis: (additionalContext?: string, focusArea?: string) => Promise<void>;
 }
 
 // ── Hook ─────────────────────────────────────────────────────────────────────
@@ -229,7 +229,7 @@ export function useProjectAnalysis(
     : null;
 
   // ── Mutación de generación ────────────────────────────────────────────────
-  const generateAnalysis = async (additionalContext?: string) => {
+  const generateAnalysis = async (additionalContext?: string, focusArea?: string) => {
     if (!projectId) return;
     if (!canRegenerate) {
       toast.warning(`Próxima regeneración disponible ${nextRegenerationAt ? 'a las ' + nextRegenerationAt.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' }) : 'en 24h'}`);
@@ -242,7 +242,12 @@ export function useProjectAnalysis(
       if (!session) throw new Error('Sin sesión');
 
       const response = await supabase.functions.invoke('analyze-project-v4', {
-        body: { project_id: projectId, level: unlockedLevel, additional_context: additionalContext },
+        body: {
+          project_id: projectId,
+          level: unlockedLevel,
+          additional_context: additionalContext,
+          focus_area: focusArea,
+        },
       });
 
       if (response.error) throw response.error;

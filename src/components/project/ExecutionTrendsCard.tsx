@@ -18,7 +18,7 @@
 import { useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { Loader2, TrendingUp, TrendingDown, Minus, ShieldCheck, ShieldAlert } from 'lucide-react'
+import { Loader2, TrendingUp, TrendingDown, Minus, ShieldCheck, ShieldAlert, CalendarClock } from 'lucide-react'
 import {
   ResponsiveContainer,
   AreaChart,
@@ -30,7 +30,8 @@ import {
   CartesianGrid,
 } from 'recharts'
 import { useTranslation } from 'react-i18next'
-import { useExecutionTrends, type TrendDirection, type WeeklyTrend } from '@/hooks/useExecutionTrends'
+import { useExecutionTrends, type TrendDirection, type WeeklyTrend, type SeasonalityData } from '@/hooks/useExecutionTrends'
+import { pearsonCorrelation, correlationColor, correlationBgColor, type PearsonResult } from '@/lib/pearson'
 import { useFeatureUnlock } from '@/hooks/useUnlockProgress'
 import { UnlockGate } from '@/components/project/UnlockProgress'
 
@@ -84,6 +85,98 @@ function ConfidenceBadge({ enrichedBy }: { enrichedBy: string[] }) {
       <ShieldCheck size={10} />
       {t('executionTrends.enrichedWith', { providers: allProviders.join(', ') })}
     </Badge>
+  )
+}
+
+interface CorrelationRowProps {
+  label: string
+  result: PearsonResult | null
+}
+
+function CorrelationRow({ label, result }: CorrelationRowProps) {
+  const { t } = useTranslation()
+  if (!result) return null
+  return (
+    <div className={`flex items-center justify-between rounded px-2.5 py-1.5 border ${correlationBgColor(result.strength)}`}>
+      <span className="text-xs">{label}</span>
+      <span className={`text-xs font-mono font-medium ${correlationColor(result.strength)}`}>
+        {result.r.toFixed(2)} ({t(`executionTrends.corr_${result.strength}`)})
+      </span>
+    </div>
+  )
+}
+
+function CorrelationsSection({ trends }: { trends: WeeklyTrend[] }) {
+  const { t } = useTranslation()
+
+  const correlations = useMemo(() => {
+    if (trends.length < 4) return null
+    // Oldest-first for proper time series
+    const ordered = [...trends].reverse()
+    const demandArr = ordered.map(w => w.tasks.demand)
+    const deliveryArr = ordered.map(w => w.tasks.delivery)
+    const totalArr = ordered.map(w => w.tasks.total)
+    const ventaArr = ordered.map(w => w.obvs.venta)
+    const validArr = ordered.map(w => w.obvs.validacion)
+    const revenueArr = ordered.map(w => w.revenue)
+
+    return {
+      demandToVenta: pearsonCorrelation(demandArr, ventaArr),
+      deliveryToValidacion: pearsonCorrelation(deliveryArr, validArr),
+      totalToRevenue: pearsonCorrelation(totalArr, revenueArr),
+    }
+  }, [trends])
+
+  if (!correlations) return null
+
+  return (
+    <div className="space-y-1.5">
+      <p className="text-xs font-medium text-foreground">{t('executionTrends.correlationsTitle')}</p>
+      <CorrelationRow
+        label={t('executionTrends.corrDemandVenta')}
+        result={correlations.demandToVenta}
+      />
+      <CorrelationRow
+        label={t('executionTrends.corrDeliveryValidacion')}
+        result={correlations.deliveryToValidacion}
+      />
+      <CorrelationRow
+        label={t('executionTrends.corrTotalRevenue')}
+        result={correlations.totalToRevenue}
+      />
+      <p className="text-[10px] text-muted-foreground italic">
+        {t('executionTrends.correlationDisclaimer')}
+      </p>
+    </div>
+  )
+}
+
+function SeasonalityBadge({ seasonality }: { seasonality: SeasonalityData }) {
+  const { t } = useTranslation()
+  const messages: string[] = []
+
+  if (seasonality.day_pattern) {
+    messages.push(t('executionTrends.seasonalityDay', {
+      day: t(`executionTrends.day_${seasonality.day_pattern}`),
+    }))
+  }
+  if (seasonality.weekly_pattern === 'week1_higher') {
+    messages.push(t('executionTrends.seasonalityWeek1Higher'))
+  } else if (seasonality.weekly_pattern === 'week4_higher') {
+    messages.push(t('executionTrends.seasonalityWeek4Higher'))
+  }
+
+  if (messages.length === 0) return null
+
+  return (
+    <div className="flex items-center gap-1.5">
+      {messages.map((msg, i) => (
+        <Badge key={i} variant="outline" className="text-[10px] gap-1 bg-blue-50 text-blue-700 border-blue-200">
+          <CalendarClock size={10} />
+          {msg}
+        </Badge>
+      ))}
+    </div>
   )
 }
 
@@ -240,6 +333,12 @@ export function ExecutionTrendsCard({ projectId }: ExecutionTrendsCardProps) {
                   </AreaChart>
                 </ResponsiveContainer>
               </div>
+
+              {/* Upgrade 1 — Correlations section */}
+              <CorrelationsSection trends={trendsData?.weekly ?? []} />
+
+              {/* Upgrade 5 — Seasonality badge */}
+              {trendsData?.seasonality && <SeasonalityBadge seasonality={trendsData.seasonality} />}
 
               {/* Direction insight — never causal */}
               {trendsData?.trends?.tasks === 'up' && trendsData?.trends?.obvs === 'up' && (

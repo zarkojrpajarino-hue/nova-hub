@@ -145,3 +145,58 @@ export function trackFocusBlockCtaClicked(props: {
 }) {
   posthog.capture('focus_block_cta_clicked_v2', props);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// I15.103–I15.107 — Integration observability events
+// Track integration lifecycle: connection, sync, insights, actions, errors.
+// ─────────────────────────────────────────────────────────────────────────────
+
+/** I15.103 — Integration connected or disconnected */
+export function trackIntegrationConnected(props: {
+  project_id: string;
+  provider: string;
+  action: 'connected' | 'disconnected' | 'reconnected';
+}) {
+  posthog.capture('integration_connected', props);
+}
+
+/** I15.104 — Sync completed (success or partial) */
+export function trackIntegrationSyncCompleted(props: {
+  project_id: string;
+  provider: string;
+  status: 'completed' | 'partial' | 'failed';
+  entities_synced?: number;
+  duration_ms?: number;
+}) {
+  posthog.capture('integration_sync_completed', props);
+}
+
+/** I15.105 — Agent insight generated */
+export function trackIntegrationInsightGenerated(props: {
+  project_id: string;
+  agent_type: string;
+  insight_type: string;
+  severity: string;
+}) {
+  posthog.capture('integration_insight_generated', props);
+}
+
+/** I15.106 — Action recommended by agent */
+export function trackIntegrationActionRecommended(props: {
+  project_id: string;
+  agent_type: string;
+  insight_type: string;
+  action_hint: string;
+}) {
+  posthog.capture('integration_action_recommended', props);
+}
+
+/** I15.107 — Integration error occurred */
+export function trackIntegrationError(props: {
+  project_id: string;
+  provider: string;
+  error_type: string;
+  error_message?: string;
+}) {
+  posthog.capture('integration_error', props);
+}

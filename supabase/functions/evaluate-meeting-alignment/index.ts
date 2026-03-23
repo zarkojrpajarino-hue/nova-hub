@@ -84,7 +84,7 @@ serve(async (req) => {
 
     // 2. Obtener contexto del motor
     const { data: optimusCtx } = await supabase
-      .rpc('get_optimus_context', {
+      .rpc('get_optimus_context_enriched', {
         p_project_id: (meeting as Record<string, unknown>).project_id,
         p_user_id:    user.id,
       })
