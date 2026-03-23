@@ -51,7 +51,7 @@ export function WelcomeModal({ open, onComplete }: WelcomeModalProps) {
       content: (
         <div className="space-y-4">
           <p className="text-lg">
-            <strong>NOVA</strong> {t('onboarding.welcomeDesc')}
+            <strong>Optimus-K</strong> {t('onboarding.welcomeDesc')}
           </p>
           <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
             <h4 className="font-semibold mb-2">{t('onboarding.keyConcept')}</h4>

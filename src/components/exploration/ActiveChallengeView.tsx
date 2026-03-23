@@ -247,7 +247,7 @@ export function ActiveChallengeView({
             <p className="text-sm text-muted-foreground mb-1">{t('exploration.ganadorActual')}</p>
             <p className="text-xl font-bold">
               {masterScore > challengerScore
-                ? `👑 ${masterName}`
+                ? `${masterName}`
                 : challengerScore > masterScore
                 ? challengerName
                 : 'Empate'}

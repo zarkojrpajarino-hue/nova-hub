@@ -54,7 +54,7 @@ export function KPITabContent({ type }: KPITabContentProps) {
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* My KPIs */}
         <div className="bg-card border border-border rounded-2xl p-6">
-          <h4 className="text-base font-semibold mb-4">📋 Mis {config.label}s</h4>
+          <h4 className="text-base font-semibold mb-4">Mis {config.label}s</h4>
           <KPIList type={type} />
         </div>
 
