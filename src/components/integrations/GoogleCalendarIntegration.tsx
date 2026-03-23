@@ -131,6 +131,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
           setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   // Detectar retorno de OAuth — gcal_code en URL params
@@ -384,6 +385,7 @@ export function GoogleCalendarIntegration({ projectId, onStartFromEvent }: Googl
         })
         setUpcomingEvents(events)
       })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, isConnected, hasPriorSync, lastSync])
 
   // Detectar retorno de OAuth estándar (Google usa 'code' y 'state' params)

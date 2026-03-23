@@ -21,7 +21,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import {
   Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw,
-  FileText, ListChecks,
+  ListChecks,
 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
@@ -96,6 +96,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
           setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const handleConnect = async () => {

@@ -39,7 +39,7 @@ const SEVERITY_CONFIG = {
 } as const
 
 function SeverityBadge({ severity }: { severity: keyof typeof SEVERITY_CONFIG }) {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   const cfg = SEVERITY_CONFIG[severity] ?? SEVERITY_CONFIG.info
   return (
     <span className={`inline-flex items-center gap-1 text-xs px-1.5 py-0.5 rounded font-medium ${cfg.badge}`}>

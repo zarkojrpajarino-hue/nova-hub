@@ -13,7 +13,6 @@ import { Badge } from '@/components/ui/badge'
 import { Loader2, TrendingUp, TrendingDown, Minus, Info } from 'lucide-react'
 import {
   ResponsiveContainer,
-  LineChart,
   Line,
   XAxis,
   YAxis,
