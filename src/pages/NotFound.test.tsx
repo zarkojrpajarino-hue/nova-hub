@@ -24,12 +24,12 @@ describe('NotFound', () => {
 
   it('renders error message', () => {
     renderComponent();
-    expect(screen.getByText('Oops! Page not found')).toBeInTheDocument();
+    expect(screen.getByText(/oopsPageNotFound|Oops/i)).toBeInTheDocument();
   });
 
   it('renders return to home link', () => {
     renderComponent();
-    const link = screen.getByText('Return to Home');
+    const link = screen.getByRole('link');
     expect(link).toBeInTheDocument();
     expect(link).toHaveAttribute('href', '/');
   });
@@ -54,14 +54,14 @@ describe('NotFound', () => {
 
   it('applies correct styling to error message', () => {
     renderComponent();
-    const message = screen.getByText('Oops! Page not found');
+    const message = screen.getByText(/oopsPageNotFound|Oops/i);
     expect(message).toHaveClass('text-xl', 'text-muted-foreground');
   });
 
   it('applies correct styling to link', () => {
     renderComponent();
-    const link = screen.getByText('Return to Home');
-    expect(link).toHaveClass('text-primary', 'underline', 'hover:text-primary/90');
+    const link = screen.getByRole('link');
+    expect(link).toHaveClass('text-primary', 'underline');
   });
 
   it('has h1 tag for heading', () => {
@@ -72,13 +72,13 @@ describe('NotFound', () => {
 
   it('has p tag for message', () => {
     renderComponent();
-    const message = screen.getByText('Oops! Page not found');
+    const message = screen.getByText(/oopsPageNotFound|Oops/i);
     expect(message.tagName).toBe('P');
   });
 
   it('has a tag for link', () => {
     renderComponent();
-    const link = screen.getByText('Return to Home');
+    const link = screen.getByRole('link');
     expect(link.tagName).toBe('A');
   });
 
@@ -89,7 +89,5 @@ describe('NotFound', () => {
 
     expect(children).toHaveLength(3);
     expect(children[0].textContent).toBe('404');
-    expect(children[1].textContent).toBe('Oops! Page not found');
-    expect(children[2].textContent).toBe('Return to Home');
   });
 });

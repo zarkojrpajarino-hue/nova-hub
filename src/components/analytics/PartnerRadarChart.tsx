@@ -40,7 +40,7 @@ export function PartnerRadarChart({ members }: PartnerRadarChartProps) {
       });
       return point;
     });
-  }, [members]);
+  }, [members, t]);
 
   const colors = ['#6366F1', '#22C55E', '#F59E0B', '#EC4899'];
 

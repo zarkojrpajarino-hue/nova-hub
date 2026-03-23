@@ -13,14 +13,17 @@ import type { AnalysisSection } from '@/hooks/useProjectAnalysis';
 import { useTranslation } from 'react-i18next';
 // ── Financial Pulse ───────────────────────────────────────────────────────────
 
-const TREND_CONFIG = {
-  subiendo: { icon: <TrendingUp className="h-4 w-4" />, color: 'text-green-600', label: t('analysis.subiendo') },
-  estable:  { icon: <Minus className="h-4 w-4" />,       color: 'text-amber-600', label: t('analysis.estable')  },
-  bajando:  { icon: <TrendingDown className="h-4 w-4" />, color: 'text-red-600',   label: t('analysis.bajando')  },
-};
+function getTrendConfig(t: (k: string) => string) {
+  return {
+    subiendo: { icon: <TrendingUp className="h-4 w-4" />, color: 'text-green-600', label: t('analysis.subiendo') },
+    estable:  { icon: <Minus className="h-4 w-4" />,       color: 'text-amber-600', label: t('analysis.estable')  },
+    bajando:  { icon: <TrendingDown className="h-4 w-4" />, color: 'text-red-600',   label: t('analysis.bajando')  },
+  };
+}
 
 export function FinancialPulseSection({ data }: { data: NonNullable<AnalysisSection['financial_pulse']> }) {
   const { t } = useTranslation();
+  const TREND_CONFIG = getTrendConfig(t);
   const trend = data.mrr_trend ? TREND_CONFIG[data.mrr_trend] : null;
 
   return (
@@ -81,13 +84,17 @@ export function FinancialPulseSection({ data }: { data: NonNullable<AnalysisSect
 
 // ── Pipeline Traction ─────────────────────────────────────────────────────────
 
-const SOURCE_LABELS: Record<string, string> = {
-  stripe:  t('analysis.stripe'),
-  hubspot: t('analysis.hubspot'),
-  obvs:    'OBVs (declarado)',
-};
+function getSourceLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    stripe:  t('analysis.stripe'),
+    hubspot: t('analysis.hubspot'),
+    obvs:    t('analysis.obvsDeclarado'),
+  };
+}
 
 export function PipelineTractionSection({ data }: { data: NonNullable<AnalysisSection['pipeline_traction']> }) {
+  const { t } = useTranslation();
+  const SOURCE_LABELS = getSourceLabels(t);
   const sourceType = data.source === 'stripe' || data.source === 'hubspot' ? 'observed' : 'declared';
 
   return (
@@ -114,7 +121,7 @@ export function PipelineTractionSection({ data }: { data: NonNullable<AnalysisSe
             </p>
           </div>
           <div className="rounded-lg bg-gray-50 dark:bg-gray-900 px-3 py-2.5">
-            <p className="text-xs text-gray-500 mb-0.5">En riesgo (&gt;30d sin mov.)</p>
+            <p className="text-xs text-gray-500 mb-0.5">{t('analysis.enRiesgo30d')}</p>
             <p className={`text-xl font-bold ${(data.at_risk_count ?? 0) > 0 ? 'text-red-600' : 'text-gray-800 dark:text-gray-200'}`}>
               {data.at_risk_count ?? '—'}
             </p>

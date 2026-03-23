@@ -34,7 +34,7 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
 
   if (requirements.days_needed !== undefined && requirements.days_needed > 0) {
     reqs.push({
-      label: `${requirements.days_needed} día${requirements.days_needed !== 1 ? 's' : ''} más de actividad`,
+      label: t('analysis.díasMásDeActividad', { count: requirements.days_needed }),
       met: false,
       icon: <Clock className="h-4 w-4" />,
     });
@@ -42,7 +42,7 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
 
   if (requirements.needs_integration) {
     reqs.push({
-      label: 'Conectar al menos 1 integración (Stripe o HubSpot)',
+      label: t('analysis.conectar1Integración'),
       met: false,
       icon: <Plug className="h-4 w-4" />,
       cta: {
@@ -54,7 +54,7 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
 
   if (requirements.needs_more_integrations) {
     reqs.push({
-      label: '2 integraciones activas',
+      label: t('analysis.dosIntegracionesActivas'),
       met: false,
       icon: <Plug className="h-4 w-4" />,
       cta: {
@@ -66,7 +66,7 @@ export function AnalysisLevelTeaser({ targetLevel, requirements }: AnalysisLevel
 
   if (requirements.needs_decisions !== undefined && requirements.needs_decisions > 0) {
     reqs.push({
-      label: `${requirements.needs_decisions} decisión${requirements.needs_decisions !== 1 ? 'es' : ''} estratégica${requirements.needs_decisions !== 1 ? 's' : ''} más registradas`,
+      label: t('analysis.decisionesMásRegistradas', { count: requirements.needs_decisions }),
       met: false,
       icon: <TrendingUp className="h-4 w-4" />,
     });

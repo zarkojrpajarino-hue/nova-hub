@@ -26,15 +26,18 @@ const PHASE_EMOJI: Record<number, string> = {
 };
 
 // [V24.8] Tabs que se desbloquean al entrar en esta fase
-const PHASE_UNLOCKED_TABS: Record<number, string[]> = {
-  1: [t('nova.obvs')],
-  2: ['CRM'],
-  3: [t('nova.financiero')],
-  4: ['Negocio IA'],
-};
+function getPhaseUnlockedTabs(t: (k: string) => string): Record<number, string[]> {
+  return {
+    1: [t('nova.obvs')],
+    2: ['CRM'],
+    3: [t('nova.financiero')],
+    4: ['Negocio IA'],
+  };
+}
 
 export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalProps) {
   const { t } = useTranslation();
+  const PHASE_UNLOCKED_TABS = getPhaseUnlockedTabs(t);
   const { open, newPhase } = state;
   const prevPhase = newPhase - 1;
 

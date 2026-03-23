@@ -48,7 +48,7 @@ describe('AnalyticsFilters', () => {
         onPartnersChange={mockOnPartnersChange}
       />
     );
-    expect(screen.getByText('Seleccionar todos')).toBeInTheDocument();
+    expect(screen.getByText(/seleccionarTodos|Seleccionar todos/i)).toBeInTheDocument();
   });
 
   it('shows clear button', () => {
@@ -59,7 +59,7 @@ describe('AnalyticsFilters', () => {
         onPartnersChange={mockOnPartnersChange}
       />
     );
-    expect(screen.getByText('Limpiar')).toBeInTheDocument();
+    expect(screen.getByText(/limpiar/i)).toBeInTheDocument();
   });
 
   it('calls onPartnersChange with all IDs when select all clicked', async () => {
@@ -72,7 +72,7 @@ describe('AnalyticsFilters', () => {
       />
     );
 
-    await user.click(screen.getByText('Seleccionar todos'));
+    await user.click(screen.getByText(/seleccionarTodos|Seleccionar todos/i));
 
     expect(mockOnPartnersChange).toHaveBeenCalledWith(['user1', 'user2', 'user3']);
   });
@@ -87,7 +87,7 @@ describe('AnalyticsFilters', () => {
       />
     );
 
-    await user.click(screen.getByText('Limpiar'));
+    await user.click(screen.getByText(/limpiar/i));
 
     expect(mockOnPartnersChange).toHaveBeenCalledWith([]);
   });

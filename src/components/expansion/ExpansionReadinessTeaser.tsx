@@ -10,9 +10,7 @@ import { CheckCircle2, Circle, Globe, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useExpansionReadiness } from '@/hooks/useExpansionReadiness';
 import { SourceBadge } from '@/components/shared/SourceBadge';
-
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface ExpansionReadinessTeaserProps {
   projectId: string;
   onAnalyze?: () => void;
@@ -35,6 +33,7 @@ function ConditionRow({ met, label }: { met: boolean | 'stale'; label: string })
 }
 
 export function ExpansionReadinessTeaser({ projectId, onAnalyze }: ExpansionReadinessTeaserProps) {
+  const { t } = useTranslation();
   const { data: readiness, isLoading } = useExpansionReadiness(projectId);
 
   if (isLoading) {

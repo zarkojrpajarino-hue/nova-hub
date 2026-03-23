@@ -14,6 +14,7 @@ import { useQuery } from '@tanstack/react-query';
 import { useActiveCycle, useCompleteCycle, useGenerateCycle, type CycleObjective } from '@/hooks/useStrategicCycles';
 import { supabase } from '@/integrations/supabase/client';
 import { CycleHistory } from './CycleHistory';
+import { FounderPatternsCard } from './FounderPatternsCard';
 
 interface CycleDashboardProps {
   projectId: string;
@@ -175,6 +176,9 @@ export function CycleDashboard({ projectId, graduated }: CycleDashboardProps) {
 
       {/* CE25.10 — Historial de ciclos */}
       <CycleHistory projectId={projectId} />
+
+      {/* F31 Bloque B — Founder patterns */}
+      <FounderPatternsCard projectId={projectId} />
 
       {/* Complete CTA if score >= 75 and not expired */}
       {!isExpired && score >= 75 && (

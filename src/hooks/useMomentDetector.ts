@@ -56,7 +56,7 @@ export function useMomentDetector(projectId: string | undefined) {
   const { data: extraData } = useQuery({
     queryKey: ['moment-detector-data', projectId],
     queryFn: async () => {
-      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult] = await Promise.all([
+      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult] = await Promise.all([
         supabase
           .from('obvs')
           .select('id')
@@ -90,6 +90,15 @@ export function useMomentDetector(projectId: string | undefined) {
           .order('created_at', { ascending: true })
           .limit(1)
           .maybeSingle(),
+        // [FI30.10] Latest runway_months from key_metrics
+        supabase
+          .from('key_metrics')
+          .select('runway_months')
+          .eq('project_id', projectId!)
+          .not('runway_months', 'is', null)
+          .order('date', { ascending: false })
+          .limit(1)
+          .maybeSingle(),
       ]);
 
       const mrrData = mrrResult.data ?? [];
@@ -103,6 +112,10 @@ export function useMomentDetector(projectId: string | undefined) {
         ? Math.floor((Date.now() - new Date(oldestBlock).getTime()) / 86_400_000)
         : 0;
 
+      const runwayMonths = runwayResult.data?.runway_months != null
+        ? Number(runwayResult.data.runway_months)
+        : null;
+
       return {
         hasFirstSale: !!saleResult.data,
         currentMrr,
@@ -111,6 +124,7 @@ export function useMomentDetector(projectId: string | undefined) {
         newMembersThisWeek: newMembers,
         scoreHistory: (scoreHistoryResult.data ?? []).reverse().map(h => Number(h.phase_score)),
         activeBlockDays,
+        runwayMonths,
       };
     },
     enabled: !!projectId,
@@ -147,6 +161,7 @@ export function useMomentDetector(projectId: string | undefined) {
       scoreChange4w,
       consecutiveLowScore: ps.consecutive_low_score ?? 0,
       activeBlockDays: extraData.activeBlockDays,
+      runwayMonths: extraData.runwayMonths,
       teamSize: extraData.teamSize,
       newMembersThisWeek: extraData.newMembersThisWeek,
       activeCycleDaysRemaining: cycleDaysRemaining,

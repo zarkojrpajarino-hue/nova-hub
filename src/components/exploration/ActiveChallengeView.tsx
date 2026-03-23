@@ -77,6 +77,7 @@ export function ActiveChallengeView({
     const interval = setInterval(calculateTimeRemaining, 60000);
 
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endDate]);
 
   // Calcular puntuaciones en tiempo real (solo para Performance Battle)

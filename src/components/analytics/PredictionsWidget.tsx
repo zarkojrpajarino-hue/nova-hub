@@ -130,7 +130,7 @@ export function PredictionsWidget({ members, isDemoMode = false }: PredictionsWi
         message,
       };
     });
-  }, [members, objectives]);
+  }, [members, objectives, t]);
 
   const getStatusIcon = (status: Prediction['status']) => {
     switch (status) {

@@ -37,10 +37,10 @@
 > | FASE 26 — Sistema de Equipo v2 | ✅ CERRADA 14/14 | Invitaciones por enlace · Permisos por rol · Dashboard filtrado · Hiring guidance |
 > | FASE 27 — Proactive Intelligence | ✅ CERRADA 7/7 | Moment Detector + Phase Runway Estimator + MomentBanner |
 > | FASE 28 — Optimus Personalization | ✅ CERRADA 6/6 | Optimus Memory + Feedback Real · Prerequisito: F16 cerrada + O4.1 |
-> | FASE 29 — Execution-to-Revenue Pipeline | 🔄 HACIBLE 0/10 | Tendencias internas + pipeline velocity · Prerequisito: ≥4 semanas actividad |
-> | FASE 30 — Financial Intelligence Avanzada | ⏸ PENDIENTE 0/10 | Forecast + Stress Test + Alertas · Prerequisito: ≥6 meses key_metrics |
-> | FASE 31 — Ciclo Intelligence | 🔄 EN CURSO 4/9 | Compromisos + delta + patrones · Prerequisito: ≥1 ciclo completado |
-> | GUARD — Unlock Progress (prerequisito F29-31) | ⏸ PENDIENTE 0/3 | Sistema de desbloqueo progresivo |
+> | FASE 29 — Execution-to-Revenue Pipeline | ✅ CERRADA 10/10 | Tendencias internas + pipeline velocity · Prerequisito: ≥4 semanas actividad |
+> | FASE 30 — Financial Intelligence Avanzada | ✅ CERRADA 10/10 | Forecast + Stress Test + Alertas · Prerequisito: ≥6 meses key_metrics |
+> | FASE 31 — Ciclo Intelligence | ✅ CERRADA 9/9 | Compromisos + delta + patrones · Prerequisito: ≥1 ciclo completado |
+> | GUARD — Unlock Progress (prerequisito F29-31) | ✅ CERRADA 3/3 | Sistema de desbloqueo progresivo |
 >
 > **Deudas técnicas abiertas:** ninguna · ~~I15.DEBT.2~~ (resuelto 2026-03-20) · ~~I15.DEBT.3~~ (resuelto 2026-03-20) · ~~I15.DEBT.4~~ (resuelto 2026-03-20) · ~~I15.FIX.7~~ (resuelto 2026-03-20)
 > **Diferidos conscientes F15 v2:** I15.91 (Holded) · I15.95 (Trello) · I15.96 (Slack) · I15.81 (Team Agent) · Bloques I–M
@@ -3381,17 +3381,17 @@ ORDER  BY critical_count DESC, total DESC;
 
 ---
 
-## GUARD — UNLOCK PROGRESS (prerequisito F29-31) ⏸ PENDIENTE 0/3
+## GUARD — UNLOCK PROGRESS (prerequisito F29-31) ✅ CERRADA 3/3
 > Sistema de desbloqueo progresivo. Nunca "datos insuficientes" — siempre "N de M pasos para desbloquear".
 > Cada paso tiene CTA directo. Fricción → juego.
 
-- [ ] **GUARD.1** RPC `compute_unlock_progress(project_id)` — retorna por feature: `{unlocked, progress_percent, steps: [{done, label, cta_action}]}`
-- [ ] **GUARD.2** `UnlockProgress.tsx` — barra de progreso + checklist + CTAs. Tono positivo.
-- [ ] **GUARD.3** Hook `useUnlockProgress(projectId)`
+- [x] **GUARD.1** RPC `compute_unlock_progress(project_id)` — retorna por feature: `{unlocked, progress_percent, steps: [{done, label, cta_action}]}`
+- [x] **GUARD.2** `UnlockProgress.tsx` — barra de progreso + checklist + CTAs. Tono positivo.
+- [x] **GUARD.3** Hook `useUnlockProgress(projectId)`
 
 ---
 
-## FASE 31 — CICLO INTELLIGENCE 🔄 EN CURSO 4/9
+## FASE 31 — CICLO INTELLIGENCE ✅ 9/9
 > El founder ve la brecha entre lo que prometió y lo que hizo.
 > Con ≥3 ciclos, el sistema detecta patrones de comportamiento.
 > Prerequisito: ≥1 ciclo completado. Valor desde el primer ciclo.
@@ -3404,20 +3404,20 @@ ORDER  BY critical_count DESC, total DESC;
 - [x] **CI31.3** RPC `compute_cycle_delta(cycle_id)` — compara compromisos vs actividad del periodo
 - [x] **CI31.4** `CycleDeltaCard.tsx` — 3 insights: ejecución, distribución foco, blind spots
 
-### Bloque B — Insights progresivos (pendiente)
+### Bloque B — Insights progresivos (completado)
 
-- [ ] **CI31.5** Migración: tabla `founder_patterns`
-- [ ] **CI31.6** RPC `detect_founder_patterns(project_id)` — v1 (1 ciclo: delta), v2 (2: comparación), v3 (3+: patrones con confianza)
-- [ ] **CI31.7** `FounderPatternsCard.tsx` — tono constructivo, adapta copy según número de ciclos
+- [x] **CI31.5** Migración: tabla `founder_patterns`
+- [x] **CI31.6** RPC `detect_founder_patterns(project_id)` — v1 (1 ciclo: delta), v2 (2: comparación), v3 (3+: patrones con confianza)
+- [x] **CI31.7** `FounderPatternsCard.tsx` — tono constructivo, adapta copy según número de ciclos
 
-### Bloque C — Integración con sistema (pendiente)
+### Bloque C — Integración con sistema (completado)
 
-- [ ] **CI31.8** Patrones en contexto Optimus (`get_optimus_context`)
-- [ ] **CI31.9** Banner en `ResetSurface` al iniciar nuevo ciclo si hay patrones detectados
+- [x] **CI31.8** Patrones en contexto Optimus (`get_optimus_context`)
+- [x] **CI31.9** Banner en `ResetSurface` al iniciar nuevo ciclo si hay patrones detectados
 
 ---
 
-## FASE 29 — EXECUTION-TO-REVENUE PIPELINE (LIGHT) 🔄 HACIBLE 0/10
+## FASE 29 — EXECUTION-TO-REVENUE PIPELINE (LIGHT) ✅ CERRADA 10/10
 > El founder ve la dirección entre acciones y resultados.
 > NO es causalidad. Es "cuando haces más X, Y tiende a subir".
 > Prerequisito: ≥4 semanas de actividad con ≥10 tareas + ≥5 OBVs.
@@ -3425,57 +3425,57 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### Bloque A — Tendencias internas (CORE)
 
-- [ ] **ER29.1** RPC `compute_execution_trends(project_id, weeks)` — agrupa por semana: tareas por function_type, OBVs por tipo, facturación
-- [ ] **ER29.2** Tabla `execution_trends` — cache de resultados semanales
-- [ ] **ER29.3** `ExecutionTrendsCard.tsx` — gráfico de área apilada por semana
-- [ ] **ER29.4** `useExecutionTrends` hook
+- [x] **ER29.1** RPC `compute_execution_trends(project_id, weeks)` — agrupa por semana: tareas por function_type, OBVs por tipo, facturación
+- [x] **ER29.2** Tabla `execution_trends` — cache de resultados semanales
+- [x] **ER29.3** `ExecutionTrendsCard.tsx` — gráfico de área apilada por semana
+- [x] **ER29.4** `useExecutionTrends` hook
 
 ### Bloque B — Pipeline velocity interna
 
-- [ ] **ER29.5** RPC `compute_pipeline_velocity(project_id)` — tiempo promedio por transición en `obv_pipeline_history`
-- [ ] **ER29.6** `PipelineVelocityCard.tsx` — funnel con tiempos y bottleneck highlight
+- [x] **ER29.5** RPC `compute_pipeline_velocity(project_id)` — tiempo promedio por transición en `obv_pipeline_history`
+- [x] **ER29.6** `PipelineVelocityCard.tsx` — funnel con tiempos y bottleneck highlight
 
 ### Bloque C — Enriquecimiento (con integraciones si existen)
 
-- [ ] **ER29.7** Extender `compute_execution_trends` para leer `integration_entities` si existen (Asana, Stripe, HubSpot)
-- [ ] **ER29.8** Badge de confianza en cards — "datos manuales" vs "enriquecido con [providers]"
+- [x] **ER29.7** Extender `compute_execution_trends` para leer `integration_entities` si existen (Asana, Stripe, HubSpot)
+- [x] **ER29.8** Badge de confianza en cards — "datos manuales" vs "enriquecido con [providers]"
 
 ### Bloque D — Contexto Optimus
 
-- [ ] **ER29.9** Tendencias en contexto Optimus
-- [ ] **ER29.10** Señal en Focus Block si hay tendencia clara (≥4 semanas consistente)
+- [x] **ER29.9** Tendencias en contexto Optimus
+- [x] **ER29.10** Señal en Focus Block si hay tendencia clara (≥4 semanas consistente)
 
 ---
 
-## FASE 30 — FINANCIAL INTELLIGENCE AVANZADA ⏸ PENDIENTE 0/10
+## FASE 30 — FINANCIAL INTELLIGENCE AVANZADA ✅ CERRADA 10/10
 > Tab Financiero muestra hacia dónde vas, no solo dónde estás.
 > Prerequisito: ≥6 entradas en `key_metrics`. Con integración financiera: ≥3 meses.
 > Plan detallado: `.claude/plans/PLAN_F29_F30_F31_REDESIGN.md`
 
 ### Bloque A — Forecast (CORE)
 
-- [ ] **FI30.1** RPC `compute_mrr_forecast(project_id, months_ahead)` — regresión lineal + banda de confianza
-- [ ] **FI30.2** `MRRForecastCard.tsx` — línea con banda sombreada + disclaimer
+- [x] **FI30.1** RPC `compute_mrr_forecast(project_id, months_ahead)` — regresión lineal + banda de confianza
+- [x] **FI30.2** `MRRForecastCard.tsx` — línea con banda sombreada + disclaimer
 
 ### Bloque B — Stress test
 
-- [ ] **FI30.3** RPC `run_cash_flow_stress_test(project_id)` — 3 escenarios, calcula runway
-- [ ] **FI30.4** `CashFlowStressCard.tsx` — 3 barras con semáforo
+- [x] **FI30.3** RPC `run_cash_flow_stress_test(project_id)` — 3 escenarios, calcula runway
+- [x] **FI30.4** `CashFlowStressCard.tsx` — 3 barras con semáforo
 
 ### Bloque C — Alertas de riesgo
 
-- [ ] **FI30.5** RPC `detect_financial_risks(project_id)` — MRR decreciente, burn>revenue, cobros atrasados
-- [ ] **FI30.6** `FinancialRiskAlerts.tsx` — panel con severidad + qué hacer
+- [x] **FI30.5** RPC `detect_financial_risks(project_id)` — MRR decreciente, burn>revenue, cobros atrasados
+- [x] **FI30.6** `FinancialRiskAlerts.tsx` — panel con severidad + qué hacer
 
 ### Bloque D — Enriquecimiento
 
-- [ ] **FI30.7** Extender forecast/stress con datos Stripe/Holded si conectados
-- [ ] **FI30.8** Churn signal cruzando reuniones + CRM
+- [x] **FI30.7** Extender forecast/stress con datos Stripe/Holded si conectados
+- [x] **FI30.8** Churn signal cruzando reuniones + CRM
 
 ### Bloque E — Contexto Optimus
 
-- [ ] **FI30.9** Insights financieros en Optimus
-- [ ] **FI30.10** Alerta proactiva en MomentBanner si runway <4 meses
+- [x] **FI30.9** Insights financieros en Optimus
+- [x] **FI30.10** Alerta proactiva en MomentBanner si runway <4 meses
 
 ---
 

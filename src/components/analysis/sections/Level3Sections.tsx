@@ -74,6 +74,7 @@ export function CrossSignalsSection({ data }: { data: NonNullable<AnalysisSectio
 // ── Hard Truths ───────────────────────────────────────────────────────────────
 
 function TruthCard({ truth, i }: { truth: NonNullable<AnalysisSection['hard_truths']>[number]; i: number }) {
+  const { t } = useTranslation();
   return (
     <div
       key={i}
@@ -92,7 +93,7 @@ function TruthCard({ truth, i }: { truth: NonNullable<AnalysisSection['hard_trut
       </div>
       <div className="rounded-md bg-red-100 dark:bg-red-900/30 px-2.5 py-1.5">
         <p className="text-xs text-red-700 dark:text-red-300">
-          <span className="font-medium">Si lo ignoras: </span>{truth.risk_if_ignored}
+          <span className="font-medium">{t('analysis.siLoIgnoras')}: </span>{truth.risk_if_ignored}
         </p>
       </div>
     </div>
@@ -100,8 +101,9 @@ function TruthCard({ truth, i }: { truth: NonNullable<AnalysisSection['hard_trut
 }
 
 export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection['hard_truths']> }) {
-  const strong = data.filter(t => t.reliability >= 0.6);
-  const uncertain = data.filter(t => t.reliability < 0.6);
+  const { t } = useTranslation();
+  const strong = data.filter(item => item.reliability >= 0.6);
+  const uncertain = data.filter(item => item.reliability < 0.6);
 
   if (!strong.length && !uncertain.length) {
     return (
@@ -161,7 +163,7 @@ export function HardTruthsSection({ data }: { data: NonNullable<AnalysisSection[
                 </div>
                 <div className="rounded-md bg-amber-100 dark:bg-amber-900/30 px-2.5 py-1.5">
                   <p className="text-xs text-amber-700 dark:text-amber-300">
-                    <span className="font-medium">A vigilar: </span>{truth.risk_if_ignored}
+                    <span className="font-medium">{t('analysis.aVigilar')}: </span>{truth.risk_if_ignored}
                   </p>
                 </div>
               </div>

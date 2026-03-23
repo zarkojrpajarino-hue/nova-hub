@@ -18,7 +18,8 @@ export type MomentType =
   | 'hard_signal_close'
   | 'cycle_ending_soon'
   | 'regression_risk'
-  | 'bottleneck_alert';
+  | 'bottleneck_alert'
+  | 'low_runway_alert';
 
 export type MomentSeverity = 'celebration' | 'info' | 'warning';
 
@@ -51,6 +52,8 @@ export interface MomentDetectorInput {
   activeCycleScore: number | null;
   // Bottleneck
   activeBlockDays: number;         // days of oldest active strategic_block (0 if none)
+  // F30: Financial runway
+  runwayMonths: number | null;     // from key_metrics or stress test (null if unknown)
   // Previously seen moments (to avoid repeating)
   seenMoments: string[];         // array of moment types already shown
 }
@@ -181,6 +184,18 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       title: 'Bloqueo activo prolongado',
       message: `Tienes un bloqueo activo desde hace ${input.activeBlockDays} días. Los bloqueos >14 días correlacionan con regresión de fase.`,
       data: { blockDays: input.activeBlockDays },
+    });
+  }
+
+  // [FI30.10] Low runway alert (<4 months)
+  if (input.runwayMonths !== null && input.runwayMonths < 4
+    && !input.seenMoments.includes(`low_runway_alert_${weekKey}`)) {
+    moments.push({
+      type: 'low_runway_alert',
+      severity: 'warning',
+      title: 'Alerta de runway',
+      message: `Tu runway es de ${Math.round(input.runwayMonths)} meses. Revisa tu estrategia financiera.`,
+      data: { runwayMonths: input.runwayMonths },
     });
   }
 

@@ -22,7 +22,8 @@ interface ContextualExampleProps {
   businessType?: string;
 }
 
-const EXAMPLES: Record<string, Example> = {
+function getExamples(t: (k: string) => string): Record<string, Example> {
+  return {
   // Problem statements
   'problem-saas': {
     good: t('generative.losProductManagersEn'),
@@ -86,11 +87,13 @@ const EXAMPLES: Record<string, Example> = {
     good: 'Post en r/web_design (2.1M members) + r/freelance (500K) con título Tired of Upwork 20% fees? link a landing. Objetivo: 50 signups en 1 semana',
     bad: t('generative.postearEnReddit'),
     tip: t('generative.defineSubredditsExactosHeadline'),
-  },
+  };
 };
+}
 
 export function ContextualExample({ fieldType, industry, businessType }: ContextualExampleProps) {
   const { t } = useTranslation();
+  const EXAMPLES = getExamples(t);
   // Build example key based on field + context
   let exampleKey = fieldType;
 

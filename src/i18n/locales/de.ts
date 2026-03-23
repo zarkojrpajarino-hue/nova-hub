@@ -1,4 +1,4 @@
-// Auto-generated — 6922 keys
+// Auto-generated — 6982 keys
 /* eslint-disable */
 export const de = {
   "aIAnalysis": {
@@ -516,7 +516,7 @@ export const de = {
     "meetingAgent0": "Meeting Agent",
     "analizandoPipelineDeVentas": "Verkaufs-Pipeline wird analysiert...",
     "análisisDeVentas": "Vertriebsanalyse",
-    "salesAgent": "Sales Agent",
+    "salesAgent": "Vertriebsmitarbeiter",
     "integraciónConSlack": "Slack-Integration",
     "recibeNotificacionesAutomáticasEn": "Erhalten Sie automatische Benachrichtigungen in Ihrem Workspace",
     "configurarSlackWebhook": "Slack Webhook konfigurieren",
@@ -649,7 +649,7 @@ export const de = {
     "trelloNoteLabel": "Hinweis",
     "trelloNoteText": "Sie benötigen einen API Key und ein Token von Trello. Sie finden diese unter",
     "trelloPowerUpsAdmin": "Trello Power-Ups Admin",
-    "trelloApiKey": "API Key",
+    "trelloApiKey": "API-Schlüssel",
     "trelloApiKeyPlaceholder": "Ihr Trello API Key",
     "trelloToken": "Token",
     "trelloTokenPlaceholder": "Ihr Trello Token",
@@ -658,7 +658,7 @@ export const de = {
     "trelloConnect": "Trello verbinden",
     "trelloActiveDescription": "Cards werden manuell von Ihren offenen Boards synchronisiert.",
     "trelloLastSync": "Letzte Synchronisierung",
-    "trelloCardsSynced": "Cards",
+    "trelloCardsSynced": "Karten",
     "trelloBoardsSynced": "Boards",
     "trelloConnectedWhatNext": "Trello verbunden — was kommt als Nächstes",
     "trelloStep1Title": "Drücken Sie Jetzt synchronisieren",
@@ -2036,7 +2036,17 @@ export const de = {
     "inputsMásSinDatos": "Eingaben ohne Daten",
     "estosValoresDelMotor": "Dies sind die Werte, die die Engine zur Berechnung des Scores verwendet.",
     "valoresMásAltosRiesgo": "Höhere Werte = höheres Risiko.",
-    "valoresMásAltosProbabilidad": "Höhere Werte = höhere Erfolgswahrscheinlichkeit."
+    "valoresMásAltosProbabilidad": "Höhere Werte = höhere Erfolgswahrscheinlichkeit.",
+    "patternsTitle": "Gründer-Muster",
+    "patternsSubtitle": "Dies ist kein Urteil — es ist ein Spiegel. Erkannte Muster aus Ihren vorherigen Zyklen.",
+    "patternsEmpty": "Schließen Sie Ihren ersten strategischen Zyklus ab, um Muster zu erkennen.",
+    "patternsEvidence": "Basierend auf {{count}} analysiertem/analysierten Zyklus/Zyklen",
+    "confidence_observation": "Beobachtung",
+    "confidence_early_signal": "Frühes Signal",
+    "confidence_pattern": "Muster",
+    "patronesDetectados": "Erkannte Muster aus vorherigen Zyklen:",
+    "patronesBannerCollapse": "Muster ausblenden",
+    "patronesBannerExpand": "Erkannte Muster anzeigen"
   },
   "rootRedirect": {
     "cargando": "Wird geladen..."
@@ -2760,7 +2770,11 @@ export const de = {
     "whyObvRechazada": "Eine OBV wurde während des Peer-to-Peer-Validierungsprozesses abgelehnt.",
     "whyTareaAsignada": "Ihnen wurde eine neue Aufgabe im Projekt zugewiesen. Überprüfen Sie sie, um Ihre Ausführung aktuell zu halten.",
     "whyLeadGanado": "Ein Lead aus dem CRM wurde als gewonnen markiert. Dies wirkt sich auf die Umsatzmetriken des Projekts aus.",
-    "whyDefault": "Diese Benachrichtigung wurde durch ein systembezogenes Ereignis generiert, das für Ihr Projekt relevant ist."
+    "whyDefault": "Diese Benachrichtigung wurde durch ein systembezogenes Ereignis generiert, das für Ihr Projekt relevant ist.",
+    "porQuéRecibisteEsta": "Warum haben Sie diese Benachrichtigung erhalten?",
+    "tipo": "Typ",
+    "prioridad": "Priorität",
+    "estaNotificaciónSe": "Benachrichtigungen werden automatisch durch Systemereignisse generiert, die für Ihr Projekt und Ihre aktuelle Phase relevant sind."
   },
   "oBVCenter": {
     "misObvs": "Meine OBVs",
@@ -3379,7 +3393,7 @@ export const de = {
     "amigable": "Freundlich",
     "casual": "Ungezwungen",
     "formal": "Formell",
-    "callToAction": "Call to Action",
+    "callToAction": "Handlungsaufforderung",
     "dejarQueIaDecida": "KI entscheiden lassen",
     "agendarLlamada": "Anruf vereinbaren",
     "solicitarDemo": "Demo anfordern",
@@ -4066,16 +4080,16 @@ export const de = {
   "kpi": {
     "editarKpis": "KPIs bearbeiten",
     "obvs": "OBVs",
-    "learningPaths": "Learning Paths",
-    "bookPoints": "Book Points",
-    "communityPoints": "Community Points",
+    "learningPaths": "Lernpfade",
+    "bookPoints": "Buchpunkte",
+    "communityPoints": "Community-Punkte",
     "cancelar": "Abbrechen",
     "kpisActualizadosCorrectamente": "KPIs erfolgreich aktualisiert",
     "errorAlActualizarKpis": "Fehler beim Aktualisieren der KPIs",
     "subeTuPrimeroUsando": "Laden Sie Ihre erste Datei mit der Schaltfläche oben hoch!",
-    "learningPath": "Learning Path",
-    "bookPoint": "Book Point",
-    "communityPoint": "Community Point",
+    "learningPath": "Lernpfad",
+    "bookPoint": "Buchpunkt",
+    "communityPoint": "Community-Punkt",
     "validado": "Validiert",
     "rechazado": "Abgelehnt",
     "pendiente": "Ausstehend",
@@ -4292,7 +4306,7 @@ export const de = {
     "lead": "Lead",
     "obvsActualizados": "OBVs aktualisiert",
     "obvActualizado": "OBV aktualisiert",
-    "blockers": "Blockers",
+    "blockers": "Blocker",
     "blocker": "Blocker",
     "métricas": "Metriken",
     "métrica": "Metrik",
@@ -6007,7 +6021,7 @@ export const de = {
     "jamesWilson": "James Wilson",
     "dataAnalyst": "Datenanalyst",
     "dataScienceLead": "Data-Science-Leiter",
-    "analytics": "Analytics",
+    "analytics": "Analytik",
     "emilyParker": "Emily Parker",
     "mariaGarcia": "Maria Garcia",
     "uxDesigner": "UX-Designer",
@@ -6417,7 +6431,7 @@ export const de = {
     "entendidoContinuar": "Verstanden, Fortfahren",
     "junior": "Junior",
     "senior": "Senior",
-    "expert": "Expert"
+    "expert": "Experte"
   },
   "rotation": {
     "analizandoCompatibilidades": "Kompatibilität wird analysiert...",
@@ -7090,7 +7104,7 @@ export const de = {
     "feat4Desc": "Vereinige Validierung, CRM, Vertrieb und Rechnungen in einem System.",
     "feat5": "Team & Growth",
     "feat5Desc": "Rotierbare Rollen, Lernpfade und personalisiertes KI-Coaching.",
-    "feat6": "Financial Projections",
+    "feat6": "Finanzielle Prognosen",
     "feat6Desc": "Cash-Flow-, MRR- und Runway-Projektionen mit echten Daten.",
     "pricingTitle": "Pläne für jede Phase",
     "pricingSub": "Wähle den Plan, der zu Deinem Startup passt",
@@ -7105,5 +7119,59 @@ export const de = {
     "finalSub": "Starten Sie kostenlos heute. Ohne Kreditkarte.",
     "finalCta": "Starten Sie Ihr Onboarding",
     "copyright": "© {{year}} Optimus-K. Alle Rechte vorbehalten."
+  },
+  "optimus": {
+    "feedbackIrrelevant": "Nicht relevant",
+    "feedbackWrong": "Falsche Informationen",
+    "feedbackBadTiming": "Schlechter Zeitpunkt",
+    "feedbackTooObvious": "Zu offensichtlich",
+    "feedbackHelpful": "Nützlich",
+    "feedbackInsightful": "Aufschlussreich",
+    "feedbackError": "Fehler beim Speichern des Feedbacks",
+    "feedbackThanks": "Vielen Dank für Ihr Feedback",
+    "feedbackWhyBad": "Was ist schiefgelaufen?",
+    "feedbackWhyGood": "Was hat Ihnen geholfen?",
+    "feedbackSkipCategory": "Nicht angegeben"
+  },
+  "guard": {
+    "stepsRemaining": "verbleibende Schritte",
+    "go": "Weiter"
+  },
+  "executionTrends": {
+    "title": "Ausführungstrends",
+    "subtitle": "Wöchentliche Aktivität nach Aufgabentyp und OBV. Richtung, keine Kausalität.",
+    "unlockTitle": "Ausführungstrends freischalten",
+    "unlockDescription": "Erledigen Sie mehr Aufgaben und OBVs, um Ihre Trends zu sehen",
+    "trendTasks": "Aufgaben",
+    "trendOBVs": "OBVs",
+    "trendRevenue": "Umsatz",
+    "tasksDemand": "Nachfrage-Aufgaben",
+    "tasksDelivery": "Lieferaufgaben",
+    "tasksCash": "Cash-Aufgaben",
+    "obvsVenta": "Verkaufs-OBVs",
+    "obvsValidacion": "Validierungs-OBVs",
+    "obvsExploracion": "Erkunden-OBVs",
+    "insightBothUp": "Wenn Ihre Aufgaben steigen, steigen auch die OBVs tendenziell. Gutes Tempo.",
+    "insightTasksDown": "Ihre abgeschlossenen Aufgaben sinken seit Wochen. Wenn die Ausführung sinkt, folgen die Ergebnisse tendenziell.",
+    "manualData": "Basierend auf manuellen Daten",
+    "enrichedWith": "Angereichert mit {{providers}}"
+  },
+  "pipelineVelocity": {
+    "title": "Pipeline-Geschwindigkeit",
+    "subtitle": "Durchschnittliche Zeit zwischen jeder Phase der Verkaufs-Pipeline",
+    "unlockTitle": "Pipeline-Geschwindigkeit freischalten",
+    "unlockDescription": "Registrieren Sie mehr OBVs mit Pipeline, um die Geschwindigkeit zu sehen",
+    "bottleneck": "Engpass erkannt",
+    "bottleneckDetected": "Engpass",
+    "transitions": "Übergänge",
+    "noData": "Noch keine Pipeline-Übergangsdaten. Verschieben Sie OBVs zwischen Phasen, um die Geschwindigkeit zu sehen.",
+    "status_frio": "Kalt",
+    "status_tibio": "Warm",
+    "status_hot": "Heiß",
+    "status_propuesta": "Angebot",
+    "status_negociacion": "Verhandlung",
+    "status_cerrado_ganado": "Gewonnen",
+    "status_cerrado_perdido": "Verloren",
+    "focusSignal": "Ihre {{metric}} steigen seit {{weeks}} Wochen konstant"
   }
 } as const;

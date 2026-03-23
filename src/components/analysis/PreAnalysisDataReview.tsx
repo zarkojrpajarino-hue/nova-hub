@@ -32,11 +32,13 @@ interface PreAnalysisDataReviewProps {
   onClose: () => void;
 }
 
-const LEVEL_LABELS: Record<number, string> = {
-  1: t('analysis.nivel1DiagnósticoInicial'),
-  2: t('analysis.nivel2ConDatos'),
-  3: t('analysis.nivel3AnálisisCompleto'),
-};
+function getLevelLabels(t: (k: string) => string): Record<number, string> {
+  return {
+    1: t('analysis.nivel1DiagnósticoInicial'),
+    2: t('analysis.nivel2ConDatos'),
+    3: t('analysis.nivel3AnálisisCompleto'),
+  };
+}
 
 export function PreAnalysisDataReview({
   open,
@@ -47,6 +49,7 @@ export function PreAnalysisDataReview({
   onClose,
 }: PreAnalysisDataReviewProps) {
   const { t } = useTranslation();
+  const LEVEL_LABELS = getLevelLabels(t);
   const [additionalContext, setAdditionalContext] = useState('');
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
@@ -59,7 +62,7 @@ export function PreAnalysisDataReview({
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-2xl max-h-[85vh] overflow-y-auto">
         <DialogHeader>
-          <DialogTitle>Revisión de datos — {LEVEL_LABELS[level]}</DialogTitle>
+          <DialogTitle>{t('analysis.revisiónDeDatos')} — {LEVEL_LABELS[level]}</DialogTitle>
           <DialogDescription>{t('analysis.laIaUsaráExactamente')}</DialogDescription>
         </DialogHeader>
 
@@ -117,7 +120,7 @@ export function PreAnalysisDataReview({
 
         {/* Contexto adicional */}
         <div className="space-y-2">
-          <Label htmlFor="additional-context" className="text-sm font-medium">Contexto adicional<span className="font-normal text-gray-500">(opcional)</span>
+          <Label htmlFor="additional-context" className="text-sm font-medium">{t('analysis.contextoAdicional')}<span className="font-normal text-gray-500">({t('analysis.opcional')})</span>
           </Label>
           <Textarea
             id="additional-context"
@@ -137,7 +140,7 @@ export function PreAnalysisDataReview({
               <>
                 <Loader2 className="h-4 w-4 animate-spin" />{t('analysis.generandoAnálisis')}</>
             ) : (
-              <>Generar análisis →</>
+              <>{t('analysis.generarAnálisis')} →</>
             )}
           </Button>
         </DialogFooter>
@@ -159,55 +162,57 @@ export function buildDataRows(
     runway?: number | null;
     connections?: Array<{ provider: string; last_sync_at: string }>;
     decisions?: number;
-  }
+  },
+  t?: (k: string) => string,
 ): DataRow[] {
+  const tr = t ?? ((k: string) => k);
   const rows: DataRow[] = [
     {
-      label: t('analysis.proyecto'),
+      label: tr('analysis.proyecto'),
       value: projectData?.nombre ?? '—',
-      source: { name: t('analysis.onboarding'), type: 'declared', updated_at: null },
+      source: { name: tr('analysis.onboarding'), type: 'declared', updated_at: null },
     },
     {
-      label: t('analysis.faseActualDelMotor'),
+      label: tr('analysis.faseActualDelMotor'),
       value: projectData?.fase ? `Fase ${projectData.fase}` : '—',
-      source: { name: t('analysis.motorDeFases'), type: 'estimated', updated_at: null },
+      source: { name: tr('analysis.motorDeFases'), type: 'estimated', updated_at: null },
     },
     {
-      label: t('analysis.nivelDeRiesgo'),
+      label: tr('analysis.nivelDeRiesgo'),
       value: projectData?.riskLevel ?? '—',
-      source: { name: t('analysis.motorDeRiesgo'), type: 'estimated', updated_at: null },
+      source: { name: tr('analysis.motorDeRiesgo'), type: 'estimated', updated_at: null },
     },
     {
-      label: t('analysis.probabilidadDeÉxito'),
+      label: tr('analysis.probabilidadDeÉxito'),
       value: projectData?.probability !== undefined ? `${projectData.probability}%` : '—',
-      source: { name: t('analysis.motorDeProbabilidad'), type: 'estimated', updated_at: null },
+      source: { name: tr('analysis.motorDeProbabilidad'), type: 'estimated', updated_at: null },
     },
     {
-      label: t('analysis.decisionesEstratégicas'),
-      value: projectData?.decisions !== undefined ? `${projectData.decisions} registradas` : '—',
-      source: { name: t('analysis.decisiones'), type: 'observed', updated_at: null },
+      label: tr('analysis.decisionesEstratégicas'),
+      value: projectData?.decisions !== undefined ? `${projectData.decisions} ${tr('analysis.registradas')}` : '—',
+      source: { name: tr('analysis.decisiones'), type: 'observed', updated_at: null },
     },
   ];
 
   if (level >= 2) {
     rows.push({
-      label: t('analysis.mrrActual'),
+      label: tr('analysis.mrrActual'),
       value: projectData?.mrr !== null && projectData?.mrr !== undefined
         ? `€${projectData.mrr.toLocaleString('es')}`
-        : t('analysis.sinDatosDeIntegración'),
-      source: { name: t('analysis.stripeMétricas'), type: projectData?.mrr ? 'observed' : 'declared', updated_at: null },
+        : tr('analysis.sinDatosDeIntegración'),
+      source: { name: tr('analysis.stripeMétricas'), type: projectData?.mrr ? 'observed' : 'declared', updated_at: null },
     });
     rows.push({
-      label: t('analysis.runwayEstimado'),
+      label: tr('analysis.runwayEstimado'),
       value: projectData?.runway !== null && projectData?.runway !== undefined
-        ? `${projectData.runway} meses`
+        ? `${projectData.runway} ${tr('analysis.meses')}`
         : '—',
-      source: { name: t('analysis.métricasFinancieras'), type: 'declared', updated_at: null },
+      source: { name: tr('analysis.métricasFinancieras'), type: 'declared', updated_at: null },
     });
     for (const conn of (projectData?.connections ?? [])) {
       rows.push({
-        label: `Integración ${conn.provider}`,
-        value: t('analysis.activa'),
+        label: `${tr('analysis.integración')} ${conn.provider}`,
+        value: tr('analysis.activa'),
         source: { name: conn.provider, type: 'observed', updated_at: conn.last_sync_at },
       });
     }

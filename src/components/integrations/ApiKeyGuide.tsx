@@ -24,7 +24,7 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog'
 import { Button } from '@/components/ui/button'
-import { ExternalLink, HelpCircle, Key, Settings, Copy, ArrowRight, Shield, Globe, Hash, BookOpen, FileText, CreditCard, LayoutGrid, MessageSquare } from 'lucide-react'
+import { ExternalLink, HelpCircle, Key, Settings, Copy, ArrowRight, Shield, Globe, BookOpen, LayoutGrid, MessageSquare } from 'lucide-react'
 
 import { useTranslation } from 'react-i18next';
 interface Step {

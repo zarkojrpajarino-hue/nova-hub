@@ -22,6 +22,7 @@ import { useProjectEngineData } from '@/hooks/useNovaDataOptimized'
 import { useAgentContext } from '@/hooks/useAgentContext'
 import { useProjectContext } from '@/hooks/useProjectContext'
 import { buildNextAction } from '@/lib/build-next-action'
+import { useExecutionTrends } from '@/hooks/useExecutionTrends'
 import { SourceBadge } from '@/components/shared/SourceBadge';
 import {
   trackFocusBlockImpression,
@@ -74,10 +75,12 @@ function useOverdueTasks(projectId: string) {
   })
 }
 
-const URGENCY_CONFIG = {
-  high:   { label: t('project.urgente'),      className: 'bg-red-100 text-red-800 border-red-200' },
-  medium: { label: t('project.estaSemana'),  className: 'bg-amber-100 text-amber-800 border-amber-200' },
-  low:    { label: t('project.enProgreso'),  className: 'bg-blue-100 text-blue-800 border-blue-200' },
+function getUrgencyConfig(t: (k: string) => string) {
+  return {
+    high:   { label: t('project.urgente'),      className: 'bg-red-100 text-red-800 border-red-200' },
+    medium: { label: t('project.estaSemana'),  className: 'bg-amber-100 text-amber-800 border-amber-200' },
+    low:    { label: t('project.enProgreso'),  className: 'bg-blue-100 text-blue-800 border-blue-200' },
+  };
 }
 
 const RELIABILITY_CONFIG = {
@@ -100,6 +103,8 @@ export function NextActionFocusBlock({
   projectId,
   onNavigateToTab,
 }: NextActionFocusBlockProps) {
+  const { t } = useTranslation();
+  const URGENCY_CONFIG = getUrgencyConfig(t);
   const _navigate = useNavigate()
   const [signalsExpanded, setSignalsExpanded] = useState(false)
 
@@ -108,6 +113,18 @@ export function NextActionFocusBlock({
   const { data: projectCtx } = useProjectContext(projectId)
   const { data: overdueCount = 0 } = useOverdueTasks(projectId)
   const { data: urgentDecisions = [] } = useAnalysisUrgentDecisions(projectId)
+  const { data: trendsData } = useExecutionTrends(projectId, 4)
+
+  // ER29.10 — Detect consistent trend (4 weeks same direction)
+  const consistentTrend = (() => {
+    if (!trendsData?.trends) return null
+    const { tasks, obvs } = trendsData.trends
+    if (tasks === 'up' && tasks === obvs) return { metric: 'tareas y OBVs', direction: 'up' as const }
+    if (tasks === 'up') return { metric: 'tareas', direction: 'up' as const }
+    if (obvs === 'up') return { metric: 'OBVs', direction: 'up' as const }
+    if (tasks === 'down') return { metric: 'tareas', direction: 'down' as const }
+    return null
+  })()
 
   // AUD.M.4 — Digest Mode vars
   const agentInsights = agentCtx?.insights ?? []
@@ -328,6 +345,21 @@ export function NextActionFocusBlock({
               {urgentDecisions[0].cta.label ?? t('project.verAnálisis')}
             </button>
           )}
+        </div>
+      )}
+
+      {/* ER29.10 — Execution trend signal when consistent for 4+ weeks */}
+      {consistentTrend && (
+        <div className={cn(
+          'border-t border-border pt-3 flex items-center gap-1.5 text-xs',
+          consistentTrend.direction === 'up'
+            ? 'text-green-600 dark:text-green-400'
+            : 'text-amber-600 dark:text-amber-400'
+        )}>
+          <span className="shrink-0">{consistentTrend.direction === 'up' ? '↑' : '↓'}</span>
+          <span>
+            {t('pipelineVelocity.focusSignal', { metric: consistentTrend.metric, weeks: '4' })}
+          </span>
         </div>
       )}
     </div>

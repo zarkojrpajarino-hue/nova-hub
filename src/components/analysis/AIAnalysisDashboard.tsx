@@ -83,7 +83,7 @@ export function AIAnalysisDashboard({
     runway,
     connections: activeConnections,
     decisions: decisionCount,
-  });
+  }, t);
 
   // ── Sin nivel desbloqueado ────────────────────────────────────────────────
   if (!unlockedLevel) {
@@ -92,11 +92,10 @@ export function AIAnalysisDashboard({
       <div className="flex flex-col items-center justify-center py-16 text-center space-y-3">
         <Clock className="h-10 w-10 text-gray-300" />
         <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300">
-          Análisis disponible en {daysLeft} día{daysLeft !== 1 ? 's' : ''}
+          {t('analysis.análisisDisponibleEn', { days: daysLeft })}
         </h3>
         <p className="text-sm text-gray-500 max-w-sm">
-          El análisis IA se activa cuando el proyecto lleva al menos 14 días activo.
-          Así hay suficientes datos para un diagnóstico con sentido.
+          {t('analysis.elAnálisisIaSeActiva')}
         </p>
       </div>
     );
@@ -110,7 +109,7 @@ export function AIAnalysisDashboard({
           <div className="flex items-center gap-2 flex-wrap">
             <h2 className="text-xl font-bold text-gray-900 dark:text-gray-100">{projectName}</h2>
             <Badge variant="outline" className="text-xs">
-              Nivel {level}
+              {t('analysis.nivel')} {level}
             </Badge>
             {isStale && (
               <Badge className="text-xs bg-amber-100 text-amber-700 border-amber-200">
@@ -119,13 +118,13 @@ export function AIAnalysisDashboard({
           </div>
           {cachedAnalysis && (
             <p className="text-xs text-gray-500 mt-1">
-              Generado {formatDistanceToNow(new Date(cachedAnalysis.generated_at), { addSuffix: true, locale: getDateFnsLocale() })}
+              {t('analysis.generadoHace')} {formatDistanceToNow(new Date(cachedAnalysis.generated_at), { addSuffix: true, locale: getDateFnsLocale() })}
               {' · '}
               <button
                 className="underline hover:text-gray-700"
                 onClick={() => setShowSources(v => !v)}
               >
-                {showSources ? 'Ocultar fuentes': t('analysis.deDóndeVieneEsto')}
+                {showSources ? t('analysis.ocultarFuentes') : t('analysis.deDóndeVieneEsto')}
               </button>
             </p>
           )}
@@ -153,7 +152,7 @@ export function AIAnalysisDashboard({
       {!canRegenerate && nextRegenerationAt && (
         <div className="flex items-center gap-2 text-xs text-gray-500 -mt-4">
           <Clock className="h-3.5 w-3.5" />
-          Próxima regeneración a las {nextRegenerationAt.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
+          {t('analysis.próximaRegeneración')} {nextRegenerationAt.toLocaleTimeString('es', { hour: '2-digit', minute: '2-digit' })}
         </div>
       )}
 

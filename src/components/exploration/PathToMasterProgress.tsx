@@ -94,6 +94,7 @@ export function PathToMasterProgress({
     const interval = setInterval(calculateTimeRemaining, 60000); // Actualizar cada minuto
 
     return () => clearInterval(interval);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [endDate]);
 
   // Calcular progreso general

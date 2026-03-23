@@ -14,6 +14,7 @@ import { useNavigate, useParams } from 'react-router-dom';
 import type { AnalysisSection } from '@/hooks/useProjectAnalysis';
 
 import { useTranslation } from 'react-i18next';
+
 // ── Executive Summary ─────────────────────────────────────────────────────────
 
 export function ExecutiveSummarySection({ data }: { data: NonNullable<AnalysisSection['executive_summary']> }) {
@@ -79,7 +80,8 @@ const VERDICT_CONFIG = {
 };
 
 export function PhaseFitSection({ data }: { data: NonNullable<AnalysisSection['phase_fit']> }) {
-  const cfg = VERDICT_CONFIG[data.verdict] ?? VERDICT_CONFIG[t('analysis.parcialmente')];
+  const { t } = useTranslation();
+  const cfg = VERDICT_CONFIG[data.verdict] ?? VERDICT_CONFIG['Parcialmente'];
 
   return (
     <Card>
@@ -91,7 +93,7 @@ export function PhaseFitSection({ data }: { data: NonNullable<AnalysisSection['p
         {/* Veredicto */}
         <div className={`flex items-center gap-2 rounded-lg border px-3 py-2 w-fit ${cfg.bg} ${cfg.color}`}>
           {cfg.icon}
-          <span className="font-semibold">¿Haciendo lo correcto para su fase? {data.verdict}</span>
+          <span className="font-semibold">{t('analysis.haciendoLoCorrecto')} {data.verdict}</span>
         </div>
 
         {/* Razones */}
@@ -127,6 +129,7 @@ export function PhaseFitSection({ data }: { data: NonNullable<AnalysisSection['p
 // ── Contradictions ────────────────────────────────────────────────────────────
 
 export function ContradictionsSection({ data }: { data: NonNullable<AnalysisSection['contradictions']> }) {
+  const { t } = useTranslation();
   if (!data.length) return null;
 
   return (
@@ -159,7 +162,7 @@ export function ContradictionsSection({ data }: { data: NonNullable<AnalysisSect
             </div>
             <div className="rounded-md bg-orange-100 dark:bg-orange-900/30 px-2.5 py-1.5">
               <p className="text-xs text-orange-700 dark:text-orange-300">
-                <span className="font-medium">Tensión: </span>{item.tension}
+                <span className="font-medium">{t('analysis.tensión')}: </span>{item.tension}
               </p>
             </div>
           </div>
@@ -172,6 +175,7 @@ export function ContradictionsSection({ data }: { data: NonNullable<AnalysisSect
 // ── Urgent Decisions ──────────────────────────────────────────────────────────
 
 export function UrgentDecisionsSection({ data }: { data: NonNullable<AnalysisSection['urgent_decisions']> }) {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
 
@@ -195,7 +199,7 @@ export function UrgentDecisionsSection({ data }: { data: NonNullable<AnalysisSec
             </div>
             <p className="text-xs text-gray-600 dark:text-gray-400">{decision.context}</p>
             <p className="text-xs text-red-600 dark:text-red-400">
-              <span className="font-medium">Si no decides: </span>{decision.consequence}
+              <span className="font-medium">{t('analysis.siNoDecides')}: </span>{decision.consequence}
             </p>
             {decision.cta?.label && (
               <Button

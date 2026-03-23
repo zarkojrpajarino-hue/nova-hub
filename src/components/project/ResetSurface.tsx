@@ -18,7 +18,8 @@
  */
 
 import { useState } from 'react';
-import { RefreshCw, ArrowRight, Loader2, AlertTriangle, CheckCircle, Target, Lightbulb, ShieldAlert, TrendingUp } from 'lucide-react';
+import { useQuery } from '@tanstack/react-query';
+import { RefreshCw, ArrowRight, Loader2, AlertTriangle, CheckCircle, Target, Lightbulb, ShieldAlert, TrendingUp, Eye, ChevronDown, ChevronUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Input } from '@/components/ui/input';
@@ -147,6 +148,54 @@ function FieldBlock({
 // Phase: Form
 // =============================================================================
 
+function PatternsBanner({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
+  const [expanded, setExpanded] = useState(true);
+  const { data: patterns } = useQuery({
+    queryKey: ['founder-patterns-banner', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('founder_patterns')
+        .select('pattern_type, description, confidence')
+        .eq('project_id', projectId)
+        .eq('status', 'active')
+        .order('detected_at', { ascending: false })
+        .limit(5);
+      if (error) throw error;
+      return data ?? [];
+    },
+    enabled: !!projectId,
+    staleTime: 10 * 60 * 1000,
+  });
+
+  if (!patterns || patterns.length === 0) return null;
+
+  return (
+    <div className="border border-amber-500/30 bg-amber-500/5 rounded-xl p-4 space-y-2">
+      <button
+        type="button"
+        onClick={() => setExpanded(!expanded)}
+        className="flex items-center gap-2 w-full text-left"
+      >
+        <Eye size={14} className="text-amber-600 shrink-0" />
+        <span className="text-sm font-medium text-amber-700 flex-1">
+          {t('project.patronesDetectados')}
+        </span>
+        {expanded ? <ChevronUp size={14} className="text-amber-600" /> : <ChevronDown size={14} className="text-amber-600" />}
+      </button>
+      {expanded && (
+        <ul className="space-y-1 pl-6">
+          {patterns.map((p, i) => (
+            <li key={i} className="text-xs text-amber-700/80 list-disc">
+              {p.description}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
+
 function RitualForm({
   responses,
   onChange,
@@ -154,6 +203,7 @@ function RitualForm({
   isSubmitting,
   submitError,
   onSkip,
+  projectId,
 }: {
   responses: RitualResponses;
   onChange: (field: keyof RitualResponses, value: string) => void;
@@ -161,6 +211,7 @@ function RitualForm({
   isSubmitting: boolean;
   submitError: string | null;
   onSkip?: () => void;
+  projectId: string;
 }) {
   const allFilled = REQUIRED_RITUAL_FIELDS.every(f => responses[f].trim().length > 0);
 
@@ -175,6 +226,9 @@ function RitualForm({
         <h2 className="text-2xl font-bold leading-snug">{t('project.revisiónEstratégicaDelCiclo')}</h2>
         <p className="text-sm text-muted-foreground">{t('project.elCicloHaCerrado')}</p>
       </div>
+
+      {/* F31 Bloque C: Patterns banner — show detected patterns before ritual questions */}
+      <PatternsBanner projectId={projectId} />
 
       {/* Q1 — evidence_progress */}
       <FieldBlock
@@ -775,6 +829,7 @@ export function ResetSurface({ projectId, onComplete, onSkip }: ResetSurfaceProp
       isSubmitting={isPending}
       submitError={submitError}
       onSkip={onSkip}
+      projectId={projectId}
     />
   );
 }
