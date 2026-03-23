@@ -11,6 +11,7 @@
 import { useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
+import { OptimusLogo } from '@/components/brand/OptimusLogo';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { Loader2 } from 'lucide-react';
 
@@ -53,8 +54,8 @@ export function RootRedirect() {
   return (
     <div className="min-h-screen bg-background flex items-center justify-center">
       <div className="text-center">
-        <div className="w-12 h-12 optimus-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse mx-auto mb-4">
-          O
+        <div className="mx-auto mb-4">
+          <OptimusLogo size={48} className="animate-pulse" />
         </div>
         <Loader2 className="w-6 h-6 animate-spin text-primary mx-auto" />
         <p className="text-sm text-muted-foreground mt-2">{t('rootRedirect.cargando')}</p>

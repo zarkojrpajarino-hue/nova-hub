@@ -1,5 +1,6 @@
 import { lazy, Suspense } from 'react';
 import { Toaster } from "@/components/ui/toaster";
+import { OptimusLogo } from '@/components/brand/OptimusLogo';
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
@@ -58,9 +59,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-12 h-12 optimus-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse">
-          O
-        </div>
+        <OptimusLogo size={48} className="animate-pulse" />
       </div>
     );
   }

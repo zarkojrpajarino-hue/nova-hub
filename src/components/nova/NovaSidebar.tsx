@@ -4,6 +4,7 @@ import {
   BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target, Layers, Home, Users, Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { OptimusLogo } from '@/components/brand/OptimusLogo';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useFeatureAccess } from '@/hooks/useSubscription';
 import { useTranslation } from 'react-i18next';
@@ -307,11 +308,8 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
       {/* Logo */}
       <div className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3" role="banner">
-          <div
-            className="w-10 h-10 optimus-gradient rounded-xl flex items-center justify-center font-bold text-lg text-primary-foreground animate-pulse-glow"
-            aria-label={t('nova.logoOptimusk')}
-          >
-            O
+          <div aria-label={t('nova.logoOptimusk')}>
+            <OptimusLogo size={40} variant="auto" />
           </div>
           <div>
             <span className="font-bold text-lg tracking-tight">OPTIMUS-K</span>
