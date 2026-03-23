@@ -54,48 +54,50 @@ interface UpgradeTooltipProps {
 /**
  * Información de features para mostrar en tooltips
  */
-const FEATURE_TOOLTIPS: Record<string, { name: string; benefit: string }> = {
-  ai_role_generation: {
-    name: t('subscription.generaciónIaDeRoles'),
-    benefit: 'Crea roles de equipo automáticamente con IA',
-  },
-  ai_task_generation: {
-    name: t('subscription.generaciónIaDeTareas'),
-    benefit: t('subscription.generaTareasInteligentesAutomáticamente'),
-  },
-  ai_logo_generation: {
-    name: 'Logo con IA',
-    benefit: t('subscription.diseñaLogosProfesionalesEn'),
-  },
-  ai_buyer_persona: {
-    name: 'Buyer Persona IA',
-    benefit: t('subscription.análisisDeMercadoY'),
-  },
-  advanced_analytics: {
-    name: t('subscription.analyticsAvanzados'),
-    benefit: t('subscription.dashboardsDetalladosConMétricas'),
-  },
-  custom_branding: {
-    name: t('subscription.brandingPersonalizado'),
-    benefit: t('subscription.personalizaColoresLogosY'),
-  },
-  api_access: {
-    name: 'Acceso a API',
-    benefit: 'Integra con tus herramientas mediante API REST',
-  },
-  priority_support: {
-    name: t('subscription.soportePrioritario'),
-    benefit: t('subscription.respuestaEnMenosDe'),
-  },
-  white_label: {
-    name: t('subscription.whiteLabel'),
-    benefit: t('subscription.eliminaTodaMarcaDe'),
-  },
-  custom_domain: {
-    name: t('subscription.dominioPersonalizado'),
-    benefit: t('subscription.usaTuPropioDominio'),
-  },
-};
+function getFeatureTooltips(t: (key: string) => string): Record<string, { name: string; benefit: string }> {
+  return {
+    ai_role_generation: {
+      name: t('subscription.generaciónIaDeRoles'),
+      benefit: t('subscription.creaRolesDeEquipoAutomáticamente'),
+    },
+    ai_task_generation: {
+      name: t('subscription.generaciónIaDeTareas'),
+      benefit: t('subscription.generaTareasInteligentesAutomáticamente'),
+    },
+    ai_logo_generation: {
+      name: t('subscription.logoConIa'),
+      benefit: t('subscription.diseñaLogosProfesionalesEn'),
+    },
+    ai_buyer_persona: {
+      name: t('subscription.buyerPersonaIa'),
+      benefit: t('subscription.análisisDeMercadoY'),
+    },
+    advanced_analytics: {
+      name: t('subscription.analyticsAvanzados'),
+      benefit: t('subscription.dashboardsDetalladosConMétricas'),
+    },
+    custom_branding: {
+      name: t('subscription.brandingPersonalizado'),
+      benefit: t('subscription.personalizaColoresLogosY'),
+    },
+    api_access: {
+      name: t('subscription.accesoAApi'),
+      benefit: t('subscription.integraConTusHerramientas'),
+    },
+    priority_support: {
+      name: t('subscription.soportePrioritario'),
+      benefit: t('subscription.respuestaEnMenosDe'),
+    },
+    white_label: {
+      name: t('subscription.whiteLabel'),
+      benefit: t('subscription.eliminaTodaMarcaDe'),
+    },
+    custom_domain: {
+      name: t('subscription.dominioPersonalizado'),
+      benefit: t('subscription.usaTuPropioDominio'),
+    },
+  };
+}
 
 /**
  * Estilos por plan
@@ -142,7 +144,8 @@ export function UpgradeTooltip({
     return <>{children}</>;
   }
 
-  const featureInfo = FEATURE_TOOLTIPS[feature] || {
+  const featureTooltips = getFeatureTooltips(t);
+  const featureInfo = featureTooltips[feature] || {
     name: feature,
     benefit: t('subscription.funcionalidadPremium'),
   };
