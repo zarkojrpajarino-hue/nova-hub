@@ -490,7 +490,6 @@ const DEMO_OBVS: OBV[] = [
 ];
 
 const getStatusIcon = (status: OBVStatus) => {
-  const { t } = useTranslation();
   switch (status) {
     case 'completed':
       return <CheckCircle2 className="h-4 w-4" />;

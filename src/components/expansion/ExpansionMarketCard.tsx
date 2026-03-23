@@ -49,7 +49,6 @@ const DIMENSION_LABELS: Record<keyof MarketDimensions, string> = {
 };
 
 function DimensionBar({ label, value }: { label: string; value: number }) {
-  const { t } = useTranslation();
   const pct = (value / 5) * 100;
   const color = value >= 4 ? 'bg-green-500' : value >= 3 ? 'bg-yellow-500' : 'bg-red-400';
 

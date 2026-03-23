@@ -25,7 +25,6 @@ const SUGGESTED_TYPE_LABELS: Record<string, string> = {
 };
 
 function urgencyStyles(urgency: string) {
-  const { t } = useTranslation();
   switch (urgency) {
     case 'high':   return 'border-red-300 bg-red-50 dark:border-red-800 dark:bg-red-950/30';
     case 'medium': return 'border-amber-300 bg-amber-50 dark:border-amber-800 dark:bg-amber-950/30';

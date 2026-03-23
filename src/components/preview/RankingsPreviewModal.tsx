@@ -100,7 +100,6 @@ export const RankingsPreviewModal: React.FC<RankingsPreviewModalProps> = ({ open
   };
 
   const nextSlide = () => {
-  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }

@@ -22,15 +22,16 @@ interface KPIData {
   cp_points?: number | null;
 }
 
-const TYPE_LABELS = {
-  lp: t('kpi.learningPath'),
-  bp: t('kpi.bookPoint'),
-  cp: t('kpi.communityPoint'),
-};
+function getTypeLabels(t: (k: string) => string) {
+  return {
+    lp: t('kpi.learningPath'),
+    bp: t('kpi.bookPoint'),
+    cp: t('kpi.communityPoint'),
+  };
+}
 
 // Helper functions moved outside component for better performance
 const getStatusIcon = (status: string) => {
-  const { t } = useTranslation();
   switch (status) {
     case 'validated':
       return <CheckCircle2 className="w-4 h-4 text-success" />;
@@ -41,7 +42,7 @@ const getStatusIcon = (status: string) => {
   }
 };
 
-const getStatusLabel = (status: string) => {
+function getStatusLabel(status: string, t: (k: string) => string) {
   switch (status) {
     case 'validated':
       return t('kpi.validado');
@@ -50,7 +51,7 @@ const getStatusLabel = (status: string) => {
     default:
       return t('kpi.pendiente');
   }
-};
+}
 
 const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' => {
   switch (status) {
@@ -95,7 +96,7 @@ const KPIItem = memo(function KPIItem({
 
           <div className="flex items-center gap-3">
             <Badge variant={getStatusVariant(kpi.status || 'pending')}>
-              {getStatusLabel(kpi.status || 'pending')}
+              {getStatusLabel(kpi.status || 'pending', t)}
             </Badge>
 
             <span className="text-xs text-muted-foreground">
@@ -123,7 +124,9 @@ const KPIItem = memo(function KPIItem({
 });
 
 export function KPIList({ type }: KPIListProps) {
+  const { t } = useTranslation();
   const { profile } = useAuth();
+  const TYPE_LABELS = getTypeLabels(t);
 
   const { data: kpis = [] } = useQuery({
     queryKey: ['my_kpis', profile?.id, type],

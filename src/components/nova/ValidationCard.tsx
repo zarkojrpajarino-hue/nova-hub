@@ -12,7 +12,6 @@ interface ValidationCardProps {
 }
 
 const getTypeLabel = (type: string, subtype?: string) => {
-  const { t } = useTranslation();
   if (type === 'obv' && subtype) {
     const labels: Record<string, string> = {
       exploracion: '🔍',

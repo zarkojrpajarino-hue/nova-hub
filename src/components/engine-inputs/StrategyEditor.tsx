@@ -20,7 +20,6 @@ interface StrategyEditorProps {
 const MIN_CHARS = 10;
 
 function fieldStatus(value: string) {
-  const { t } = useTranslation();
   if (!value.trim()) return 'empty';
   if (value.trim().length < MIN_CHARS) return 'short';
   return 'ok';

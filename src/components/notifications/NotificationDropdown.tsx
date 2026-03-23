@@ -17,7 +17,6 @@ import { cn } from '@/lib/utils';
 
 import { useTranslation } from 'react-i18next';
 const getNotificationIcon = (type: string | null) => {
-  const { t } = useTranslation();
   switch (type) {
     case 'obv_nueva':
       return <FileCheck size={16} className="text-primary" />;

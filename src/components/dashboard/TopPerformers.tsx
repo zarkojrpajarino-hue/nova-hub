@@ -30,7 +30,6 @@ interface TopPerformersProps {
 }
 
 function getRankIcon(rank: number) {
-  const { t } = useTranslation();
   switch (rank) {
     case 0:
       return '🥇';

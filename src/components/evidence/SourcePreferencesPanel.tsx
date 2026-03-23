@@ -27,7 +27,7 @@ import { useTranslation } from 'react-i18next';
 // Metadata visual de cada proveedor
 // ─────────────────────────────────────────────────────────────────────────────
 
-interface ProviderMeta {
+interface _ProviderMeta {
   label:       string
   description: string
   color:       string  // Tailwind text color

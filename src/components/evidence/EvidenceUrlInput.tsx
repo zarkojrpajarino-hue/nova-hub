@@ -7,7 +7,6 @@ import { parseDriveUrl, getDriveTypeIcon, getDriveTypeName, type DriveUrlInfo } 
 import { cn } from '@/lib/utils';
 import { EvidencePreviewModal } from './EvidencePreviewModal';
 
-import { useTranslation } from 'react-i18next';
 interface EvidenceUrlInputProps {
   value: string;
   onChange: (value: string) => void;

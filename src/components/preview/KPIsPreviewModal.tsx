@@ -164,7 +164,6 @@ export const KPIsPreviewModal: React.FC<KPIsPreviewModalProps> = ({ open, onOpen
   if (!open) return null;
 
   const nextSlide = () => {
-  const { t } = useTranslation();
     if (currentSlide < totalSlides - 1) {
       setCurrentSlide(currentSlide + 1);
     }

@@ -61,7 +61,6 @@ interface EvidenceBadgeProps {
 }
 
 export function EvidenceBadge({ type, source, compact = false }: EvidenceBadgeProps) {
-  const { t } = useTranslation();
   const cfg = EVIDENCE_CONFIG[type] ?? EVIDENCE_CONFIG.inferred
 
   const tooltipText = source && type === 'observed'
