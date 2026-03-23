@@ -82,7 +82,7 @@ describe('NovaSidebar', () => {
   it('applies gradient to logo icon', () => {
     renderSidebar();
     const logoIcon = screen.getByLabelText('Logo Optimus-K');
-    expect(logoIcon).toHaveClass('nova-gradient');
+    expect(logoIcon).toHaveClass('optimus-gradient');
   });
 
   it('renders banner role on logo section', () => {

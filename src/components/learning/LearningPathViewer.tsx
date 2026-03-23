@@ -11,7 +11,7 @@ import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Separator } from '@/components/ui/separator';
-import { Loader2, ArrowLeft, CheckCircle2, Clock, BookOpen, Target, ExternalLink } from 'lucide-react';
+import { Loader2, ArrowLeft, CheckCircle2, Clock, BookOpen, Target, ExternalLink, FileText, Video, GraduationCap, Dumbbell, Pin, type LucideIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
@@ -246,7 +246,7 @@ export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) 
                               className="flex items-start gap-2 text-sm bg-background/50 p-2 rounded-lg"
                             >
                               <div className="w-6 h-6 rounded bg-primary/10 flex items-center justify-center flex-shrink-0">
-                                {getResourceIcon(resource.type)}
+                                {(() => { const Icon = getResourceIcon(resource.type); return <Icon size={14} />; })()}
                               </div>
                               <div className="flex-1 min-w-0">
                                 <p className="font-medium">{resource.title}</p>
@@ -294,19 +294,19 @@ export function LearningPathViewer({ pathId, onBack }: LearningPathViewerProps) 
   );
 }
 
-function getResourceIcon(type: string) {
+function getResourceIcon(type: string): LucideIcon {
   switch (type) {
     case 'article':
-      return '📄';
+      return FileText;
     case 'video':
-      return '🎥';
+      return Video;
     case 'course':
-      return '🎓';
+      return GraduationCap;
     case 'book':
-      return '📚';
+      return BookOpen;
     case 'practice':
-      return '💪';
+      return Dumbbell;
     default:
-      return '📌';
+      return Pin;
   }
 }

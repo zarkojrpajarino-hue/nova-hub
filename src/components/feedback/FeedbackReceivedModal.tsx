@@ -236,10 +236,10 @@ export function FeedbackReceivedModal({
                   <CardHeader>
                     <div className="flex items-center justify-between">
                       <CardTitle className="text-base">
-                        {item.is_anonymous ? '🎭 Anónimo' : item.from_member?.nombre || t('feedback.usuario')}
+                        {item.is_anonymous ? 'Anonimo' : item.from_member?.nombre || t('feedback.usuario')}
                       </CardTitle>
                       <Badge variant={item.would_work_again ? 'default' : 'secondary'}>
-                        {item.would_work_again ? '✅ Trabajaría otra vez' : ''}
+                        {item.would_work_again ? 'Trabajaria otra vez' : ''}
                       </Badge>
                     </div>
                   </CardHeader>
@@ -263,7 +263,7 @@ export function FeedbackReceivedModal({
                     {/* Comments */}
                     {item.strengths && (
                       <div className="space-y-1">
-                        <div className="text-sm font-semibold text-green-600">💪 Fortalezas:</div>
+                        <div className="text-sm font-semibold text-green-600">Fortalezas:</div>
                         <p className="text-sm text-muted-foreground">{item.strengths}</p>
                       </div>
                     )}
@@ -271,7 +271,7 @@ export function FeedbackReceivedModal({
                     {item.improvements && (
                       <div className="space-y-1">
                         <div className="text-sm font-semibold text-yellow-600">
-                          📈 Áreas de mejora:
+                          Areas de mejora:
                         </div>
                         <p className="text-sm text-muted-foreground">{item.improvements}</p>
                       </div>

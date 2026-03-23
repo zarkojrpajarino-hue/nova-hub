@@ -218,7 +218,7 @@ describe('EmptyState', () => {
   });
 
   describe('Action button variations', () => {
-    it('action button has nova-gradient class', () => {
+    it('action button has optimus-gradient class', () => {
       render(
         <EmptyState
           icon={Inbox}

@@ -58,7 +58,7 @@ export async function searchSEC(
 
     const response = await fetch(searchUrl, {
       headers: {
-        'User-Agent': `Nova-Hub AI Evidence System ${userEmail}`,
+        'User-Agent': `Optimus-K AI Evidence System ${userEmail}`,
         Accept: 'application/json',
       },
     });

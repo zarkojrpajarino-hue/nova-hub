@@ -83,8 +83,8 @@ export function OneOnOnePrep() {
   const handleCopy = () => {
     if (!agenda) return;
 
-    let text = `📋 Agenda 1-on-1: ${agenda.member_name}\n`;
-    text += `📅 ${agenda.meeting_date}\n\n`;
+    let text = `Agenda 1-on-1: ${agenda.member_name}\n`;
+    text += `${agenda.meeting_date}\n\n`;
 
     agenda.sections.forEach((section) => {
       text += `${section.emoji} ${section.title}\n`;
@@ -97,7 +97,7 @@ export function OneOnOnePrep() {
       text += '\n';
     });
 
-    text += `🎯 Puntos clave:\n`;
+    text += `Puntos clave:\n`;
     agenda.talking_points.forEach((point, idx) => {
       text += `  ${idx + 1}. ${point}\n`;
     });
@@ -171,13 +171,13 @@ export function OneOnOnePrep() {
   const getMoodEmoji = (mood: string) => {
     switch (mood) {
       case 'positive':
-        return '🌟';
+        return '+';
       case 'neutral':
-        return '😐';
+        return '=';
       case 'concern':
-        return '⚠️';
+        return '!';
       default:
-        return '❓';
+        return '?';
     }
   };
 
@@ -187,7 +187,7 @@ export function OneOnOnePrep() {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl nova-gradient flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl optimus-gradient flex items-center justify-center">
               <Calendar className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
@@ -308,7 +308,7 @@ export function OneOnOnePrep() {
               {/* Recent Wins */}
               <div>
                 <p className="font-semibold text-sm mb-2 flex items-center gap-2">
-                  🏆 Logros recientes:
+                  Logros recientes:
                 </p>
                 <ul className="space-y-1">
                   {agenda.performance_summary.recent_wins.map((win, idx) => (
@@ -325,7 +325,7 @@ export function OneOnOnePrep() {
               {/* Areas for Growth */}
               <div>
                 <p className="font-semibold text-sm mb-2 flex items-center gap-2">
-                  🎯 Áreas de crecimiento:
+                  Areas de crecimiento:
                 </p>
                 <ul className="space-y-1">
                   {agenda.performance_summary.areas_for_growth.map((area, idx) => (

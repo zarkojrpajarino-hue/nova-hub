@@ -101,7 +101,7 @@ export function PlanSelectionModal({
                 {/* Popular Badge */}
                 {plan.popular && !isRecommended && (
                   <Badge className="absolute -top-3 left-1/2 -translate-x-1/2 bg-blue-500">
-                    🔥 Popular
+                    Popular
                   </Badge>
                 )}
 
@@ -198,10 +198,10 @@ export function PlanSelectionModal({
 
         {/* Footer Info */}
         <div className="text-center mt-6 text-sm text-gray-600">
-          <p>✨ Sin compromiso. Cancela cuando quieras.</p>
+          <p>Sin compromiso. Cancela cuando quieras.</p>
           {availablePlans.some(p => p.id === 'free_trial') && (
             <p className="mt-1">
-              🎁 El Free Trial es <strong>solo 1 vez por cuenta</strong>
+              El Free Trial es <strong>solo 1 vez por cuenta</strong>
             </p>
           )}
         </div>

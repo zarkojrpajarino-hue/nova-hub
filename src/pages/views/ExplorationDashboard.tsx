@@ -225,7 +225,7 @@ export function ExplorationDashboard() {
 
       if (error) throw error;
 
-      toast.success('🚀 Exploración iniciada!');
+      toast.success('Exploracion iniciada!');
       loadCurrentRoles();
       loadExplorations();
     } catch (_error) {

@@ -209,7 +209,7 @@ export function AILeadFinder() {
 
       // Verificar en Supabase si se guardó la métrica
       setTimeout(() => {
-        toast.info('✅ Verifica en Supabase: SELECT COUNT(*) FROM evidence_generation_metrics');
+        toast.info('Verifica en Supabase: SELECT COUNT(*) FROM evidence_generation_metrics');
       }, 2000);
     } catch (_error) {
       toast.error('Error al generar leads: ' + (error instanceof Error ? error.message : t('crm.errorDesconocido')));
@@ -311,7 +311,7 @@ export function AILeadFinder() {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl nova-gradient flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl optimus-gradient flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
@@ -672,7 +672,7 @@ export function AILeadFinder() {
                                     : 'bg-red-500/10 text-red-700 dark:text-red-400 border-red-500/20'
                                 }`}
                               >
-                                {source.confidence === 'high' ? '🟢' : source.confidence === 'medium' ? '🟡' : '🔴'}{' '}
+                                {source.confidence === 'high' ? 'HIGH' : source.confidence === 'medium' ? 'MED' : 'LOW'}{' '}
                                 {source.type.replace('_', ' ').toUpperCase()}
                               </Badge>
                               <div className="flex-1">

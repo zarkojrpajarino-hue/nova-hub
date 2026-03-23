@@ -148,7 +148,7 @@ export function LearningPathList({ onSelectPath, onGenerateNew }: LearningPathLi
       {paths.length === 0 ? (
         <Card className="border-dashed">
           <CardContent className="flex flex-col items-center justify-center py-12">
-            <div className="w-16 h-16 rounded-2xl nova-gradient flex items-center justify-center mb-4 opacity-50">
+            <div className="w-16 h-16 rounded-2xl optimus-gradient flex items-center justify-center mb-4 opacity-50">
               <BookOpen className="w-8 h-8 text-primary-foreground" />
             </div>
             <h3 className="font-semibold text-lg mb-2">{t('learning.noTienesLearningPaths')}</h3>

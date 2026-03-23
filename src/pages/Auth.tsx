@@ -75,7 +75,7 @@ export default function Auth() {
         {/* Logo */}
         <div className="text-center mb-8">
           <div className="inline-flex items-center gap-3 mb-4">
-            <div className="w-12 h-12 nova-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse-glow">
+            <div className="w-12 h-12 optimus-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse-glow">
               O
             </div>
             <span className="text-3xl font-bold tracking-tight">OPTIMUS-K</span>
@@ -122,7 +122,7 @@ export default function Auth() {
 
             <Button
               type="submit"
-              className="w-full nova-gradient font-semibold"
+              className="w-full optimus-gradient font-semibold"
               disabled={loading}
             >
               {loading ? (

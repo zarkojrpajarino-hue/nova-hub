@@ -15,7 +15,7 @@ import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { Loader2, ArrowLeft, CheckCircle, Siren } from 'lucide-react';
+import { Loader2, ArrowLeft, CheckCircle, Siren, Wallet, TrendingDown, Timer, RefreshCw, Handshake, type LucideIcon } from 'lucide-react';
 
 import { useTranslation } from 'react-i18next';
 // ── Tipos de crisis y sus 3 tareas por defecto ───────────────────────────────
@@ -24,7 +24,7 @@ const CRISIS_TYPES = [
   {
     id:       'cash_crisis',
     label:    t('emergencyOnboarding.crisisDeCaja'),
-    emoji:    '💸',
+    Icon:     Wallet,
     subtitle: t('emergencyOnboarding.meQuedoSinDinero'),
     tasks: [
       t('emergencyOnboarding.calcularRunwayRealCuántos'),
@@ -35,7 +35,7 @@ const CRISIS_TYPES = [
   {
     id:       'sales_stalled',
     label:    t('emergencyOnboarding.ventasParadas'),
-    emoji:    '📉',
+    Icon:     TrendingDown,
     subtitle: t('emergencyOnboarding.noEstamosGenerandoNuevos'),
     tasks: [
       t('emergencyOnboarding.analizarPorQuéFallaron'),
@@ -46,7 +46,7 @@ const CRISIS_TYPES = [
   {
     id:       'runway_risk',
     label:    t('emergencyOnboarding.riesgoDeRunway'),
-    emoji:    '⏱',
+    Icon:     Timer,
     subtitle: t('emergencyOnboarding.menosDe3Meses'),
     tasks: [
       'Preparar un plan de reducción de costes urgente (objetivo: -30% burn)',
@@ -57,7 +57,7 @@ const CRISIS_TYPES = [
   {
     id:       'product_pivot',
     label:    t('emergencyOnboarding.pivoteUrgente'),
-    emoji:    '🔄',
+    Icon:     RefreshCw,
     subtitle: t('emergencyOnboarding.elProductoNoEstá'),
     tasks: [
       t('emergencyOnboarding.hacer5EntrevistasCon'),
@@ -68,7 +68,7 @@ const CRISIS_TYPES = [
   {
     id:       'team_conflict',
     label:    t('emergencyOnboarding.conflictoDeEquipo'),
-    emoji:    '🤝',
+    Icon:     Handshake,
     subtitle: t('emergencyOnboarding.problemasGravesConCofounders'),
     tasks: [
       'Programar una conversación directa y honesta con la(s) persona(s) involucrada(s)',
@@ -176,7 +176,7 @@ export function EmergencyOnboardingPage() {
                 onClick={() => handleSelectCrisis(crisis.id)}
                 className="w-full flex items-center gap-4 rounded-xl border border-white/10 bg-white/5 px-4 py-3.5 text-left transition-all hover:bg-white/10 hover:border-red-400/40 group"
               >
-                <span className="text-2xl">{crisis.emoji}</span>
+                <crisis.Icon size={24} />
                 <div>
                   <p className="text-sm font-semibold text-white">{crisis.label}</p>
                   <p className="text-xs text-slate-400">{crisis.subtitle}</p>
@@ -196,7 +196,7 @@ export function EmergencyOnboardingPage() {
           <div className="space-y-6">
             {/* Crisis seleccionada */}
             <div className="flex items-center gap-3 rounded-xl border border-red-400/30 bg-red-500/10 px-4 py-3">
-              <span className="text-2xl">{selectedCrisis.emoji}</span>
+              <selectedCrisis.Icon size={24} />
               <div>
                 <p className="text-sm font-semibold text-red-200">{selectedCrisis.label}</p>
                 <p className="text-xs text-red-400">{selectedCrisis.subtitle}</p>

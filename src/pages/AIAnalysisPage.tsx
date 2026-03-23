@@ -13,6 +13,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { AIAnalysisDashboard } from '@/components/analysis/AIAnalysisDashboard';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { AlertCircle, Loader2 } from 'lucide-react';
+import { useFeatureUnlock } from '@/hooks/useUnlockProgress';
+import { UnlockGate } from '@/components/project/UnlockProgress';
 
 import { useTranslation } from 'react-i18next';
 export default function AIAnalysisPage() {
@@ -22,6 +24,7 @@ export default function AIAnalysisPage() {
 
   // El hook determina internamente el nivel desbloqueado
   const analysisState = useProjectAnalysis(projectId);
+  const { data: aiUnlock } = useFeatureUnlock(projectId, 'ai_analysis_level1');
 
   // Datos de contexto para PreAnalysisDataReview y header
   const { data: contextData, isLoading } = useQuery({
@@ -78,24 +81,30 @@ export default function AIAnalysisPage() {
         <p className="text-sm text-gray-500 mt-1">{t('aIAnalysis.diagnósticoEn3Niveles')}</p>
       </div>
 
-      {isLoading ? (
-        <div className="flex items-center justify-center py-16">
-          <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
-        </div>
-      ) : (
-        <AIAnalysisDashboard
-          projectId={currentProject.id}
-          projectName={currentProject.nombre}
-          analysisState={analysisState}
-          currentPhase={contextData?.currentPhase}
-          riskLevel={contextData?.riskLevel}
-          probability={contextData?.probability}
-          mrr={contextData?.mrr}
-          runway={contextData?.runway}
-          activeConnections={contextData?.activeConnections}
-          decisionCount={contextData?.decisionCount}
-        />
-      )}
+      <UnlockGate
+        feature={aiUnlock}
+        title={t('aIAnalysis.análisisEstratégicoIA')}
+        description={t('aIAnalysis.tuProyectoNecesita14Dias')}
+      >
+        {isLoading ? (
+          <div className="flex items-center justify-center py-16">
+            <Loader2 className="h-8 w-8 animate-spin text-gray-400" />
+          </div>
+        ) : (
+          <AIAnalysisDashboard
+            projectId={currentProject.id}
+            projectName={currentProject.nombre}
+            analysisState={analysisState}
+            currentPhase={contextData?.currentPhase}
+            riskLevel={contextData?.riskLevel}
+            probability={contextData?.probability}
+            mrr={contextData?.mrr}
+            runway={contextData?.runway}
+            activeConnections={contextData?.activeConnections}
+            decisionCount={contextData?.decisionCount}
+          />
+        )}
+      </UnlockGate>
     </div>
   );
 }

@@ -343,7 +343,7 @@ export function MeetingInsightsReview({
       {pendingHighCount > 0 && (
         <div className="sticky top-2 z-10 flex items-center gap-2 rounded-lg border border-amber-300 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 shadow dark:border-amber-700 dark:bg-amber-950/40 dark:text-amber-300">
           <AlertTriangle className="h-4 w-4 shrink-0" />
-          ⚠ {pendingHighCount} decisión{pendingHighCount !== 1 ? 'es' : ''} estratégica{pendingHighCount !== 1 ? 's' : ''} pendiente{pendingHighCount !== 1 ? 's' : ''} de confirmación
+          {pendingHighCount} decision{pendingHighCount !== 1 ? 'es' : ''} estrategica{pendingHighCount !== 1 ? 's' : ''} pendiente{pendingHighCount !== 1 ? 's' : ''} de confirmacion
         </div>
       )}
 
@@ -737,7 +737,7 @@ function ReliabilityBar({ classified }: { classified: MeetingInsightWithImpact }
       <div className="flex items-center justify-between mb-1">
         <span className="text-xs text-gray-500">{t('meetings.fiabilidad')}</span>
         <span className={`text-xs font-medium ${pct >= 70 ? 'text-green-600' : pct >= 45 ? 'text-amber-600' : 'text-red-600'}`}>
-          {pct}%{classified.auto_degraded ? ' · ⚠ Degradado' : ''}
+          {pct}%{classified.auto_degraded ? ' · Degradado' : ''}
         </span>
       </div>
       <div className="w-full h-1.5 rounded-full bg-gray-200 overflow-hidden">

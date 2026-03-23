@@ -77,11 +77,11 @@ describe('OBVCenterView', () => {
 
   it('renders validar tab', () => {
     renderComponent();
-    expect(screen.getByText('✅ Validar')).toBeInTheDocument();
+    expect(screen.getByText('Validar')).toBeInTheDocument();
   });
 
   it('renders mis obvs tab', () => {
     renderComponent();
-    expect(screen.getByText('📋 Mis OBVs')).toBeInTheDocument();
+    expect(screen.getByText('Mis OBVs')).toBeInTheDocument();
   });
 });

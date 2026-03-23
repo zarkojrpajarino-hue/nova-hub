@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react';
-import { Trophy, Sparkles, ArrowRight } from 'lucide-react';
+import { Trophy, Sparkles, ArrowRight, Sprout, Search, Zap, Wallet, Rocket, type LucideIcon } from 'lucide-react';
 import {
   Dialog,
   DialogContent,
@@ -16,13 +16,13 @@ interface PhaseTransitionModalProps {
   onClose: () => void;
 }
 
-// Emoji decorations per phase (purely cosmetic)
-const PHASE_EMOJI: Record<number, string> = {
-  0: '🌱',
-  1: '🔍',
-  2: '⚡',
-  3: '💰',
-  4: '🚀',
+// Icon decorations per phase (purely cosmetic)
+const PHASE_ICON: Record<number, LucideIcon> = {
+  0: Sprout,
+  1: Search,
+  2: Zap,
+  3: Wallet,
+  4: Rocket,
 };
 
 // [V24.8] Tabs que se desbloquean al entrar en esta fase
@@ -42,7 +42,7 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
   const prevPhase = newPhase - 1;
 
   const label = PHASE_LABELS[newPhase] ?? `Fase ${newPhase}`;
-  const emoji = PHASE_EMOJI[newPhase] ?? '🏆';
+  const PhaseIcon = PHASE_ICON[newPhase] ?? Trophy;
 
   // Auto-close after 12 s so it never blocks work if user ignores it
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -59,7 +59,7 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
     <Dialog open={open} onOpenChange={(v) => !v && onClose()}>
       <DialogContent className="max-w-sm text-center p-0 overflow-hidden">
         {/* Gradient header */}
-        <div className="nova-gradient p-8 flex flex-col items-center gap-3">
+        <div className="optimus-gradient p-8 flex flex-col items-center gap-3">
           <div className="relative">
             <div className="w-20 h-20 rounded-full bg-white/20 flex items-center justify-center animate-pulse-glow">
               <Trophy size={40} className="text-white" />
@@ -82,14 +82,14 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
               Fase {prevPhase}
             </span>
             <ArrowRight size={16} className="text-primary" />
-            <span className="px-3 py-1.5 rounded-full nova-gradient-subtle nova-border text-primary font-semibold">
+            <span className="px-3 py-1.5 rounded-full optimus-gradient-subtle optimus-border text-primary font-semibold">
               Fase {newPhase}
             </span>
           </div>
 
           {/* New phase name */}
           <div className="space-y-1">
-            <p className="text-3xl">{emoji}</p>
+            <PhaseIcon size={32} />
             <p className="text-lg font-semibold">{label}</p>
             <p className="text-sm text-muted-foreground">{t('nova.tuEquipoHaAlcanzado')}</p>
           </div>
@@ -112,7 +112,7 @@ export function PhaseTransitionModal({ state, onClose }: PhaseTransitionModalPro
             )}
           </div>
 
-          <Button onClick={onClose} className="w-full nova-gradient text-white">{t('nova.continuar')}</Button>
+          <Button onClick={onClose} className="w-full optimus-gradient text-white">{t('nova.continuar')}</Button>
         </div>
       </DialogContent>
     </Dialog>

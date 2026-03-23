@@ -83,7 +83,7 @@ export function ProfileSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            👤 Información Personal
+            Informacion Personal
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -165,7 +165,7 @@ export function ProfileSettings() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            🎨 Color Identificativo
+            Color Identificativo
           </CardTitle>
         </CardHeader>
         <CardContent>

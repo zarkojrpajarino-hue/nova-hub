@@ -387,7 +387,7 @@ function DeepSetupList() {
             <div className="flex items-center gap-4 text-sm text-gray-600">
               <div className="flex items-center gap-1">
                 <CheckCircle2 className="h-4 w-4 text-green-600" />
-                <span>Fast Start ✓</span>
+                <span>Fast Start</span>
               </div>
               <div className="flex items-center gap-1">
                 <TrendingUp className="h-4 w-4 text-purple-600" />

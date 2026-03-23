@@ -63,7 +63,7 @@ export function LearningRoadmapPage() {
     if (!currentProject || !user) return;
 
     try {
-      toast.info('Generando roadmap personalizado con IA... ✨');
+      toast.info('Generando roadmap personalizado con IA...');
 
       await generateRoadmap.mutateAsync({
         project_id: currentProject.id,

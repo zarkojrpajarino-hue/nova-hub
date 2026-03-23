@@ -402,7 +402,7 @@ export function LocationIntelligenceSection({
               className="mt-2"
             />
             <p className="text-xs text-gray-500 mt-2">
-              💡 Be specific for better results (e.g., t('onboarding.barcelona') instead of t('onboarding.spain'))
+              Be specific for better results (e.g., t('onboarding.barcelona') instead of t('onboarding.spain'))
             </p>
           </div>
         </CardContent>

@@ -271,7 +271,7 @@ export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
                             </Badge>
                             {task.hasPlaybook && (
                               <Badge variant="outline" className="text-[10px] h-5 border-primary text-primary">
-                                📖 Playbook
+                                Playbook
                               </Badge>
                             )}
                           </div>

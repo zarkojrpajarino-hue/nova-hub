@@ -341,7 +341,7 @@ export function PathToMasterProgress({
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center justify-between">
-            <span>✅ Requisitos para Desafiar</span>
+            <span>Requisitos para Desafiar</span>
             <Badge variant={allRequirementsMet ? 'default' : 'secondary'}>
               {requirementsMet}/{requirements.length}
             </Badge>
@@ -403,7 +403,7 @@ export function PathToMasterProgress({
             <div className="flex items-start gap-3">
               <AlertCircle className="text-blue-500 flex-shrink-0" size={24} />
               <div className="flex-1">
-                <h4 className="font-semibold mb-1">💡 Próximo Hito</h4>
+                <h4 className="font-semibold mb-1">Próximo Hito</h4>
                 {(() => {
                   const nextReq = requirements.find((r) => !r.met);
                   if (!nextReq) return null;
@@ -445,7 +445,7 @@ export function PathToMasterProgress({
         <CardContent className="p-4">
           <div className="flex items-center justify-between">
             <div>
-              <h4 className="font-semibold mb-1">👑 Master Actual: {masterName}</h4>
+              <h4 className="font-semibold mb-1">Master Actual: {masterName}</h4>
               <div className="flex items-center gap-4 text-sm">
                 <div>
                   <span className="text-muted-foreground">Fit Score:</span>

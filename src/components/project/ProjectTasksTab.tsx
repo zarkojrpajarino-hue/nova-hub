@@ -1,11 +1,12 @@
 import { memo } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, ListTodo } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles } from '@/hooks/useNovaData';
 import { KanbanBoard } from '@/components/tasks/KanbanBoard';
 import { AITaskGenerator } from '@/components/tasks/AITaskGenerator';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
+import { EmptyState } from '@/components/ui/empty-state';
 
 import { useTranslation } from 'react-i18next';
 interface ProjectTasksTabProps {
@@ -108,10 +109,46 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
     delivery_coverage: coverageLevel('delivery'),
   } : null;
 
+  // Task count for empty state
+  const { data: taskCount } = useQuery({
+    queryKey: ['project_task_count', projectId],
+    queryFn: async () => {
+      const { count, error } = await supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('project_id', projectId);
+      if (error) throw error;
+      return count ?? 0;
+    },
+    enabled: !!projectId,
+  });
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (taskCount === 0) {
+    return (
+      <div className="space-y-6 animate-fade-in">
+        <EmptyState
+          icon={ListTodo}
+          title={t('project.emptyTasks.title')}
+          description={t('project.emptyTasks.description')}
+          suggestions={[
+            t('project.emptyTasks.suggestion1'),
+            t('project.emptyTasks.suggestion2'),
+            t('project.emptyTasks.suggestion3'),
+          ]}
+        />
+        {aiProjectContext && (
+          <div className="flex justify-center">
+            <AITaskGenerator project={aiProjectContext} />
+          </div>
+        )}
       </div>
     );
   }

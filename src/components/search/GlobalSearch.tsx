@@ -26,15 +26,15 @@ interface SearchResult {
 
 function getViews(t: (k: string) => string) {
   return [
-  { id: 'dashboard', label: t('search.dashboard'), icon: '📊' },
-  { id: 'mi-espacio', label: t('search.miEspacio'), icon: '👤' },
-  { id: 'proyectos', label: t('search.proyectos'), icon: '📁' },
-  { id: 'obvs', label: t('search.centroObvs'), icon: '✅' },
-  { id: 'crm', label: t('search.crmGlobal'), icon: '📞' },
-  { id: 'financiero', label: t('search.financiero'), icon: '💰' },
-  { id: 'kpis', label: t('search.otrosKpis'), icon: '📚' },
-  { id: 'analytics', label: t('search.analytics'), icon: '📈' },
-  { id: 'settings', label: t('search.configuración'), icon: '⚙️' },
+  { id: 'dashboard', label: t('search.dashboard'), icon: '' },
+  { id: 'mi-espacio', label: t('search.miEspacio'), icon: '' },
+  { id: 'proyectos', label: t('search.proyectos'), icon: '' },
+  { id: 'obvs', label: t('search.centroObvs'), icon: '' },
+  { id: 'crm', label: t('search.crmGlobal'), icon: '' },
+  { id: 'financiero', label: t('search.financiero'), icon: '' },
+  { id: 'kpis', label: t('search.otrosKpis'), icon: '' },
+  { id: 'analytics', label: t('search.analytics'), icon: '' },
+  { id: 'settings', label: t('search.configuración'), icon: '' },
 ];
 }
 

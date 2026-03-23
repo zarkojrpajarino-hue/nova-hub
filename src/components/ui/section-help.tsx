@@ -1,17 +1,19 @@
 import * as React from 'react';
 import { useState } from 'react';
 import { 
-  HelpCircle, 
-  ChevronDown, 
-  ChevronUp, 
-  Info, 
-  Database, 
-  CheckCircle2, 
+  HelpCircle,
+  ChevronDown,
+  ChevronUp,
+  Info,
+  Database,
+  CheckCircle2,
   Lightbulb,
   Sparkles,
   Workflow,
   Play,
-  Eye
+  Eye,
+  Download,
+  Upload
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Button } from './button';
@@ -39,6 +41,16 @@ import { useDemoMode } from '@/contexts/DemoModeContext';
 import { getDemoData, type DemoDataSection } from '@/data/demoData';
 
 import { useTranslation } from 'react-i18next';
+export interface DataFlow {
+  from: string;
+  items: string[];
+}
+
+export interface DataOutput {
+  to: string;
+  items: string[];
+}
+
 export interface HelpContent {
   title: string;
   description: string;
@@ -46,6 +58,12 @@ export interface HelpContent {
   dataSource?: string;
   validation?: string;
   tips?: string[];
+  dataInputs?: DataFlow[];
+  dataOutputs?: DataOutput[];
+  nextStep?: {
+    action: string;
+    destination: string;
+  };
 }
 
 export interface SectionHelpProps {
@@ -128,10 +146,60 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
       />
     )}
     
+    {content.dataInputs && content.dataInputs.length > 0 && (
+      <div className="flex gap-3 py-3 border-b border-border/50">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/10 text-blue-500">
+          <Download className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-medium text-foreground mb-2">{t('ui.deDóndeVienenLos')}</h4>
+          <div className="space-y-2">
+            {content.dataInputs.map((input, idx) => (
+              <div key={idx} className="pl-3 border-l-2 border-blue-500/30">
+                <p className="text-xs font-semibold text-blue-600 dark:text-blue-400 mb-0.5">{input.from}</p>
+                <ul className="space-y-0.5">
+                  {input.items.map((item, i) => (
+                    <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                      <span className="text-blue-500 mt-0.5">&#8594;</span>{item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
+    {content.dataOutputs && content.dataOutputs.length > 0 && (
+      <div className="flex gap-3 py-3 border-b border-border/50">
+        <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-green-500/10 text-green-500">
+          <Upload className="w-4 h-4" />
+        </div>
+        <div className="flex-1 min-w-0">
+          <h4 className="text-sm font-medium text-foreground mb-2">{t('ui.quéDatosGenera')}</h4>
+          <div className="space-y-2">
+            {content.dataOutputs.map((output, idx) => (
+              <div key={idx} className="pl-3 border-l-2 border-green-500/30">
+                <p className="text-xs font-semibold text-green-600 dark:text-green-400 mb-0.5">{output.to}</p>
+                <ul className="space-y-0.5">
+                  {output.items.map((item, i) => (
+                    <li key={i} className="text-xs text-muted-foreground flex items-start gap-1.5">
+                      <span className="text-green-500 mt-0.5">&#10003;</span>{item}
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+    )}
+
     {content.tips && content.tips.length > 0 && (
-      <HelpSection 
-        icon={Lightbulb} 
-        title={t('ui.consejosÚtiles')} 
+      <HelpSection
+        icon={Lightbulb}
+        title={t('ui.consejosÚtiles')}
         content={content.tips}
         iconColor="bg-cyan-500/10 text-cyan-500"
       />

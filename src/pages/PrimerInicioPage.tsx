@@ -34,6 +34,10 @@ import {
   MessageSquare,
   TrendingUp,
   CheckCircle2,
+  Search,
+  Wallet,
+  Settings,
+  type LucideIcon,
 } from 'lucide-react';
 import type { Json } from '@/integrations/supabase/types';
 import type { BusinessIdea } from '@/lib/ai-generators';
@@ -74,7 +78,7 @@ const MONETIZATION_LABELS: Record<string, string> = {
 // ── Optimus suggestion ────────────────────────────────────────────────────────
 
 interface OptimusSuggestion {
-  emoji: string;
+  Icon: LucideIcon;
   titulo: string;
   detalle: string;
   obvLabel: string;
@@ -83,7 +87,7 @@ interface OptimusSuggestion {
 function getOptimusSuggestion(phase: number): OptimusSuggestion {
   if (phase <= 1) {
     return {
-      emoji: '🔍',
+      Icon: Search,
       titulo: t('primerInicio.tePropongoTuPrimera'),
       detalle:
         t('primerInicio.hablaCon5Personas'),
@@ -92,7 +96,7 @@ function getOptimusSuggestion(phase: number): OptimusSuggestion {
   }
   if (phase === 2) {
     return {
-      emoji: '💰',
+      Icon: Wallet,
       titulo: t('primerInicio.veoQueTienesClientes'),
       detalle:
         t('primerInicio.registraUnaConversaciónDe'),
@@ -100,7 +104,7 @@ function getOptimusSuggestion(phase: number): OptimusSuggestion {
     };
   }
   return {
-    emoji: '⚙️',
+    Icon: Settings,
     titulo: t('primerInicio.empecemosConTuPrimera'),
     detalle:
       t('primerInicio.defineElProcesoMás'),
@@ -331,7 +335,7 @@ export function PrimerInicioPage() {
         <Card className="border-2 border-purple-200 bg-gradient-to-br from-purple-50 to-blue-50 shadow-sm">
           <CardContent className="pt-6 pb-6">
             <div className="flex items-start gap-4">
-              <div className="text-3xl flex-shrink-0">{suggestion.emoji}</div>
+              <div className="flex-shrink-0"><suggestion.Icon size={28} /></div>
               <div className="space-y-2">
                 <div className="flex items-center gap-2">
                   <span className="text-xs font-semibold text-purple-600 uppercase tracking-wide">{t('primerInicio.optimusSugiere')}</span>

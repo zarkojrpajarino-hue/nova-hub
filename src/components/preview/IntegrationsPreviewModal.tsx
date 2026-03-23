@@ -137,7 +137,7 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
             </div>
             <h3 className="mb-3 text-2xl font-bold">{t('preview.conectaTuStackTecnológico')}</h3>
             <p className="mb-6 max-w-md text-muted-foreground">
-              Integra Nova Hub con más de 12 herramientas y plataformas que ya utilizas.
+              Integra Optimus-K con más de 12 herramientas y plataformas que ya utilizas.
               Sincroniza datos, automatiza workflows y centraliza tu operación.
             </p>
             <div className="grid grid-cols-3 gap-4 mb-8">
@@ -464,19 +464,19 @@ export const IntegrationsPreviewModal: React.FC<IntegrationsPreviewModalProps> =
                   <div className="rounded-md bg-muted p-3">
                     <div className="mb-1 font-medium">{t('preview.newLeadCreated')}</div>
                     <code className="block text-xs text-muted-foreground truncate">
-                      https://api.novahub.com/webhooks/leads/new
+                      https://api.optimus-k.com/webhooks/leads/new
                     </code>
                   </div>
                   <div className="rounded-md bg-muted p-3">
                     <div className="mb-1 font-medium">{t('preview.taskCompleted')}</div>
                     <code className="block text-xs text-muted-foreground truncate">
-                      https://api.novahub.com/webhooks/tasks/completed
+                      https://api.optimus-k.com/webhooks/tasks/completed
                     </code>
                   </div>
                   <div className="rounded-md bg-muted p-3">
                     <div className="mb-1 font-medium">{t('preview.paymentReceived')}</div>
                     <code className="block text-xs text-muted-foreground truncate">
-                      https://api.novahub.com/webhooks/payments/received
+                      https://api.optimus-k.com/webhooks/payments/received
                     </code>
                   </div>
                 </div>

@@ -59,7 +59,7 @@ export function NovaHeader({ title, subtitle, onNewOBV, showBackButton = false }
         <NotificationCenterV2 />
 
         {/* New OBV Button */}
-        <Button onClick={onNewOBV} className="nova-gradient nova-glow font-semibold">
+        <Button onClick={onNewOBV} className="optimus-gradient optimus-glow font-semibold">
           <Plus size={16} className={cn("md:mr-1", isMobile && "mr-0")} />
           <span className="hidden md:inline">Nueva OBV</span>
         </Button>

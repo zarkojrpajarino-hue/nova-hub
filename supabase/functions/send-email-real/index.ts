@@ -58,7 +58,7 @@ serve(async (req) => {
       .single();
 
     const senderEmail = assets?.sender_email || Deno.env.get('DEFAULT_SENDER_EMAIL') || 'onboarding@resend.dev';
-    const senderName = assets?.sender_name || 'Nova Hub';
+    const senderName = assets?.sender_name || 'Optimus-K';
     const resendApiKey = assets?.resend_api_key || Deno.env.get('RESEND_API_KEY');
 
     if (!resendApiKey) {

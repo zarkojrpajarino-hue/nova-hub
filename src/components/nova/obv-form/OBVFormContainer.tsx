@@ -144,7 +144,7 @@ export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps)
           {step < totalSteps ? (
             <Button
               size="lg"
-              className="nova-gradient min-w-[140px]"
+              className="optimus-gradient min-w-[140px]"
               onClick={handleNext}
               disabled={!canProceed()}
             >{t('obv.siguiente')}<ChevronRight size={18} className="ml-1" />
@@ -152,7 +152,7 @@ export function OBVFormContainer({ onCancel, onSuccess }: OBVFormContainerProps)
           ) : (
             <Button
               size="lg"
-              className="nova-gradient min-w-[160px]"
+              className="optimus-gradient min-w-[160px]"
               onClick={handleSubmit}
               disabled={isSubmitting || isBlocked}
             >

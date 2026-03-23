@@ -14,7 +14,7 @@
        #C4B5FD → violet-300 (muted text, badges)
        #F5F3FF → violet-50 (light surfaces) */
 
-    --background: 252 33% 7%;
+    --background: 251 44% 7%;
     --foreground: 257 100% 98%;
 
     --card: 260 40% 12%;
@@ -45,9 +45,9 @@
     --radius: 0.625rem;
 
     /* Optimus-K Design System */
-    --nova-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%);
-    --nova-gradient-subtle: linear-gradient(135deg, hsl(263 70% 58% / 0.12) 0%, hsl(280 70% 60% / 0.08) 100%);
-    --nova-glow: 0 0 24px hsl(263 70% 58% / 0.25);
+    --optimus-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%);
+    --optimus-gradient-subtle: linear-gradient(135deg, hsl(263 70% 58% / 0.12) 0%, hsl(280 70% 60% / 0.08) 100%);
+    --optimus-glow: 0 0 24px hsl(263 70% 58% / 0.25);
 
     /* Status Colors */
     --success: 142 71% 45%;
@@ -65,14 +65,18 @@
     --role-operations: 142 71% 45%;
     --role-strategy: 263 70% 58%;
 
-    /* Sidebar */
-    --sidebar-background: 252 40% 5%;
+    /* Accent Colors */
+    --accent-pink: 330 81% 60%;
+    --accent-teal: 175 84% 32%;
+
+    /* Sidebar — #2E1065 deep purple */
+    --sidebar-background: 261 73% 23%;
     --sidebar-foreground: 257 100% 98%;
     --sidebar-primary: 263 70% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 260 30% 14%;
+    --sidebar-accent: 261 60% 28%;
     --sidebar-accent-foreground: 257 100% 98%;
-    --sidebar-border: 260 25% 14%;
+    --sidebar-border: 261 50% 20%;
     --sidebar-ring: 263 70% 58%;
   }
 
@@ -90,13 +94,13 @@
     --primary: 263 70% 58%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 260 20% 95%;
+    --secondary: 250 100% 98%;
     --secondary-foreground: 252 33% 15%;
 
-    --muted: 260 15% 94%;
+    --muted: 250 60% 96%;
     --muted-foreground: 260 10% 45%;
 
-    --accent: 260 20% 95%;
+    --accent: 250 100% 98%;
     --accent-foreground: 252 33% 10%;
 
     --destructive: 0 72% 51%;
@@ -106,9 +110,9 @@
     --input: 260 15% 90%;
     --ring: 263 70% 58%;
 
-    --nova-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%);
-    --nova-gradient-subtle: linear-gradient(135deg, hsl(263 70% 58% / 0.08) 0%, hsl(280 70% 60% / 0.05) 100%);
-    --nova-glow: 0 0 24px hsl(263 70% 58% / 0.15);
+    --optimus-gradient: linear-gradient(135deg, #7C3AED 0%, #A855F7 50%, #C084FC 100%);
+    --optimus-gradient-subtle: linear-gradient(135deg, hsl(263 70% 58% / 0.08) 0%, hsl(280 70% 60% / 0.05) 100%);
+    --optimus-glow: 0 0 24px hsl(263 70% 58% / 0.15);
 
     --success: 142 71% 45%;
     --success-foreground: 0 0% 100%;
@@ -119,7 +123,11 @@
 
     --role-strategy: 263 70% 58%;
 
-    --sidebar-background: 260 20% 97%;
+    /* Accent Colors */
+    --accent-pink: 330 81% 60%;
+    --accent-teal: 175 84% 32%;
+
+    --sidebar-background: 250 60% 97%;
     --sidebar-foreground: 252 33% 10%;
     --sidebar-primary: 263 70% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
@@ -147,6 +155,10 @@
     letter-spacing: -0.025em;
   }
 
+  .text-3xl, .text-4xl {
+    letter-spacing: -0.025em;
+  }
+
   /* Custom scrollbar */
   ::-webkit-scrollbar {
     width: 8px;
@@ -167,19 +179,19 @@
 }
 
 @layer utilities {
-  .nova-gradient {
-    background: var(--nova-gradient);
+  .optimus-gradient {
+    background: var(--optimus-gradient);
   }
 
-  .nova-gradient-subtle {
-    background: var(--nova-gradient-subtle);
+  .optimus-gradient-subtle {
+    background: var(--optimus-gradient-subtle);
   }
 
-  .nova-glow {
-    box-shadow: var(--nova-glow);
+  .optimus-glow {
+    box-shadow: var(--optimus-glow);
   }
 
-  .nova-border {
+  .optimus-border {
     border: 1px solid hsl(263 70% 58% / 0.25);
   }
 

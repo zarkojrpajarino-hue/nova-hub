@@ -129,7 +129,143 @@ export const TAB_UNLOCK_CONDITIONS: Record<string, string> = {
   'negocio-ia': 'Entras en Fase 3 con modelo de negocio validado.',
 }
 
-// ── 3. Stats relevantes por fase — para ProjectDashboardTab ──────────────────
+// ── 3. Sidebar item visibility por fase — para NovaSidebar (Bloque A) ────────
+//
+// visible → render normal
+// teaser  → opacity-50, Lock icon, tooltip con razón, click muestra toast
+// hidden  → no se renderiza
+
+export type SidebarItemStatus = 'visible' | 'teaser' | 'hidden'
+
+const ALL_SIDEBAR_ITEMS = [
+  'dashboard', 'mi-espacio', 'mi-desarrollo', 'mi-modelo',
+  'proyectos', 'validaciones', 'obvs',
+  'startup-os', 'crm', 'financiero', 'meetings', 'analisis-ia', 'toolkit',
+  'exploration', 'path-to-master', 'rankings', 'masters', 'rotacion',
+  'kpis', 'analytics', 'team-performance',
+  'settings', 'integrations', 'notificaciones',
+] as const
+
+export const SIDEBAR_PHASE_CONFIG: Record<number, Record<string, SidebarItemStatus>> = {
+  0: {
+    'dashboard': 'visible',
+    'mi-espacio': 'hidden',
+    'mi-desarrollo': 'hidden',
+    'mi-modelo': 'hidden',
+    'proyectos': 'hidden',
+    'validaciones': 'hidden',
+    'obvs': 'hidden',
+    'startup-os': 'visible',
+    'crm': 'hidden',
+    'financiero': 'hidden',
+    'meetings': 'hidden',
+    'analisis-ia': 'hidden',
+    'toolkit': 'hidden',
+    'exploration': 'hidden',
+    'path-to-master': 'hidden',
+    'rankings': 'hidden',
+    'masters': 'hidden',
+    'rotacion': 'hidden',
+    'kpis': 'hidden',
+    'analytics': 'hidden',
+    'team-performance': 'hidden',
+    'settings': 'visible',
+    'integrations': 'hidden',
+    'notificaciones': 'visible',
+  },
+  1: {
+    'dashboard': 'visible',
+    'mi-espacio': 'visible',
+    'mi-desarrollo': 'hidden',
+    'mi-modelo': 'hidden',
+    'proyectos': 'visible',
+    'validaciones': 'visible',
+    'obvs': 'visible',
+    'startup-os': 'visible',
+    'crm': 'teaser',
+    'financiero': 'teaser',
+    'meetings': 'hidden',
+    'analisis-ia': 'hidden',
+    'toolkit': 'hidden',
+    'exploration': 'hidden',
+    'path-to-master': 'hidden',
+    'rankings': 'hidden',
+    'masters': 'hidden',
+    'rotacion': 'hidden',
+    'kpis': 'visible',
+    'analytics': 'hidden',
+    'team-performance': 'hidden',
+    'settings': 'visible',
+    'integrations': 'teaser',
+    'notificaciones': 'visible',
+  },
+  2: {
+    'dashboard': 'visible',
+    'mi-espacio': 'visible',
+    'mi-desarrollo': 'hidden',
+    'mi-modelo': 'visible',
+    'proyectos': 'visible',
+    'validaciones': 'visible',
+    'obvs': 'visible',
+    'startup-os': 'visible',
+    'crm': 'visible',
+    'financiero': 'teaser',
+    'meetings': 'teaser',
+    'analisis-ia': 'teaser',
+    'toolkit': 'teaser',
+    'exploration': 'hidden',
+    'path-to-master': 'hidden',
+    'rankings': 'hidden',
+    'masters': 'hidden',
+    'rotacion': 'hidden',
+    'kpis': 'visible',
+    'analytics': 'hidden',
+    'team-performance': 'hidden',
+    'settings': 'visible',
+    'integrations': 'visible',
+    'notificaciones': 'visible',
+  },
+  3: {
+    'dashboard': 'visible',
+    'mi-espacio': 'visible',
+    'mi-desarrollo': 'visible',
+    'mi-modelo': 'visible',
+    'proyectos': 'visible',
+    'validaciones': 'visible',
+    'obvs': 'visible',
+    'startup-os': 'visible',
+    'crm': 'visible',
+    'financiero': 'visible',
+    'meetings': 'visible',
+    'analisis-ia': 'visible',
+    'toolkit': 'visible',
+    'exploration': 'visible',
+    'path-to-master': 'hidden',
+    'rankings': 'visible',
+    'masters': 'hidden',
+    'rotacion': 'hidden',
+    'kpis': 'visible',
+    'analytics': 'visible',
+    'team-performance': 'visible',
+    'settings': 'visible',
+    'integrations': 'visible',
+    'notificaciones': 'visible',
+  },
+  // Phase 4: everything visible
+  4: Object.fromEntries(ALL_SIDEBAR_ITEMS.map(id => [id, 'visible' as SidebarItemStatus])),
+}
+
+// Por qué un sidebar item está bloqueado (teaser) — textos para tooltip/toast
+export const SIDEBAR_TEASER_REASONS: Record<string, string> = {
+  'crm': 'sidebar.teaser.crm',
+  'financiero': 'sidebar.teaser.financiero',
+  'meetings': 'sidebar.teaser.meetings',
+  'analisis-ia': 'sidebar.teaser.analisisIa',
+  'toolkit': 'sidebar.teaser.toolkit',
+  'integrations': 'sidebar.teaser.integrations',
+}
+
+// ── 4. Stats relevantes por fase — para ProjectDashboardTab ─────────────────
 
 export type PhaseStatKey =
   | 'total_obvs'
@@ -153,7 +289,7 @@ export const PHASE_STATS_CONFIG: Record<number, PhaseStatKey[]> = {
   4: ['facturacion', 'margen', 'leads_ganados', 'team_count'],
 }
 
-// ── 4. Phase relevance por task function_type — para KanbanColumn ─────────────
+// ── 5. Phase relevance por task function_type — para KanbanColumn ─────────────
 //
 // Escala 0-3: 3 = crítico para esta fase, 0 = no relevante.
 // Usado en: getPhaseRelevanceScore() para ordenar columna 'todo'.

@@ -765,7 +765,7 @@ export const PREMIUM_MI_DESARROLLO_DEMO = {
     {
       id: 'badge-2',
       title: '100 Days Learning Streak',
-      issuer: 'Nova Hub',
+      issuer: 'Optimus-K',
       date: '2024-01-20',
       icon: '🔥',
       verified: false,

@@ -140,8 +140,8 @@ export function RolesMeetingView({ onNewOBV }: RolesMeetingViewProps) {
         />
 
         {/* Banner */}
-        <div className="nova-gradient-subtle nova-border rounded-2xl p-6 mb-8 flex items-center gap-5 animate-fade-in">
-          <div className="w-14 h-14 rounded-2xl nova-gradient flex items-center justify-center">
+        <div className="optimus-gradient-subtle optimus-border rounded-2xl p-6 mb-8 flex items-center gap-5 animate-fade-in">
+          <div className="w-14 h-14 rounded-2xl optimus-gradient flex items-center justify-center">
             <Calendar size={28} className="text-primary-foreground" />
           </div>
           <div className="flex-1">

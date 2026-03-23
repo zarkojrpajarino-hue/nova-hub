@@ -145,7 +145,7 @@ const SLIDES = [
     content: (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
-          💡 Pasa el ratón sobre cada competencia para ver detalles y próximos pasos
+          Pasa el raton sobre cada competencia para ver detalles y proximos pasos
         </p>
 
         <div className="grid grid-cols-2 gap-3">
@@ -234,7 +234,7 @@ const SLIDES = [
         `}</style>
 
         <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-          <p className="text-sm font-medium mb-2">💡 Insights Automáticos</p>
+          <p className="text-sm font-medium mb-2">Insights Automaticos</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
             <li>• Fortaleza principal: Product Strategy (94%)</li>
             <li>• Área de mejora: Technical Skills (gap de 9%)</li>
@@ -254,7 +254,7 @@ const SLIDES = [
       <div className="space-y-4">
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
           <p className="text-sm font-medium">
-            🎯 3 Paths Activos
+            3 Paths Activos
             <span className="text-xs text-muted-foreground ml-2">(Click para ver detalles completos)</span>
           </p>
         </div>
@@ -336,7 +336,7 @@ const SLIDES = [
                     {/* Next lesson */}
                     <div className="p-2 rounded-lg bg-primary/5 group-hover:bg-primary/10 transition-colors">
                       <p className="text-xs font-medium">
-                        📖 Next: <span className="text-primary">{path.nextLesson}</span>
+                        Next: <span className="text-primary">{path.nextLesson}</span>
                       </p>
                     </div>
                   </div>
@@ -468,7 +468,7 @@ const SLIDES = [
         `}</style>
 
         <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
-          <p className="text-sm font-medium mb-2">🎯 Próximas Certificaciones</p>
+          <p className="text-sm font-medium mb-2">Proximas Certificaciones</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
             <li>• Advanced Product Leadership (Reforge) - En progreso (65%)</li>
             <li>• Data Analytics Professional (Coursera) - Próximamente</li>
@@ -549,7 +549,7 @@ const SLIDES = [
                 <CardContent className="p-3">
                   <div className="flex items-start gap-2">
                     <div className="text-2xl group-hover:scale-125 transition-transform">
-                      👤
+                      U
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="font-semibold text-xs truncate group-hover:text-primary transition-colors">
@@ -601,7 +601,7 @@ const SLIDES = [
                       session.type === 'mentee' ? 'bg-green-500/10 text-green-600' :
                       'bg-purple-500/10 text-purple-600'
                     }`}>
-                      {session.type === 'mentor' ? '👨‍🏫' : session.type === 'mentee' ? '👥' : '🤝'}
+                      {session.type === 'mentor' ? 'M' : session.type === 'mentee' ? 'T' : 'P'}
                     </div>
                     <div className="flex-1 min-w-0">
                       <p className="text-xs font-semibold truncate group-hover:text-primary transition-colors">

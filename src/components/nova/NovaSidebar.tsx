@@ -1,7 +1,7 @@
-import { useState } from 'react';
+import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
   LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet,
-  BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target, Layers
+  BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target, Layers, Home, Users, Briefcase
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { useNavigate, useLocation } from 'react-router-dom';
@@ -11,7 +11,10 @@ import { ThemeToggle, LanguageToggle } from '@/components/ui/theme-toggle';
 import { PlanSelectionModal } from '@/components/subscription/PlanSelectionModal';
 import { useAvailablePlans } from '@/hooks/useSubscription';
 import { useProjectContext } from '@/hooks/useProjectContext';
+import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
+import { SIDEBAR_PHASE_CONFIG, SIDEBAR_TEASER_REASONS, type SidebarItemStatus } from '@/lib/phase-features';
 import { Badge } from '@/components/ui/badge';
+import { toast } from 'sonner';
 import {
   Tooltip,
   TooltipContent,
@@ -117,6 +120,72 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
   const { data: projectContext } = useProjectContext(projectId);
   const isSoloMode = projectContext?.mode === 'solo';
 
+  // UI.A — Phase-adaptive sidebar
+  const { phase } = usePhaseFeatures(projectId);
+  const phaseConfig = SIDEBAR_PHASE_CONFIG[phase] ?? SIDEBAR_PHASE_CONFIG[4];
+
+  // UI.A.4 — "NUEVO" badge: detect newly visible items after phase change
+  const lsKey = projectId ? `optimus_last_seen_phase_${projectId}` : null;
+  const [clickedNewItems, setClickedNewItems] = useState<Set<string>>(new Set());
+
+  const newlyVisibleItems = useMemo(() => {
+    if (!lsKey) return new Set<string>();
+    const storedPhase = parseInt(localStorage.getItem(lsKey) ?? '-1', 10);
+    if (storedPhase < 0 || storedPhase >= phase) return new Set<string>();
+    // Items that were hidden/teaser in stored phase but visible now
+    const prevConfig = SIDEBAR_PHASE_CONFIG[storedPhase] ?? {};
+    const curConfig = SIDEBAR_PHASE_CONFIG[phase] ?? {};
+    const result = new Set<string>();
+    for (const [id, status] of Object.entries(curConfig)) {
+      if (status === 'visible') {
+        const prev = prevConfig[id] ?? 'hidden';
+        if (prev !== 'visible') result.add(id);
+      }
+    }
+    return result;
+  }, [lsKey, phase]);
+
+  // Persist current phase on mount/change
+  useEffect(() => {
+    if (lsKey && phase >= 0) {
+      const stored = parseInt(localStorage.getItem(lsKey) ?? '-1', 10);
+      // Only update if we've had time to show badges (next render cycle after mount)
+      if (stored < 0) {
+        localStorage.setItem(lsKey, String(phase));
+      }
+    }
+  }, [lsKey, phase]);
+
+  const markNewItemSeen = useCallback((itemId: string) => {
+    setClickedNewItems(prev => {
+      const next = new Set(prev);
+      next.add(itemId);
+      return next;
+    });
+    // If all new items have been clicked, update stored phase
+    if (lsKey && newlyVisibleItems.size > 0) {
+      const allSeen = [...newlyVisibleItems].every(
+        id => id === itemId || clickedNewItems.has(id)
+      );
+      if (allSeen) {
+        localStorage.setItem(lsKey, String(phase));
+      }
+    }
+  }, [lsKey, newlyVisibleItems, clickedNewItems, phase]);
+
+  const getSidebarItemStatus = useCallback((itemId: string): SidebarItemStatus => {
+    return phaseConfig[itemId] ?? 'visible';
+  }, [phaseConfig]);
+
+  const isNewItem = useCallback((itemId: string): boolean => {
+    return newlyVisibleItems.has(itemId) && !clickedNewItems.has(itemId);
+  }, [newlyVisibleItems, clickedNewItems]);
+
+  // Filter items by phase visibility (removes hidden, keeps visible + teaser)
+  const filterByPhase = useCallback((items: NavItem[]): NavItem[] => {
+    return items.filter(item => getSidebarItemStatus(item.id) !== 'hidden');
+  }, [getSidebarItemStatus]);
+
   // Estado para controlar que secciones estan abiertas (permite multiples)
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(['core']));
 
@@ -138,10 +207,16 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
 
   const renderSection = (
     id: string,
-    emoji: string,
+    SectionIcon: LucideIcon,
     title: string,
     items: NavItem[]
   ) => {
+    // UI.A.2 — Filter items by phase visibility
+    const visibleItems = filterByPhase(items);
+
+    // Don't render section if no items are visible after filtering
+    if (visibleItems.length === 0) return null;
+
     const isOpen = openSections.has(id);
 
     return (
@@ -151,8 +226,8 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
           onClick={() => toggleSection(id)}
           className="w-full flex items-center justify-between px-3 py-2 rounded-lg hover:bg-muted/50 transition-colors group"
         >
-          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
-            {emoji} {title}
+          <span className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground flex items-center gap-1.5">
+            <SectionIcon size={13} /> {title}
           </span>
           {isOpen ? (
             <ChevronDown size={14} className="text-muted-foreground group-hover:text-foreground transition-colors" />
@@ -164,42 +239,53 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
         {/* Items (solo se muestran si está abierto) */}
         {isOpen && (
           <div className="mt-1 space-y-0.5">
-            {items.map((item) => {
-              // Verificar si está bloqueado
-              const isLocked = item.requiredFeature && !canUseFeature(item.requiredFeature);
+            {visibleItems.map((item) => {
+              const phaseStatus = getSidebarItemStatus(item.id);
+              const isPhaseTeaser = phaseStatus === 'teaser';
+
+              // Verificar si está bloqueado por plan (subscription)
+              const isPlanLocked = !isPhaseTeaser && item.requiredFeature && !canUseFeature(item.requiredFeature);
 
               const isItemActive = () => {
+                // Teaser items are never active
+                if (isPhaseTeaser) return false;
                 if (item.route !== undefined && projectId) {
                   const basePath = `/proyecto/${projectId}`;
                   const fullPath = item.route === '' ? basePath : `${basePath}/${item.route}`;
-                  // Comparación exacta para ruta base, o que termine con la ruta
                   return location.pathname === fullPath || location.pathname.startsWith(`${fullPath}/`);
                 }
-                // Fallback al sistema antiguo
                 return currentView === item.id;
               };
 
               return (
-                <NavItem
+                <SidebarNavItem
                   key={item.id}
                   item={item}
                   isActive={isItemActive()}
-                  isLocked={isLocked}
+                  isLocked={isPlanLocked}
+                  isPhaseTeaser={isPhaseTeaser}
+                  isNew={isNewItem(item.id)}
+                  teaserReason={isPhaseTeaser ? (SIDEBAR_TEASER_REASONS[item.id] ?? 'sidebar.teaser.default') : undefined}
                   onClick={() => {
-                    // ✨ CAMBIO: Siempre permitir navegación para que vean el valor
-                    // El bloqueo se hace en la vista con FeatureGate
+                    if (isPhaseTeaser) {
+                      // UI.A.3 — Click on teaser: show toast with reason
+                      const reasonKey = SIDEBAR_TEASER_REASONS[item.id] ?? 'sidebar.teaser.default';
+                      toast.info(t(reasonKey), { duration: 4000 });
+                      return;
+                    }
+                    // UI.A.4 — Mark new item as seen on click
+                    if (isNewItem(item.id)) {
+                      markNewItemSeen(item.id);
+                    }
                     if (item.route !== undefined) {
-                      // Si está dentro de un proyecto, navegar relativamente
                       if (projectId) {
                         const basePath = `/proyecto/${projectId}`;
                         const targetPath = item.route === '' ? basePath : `${basePath}/${item.route}`;
                         navigate(targetPath);
                       } else {
-                        // Fallback a navegación absoluta
                         navigate(item.route);
                       }
                     } else {
-                      // Fallback al sistema antiguo de vistas
                       setCurrentView(item.id);
                     }
                   }}
@@ -222,7 +308,7 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
       <div className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3" role="banner">
           <div
-            className="w-10 h-10 nova-gradient rounded-xl flex items-center justify-center font-bold text-lg text-primary-foreground animate-pulse-glow"
+            className="w-10 h-10 optimus-gradient rounded-xl flex items-center justify-center font-bold text-lg text-primary-foreground animate-pulse-glow"
             aria-label={t('nova.logoOptimusk')}
           >
             O
@@ -238,13 +324,13 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
 
       {/* Navigation con Accordion */}
       <nav className="flex-1 p-3 overflow-y-auto space-y-2" aria-label={t('nova.menúDeNavegación')}>
-        {renderSection('core', '🏠', t('nav.sections.core'), coreItems)}
-        {renderSection('create', '🚀', t('nav.sections.createValidate'), createValidateItems)}
-        {renderSection('execute', '💼', t('nav.sections.execute'), executeItems)}
+        {renderSection('core', Home, t('nav.sections.core'), coreItems)}
+        {renderSection('create', Rocket, t('nav.sections.createValidate'), createValidateItems)}
+        {renderSection('execute', Briefcase, t('nav.sections.execute'), executeItems)}
         {/* S4.6 — Hide team section in solo mode */}
-        {!isSoloMode && renderSection('team', '👥', t('nav.sections.team'), teamItems)}
-        {renderSection('measure', '📊', t('nav.sections.measure'), measureItems)}
-        {renderSection('system', '⚙️', t('nav.sections.system'), systemItems)}
+        {!isSoloMode && renderSection('team', Users, t('nav.sections.team'), teamItems)}
+        {renderSection('measure', BarChart3, t('nav.sections.measure'), measureItems)}
+        {renderSection('system', Settings, t('nav.sections.system'), systemItems)}
       </nav>
 
       {/* User Section */}
@@ -294,17 +380,63 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
   );
 }
 
-interface NavItemProps {
+interface SidebarNavItemProps {
   item: NavItem;
   isActive: boolean;
   isLocked?: boolean;
+  isPhaseTeaser?: boolean;
+  isNew?: boolean;
+  teaserReason?: string;
   onClick: () => void;
-  onHover?: () => void; // ✨ OPTIMIZADO: Para preloading en hover
+  onHover?: () => void;
 }
 
-function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItemProps) {
+function SidebarNavItem({
+  item,
+  isActive,
+  isLocked = false,
+  isPhaseTeaser = false,
+  isNew = false,
+  teaserReason,
+  onClick,
+  onHover,
+}: SidebarNavItemProps) {
   const { t } = useTranslation();
   const translatedLabel = t(item.label);
+
+  // UI.A.3 — Phase teaser rendering
+  if (isPhaseTeaser) {
+    const reasonText = teaserReason ? t(teaserReason) : t('sidebar.teaser.default');
+    return (
+      <TooltipProvider delayDuration={200}>
+        <Tooltip>
+          <TooltipTrigger asChild>
+            <button
+              onClick={onClick}
+              className={cn(
+                'w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium',
+                'opacity-50 cursor-not-allowed text-muted-foreground'
+              )}
+              aria-label={`${translatedLabel} - ${t('sidebar.teaser.locked')}`}
+              role="menuitem"
+            >
+              <Lock
+                size={16}
+                className="text-muted-foreground shrink-0"
+                aria-hidden="true"
+              />
+              <span className="flex-1 text-left">{translatedLabel}</span>
+            </button>
+          </TooltipTrigger>
+          <TooltipContent side="right" className="max-w-xs">
+            <p className="font-semibold mb-1">{translatedLabel}</p>
+            <p className="text-xs text-muted-foreground">{reasonText}</p>
+          </TooltipContent>
+        </Tooltip>
+      </TooltipProvider>
+    );
+  }
+
   const content = (
     <button
       onClick={onClick}
@@ -312,10 +444,10 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
       className={cn(
         "w-full flex items-center gap-3 px-3 py-2.5 rounded-lg transition-all duration-200 text-sm font-medium",
         isLocked && "opacity-60 hover:opacity-80",
-        !isLocked && isActive && "nova-gradient-subtle nova-border text-foreground",
+        !isLocked && isActive && "optimus-gradient-subtle optimus-border text-foreground",
         !isLocked && !isActive && "text-muted-foreground hover:text-foreground hover:bg-sidebar-accent"
       )}
-      aria-label={isLocked ? `${translatedLabel} (Requiere ${item.requiredPlan})` : `Navegar a ${translatedLabel}`}
+      aria-label={isLocked ? `${translatedLabel} (${t('nav.featureRequiresPlan', { plan: item.requiredPlan })})` : `${t('sidebar.navigateTo')} ${translatedLabel}`}
       aria-current={isActive ? 'page' : undefined}
       role="menuitem"
     >
@@ -329,6 +461,14 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
       />
       <span className="flex-1 text-left">{translatedLabel}</span>
 
+      {/* UI.A.4 — "NUEVO" dot badge for newly unlocked items */}
+      {isNew && !isLocked && (
+        <span
+          className="w-2 h-2 rounded-full bg-primary animate-pulse shrink-0"
+          aria-label={t('sidebar.newBadge')}
+        />
+      )}
+
       {/* Badge de plan requerido si está bloqueado */}
       {isLocked && item.requiredPlan && (
         <Badge
@@ -341,10 +481,10 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
       )}
 
       {/* Badge normal si no está bloqueado */}
-      {!isLocked && item.badge && (
+      {!isLocked && !isNew && item.badge && (
         <span
           className="ml-auto bg-destructive text-destructive-foreground text-[11px] font-semibold px-2 py-0.5 rounded-full"
-          aria-label={`${item.badge} pendientes`}
+          aria-label={`${item.badge} ${t('nav.pending')}`}
         >
           {item.badge}
         </span>
@@ -352,7 +492,7 @@ function NavItem({ item, isActive, isLocked = false, onClick, onHover }: NavItem
     </button>
   );
 
-  // Si está bloqueado, envolver con tooltip
+  // Si está bloqueado por plan, envolver con tooltip
   if (isLocked) {
     return (
       <TooltipProvider delayDuration={200}>

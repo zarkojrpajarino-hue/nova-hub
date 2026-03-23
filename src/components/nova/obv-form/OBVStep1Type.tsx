@@ -1,13 +1,13 @@
 import { memo } from 'react';
-import { Check } from 'lucide-react';
+import { Check, Search, CheckCircle, Wallet, type LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
 import { useTranslation } from 'react-i18next';
 const OBV_TYPES = [
-  { id: 'exploracion', icon: '🔍', title: t('obv.exploración'), desc: t('obv.primerContactoInvestigaciónDe'), color: '#6366F1' },
-  { id: 'validacion', icon: '✅', title: t('obv.validación'), desc: t('obv.reuniónDemoPropuestaEnviada'), color: '#F59E0B' },
-  { id: 'venta', icon: '💰', title: t('obv.venta'), desc: t('obv.cierreConfirmadoConTransacción'), color: '#22C55E' },
+  { id: 'exploracion', Icon: Search, title: t('obv.exploración'), desc: t('obv.primerContactoInvestigaciónDe'), color: '#6366F1' },
+  { id: 'validacion', Icon: CheckCircle, title: t('obv.validación'), desc: t('obv.reuniónDemoPropuestaEnviada'), color: '#F59E0B' },
+  { id: 'venta', Icon: Wallet, title: t('obv.venta'), desc: t('obv.cierreConfirmadoConTransacción'), color: '#22C55E' },
 ];
 
 interface OBVStep1TypeProps {
@@ -38,7 +38,7 @@ export const OBVStep1Type = memo(function OBVStep1Type({ formData, onUpdate }: O
               className="w-14 h-14 rounded-2xl flex items-center justify-center text-3xl mb-4"
               style={{ background: `${type.color}15` }}
             >
-              {type.icon}
+              <type.Icon size={28} />
             </div>
             <h5 className="font-bold text-base mb-2">{type.title}</h5>
             <p className="text-sm text-muted-foreground">{type.desc}</p>

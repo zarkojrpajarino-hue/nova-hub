@@ -73,7 +73,7 @@ export function EmailPitchGenerator() {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl nova-gradient flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl optimus-gradient flex items-center justify-center">
               <Mail className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>

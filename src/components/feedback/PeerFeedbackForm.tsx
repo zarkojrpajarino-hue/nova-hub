@@ -241,7 +241,7 @@ export function PeerFeedbackForm({
               htmlFor="would-work-again"
               className="text-sm font-normal cursor-pointer"
             >
-              ✅ Trabajaría con {toMember.nombre} otra vez
+              Trabajaria con {toMember.nombre} otra vez
             </Label>
           </div>
 

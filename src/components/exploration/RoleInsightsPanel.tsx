@@ -5,7 +5,7 @@
  * Muestra insights públicos de todos, filtrados por rol
  */
 
-import { Lightbulb, Trophy, TrendingUp, Users } from 'lucide-react';
+import { Lightbulb, Trophy, TrendingUp, Users, BookOpen, AlertTriangle, PartyPopper } from 'lucide-react';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Avatar, AvatarFallback } from '@/components/ui/avatar';
@@ -34,11 +34,11 @@ interface RoleInsightsPanelProps {
 }
 
 const TIPO_CONFIG = {
-  aprendizaje: { icon: '📚', color: 'bg-blue-500/10 text-blue-700 dark:text-blue-300', label: t('exploration.aprendizaje') },
-  reflexion: { icon: '💭', color: 'bg-amber-500/10 text-amber-700 dark:text-amber-300', label: t('exploration.reflexión') },
-  error: { icon: '⚠️', color: 'bg-red-500/10 text-red-700 dark:text-red-300', label: t('exploration.error') },
-  exito: { icon: '🎉', color: 'bg-green-500/10 text-green-700 dark:text-green-300', label: t('exploration.éxito') },
-  idea: { icon: '💡', color: 'bg-purple-500/10 text-purple-700 dark:text-purple-300', label: t('exploration.idea') },
+  aprendizaje: { icon: <BookOpen size={14} className="inline" />, color: 'bg-blue-500/10 text-blue-700 dark:text-blue-300', label: t('exploration.aprendizaje') },
+  reflexion: { icon: <TrendingUp size={14} className="inline" />, color: 'bg-amber-500/10 text-amber-700 dark:text-amber-300', label: t('exploration.reflexión') },
+  error: { icon: <AlertTriangle size={14} className="inline" />, color: 'bg-red-500/10 text-red-700 dark:text-red-300', label: t('exploration.error') },
+  exito: { icon: <PartyPopper size={14} className="inline" />, color: 'bg-green-500/10 text-green-700 dark:text-green-300', label: t('exploration.éxito') },
+  idea: { icon: <Lightbulb size={14} className="inline" />, color: 'bg-purple-500/10 text-purple-700 dark:text-purple-300', label: t('exploration.idea') },
 };
 
 export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsightsPanelProps) {
@@ -207,7 +207,7 @@ function InsightCard({ insight, isOwn, showFitScore }: InsightCardProps) {
         {/* Aprendizaje destacado */}
         {insight.tipo === 'aprendizaje' && (
           <div className="mt-3 p-3 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm">
-            <strong className="text-blue-700 dark:text-blue-300">💡 Aprendizaje clave:</strong> Este insight puede ayudarte a mejorar en {insight.role}
+            <strong className="text-blue-700 dark:text-blue-300">Aprendizaje clave:</strong> Este insight puede ayudarte a mejorar en {insight.role}
           </div>
         )}
       </CardContent>

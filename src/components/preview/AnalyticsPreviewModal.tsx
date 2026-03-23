@@ -128,7 +128,7 @@ const SLIDES = [
       <div className="space-y-4">
         <div className="p-3 rounded-lg bg-primary/5 border border-primary/20">
           <p className="text-sm font-medium mb-2">
-            🎯 Ejemplo: Top 3 Performers
+            Ejemplo: Top 3 Performers
             <span className="text-xs text-muted-foreground ml-2">(Pasa el ratón por cada fila)</span>
           </p>
           <div className="space-y-2">
@@ -192,9 +192,9 @@ const SLIDES = [
           <div className="p-3 rounded-lg border bg-card">
             <h4 className="text-xs font-semibold text-muted-foreground mb-2">{t('preview.visualizaciones')}</h4>
             <ul className="space-y-1 text-xs">
-              <li>📊 Tabla sorteable por columna</li>
-              <li>📈 Radar chart comparativo</li>
-              <li>🎯 Selección múltiple (hasta 3)</li>
+              <li>Tabla sorteable por columna</li>
+              <li>Radar chart comparativo</li>
+              <li>Seleccion multiple (hasta 3)</li>
               <li>💾 Exportar a Excel/PDF</li>
               <li>🔍 Filtros por proyecto</li>
             </ul>
@@ -211,7 +211,7 @@ const SLIDES = [
     content: (
       <div className="space-y-4">
         <p className="text-sm text-muted-foreground text-center">
-          💡 Haz click en cada proyecto para ver detalles expandidos
+          Haz click en cada proyecto para ver detalles expandidos
         </p>
         <div className="grid grid-cols-3 gap-3">
           {PREMIUM_DEMO_DATA.analytics.projects.map((project, idx) => (
@@ -282,7 +282,7 @@ const SLIDES = [
         `}</style>
 
         <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
-          <p className="text-sm font-medium mb-2">💡 Insights Automáticos</p>
+          <p className="text-sm font-medium mb-2">Insights Automaticos</p>
           <ul className="space-y-1 text-xs text-muted-foreground">
             <li>• t('preview.enterpriseSaasPlatform') tiene el health score más alto (95%)</li>
             <li>• Revenue total combinado: $245K</li>
@@ -466,7 +466,7 @@ const SLIDES = [
 
         <div className="grid grid-cols-2 gap-3 text-xs">
           <div className="p-3 rounded-lg border bg-card">
-            <p className="font-semibold mb-2">📊 Patrones Detectados</p>
+            <p className="font-semibold mb-2">Patrones Detectados</p>
             <ul className="space-y-1 text-muted-foreground">
               <li>• Pico de actividad: Martes y Jueves</li>
               <li>• Menos actividad: Fines de semana</li>
@@ -474,7 +474,7 @@ const SLIDES = [
             </ul>
           </div>
           <div className="p-3 rounded-lg border bg-card">
-            <p className="font-semibold mb-2">💡 Insights</p>
+            <p className="font-semibold mb-2">Insights</p>
             <ul className="space-y-1 text-muted-foreground">
               <li>• Team work-life balance saludable</li>
               <li>• Consistencia alta durante semanas</li>
@@ -593,7 +593,7 @@ const SLIDES = [
             <div className="p-3 rounded-lg border bg-background">
               <div className="flex items-center gap-2 mb-2">
                 <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center">
-                  <span className="text-lg">📊</span>
+                  <span className="text-lg font-semibold">A</span>
                 </div>
                 <span className="font-semibold text-sm">Excel (.xlsx)</span>
               </div>
@@ -623,7 +623,7 @@ const SLIDES = [
         </div>
 
         <div className="p-3 rounded-lg border bg-card">
-          <h4 className="font-semibold text-sm mb-2">✨ Features Pro</h4>
+          <h4 className="font-semibold text-sm mb-2">Features Pro</h4>
           <ul className="space-y-1 text-xs text-muted-foreground">
             <li>• Programar reportes automáticos (weekly/monthly)</li>
             <li>• Envío por email a stakeholders</li>
@@ -635,7 +635,7 @@ const SLIDES = [
 
         <div className="p-3 rounded-lg bg-green-500/10 border border-green-500/20 text-center">
           <p className="text-sm font-semibold text-green-700 dark:text-green-400">
-            🎯 Con el plan Advanced: Reportes ilimitados + automatización completa
+            Con el plan Advanced: Reportes ilimitados + automatizacion completa
           </p>
         </div>
       </div>

@@ -52,12 +52,12 @@ describe('ProfileSettings', () => {
 
   it('renders personal information title', () => {
     renderComponent();
-    expect(screen.getByText('👤 Información Personal')).toBeInTheDocument();
+    expect(screen.getByText('Informacion Personal')).toBeInTheDocument();
   });
 
   it('renders color identificativo title', () => {
     renderComponent();
-    expect(screen.getByText('🎨 Color Identificativo')).toBeInTheDocument();
+    expect(screen.getByText('Color Identificativo')).toBeInTheDocument();
   });
 
   it('renders nombre input', () => {

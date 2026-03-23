@@ -57,7 +57,7 @@ export default function EvidenceTestPage() {
     <div className="container mx-auto p-6 space-y-6">
       {/* Header */}
       <div>
-        <h1 className="text-3xl font-bold">🧪 Evidence System Test</h1>
+        <h1 className="text-3xl font-bold">Evidence System Test</h1>
         <p className="text-muted-foreground mt-2">{t('evidenceTest.testTheCompleteAi')}</p>
       </div>
 
@@ -84,8 +84,8 @@ export default function EvidenceTestPage() {
       {/* Main Content */}
       <Tabs defaultValue="documents" className="w-full">
         <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="documents">📄 Document Manager</TabsTrigger>
-          <TabsTrigger value="generator">🤖 AI Generator</TabsTrigger>
+          <TabsTrigger value="documents">Document Manager</TabsTrigger>
+          <TabsTrigger value="generator">AI Generator</TabsTrigger>
         </TabsList>
 
         {/* Tab 1: Document Manager */}
@@ -102,7 +102,7 @@ export default function EvidenceTestPage() {
 
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2">✅ Test Checklist:</h3>
+              <h3 className="font-semibold mb-2">Test Checklist:</h3>
               <ol className="text-sm space-y-1 list-decimal list-inside">
                 <li>{t('evidenceTest.clickUploadDocumentsTab')}</li>
                 <li>Drag & drop a PDF or CSV file (or click t('evidenceTest.chooseFiles'))</li>
@@ -127,7 +127,7 @@ export default function EvidenceTestPage() {
                 functionName="financial-projections"
                 projectId={projectId}
                 userId={userId}
-                buttonLabel="🚀 Test Evidence Generation"
+                buttonLabel="Test Evidence Generation"
                 onGenerationComplete={(_result) => {
                   alert(t('evidenceTest.generationCompleteCheckConsole'));
                 }}
@@ -137,7 +137,7 @@ export default function EvidenceTestPage() {
 
           <Card className="bg-blue-50 border-blue-200">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2">✅ Test Checklist:</h3>
+              <h3 className="font-semibold mb-2">Test Checklist:</h3>
               <ol className="text-sm space-y-1 list-decimal list-inside">
                 <li>{t('evidenceTest.clickTheTestEvidence')}</li>
                 <li>{t('evidenceTest.aModalShouldOpen')}</li>
@@ -153,7 +153,7 @@ export default function EvidenceTestPage() {
 
           <Card className="bg-yellow-50 border-yellow-200">
             <CardContent className="pt-6">
-              <h3 className="font-semibold mb-2 text-yellow-800">⚠️ Current Status:</h3>
+              <h3 className="font-semibold mb-2 text-yellow-800">Current Status:</h3>
               <p className="text-sm text-yellow-700">{t('evidenceTest.theAiGenerationIs')}<strong>mock data</strong>.
                 To connect with real AI generation, you need to modify
                 <code className="bg-yellow-100 px-1 mx-1 rounded">src/hooks/useEvidenceGeneration.ts</code>

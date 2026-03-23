@@ -140,8 +140,8 @@ export function MeetingQuestionsReview({
     return (
       <div className="flex items-center justify-center py-12">
         <div className="text-center">
-          <div className="w-12 h-12 nova-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse mx-auto mb-3">
-            N
+          <div className="w-12 h-12 optimus-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse mx-auto mb-3">
+            O
           </div>
           <p className="text-gray-600">{t('meetings.cargandoPreguntas')}</p>
         </div>

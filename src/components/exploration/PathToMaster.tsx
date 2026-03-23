@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Rocket, Star } from 'lucide-react';
+import { Rocket, Star, Wallet, BarChart3, Bot, Megaphone, Settings, Target, MessageCircle } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -24,49 +24,49 @@ interface PathToMasterProps {
 const ROLE_INFO = {
   sales: {
     name: t('exploration.sales'),
-    icon: '💰',
+    Icon: Wallet,
     description: t('exploration.ventasCaptaciónDeClientes'),
     difficulty: t('exploration.media'),
     duration: '2-4 semanas',
   },
   finance: {
     name: t('exploration.finance'),
-    icon: '📊',
+    Icon: BarChart3,
     description: t('exploration.finanzasPresupuestosAnálisisEconómico'),
     difficulty: t('exploration.alta'),
     duration: '3-4 semanas',
   },
   ai_tech: {
     name: t('exploration.aiTech'),
-    icon: '🤖',
+    Icon: Bot,
     description: t('exploration.tecnologíaAutomatizaciónDesarrollo'),
     difficulty: t('exploration.alta'),
     duration: '3-5 semanas',
   },
   marketing: {
     name: t('exploration.marketing'),
-    icon: '📱',
+    Icon: Megaphone,
     description: t('exploration.marketingDigitalContenidoBranding'),
     difficulty: t('exploration.media'),
     duration: '2-3 semanas',
   },
   operations: {
     name: t('exploration.operations'),
-    icon: '⚙️',
+    Icon: Settings,
     description: t('exploration.operacionesProcesosLogística'),
     difficulty: t('exploration.media'),
     duration: '2-3 semanas',
   },
   strategy: {
     name: t('exploration.strategy'),
-    icon: '🎯',
+    Icon: Target,
     description: t('exploration.estrategiaPlanificaciónVisión'),
     difficulty: t('exploration.alta'),
     duration: '3-4 semanas',
   },
   customer: {
     name: t('exploration.customerSuccess'),
-    icon: '💬',
+    Icon: MessageCircle,
     description: t('exploration.atenciónAlClienteSoporte'),
     difficulty: t('exploration.baja'),
     duration: '2 semanas',
@@ -105,7 +105,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
               <Rocket className="text-primary-foreground" size={24} />
             </div>
             <div className="flex-1">
-              <h3 className="text-2xl font-bold">🚀 Camino a Master</h3>
+              <h3 className="text-2xl font-bold">Camino a Master</h3>
               <p className="text-sm text-muted-foreground font-normal">{t('exploration.exploraYDominaNuevos')}</p>
             </div>
             <Badge variant="secondary" className="text-lg px-4 py-2">
@@ -123,10 +123,8 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                 {masteredRoles.map((role, index) => {
                   const info = ROLE_INFO[role as keyof typeof ROLE_INFO];
                   return (
-                    <Badge key={role} variant="default" className="text-sm px-3 py-1">
-                      {info?.icon} {info?.name}
-                      {index === 0 && ' ⭐'}
-                      {index === 1 && ' 🥈'}
+                    <Badge key={role} variant="default" className="text-sm px-3 py-1 flex items-center gap-1">
+                      {info?.Icon && <info.Icon size={14} />} {info?.name}
                     </Badge>
                   );
                 })}
@@ -153,7 +151,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
                   >
                     <CardContent className="p-4">
                       <div className="flex items-start gap-3">
-                        <div className="text-3xl">{info.icon}</div>
+                        <div className="text-3xl"><info.Icon size={28} /></div>
                         <div className="flex-1 min-w-0">
                           <h5 className="font-semibold mb-1">{info.name}</h5>
                           <p className="text-xs text-muted-foreground line-clamp-2 mb-2">
@@ -194,7 +192,7 @@ export function PathToMaster({ currentRoles, allRoles, onStartExploration }: Pat
           {/* Info Box */}
           <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20 text-sm">
             <p className="font-semibold text-blue-700 dark:text-blue-300 mb-2">
-              💡 ¿Cómo funciona?
+              Como funciona
             </p>
             <ul className="space-y-1 text-blue-600 dark:text-blue-400">
               <li>

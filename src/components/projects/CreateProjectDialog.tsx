@@ -188,13 +188,13 @@ export function CreateProjectDialog() {
               <SelectContent>
                 <SelectItem value="validacion">
                   <div className="flex flex-col items-start">
-                    <span className="font-medium">🧪 Validación</span>
+                    <span className="font-medium">Validacion</span>
                     <span className="text-xs text-muted-foreground">{t('projects.paraProyectosEnFase')}</span>
                   </div>
                 </SelectItem>
                 <SelectItem value="operacion">
                   <div className="flex flex-col items-start">
-                    <span className="font-medium">🚀 Operación</span>
+                    <span className="font-medium">Operacion</span>
                     <span className="text-xs text-muted-foreground">{t('projects.paraProyectosConClientes')}</span>
                   </div>
                 </SelectItem>

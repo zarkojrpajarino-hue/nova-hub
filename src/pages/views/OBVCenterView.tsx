@@ -6,7 +6,7 @@
  */
 
 import { useState } from 'react';
-import { Loader2, FileCheck, CheckCircle, Clock, XCircle, MinusCircle, CheckCircle2 } from 'lucide-react';
+import { Loader2, FileCheck, CheckCircle, Clock, XCircle, MinusCircle, CheckCircle2, Search, Wallet } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { OBVForm } from '@/components/nova/OBVForm';
 import { OBVValidationList } from '@/components/nova/OBVValidationList';
@@ -22,11 +22,11 @@ import { toast } from 'sonner';
 
 import { useTranslation } from 'react-i18next';
 const TABS = [
-  { id: 'subir', label: '📤 Subir OBV' },
-  { id: 'validar', label: '✅ Validar' },
-  { id: 'ai-executor', label: '✨ AI Executor' },
-  { id: 'mis-obvs', label: '📋 Mis OBVs' },
-  { id: 'todas', label: '📊 Todas' },
+  { id: 'subir', label: 'Subir OBV' },
+  { id: 'validar', label: 'Validar' },
+  { id: 'ai-executor', label: 'AI Executor' },
+  { id: 'mis-obvs', label: 'Mis OBVs' },
+  { id: 'todas', label: 'Todas' },
 ];
 
 interface OBVCenterViewProps {
@@ -267,7 +267,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                           obv.tipo === 'validacion' && "bg-warning/20",
                           obv.tipo === 'venta' && "bg-success/20",
                         )}>
-                          {obv.tipo === 'exploracion' ? '🔍' : obv.tipo === 'validacion' ? '✅' : '💰'}
+                          {obv.tipo === 'exploracion' ? <Search size={18} /> : obv.tipo === 'validacion' ? <CheckCircle size={18} /> : <Wallet size={18} />}
                         </div>
 
                         {/* Info */}

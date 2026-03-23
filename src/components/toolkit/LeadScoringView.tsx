@@ -42,7 +42,7 @@ export function LeadScoringView({ output }: { output: LeadScoringOutput }) {
       {output.top_hot?.length > 0 && (
         <Card className="border-red-200 bg-red-50/50 dark:bg-red-950/20">
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm text-red-700 dark:text-red-400">🔥 Top leads calientes</CardTitle>
+            <CardTitle className="text-sm text-red-700 dark:text-red-400">Top leads calientes</CardTitle>
           </CardHeader>
           <CardContent className="space-y-2">
             {output.top_hot.map((lead, i) => (

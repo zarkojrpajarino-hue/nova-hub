@@ -146,7 +146,7 @@ export function PartnerComparisonTable({
         {/* Average Row */}
         <TableRow className="bg-muted/30 font-medium">
           <TableCell />
-          <TableCell>📊 Media del equipo</TableCell>
+          <TableCell>Media del equipo</TableCell>
           <TableCell>{averages.obvs.toFixed(1)}</TableCell>
           <TableCell>{averages.lps.toFixed(1)}</TableCell>
           <TableCell>{averages.bps.toFixed(1)}</TableCell>

@@ -5,7 +5,7 @@
  * Muestra progreso actual, tiempo restante, y próximos pasos
  */
 
-import { Check, Clock, Lock, Rocket, Star, Trophy } from 'lucide-react';
+import { Check, Clock, Lock, Rocket, Star, Trophy, Lightbulb, ClipboardList } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -181,17 +181,17 @@ export function PhaseTimeline({
                     {/* Phase-specific info */}
                     {phase.number === 1 && phase.current && (
                       <div className="mt-4 p-3 rounded-lg bg-blue-500/10 text-blue-700 dark:text-blue-300 text-sm">
-                        💡 <strong>Objetivo:</strong>{t('exploration.pruebaElMáximoNúmero')}</div>
+                        <Lightbulb size={14} className="inline mr-1" /><strong>Objetivo:</strong>{t('exploration.pruebaElMáximoNúmero')}</div>
                     )}
 
                     {phase.number === 2 && phase.current && (
                       <div className="mt-4 p-3 rounded-lg bg-amber-500/10 text-amber-700 dark:text-amber-300 text-sm">
-                        💡 <strong>Objetivo:</strong>{t('exploration.subeTuFitScore')}</div>
+                        <Lightbulb size={14} className="inline mr-1" /><strong>Objetivo:</strong>{t('exploration.subeTuFitScore')}</div>
                     )}
 
                     {phase.number === 3 && phase.current && (
                       <div className="mt-4 p-3 rounded-lg bg-purple-500/10 text-purple-700 dark:text-purple-300 text-sm">
-                        💡 <strong>Objetivo:</strong>{t('exploration.conviérteteEnMasterDe')}</div>
+                        <Lightbulb size={14} className="inline mr-1" /><strong>Objetivo:</strong>{t('exploration.conviérteteEnMasterDe')}</div>
                     )}
                   </div>
                 </div>
@@ -205,7 +205,7 @@ export function PhaseTimeline({
       {currentPhase < 3 && (
         <Card className="border-dashed">
           <CardContent className="p-6">
-            <h3 className="font-semibold mb-2">📋 Próximos pasos</h3>
+            <h3 className="font-semibold mb-2 flex items-center gap-1.5"><ClipboardList size={16} /> Próximos pasos</h3>
             <ul className="space-y-2 text-sm text-muted-foreground">
               {currentPhase === 1 && (
                 <>

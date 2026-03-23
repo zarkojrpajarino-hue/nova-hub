@@ -1,9 +1,10 @@
 import { memo } from 'react';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Target } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles } from '@/hooks/useNovaData';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
+import { EmptyState } from '@/components/ui/empty-state';
 import type { Database } from '@/integrations/supabase/types';
 
 import { useTranslation } from 'react-i18next';
@@ -83,6 +84,16 @@ function ProjectCRMTabComponent({ projectId, projectName }: ProjectCRMTabProps) 
       <div className="flex items-center justify-center py-20">
         <Loader2 className="w-8 h-8 animate-spin text-primary" />
       </div>
+    );
+  }
+
+  if (leads.length === 0) {
+    return (
+      <EmptyState
+        icon={Target}
+        title={t('project.emptyCRM.title')}
+        description={t('project.emptyCRM.description')}
+      />
     );
   }
 

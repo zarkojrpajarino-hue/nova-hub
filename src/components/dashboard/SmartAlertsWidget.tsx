@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { AlertTriangle, User, TrendingDown, Calendar, Loader2 } from 'lucide-react';
+import { AlertTriangle, User, TrendingDown, Calendar, Loader2, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles, useProjects, useMemberStats, useObjectives } from '@/hooks/useNovaData';
 import { cn } from '@/lib/utils';
@@ -148,7 +148,7 @@ export function SmartAlertsWidget({ hideHeader = false }: { hideHeader?: boolean
           </div>
         )}
         <div className="text-center py-6 text-muted-foreground">
-          <span className="text-2xl mb-2 block">✅</span>
+          <CheckCircle size={24} className="mx-auto mb-2 text-green-500" />
           <p className="text-sm">{t('dashboard.todoEnOrdenSigue')}</p>
         </div>
       </div>

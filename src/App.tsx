@@ -58,8 +58,8 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   if (loading) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="w-12 h-12 nova-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse">
-          N
+        <div className="w-12 h-12 optimus-gradient rounded-xl flex items-center justify-center font-bold text-xl text-primary-foreground animate-pulse">
+          O
         </div>
       </div>
     );

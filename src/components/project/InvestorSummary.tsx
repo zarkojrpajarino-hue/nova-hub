@@ -91,7 +91,7 @@ Risk Level: ${riskLevel}
 Phase Progress: ${score >= 75 ? 'Ready to advance': score >= 50 ? 'On track': t('project.needsAttention')}
 
 ━━ METHODOLOGY ━━
-Nova Hub Phase Engine — data-driven startup validation across 5 phases.
+Optimus-K Phase Engine — data-driven startup validation across 5 phases.
   `.trim();
 
   const handleCopy = () => {

@@ -162,7 +162,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl nova-gradient flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl optimus-gradient flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
@@ -183,7 +183,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
           <ScrollArea className="flex-1 p-6" ref={scrollRef}>
             {messages.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-full text-center space-y-4">
-                <div className="w-16 h-16 rounded-2xl nova-gradient flex items-center justify-center opacity-50">
+                <div className="w-16 h-16 rounded-2xl optimus-gradient flex items-center justify-center opacity-50">
                   <Bot className="w-8 h-8 text-primary-foreground" />
                 </div>
                 <div>
@@ -219,7 +219,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
                   >
                     {message.role === 'assistant' && (
                       <Avatar className="w-8 h-8 mt-1">
-                        <AvatarFallback className="nova-gradient text-primary-foreground">
+                        <AvatarFallback className="optimus-gradient text-primary-foreground">
                           <Bot size={16} />
                         </AvatarFallback>
                       </Avatar>
@@ -254,7 +254,7 @@ export function MentorChat({ currentRole, fitScore }: MentorChatProps) {
                 {isLoading && (
                   <div className="flex gap-3 justify-start">
                     <Avatar className="w-8 h-8 mt-1">
-                      <AvatarFallback className="nova-gradient text-primary-foreground">
+                      <AvatarFallback className="optimus-gradient text-primary-foreground">
                         <Bot size={16} />
                       </AvatarFallback>
                     </Avatar>

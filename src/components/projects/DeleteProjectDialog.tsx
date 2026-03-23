@@ -179,7 +179,7 @@ export function DeleteProjectDialog({
 
           {/* Additional info */}
           <p className="text-xs text-muted-foreground">
-            💡 Los datos no se borrarán permanentemente. Podrás restaurar el proyecto cuando quieras.
+            Los datos no se borraran permanentemente. Podras restaurar el proyecto cuando quieras.
           </p>
         </div>
 

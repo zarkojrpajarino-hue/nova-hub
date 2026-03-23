@@ -8,7 +8,7 @@ import { SeedUsersRequestSchema, validateRequestSafe } from '../_shared/validati
 
 // Users are seeded WITHOUT passwords in code
 // Passwords should be set via environment/secrets or manual setup
-const NOVA_USERS = [
+const OPTIMUS_USERS = [
   { email: 'zarko@nova.com', nombre: 'ZARKO', color: '#8B5CF6' },
   { email: 'fernandos@nova.com', nombre: 'FERNANDO S', color: '#10B981' },
   { email: 'angel@nova.com', nombre: 'ÁNGEL', color: '#F59E0B' },
@@ -82,7 +82,7 @@ Deno.serve(async (req) => {
 
     const results = []
 
-    for (const user of NOVA_USERS) {
+    for (const user of OPTIMUS_USERS) {
       // Generate a secure random password for each user
       const securePassword = generateSecurePassword()
       

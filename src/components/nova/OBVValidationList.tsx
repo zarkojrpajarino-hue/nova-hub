@@ -271,7 +271,7 @@ export function OBVValidationList() {
 
       if (error) throw error;
 
-      toast.success(approved ? '✅ OBV aprobada correctamente' : '❌ OBV rechazada');
+      toast.success(approved ? 'OBV aprobada correctamente' : 'OBV rechazada');
       setVotingId(null);
       setComentario('');
       setConfirmReject(null);

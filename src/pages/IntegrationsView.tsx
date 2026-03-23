@@ -19,7 +19,7 @@ import { TrelloIntegration } from '@/components/integrations/TrelloIntegration';
 import { SlackSyncIntegration } from '@/components/integrations/SlackSyncIntegration';
 import { NotionIntegration } from '@/components/integrations/NotionIntegration';
 import { IntegrationRecommendationsPanel } from '@/components/integrations/IntegrationRecommendationsPanel';
-import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare, CalendarDays, Settings2, LayoutGrid, BookOpen } from 'lucide-react';
+import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare, CalendarDays, Settings2, LayoutGrid, BookOpen, PartyPopper, CheckCircle, Target, Rocket } from 'lucide-react';
 import { HelpWidget } from '@/components/ui/section-help';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -536,7 +536,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
           <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-purple-500/5">
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
-                📚 Cómo configurar Slack
+                Como configurar Slack
               </CardTitle>
               <CardDescription>{t('integrations.sigueEstosPasosPara')}</CardDescription>
             </CardHeader>
@@ -746,7 +746,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">🎉</span>
+                    <PartyPopper size={20} />
                     <span className="font-medium text-sm">{t('integrations.leadGanado')}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">
@@ -756,7 +756,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">✅</span>
+                    <CheckCircle size={20} />
                     <span className="font-medium text-sm">{t('integrations.obvValidado')}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">{t('integrations.cuandoUnObvRecibe')}</p>
@@ -764,7 +764,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">🎯</span>
+                    <Target size={20} />
                     <span className="font-medium text-sm">{t('integrations.objetivoAlcanzado')}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">{t('integrations.cuandoSeCompletaUn')}</p>
@@ -772,7 +772,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
                 <div className="p-3 rounded-lg border bg-muted/50">
                   <div className="flex items-center gap-2 mb-1">
-                    <span className="text-lg">🚀</span>
+                    <Rocket size={20} />
                     <span className="font-medium text-sm">{t('integrations.hitoDelProyecto')}</span>
                   </div>
                   <p className="text-xs text-muted-foreground">{t('integrations.hitosImportantesEnLa')}</p>

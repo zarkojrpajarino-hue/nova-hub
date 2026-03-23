@@ -35,17 +35,17 @@ export function CreateFirstProjectPage() {
   // Contenido adaptado según el tipo
   const typeContent = {
     'generative': {
-      title: '💡 IA te genera 3 opciones de negocio',
+      title: t('createFirstProject.basadasEnTuPerfil'),
       subtitle: t('createFirstProject.basadasEnTuPerfil'),
       icon: Sparkles,
     },
     'idea': {
-      title: '🎯 Análisis competitivo SWOT',
+      title: t('createFirstProject.validaciónEstratégicaDeTu'),
       subtitle: t('createFirstProject.validaciónEstratégicaDeTu'),
       icon: Rocket,
     },
     'existing': {
-      title: '📈 Growth Diagnostic',
+      title: t('createFirstProject.detectaBottlenecksRealesY'),
       subtitle: t('createFirstProject.detectaBottlenecksRealesY'),
       icon: Building2,
     },

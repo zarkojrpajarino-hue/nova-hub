@@ -118,7 +118,7 @@ function ProjectCardComponent({ project, currentPhase, members, roles, showRoles
           </>
         ) : (
           <span className="text-xs font-medium text-amber-600 bg-amber-100 px-3 py-1.5 rounded-full">
-            🚀 Onboarding pendiente
+            Onboarding pendiente
           </span>
         )}
       </div>

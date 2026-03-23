@@ -232,7 +232,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
         </Tabs>
 
         {/* Rankings */}
-        <h3 className="text-lg font-semibold mb-4">🏆 Rankings</h3>
+        <h3 className="text-lg font-semibold mb-4">Rankings</h3>
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
           <ValidationOrderCard />
           <RankingCard
@@ -266,7 +266,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
 
         {/* Validator Ranking */}
         <div className="mt-8">
-          <h3 className="text-lg font-semibold mb-4">🛡️ Ranking de Validadores</h3>
+          <h3 className="text-lg font-semibold mb-4">Ranking de Validadores</h3>
           <ValidatorRankingCard />
         </div>
       </div>

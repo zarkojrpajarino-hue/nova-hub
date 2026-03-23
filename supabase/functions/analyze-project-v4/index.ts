@@ -23,7 +23,7 @@ const TTL_DAYS: Record<number, number> = { 1: 7, 2: 3, 3: 2 };
 
 // ── Prompt del sistema ────────────────────────────────────────────────────────
 
-const SYSTEM_PROMPT = `Eres Optimus, el motor de inteligencia estratégica de Nova Hub.
+const SYSTEM_PROMPT = `Eres Optimus, el motor de inteligencia estratégica de Optimus-K.
 Tu función es generar un análisis estratégico honesto, directo y accionable para un founder.
 
 PRINCIPIOS:
@@ -133,7 +133,7 @@ serve(async (req) => {
       const followupMessage = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
         max_tokens: 300,
-        system: `Eres Optimus, el motor de inteligencia estrategica de Nova Hub.
+        system: `Eres Optimus, el motor de inteligencia estrategica de Optimus-K.
 El usuario tiene un analisis generado de su proyecto y hace una pregunta de seguimiento.
 Responde directamente en 2-3 oraciones. Se conciso, honesto y accionable.
 No repitas el analisis completo. Si no tienes datos suficientes para responder, dilo.`,

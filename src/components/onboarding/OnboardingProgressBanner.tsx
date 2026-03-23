@@ -95,7 +95,7 @@ export function OnboardingProgressBanner({
                 <div className="flex items-center gap-4 text-xs text-gray-600">
                   <div className="flex items-center gap-1">
                     <CheckCircle2 className="h-3 w-3 text-green-600" />
-                    <span>Fast Start ✓</span>
+                    <span>Fast Start</span>
                   </div>
                   <div className="flex items-center gap-1">
                     <Unlock className="h-3 w-3 text-blue-600" />
@@ -207,7 +207,7 @@ export function OnboardingProgressBanner({
 
               {/* Content */}
               <div className="flex-1 min-w-0">
-                <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">Onboarding Complete!<span className="text-2xl">🎉</span>
+                <h3 className="text-xl font-bold text-gray-900 mb-1 flex items-center gap-2">Onboarding Complete!
                 </h3>
                 <p className="text-sm text-gray-700 mb-2">{t('onboarding.youveUnlockedAllFeatures')}</p>
 

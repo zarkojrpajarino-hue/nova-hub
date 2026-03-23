@@ -164,21 +164,21 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
         // Generar recomendación
         let recommendation = '';
         if (activityScore <= 30) {
-          recommendation = '⚠️ Programar próxima acción urgente';
+          recommendation = 'Programar proxima accion urgente';
         } else if (velocityScore <= 30) {
-          recommendation = '🔄 Retomar contacto - lleva mucho tiempo inactivo';
+          recommendation = 'Retomar contacto - lleva mucho tiempo inactivo';
         } else if (stageScore >= 70 && activityScore >= 70) {
-          recommendation = '🎯 Alta prioridad - preparar cierre';
+          recommendation = 'Alta prioridad - preparar cierre';
         } else if (lead.status === 'frio' && valueScore >= 70) {
-          recommendation = '💎 Alto valor - calentar lead';
+          recommendation = 'Alto valor - calentar lead';
         } else if (lead.status === 'hot') {
-          recommendation = '📝 Enviar propuesta comercial';
+          recommendation = 'Enviar propuesta comercial';
         } else if (lead.status === 'propuesta') {
-          recommendation = '📞 Hacer seguimiento de propuesta';
+          recommendation = 'Hacer seguimiento de propuesta';
         } else if (lead.status === 'negociacion') {
-          recommendation = '✅ Cerrar términos finales';
+          recommendation = 'Cerrar terminos finales';
         } else {
-          recommendation = '📈 Avanzar en el pipeline';
+          recommendation = 'Avanzar en el pipeline';
         }
 
         return {
@@ -322,9 +322,9 @@ export function AILeadScoring({ leads }: AILeadScoringProps) {
                       <div className="flex items-center gap-2 mb-1">
                         <h4 className="font-semibold truncate">{lead.nombre}</h4>
                         <Badge className={cn("text-xs", getPriorityColor(lead.priority))}>
-                          {lead.priority === 'high' && '🔥 Alta'}
-                          {lead.priority === 'medium' && '⚡ Media'}
-                          {lead.priority === 'low' && '📌 Baja'}
+                          {lead.priority === 'high' && 'Alta'}
+                          {lead.priority === 'medium' && 'Media'}
+                          {lead.priority === 'low' && 'Baja'}
                         </Badge>
                       </div>
                       <p className="text-sm text-muted-foreground">{lead.empresa || t('crm.sinEmpresa')}</p>

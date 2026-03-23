@@ -165,7 +165,7 @@ export function ActiveChallengeView({
               {/* Master */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">👑 {masterName}</span>
+                  <span className="text-muted-foreground">{masterName}</span>
                   <span className="font-bold">
                     {metric.decimals
                       ? metric.masterValue.toFixed(metric.decimals)
@@ -183,7 +183,7 @@ export function ActiveChallengeView({
               {/* Challenger */}
               <div className="space-y-1">
                 <div className="flex items-center justify-between text-xs">
-                  <span className="text-muted-foreground">🥊 {challengerName}</span>
+                  <span className="text-muted-foreground">{challengerName}</span>
                   <span className="font-bold">
                     {metric.decimals
                       ? metric.challengerValue.toFixed(metric.decimals)
@@ -203,7 +203,7 @@ export function ActiveChallengeView({
 
         {/* Puntuación total */}
         <div className="pt-4 border-t">
-          <h4 className="font-semibold mb-3">🏆 PUNTUACIÓN TOTAL</h4>
+          <h4 className="font-semibold mb-3">PUNTUACION TOTAL</h4>
           <div className="grid grid-cols-2 gap-4">
             {/* Master */}
             <Card className={cn('border-2', masterScore > challengerScore && 'border-amber-500')}>
@@ -249,8 +249,8 @@ export function ActiveChallengeView({
               {masterScore > challengerScore
                 ? `👑 ${masterName}`
                 : challengerScore > masterScore
-                ? `🥊 ${challengerName}`
-                : '🤝 Empate'}
+                ? challengerName
+                : 'Empate'}
             </p>
             {masterScore !== challengerScore && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -277,7 +277,7 @@ export function ActiveChallengeView({
           <CardContent className="p-4">
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h4 className="font-semibold">📊 Progreso de Votación</h4>
+                <h4 className="font-semibold">Progreso de Votacion</h4>
                 <Badge variant="secondary">
                   {votingProgress.votes_cast}/{votingProgress.total_voters} votos
                 </Badge>
@@ -302,7 +302,7 @@ export function ActiveChallengeView({
                   {masterName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <h4 className="font-bold text-center mb-2">👑 {masterName}</h4>
+              <h4 className="font-bold text-center mb-2">{masterName}</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Fit Score:</span>
@@ -331,7 +331,7 @@ export function ActiveChallengeView({
                   {challengerName.charAt(0).toUpperCase()}
                 </AvatarFallback>
               </Avatar>
-              <h4 className="font-bold text-center mb-2">🥊 {challengerName}</h4>
+              <h4 className="font-bold text-center mb-2">{challengerName}</h4>
               <div className="space-y-2 text-sm">
                 <div className="flex justify-between">
                   <span className="text-muted-foreground">Fit Score:</span>

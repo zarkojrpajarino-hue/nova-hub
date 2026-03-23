@@ -63,7 +63,7 @@ function TopRankingsWidgetComponent({ members, hideHeader = false }: TopRankings
       {/* First place */}
       {items[0] && (
         <div className="flex flex-col items-center">
-          <div className="text-warning mb-1">👑</div>
+          <div className="text-warning mb-1"><Crown size={18} /></div>
           <div 
             className="w-12 h-12 rounded-full flex items-center justify-center text-white font-bold ring-2 ring-warning mb-1"
             style={{ backgroundColor: items[0].color }}

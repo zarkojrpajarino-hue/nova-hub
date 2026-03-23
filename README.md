@@ -1,4 +1,4 @@
-# Nova Hub (Optimus-K)
+# Optimus-K
 
 Enterprise strategic management platform for startups and entrepreneurs. Integrates CRM, OBV validations, KPIs, AI advisors, financial projections, and peer-to-peer learning in a single workspace.
 

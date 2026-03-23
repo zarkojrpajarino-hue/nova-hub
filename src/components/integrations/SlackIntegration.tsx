@@ -38,12 +38,12 @@ interface SlackWebhook {
 
 function getNOTIFICATION_TYPES(t: (k: string) => string) {
   return [
-  { value: 'lead_won', label: t('integrations.leadGanado'), icon: '🎉' },
-  { value: 'obv_validated', label: t('integrations.obvValidado'), icon: '✅' },
-  { value: 'objective_reached', label: t('integrations.objetivoAlcanzado'), icon: '🎯' },
-  { value: 'project_milestone', label: t('integrations.hitoDelProyecto'), icon: '🚀' },
-  { value: 'task_completed', label: t('integrations.tareaCompletada'), icon: '✔️' },
-  { value: 'new_member', label: t('integrations.nuevoMiembro'), icon: '👋' },
+  { value: 'lead_won', label: t('integrations.leadGanado'), icon: '' },
+  { value: 'obv_validated', label: t('integrations.obvValidado'), icon: '' },
+  { value: 'objective_reached', label: t('integrations.objetivoAlcanzado'), icon: '' },
+  { value: 'project_milestone', label: t('integrations.hitoDelProyecto'), icon: '' },
+  { value: 'task_completed', label: t('integrations.tareaCompletada'), icon: '' },
+  { value: 'new_member', label: t('integrations.nuevoMiembro'), icon: '' },
 ];
 }
 
@@ -152,7 +152,7 @@ export function SlackIntegration({ projectId, isDemoMode = false }: SlackIntegra
         body: {
           project_id: webhook.project_id,
           notification_type: 'test',
-          message: ':wave: ¡Hola desde Nova Hub! Esta es una notificación de prueba.',
+          message: ':wave: ¡Hola desde Optimus-K! Esta es una notificación de prueba.',
           metadata: { test: true },
         },
       });

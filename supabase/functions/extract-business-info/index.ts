@@ -1,4 +1,3 @@
-// ZOMBIE: not referenced from frontend. Safe to delete. (Audit: 2026-03-23)
 /**
  * EXTRACT BUSINESS INFO EDGE FUNCTION
  *
@@ -65,7 +64,7 @@ serve(async (req) => {
 
     const fetchResponse = await fetch(url, {
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; NovaHub/1.0; +https://novahub.com)',
+        'User-Agent': 'Mozilla/5.0 (compatible; Optimus-K/1.0; +https://optimus-k.com)',
       },
       redirect: 'follow',
     });

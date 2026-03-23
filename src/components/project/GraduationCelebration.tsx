@@ -29,14 +29,14 @@ export function GraduationCelebration({ projectName, projectId }: GraduationCele
   };
 
   const tweetText = encodeURIComponent(
-    `Mi startup "${projectName}" acaba de graduarse del bootcamp de Nova Hub — 4 fases de validación completadas. Ahora empieza la etapa de ciclos estratégicos de 90 días.`
+    `Mi startup "${projectName}" acaba de graduarse del bootcamp de Optimus-K — 4 fases de validación completadas. Ahora empieza la etapa de ciclos estratégicos de 90 días.`
   );
   const tweetUrl = `https://twitter.com/intent/tweet?text=${tweetText}`;
 
   const linkedInText = encodeURIComponent(
-    `Mi startup "${projectName}" completó las 4 fases de validación en Nova Hub y se gradúa a ciclos estratégicos. De la idea a la tracción, con datos reales.`
+    `Mi startup "${projectName}" completó las 4 fases de validación en Optimus-K y se gradúa a ciclos estratégicos. De la idea a la tracción, con datos reales.`
   );
-  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://novahub.app')}&summary=${linkedInText}`;
+  const linkedInUrl = `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent('https://optimus-k.app')}&summary=${linkedInText}`;
 
   return (
     <div className="relative bg-gradient-to-r from-amber-50 via-yellow-50 to-amber-50 border-2 border-amber-300 rounded-xl p-6 mb-6">

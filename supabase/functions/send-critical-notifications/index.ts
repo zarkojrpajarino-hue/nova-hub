@@ -14,9 +14,9 @@
  *
  * Variables de entorno requeridas:
  *   RESEND_API_KEY            — clave de Resend
- *   NOTIFICATION_FROM_EMAIL   — email remitente de plataforma (ej: alertas@novahub.app)
- *   NOTIFICATION_FROM_NAME    — nombre remitente (ej: Nova Hub)
- *   APP_URL                   — base URL de la app (ej: https://app.novahub.app)
+ *   NOTIFICATION_FROM_EMAIL   — email remitente de plataforma (ej: alertas@optimus-k.app)
+ *   NOTIFICATION_FROM_NAME    — nombre remitente (ej: Optimus-K)
+ *   APP_URL                   — base URL de la app (ej: https://app.optimus-k.app)
  *   CRON_SECRET               — secreto para proteger el endpoint
  *   SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
@@ -85,9 +85,9 @@ serve(async (req) => {
 
   // Variables de entorno
   const resendApiKey     = Deno.env.get('RESEND_API_KEY');
-  const fromEmail        = Deno.env.get('NOTIFICATION_FROM_EMAIL') || 'alertas@novahub.app';
-  const fromName         = Deno.env.get('NOTIFICATION_FROM_NAME')  || 'Nova Hub';
-  const appUrl           = Deno.env.get('APP_URL')                 || 'https://app.novahub.app';
+  const fromEmail        = Deno.env.get('NOTIFICATION_FROM_EMAIL') || 'alertas@optimus-k.app';
+  const fromName         = Deno.env.get('NOTIFICATION_FROM_NAME')  || 'Optimus-K';
+  const appUrl           = Deno.env.get('APP_URL')                 || 'https://app.optimus-k.app';
   const supabaseUrl      = Deno.env.get('SUPABASE_URL')!;
   const serviceRoleKey   = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 
@@ -166,7 +166,7 @@ serve(async (req) => {
       const actionUrl = notif.action_url
         ? `${appUrl}${notif.action_url}`
         : appUrl;
-      const actionLabel = notif.action_label || 'Ver en Nova Hub';
+      const actionLabel = notif.action_label || 'Ver en Optimus-K';
 
       // Enviar email
       const { error: sendError } = await resend.emails.send({

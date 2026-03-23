@@ -324,7 +324,7 @@ export default function LandingPage() {
       <nav className="fixed top-0 w-full z-50 border-b border-black/5 dark:border-white/10 bg-[#f0ebe3]/80 dark:bg-[#1a1520]/80 backdrop-blur-xl">
         <div className="max-w-7xl mx-auto px-6 h-14 flex items-center justify-between">
           <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg nova-gradient flex items-center justify-center">
+            <div className="w-7 h-7 rounded-lg optimus-gradient flex items-center justify-center">
               <span className="text-xs font-bold text-white">O</span>
             </div>
             <span className="text-sm font-bold tracking-tight">OPTIMUS-K</span>
@@ -407,7 +407,7 @@ export default function LandingPage() {
               <div className="p-6 md:p-10 lg:p-12 text-center">
                 {/* Logo */}
                 <div className="flex items-center justify-center gap-3 mb-6">
-                  <div className="w-10 h-10 rounded-xl nova-gradient flex items-center justify-center shadow-lg shadow-primary/30">
+                  <div className="w-10 h-10 rounded-xl optimus-gradient flex items-center justify-center shadow-lg shadow-primary/30">
                     <span className="text-lg font-bold text-white">O</span>
                   </div>
                   <span className="text-xl font-extrabold tracking-tight">OPTIMUS-K</span>
@@ -635,7 +635,7 @@ export default function LandingPage() {
       <footer className="border-t border-gray-200 dark:border-white/10 py-8 px-6 bg-white dark:bg-gray-950">
         <div className="max-w-5xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4">
           <div className="flex items-center gap-2">
-            <div className="w-6 h-6 rounded-md nova-gradient flex items-center justify-center">
+            <div className="w-6 h-6 rounded-md optimus-gradient flex items-center justify-center">
               <span className="text-[10px] font-bold text-white">O</span>
             </div>
             <span className="text-sm font-bold tracking-tight">OPTIMUS-K</span>

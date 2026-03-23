@@ -189,7 +189,7 @@ export function DeletedProjectsDialog() {
                       </TableCell>
                       <TableCell>
                         <Badge variant={project.tipo === 'operacion' ? 'default' : 'secondary'}>
-                          {project.tipo === 'operacion' ? '🚀 Operación' : '🧪 Validación'}
+                          {project.tipo === 'operacion' ? 'Operacion' : 'Validacion'}
                         </Badge>
                       </TableCell>
                       <TableCell>

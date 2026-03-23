@@ -280,7 +280,7 @@ export function LockedFeatureOverlay({
           {/* Benefits hint - Más atractivo */}
           <div className="pt-6 border-t border-gray-200/50 w-full max-w-lg">
             <p className="text-sm text-gray-600 font-medium">
-              ✨ Accede a <span className="font-bold text-gray-900">{featureName}</span> y todas las funcionalidades {requiredPlan}
+              Accede a <span className="font-bold text-gray-900">{featureName}</span> y todas las funcionalidades {requiredPlan}
             </p>
           </div>
         </div>

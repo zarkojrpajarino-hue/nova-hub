@@ -56,7 +56,7 @@ function generateExcelContent(exportType: string, data: unknown, metadata: unkno
   xmlns:ss="urn:schemas-microsoft-com:office:spreadsheet">
   <DocumentProperties xmlns="urn:schemas-microsoft-com:office:office">
     <Title>${escapeXml(metadata?.title || exportType)}</Title>
-    <Author>Nova Hub</Author>
+    <Author>Optimus-K</Author>
     <Created>${new Date().toISOString()}</Created>
   </DocumentProperties>
   <Styles>

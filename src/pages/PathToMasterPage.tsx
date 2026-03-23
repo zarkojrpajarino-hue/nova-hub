@@ -146,7 +146,7 @@ export function PathToMasterPage() {
             <Rocket className="text-white" size={32} />
           </div>
           <div>
-            <h1 className="text-4xl font-bold">🚀 Camino a Master</h1>
+            <h1 className="text-4xl font-bold">Camino a Master</h1>
             <p className="text-muted-foreground">{t('pathToMaster.dominaCualquierRolDesafía')}</p>
           </div>
         </div>
@@ -235,7 +235,7 @@ export function PathToMasterPage() {
         <TabsContent value="que-es" className="space-y-6">
           <Card>
             <CardHeader>
-              <CardTitle>📖 ¿Qué es t('pathToMaster.caminoAMaster0')?</CardTitle>
+              <CardTitle>{t('pathToMaster.caminoAMaster0')}</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4 text-sm">
               <p className="text-base">
@@ -246,14 +246,14 @@ export function PathToMasterPage() {
 
               <div className="p-4 rounded-lg bg-blue-500/10 border border-blue-500/20">
                 <h4 className="font-semibold text-blue-700 dark:text-blue-300 mb-2">
-                  💡 Concepto Principal
+                  Concepto Principal
                 </h4>
                 <ul className="space-y-1 text-blue-600 dark:text-blue-400">
-                  <li>✅ Siempre abierto - explora cuando quieras</li>
-                  <li>✅ No hay límite de roles que puedes aprender</li>
-                  <li>✅ Basado 100% en datos objetivos</li>
-                  <li>✅ Puedes desafiar al Master actual si cumples requisitos</li>
-                  <li>✅ Todo es transparente y público</li>
+                  <li>Siempre abierto - explora cuando quieras</li>
+                  <li>No hay limite de roles que puedes aprender</li>
+                  <li>Basado 100% en datos objetivos</li>
+                  <li>Puedes desafiar al Master actual si cumples requisitos</li>
+                  <li>Todo es transparente y publico</li>
                 </ul>
               </div>
 

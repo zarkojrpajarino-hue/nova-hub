@@ -10,6 +10,16 @@ export const HELP_DASHBOARD: HelpContent = {
   howItWorks: 'El dashboard agrega automáticamente los datos de los 9 socios del equipo. Los objetivos se multiplican x9 (por cada socio) para mostrar las metas colectivas. Las tarjetas de progreso se actualizan en tiempo real.',
   dataSource: 'Los datos provienen de la vista "member_stats" de Supabase, que consolida OBVs validados, Learning Paths completados, Book Points, Community Points y métricas financieras de cada socio.',
   validation: 'Solo aparecen datos de KPIs que han sido validados mediante el sistema de validación circular (2 de 3 aprobaciones requeridas en máximo 3 días).',
+  dataInputs: [
+    { from: 'Motor de fases', items: ['Phase score', 'Risk level', 'Probability'] },
+    { from: 'Integraciones', items: ['MRR (Stripe)', 'Pipeline (HubSpot)', 'Tasks (Asana)'] },
+    { from: 'Tareas', items: ['Completion rate', 'Overdue tasks', 'Execution velocity'] },
+  ],
+  dataOutputs: [
+    { to: 'KPIs consolidados', items: ['OBVs agregados', 'LP/BP/CP totales', 'Revenue'] },
+    { to: 'Alertas inteligentes', items: ['Socios rezagados', 'Leads sin seguimiento', 'Validaciones vencidas'] },
+    { to: 'Focus Block', items: ['Top 3 acciones urgentes', 'Progreso semanal'] },
+  ],
   tips: [
     'Haz clic en cualquier tarjeta de KPI para ver el desglose por socio',
     'El gráfico de evolución semanal te ayuda a identificar tendencias',
@@ -100,6 +110,12 @@ export const HELP_MI_ESPACIO: HelpContent = {
   description: 'Tu dashboard personalizado con tus KPIs individuales, proyectos asignados, tareas pendientes y progreso personal hacia los objetivos del curso.',
   howItWorks: 'Muestra tus datos filtrados por tu ID de usuario. Incluye tu progreso en cada KPI comparado con el objetivo individual (1/9 del objetivo del equipo).',
   dataSource: 'Tabla "member_stats" filtrada por tu email. Proyectos desde "project_members" y tareas desde "tasks".',
+  dataInputs: [
+    { from: 'Tu actividad', items: ['OBVs registrados', 'KPIs subidos', 'Tareas completadas'] },
+  ],
+  dataOutputs: [
+    { to: 'Progreso personal', items: ['% hacia cada objetivo', 'Ranking actual', 'Tendencia semanal'] },
+  ],
   tips: [
     'Revisa tu espacio diariamente para mantenerte enfocado',
     'Los gráficos de progreso te muestran dónde necesitas mejorar',
@@ -154,6 +170,13 @@ export const HELP_OBV_CENTER: HelpContent = {
   howItWorks: 'Los OBVs son el principal KPI de LEINN. Cada OBV registra una actividad de valor realizada: reuniones con clientes, ventas, eventos, etc.',
   dataSource: 'Tabla "obvs" con campos: título, descripción, fecha, evidencia_url, owner_id, proyecto_id, validations.',
   validation: 'Sistema circular: Al subir un OBV, se asignan como validadores las 3 personas anteriores en la lista del mes. Tienes 3 días para que te validen.',
+  dataInputs: [
+    { from: 'Validaciones del equipo', items: ['Votos de validadores', 'Comentarios', 'Evidencias revisadas'] },
+  ],
+  dataOutputs: [
+    { to: 'Validation strength', items: ['Votos a favor/en contra', 'Tiempo medio de validacion'] },
+    { to: 'Phase score', items: ['OBVs validados contribuyen al score de fase del proyecto'] },
+  ],
   tips: [
     'Incluye siempre evidencia (fotos, documentos, links a Drive)',
     'Sé específico en la descripción del valor generado',
@@ -209,6 +232,13 @@ export const HELP_KPIS: HelpContent = {
   howItWorks: 'Cada pestaña te permite registrar y ver el progreso en cada tipo de KPI. LPs y BPs requieren validación circular, los CPs se registran inmediatamente.',
   dataSource: 'Tabla "kpis" con type: "lp", "bp" o "cp" y sus respectivas validaciones.',
   validation: 'LP y BP: Sistema circular (3 validadores, 3 días). CP: Sin validación, se suma inmediatamente.',
+  dataInputs: [
+    { from: 'Registros manuales', items: ['LP: Certificaciones', 'BP: Libros leidos', 'CP: Actividades comunidad'] },
+  ],
+  dataOutputs: [
+    { to: 'Score personal', items: ['Progreso vs objetivo individual', 'Ranking por KPI'] },
+    { to: 'Score de equipo', items: ['LP/BP/CP agregados', 'Progreso vs objetivo colectivo'] },
+  ],
   tips: [
     'LP: Cursos y certificaciones completadas (requiere validación)',
     'BP: Libros leídos - indica cuántos puntos vale cada libro',
@@ -290,8 +320,17 @@ export const HELP_BLOQUEO_VALIDACION: HelpContent = {
 export const HELP_TAREAS_PLAYBOOK: HelpContent = {
   title: 'Tareas con Playbook IA',
   description: 'Las tareas generadas por IA incluyen un playbook con instrucciones paso a paso, tips y checklist para completarlas exitosamente.',
-  howItWorks: 'Al generar tareas con el botón "✨ Generar con IA", la inteligencia artificial crea tareas contextualizadas al proyecto con playbooks detallados que guían su ejecución.',
+  howItWorks: 'Al generar tareas con el botón "Generar con IA", la inteligencia artificial crea tareas contextualizadas al proyecto con playbooks detallados que guían su ejecución.',
   dataSource: 'Campo "playbook" en tabla "tasks" con estructura JSON: pasos, tips, checklist, contexto.',
+  dataInputs: [
+    { from: 'Tareas manuales', items: ['Titulo', 'Descripcion', 'Asignado', 'Fecha limite'] },
+    { from: 'Asana', items: ['Tareas sincronizadas', 'Proyectos', 'Deadlines'] },
+    { from: 'Trello', items: ['Cards importadas', 'Listas', 'Labels'] },
+  ],
+  dataOutputs: [
+    { to: 'Execution rate', items: ['% tareas completadas a tiempo', 'Velocity semanal'] },
+    { to: 'Insights', items: ['Tareas bloqueadas', 'Carga por miembro', 'Tendencias de ejecucion'] },
+  ],
   tips: [
     'Haz clic en "Playbook" para ver las instrucciones detalladas',
     'El playbook incluye pasos específicos para tu proyecto',
@@ -308,6 +347,16 @@ export const HELP_FINANCIERO: HelpContent = {
   description: 'Visión completa de las finanzas del equipo: facturación, márgenes, cobros pendientes y proyecciones.',
   howItWorks: 'Agrega datos financieros de todos los proyectos y socios para mostrar métricas consolidadas y desglosadas.',
   dataSource: 'Vistas "financial_metrics" y "pending_payments" que calculan totales desde OBVs de venta.',
+  dataInputs: [
+    { from: 'Key metrics', items: ['MRR', 'ARR', 'Runway', 'Burn rate'] },
+    { from: 'Stripe', items: ['Pagos recibidos', 'Suscripciones', 'Churn'] },
+    { from: 'Holded', items: ['Facturas emitidas', 'Gastos registrados'] },
+  ],
+  dataOutputs: [
+    { to: 'MRR Forecast', items: ['Proyeccion 3-6 meses', 'Escenarios optimista/pesimista'] },
+    { to: 'Stress Test', items: ['Impacto si pierde X% revenue', 'Runway en escenario adverso'] },
+    { to: 'Risk Alerts', items: ['Facturas vencidas', 'Cash flow negativo', 'Churn elevado'] },
+  ],
   tips: [
     'Revisa semanalmente para detectar desviaciones',
     'Los márgenes por proyecto ayudan a priorizar',
@@ -360,6 +409,15 @@ export const HELP_CRM: HelpContent = {
   description: 'Pipeline de ventas unificado de todos los proyectos. Gestiona leads, oportunidades y el embudo de conversión.',
   howItWorks: 'Agrega todos los leads de todos los proyectos en una vista Kanban unificada. Permite filtrar por proyecto, responsable o estado.',
   dataSource: 'Vista "pipeline_global" que une "leads" con "projects" y "profiles" (responsables).',
+  dataInputs: [
+    { from: 'Leads manuales', items: ['Nombre', 'Empresa', 'Valor potencial', 'Estado'] },
+    { from: 'HubSpot', items: ['Contactos sincronizados', 'Deals', 'Actividades'] },
+  ],
+  dataOutputs: [
+    { to: 'Pipeline', items: ['Vista Kanban por estado', 'Valor total por etapa'] },
+    { to: 'Scoring', items: ['AI Lead Score', 'Probabilidad de cierre'] },
+    { to: 'Conversion', items: ['Tasa de conversion por etapa', 'Tiempo medio de cierre'] },
+  ],
   tips: [
     'Arrastra leads entre columnas para cambiar su estado',
     'Filtra por proyecto para ver solo ese pipeline',
@@ -400,6 +458,14 @@ export const HELP_ANALYTICS: HelpContent = {
   description: 'Herramientas avanzadas de análisis: comparativas entre socios, proyectos, evolución temporal y predicciones.',
   howItWorks: 'Combina datos de todas las fuentes para generar visualizaciones comparativas y análisis de tendencias.',
   dataSource: 'Agregación de "member_stats", "project_stats", "obvs", "leads" y datos históricos.',
+  dataInputs: [
+    { from: 'Todos los engines', items: ['Motor de fases', 'Risk engine', 'Coverage engine', 'Probability engine'] },
+  ],
+  dataOutputs: [
+    { to: 'Benchmarks', items: ['Comparativa entre socios', 'Comparativa entre proyectos'] },
+    { to: 'Predicciones', items: ['Socios en riesgo', 'Proyectos prometedores', 'Revenue esperado'] },
+    { to: 'Radar', items: ['Perfil multi-dimensional por socio', 'Fortalezas y debilidades'] },
+  ],
   tips: [
     'Usa filtros para comparar períodos específicos',
     'Exporta reportes en CSV o PDF',
@@ -436,6 +502,12 @@ export const HELP_PREDICCIONES: HelpContent = {
   description: 'Proyecciones inteligentes sobre rendimiento futuro basadas en tendencias y patrones históricos.',
   howItWorks: 'Algoritmos de IA analizan datos históricos para predecir: socios en riesgo, proyectos prometedores, facturación esperada.',
   dataSource: 'Modelo predictivo alimentado por todas las tablas históricas del sistema.',
+  dataInputs: [
+    { from: 'Historicos', items: ['Tendencias de KPIs', 'Patrones de actividad', 'Estacionalidad'] },
+  ],
+  dataOutputs: [
+    { to: 'Predicciones', items: ['Socios en riesgo', 'Revenue esperado', 'Proyecciones de equipo'] },
+  ],
   tips: [
     'Las predicciones se actualizan semanalmente',
     'Usa las alertas para anticipar problemas',
@@ -452,6 +524,12 @@ export const HELP_RANKINGS: HelpContent = {
   description: 'Sistema de rankings que muestra la posición de cada socio en diferentes categorías de rendimiento.',
   howItWorks: 'Ordena a los 9 socios por cada métrica y muestra su posición. Incluye tendencias (subiendo/bajando) respecto al período anterior.',
   dataSource: 'Tabla "role_rankings" con posición, score y previous_position para calcular tendencias.',
+  dataInputs: [
+    { from: 'Todos los KPIs', items: ['OBVs', 'LP', 'BP', 'CP', 'Revenue', 'Margen'] },
+  ],
+  dataOutputs: [
+    { to: 'Leaderboards', items: ['Posicion por metrica', 'Tendencia semanal', 'Top performers'] },
+  ],
   tips: [
     'Los rankings fomentan competencia sana',
     'Mira las tendencias, no solo la posición actual',
@@ -480,6 +558,12 @@ export const HELP_MI_DESARROLLO: HelpContent = {
   description: 'Espacio para reflexionar sobre tu crecimiento, documentar insights y acceder a guías de rol personalizadas.',
   howItWorks: 'Combina tus métricas de rendimiento con herramientas de reflexión y playbooks generados por IA para tu rol actual.',
   dataSource: 'Tablas "user_insights" (tus reflexiones), "user_playbooks" (guías), y vista "user_role_performance" (tu rendimiento).',
+  dataInputs: [
+    { from: 'Tu perfil', items: ['Rol actual', 'Rendimiento', 'Historial de roles'] },
+  ],
+  dataOutputs: [
+    { to: 'Playbooks IA', items: ['Guias personalizadas', 'Best practices', 'Areas de mejora'] },
+  ],
   tips: [
     'Registra insights semanalmente para mejor seguimiento',
     'Los playbooks se adaptan a tu rol y experiencia',
@@ -638,6 +722,12 @@ export const HELP_PROYECTO_TAREAS: HelpContent = {
   description: 'Kanban de tareas específicas de este proyecto, con soporte para tareas IA con playbooks.',
   howItWorks: 'Tablero Kanban con tareas filtradas por este proyecto. Permite crear manualmente o generar con IA.',
   dataSource: 'Tabla "tasks" filtrada por project_id. Las tareas IA incluyen campo "playbook" con instrucciones.',
+  dataInputs: [
+    { from: 'Proyecto', items: ['Fase actual', 'Contexto de onboarding', 'OBVs y leads'] },
+  ],
+  dataOutputs: [
+    { to: 'Execution', items: ['Completion rate', 'Velocity', 'Carga por miembro'] },
+  ],
   tips: [
     'Usa "Generar con IA" para crear tareas contextualizadas',
     'Las tareas con playbook tienen un libro azul para ver la guía',
@@ -650,6 +740,12 @@ export const HELP_PROYECTO_CRM: HelpContent = {
   description: 'Pipeline de ventas específico de este proyecto: leads, oportunidades y clientes.',
   howItWorks: 'Kanban de leads filtrado solo por este proyecto con todas las funciones del CRM global.',
   dataSource: 'Tabla "leads" filtrada por project_id.',
+  dataInputs: [
+    { from: 'Leads del proyecto', items: ['Contactos', 'Empresas', 'Valor potencial'] },
+  ],
+  dataOutputs: [
+    { to: 'Pipeline', items: ['Embudo por etapa', 'Conversion rate', 'Valor total'] },
+  ],
   tips: [
     'Cada proyecto tiene su propio pipeline',
     'Los leads cerrados-ganados generan notificación al equipo',
@@ -825,6 +921,147 @@ export const HELP_ROLES_MEETING: HelpContent = {
 };
 
 // ============================================
+// AI ANALYSIS
+// ============================================
+
+export const HELP_AI_ANALYSIS: HelpContent = {
+  title: 'Analisis Estrategico IA',
+  description: 'Analisis personalizado en 3 niveles de profundidad generado por IA.',
+  howItWorks: 'Optimus-K analiza todos los datos de tu proyecto y genera un analisis estrategico con 3 niveles de profundidad.',
+  dataInputs: [
+    { from: 'Motor de fases', items: ['Phase score', 'Risk level', 'Probability'] },
+    { from: 'Integraciones', items: ['MRR (Stripe)', 'Pipeline (HubSpot)', 'Tasks (Asana)'] },
+    { from: 'Tu actividad', items: ['Decisiones', 'OBVs', 'Ciclos estrategicos'] },
+  ],
+  dataOutputs: [
+    { to: 'Nivel 1', items: ['Resumen ejecutivo', 'Phase fit', 'Decisiones urgentes'] },
+    { to: 'Nivel 2', items: ['Pulso financiero', 'Traccion pipeline'] },
+    { to: 'Nivel 3', items: ['Cross-signals', 'Hard truths'] },
+  ],
+  nextStep: { action: 'Generar mi primer analisis', destination: '/analisis-ia' },
+  tips: [
+    'El nivel 1 esta disponible desde el primer dia',
+    'Los niveles 2 y 3 se desbloquean con mas datos e integraciones',
+    'Cada analisis incorpora datos en tiempo real de tus integraciones',
+  ],
+};
+
+// ============================================
+// INTEGRATIONS
+// ============================================
+
+export const HELP_INTEGRATIONS: HelpContent = {
+  title: 'Integraciones',
+  description: '8 herramientas conectadas para alimentar tu ecosistema de datos.',
+  howItWorks: 'Conecta tus herramientas y Optimus-K sincroniza datos automaticamente cada 12 horas. Los agentes IA generan insights de cada fuente.',
+  dataInputs: [
+    { from: 'Tus herramientas', items: ['Stripe (pagos)', 'HubSpot (CRM)', 'Asana (tareas)', 'Slack (comunicacion)', 'Notion (docs)', 'Trello (boards)', 'Google Calendar', 'Holded (facturas)'] },
+  ],
+  dataOutputs: [
+    { to: 'Insights automaticos', items: ['MRR + churn (Stripe)', 'Pipeline + win rate (HubSpot)', 'Completion rate (Asana)', 'Team activity (Slack)'] },
+  ],
+  nextStep: { action: 'Conectar primera herramienta', destination: '/integrations' },
+  tips: [
+    'Empieza por Stripe o HubSpot para maximo impacto',
+    'La sincronizacion automatica se ejecuta cada 12 horas',
+    'Puedes forzar una sincronizacion manual en cualquier momento',
+  ],
+};
+
+// ============================================
+// MEETING INTELLIGENCE
+// ============================================
+
+export const HELP_MEETING_INTELLIGENCE: HelpContent = {
+  title: 'Meeting Intelligence',
+  description: 'Graba reuniones y extrae insights, decisiones y action items automaticamente.',
+  howItWorks: 'Graba tus reuniones directamente en la plataforma. La IA transcribe, identifica temas clave, extrae decisiones y genera action items asignables.',
+  dataInputs: [
+    { from: 'Reunion', items: ['Audio grabado', 'Participantes', 'Contexto del proyecto'] },
+    { from: 'Proyecto', items: ['OBVs recientes', 'Tareas activas', 'Fase actual'] },
+  ],
+  dataOutputs: [
+    { to: 'Transcripcion', items: ['Texto completo', 'Speaker detection'] },
+    { to: 'Insights', items: ['Temas clave', 'Decisiones tomadas', 'Action items'] },
+    { to: 'Seguimiento', items: ['Tareas generadas', 'Asignaciones sugeridas'] },
+  ],
+  nextStep: { action: 'Grabar primera reunion', destination: '/meeting-intelligence' },
+  tips: [
+    'Usa un microfono de calidad para mejor transcripcion',
+    'Los insights mejoran con mas contexto del proyecto',
+    'Revisa las preguntas de la IA al finalizar la reunion',
+  ],
+};
+
+// ============================================
+// FOUNDER TOOLKIT
+// ============================================
+
+export const HELP_FOUNDER_TOOLKIT: HelpContent = {
+  title: 'Founder Toolkit',
+  description: 'Herramientas esenciales para founders: SWOT, BMC, Value Prop, Investor Map.',
+  howItWorks: 'Cada herramienta se desbloquea segun la fase de tu proyecto. La IA pre-rellena con datos de tu onboarding y actividad.',
+  dataInputs: [
+    { from: 'Onboarding', items: ['Problema definido', 'Mercado objetivo', 'Modelo de negocio'] },
+    { from: 'Motor de fases', items: ['Fase actual', 'Metricas de traccion'] },
+  ],
+  dataOutputs: [
+    { to: 'Estrategia', items: ['SWOT Matrix', 'Business Model Canvas', 'Value Proposition'] },
+    { to: 'Fundraising', items: ['Investor Map', 'Grant Finder', 'Pitch Deck insights'] },
+  ],
+  tips: [
+    'El BMC se actualiza automaticamente con datos reales',
+    'Usa el SWOT antes de decisiones estrategicas importantes',
+    'El Investor Map filtra por sector y fase de tu startup',
+  ],
+};
+
+// ============================================
+// EXECUTION TRENDS
+// ============================================
+
+export const HELP_EXECUTION_TRENDS: HelpContent = {
+  title: 'Tendencias de Ejecucion',
+  description: 'Actividad semanal por tipo de tarea y OBV. Direccion, no causalidad.',
+  howItWorks: 'Analiza la actividad de las ultimas semanas y genera graficos de tendencia por tipo de tarea (demand, delivery, cash) y OBVs.',
+  dataInputs: [
+    { from: 'Tareas', items: ['Completadas por semana', 'Por tipo (demand/delivery/cash)', 'Overdue'] },
+    { from: 'OBVs', items: ['Registradas por semana', 'Por tipo (venta/validacion/exploracion)'] },
+  ],
+  dataOutputs: [
+    { to: 'Tendencias', items: ['Velocidad de ejecucion', 'Distribucion por tipo', 'Semanas de aceleracion/desaceleracion'] },
+  ],
+  tips: [
+    'Requiere al menos 10 tareas y 5 OBVs en 30 dias para activarse',
+    'Compara semana a semana para detectar patrones',
+    'Un equilibrio entre demand/delivery/cash es senial de salud',
+  ],
+};
+
+// ============================================
+// CYCLE INTELLIGENCE
+// ============================================
+
+export const HELP_CYCLE_INTELLIGENCE: HelpContent = {
+  title: 'Cycle Intelligence',
+  description: 'Analisis de tus ciclos estrategicos: que funciono, que no, y patrones de founder.',
+  howItWorks: 'Al completar un ciclo estrategico, la IA analiza decisiones, metricas y resultados para extraer patrones y aprendizajes.',
+  dataInputs: [
+    { from: 'Ciclos completados', items: ['Decisiones tomadas', 'Metricas antes/despues', 'Duracion'] },
+    { from: 'Actividad del ciclo', items: ['Tareas ejecutadas', 'OBVs generadas', 'Cambios de fase'] },
+  ],
+  dataOutputs: [
+    { to: 'Analisis de ciclo', items: ['Que funciono', 'Que no funciono', 'Aprendizajes clave'] },
+    { to: 'Founder Patterns', items: ['Sesgos detectados', 'Patrones de decision', 'Recomendaciones'] },
+  ],
+  tips: [
+    'Necesitas al menos 1 ciclo completado para activar',
+    'Founder Patterns requiere 2+ ciclos para detectar patrones',
+    'Revisa el analisis antes de iniciar un nuevo ciclo',
+  ],
+};
+
+// ============================================
 // HELPER FUNCTION
 // ============================================
 
@@ -893,6 +1130,12 @@ const helpMap: Record<string, HelpContent> = {
   'notifications': HELP_NOTIFICATIONS_VIEW,
   'projects': HELP_PROJECTS_VIEW,
   'roles-meeting': HELP_ROLES_MEETING,
+  'ai-analysis': HELP_AI_ANALYSIS,
+  'integrations': HELP_INTEGRATIONS,
+  'meeting-intelligence': HELP_MEETING_INTELLIGENCE,
+  'founder-toolkit': HELP_FOUNDER_TOOLKIT,
+  'execution-trends': HELP_EXECUTION_TRENDS,
+  'cycle-intelligence': HELP_CYCLE_INTELLIGENCE,
 };
 
 export function getHelp(section: string): HelpContent | undefined {

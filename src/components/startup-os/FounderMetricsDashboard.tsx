@@ -229,7 +229,7 @@ export function FounderMetricsDashboard({ projectId }: { projectId: string }) {
           <CardContent>
             <div className="text-2xl font-bold">{metrics.ltv_cac_ratio.toFixed(1)}x</div>
             <p className="text-xs text-muted-foreground mt-1">
-              {metrics.ltv_cac_ratio >= 3 ? '✅ Healthy (>3x)' : '⚠️ Low (<3x)'}
+              {metrics.ltv_cac_ratio >= 3 ? 'Healthy (>3x)' : 'Low (<3x)'}
             </p>
           </CardContent>
         </Card>

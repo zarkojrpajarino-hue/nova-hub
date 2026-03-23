@@ -31,7 +31,7 @@ const EMAIL_TEMPLATES: Record<number, { subject: string; body: (p: TrialProject)
     subject: '¿Has creado tu primera validación?',
     body: (p) => `
       <h2>Hola ${esc(p.user_name)},</h2>
-      <p>Llevas 3 días en Nova Hub con tu proyecto <strong>${esc(p.project_name)}</strong>.</p>
+      <p>Llevas 3 días en Optimus-K con tu proyecto <strong>${esc(p.project_name)}</strong>.</p>
       <p>El primer paso más importante es crear una <strong>validación (OBV)</strong> — registrar una entrevista, test o venta para que el motor de fases pueda medir tu progreso real.</p>
       <p>Los founders que crean su primera OBV en la primera semana tienen <strong>3x más probabilidad</strong> de avanzar de fase.</p>
       <a href="${appUrl()}/projects" style="${btnStyle()}">Crear mi primera validación →</a>
@@ -41,7 +41,7 @@ const EMAIL_TEMPLATES: Record<number, { subject: string; body: (p: TrialProject)
   7: {
     subject: `Tu primera semana — ${'{score}'}% de progreso`,
     body: (p) => `
-      <h2>Una semana en Nova Hub</h2>
+      <h2>Una semana en Optimus-K</h2>
       <p>Hola ${esc(p.user_name)}, llevas 7 días con <strong>${esc(p.project_name)}</strong>.</p>
       <p>Tu score actual es <strong>${p.phase_score}%</strong> en Fase ${p.current_phase}.</p>
       ${p.phase_score >= 50
@@ -79,7 +79,7 @@ function esc(s: string): string {
 }
 
 function appUrl(): string {
-  return Deno.env.get('APP_URL') || 'https://app.novahub.app';
+  return Deno.env.get('APP_URL') || 'https://app.optimus-k.app';
 }
 
 function btnStyle(): string {
@@ -92,7 +92,7 @@ function wrapHtml(innerHtml: string): string {
 <body style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;max-width:520px;margin:0 auto;padding:24px;color:#1a1a1a;background:#fff">
 ${innerHtml}
 <hr style="margin-top:32px;border:none;border-top:1px solid #eee">
-<p style="color:#999;font-size:11px">Nova Hub · Este email es automático. No responder.</p>
+<p style="color:#999;font-size:11px">Optimus-K · Este email es automático. No responder.</p>
 </body></html>`;
 }
 
@@ -111,8 +111,8 @@ serve(async (req) => {
     );
 
     const resendKey = Deno.env.get('RESEND_API_KEY');
-    const fromEmail = Deno.env.get('NOTIFICATION_FROM_EMAIL') || 'alertas@novahub.app';
-    const fromName = Deno.env.get('NOTIFICATION_FROM_NAME') || 'Nova Hub';
+    const fromEmail = Deno.env.get('NOTIFICATION_FROM_EMAIL') || 'alertas@optimus-k.app';
+    const fromName = Deno.env.get('NOTIFICATION_FROM_NAME') || 'Optimus-K';
 
     if (!resendKey) {
       return new Response(JSON.stringify({ error: 'RESEND_API_KEY not configured' }), { status: 500 });

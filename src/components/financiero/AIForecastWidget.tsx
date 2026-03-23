@@ -88,7 +88,7 @@ export function AIForecastWidget() {
       color: 'from-red-500 to-orange-500',
       bgColor: 'bg-red-500/10',
       textColor: 'text-red-600',
-      icon: '🔥',
+      icon: '',
     },
     {
       name: t('financiero.propuesta'),
@@ -97,7 +97,7 @@ export function AIForecastWidget() {
       color: 'from-purple-500 to-pink-500',
       bgColor: 'bg-purple-500/10',
       textColor: 'text-purple-600',
-      icon: '📝',
+      icon: '',
     },
     {
       name: t('financiero.negociación'),
@@ -106,7 +106,7 @@ export function AIForecastWidget() {
       color: 'from-blue-500 to-cyan-500',
       bgColor: 'bg-blue-500/10',
       textColor: 'text-blue-600',
-      icon: '🤝',
+      icon: '',
     },
   ];
 
@@ -207,7 +207,7 @@ export function AIForecastWidget() {
               <TrendingUp className="w-4 h-4 text-purple-600" />
             </div>
             <div className="flex-1 text-sm">
-              <p className="font-medium mb-1">💡 Análisis Predictivo</p>
+              <p className="font-medium mb-1">Analisis Predictivo</p>
               <p className="text-muted-foreground">
                 {totalProyectado === 0 ? (
                   t('financiero.noHayLeadsActivos')

@@ -195,7 +195,7 @@ export function RegenerationTriggersWidget({ projectId }: RegenerationTriggersWi
         {/* Empty State */}
         {readyTriggers.length === 0 && inProgressTriggers.length === 0 && (
           <div className="text-center py-8">
-            <div className="text-4xl mb-3">🎯</div>
+            <div className="text-4xl mb-3"></div>
             <h4 className="font-semibold text-gray-900 mb-2">{t('onboarding.startBuildingContext')}</h4>
             <p className="text-sm text-gray-600 max-w-md mx-auto">
               As you conduct customer interviews, close deals, and gather data,

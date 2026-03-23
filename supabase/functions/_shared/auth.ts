@@ -1,5 +1,5 @@
 /**
- * Shared Auth Middleware for Nova Hub Edge Functions
+ * Shared Auth Middleware for Optimus-K Edge Functions
  *
  * Validates that requests come from authenticated users and optionally
  * verifies that the user_id in the request body matches the authenticated user.

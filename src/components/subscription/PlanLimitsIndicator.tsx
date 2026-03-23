@@ -201,7 +201,7 @@ export function PlanLimitsIndicator({
 
                 {info.isUnlimited && (
                   <p className="text-xs text-green-600 font-medium">
-                    ✨ Ilimitado
+                    Ilimitado
                   </p>
                 )}
               </div>

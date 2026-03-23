@@ -123,7 +123,7 @@ export function AITaskExecutor() {
       <Card className="border-primary/20 bg-gradient-to-br from-primary/5 to-purple-500/5">
         <CardHeader>
           <div className="flex items-center gap-3">
-            <div className="w-12 h-12 rounded-xl nova-gradient flex items-center justify-center">
+            <div className="w-12 h-12 rounded-xl optimus-gradient flex items-center justify-center">
               <Sparkles className="w-6 h-6 text-primary-foreground" />
             </div>
             <div>
@@ -277,13 +277,13 @@ export function AITaskExecutor() {
             {/* Execution Stats */}
             <div className="flex items-center gap-4 text-sm">
               <Badge variant="outline" className="gap-1">
-                ⏱️ {taskResult.execution_time}s
+                {taskResult.execution_time}s
               </Badge>
               <Badge variant="outline" className="gap-1">
-                🔤 {taskResult.tokens_used} tokens
+                {taskResult.tokens_used} tokens
               </Badge>
               <Badge variant="outline" className="gap-1">
-                ✓ {taskResult.steps.filter((s) => s.status === 'completed').length}/
+                {taskResult.steps.filter((s) => s.status === 'completed').length}/
                 {taskResult.steps.length} pasos
               </Badge>
             </div>

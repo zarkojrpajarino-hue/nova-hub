@@ -105,7 +105,7 @@ export function StartChallengeDialog({
         return;
       }
 
-      toast.success(result.message || '¡Desafío iniciado con éxito! 🔥');
+      toast.success(result.message || 'Desafio iniciado con exito!');
       onSuccess?.();
       onClose();
     } catch (_error) {
@@ -181,21 +181,21 @@ export function StartChallengeDialog({
           {/* Detalles del tipo seleccionado */}
           {selectedChallengeData && (
             <div className={`p-4 rounded-lg border-2 bg-gradient-to-br ${selectedChallengeData.color}`}>
-              <h4 className="font-semibold mb-2">📋 Detalles del desafío:</h4>
+              <h4 className="font-semibold mb-2">Detalles del desafío:</h4>
               <ul className="text-sm space-y-1">
                 <li>
-                  ✅ <strong>Duración:</strong> {selectedChallengeData.duration}
+                  <strong>Duración:</strong> {selectedChallengeData.duration}
                 </li>
                 <li>
-                  ✅ <strong>Transparencia:</strong> Todo el equipo podrá ver el progreso en
+                  <strong>Transparencia:</strong> Todo el equipo podrá ver el progreso en
                   tiempo real
                 </li>
                 <li>
-                  ✅ <strong>Notificaciones:</strong> Recibirás updates cada vez que cambien las
+                  <strong>Notificaciones:</strong> Recibirás updates cada vez que cambien las
                   métricas
                 </li>
                 <li>
-                  ⚠️ <strong>Cooldown:</strong> El Master tendrá 3 meses de cooldown después de
+                  <strong>Cooldown:</strong> El Master tendrá 3 meses de cooldown después de
                   este desafío
                 </li>
               </ul>

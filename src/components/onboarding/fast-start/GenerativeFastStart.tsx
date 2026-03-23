@@ -336,9 +336,19 @@ export function GenerativeFastStart({
         <div className="mb-6 text-center">
           <h2 className="text-2xl font-bold text-gray-900">{t('onboarding.eligeTuIdeaDe')}</h2>
           <p className="text-gray-600 mt-1">
-            3 opciones personalizadas para tu perfil. Elige la que más te convenza.
+            {t('onboarding.threeOptionsForYourProfile')}
           </p>
         </div>
+
+        {/* OB.G.1: Geo-intelligence context banner */}
+        {faseAAnswers.location_country && (
+          <Alert className="mb-4 bg-amber-50 border-amber-200">
+            <TrendingUp className="h-4 w-4 text-amber-600" />
+            <AlertDescription className="text-amber-900 text-sm">
+              {t('onboarding.geoContextHint', { country: faseAAnswers.location_country, industry: formData.industry || t('onboarding.yourIndustry') })}
+            </AlertDescription>
+          </Alert>
+        )}
 
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {ideas.map((idea) => (

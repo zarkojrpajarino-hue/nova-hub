@@ -5,6 +5,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertOBVParticipants } from '@/hooks/useNovaDataOptimized';
 import { Button } from '@/components/ui/button';
+import { EmptyState } from '@/components/ui/empty-state';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -254,7 +255,11 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
         </div>
 
         {obvs.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">{t('project.noHayObvsRegistradas')}</div>
+          <EmptyState
+            icon={FileCheck}
+            title={t('project.emptyOBVs.title')}
+            description={t('project.emptyOBVs.description')}
+          />
         ) : (
           <div className="divide-y divide-border">
             {obvs.map(obv => {

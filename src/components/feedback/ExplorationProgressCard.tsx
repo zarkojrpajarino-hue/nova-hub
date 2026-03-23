@@ -164,7 +164,7 @@ export function ExplorationProgressCard({
             </div>
             <Progress value={(exploration.fit_score / 5) * 100} className="h-2" />
             <p className="text-xs text-muted-foreground text-right">
-              {exploration.fit_score >= 4.0 ? '✅ Excelente' : exploration.fit_score >= 3.0 ? '⚠️ Puede mejorar' : '❌ Bajo'}
+              {exploration.fit_score >= 4.0 ? 'Excelente' : exploration.fit_score >= 3.0 ? 'Puede mejorar' : 'Bajo'}
             </p>
           </div>
         )}

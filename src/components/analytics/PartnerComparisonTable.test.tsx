@@ -117,7 +117,7 @@ describe('PartnerComparisonTable', () => {
         selectedPartners={[]}
       />
     );
-    expect(screen.getByText('📊 Media del equipo')).toBeInTheDocument();
+    expect(screen.getByText('Media del equipo')).toBeInTheDocument();
   });
 
   it('calls onSelectPartner when checkbox clicked', async () => {

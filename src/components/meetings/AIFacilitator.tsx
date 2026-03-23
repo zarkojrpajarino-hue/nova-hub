@@ -261,7 +261,7 @@ export function AIFacilitator({
                   {rec.action && (
                     <div className="mt-2">
                       <Badge variant="outline" className="text-xs">
-                        💡 {rec.action}
+                        {rec.action}
                       </Badge>
                     </div>
                   )}

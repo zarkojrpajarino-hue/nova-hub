@@ -549,18 +549,18 @@ export function StartMeetingModal({
                         <div key={category}>
                           <div className="px-2 py-1.5 text-xs font-semibold text-gray-500 uppercase">
                             {category === 'planning'
-                              ? '🎯 Planning & Roadmap'
+                              ? 'Planning & Roadmap'
                               : category === 'review'
-                              ? '🔄 Seguimiento & Review'
+                              ? 'Seguimiento & Review'
                               : category === 'retro'
-                              ? '💬 Retrospectiva & Mejora'
+                              ? 'Retrospectiva & Mejora'
                               : category === 'people'
-                              ? '👥 Personas & Team'
+                              ? 'Personas & Team'
                               : category === 'client'
-                              ? '💼 Cliente & Stakeholders'
+                              ? 'Cliente & Stakeholders'
                               : category === 'urgent'
-                              ? '🚨 Urgente & Crisis'
-                              : '📋 Otras'}
+                              ? 'Urgente & Crisis'
+                              : 'Otras'}
                           </div>
                           {types.map((type) => (
                             <SelectItem key={type.id} value={type.id}>
@@ -800,7 +800,7 @@ export function StartMeetingModal({
                     <div className="rounded-md bg-amber-500/10 border border-amber-500/20 px-3 py-2 space-y-0.5">
                       {brief.risk_flags.map((flag, i) => (
                         <p key={i} className="text-xs text-amber-700 dark:text-amber-400 flex gap-1">
-                          <span className="flex-shrink-0">⚠</span>{flag}
+                          <AlertCircle size={12} className="flex-shrink-0 mt-0.5" />{flag}
                         </p>
                       ))}
                     </div>

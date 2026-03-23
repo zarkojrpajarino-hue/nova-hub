@@ -12,9 +12,9 @@
  *
  * Variables de entorno requeridas:
  *   RESEND_API_KEY            — clave de Resend
- *   NOTIFICATION_FROM_EMAIL   — email remitente (ej: weekly@novahub.app)
+ *   NOTIFICATION_FROM_EMAIL   — email remitente (ej: weekly@optimus-k.app)
  *   NOTIFICATION_FROM_NAME    — nombre remitente (ej: Optimus-K)
- *   APP_URL                   — base URL de la app (ej: https://app.novahub.app)
+ *   APP_URL                   — base URL de la app (ej: https://app.optimus-k.app)
  *   CRON_SECRET               — secreto para proteger el endpoint
  *   SUPABASE_URL
  *   SUPABASE_SERVICE_ROLE_KEY
@@ -90,9 +90,9 @@ serve(async (req) => {
   }
 
   const resendApiKey = Deno.env.get('RESEND_API_KEY');
-  const fromEmail = Deno.env.get('NOTIFICATION_FROM_EMAIL') || 'weekly@novahub.app';
+  const fromEmail = Deno.env.get('NOTIFICATION_FROM_EMAIL') || 'weekly@optimus-k.app';
   const fromName = Deno.env.get('NOTIFICATION_FROM_NAME') || 'Optimus-K';
-  const appUrl = Deno.env.get('APP_URL') || 'https://app.novahub.app';
+  const appUrl = Deno.env.get('APP_URL') || 'https://app.optimus-k.app';
 
   if (!resendApiKey) {
     return new Response(JSON.stringify({ error: 'RESEND_API_KEY not configured' }), { status: 500 });

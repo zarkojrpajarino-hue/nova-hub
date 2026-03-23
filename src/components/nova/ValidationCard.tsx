@@ -13,17 +13,17 @@ interface ValidationCardProps {
 const getTypeLabel = (type: string, subtype?: string) => {
   if (type === 'obv' && subtype) {
     const labels: Record<string, string> = {
-      exploracion: '🔍',
-      validacion: '✅',
-      venta: '💰',
+      exploracion: 'Exp.',
+      validacion: 'Val.',
+      venta: 'Venta',
     };
     return labels[subtype] || 'OBV';
   }
   const labels: Record<string, string> = {
     obv: 'OBV',
-    lp: '📚 LP',
-    bp: '📖 BP',
-    cp: '👥 CP',
+    lp: 'LP',
+    bp: 'BP',
+    cp: 'CP',
   };
   return labels[type] || type.toUpperCase();
 };

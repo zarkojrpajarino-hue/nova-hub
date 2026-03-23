@@ -1,13 +1,15 @@
 /**
- * EMPTY STATE COMPONENT
+ * EMPTY STATE COMPONENT — F.1
  *
- * Estado vacío profesional con ilustración, título, descripción y CTAs
+ * Estado vacio profesional con icono, titulo, descripcion, CTAs y sugerencias.
+ * Clean, minimal, Lucide icons only.
  */
 
 import { LucideIcon } from 'lucide-react';
 import { Button } from './button';
 import { Card, CardContent } from './card';
 import { cn } from '@/lib/utils';
+import { useTranslation } from 'react-i18next';
 
 interface EmptyStateProps {
   icon: LucideIcon;
@@ -22,6 +24,7 @@ interface EmptyStateProps {
     label: string;
     onClick: () => void;
   };
+  suggestions?: string[];
   className?: string;
   variant?: 'default' | 'card';
 }
@@ -32,9 +35,12 @@ export function EmptyState({
   description,
   action,
   secondaryAction,
+  suggestions,
   className,
   variant = 'default',
 }: EmptyStateProps) {
+  const { t } = useTranslation();
+
   const content = (
     <div className="flex flex-col items-center justify-center py-12 px-6 text-center">
       <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
@@ -45,7 +51,7 @@ export function EmptyState({
       <p className="text-sm text-muted-foreground mb-6 max-w-md">{description}</p>
 
       {action && (
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-3 mb-6">
           <Button onClick={action.onClick} variant={action.variant || 'default'} size="lg">
             {action.label}
           </Button>
@@ -54,6 +60,24 @@ export function EmptyState({
               {secondaryAction.label}
             </Button>
           )}
+        </div>
+      )}
+
+      {suggestions && suggestions.length > 0 && (
+        <div className="w-full max-w-sm space-y-2">
+          <p className="text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            {t('emptyState.suggestions')}
+          </p>
+          <ul className="space-y-1.5">
+            {suggestions.map((suggestion, i) => (
+              <li
+                key={i}
+                className="text-sm text-muted-foreground bg-muted/40 rounded-lg px-3 py-2 text-left"
+              >
+                {suggestion}
+              </li>
+            ))}
+          </ul>
         </div>
       )}
     </div>

@@ -22,6 +22,8 @@ import { useProjectTeamMembers } from '@/hooks/useNovaDataOptimized';
 import { useMeetingMode } from '@/hooks/useMeetingMode';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useFeatureUnlock } from '@/hooks/useUnlockProgress';
+import { UnlockGate } from '@/components/project/UnlockProgress';
 
 import { useTranslation } from 'react-i18next';
 export default function MeetingIntelligencePage() {
@@ -54,6 +56,7 @@ export default function MeetingIntelligencePage() {
   });
   // M18.0.6 — modo solo/equipo
   const { data: meetingMode } = useMeetingMode(currentProject?.id);
+  const { data: meetingUnlock } = useFeatureUnlock(currentProject?.id, 'meeting_intelligence');
 
   // Mapeo team members → shape que espera StartMeetingModal
   const projectParticipants = meetingMode?.mode === 'solo'
@@ -178,26 +181,32 @@ export default function MeetingIntelligencePage() {
   // Vista principal: Historial
   return (
     <div className="container max-w-6xl mx-auto py-8">
-      {/* M18.0.6 — Banner solo mode */}
-      {meetingMode?.mode === 'solo' && (
-        <div className="mb-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
-          <Users className="h-4 w-4 shrink-0" />{t('meetingIntelligence.invitaATuEquipo')}</div>
-      )}
+      <UnlockGate
+        feature={meetingUnlock}
+        title={t('meetingIntelligence.meetingIntelligence')}
+        description={t('meetingIntelligence.grabaTuPrimeraReunion')}
+      >
+        {/* M18.0.6 — Banner solo mode */}
+        {meetingMode?.mode === 'solo' && (
+          <div className="mb-4 flex items-center gap-2 rounded-lg border border-blue-200 bg-blue-50 px-4 py-2.5 text-sm text-blue-700 dark:border-blue-800 dark:bg-blue-950/30 dark:text-blue-300">
+            <Users className="h-4 w-4 shrink-0" />{t('meetingIntelligence.invitaATuEquipo')}</div>
+        )}
 
-      <MeetingHistory
-        projectId={currentProject.id}
-        onStartNewMeeting={() => setShowModal(true)}
-      />
+        <MeetingHistory
+          projectId={currentProject.id}
+          onStartNewMeeting={() => setShowModal(true)}
+        />
 
-      {/* Modal de configuración */}
-      <StartMeetingModal
-        isOpen={showModal}
-        onClose={() => setShowModal(false)}
-        onStart={handleStartMeeting}
-        projectId={currentProject.id}
-        projectMembers={projectParticipants}
-        currentOBVs={projectOBVs}
-      />
+        {/* Modal de configuracion */}
+        <StartMeetingModal
+          isOpen={showModal}
+          onClose={() => setShowModal(false)}
+          onStart={handleStartMeeting}
+          projectId={currentProject.id}
+          projectMembers={projectParticipants}
+          currentOBVs={projectOBVs}
+        />
+      </UnlockGate>
     </div>
   );
 }

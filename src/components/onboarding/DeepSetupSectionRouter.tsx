@@ -139,13 +139,13 @@ export function DeepSetupSectionRouter({
 
       // Check if milestone reached
       if (newProgress === 50 || newProgress === 75) {
-        toast.success(`🎉 Milestone reached: ${newProgress}%`, {
+        toast.success(`Milestone reached: ${newProgress}%`, {
           description: t('onboarding.newSectionsUnlocked')
         });
       }
 
       if (newProgress === 100) {
-        toast.success('🏆 Onboarding Complete!', {
+        toast.success('Onboarding Complete!', {
           description: t('onboarding.allFeaturesAndTools')
         });
       }

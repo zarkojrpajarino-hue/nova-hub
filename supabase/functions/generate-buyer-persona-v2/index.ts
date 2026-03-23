@@ -141,7 +141,7 @@ REGLAS:
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 1500,
-      system: 'Eres Optimus, el motor de inteligencia estratégica de Nova Hub. Generas perfiles de Buyer Persona honestos basados en datos reales. Responde ÚNICAMENTE con JSON válido.',
+      system: 'Eres Optimus, el motor de inteligencia estratégica de Optimus-K. Generas perfiles de Buyer Persona honestos basados en datos reales. Responde ÚNICAMENTE con JSON válido.',
       messages: [{ role: 'user', content: userPrompt }],
     });
 

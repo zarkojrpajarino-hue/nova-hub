@@ -22,6 +22,9 @@ import { Badge } from '@/components/ui/badge';
 import { HelpWidget } from '@/components/ui/section-help';
 import { ExportButton } from '@/components/export/ExportButton';
 import { CRMPreviewModal } from '@/components/preview/CRMPreviewModal';
+import { useCurrentProject } from '@/contexts/CurrentProjectContext';
+import { useFeatureUnlock } from '@/hooks/useUnlockProgress';
+import { UnlockGate } from '@/components/project/UnlockProgress';
 
 import { useTranslation } from 'react-i18next';
 interface CRMViewProps {
@@ -30,6 +33,8 @@ interface CRMViewProps {
 
 export function CRMView({ onNewOBV }: CRMViewProps) {
   const { t } = useTranslation();
+  const { currentProject } = useCurrentProject();
+  const { data: crmUnlock } = useFeatureUnlock(currentProject?.id, 'crm');
   const { data: leads = [], isLoading: loadingLeads } = usePipelineGlobal();
   const { data: projects = [], isLoading: loadingProjects } = useProjects();
   const { data: profiles = [], isLoading: loadingProfiles } = useProfiles();
@@ -103,6 +108,11 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
         showBackButton={true}
       />
 
+      <UnlockGate
+        feature={crmUnlock}
+        title={t('cRM.crmPipeline')}
+        description={t('cRM.registraTuPrimerLead')}
+      >
       <div className="p-8 space-y-6">
         {/* How it works */}
         <HowItWorks
@@ -405,6 +415,7 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
 
       <HelpWidget section="crm" />
       <CRMPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
+      </UnlockGate>
     </>
   );
 }
