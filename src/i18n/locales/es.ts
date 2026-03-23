@@ -350,7 +350,9 @@ export const es = {
     "tocaElTipoDe": "Toca el tipo de crisis — eso es todo por ahora",
     "opcionalCuéntanosBrevementeEl": "Opcional. Cuéntanos brevemente el contexto.",
     "creandoTus3Tareas": "Creando tus 3 tareas urgentes...",
-    "ejLlevamos2Meses": "Ej: llevamos 2 meses sin cerrar ningún deal a pesar de tener demos..."
+    "ejLlevamos2Meses": "Ej: llevamos 2 meses sin cerrar ningún deal a pesar de tener demos...",
+    "tareasCreadas": "3 tareas urgentes creadas. Redirigiendo al dashboard...",
+    "generarAnalisisCompleto": "Generar un analisis completo de tu situacion"
   },
   "evidenceTest": {
     "testTheCompleteAi": "Test the complete AI Evidence System here",

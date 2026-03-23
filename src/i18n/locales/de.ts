@@ -7518,5 +7518,19 @@ export const de = {
     "cash": "Cash",
     "concentrationRisk": "Riesgo de concentracion",
     "riskDetail": "{{name}}: {{percentage}}% de {{category}}. Si {{name}} se va, {{category}} cae {{percentage}}%"
-  }
+  },
+  "sidebar": {
+    "navigateTo": "Navigate to",
+    "newBadge": "New",
+    "teaser": {
+      "locked": "Locked in this phase",
+      "default": "This feature unlocks in a later phase.",
+      "crm": "CRM activates when you have qualified leads.",
+      "financiero": "Finances matter when there is revenue.",
+      "meetings": "Meeting Intelligence unlocks with team and meetings.",
+      "analisisIa": "AI analysis activates with 14+ days of project data.",
+      "toolkit": "Founder tools unlock in Phase 2.",
+      "integrations": "Integrations unlock when you have data to connect."
+    }
+  },
 } as const;

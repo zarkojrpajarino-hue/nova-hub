@@ -260,8 +260,16 @@ export function EmergencyOnboardingPage() {
               <CheckCircle className="h-8 w-8 text-green-400" />
             </div>
             <p className="text-slate-300 text-sm">
-              3 tareas urgentes creadas. Redirigiendo al dashboard...
+              {t('emergencyOnboarding.tareasCreadas')}
             </p>
+            <div className="flex flex-col gap-2 mt-4">
+              <button
+                onClick={() => navigate(`/proyecto/${projectId}/analisis-ia`)}
+                className="text-sm text-primary hover:text-primary/80 underline underline-offset-2"
+              >
+                {t('emergencyOnboarding.generarAnalisisCompleto')}
+              </button>
+            </div>
             <Loader2 className="h-5 w-5 animate-spin text-slate-500 mx-auto" />
           </div>
         )}
