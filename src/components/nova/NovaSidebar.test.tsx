@@ -81,13 +81,13 @@ describe('NovaSidebar', () => {
     renderSidebar();
     const logoIcon = screen.getByLabelText('Logo Optimus-K');
     expect(logoIcon).toBeInTheDocument();
-    expect(logoIcon).toHaveTextContent('O');
   });
 
-  it('applies gradient to logo icon', () => {
+  it('renders SVG logo', () => {
     renderSidebar();
     const logoIcon = screen.getByLabelText('Logo Optimus-K');
-    expect(logoIcon).toHaveClass('optimus-gradient');
+    const svg = logoIcon.querySelector('svg');
+    expect(svg).toBeInTheDocument();
   });
 
   it('renders banner role on logo section', () => {
