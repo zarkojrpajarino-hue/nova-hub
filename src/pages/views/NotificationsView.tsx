@@ -1,11 +1,14 @@
 import { useState } from 'react';
-import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink, Check } from 'lucide-react';
+import { Bell, FileCheck, FileX, CheckCircle2, ListTodo, Trophy, ExternalLink, Check, HelpCircle, Filter } from 'lucide-react';
 import { formatDistanceToNow, format } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
+import { useParams } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { Popover, PopoverTrigger, PopoverContent } from '@/components/ui/popover';
 import { useNotifications, useMarkAsRead, useMarkAllAsRead, Notification } from '@/hooks/useNotifications';
+import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { cn } from '@/lib/utils';
 import { HelpWidget } from '@/components/ui/section-help';
 import { useDemoMode } from '@/contexts/DemoModeContext';
@@ -14,13 +17,39 @@ import { HowItWorks } from '@/components/ui/how-it-works';
 import { NotificationsPreviewModal } from '@/components/preview/NotificationsPreviewModal';
 
 import { useTranslation } from 'react-i18next';
+
+// N7.V2.3 — Phase → relevant notification types mapping
+const PHASE_NOTIFICATION_TYPES: Record<number, string[]> = {
+  0: ['tarea_asignada'],
+  1: ['obv_nueva', 'obv_aprobada', 'obv_rechazada', 'tarea_asignada'],
+  2: ['obv_nueva', 'obv_aprobada', 'obv_rechazada', 'tarea_asignada', 'lead_ganado'],
+  3: ['lead_ganado', 'obv_nueva', 'obv_aprobada', 'tarea_asignada'],
+  4: ['lead_ganado', 'tarea_asignada', 'obv_nueva'],
+};
+
+// N7.V2.4 — Notification trigger explanations
+function getNotificationExplanation(type: string | null, t: (k: string) => string): string {
+  switch (type) {
+    case 'obv_nueva':
+      return t('notifications.whyObvNueva');
+    case 'obv_aprobada':
+      return t('notifications.whyObvAprobada');
+    case 'obv_rechazada':
+      return t('notifications.whyObvRechazada');
+    case 'tarea_asignada':
+      return t('notifications.whyTareaAsignada');
+    case 'lead_ganado':
+      return t('notifications.whyLeadGanado');
+    default:
+      return t('notifications.whyDefault');
+  }
+}
 interface NotificationsViewProps {
   onNewOBV?: () => void;
   onNavigate: (view: string) => void;
 }
 
 const getNotificationIcon = (type: string | null) => {
-  const { t } = useTranslation();
   switch (type) {
     case 'obv_nueva':
       return <FileCheck size={20} className="text-primary" />;
@@ -55,11 +84,19 @@ const getNotificationColor = (type: string | null) => {
 };
 
 export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewProps) {
+  const { t } = useTranslation();
+  const { projectId } = useParams<{ projectId: string }>();
   const { isDemoMode } = useDemoMode();
   const { data: realNotifications = [], isLoading } = useNotifications();
   const markAsRead = useMarkAsRead();
   const markAllAsRead = useMarkAllAsRead();
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+  const [filterMode, setFilterMode] = useState<'all' | 'phase'>('all');
+
+  // N7.V2.3 — Get current phase for filtering
+  const { data: engineData } = useProjectEngineData(projectId);
+  const currentPhase = engineData?.phaseState?.current_phase ?? 1;
+  const relevantTypes = PHASE_NOTIFICATION_TYPES[currentPhase] ?? PHASE_NOTIFICATION_TYPES[1];
 
   // Transform demo notifications to match the expected format
   const demoNotificationsFormatted = DEMO_NOTIFICATIONS.map(n => ({
@@ -73,7 +110,12 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
     user_id: '1',
   }));
 
-  const notifications = isDemoMode ? demoNotificationsFormatted : realNotifications;
+  const allNotifications = isDemoMode ? demoNotificationsFormatted : realNotifications;
+
+  // N7.V2.3 — Apply phase filter
+  const notifications = filterMode === 'phase'
+    ? allNotifications.filter(n => n.type && relevantTypes.includes(n.type))
+    : allNotifications;
 
   const handleNotificationClick = (notification: Notification | typeof demoNotificationsFormatted[0]) => {
     if (!notification.read && !isDemoMode) {
@@ -110,7 +152,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
     yesterday.setDate(yesterday.getDate() - 1);
 
     if (format(date, 'yyyy-MM-dd') === format(today, 'yyyy-MM-dd')) {
-      return 'Hoy';
+      return t('notifications.hoy');
     } else if (format(date, 'yyyy-MM-dd') === format(yesterday, 'yyyy-MM-dd')) {
       return t('notifications.ayer');
     } else {
@@ -122,7 +164,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
     <div className="min-h-screen bg-background">
       <NovaHeader
         title={t('notifications.notificaciones')}
-        subtitle={`${unreadCount} sin leer`}
+        subtitle={`${unreadCount} ${t('notifications.sinLeerCount')}`}
         onNewOBV={onNewOBV}
         showBackButton={true}
       />
@@ -141,7 +183,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                   t('notifications.tareasAsignadasOCompletadas'),
                   t('notifications.mencionesEnComentarios'),
                   t('notifications.validacionesDeObvs'),
-                  "Leads ganados y eventos CRM"
+                  t('notifications.leadsGanadosYEventos')
                 ]
               }
             ]}
@@ -164,7 +206,7 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
         </div>
 
         {/* Header actions */}
-        <div className="flex items-center justify-between mb-6">
+        <div className="flex items-center justify-between mb-4">
           <div className="flex items-center gap-2">
             <Bell className="text-primary" size={24} />
             <h2 className="text-lg font-semibold">{t('notifications.historialDeNotificaciones')}</h2>
@@ -178,6 +220,33 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
             >
               <Check size={16} className="mr-2" />{t('notifications.marcarTodasComoLeídas')}</Button>
           )}
+        </div>
+
+        {/* N7.V2.3 — Phase filter tabs */}
+        <div className="flex items-center gap-2 mb-6">
+          <Filter size={14} className="text-muted-foreground" />
+          <button
+            onClick={() => setFilterMode('all')}
+            className={cn(
+              'px-3 py-1 text-sm rounded-full transition-colors',
+              filterMode === 'all'
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            )}
+          >
+            {t('notifications.todas')}
+          </button>
+          <button
+            onClick={() => setFilterMode('phase')}
+            className={cn(
+              'px-3 py-1 text-sm rounded-full transition-colors',
+              filterMode === 'phase'
+                ? 'bg-primary text-primary-foreground font-medium'
+                : 'bg-muted text-muted-foreground hover:bg-muted/80'
+            )}
+          >
+            {t('notifications.relevanteAMiFase')}
+          </button>
         </div>
 
         {/* Notifications list */}
@@ -241,12 +310,32 @@ export function NotificationsView({ onNewOBV, onNavigate }: NotificationsViewPro
                           <p className="text-sm text-muted-foreground mt-1">
                             {notification.message}
                           </p>
-                          {notification.link && (
-                            <div className="flex items-center gap-1 mt-2 text-xs text-primary">
-                              <ExternalLink size={12} />
-                              <span>{t('notifications.verDetalles')}</span>
-                            </div>
-                          )}
+                          <div className="flex items-center gap-3 mt-2">
+                            {notification.link && (
+                              <div className="flex items-center gap-1 text-xs text-primary">
+                                <ExternalLink size={12} />
+                                <span>{t('notifications.verDetalles')}</span>
+                              </div>
+                            )}
+                            {/* N7.V2.4 — "Why did I get this?" popover */}
+                            <Popover>
+                              <PopoverTrigger asChild>
+                                <button
+                                  className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                                  onClick={e => e.stopPropagation()}
+                                >
+                                  <HelpCircle size={12} />
+                                  <span>{t('notifications.porQuéRecibíEsto')}</span>
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent side="bottom" align="start" className="w-72 text-xs">
+                                <p className="font-medium mb-1">{t('notifications.porQuéEstaNotificación')}</p>
+                                <p className="text-muted-foreground">
+                                  {getNotificationExplanation(notification.type, t)}
+                                </p>
+                              </PopoverContent>
+                            </Popover>
+                          </div>
                         </div>
                         {!notification.read && (
                           <div className="w-2 h-2 rounded-full bg-primary flex-shrink-0 mt-2" />

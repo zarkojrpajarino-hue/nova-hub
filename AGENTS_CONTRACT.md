@@ -158,9 +158,12 @@ Cada agente tiene un conjunto fijo de insight_types. No se improvisan.
 - `meeting_load` — carga de reuniones en la semana (alto/normal/bajo)
 - `no_focus_time` — días sin bloques de tiempo de trabajo profundo
 
-**Team Agent:**
+**Team Agent (I15.81 — diferido, contrato definido para compatibilidad con F19):**
 - `communication_drop` — caída en actividad de canal respecto a semana anterior
 - `response_lag` — señal de respuestas lentas en canal activo
+- `team_overdue_tasks` — payload incluye `{ overdue_count: number, blocked_members: string[] }`
+  Consumido por `buildNextAction()` (F19.A.2): si `overdue_count >= 3` → CTA prioritario.
+- `collaboration_gap` — miembros sin actividad en 7+ días (payload: `{ silent_members: string[], days_silent: number }`)
 
 ### §4.2 — InsightSignal
 

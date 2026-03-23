@@ -17,7 +17,7 @@
  * requiere exponer project_type en IntegrationRecommendationContext — pendiente.
  */
 
-export type IntegrationProvider = 'stripe' | 'holded'
+export type IntegrationProvider = 'stripe' | 'holded' | 'trello' | 'slack' | 'notion'
 
 export interface IntegrationRecommendation {
   provider: IntegrationProvider
@@ -41,7 +41,7 @@ export interface IntegrationRecommendationContext {
   mrr: number | null
 }
 
-const MAX_RECOMMENDATIONS = 2  // I15.73
+const MAX_RECOMMENDATIONS = 3  // I15.73 — increased to 3 with new providers
 
 /**
  * ALL_RECOMMENDATIONS: cada entrada tiene un predicado isActive(ctx).
@@ -74,6 +74,39 @@ const ALL_RECOMMENDATIONS: ReadonlyArray<
     // I15.68 — solo fase ≥ 2, no conectado, y Stripe ya conectado (Holded es secundario)
     isActive: (ctx) =>
       ctx.current_phase >= 2 && !ctx.connected_providers.includes('holded'),
+  },
+  {
+    provider: 'trello',
+    title: 'Conecta Trello para ver ejecución real',
+    reason:
+      'Sin Trello, las tareas del equipo están fragmentadas. Trello sincroniza cards y tableros → ejecución real visible en Optimus sin duplicar datos.',
+    impact: 'Cards de Trello visibles como entidades. Insights de completitud y vencimiento automáticos.',
+    cta: 'Conectar Trello',
+    targetTab: 'trello',
+    isActive: (ctx) =>
+      ctx.current_phase >= 2 && !ctx.connected_providers.includes('trello') && !ctx.connected_providers.includes('asana'),
+  },
+  {
+    provider: 'slack',
+    title: 'Conecta Slack para medir actividad del equipo',
+    reason:
+      'Slack es donde pasa la comunicación real. Sincronizar canales permite medir actividad, concentración de comunicación y detectar silencios anómalos.',
+    impact: 'Insights de actividad de equipo: mensajes/día, canales activos, concentración.',
+    cta: 'Conectar Slack',
+    targetTab: 'slack',
+    isActive: (ctx) =>
+      ctx.current_phase >= 2 && !ctx.connected_providers.includes('slack'),
+  },
+  {
+    provider: 'notion',
+    title: 'Conecta Notion para evaluar documentación',
+    reason:
+      'La documentación es crítica para escalar. Notion sincroniza páginas y bases de datos → Optimus detecta documentación desactualizada o escasa.',
+    impact: 'Cobertura de documentación visible. Alertas de páginas desactualizadas (30+ días sin editar).',
+    cta: 'Conectar Notion',
+    targetTab: 'notion',
+    isActive: (ctx) =>
+      ctx.current_phase >= 2 && !ctx.connected_providers.includes('notion'),
   },
 ]
 

@@ -1,14 +1,16 @@
 /**
- * HOLDED INTEGRATION
+ * SLACK SYNC INTEGRATION — Channel Activity Reader
  *
- * Conecta Holded via API Key, importa facturas y las escribe en
- * key_metrics via write_integration_to_engine_table().
+ * Conecta Slack via Bot User OAuth Token (xoxb-), importa actividad de canales
+ * y la almacena como integration_entities (channel_activity).
  *
- * Edge functions: connect-holded, sync-holded
+ * SEPARADO de SlackIntegration.tsx (webhooks de salida). Este lee datos DE Slack.
  *
- * Que entra:   Facturas de Holded (numero, total, estado, cliente, fecha)
- * Donde va:    integration_entities -> key_metrics (external_provider='holded')
- * Que cambia:  Optimus ve datos financieros reales — dashboard financiero sin entrada manual
+ * Edge functions: connect-slack, sync-slack
+ *
+ * Que entra:   Actividad de canales publicos (mensajes, autores, miembros)
+ * Donde va:    integration_entities (entity_type='channel_activity')
+ * Que cambia:  Optimus ve comunicacion real del equipo sin entrada manual
  */
 
 import { useState, useEffect } from 'react'
@@ -21,14 +23,14 @@ import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Badge } from '@/components/ui/badge'
 import {
   Loader2, CheckCircle2, AlertCircle, ExternalLink, RefreshCw,
-  FileText, ListChecks,
+  MessageSquare, BarChart3,
 } from 'lucide-react'
 import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { SyncHealthCard } from './SyncHealthCard'
+import { GenericInsightsCard } from './GenericInsightsCard'
 import { ApiKeyGuide } from './ApiKeyGuide'
-import { FinanceInsightsCard } from './FinanceInsightsCard'
 import type { Session } from '@supabase/supabase-js'
 
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
@@ -48,27 +50,27 @@ async function getFreshSession(fallback: Session | null): Promise<Session | null
   })
 }
 
-interface HoldedIntegrationProps {
+interface SlackSyncIntegrationProps {
   projectId: string | undefined
 }
 
 interface SyncResult {
-  entities_synced:    number
-  invoices_written:   number
-  invoices_skipped:   number
-  invoices_rejected:  number
-  is_partial:         boolean
+  entities_synced:  number
+  channels_synced:  number
+  total_messages:   number
+  is_partial:       boolean
 }
 
-export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
-  const { t } = useTranslation();
+export function SlackSyncIntegration({ projectId }: SlackSyncIntegrationProps) {
+  const { t } = useTranslation()
   const { session } = useAuth()
   const queryClient = useQueryClient()
-  const [apiKey, setApiKey]                       = useState('')
+  const [botToken, setBotToken]                   = useState('')
   const [isLoading, setIsLoading]                 = useState(false)
   const [isSyncing, setIsSyncing]                 = useState(false)
   const [isConnected, setIsConnected]             = useState(false)
   const [connectionId, setConnectionId]           = useState<string | null>(null)
+  const [teamName, setTeamName]                   = useState<string | null>(null)
   const [lastSync, setLastSync]                   = useState<string | null>(null)
   const [syncResult, setSyncResult]               = useState<SyncResult | null>(null)
   const [connectionError, setConnectionError]     = useState<string | null>(null)
@@ -81,7 +83,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       .from('integration_connections')
       .select('id, status, error_message, last_sync_at, metadata')
       .eq('project_id', projectId)
-      .eq('provider', 'holded')
+      .eq('provider', 'slack')
       .in('status', ['active', 'error'])
       .order('created_at', { ascending: false })
       .limit(1)
@@ -91,6 +93,8 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
         if (data.status === 'active') {
           setIsConnected(true)
           setConnectionId(data.id)
+          const meta = data.metadata as Record<string, string> | null
+          setTeamName(meta?.team_name ?? null)
           if (data.last_sync_at) setHasPriorSync(true)
         } else if (data.status === 'error') {
           setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
@@ -103,8 +107,8 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       toast.error(t('integrations.noHayProyectoActivo'))
       return
     }
-    if (!apiKey.trim()) {
-      toast.error(t('integrations.introduceApiKeyHolded'))
+    if (!botToken.trim()) {
+      toast.error(t('integrations.slackIntroduceTuBotToken'))
       return
     }
 
@@ -120,7 +124,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       const timeout = setTimeout(() => controller.abort(), 30_000)
       let res: Response
       try {
-        res = await fetch(`${FUNCTIONS_URL}/connect-holded`, {
+        res = await fetch(`${FUNCTIONS_URL}/connect-slack`, {
           method: 'POST',
           signal: controller.signal,
           headers: {
@@ -128,7 +132,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
             'apikey':        SUPABASE_ANON_KEY,
             'Content-Type':  'application/json',
           },
-          body: JSON.stringify({ project_id: projectId, api_key: apiKey }),
+          body: JSON.stringify({ project_id: projectId, bot_token: botToken }),
         })
       } finally {
         clearTimeout(timeout)
@@ -138,16 +142,17 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       if (!res.ok) throw new Error(data?.message ?? `HTTP ${res.status}`)
       if (!data?.ok) {
         const msg =
-          data?.reason === 'invalid_api_key' ? t('integrations.apiKeyInválidaVerificaHolded') :
+          data?.reason === 'invalid_token' ? t('integrations.slackTokenInválido') :
           `Error al conectar: ${data?.reason ?? 'desconocido'}`
         toast.error(msg)
         return
       }
 
       setConnectionId(data.connection_id)
+      setTeamName(data.team_name ?? null)
       setIsConnected(true)
-      setApiKey('')
-      toast.success(t('integrations.holdedConectadoSincronizar'))
+      setBotToken('')
+      toast.success(t('integrations.slackConectadoSincronizar'))
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -175,7 +180,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       const timeout = setTimeout(() => controller.abort(), 60_000)
       let res: Response
       try {
-        res = await fetch(`${FUNCTIONS_URL}/sync-holded`, {
+        res = await fetch(`${FUNCTIONS_URL}/sync-slack`, {
           method: 'POST',
           signal: controller.signal,
           headers: {
@@ -201,12 +206,10 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       setHasPriorSync(true)
 
       void queryClient.invalidateQueries({ queryKey: ['sync_runs', connId] })
-      void queryClient.invalidateQueries({ queryKey: ['key_metrics', projectId] })
-      void queryClient.invalidateQueries({ queryKey: ['finance_insights', projectId] })
 
       const msg = data.is_partial
-        ? t('integrations.holdedSyncParcial', { written: data.invoices_written })
-        : t('integrations.holdedSyncCompletado', { synced: data.entities_synced, written: data.invoices_written })
+        ? t('integrations.slackSyncParcial', { channels: data.channels_synced, messages: data.total_messages })
+        : t('integrations.slackSyncCompletado', { channels: data.channels_synced, messages: data.total_messages })
       toast.success(msg)
     } catch (err) {
       toast.error('Error en sincronizacion: ' + (err instanceof Error ? err.message : String(err)))
@@ -223,12 +226,13 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">
-                  H
-                </div>
-                {t('integrations.holded')}
+                <MessageSquare size={22} className="text-violet-500" />
+                {t('integrations.slackSync')}
+                {teamName && (
+                  <span className="text-sm font-normal text-muted-foreground">{teamName}</span>
+                )}
               </CardTitle>
-              <CardDescription>{t('integrations.sincronizaFacturasClientesY')}</CardDescription>
+              <CardDescription>{t('integrations.slackSyncDescripción')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
@@ -254,80 +258,73 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
 
               <Alert>
                 <AlertDescription>
-                  <strong>{t('integrations.holdedGuiaTitulo')}</strong>
-                  <ol className="mt-2 space-y-1 text-sm list-decimal list-inside">
-                    <li>
-                      {t('integrations.holdedGuiaPaso1')}{' '}
-                      <a
-                        href="https://app.holded.com/settings/api"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline inline-flex items-center gap-1"
-                      >
-                        Holded Settings &rarr; API
-                        <ExternalLink size={12} />
-                      </a>
-                    </li>
-                    <li>{t('integrations.holdedGuiaPaso2')}</li>
-                    <li>{t('integrations.holdedGuiaPaso3')}</li>
-                  </ol>
+                  <strong>{t('integrations.slackGuíaTítulo')}</strong>{' '}
+                  {t('integrations.slackGuíaTexto')}{' '}
+                  <a
+                    href="https://api.slack.com/apps"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-1"
+                  >{t('integrations.slackApiApps')}<ExternalLink size={12} />
+                  </a>
+                  {' '}{t('integrations.slackGuíaScopes')}
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="holded-key">{t('integrations.apiKey')}</Label>
-                  <ApiKeyGuide provider="holded" />
+                  <Label htmlFor="slack-bot-token">{t('integrations.slackBotToken')}</Label>
+                  <ApiKeyGuide provider="slack" />
                 </div>
                 <Input
-                  id="holded-key"
+                  id="slack-bot-token"
                   type="password"
-                  placeholder={t('integrations.tuApiKeyDe')}
-                  value={apiKey}
-                  onChange={(e) => setApiKey(e.target.value)}
+                  placeholder="xoxb-..."
+                  value={botToken}
+                  onChange={(e) => setBotToken(e.target.value)}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">{t('integrations.tuApiKeySe')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.slackTokenCifrado')}</p>
               </div>
 
               <Button
                 onClick={handleConnect}
-                disabled={isLoading || !apiKey.trim() || !projectId}
+                disabled={isLoading || !botToken.trim() || !projectId}
                 className="w-full"
               >
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.conectando')}</>
                 ) : connectionError ? (
-                  t('integrations.reconectarHolded')
+                  t('integrations.slackReconectar')
                 ) : (
-                  t('integrations.conectarHolded')
+                  t('integrations.slackConectar')
                 )}
               </Button>
             </>
           ) : (
             <div className="space-y-4">
-              <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
-                <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.facturasYCobrosSe')}</p>
+              <div className="p-4 rounded-lg bg-violet-500/10 border border-violet-500/20">
+                <p className="text-sm text-violet-700 dark:text-violet-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.slackActividadCanales')}</p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
-                    {t('integrations.últimaSincronización')}: {lastSync}
+                    {t('integrations.slackÚltimaSincronización')}: {lastSync}
                   </p>
                 )}
                 {syncResult && (
                   <div className="mt-2 grid grid-cols-3 gap-2 text-xs">
                     <div className="text-center">
+                      <div className="font-mono font-semibold">{syncResult.channels_synced}</div>
+                      <div className="text-muted-foreground">{t('integrations.slackCanales')}</div>
+                    </div>
+                    <div className="text-center">
+                      <div className="font-mono font-semibold text-violet-600">{syncResult.total_messages}</div>
+                      <div className="text-muted-foreground">{t('integrations.slackMensajes')}</div>
+                    </div>
+                    <div className="text-center">
                       <div className="font-mono font-semibold">{syncResult.entities_synced}</div>
-                      <div className="text-muted-foreground">{t('integrations.procesadas')}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-mono font-semibold text-green-600">{syncResult.invoices_written}</div>
-                      <div className="text-muted-foreground">{t('integrations.escritas')}</div>
-                    </div>
-                    <div className="text-center">
-                      <div className="font-mono font-semibold">{syncResult.invoices_skipped}</div>
-                      <div className="text-muted-foreground">{t('integrations.sinCambios')}</div>
+                      <div className="text-muted-foreground">{t('integrations.slackEntidades')}</div>
                     </div>
                   </div>
                 )}
@@ -354,37 +351,37 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
 
       {/* Tutorial post-conexion — solo si nunca ha habido sync */}
       {isConnected && !lastSync && !syncResult && !hasPriorSync && (
-        <Card className="border-blue-500/20 bg-blue-500/5">
+        <Card className="border-violet-500/20 bg-violet-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.holdedConectadoQuePasara')}</CardTitle>
+              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.slackConectadoQuéPasará')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-sm">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
                 <div>
-                  <p className="font-medium">{t('integrations.holdedTutorialPaso1Titulo')}</p>
+                  <p className="font-medium">{t('integrations.slackPaso1Título')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('integrations.holdedTutorialPaso1Desc')}
+                    {t('integrations.slackPaso1Desc', { team: teamName })}
                   </p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
                 <div>
-                  <p className="font-medium">{t('integrations.holdedTutorialPaso2Titulo')}</p>
+                  <p className="font-medium">{t('integrations.slackPaso2Título')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('integrations.holdedTutorialPaso2Desc')}
+                    {t('integrations.slackPaso2Desc')}
                   </p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
                 <div>
-                  <p className="font-medium">{t('integrations.holdedTutorialPaso3Titulo')}</p>
+                  <p className="font-medium">{t('integrations.slackPaso3Título')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('integrations.holdedTutorialPaso3Desc')}
+                    {t('integrations.slackPaso3Desc')}
                   </p>
                 </div>
               </li>
@@ -395,62 +392,67 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
 
       {/* Sync Health */}
       {isConnected && (
-        <SyncHealthCard connectionId={connectionId} provider="holded" />
+        <SyncHealthCard connectionId={connectionId} provider="slack" />
       )}
 
-      {/* Finance Insights */}
+      {/* Communication Agent insights */}
       {isConnected && (
-        <FinanceInsightsCard projectId={projectId} />
+        <GenericInsightsCard
+          projectId={projectId}
+          agentType="slack_communication"
+          title={t('integrations.análisisDeComunicación')}
+          icon={<MessageSquare size={15} className="text-violet-500" />}
+          badgeLabel="Communication Agent"
+          sourceLabel="Slack"
+        />
       )}
 
-      {/* Que se sincroniza */}
+      {/* Que entra - Donde va - Que cambia */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <ListChecks size={16} className="text-blue-500" />{t('integrations.quéSeSincroniza')}</CardTitle>
+            <BarChart3 size={16} className="text-violet-500" />{t('integrations.quéEntraDóndeVa')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
+          <div className="space-y-0 divide-y divide-border/50">
+            {/* Fila 1 */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="font-medium text-sm">{t('integrations.facturasEmitidas')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.todasLasFacturasCon')}</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.slackDatoEntrada')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.slackDatoEntradaDetalle')}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.dóndeVa')}</p>
+                <p className="font-mono text-[11px]">integration_entities</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.slackEntityType')}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéCambia')}</p>
+                <p className="font-medium">{t('integrations.slackQuéCambia')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.slackQuéCambiaDetalle')}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">{t('integrations.estadoDeCobros')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.quéFacturasEstánPagadas')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">{t('integrations.clientes')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.holdedClientesDesc')}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Benefits */}
-      <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-cyan-500/5">
-        <CardHeader>
-          <CardTitle className="text-base">{t('integrations.beneficiosDeLaIntegración')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.dashboardFinancieroActualizadoAutomáticamente')}</p>
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.alertasCuandoFacturasEstán')}</p>
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.mrrCalculadoAutomáticamenteDe')}</p>
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.proyeccionesDeRevenueCon')}</p>
+            {/* Fila 2 */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéNoEntra')}</p>
+                <p className="font-medium">{t('integrations.slackQuéNoEntra')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.slackQuéNoEntraDetalle')}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.idempotencia')}</p>
+                <p className="font-mono text-[11px]">provider='slack'</p>
+                <p className="text-muted-foreground mt-0.5">+ external_id (channel ID)</p>
+                <p className="text-muted-foreground">{t('integrations.slackIdempotenciaDetalle')}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.slackVentana')}</p>
+                <p className="font-medium">{t('integrations.slackVentanaValor')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.slackVentanaDetalle')}</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

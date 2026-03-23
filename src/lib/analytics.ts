@@ -116,3 +116,32 @@ export function trackRitualStarted(props: {
 }) {
   posthog.capture('ritual_started', props);
 }
+
+// V11.V2.1 — Phase teaser & task conversion events
+export function trackPhaseTeaserTabClicked(props: {
+  project_id: string;
+  tab_name: string;
+  current_phase: number;
+}) {
+  posthog.capture('phase_teaser_tab_clicked', props);
+}
+
+export function trackPhaseTeaserOverride(props: {
+  project_id: string;
+  tab_name: string;
+}) {
+  posthog.capture('phase_teaser_override', props);
+}
+
+export function trackTaskSiguienteAccionConverted(props: {
+  project_id: string;
+}) {
+  posthog.capture('task_siguiente_accion_converted', props);
+}
+
+export function trackFocusBlockCtaClicked(props: {
+  project_id: string;
+  action_type: string;
+}) {
+  posthog.capture('focus_block_cta_clicked_v2', props);
+}

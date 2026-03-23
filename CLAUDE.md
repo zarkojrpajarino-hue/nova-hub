@@ -52,6 +52,18 @@ Mostrar siempre la fase del TASK_LIST.md que está en curso, con TODAS sus tarea
 
 Estados: `[x]` hecho · `[~]` en curso · `[!]` diferido · `[ ]` pendiente
 
+### Regla i18n obligatoria
+
+Todo string visible al usuario en archivos `.tsx` debe usar `t('namespace.key')` de react-i18next. **Sin excepciones.** Al añadir o modificar texto visible:
+1. Usar `t('namespace.key')` en el componente (import `useTranslation` si no existe)
+2. Añadir la key con valor ES en `src/i18n/locales/es.ts`
+3. Ejecutar `node scripts/i18n-sync.mjs` para traducir automáticamente a EN/FR/DE/PT/IT
+4. Verificar que el build pasa
+
+Si se modifica un string existente, actualizar la key en `es.ts` y re-ejecutar el sync.
+Namespaces: usar el nombre del directorio del componente (crm, dashboard, project, nova, etc.).
+No traducir: rutas, CSS classes, keys de objetos técnicos, nombres de columnas BD.
+
 ### Otras reglas
 
 - Leer archivos antes de modificarlos. Verificar nombres de columnas, enums y escalas en migraciones antes de escribir código.

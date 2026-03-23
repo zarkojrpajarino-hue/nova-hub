@@ -24,7 +24,6 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface DataCompletenessCardProps {
   engineData: ProjectEngineData | null | undefined;
   onNavigateToTab?: (tab: string) => void;
@@ -113,7 +112,7 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
         <div className="flex-1 min-w-0">
           <div className="flex items-center justify-between gap-2 mb-1">
             <p className="text-sm font-semibold text-amber-800 dark:text-amber-300">
-              {presentInputs}/{totalInputs} inputs disponibles
+              {presentInputs}/{totalInputs} {t('project.inputsDisponibles')}
             </p>
             <button
               onClick={() => setDismissed(true)}
@@ -151,7 +150,7 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
               ))}
               {missingInputs.length > 3 && (
                 <p className="text-[10px] text-amber-600 dark:text-amber-500">
-                  +{missingInputs.length - 3} inputs más sin datos
+                  +{missingInputs.length - 3} {t('project.inputsMásSinDatos')}
                 </p>
               )}
             </div>

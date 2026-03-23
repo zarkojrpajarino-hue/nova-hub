@@ -951,6 +951,7 @@ export function useSubmitRitual() {
       // SR10.V2.1 — el ritual puede cambiar phase_score y execution_rate.
       // Invalidar engine para que el Focus Block muestre datos frescos.
       queryClient.invalidateQueries({ queryKey: ['project-engine', projectId] });
+      queryClient.invalidateQueries({ queryKey: ['project_context', projectId] });
       queryClient.invalidateQueries({ queryKey: ['ritual-pending', projectId] });
     },
   });

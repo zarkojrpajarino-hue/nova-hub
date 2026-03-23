@@ -58,7 +58,7 @@ function formatValue(v: number | null): string {
   return Math.round(v).toString();
 }
 
-function confidenceLabel(v: number | null): string {
+function confidenceLabel(v: number | null, t: (k: string) => string): string {
   if (v === null) return t('project.sinDatos');
   if (v >= 70) return t('project.alta');
   if (v >= 40) return t('project.media');
@@ -95,7 +95,7 @@ export function InputAuditModal({
   const rows: InputRow[] = baseRows.map((def, i) => ({
     ...def,
     value: rawValues[i],
-    confidence: confidenceLabel(rawValues[i]),
+    confidence: confidenceLabel(rawValues[i], t),
   }));
 
   return (
@@ -113,7 +113,7 @@ export function InputAuditModal({
           <div className="flex items-center gap-2">
             <Info size={16} className="text-muted-foreground" />
             <h3 className="font-semibold text-sm">
-              {isProbability ? 'Inputs de probabilidad': t('project.inputsDeRiesgo')}
+              {isProbability ? t('project.inputsDeProbabilidad') : t('project.inputsDeRiesgo')}
             </h3>
           </div>
           <button onClick={onClose} className="text-muted-foreground hover:text-foreground">
@@ -122,10 +122,10 @@ export function InputAuditModal({
         </div>
 
         <p className="text-xs text-muted-foreground mb-4">
-          Estos son los valores que el motor usa para calcular el score.
+          {t('project.estosValoresDelMotor')}
           {!isProbability
-            ? ' Valores más altos = mayor riesgo.'
-            : ' Valores más altos = mayor probabilidad de avance.'}
+            ? ` ${t('project.valoresMásAltosRiesgo')}`
+            : ` ${t('project.valoresMásAltosProbabilidad')}`}
         </p>
 
         {/* Tabla degraded mode (sin v_engine_input_audit) */}
@@ -181,6 +181,7 @@ interface InputAuditTriggerProps {
 }
 
 export function InputAuditTrigger({ onClick }: InputAuditTriggerProps) {
+  const { t } = useTranslation();
   return (
     <button
       onClick={onClick}

@@ -29,11 +29,13 @@ const SEVERITY_WEIGHT: Record<string, number> = {
 }
 
 const AGENT_WEIGHT: Record<string, number> = {
-  finance:   5,
-  sales:     4,
-  execution: 3,
-  meeting:   2,
-  calendar:  1,
+  finance:              5,
+  sales:                4,
+  execution:            3,
+  slack_communication:  2,
+  notion_knowledge:     2,
+  meeting:              2,
+  calendar:             1,
 }
 
 interface RawInsight {

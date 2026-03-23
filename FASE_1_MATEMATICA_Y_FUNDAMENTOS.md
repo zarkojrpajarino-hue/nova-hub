@@ -153,6 +153,34 @@ consistency_factor = MIN(1.2, 1 + (n_OBVs_validos / 10))
 validation_strength = MIN(100, validation_raw × consistency_factor)
 ```
 
+### SOURCE_WEIGHTS — Pesos de fuente de datos (F1.V2.2 / T17.2)
+
+Implementado en `src/lib/evidence.ts`. Cada fuente de datos tiene un peso que refleja
+su fiabilidad intrínseca. Usado por el sistema de evidencia (FASE 17) para resolver
+conflictos entre fuentes y ponderar signals.
+
+```
+Fuente                  Peso    Justificación
+────────────────────    ────    ─────────────────────────────────────────────
+stripe                  1.00    Pasarela de pago — dato verificado por transacción real
+holded                  0.90    ERP contable — dato verificable por auditoría fiscal
+hubspot                 0.80    CRM comercial — declarado por equipo, no verificado externamente
+asana                   0.80    Herramienta de ejecución — estado registrado, no outcome
+meeting_intelligence    0.80    Transcripción revisada y aprobada por el usuario
+google_calendar         0.75    Agenda sincronizada — refleja tiempo, no calidad
+user_manual             0.60    Declaración del founder — sin verificación externa
+ai_inferred             0.35    Derivación algorítmica — calidad depende de inputs
+```
+
+**Criterios para asignar peso:**
+1. **Verificabilidad**: ¿el dato se puede contrastar con un sistema externo? (Stripe > manual)
+2. **Intencionalidad**: ¿el dato fue creado con propósito de registro? (ERP > calendar)
+3. **Granularidad**: ¿el dato refleja un evento específico o una estimación? (transacción > proyección)
+4. **Manipulabilidad**: ¿el usuario puede falsear fácilmente el dato? (pasarela de pago > texto libre)
+
+**Para cambiar un peso:** actualizar `SOURCE_WEIGHTS` en `src/lib/evidence.ts` Y actualizar esta tabla.
+Un cambio de peso afecta: resolución de conflictos, confidence de insights, y scores del engine.
+
 ### Penalización O1.2
 ```
 si n_entrevistas < 5 → O1.2_score = base × 0.5

@@ -28,6 +28,7 @@ import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { SyncHealthCard } from './SyncHealthCard'
 import { ExecutionInsightsCard } from './ExecutionInsightsCard'
+import { ApiKeyGuide } from './ApiKeyGuide'
 import { runExecutionAgent } from '@/services/executionAgentService'
 import type { Session } from '@supabase/supabase-js'
 
@@ -281,7 +282,10 @@ export function AsanaIntegration({ projectId }: AsanaIntegrationProps) {
               </Alert>
 
               <div className="space-y-2">
-                <Label htmlFor="asana-pat">{t('integrations.personalAccessToken')}</Label>
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="asana-pat">{t('integrations.personalAccessToken')}</Label>
+                  <ApiKeyGuide provider="asana" />
+                </div>
                 <Input
                   id="asana-pat"
                   type="password"

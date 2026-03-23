@@ -1,14 +1,14 @@
 /**
- * HOLDED INTEGRATION
+ * NOTION INTEGRATION
  *
- * Conecta Holded via API Key, importa facturas y las escribe en
- * key_metrics via write_integration_to_engine_table().
+ * Conecta Notion via Internal Integration Token, importa paginas y databases
+ * del workspace y las almacena en integration_entities.
  *
- * Edge functions: connect-holded, sync-holded
+ * Edge functions: connect-notion, sync-notion
  *
- * Que entra:   Facturas de Holded (numero, total, estado, cliente, fecha)
- * Donde va:    integration_entities -> key_metrics (external_provider='holded')
- * Que cambia:  Optimus ve datos financieros reales — dashboard financiero sin entrada manual
+ * Que entra:   Paginas y databases del workspace Notion (titulo, fecha edicion, estructura)
+ * Donde va:    integration_entities (entity_type='page' | 'database')
+ * Que cambia:  Optimus ve conocimiento real del equipo — documentacion, wikis, bases de datos
  */
 
 import { useState, useEffect } from 'react'
@@ -27,13 +27,13 @@ import { supabase } from '@/integrations/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
 import { toast } from 'sonner'
 import { SyncHealthCard } from './SyncHealthCard'
+import { GenericInsightsCard } from './GenericInsightsCard'
 import { ApiKeyGuide } from './ApiKeyGuide'
-import { FinanceInsightsCard } from './FinanceInsightsCard'
 import type { Session } from '@supabase/supabase-js'
 
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 
-import { useTranslation } from 'react-i18next';
+import { useTranslation } from 'react-i18next'
 
 async function getFreshSession(fallback: Session | null): Promise<Session | null> {
   return new Promise((resolve) => {
@@ -48,20 +48,19 @@ async function getFreshSession(fallback: Session | null): Promise<Session | null
   })
 }
 
-interface HoldedIntegrationProps {
+interface NotionIntegrationProps {
   projectId: string | undefined
 }
 
 interface SyncResult {
-  entities_synced:    number
-  invoices_written:   number
-  invoices_skipped:   number
-  invoices_rejected:  number
-  is_partial:         boolean
+  entities_synced:   number
+  pages_synced:      number
+  databases_synced:  number
+  is_partial:        boolean
 }
 
-export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
-  const { t } = useTranslation();
+export function NotionIntegration({ projectId }: NotionIntegrationProps) {
+  const { t } = useTranslation()
   const { session } = useAuth()
   const queryClient = useQueryClient()
   const [apiKey, setApiKey]                       = useState('')
@@ -69,6 +68,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
   const [isSyncing, setIsSyncing]                 = useState(false)
   const [isConnected, setIsConnected]             = useState(false)
   const [connectionId, setConnectionId]           = useState<string | null>(null)
+  const [workspaceName, setWorkspaceName]         = useState<string | null>(null)
   const [lastSync, setLastSync]                   = useState<string | null>(null)
   const [syncResult, setSyncResult]               = useState<SyncResult | null>(null)
   const [connectionError, setConnectionError]     = useState<string | null>(null)
@@ -81,7 +81,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       .from('integration_connections')
       .select('id, status, error_message, last_sync_at, metadata')
       .eq('project_id', projectId)
-      .eq('provider', 'holded')
+      .eq('provider', 'notion')
       .in('status', ['active', 'error'])
       .order('created_at', { ascending: false })
       .limit(1)
@@ -91,6 +91,8 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
         if (data.status === 'active') {
           setIsConnected(true)
           setConnectionId(data.id)
+          const meta = data.metadata as Record<string, string> | null
+          setWorkspaceName(meta?.workspace_name ?? null)
           if (data.last_sync_at) setHasPriorSync(true)
         } else if (data.status === 'error') {
           setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
@@ -104,7 +106,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       return
     }
     if (!apiKey.trim()) {
-      toast.error(t('integrations.introduceApiKeyHolded'))
+      toast.error(t('integrations.introduceElTokenDe'))
       return
     }
 
@@ -120,7 +122,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       const timeout = setTimeout(() => controller.abort(), 30_000)
       let res: Response
       try {
-        res = await fetch(`${FUNCTIONS_URL}/connect-holded`, {
+        res = await fetch(`${FUNCTIONS_URL}/connect-notion`, {
           method: 'POST',
           signal: controller.signal,
           headers: {
@@ -138,16 +140,18 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       if (!res.ok) throw new Error(data?.message ?? `HTTP ${res.status}`)
       if (!data?.ok) {
         const msg =
-          data?.reason === 'invalid_api_key' ? t('integrations.apiKeyInválidaVerificaHolded') :
+          data?.reason === 'invalid_token' ? t('integrations.tokenInválidoVerificaQue') :
+          data?.reason === 'no_access' ? t('integrations.elTokenNoTieneAcceso') :
           `Error al conectar: ${data?.reason ?? 'desconocido'}`
         toast.error(msg)
         return
       }
 
       setConnectionId(data.connection_id)
+      setWorkspaceName(data.workspace_name ?? null)
       setIsConnected(true)
       setApiKey('')
-      toast.success(t('integrations.holdedConectadoSincronizar'))
+      toast.success(t('integrations.notionConectadoSincroniza'))
     } catch (err) {
       toast.error('Error al conectar: ' + (err instanceof Error ? err.message : String(err)))
     } finally {
@@ -175,7 +179,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       const timeout = setTimeout(() => controller.abort(), 60_000)
       let res: Response
       try {
-        res = await fetch(`${FUNCTIONS_URL}/sync-holded`, {
+        res = await fetch(`${FUNCTIONS_URL}/sync-notion`, {
           method: 'POST',
           signal: controller.signal,
           headers: {
@@ -201,12 +205,10 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
       setHasPriorSync(true)
 
       void queryClient.invalidateQueries({ queryKey: ['sync_runs', connId] })
-      void queryClient.invalidateQueries({ queryKey: ['key_metrics', projectId] })
-      void queryClient.invalidateQueries({ queryKey: ['finance_insights', projectId] })
 
       const msg = data.is_partial
-        ? t('integrations.holdedSyncParcial', { written: data.invoices_written })
-        : t('integrations.holdedSyncCompletado', { synced: data.entities_synced, written: data.invoices_written })
+        ? t('integrations.syncParcialNotion', { pages: data.pages_synced, databases: data.databases_synced })
+        : t('integrations.syncCompletadoNotion', { pages: data.pages_synced, databases: data.databases_synced })
       toast.success(msg)
     } catch (err) {
       toast.error('Error en sincronizacion: ' + (err instanceof Error ? err.message : String(err)))
@@ -223,12 +225,13 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
           <div className="flex items-center justify-between">
             <div>
               <CardTitle className="flex items-center gap-2">
-                <div className="w-6 h-6 rounded bg-gradient-to-br from-blue-500 to-cyan-500 flex items-center justify-center text-white font-bold text-xs">
-                  H
-                </div>
-                {t('integrations.holded')}
+                <FileText size={22} className="text-gray-700 dark:text-gray-300" />
+                Notion
+                {workspaceName && (
+                  <span className="text-sm font-normal text-muted-foreground">{workspaceName}</span>
+                )}
               </CardTitle>
-              <CardDescription>{t('integrations.sincronizaFacturasClientesY')}</CardDescription>
+              <CardDescription>{t('integrations.importaPáginasYBases')}</CardDescription>
             </div>
             {isConnected ? (
               <Badge className="bg-green-500">
@@ -254,40 +257,31 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
 
               <Alert>
                 <AlertDescription>
-                  <strong>{t('integrations.holdedGuiaTitulo')}</strong>
-                  <ol className="mt-2 space-y-1 text-sm list-decimal list-inside">
-                    <li>
-                      {t('integrations.holdedGuiaPaso1')}{' '}
-                      <a
-                        href="https://app.holded.com/settings/api"
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="text-primary hover:underline inline-flex items-center gap-1"
-                      >
-                        Holded Settings &rarr; API
-                        <ExternalLink size={12} />
-                      </a>
-                    </li>
-                    <li>{t('integrations.holdedGuiaPaso2')}</li>
-                    <li>{t('integrations.holdedGuiaPaso3')}</li>
-                  </ol>
+                  <strong>{t('integrations.nota')}:</strong> {t('integrations.necesitasUnInternal')}{' '}
+                  <a
+                    href="https://www.notion.so/my-integrations"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-primary hover:underline inline-flex items-center gap-1"
+                  >{t('integrations.myIntegrationsEnNotion')}<ExternalLink size={12} />
+                  </a>
                 </AlertDescription>
               </Alert>
 
               <div className="space-y-2">
                 <div className="flex items-center justify-between">
-                  <Label htmlFor="holded-key">{t('integrations.apiKey')}</Label>
-                  <ApiKeyGuide provider="holded" />
+                  <Label htmlFor="notion-token">{t('integrations.internalIntegrationToken')}</Label>
+                  <ApiKeyGuide provider="notion" />
                 </div>
                 <Input
-                  id="holded-key"
+                  id="notion-token"
                   type="password"
-                  placeholder={t('integrations.tuApiKeyDe')}
+                  placeholder="ntn_..."
                   value={apiKey}
                   onChange={(e) => setApiKey(e.target.value)}
                   disabled={isLoading}
                 />
-                <p className="text-xs text-muted-foreground">{t('integrations.tuApiKeySe')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.elTokenSeCifra')}</p>
               </div>
 
               <Button
@@ -299,9 +293,9 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />{t('integrations.conectando')}</>
                 ) : connectionError ? (
-                  t('integrations.reconectarHolded')
+                  t('integrations.reconectarNotion')
                 ) : (
-                  t('integrations.conectarHolded')
+                  t('integrations.conectarNotion')
                 )}
               </Button>
             </>
@@ -309,7 +303,7 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
             <div className="space-y-4">
               <div className="p-4 rounded-lg bg-green-500/10 border border-green-500/20">
                 <p className="text-sm text-green-700 dark:text-green-400 font-medium mb-1">{t('integrations.integraciónActiva')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.facturasYCobrosSe')}</p>
+                <p className="text-xs text-muted-foreground">{t('integrations.lasPáginasSeSincronizan')}</p>
                 {lastSync && (
                   <p className="text-xs text-muted-foreground mt-2">
                     {t('integrations.últimaSincronización')}: {lastSync}
@@ -322,12 +316,12 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
                       <div className="text-muted-foreground">{t('integrations.procesadas')}</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-mono font-semibold text-green-600">{syncResult.invoices_written}</div>
-                      <div className="text-muted-foreground">{t('integrations.escritas')}</div>
+                      <div className="font-mono font-semibold text-green-600">{syncResult.pages_synced}</div>
+                      <div className="text-muted-foreground">{t('integrations.páginas')}</div>
                     </div>
                     <div className="text-center">
-                      <div className="font-mono font-semibold">{syncResult.invoices_skipped}</div>
-                      <div className="text-muted-foreground">{t('integrations.sinCambios')}</div>
+                      <div className="font-mono font-semibold">{syncResult.databases_synced}</div>
+                      <div className="text-muted-foreground">{t('integrations.databases')}</div>
                     </div>
                   </div>
                 )}
@@ -354,37 +348,37 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
 
       {/* Tutorial post-conexion — solo si nunca ha habido sync */}
       {isConnected && !lastSync && !syncResult && !hasPriorSync && (
-        <Card className="border-blue-500/20 bg-blue-500/5">
+        <Card className="border-gray-500/20 bg-gray-500/5">
           <CardHeader className="pb-2">
             <CardTitle className="text-sm flex items-center gap-2">
-              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.holdedConectadoQuePasara')}</CardTitle>
+              <CheckCircle2 size={15} className="text-green-500" />{t('integrations.notionConectadoQuéPasará')}</CardTitle>
           </CardHeader>
           <CardContent>
             <ol className="space-y-2.5 text-sm">
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">1</span>
                 <div>
-                  <p className="font-medium">{t('integrations.holdedTutorialPaso1Titulo')}</p>
+                  <p className="font-medium">{t('integrations.pulsaSincronizarAhora')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('integrations.holdedTutorialPaso1Desc')}
+                    {t('integrations.optimusPediráANotion', { workspace: workspaceName })}
                   </p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">2</span>
                 <div>
-                  <p className="font-medium">{t('integrations.holdedTutorialPaso2Titulo')}</p>
+                  <p className="font-medium">{t('integrations.páginasYDatabasesSeImportan')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('integrations.holdedTutorialPaso2Desc')}
+                    {t('integrations.cadaPáginaApareceEnEntities')}
                   </p>
                 </div>
               </li>
               <li className="flex gap-3">
                 <span className="flex-shrink-0 w-5 h-5 rounded-full bg-primary text-primary-foreground text-xs flex items-center justify-center font-bold mt-0.5">3</span>
                 <div>
-                  <p className="font-medium">{t('integrations.holdedTutorialPaso3Titulo')}</p>
+                  <p className="font-medium">{t('integrations.syncsIncrementales')}</p>
                   <p className="text-xs text-muted-foreground">
-                    {t('integrations.holdedTutorialPaso3Desc')}
+                    {t('integrations.losSiguienteSyncsSoloDescargan')}
                   </p>
                 </div>
               </li>
@@ -395,62 +389,67 @@ export function HoldedIntegration({ projectId }: HoldedIntegrationProps) {
 
       {/* Sync Health */}
       {isConnected && (
-        <SyncHealthCard connectionId={connectionId} provider="holded" />
+        <SyncHealthCard connectionId={connectionId} provider="notion" />
       )}
 
-      {/* Finance Insights */}
+      {/* Knowledge Agent insights */}
       {isConnected && (
-        <FinanceInsightsCard projectId={projectId} />
+        <GenericInsightsCard
+          projectId={projectId}
+          agentType="notion_knowledge"
+          title={t('integrations.análisisDeDocumentación')}
+          icon={<FileText size={15} className="text-gray-600 dark:text-gray-400" />}
+          badgeLabel="Knowledge Agent"
+          sourceLabel="Notion"
+        />
       )}
 
-      {/* Que se sincroniza */}
+      {/* Que entra / Donde va / Que cambia */}
       <Card>
         <CardHeader>
           <CardTitle className="text-base flex items-center gap-2">
-            <ListChecks size={16} className="text-blue-500" />{t('integrations.quéSeSincroniza')}</CardTitle>
+            <ListChecks size={16} className="text-gray-600" />{t('integrations.quéSeSincroniza')}</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
+          <div className="space-y-0 divide-y divide-border/50">
+            {/* Fila 1 — Pages */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
               <div>
-                <p className="font-medium text-sm">{t('integrations.facturasEmitidas')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.todasLasFacturasCon')}</p>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.páginasDeNotion')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.títuloFechaEdiciónEstructura')}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.dóndeVa')}</p>
+                <p className="font-mono text-[11px]">integration_entities</p>
+                <p className="text-muted-foreground mt-0.5">entity_type=<span className="font-mono">page</span></p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.quéCambia')}</p>
+                <p className="font-medium">{t('integrations.conocimientoRealVisible')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.wikisDocs')}</p>
               </div>
             </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">{t('integrations.estadoDeCobros')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.quéFacturasEstánPagadas')}</p>
-              </div>
-            </div>
-            <div className="flex items-start gap-3">
-              <CheckCircle2 size={18} className="text-green-500 mt-0.5" />
-              <div>
-                <p className="font-medium text-sm">{t('integrations.clientes')}</p>
-                <p className="text-xs text-muted-foreground">{t('integrations.holdedClientesDesc')}</p>
-              </div>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
 
-      {/* Benefits */}
-      <Card className="border-blue-500/20 bg-gradient-to-br from-blue-500/5 to-cyan-500/5">
-        <CardHeader>
-          <CardTitle className="text-base">{t('integrations.beneficiosDeLaIntegración')}</CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-2 text-sm">
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.dashboardFinancieroActualizadoAutomáticamente')}</p>
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.alertasCuandoFacturasEstán')}</p>
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.mrrCalculadoAutomáticamenteDe')}</p>
-            <p className="flex items-center gap-2">
-              <span className="text-blue-500">&bull;</span>{t('integrations.proyeccionesDeRevenueCon')}</p>
+            {/* Fila 2 — Databases */}
+            <div className="grid grid-cols-3 gap-2 py-3 text-xs">
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.datoDeEntrada')}</p>
+                <p className="font-medium">{t('integrations.databasesDeNotion')}</p>
+                <p className="text-muted-foreground mt-0.5">{t('integrations.schemaPropiedades')}</p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.dóndeVa')}</p>
+                <p className="font-mono text-[11px]">integration_entities</p>
+                <p className="text-muted-foreground mt-0.5">entity_type=<span className="font-mono">database</span></p>
+              </div>
+              <div>
+                <p className="text-muted-foreground mb-0.5 uppercase tracking-wide" style={{ fontSize: '10px' }}>{t('integrations.idempotencia')}</p>
+                <p className="font-mono text-[11px]">provider='notion'</p>
+                <p className="text-muted-foreground mt-0.5">+ external_id</p>
+                <p className="text-muted-foreground">{t('integrations.unSyncNoDuplica')}</p>
+              </div>
+            </div>
           </div>
         </CardContent>
       </Card>

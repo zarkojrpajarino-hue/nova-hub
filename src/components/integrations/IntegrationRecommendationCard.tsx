@@ -12,18 +12,24 @@ import type { ReactNode } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
-import { Sparkles, ArrowRight, CreditCard, FileText } from 'lucide-react'
+import { Sparkles, ArrowRight, CreditCard, FileText, LayoutGrid, MessageSquare, BookOpen } from 'lucide-react'
 import type { IntegrationRecommendation } from '@/lib/integration-recommendations'
 
 import { useTranslation } from 'react-i18next';
 const PROVIDER_ICON: Record<string, ReactNode> = {
   stripe: <CreditCard className="w-5 h-5 text-indigo-500" />,
   holded: <FileText className="w-5 h-5 text-cyan-500" />,
+  trello: <LayoutGrid className="w-5 h-5 text-sky-500" />,
+  slack: <MessageSquare className="w-5 h-5 text-violet-500" />,
+  notion: <BookOpen className="w-5 h-5 text-gray-600 dark:text-gray-400" />,
 }
 
 const PROVIDER_COLOR: Record<string, string> = {
   stripe: 'from-indigo-500/10 to-purple-500/10 border-indigo-500/20',
   holded: 'from-cyan-500/10 to-blue-500/10 border-cyan-500/20',
+  trello: 'from-sky-500/10 to-blue-500/10 border-sky-500/20',
+  slack: 'from-violet-500/10 to-purple-500/10 border-violet-500/20',
+  notion: 'from-gray-500/10 to-slate-500/10 border-gray-500/20',
 }
 
 interface IntegrationRecommendationCardProps {

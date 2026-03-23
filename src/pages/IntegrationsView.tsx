@@ -15,8 +15,11 @@ import { HoldedIntegration } from '@/components/integrations/HoldedIntegration';
 import { AsanaIntegration } from '@/components/integrations/AsanaIntegration';
 import { HubSpotIntegration } from '@/components/integrations/HubSpotIntegration';
 import { GoogleCalendarIntegration } from '@/components/integrations/GoogleCalendarIntegration';
+import { TrelloIntegration } from '@/components/integrations/TrelloIntegration';
+import { SlackSyncIntegration } from '@/components/integrations/SlackSyncIntegration';
+import { NotionIntegration } from '@/components/integrations/NotionIntegration';
 import { IntegrationRecommendationsPanel } from '@/components/integrations/IntegrationRecommendationsPanel';
-import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare, CalendarDays, Settings2 } from 'lucide-react';
+import { ExternalLink, Zap, MessageSquare, Code, ArrowRight, CreditCard, FileText, TrendingUp, Users, Clock, CheckCircle2, AlertCircle, AlertTriangle, CheckSquare, CalendarDays, Settings2, LayoutGrid, BookOpen } from 'lucide-react';
 import { HelpWidget } from '@/components/ui/section-help';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -229,7 +232,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
       {/* Integration Cards Grid */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-8">
         {/* Slack Card */}
-        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('slack')}>
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-lg bg-purple-500/10 flex items-center justify-center">
@@ -250,7 +253,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         </Card>
 
         {/* Stripe Card */}
-        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('stripe')}>
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-lg bg-indigo-500/10 flex items-center justify-center">
@@ -271,7 +274,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         </Card>
 
         {/* Holded Card */}
-        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('holded')}>
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-lg bg-cyan-500/10 flex items-center justify-center">
@@ -286,13 +289,13 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
             </div>
             <CardDescription>
-              Facturas y cobros → proyecciones financieras → <span className="font-mono text-xs">runway_months</span> más preciso. <span className="text-amber-600 dark:text-amber-400">{t('integrations.implementaciónPendiente')}</span>
+              Facturas y cobros → <span className="font-mono text-xs">key_metrics</span> → <span className="font-mono text-xs">runway_months</span> más preciso con datos reales de Holded.
             </CardDescription>
           </CardHeader>
         </Card>
 
         {/* Asana Card */}
-        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('asana')}>
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-lg bg-pink-500/10 flex items-center justify-center">
@@ -312,7 +315,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         </Card>
 
         {/* HubSpot Card */}
-        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('hubspot')}>
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-lg bg-orange-500/10 flex items-center justify-center">
@@ -333,7 +336,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         </Card>
 
         {/* Google Calendar Card */}
-        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all">
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('google-calendar')}>
           <CardHeader>
             <div className="flex items-center gap-3 mb-2">
               <div className="w-12 h-12 rounded-lg bg-blue-500/10 flex items-center justify-center">
@@ -349,6 +352,69 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             </div>
             <CardDescription>
               Reuniones del calendario → <span className="font-mono text-xs">integration_entities</span> con <span className="font-mono text-xs">entity_type='calendar_event'</span> → carga de reuniones visible sin entrada manual.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Trello Card */}
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('trello')}>
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-lg bg-sky-500/10 flex items-center justify-center">
+                <LayoutGrid className="w-7 h-7 text-sky-500" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-lg">Trello</CardTitle>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  <ConnectionBadge status={getStatus('trello')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['trello']} />
+                </div>
+              </div>
+            </div>
+            <CardDescription>
+              Cards de tableros → <span className="font-mono text-xs">integration_entities</span> con <span className="font-mono text-xs">entity_type='card'</span> → ejecución y progreso visible.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Slack Sync Card */}
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('slack')}>
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                <MessageSquare className="w-7 h-7 text-violet-500" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-lg">Slack Sync</CardTitle>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  <ConnectionBadge status={getStatus('slack')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['slack']} />
+                </div>
+              </div>
+            </div>
+            <CardDescription>
+              Actividad de canales → <span className="font-mono text-xs">integration_entities</span> con <span className="font-mono text-xs">entity_type='channel_activity'</span> → comunicación del equipo visible.
+            </CardDescription>
+          </CardHeader>
+        </Card>
+
+        {/* Notion Card */}
+        <Card className="hover-lift cursor-pointer border-2 hover:border-primary/50 transition-all" onClick={() => setActiveTab('notion')}>
+          <CardHeader>
+            <div className="flex items-center gap-3 mb-2">
+              <div className="w-12 h-12 rounded-lg bg-gray-500/10 flex items-center justify-center">
+                <BookOpen className="w-7 h-7 text-gray-600 dark:text-gray-400" />
+              </div>
+              <div className="flex-1">
+                <CardTitle className="text-lg">Notion</CardTitle>
+                <div className="mt-1 flex flex-wrap gap-1">
+                  <ConnectionBadge status={getStatus('notion')} isLoading={isLoading} />
+                  <SyncQualityBadge quality={syncQuality['notion']} />
+                </div>
+              </div>
+            </div>
+            <CardDescription>
+              Páginas y bases de datos → <span className="font-mono text-xs">integration_entities</span> → cobertura de documentación y frescura visible.
             </CardDescription>
           </CardHeader>
         </Card>
@@ -403,6 +469,10 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
             <TrendingUp size={16} />{t('integrations.hubspot')}</TabsTrigger>
           <TabsTrigger value="google-calendar" className="gap-2">
             <CalendarDays size={16} />{t('integrations.googleCalendar')}</TabsTrigger>
+          <TabsTrigger value="trello" className="gap-2">
+            <LayoutGrid size={16} />Trello</TabsTrigger>
+          <TabsTrigger value="notion" className="gap-2">
+            <BookOpen size={16} />Notion</TabsTrigger>
           <TabsTrigger value="webhooks" disabled>
             <Zap size={16} />{t('integrations.webhooks')}</TabsTrigger>
           <TabsTrigger value="api" disabled>
@@ -677,6 +747,9 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
               </div>
             </CardContent>
           </Card>
+
+          {/* Slack Sync — bidirectional data sync (separate from webhook output) */}
+          <SlackSyncIntegration projectId={currentProject?.id} />
         </TabsContent>
 
         {/* Stripe Tab */}
@@ -832,57 +905,7 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
 
         {/* Holded Tab */}
         <TabsContent value="holded" className="space-y-6">
-          {/* Instructions Card */}
-          <Card className="border-cyan-500/20 bg-gradient-to-br from-cyan-500/5 to-blue-500/5">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                📋 Configurar Holded
-              </CardTitle>
-              <CardDescription>{t('integrations.sincronizaFacturasClientesY')}</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  1
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-1">Ve a la configuración de API</h4>
-                  <a
-                    href="https://app.holded.com/settings/api"
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="inline-flex items-center gap-2 text-sm text-primary hover:underline"
-                  >
-                    app.holded.com/settings/api
-                    <ExternalLink size={14} />
-                  </a>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  2
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-1">{t('integrations.generaUnaNuevaApi')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('integrations.clickEnGenerarNueva')}</p>
-                </div>
-              </div>
-
-              <div className="flex gap-4">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold">
-                  3
-                </div>
-                <div className="flex-1">
-                  <h4 className="font-semibold mb-1">{t('integrations.pegaLaApiKey')}</h4>
-                  <p className="text-sm text-muted-foreground">{t('integrations.seIniciaráLaSincronización')}</p>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Holded Integration Component */}
-          <HoldedIntegration />
+          <HoldedIntegration projectId={currentProject?.id} />
 
           {/* Demo Preview Holded */}
           {isDemoMode && (
@@ -1005,6 +1028,16 @@ function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {})
         {/* Google Calendar Tab — I15.97 */}
         <TabsContent value="google-calendar" className="space-y-6">
           <GoogleCalendarIntegration projectId={currentProject?.id} />
+        </TabsContent>
+
+        {/* Trello Tab */}
+        <TabsContent value="trello" className="space-y-6">
+          <TrelloIntegration projectId={currentProject?.id} />
+        </TabsContent>
+
+        {/* Notion Tab */}
+        <TabsContent value="notion" className="space-y-6">
+          <NotionIntegration projectId={currentProject?.id} />
         </TabsContent>
 
         {/* Webhooks Tab (placeholder) */}

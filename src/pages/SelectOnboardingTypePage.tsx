@@ -9,7 +9,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Lightbulb, Rocket, Building2, ArrowRight, Loader2, Siren } from 'lucide-react';
+import { Lightbulb, Rocket, Building2, Zap, ArrowRight, Loader2 } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { supabase } from '@/integrations/supabase/client';
@@ -45,8 +45,8 @@ export function SelectOnboardingTypePage() {
       title: t('selectOnboardingType.quieresEmprenderPeroNo'),
       subtitle: t('selectOnboardingType.iaTeGenera3'),
       features: [
-        'Geo-intelligence (competidores, inversores locales)',
-        '3 business options con fit score',
+        t('selectOnboardingType.geoIntelligence'),
+        t('selectOnboardingType.tresBusinessOptions'),
         t('selectOnboardingType.proyeccionesFinancierasRealistas'),
         t('selectOnboardingType.learningPathPersonalizado')
       ],
@@ -73,10 +73,23 @@ export function SelectOnboardingTypePage() {
       features: [
         t('selectOnboardingType.healthScoreDiagnósticoHonesto'),
         t('selectOnboardingType.benchmarkingVsIndustria'),
-        '3 escenarios (status quo, fix, growth)',
+        t('selectOnboardingType.tresEscenarios'),
         t('selectOnboardingType.actionPlanPriorizadoQuick')
       ],
       color: 'from-purple-600 to-pink-600',
+    },
+    {
+      id: 'emergency',
+      icon: Zap,
+      title: t('selectOnboardingType.tengoUnProblemaUrgente'),
+      subtitle: t('selectOnboardingType.diagnósticoRápidoPlanDe'),
+      features: [
+        t('selectOnboardingType.identificaElProblema1'),
+        t('selectOnboardingType.tresAccionesInmediatas'),
+        t('selectOnboardingType.seguimientoDiario'),
+        t('selectOnboardingType.escalaSiNoMejora')
+      ],
+      color: 'from-red-500 to-orange-500',
     },
   ];
 
@@ -181,8 +194,8 @@ export function SelectOnboardingTypePage() {
           </p>
         </div>
 
-        {/* Onboarding Type Cards - Altura uniforme y más compactas */}
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-4">
+        {/* Onboarding Type Cards - 4 columns on desktop */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-4">
           {onboardingTypes.map((type) => {
             const Icon = type.icon;
             return (
@@ -246,24 +259,11 @@ export function SelectOnboardingTypePage() {
           })}
         </div>
 
-        {/* O5.V2.3 — Modo Emergencia: CTA especial para founders en crisis */}
-        <div className="flex flex-col items-center gap-3">
-          <button
-            onClick={() => handleSelectType('emergency')}
-            disabled={isCreating}
-            className="flex items-center gap-2 rounded-xl border border-red-400/40 bg-red-500/10 px-5 py-2.5 text-sm font-semibold text-red-300 backdrop-blur-sm transition-all hover:bg-red-500/20 hover:border-red-400/60 disabled:opacity-50"
-          >
-            {isCreating && selectedType === 'emergency' ? (
-              <Loader2 className="h-4 w-4 animate-spin" />
-            ) : (
-              <Siren className="h-4 w-4" />
-            )}
-            Tengo una crisis urgente — necesito ayuda ahora
-          </button>
-
+        {/* Nota informativa */}
+        <div className="flex justify-center">
           <div className="inline-block bg-white/10 backdrop-blur-sm border border-white/20 rounded-xl px-4 py-2">
             <p className="text-sm text-white font-medium flex items-center gap-2 justify-center">
-              <span className="text-lg">💡</span>
+              <span className="text-lg">*</span>
               <span>{t('selectOnboardingType.noTePreocupesPodrás')}</span>
             </p>
           </div>

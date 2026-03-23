@@ -47,6 +47,8 @@ interface SubscriptionEntity {
     status: string
     mrr_contribution: number
     customer_id?: string
+    cancel_at?: string
+    trial_end?: string
   }
 }
 
@@ -142,6 +144,82 @@ function computeRevenueConcentration(entities: SubscriptionEntity[]): InsightDat
   }
 }
 
+// ── New Finance insights: churn, ARPU, revenue at risk ──────────
+
+function computeChurnRisk(entities: SubscriptionEntity[]): InsightData | null {
+  const canceling = entities.filter(e => e.payload.cancel_at || e.payload.status === 'canceled')
+  const active = entities.filter(e => REVENUE_STATUSES.has(e.payload.status))
+  if (active.length < 2 || canceling.length === 0) return null
+
+  const avgConf = entities.reduce((s, e) => s + e.confidence, 0) / entities.length
+  if (avgConf < 0.5) return null
+
+  const churnPct = Math.round((canceling.length / (active.length + canceling.length)) * 100)
+  const lostMrrCents = canceling.reduce((s, e) => s + e.payload.mrr_contribution, 0)
+  const lostMrrEuros = lostMrrCents / 100
+
+  return {
+    insight_type: 'churn_risk',
+    signal: { metric_name: 'churn_rate_pct', current_value: churnPct, period_days: 0, data_points: canceling.length },
+    content: {
+      summary: `${canceling.length} suscripciones canceladas/cancelándose (${churnPct}%). MRR en riesgo: €${lostMrrEuros.toFixed(2)}.`,
+      implication: churnPct > 20 ? 'Churn alto — investigar causa raíz.' : churnPct > 10 ? 'Churn moderado.' : 'Churn controlado.',
+      severity: churnPct > 20 ? 'warning' : churnPct > 10 ? 'attention' : 'info',
+      action_hint: churnPct > 10 ? `Contacta a los ${canceling.length} clientes que cancelaron. €${lostMrrEuros.toFixed(0)} de MRR recuperable.` : undefined,
+    },
+    confidence: avgConf, entity_ids: canceling.map(e => e.id), include_in_context: churnPct > 10, expires_hours: 7 * 24,
+    evidence_type: 'observed', sources_used: [{ source: 'stripe', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: canceling.length }], sources_discarded: [],
+  }
+}
+
+function computeARPU(entities: SubscriptionEntity[]): InsightData | null {
+  const active = entities.filter(e => REVENUE_STATUSES.has(e.payload.status) && e.payload.customer_id)
+  if (active.length < 2) return null
+
+  const avgConf = active.reduce((s, e) => s + e.confidence, 0) / active.length
+  if (avgConf < 0.5) return null
+
+  const uniqueCustomers = new Set(active.map(e => e.payload.customer_id!)).size
+  const totalMrrCents = active.reduce((s, e) => s + e.payload.mrr_contribution, 0)
+  const arpuEuros = (totalMrrCents / uniqueCustomers) / 100
+
+  return {
+    insight_type: 'arpu',
+    signal: { metric_name: 'arpu_euros', current_value: arpuEuros, period_days: 0, data_points: uniqueCustomers },
+    content: {
+      summary: `ARPU: €${arpuEuros.toFixed(2)}/mes (${uniqueCustomers} clientes).`,
+      implication: 'Revenue promedio por cliente. Subir ARPU es más eficiente que adquirir clientes nuevos.',
+      severity: 'info',
+    },
+    confidence: avgConf, entity_ids: active.map(e => e.id), include_in_context: true, expires_hours: 7 * 24,
+    evidence_type: 'observed', sources_used: [{ source: 'stripe', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: active.length }], sources_discarded: [],
+  }
+}
+
+function computeRevenueAtRisk(entities: SubscriptionEntity[]): InsightData | null {
+  const atRisk = entities.filter(e => e.payload.status === 'past_due' || e.payload.status === 'unpaid')
+  if (atRisk.length === 0) return null
+
+  const avgConf = atRisk.reduce((s, e) => s + e.confidence, 0) / atRisk.length
+  if (avgConf < 0.5) return null
+
+  const riskMrrCents = atRisk.reduce((s, e) => s + e.payload.mrr_contribution, 0)
+  const riskEuros = riskMrrCents / 100
+
+  return {
+    insight_type: 'revenue_at_risk',
+    signal: { metric_name: 'at_risk_mrr_euros', current_value: riskEuros, period_days: 0, data_points: atRisk.length },
+    content: {
+      summary: `€${riskEuros.toFixed(2)} de MRR en riesgo (${atRisk.length} suscripciones con pago fallido).`,
+      implication: 'Pagos fallidos = revenue que se pierde si no se recupera en días.',
+      severity: riskEuros > 100 ? 'critical' : 'warning',
+      action_hint: `Revisa ${atRisk.length} suscripciones con pago pendiente en Stripe.`,
+    },
+    confidence: avgConf, entity_ids: atRisk.map(e => e.id), include_in_context: true, expires_hours: 24,
+    evidence_type: 'observed', sources_used: [{ source: 'stripe', confidence: avgConf, timestamp: new Date().toISOString(), entity_count: atRisk.length }], sources_discarded: [],
+  }
+}
+
 // ══════════════════════════════════════════════════════════════════
 // Main: run agents post-sync
 // ══════════════════════════════════════════════════════════════════
@@ -178,6 +256,22 @@ export async function runPostSyncAgents(
       const { runCalendarAgentServer } = await import('./agent-runner-providers.ts')
       return runCalendarAgentServer(serviceClient, projectId, syncRunId)
     }
+    case 'holded': {
+      const { runHoldedFinanceAgentServer } = await import('./agent-runner-providers.ts')
+      return runHoldedFinanceAgentServer(serviceClient, projectId, syncRunId)
+    }
+    case 'trello': {
+      const { runTrelloExecutionAgentServer } = await import('./agent-runner-providers.ts')
+      return runTrelloExecutionAgentServer(serviceClient, projectId, syncRunId)
+    }
+    case 'slack': {
+      const { runSlackCommunicationAgentServer } = await import('./agent-runner-providers.ts')
+      return runSlackCommunicationAgentServer(serviceClient, projectId, syncRunId)
+    }
+    case 'notion': {
+      const { runNotionKnowledgeAgentServer } = await import('./agent-runner-providers.ts')
+      return runNotionKnowledgeAgentServer(serviceClient, projectId, syncRunId)
+    }
     default:
       return { insights_emitted: 0, insights_skipped: 0, agent_type: provider }
   }
@@ -207,6 +301,8 @@ async function runFinanceAgentServer(
         ? (r.payload as Record<string, unknown>)['mrr_contribution'] as number : 0,
       customer_id: typeof (r.payload as Record<string, unknown>)['customer_id'] === 'string'
         ? (r.payload as Record<string, unknown>)['customer_id'] as string : undefined,
+      cancel_at: (r.payload as Record<string, unknown>)['cancel_at'] as string | undefined,
+      trial_end: (r.payload as Record<string, unknown>)['trial_end'] as string | undefined,
     },
   }))
 
@@ -214,10 +310,13 @@ async function runFinanceAgentServer(
     return { insights_emitted: 0, insights_skipped: 0, agent_type: 'finance' }
   }
 
-  // 2. Compute insights (pure)
+  // 2. Compute insights (pure) — 5 insight generators
   const candidates = [
     computeCashFlowSignal(entities),
     computeRevenueConcentration(entities),
+    computeChurnRisk(entities),
+    computeARPU(entities),
+    computeRevenueAtRisk(entities),
   ].filter((x): x is InsightData => x !== null)
     .filter(x => !(x.confidence < 0.5 && x.entity_ids.length === 0))
 

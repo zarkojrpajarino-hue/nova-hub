@@ -5,6 +5,8 @@
  */
 
 import { useEffect, useState } from 'react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { HelpCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
@@ -289,6 +291,30 @@ export function NotificationList({ userId, onNotificationRead, onClose, phase }:
                       </div>
                     </div>
 
+                    {/* N7.V2.4 — "¿Por qué recibí esto?" */}
+                    <Popover>
+                      <PopoverTrigger asChild>
+                        <Button
+                          onClick={(e) => e.stopPropagation()}
+                          variant="ghost"
+                          size="icon"
+                          className="opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"
+                          title={t('notifications.porQuéRecibíEsto')}
+                        >
+                          <HelpCircle size={14} />
+                        </Button>
+                      </PopoverTrigger>
+                      <PopoverContent align="end" className="w-64 p-3">
+                        <p className="text-xs font-medium mb-1.5">{t('notifications.porQuéRecibisteEsta')}</p>
+                        <div className="space-y-1 text-xs text-muted-foreground">
+                          <p><span className="font-medium">{t('notifications.tipo')}:</span> {notification.type}</p>
+                          <p><span className="font-medium">{t('notifications.prioridad')}:</span> {notification.priority}</p>
+                          <p className="text-[11px] mt-1.5 pt-1.5 border-t border-border/50">
+                            {t('notifications.estaNotificaciónSe')}
+                          </p>
+                        </div>
+                      </PopoverContent>
+                    </Popover>
                     <Button
                       onClick={(e) => {
                         e.stopPropagation();

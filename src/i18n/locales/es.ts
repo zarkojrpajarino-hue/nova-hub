@@ -2867,7 +2867,11 @@ export const es = {
     "whyObvRechazada": "Una OBV fue rechazada durante el proceso de validación peer-to-peer.",
     "whyTareaAsignada": "Se te asignó una nueva tarea dentro del proyecto. Revísala para mantener tu ejecución al día.",
     "whyLeadGanado": "Un lead del CRM fue marcado como ganado. Esto impacta las métricas de revenue del proyecto.",
-    "whyDefault": "Esta notificación fue generada por un evento del sistema relevante para tu proyecto."
+    "whyDefault": "Esta notificación fue generada por un evento del sistema relevante para tu proyecto.",
+    "porQuéRecibisteEsta": "¿Por qué recibiste esta notificación?",
+    "tipo": "Tipo",
+    "prioridad": "Prioridad",
+    "estaNotificaciónSe": "Las notificaciones se generan automáticamente por eventos del sistema relevantes a tu proyecto y fase actual."
   },
   "oBVCenter": {
     "misObvs": "Mis OBVs",
@@ -7106,5 +7110,18 @@ export const es = {
     "progress100": "100% progreso",
     "fastStart3min": "Inicio Rápido < 3 min",
     "allSectionsDone": "Todas las secciones completas"
+  },
+  "optimus": {
+    "feedbackIrrelevant": "No es relevante",
+    "feedbackWrong": "Información incorrecta",
+    "feedbackBadTiming": "Mal momento",
+    "feedbackTooObvious": "Demasiado obvio",
+    "feedbackHelpful": "Útil",
+    "feedbackInsightful": "Perspicaz",
+    "feedbackError": "Error al guardar feedback",
+    "feedbackThanks": "Gracias por tu feedback",
+    "feedbackWhyBad": "¿Qué falló?",
+    "feedbackWhyGood": "¿Qué te sirvió?",
+    "feedbackSkipCategory": "Sin especificar"
   }
 } as const;
