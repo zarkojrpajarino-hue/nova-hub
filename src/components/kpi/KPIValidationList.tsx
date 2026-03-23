@@ -285,6 +285,7 @@ export function KPIValidationList({ type }: KPIValidationListProps) {
     } finally {
       setIsSubmitting(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id, comment, queryClient]);
 
   if (isLoading) {

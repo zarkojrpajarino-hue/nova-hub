@@ -50,7 +50,7 @@ import { useTranslation } from 'react-i18next';
 // ── M18.24: useMeetingKPIs ────────────────────────────────────────────────────
 
 function useMeetingKPIs(projectId: string, meetings: Meeting[]) {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   // Tasks from meetings (generated + completed)
   const { data: taskData } = useQuery({
     queryKey:  ['meeting_tasks_kpi', projectId],

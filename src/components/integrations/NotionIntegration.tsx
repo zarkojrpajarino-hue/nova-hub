@@ -98,6 +98,7 @@ export function NotionIntegration({ projectId }: NotionIntegrationProps) {
           setConnectionError(data.error_message ?? t('integrations.laConexiónAnteriorFalló'))
         }
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const handleConnect = async () => {

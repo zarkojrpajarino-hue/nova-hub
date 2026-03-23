@@ -1,9 +1,10 @@
-// Auto-generated — 6982 keys
+// Auto-generated — 7040 keys
 /* eslint-disable */
 export const it = {
   "aIAnalysis": {
     "seleccionaUnProyectoDesde": "Seleziona un progetto dal selettore nell'header",
-    "diagnósticoEn3Niveles": "Diagnosi su 3 livelli che si sbloccano progressivamente in base all'attività e alle integrazioni"
+    "diagnósticoEn3Niveles": "Diagnosi su 3 livelli che si sbloccano progressivamente in base all'attività e alle integrazioni",
+    "análisisEstratégicoIA": "Analisi strategica IA"
   },
   "auth": {
     "plataformaDeGestiónEstratégica": "Piattaforma di gestione strategica per imprenditori",
@@ -255,7 +256,7 @@ export const it = {
     "propuestaDeValorMensajes": "Proposta di valore, messaggi chiave e tono di marca.",
     "guíaDeComunicación": "Guida di Comunicazione",
     "plantillasPorCanalListas": "Modelli pronti all'uso per canale.",
-    "customerJourney": "Customer Journey",
+    "customerJourney": "Percorso Cliente",
     "mapaDeEtapasCon": "Mappa delle fasi con dati reali da Stripe e CRM.",
     "verHerramienta": "Visualizza strumento"
   },
@@ -3257,7 +3258,28 @@ export const it = {
     "noHaySuficientesDatos1": "Non ci sono dati sufficienti per emettere Hard Truths al momento.",
     "hardTruths2": "Verità Scomode",
     "hipótesisAVigilar": "Ipotesi da monitorare",
-    "verdadesPosiblesAúnNo": "Verità possibili, non ancora confermate da dati sufficienti"
+    "verdadesPosiblesAúnNo": "Verità possibili, non ancora confermate da dati sufficienti",
+    "revisiónDeDatos": "Revisione dei dati",
+    "opcional": "opzionale",
+    "registradas": "registrate",
+    "meses": "mesi",
+    "integración": "Integrazione",
+    "análisisDisponibleEn": "Analisi disponibile tra {{days}} giorni",
+    "elAnálisisIaSeActiva": "L'analisi IA si attiva quando il progetto è attivo da almeno 14 giorni. In questo modo ci sono dati sufficienti per una diagnosi significativa.",
+    "nivel": "Livello",
+    "generadoHace": "Generato",
+    "próximaRegeneración": "Prossima rigenerazione alle",
+    "haciendoLoCorrecto": "State facendo la cosa giusta per la vostra fase?",
+    "tensión": "Tensione",
+    "siNoDecides": "Se non decidi",
+    "siLoIgnoras": "Se lo ignori",
+    "aVigilar": "Da monitorare",
+    "obvsDeclarado": "OBV (dichiarati)",
+    "enRiesgo30d": "A rischio (>30g senza movimenti)",
+    "díasMásDeActividad": "{{count}} giorni di attività in più",
+    "conectar1Integración": "Collegare almeno 1 integrazione (Stripe o HubSpot)",
+    "dosIntegracionesActivas": "2 integrazioni attive",
+    "decisionesMásRegistradas": "{{count}} decisioni strategiche in più registrate"
   },
   "challenges": {
     "progresoGeneral": "Progresso Generale",
@@ -7144,7 +7166,7 @@ export const it = {
     "unlockDescription": "Completa più attività e OBV per vedere le tue tendenze",
     "trendTasks": "Attività",
     "trendOBVs": "OBV",
-    "trendRevenue": "Revenue",
+    "trendRevenue": "Ricavi",
     "tasksDemand": "Attività domanda",
     "tasksDelivery": "Attività delivery",
     "tasksCash": "Attività cash",
@@ -7173,5 +7195,43 @@ export const it = {
     "status_cerrado_ganado": "Chiuso vinto",
     "status_cerrado_perdido": "Chiuso perso",
     "focusSignal": "I tuoi {{metric}} sono in aumento consistente da {{weeks}} settimane"
+  },
+  "financialIntelligence": {
+    "forecastTitle": "Proiezione MRR",
+    "forecastBadge": "Stima con {{months}} mesi di dati (confidenza {{confidence}}%)",
+    "forecastUnlockTitle": "Sblocca Proiezione MRR",
+    "forecastUnlockDescription": "Registra più mesi di metriche per attivare il forecast",
+    "predicted": "Proiettato",
+    "trend_growing": "In crescita",
+    "trend_flat": "Stabile",
+    "trend_declining": "In declino",
+    "disclaimer": "Questa proiezione presuppone che le condizioni attuali si mantengano.",
+    "enrichedSource": "Dati arricchiti con integrazione attiva (confidenza alta)",
+    "manualSource": "Basato su dati manuali (confidenza media)",
+    "insufficientData": "Dati insufficienti per generare questa analisi",
+    "errorLoading": "Errore nel caricamento dei dati",
+    "stressTitle": "Stress Test di Cash Flow",
+    "stressSubtitle": "3 scenari per la tua runway finanziaria",
+    "stressUnlockTitle": "Sblocca Stress Test",
+    "stressUnlockDescription": "Registra burn rate e cash on hand per attivare lo stress test",
+    "scenario_base": "Base",
+    "scenario_growth": "Crescita",
+    "scenario_crisis": "Crisi",
+    "runwayMonths": "{{months}} mesi",
+    "severity_safe": "Sicuro",
+    "severity_warning": "Attenzione",
+    "severity_critical": "Critico",
+    "crisisComparison": "Nello scenario di crisi, la tua runway scende da {{baseRunway}} a {{crisisRunway}} mesi",
+    "risksTitle": "Avvisi Finanziari",
+    "noRisks": "Nessun avviso finanziario attivo",
+    "risk_mrr_declining": "MRR in declino",
+    "risk_burn_exceeds_revenue": "Burn supera i ricavi",
+    "risk_overdue_invoices": "Fatture scadute",
+    "risk_revenue_concentration": "Concentrazione dei ricavi",
+    "risk_low_runway": "Runway bassa",
+    "risk_churn_signal": "Segnale di churn",
+    "risk_pipeline_risk": "Rischio di pipeline",
+    "lowRunwayBanner": "La tua runway è di {{months}} mesi. Rivedi la tua strategia finanziaria.",
+    "lowRunwayBannerTitle": "Avviso di runway"
   }
 } as const;

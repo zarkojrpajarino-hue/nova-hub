@@ -17,7 +17,6 @@ import { EvidenceBadge } from '@/components/evidence/EvidenceBadge'
 import { SourcesPanel } from '@/components/evidence/SourcesPanel'
 import type { ProviderSlug } from '@/lib/evidence'
 
-import { useTranslation } from 'react-i18next';
 interface InsightPayload {
   signal:  { metric_name: string; current_value: number; data_points: number }
   content: {

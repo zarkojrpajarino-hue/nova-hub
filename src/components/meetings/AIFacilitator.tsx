@@ -162,6 +162,7 @@ export function AIFacilitator({
 
       return unique;
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [recordingTime, meetingType, objectives, timeProgress, minutesElapsed, minutesRemaining]);
 
   /**

@@ -101,6 +101,7 @@ export function TrelloIntegration({ projectId }: TrelloIntegrationProps) {
           setConnectionError(data.error_message ?? t('integrations.trelloConnectionFailed'))
         }
       })
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId])
 
   const handleConnect = async () => {

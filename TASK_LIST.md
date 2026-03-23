@@ -3044,62 +3044,62 @@ ORDER  BY critical_count DESC, total DESC;
 
 ### BLOQUE A — Infraestructura
 
-- [ ] **F20.1** Migración — tabla `ai_analysis_cache`
+- [x] **F20.1** Migración — tabla `ai_analysis_cache`
   > Columnas: `id UUID`, `project_id UUID REFERENCES projects`, `analysis_level SMALLINT CHECK (level IN (1,2,3))`, `generated_at TIMESTAMPTZ`, `expires_at TIMESTAMPTZ`, `prompt_hash TEXT` (SHA256 del input — detecta invalidación por nuevos datos), `data_sources JSONB` (fuentes usadas + fecha por fuente), `output JSONB`, `tokens_used INTEGER`, `model TEXT`. RLS: project members read · owner delete. Índice en `(project_id, analysis_level, generated_at DESC)`. TTL por nivel: Nivel 1 = 7 días · Nivel 2 = 3 días · Nivel 3 = 2 días.
 
-- [ ] **F20.2** Edge function `analyze-project-v4` — análisis 3 niveles condicional
+- [x] **F20.2** Edge function `analyze-project-v4` — análisis 3 niveles condicional
   > Input: `project_id`, `level` (1/2/3), `additional_context?: string` (del PreAnalysisModal).
   > Recopilación según nivel: Nivel 1 → onboarding_data + project_phase_state + project_risk_score + decision_events últimas 10 + benchmarks. Nivel 2 → Nivel 1 + integration_entities[subscription, deal] + integration_insights + key_metrics. Nivel 3 → Nivel 2 + project_economic_profile + project_probability_history (90d) + strategic_blocks.
   > `buildAnalysisPrompt(level, projectData, additionalContext)` — el prompt de Nivel 3 incluye instrucción explícita de encontrar contradicciones entre fuentes (ej. pipeline HubSpot sube pero MRR Stripe baja = señal cruzada real). Output JSON: secciones activas según nivel + `data_sources[]` por sección + `reliability_scores{}` por dato + `confidence_overall` (0-1).
   > Rate limit: 1 análisis/24h por nivel por proyecto. Excepción: si datos de integración son más recientes que la última generación → `isStale = true` → permite regenerar. Guardar en `ai_analysis_cache`. Usar `RateLimitPresets.AI_GENERATION` (G8.2).
 
-- [ ] **F20.3** Hook `useProjectAnalysis(projectId)` — desbloqueo + caché + stale detection
+- [x] **F20.3** Hook `useProjectAnalysis(projectId)` — desbloqueo + caché + stale detection
   > Calcula `unlockedLevel: 1|2|3|null`: Nivel 1 = `days_active ≥ 14`. Nivel 2 = `integration_connections.status='active' COUNT ≥ 1 AND days_active ≥ 30`. Nivel 3 = `integration_connections COUNT ≥ 2 AND days_active ≥ 60 AND decision_events COUNT ≥ 5`.
   > Lee `ai_analysis_cache` para el nivel activo. Si caché expirado o `prompt_hash` diferente (nuevos datos) → `isStale: true` → botón "Regenerar" activo.
   > Expone: `{ unlockedLevel, nextLevelRequirements, cachedAnalysis, isStale, isGenerating, generateAnalysis(additionalContext) }`.
 
 ### BLOQUE B — UX y Componentes
 
-- [ ] **F20.4** `PreAnalysisDataReview.tsx` — modal de revisión de datos antes de generar
+- [x] **F20.4** `PreAnalysisDataReview.tsx` — modal de revisión de datos antes de generar
   > Se muestra SIEMPRE antes de llamar a la edge function. El usuario ve exactamente qué datos usará la IA: tabla con columnas `Fuente | Dato | Valor actual | Última actualización | Fiabilidad`. Filas según nivel: Nivel 1 → fase actual, risk score, últimas 3 decisiones, datos de onboarding. Nivel 2 → añade MRR (Stripe), nº deals activos (HubSpot), churn rate. Nivel 3 → añade integration_insights, economic profile, probability trend 90d.
   > Campo opcional "Contexto adicional" (max 300 chars): el founder añade urgencias, preguntas específicas o cambios recientes que la IA no conoce. Va al prompt como `additional_context`.
   > Botones: "Actualizar datos" (→ settings integraciones) + "Generar análisis →" (→ llama F20.2).
   > **Regla de transparencia:** si el usuario no ve este modal, no ve el análisis. No hay bypass. Este modal es el punto de transparencia obligatorio del sistema.
 
-- [ ] **F20.5** `AIAnalysisDashboard.tsx` — contenedor principal con nivel-gates
+- [x] **F20.5** `AIAnalysisDashboard.tsx` — contenedor principal con nivel-gates
   > Renderiza el análisis según nivel desbloqueado. Secciones de nivel superior bloqueadas muestran `AnalysisLevelTeaser` (F20.10), no placeholder vacío.
   > Header: nombre del proyecto + badge "Nivel N" + fecha de generación + botón "Regenerar" si `isStale` + botón "¿De dónde viene esto?" (abre panel de fuentes global).
   > Secciones: Nivel 1 siempre visible si desbloqueado → Nivel 2 debajo (gated) → Nivel 3 al final (gated).
 
-- [ ] **F20.6** Nivel 1 — `ExecutiveSummarySection` + `PhaseFitSection` + `UrgentDecisionsSection`
+- [x] **F20.6** Nivel 1 — `ExecutiveSummarySection` + `PhaseFitSection` + `UrgentDecisionsSection`
   > **ExecutiveSummarySection:** párrafo 3-5 líneas + 3 bullets fortalezas + 3 bullets riesgos inmediatos + score de momentum (1-10) con gauge visual. Source: onboarding + phase_state + risk_score.
   > **PhaseFitSection:** ¿El proyecto está haciendo lo correcto para su fase? Respuesta directa (Sí/No/Parcialmente) + 2-3 razones concretas + recomendación de foco + benchmark de la fase (de `benchmarks` table). Badge de fiabilidad en cada razón.
   > **UrgentDecisionsSection:** 3 decisiones prioritarias para esta semana, ordenadas por impacto. Cada decisión: título + contexto (1 línea) + consecuencia de no decidir + CTA navegable a la app ("Ir a OBVs", "Ver pipeline", etc.).
 
-- [ ] **F20.7** Nivel 2 — `FinancialPulseSection` + `PipelineTractionSection`
+- [x] **F20.7** Nivel 2 — `FinancialPulseSection` + `PipelineTractionSection`
   > **FinancialPulseSection:** MRR actual + tendencia 90d (sparkline de `key_metrics` history) + runway estimado + cash flow signal. Si datos > 3 días de antigüedad: badge "Datos pueden estar desactualizados · Sincronizar Stripe". Si no hay Stripe: sección oculta con teaser "Conecta Stripe para ver tu pulso financiero real".
   > **PipelineTractionSection:** deals en pipeline + close rate real vs benchmark de la fase + deals en riesgo (>30 días sin movimiento) + revenue potencial. Si no hay HubSpot: usa OBVs tipo venta con badge `declared`. Siempre indica fuente.
 
-- [ ] **F20.8** Nivel 3 — `CrossSignalsSection` + `HardTruthsSection`
+- [x] **F20.8** Nivel 3 — `CrossSignalsSection` + `HardTruthsSection`
   > **CrossSignalsSection:** correlaciones entre fuentes que el founder no vería manualmente. Ej: "Pipeline HubSpot creció 40% pero MRR Stripe subió solo 12% → posible problema de conversión o pricing." Cada señal tiene badge `observed/declared/estimated` según SOURCE_WEIGHTS. Mínimo 2 fuentes reales para emitir señal cruzada.
   > **HardTruthsSection:** 2-3 verdades incómodas que los datos muestran claramente. Sin suavizar. Cada una: el dato que la respalda + la fuente + qué riesgo representa si se ignora. Umbral mínimo de fiabilidad: 0.6 — sin datos suficientes, no se genera Hard Truth (mostrar "No hay suficientes datos para Hard Truths en este momento").
 
 ### BLOQUE C — Transparencia y Acceso
 
-- [ ] **F20.9** Usar `SourceBadge` de INFRA.2 — no crear instancia propia
+- [x] **F20.9** Usar `SourceBadge` de INFRA.2 — no crear instancia propia
   > **No implementar aquí.** INFRA.2 crea el componente compartido `src/components/shared/SourceBadge.tsx` antes de FASE 20. Esta tarea consiste únicamente en: (1) verificar que INFRA.2 está completa, (2) importar y usar el componente en `AIAnalysisDashboard` y en todas las secciones (F20.6, F20.7, F20.8).
   > Si INFRA.2 no está lista cuando se llega aquí, BLOQUEAR — no crear versión local del badge que luego diverge.
   > Variantes usadas en F20: `observed` (Stripe/HubSpot real) · `declared` (input del founder) · `estimated` (cálculo del sistema) · `inferred` (inferencia IA sin fuente directa). Ver INFRA.2 para especificación completa de colores y tooltip.
 
-- [ ] **F20.10** `AnalysisLevelTeaser.tsx` — unlock requirements por nivel
+- [x] **F20.10** `AnalysisLevelTeaser.tsx` — unlock requirements por nivel
   > Aparece dentro del dashboard donde estaría el nivel bloqueado. Lista de requirements con checkmark verde (cumplido) o gris (pendiente). CTA directo al action necesario ("Conectar Stripe", "Tomar más decisiones", "Esperar X días"). Los requirements vienen de la misma lógica de `useProjectAnalysis` — sin duplicar condiciones. No es un overlay bloqueante — el análisis del nivel actual es completamente visible.
 
-- [ ] **F20.11** Ruta + navegación + PostHog
+- [x] **F20.11** Ruta + navegación + PostHog
   > Nueva tab "Análisis IA" en `ProjectPage.tsx`. Status: si `unlockedLevel = null` → teaser del nivel 1 con días faltantes; si desbloqueado → badge "Nivel N disponible" o "Nivel N generado".
   > Route: `<Route path="/proyecto/:id/analisis" element={<AIAnalysisPage />} />` en `Index.tsx`. `AIAnalysisPage.tsx` con guards + `useProjectAnalysis` + render de `AIAnalysisDashboard`.
   > PostHog: `trackAnalysisUnlockLevel(projectId, level)`, `trackAnalysisGenerated(projectId, level, tokensUsed)`, `trackAnalysisSectionViewed(projectId, sectionName)`.
 
-- [ ] **F20.12** Rate limit + cost guard
+- [x] **F20.12** Rate limit + cost guard
   > Hard limit: 1 análisis/nivel/24h por proyecto (F20.2 ya lo maneja). Mostrar al usuario "Próxima regeneración disponible en X horas" si intenta dentro de la ventana. Excepción: `isStale = true` (nuevos datos de integración) → permite regenerar aunque no hayan pasado 24h. Lógica en `useProjectAnalysis` — no duplicar en la UI.
 
 ### Mejoras v2

@@ -17,7 +17,7 @@ interface SyncBannerProps {
 }
 
 function DirectionArrow({ item }: { item: EngineDeltaItem }) {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   if (item.direction === 'new') {
     return <Sparkles size={14} className="text-blue-500" />
   }
