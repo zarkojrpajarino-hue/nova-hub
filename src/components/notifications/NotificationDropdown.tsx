@@ -15,7 +15,6 @@ import { useNotifications, useUnreadCount, useMarkAsRead, useMarkAllAsRead, Noti
 import { useNavigation } from '@/contexts/NavigationContext';
 import { cn } from '@/lib/utils';
 
-import { useTranslation } from 'react-i18next';
 const getNotificationIcon = (type: string | null) => {
   switch (type) {
     case 'obv_nueva':

@@ -2,7 +2,6 @@ import { LucideIcon } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Member } from '@/data/mockData';
 
-import { useTranslation } from 'react-i18next';
 interface RankingCardProps {
   title: string;
   icon: LucideIcon;

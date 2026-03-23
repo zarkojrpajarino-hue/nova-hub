@@ -5,7 +5,6 @@ import { cn } from '@/lib/utils';
 import { usePendingValidations, useValidate, PendingValidation } from '@/hooks/usePendingValidations';
 import { useNavigation } from '@/contexts/NavigationContext';
 
-import { useTranslation } from 'react-i18next';
 interface ValidationCardProps {
   limit?: number;
   delay?: number;

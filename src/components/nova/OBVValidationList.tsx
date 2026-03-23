@@ -281,6 +281,7 @@ export function OBVValidationList() {
     } finally {
       setIsSubmitting(false);
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [profile?.id, comentario, queryClient]);
 
   if (isLoading) {

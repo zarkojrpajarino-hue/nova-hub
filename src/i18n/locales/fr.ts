@@ -5258,7 +5258,7 @@ export const fr = {
     "hace8Horas": "Il y a 8 heures",
     "enterprise": "Entreprise",
     "professional": "Professionnel",
-    "starter": "Starter",
+    "starter": "Démarrage",
     "octubre": "Octobre",
     "noviembre": "Novembre",
     "diciembre": "Décembre",

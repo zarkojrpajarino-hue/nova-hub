@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import { ChevronLeft, ChevronRight, TrendingUp, TrendingDown, Target, AlertTriangle, CheckCircle2, Clock, DollarSign, Users, Package, BarChart3, Activity } from 'lucide-react';
 
-import { useTranslation } from 'react-i18next';
 interface KPIsPreviewModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;

@@ -72,7 +72,7 @@ type GenPhase = 'form' | 'generating' | 'selecting';
 // ── Viability badge ───────────────────────────────────────────────────────────
 
 function ViabilityBadge({ score }: { score: number }) {
-  const { t } = useTranslation();
+  const { t: _t } = useTranslation();
   if (score >= 80) {
     return (
       <Badge className="bg-green-100 text-green-800 border-green-200 text-xs">

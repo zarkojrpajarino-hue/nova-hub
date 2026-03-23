@@ -106,6 +106,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
     };
 
     load();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, navigate]);
 
   // ─────────────────────────────────────────────────────────────────────────

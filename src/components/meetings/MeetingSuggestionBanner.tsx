@@ -15,7 +15,6 @@ import { Mic, X, AlertTriangle, Clock, TrendingDown, ChevronDown, ChevronUp } fr
 import { useMeetingTriggers, type MeetingTrigger } from '@/hooks/useMeetingTriggers';
 import { supabase } from '@/integrations/supabase/client';
 
-import { useTranslation } from 'react-i18next';
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 const SUGGESTED_TYPE_LABELS: Record<string, string> = {

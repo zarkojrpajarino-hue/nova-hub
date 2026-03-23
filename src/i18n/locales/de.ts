@@ -399,7 +399,7 @@ export const de = {
     "desconectado": "Getrennt",
     "conexiónInterrumpida": "Verbindung unterbrochen.",
     "myAppsEnAsana": "My Apps in Asana",
-    "personalAccessToken": "Personal Access Token",
+    "personalAccessToken": "Persönliches Zugangstoken",
     "elPatSeCifra": "Das PAT wird mit AES-256 verschlüsselt und wird dem Client nie offengelegt.",
     "conectando": "Verbindung wird hergestellt...",
     "integraciónActiva": "Integration aktiv",

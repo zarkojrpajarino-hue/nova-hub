@@ -9,7 +9,6 @@ import {
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { useTranslation } from 'react-i18next';
 import {
   ChevronLeft,
   ChevronRight,
