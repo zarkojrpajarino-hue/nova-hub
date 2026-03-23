@@ -1,9 +1,10 @@
-// Auto-generated — 7018 keys
+// Auto-generated — 7040 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
     "seleccionaUnProyectoDesde": "Select a project from the selector in the header",
-    "diagnósticoEn3Niveles": "3-level diagnosis that unlocks progressively based on activity and integrations"
+    "diagnósticoEn3Niveles": "3-level diagnosis that unlocks progressively based on activity and integrations",
+    "análisisEstratégicoIA": "AI Strategic Analysis"
   },
   "auth": {
     "plataformaDeGestiónEstratégica": "Strategic management platform for entrepreneurs",
@@ -3257,7 +3258,28 @@ export const en = {
     "noHaySuficientesDatos1": "Not enough data to generate Hard Truths at this time.",
     "hardTruths2": "Hard Truths",
     "hipótesisAVigilar": "Hypotheses to Watch",
-    "verdadesPosiblesAúnNo": "Possible truths, not yet confirmed by sufficient data"
+    "verdadesPosiblesAúnNo": "Possible truths, not yet confirmed by sufficient data",
+    "revisiónDeDatos": "Data Review",
+    "opcional": "Optional",
+    "registradas": "Recorded",
+    "meses": "Months",
+    "integración": "Integration",
+    "análisisDisponibleEn": "Analysis available in {{days}} days",
+    "elAnálisisIaSeActiva": "AI analysis activates when your project has been active for at least 14 days. This ensures enough data for meaningful insights.",
+    "nivel": "Level",
+    "generadoHace": "Generated",
+    "próximaRegeneración": "Next regeneration at",
+    "haciendoLoCorrecto": "Doing the right thing for your stage?",
+    "tensión": "Tension",
+    "siNoDecides": "If you don't decide",
+    "siLoIgnoras": "If you ignore it",
+    "aVigilar": "Watch out for",
+    "obvsDeclarado": "OBVs (declared)",
+    "enRiesgo30d": "At risk (>30d no activity)",
+    "díasMásDeActividad": "{{count}} more days of activity",
+    "conectar1Integración": "Connect at least 1 integration (Stripe or HubSpot)",
+    "dosIntegracionesActivas": "2 active integrations",
+    "decisionesMásRegistradas": "{{count}} more strategic decisions recorded"
   },
   "challenges": {
     "progresoGeneral": "Overall Progress",
@@ -7178,7 +7200,7 @@ export const en = {
     "forecastTitle": "MRR Projection",
     "forecastBadge": "Estimate with {{months}} months of data ({{confidence}}% confidence)",
     "forecastUnlockTitle": "Unlock MRR Projection",
-    "forecastUnlockDescription": "Log more months of metrics to activate forecasting",
+    "forecastUnlockDescription": "Log more months of metrics to activate forecast",
     "predicted": "Projected",
     "trend_growing": "Growing",
     "trend_flat": "Stable",

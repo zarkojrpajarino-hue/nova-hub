@@ -1,9 +1,10 @@
-// Auto-generated — 7018 keys
+// Auto-generated — 7040 keys
 /* eslint-disable */
 export const de = {
   "aIAnalysis": {
     "seleccionaUnProyectoDesde": "Wählen Sie ein Projekt über den Selektor in der Kopfzeile aus",
-    "diagnósticoEn3Niveles": "3-stufige Diagnose, die sich schrittweise je nach Aktivität und Integrationen freischaltet"
+    "diagnósticoEn3Niveles": "3-stufige Diagnose, die sich schrittweise je nach Aktivität und Integrationen freischaltet",
+    "análisisEstratégicoIA": "Strategische KI-Analyse"
   },
   "auth": {
     "plataformaDeGestiónEstratégica": "Strategische Verwaltungsplattform für Unternehmer",
@@ -3257,7 +3258,28 @@ export const de = {
     "noHaySuficientesDatos1": "Es liegen nicht genügend Daten vor, um derzeit Hard Truths zu formulieren.",
     "hardTruths2": "Unbequeme Wahrheiten",
     "hipótesisAVigilar": "Hypothesen zur Beobachtung",
-    "verdadesPosiblesAúnNo": "Mögliche Wahrheiten, noch nicht durch ausreichende Daten bestätigt"
+    "verdadesPosiblesAúnNo": "Mögliche Wahrheiten, noch nicht durch ausreichende Daten bestätigt",
+    "revisiónDeDatos": "Datenüberprüfung",
+    "opcional": "optional",
+    "registradas": "registriert",
+    "meses": "Monate",
+    "integración": "Integration",
+    "análisisDisponibleEn": "Analyse verfügbar in {{days}} Tagen",
+    "elAnálisisIaSeActiva": "Die KI-Analyse wird aktiviert, wenn das Projekt mindestens 14 Tage aktiv ist. So gibt es genug Daten für eine aussagekräftige Diagnose.",
+    "nivel": "Level",
+    "generadoHace": "Generiert",
+    "próximaRegeneración": "Nächste Neugenerierung um",
+    "haciendoLoCorrecto": "Machen Sie das Richtige für Ihre Phase?",
+    "tensión": "Spannung",
+    "siNoDecides": "Wenn Sie nicht entscheiden",
+    "siLoIgnoras": "Wenn Sie es ignorieren",
+    "aVigilar": "Zu beobachten",
+    "obvsDeclarado": "OBVs (deklariert)",
+    "enRiesgo30d": "Gefährdet (>30d ohne Aktivität)",
+    "díasMásDeActividad": "{{count}} weitere Tage Aktivität",
+    "conectar1Integración": "Verbinden Sie mindestens 1 Integration (Stripe oder HubSpot)",
+    "dosIntegracionesActivas": "2 aktive Integrationen",
+    "decisionesMásRegistradas": "{{count}} weitere registrierte strategische Entscheidungen"
   },
   "challenges": {
     "progresoGeneral": "Gesamtfortschritt",
@@ -3885,7 +3907,7 @@ export const de = {
     "error": "Fehler",
     "éxito": "Erfolg",
     "idea": "Idee",
-    "raro": "Raro"
+    "raro": "Selten"
   },
   "export": {
     "exportarAExcel": "In Excel exportieren",
@@ -5050,7 +5072,7 @@ export const de = {
     "reducciónDeCostos": "Kostensenkung",
     "calidadDeServicio": "Servicequalität",
     "productividad": "Produktivität",
-    "headOfProduct": "Head of Product",
+    "headOfProduct": "Leiter Produktentwicklung",
     "product": "Produkt",
     "lideraElDesarrolloY": "Leitet die Produktentwicklung und -strategie",
     "productManagement": "Produktmanagement",
@@ -5063,7 +5085,7 @@ export const de = {
     "adopciónDeProducto": "Produktadoption",
     "featureAdoption": "Feature Adoption",
     "timeToMarket": "Time to Market",
-    "headOfSales": "Head of Sales",
+    "headOfSales": "Leiter Vertrieb",
     "sales": "Vertrieb",
     "dirigeElEquipoDe": "Leitet das Vertriebsteam und die Verkaufsstrategie",
     "salesStrategy": "Verkaufsstrategie",
@@ -5074,7 +5096,7 @@ export const de = {
     "cierreDeDeals": "Deal-Abschluss",
     "relacionesConClientes": "Kundenbeziehungen",
     "salesCycle": "Sales Cycle",
-    "headOfEngineering": "Head of Engineering",
+    "headOfEngineering": "Leiter Technik",
     "gestionaElEquipoDe": "Leitet das Engineering-Team und die technische Umsetzung",
     "gestiónDeEquipos5": "Teammanagement",
     "arquitectura": "Architektur",
@@ -6544,7 +6566,7 @@ export const de = {
     "strategy": "Strategie",
     "execution": "Umsetzung",
     "metrics": "Metriken",
-    "intelligence": "Intelligence",
+    "intelligence": "Intelligenz",
     "inputs": "Eingaben",
     "recentActivity": "Aktuelle Aktivität",
     "trackYourQuarterlyObjectives": "Verfolgen Sie Ihre vierteljährlichen Ziele",
@@ -7054,15 +7076,15 @@ export const de = {
     "phaseValidation": "Validierung",
     "phaseGrowth": "Wachstum",
     "phaseScale": "Skalierung",
-    "iconDashboard": "Dashboard",
+    "iconDashboard": "Dashboards",
     "iconCRM": "CRM",
     "iconAnalytics": "Analytics",
     "iconOBV": "OBV Center",
     "iconFinanciero": "Finanzen",
-    "iconAI": "AI Analysis",
+    "iconAI": "AI-Analyse",
     "iconTeam": "Team",
     "iconSettings": "Einstellungen",
-    "appDashboard": "Dashboard",
+    "appDashboard": "Dashboards",
     "appMiEspacio": "Mein Bereich",
     "appMiDesarrollo": "Meine Entwicklung",
     "appRoleExploration": "Rollenexploration",
@@ -7094,7 +7116,7 @@ export const de = {
     "path3Cta": "Programme erkunden",
     "featuresTitle": "Alles, was Du zum Skalieren brauchst",
     "featuresSub": "Integrierte Tools für jede Phase Deines Startups",
-    "feat1": "KPI Validation",
+    "feat1": "KPI-Validierung",
     "feat1Desc": "Validiere Schlüsselmetriken mit Deinem Team über Peer Voting in 24h.",
     "feat2": "AI Lead Scoring",
     "feat2Desc": "Priorisiere Leads automatisch nach Abschlusswahrscheinlichkeit.",

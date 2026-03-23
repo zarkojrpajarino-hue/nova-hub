@@ -1,9 +1,10 @@
-// Auto-generated — 7018 keys
+// Auto-generated — 7040 keys
 /* eslint-disable */
 export const fr = {
   "aIAnalysis": {
     "seleccionaUnProyectoDesde": "Sélectionnez un projet depuis le sélecteur dans l'en-tête",
-    "diagnósticoEn3Niveles": "Diagnostic en 3 niveaux qui se débloquent progressivement selon l'activité et les intégrations"
+    "diagnósticoEn3Niveles": "Diagnostic en 3 niveaux qui se débloquent progressivement selon l'activité et les intégrations",
+    "análisisEstratégicoIA": "Analyse stratégique IA"
   },
   "auth": {
     "plataformaDeGestiónEstratégica": "Plateforme de gestion stratégique pour entrepreneurs",
@@ -1874,7 +1875,7 @@ export const fr = {
     "sinFecha": "Sans date",
     "tareasDelProyecto": "Tâches du Projet",
     "invitar": "Inviter",
-    "fact": "Fact.",
+    "fact": "Fait.",
     "rolesDelEquipo": "Rôles de l'Équipe",
     "sinTítulo": "Sans titre",
     "resumenDeReentry": "Résumé de réintégration",
@@ -1990,7 +1991,7 @@ export const fr = {
     "regresión": "Régression",
     "regresiónDeFase": "Régression de phase",
     "estadoAlCierre": "État de clôture",
-    "runway": "Runway",
+    "runway": "Autonomie financière",
     "actividadDeLaSemana": "Activité de la semaine",
     "destacados": "Points forts",
     "alertas": "Alertes",
@@ -3257,7 +3258,28 @@ export const fr = {
     "noHaySuficientesDatos1": "Données insuffisantes pour émettre des Hard Truths actuellement.",
     "hardTruths2": "Vérités Difficiles",
     "hipótesisAVigilar": "Hypothèses à surveiller",
-    "verdadesPosiblesAúnNo": "Vérités possibles, pas encore confirmées par suffisamment de données"
+    "verdadesPosiblesAúnNo": "Vérités possibles, pas encore confirmées par suffisamment de données",
+    "revisiónDeDatos": "Révision des données",
+    "opcional": "optionnel",
+    "registradas": "enregistrées",
+    "meses": "mois",
+    "integración": "Intégration",
+    "análisisDisponibleEn": "Analyse disponible dans {{days}} jours",
+    "elAnálisisIaSeActiva": "L'analyse IA s'active lorsque le projet est actif depuis au moins 14 jours. Cela permet d'avoir suffisamment de données pour un diagnostic pertinent.",
+    "nivel": "Niveau",
+    "generadoHace": "Généré",
+    "próximaRegeneración": "Prochaine régénération à",
+    "haciendoLoCorrecto": "Faites-vous ce qu'il faut pour votre phase ?",
+    "tensión": "Tension",
+    "siNoDecides": "Si vous ne décidez pas",
+    "siLoIgnoras": "Si vous l'ignorez",
+    "aVigilar": "À surveiller",
+    "obvsDeclarado": "OBVs (déclaré)",
+    "enRiesgo30d": "À risque (>30j sans mouvement)",
+    "díasMásDeActividad": "{{count}} jours d'activité supplémentaires",
+    "conectar1Integración": "Connecter au moins 1 intégration (Stripe ou HubSpot)",
+    "dosIntegracionesActivas": "2 intégrations actives",
+    "decisionesMásRegistradas": "{{count}} décisions stratégiques supplémentaires enregistrées"
   },
   "challenges": {
     "progresoGeneral": "Progrès général",
@@ -3796,8 +3818,8 @@ export const fr = {
     "iniciativa": "Initiative",
     "todosHanVotadoResultados": "Tous ont voté - Les résultats seront révélés à la fin",
     "performanceBattle": "Performance Battle",
-    "projectShowdown": "Project Showdown",
-    "peerVote": "Peer Vote",
+    "projectShowdown": "Affrontement de projets",
+    "peerVote": "Vote par pairs",
     "badges": "Badges",
     "puntos": "Points",
     "completado": "Complété",
@@ -4081,8 +4103,8 @@ export const fr = {
     "editarKpis": "Modifier KPIs",
     "obvs": "OBVs",
     "learningPaths": "Parcours d'apprentissage",
-    "bookPoints": "Book Points",
-    "communityPoints": "Community Points",
+    "bookPoints": "Points de réserve",
+    "communityPoints": "Points communautaires",
     "cancelar": "Annuler",
     "kpisActualizadosCorrectamente": "KPIs mis à jour avec succès",
     "errorAlActualizarKpis": "Erreur lors de la mise à jour des KPIs",
@@ -5013,7 +5035,7 @@ export const fr = {
     "innovaciónTécnica": "Innovation technique",
     "marketing": "Marketing",
     "chiefMarketingOfficerGestiona": "Chief Marketing Officer - Gère la stratégie marketing et la marque",
-    "marketingDigital": "Marketing Digital",
+    "marketingDigital": "Marketing numérique",
     "branding": "Branding",
     "análisisDeMercado": "Analyse de Marché",
     "growthHacking": "Growth Hacking",
