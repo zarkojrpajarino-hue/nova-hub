@@ -29,7 +29,7 @@ export function RootRedirect() {
 
     // Si no está autenticado, ir a landing
     if (!isAuthenticated) {
-      navigate('/landing', { replace: true });
+      navigate('/', { replace: true });
       return;
     }
 

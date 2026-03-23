@@ -162,7 +162,7 @@ export default function ProjectPage() {
     return (
       <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
         <p className="text-xl text-muted-foreground">{t('project.proyectoNoEncontrado')}</p>
-        <Button onClick={() => navigate('/')}>
+        <Button onClick={() => navigate('/home')}>
           <ArrowLeft size={16} className="mr-2" />{t('project.volver')}</Button>
       </div>
     );
@@ -177,7 +177,7 @@ export default function ProjectPage() {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => navigate('/')}
+              onClick={() => navigate('/home')}
             >
               <ArrowLeft size={20} />
             </Button>

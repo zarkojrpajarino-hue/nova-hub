@@ -89,11 +89,12 @@ const App = () => (
               }>
                 <Routes>
                   {/* Rutas públicas */}
+                  <Route path="/" element={<LandingPage />} />
                   <Route path="/landing" element={<LandingPage />} />
                   <Route path="/auth" element={<AuthPage />} />
 
-                  {/* Root redirect - maneja lógica de redirección inicial */}
-                  <Route path="/" element={<RootRedirect />} />
+                  {/* Root redirect post-login */}
+                  <Route path="/home" element={<RootRedirect />} />
 
                   {/* Rutas de selección de proyecto (protegidas) */}
                   <Route

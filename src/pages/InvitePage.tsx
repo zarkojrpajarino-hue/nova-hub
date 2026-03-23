@@ -89,7 +89,7 @@ export default function InvitePage() {
             <AlertTriangle className="h-12 w-12 text-orange-500 mx-auto mb-4" />
             <h2 className="text-xl font-bold mb-2">{t('invite.invitaciónNoVálida')}</h2>
             <p className="text-sm text-muted-foreground">{t('invite.estaInvitaciónNoExiste')}</p>
-            <Button className="mt-4" onClick={() => navigate('/')}>{t('invite.irAlInicio')}</Button>
+            <Button className="mt-4" onClick={() => navigate('/home')}>{t('invite.irAlInicio')}</Button>
           </CardContent>
         </Card>
       </div>
