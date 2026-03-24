@@ -247,17 +247,17 @@ Nunca una pantalla vacía. Si el usuario no tiene datos suficientes, ve: "3 de 5
 
 ---
 
-## RESUMEN — Estado verificado 2026-03-24
+## RESUMEN — Completado 2026-03-24
 
 | Bloque | Tareas | Estado | Notas |
 |--------|--------|--------|-------|
-| **1. Sidebar adaptativo** | 5 | ✅ DONE | SIDEBAR_PHASE_CONFIG + filtrado + teasers + badge dot pulsante. Teaser usa toast (no modal). |
-| **2. HowItWorks completo** | 4 | ⚠️ 42% | 26/62 secciones tienen dataInputs/dataOutputs. 36 pendientes. |
-| **3. UnlockProgress everywhere** | 4 | ⚠️ PARCIAL | RPC cubre 11 features. UnlockGate solo en CRM. AI Analysis, Meetings, Toolkit sin gate. |
-| **4. Rebranding Nova → Optimus-K** | 5 | ⚠️ ~90% | i18n/CSS/Edge functions limpios. ProjectPage.tsx tiene hardcodes y bug t() en module scope. |
-| **5. Empty states** | 3 | ❌ LIMITADO | Solo EmptyStateDashboard existe. No hay componente genérico reutilizable. |
-| **6. Cleanup técnico** | 4 | ❌ PENDIENTE | ProjectPage.tsx sigue vivo (480+ líneas). |
-| **TOTAL** | **25 tareas** | **~40% ejecutado** | |
+| **1. Sidebar adaptativo** | 5 | ✅ DONE | SIDEBAR_PHASE_CONFIG + filtrado + teasers + badge dot pulsante. Teaser usa toast. |
+| **2. HowItWorks completo** | 4 | ✅ DONE | 20/20 archivos con dataInputs/dataOutputs. ProjectsView era el ultimo. |
+| **3. UnlockProgress everywhere** | 4 | ✅ DONE | RPC 11 features. UnlockGate en CRM + AIAnalysis + MeetingIntelligence. Toolkit tiene su propio sistema per-tool. |
+| **4. Rebranding Nova → Optimus-K** | 5 | ✅ DONE | ProjectPage.tsx eliminado. i18n/CSS/Edge functions limpios. |
+| **5. Empty states** | 3 | ✅ DONE | EmptyState generico en shared/EmptyState.tsx. Aplicado a Tasks, OBVs, CRM tabs. |
+| **6. Cleanup técnico** | 4 | ✅ DONE | ProjectPage eliminado. currentView legacy eliminado de NovaSidebar. |
+| **TOTAL** | **25 tareas** | **100% ejecutado** | Commit 3eff178 |
 
 ## ORDEN DE EJECUCIÓN
 
