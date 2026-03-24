@@ -1,7 +1,6 @@
 /**
  * OptimusLogo — Official Optimus-K brand logo
- * Circle with connected nodes (network graph)
- * Based on Canva brand guidelines
+ * "K" shape formed by connected nodes inside a circle
  */
 
 interface OptimusLogoProps {
@@ -15,6 +14,23 @@ export function OptimusLogo({ size = 32, variant = 'auto', className = '' }: Opt
   const nodeColor = '#7C3AED'
   const lineColor = '#7C3AED'
 
+  // K shape nodes:
+  // Top-left (A), Mid-left (B), Bottom-left (C) = vertical bar
+  // Top-right (D), Bottom-right (E) = diagonal arms
+  const A = { x: 30, y: 18 }  // top-left
+  const B = { x: 30, y: 50 }  // mid-left (junction)
+  const C = { x: 30, y: 82 }  // bottom-left
+  const D = { x: 72, y: 20 }  // top-right
+  const E = { x: 72, y: 80 }  // bottom-right
+
+  const lines = [
+    [A, B], [B, C],   // vertical bar
+    [B, D], [B, E],   // diagonal arms
+    [A, D], [C, E],   // outer connections
+  ]
+
+  const nodes = [A, B, C, D, E]
+
   return (
     <svg
       width={size}
@@ -24,23 +40,13 @@ export function OptimusLogo({ size = 32, variant = 'auto', className = '' }: Opt
       xmlns="http://www.w3.org/2000/svg"
       className={className}
     >
-      {/* Main circle */}
-      <circle cx="50" cy="50" r="42" stroke={circleColor} strokeWidth="4" fill="none" />
-
-      {/* Connection lines between nodes */}
-      <line x1="22" y1="32" x2="68" y2="22" stroke={lineColor} strokeWidth="3" />
-      <line x1="22" y1="32" x2="50" y2="62" stroke={lineColor} strokeWidth="3" />
-      <line x1="68" y1="22" x2="50" y2="62" stroke={lineColor} strokeWidth="3" />
-      <line x1="68" y1="22" x2="80" y2="60" stroke={lineColor} strokeWidth="3" />
-      <line x1="50" y1="62" x2="80" y2="60" stroke={lineColor} strokeWidth="3" />
-      <line x1="50" y1="62" x2="32" y2="82" stroke={lineColor} strokeWidth="3" />
-
-      {/* Nodes (dots) */}
-      <circle cx="22" cy="32" r="5" fill={nodeColor} />
-      <circle cx="68" cy="22" r="5" fill={nodeColor} />
-      <circle cx="50" cy="62" r="5" fill={nodeColor} />
-      <circle cx="80" cy="60" r="5" fill={nodeColor} />
-      <circle cx="32" cy="82" r="5" fill={nodeColor} />
+      <circle cx="50" cy="50" r="44" stroke={circleColor} strokeWidth="4" fill="none" />
+      {lines.map(([from, to], i) => (
+        <line key={i} x1={from.x} y1={from.y} x2={to.x} y2={to.y} stroke={lineColor} strokeWidth="3.5" />
+      ))}
+      {nodes.map((n, i) => (
+        <circle key={i} cx={n.x} cy={n.y} r="5.5" fill={nodeColor} />
+      ))}
     </svg>
   )
 }

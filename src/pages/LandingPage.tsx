@@ -350,6 +350,58 @@ export default function LandingPage() {
 
       {/* ─── DESKTOP AREA ─── */}
       <section className="relative os-desktop-bg os-dot-grid min-h-screen pt-14">
+        {/* Illustrated background — right side (PostHog-style) */}
+        <div className="absolute right-0 bottom-0 w-[45%] h-full pointer-events-none hidden lg:block overflow-hidden" aria-hidden="true">
+          <svg viewBox="0 0 600 900" fill="none" xmlns="http://www.w3.org/2000/svg" className="absolute right-0 bottom-0 w-full h-full opacity-30 dark:opacity-20">
+            {/* Ground / terrain */}
+            <path d="M600 900 L600 500 Q550 460 500 480 Q440 510 400 540 Q350 560 320 600 Q280 650 260 720 Q240 780 220 840 Q210 870 200 900 Z" fill="url(#terrain)" />
+            <path d="M600 900 L600 580 Q580 560 550 570 Q510 590 480 620 Q450 650 430 700 Q420 740 400 780 Q380 840 360 900 Z" fill="url(#terrain2)" />
+            {/* Network nodes floating */}
+            <circle cx="480" cy="300" r="8" fill="#7C3AED" opacity="0.6" />
+            <circle cx="520" cy="220" r="6" fill="#A855F7" opacity="0.5" />
+            <circle cx="440" cy="380" r="10" fill="#7C3AED" opacity="0.4" />
+            <circle cx="550" cy="350" r="5" fill="#C084FC" opacity="0.5" />
+            <circle cx="400" cy="280" r="7" fill="#A855F7" opacity="0.3" />
+            <circle cx="500" cy="430" r="6" fill="#7C3AED" opacity="0.5" />
+            {/* Connection lines */}
+            <line x1="480" y1="300" x2="520" y2="220" stroke="#7C3AED" strokeWidth="1.5" opacity="0.25" />
+            <line x1="480" y1="300" x2="440" y2="380" stroke="#7C3AED" strokeWidth="1.5" opacity="0.25" />
+            <line x1="520" y1="220" x2="550" y2="350" stroke="#A855F7" strokeWidth="1" opacity="0.2" />
+            <line x1="440" y1="380" x2="500" y2="430" stroke="#7C3AED" strokeWidth="1.5" opacity="0.2" />
+            <line x1="550" y1="350" x2="500" y2="430" stroke="#A855F7" strokeWidth="1" opacity="0.2" />
+            <line x1="400" y1="280" x2="480" y2="300" stroke="#C084FC" strokeWidth="1" opacity="0.15" />
+            {/* Stylized trees / structures */}
+            <rect x="500" y="500" width="30" height="80" rx="4" fill="#7C3AED" opacity="0.15" />
+            <rect x="540" y="530" width="25" height="60" rx="4" fill="#A855F7" opacity="0.12" />
+            <rect x="460" y="520" width="20" height="50" rx="3" fill="#C084FC" opacity="0.1" />
+            <circle cx="515" cy="485" r="25" fill="#7C3AED" opacity="0.1" />
+            <circle cx="552" cy="518" r="20" fill="#A855F7" opacity="0.08" />
+            <circle cx="470" cy="508" r="18" fill="#C084FC" opacity="0.08" />
+            {/* Rocket */}
+            <g transform="translate(460, 180) rotate(-15)" opacity="0.35">
+              <path d="M10 40 L20 0 L30 40 Z" fill="#7C3AED" />
+              <rect x="12" y="40" width="16" height="8" rx="2" fill="#A855F7" />
+              <path d="M14 48 L20 60 L26 48" fill="#E879F9" opacity="0.6" />
+            </g>
+            {/* Floating K logo */}
+            <g transform="translate(530, 140)" opacity="0.2">
+              <circle cx="20" cy="20" r="18" stroke="#7C3AED" strokeWidth="2" fill="none" />
+              <line x1="12" y1="8" x2="12" y2="32" stroke="#7C3AED" strokeWidth="2" />
+              <line x1="12" y1="20" x2="28" y2="8" stroke="#7C3AED" strokeWidth="2" />
+              <line x1="12" y1="20" x2="28" y2="32" stroke="#7C3AED" strokeWidth="2" />
+            </g>
+            <defs>
+              <linearGradient id="terrain" x1="400" y1="500" x2="600" y2="900" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#7C3AED" stopOpacity="0.15" />
+                <stop offset="1" stopColor="#7C3AED" stopOpacity="0.35" />
+              </linearGradient>
+              <linearGradient id="terrain2" x1="400" y1="580" x2="600" y2="900" gradientUnits="userSpaceOnUse">
+                <stop offset="0" stopColor="#A855F7" stopOpacity="0.1" />
+                <stop offset="1" stopColor="#A855F7" stopOpacity="0.25" />
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
         <div className="relative z-10 min-h-[calc(100vh-3.5rem)] flex items-center justify-center px-4 py-12">
 
           {/* Desktop Icons — Left (lg+) */}
@@ -488,46 +540,64 @@ export default function LandingPage() {
       <section id="how" className="py-24 px-6 bg-white dark:bg-gray-950">
         <div className="max-w-5xl mx-auto">
           <div className="text-center mb-16">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4">{t('landing.pathsTitle')}</h2>
+            <h2 className="text-3xl md:text-4xl font-extrabold mb-4">{t('landing.pathsTitle')}</h2>
             <p className="text-gray-500 dark:text-gray-400 max-w-xl mx-auto">{t('landing.pathsSub')}</p>
           </div>
 
-          <div className="grid md:grid-cols-3 gap-6">
-            {paths.map((path) => (
-              <OsWindow
-                key={path.title}
-                title={path.title}
-                icon={path.icon}
-                className={cn(
-                  'transition-all hover:-translate-y-1',
-                  path.highlight
-                    ? 'border-primary/30 bg-primary/5 dark:bg-primary/10'
-                    : 'border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900'
-                )}
-                contentClassName="!p-5"
-              >
-                <p className="text-sm text-gray-500 dark:text-gray-400 mb-5 leading-relaxed">{path.desc}</p>
-                <ul className="space-y-2 mb-6">
-                  {Array.isArray(path.items) && path.items.map((item) => (
-                    <li key={item} className="flex items-start gap-2 text-sm text-gray-500 dark:text-gray-400">
-                      <Check className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  to="/auth?tab=signup"
-                  className={cn(
-                    'block text-center text-sm font-medium py-2.5 rounded-lg transition-colors',
-                    path.highlight
-                      ? 'bg-primary hover:bg-primary/90 text-white'
-                      : 'border border-gray-200 dark:border-white/15 hover:border-primary/30 text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white'
-                  )}
+          <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+            {paths.map((path, idx) => {
+              const colors = [
+                { bg: 'bg-violet-100 dark:bg-violet-900/30', text: 'text-violet-600 dark:text-violet-400', bar: 'from-violet-500 via-purple-500 to-fuchsia-500', check: 'text-violet-500' },
+                { bg: 'bg-blue-100 dark:bg-blue-900/30', text: 'text-blue-600 dark:text-blue-400', bar: 'from-blue-500 via-cyan-500 to-teal-500', check: 'text-blue-500' },
+                { bg: 'bg-amber-100 dark:bg-amber-900/30', text: 'text-amber-600 dark:text-amber-400', bar: 'from-amber-500 via-orange-500 to-rose-500', check: 'text-amber-500' },
+              ][idx];
+              return (
+                <div
+                  key={path.title}
+                  className="group relative rounded-2xl border border-gray-200 dark:border-white/10 bg-white dark:bg-gray-900 overflow-hidden transition-all duration-300 hover:-translate-y-1 hover:shadow-xl"
                 >
-                  {path.cta} →
-                </Link>
-              </OsWindow>
-            ))}
+                  {/* Top accent bar */}
+                  <div className={cn('h-1 w-full bg-gradient-to-r', colors.bar)} />
+
+                  {/* Content */}
+                  <div className="p-8 text-center">
+                    {/* Icon */}
+                    <div className={cn('w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5', colors.bg)}>
+                      <path.icon className={cn('h-8 w-8', colors.text)} />
+                    </div>
+
+                    {/* Title */}
+                    <h3 className="text-xl font-bold mb-3">{path.title}</h3>
+
+                    {/* Description */}
+                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-6 leading-relaxed">{path.desc}</p>
+
+                    {/* Items */}
+                    <ul className="space-y-3 mb-8 text-left">
+                      {Array.isArray(path.items) && path.items.map((item) => (
+                        <li key={item} className="flex items-start gap-2.5 text-sm">
+                          <Check className={cn('h-5 w-5 shrink-0 mt-0.5', colors.check)} />
+                          <span className="text-gray-600 dark:text-gray-300">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+
+                    {/* CTA */}
+                    <Link
+                      to="/auth?tab=signup"
+                      className={cn(
+                        'block text-center text-sm font-semibold py-3 rounded-xl transition-all duration-200',
+                        idx === 0
+                          ? 'bg-gradient-to-r from-violet-600 to-purple-600 hover:from-violet-500 hover:to-purple-500 text-white shadow-lg shadow-purple-500/25'
+                          : 'border border-gray-200 dark:border-white/15 hover:border-primary/30 text-gray-600 dark:text-gray-300 hover:text-primary hover:bg-primary/5'
+                      )}
+                    >
+                      {path.cta} <ArrowRight className="inline h-4 w-4 ml-1" />
+                    </Link>
+                  </div>
+                </div>
+              );
+            })}
           </div>
         </div>
       </section>
