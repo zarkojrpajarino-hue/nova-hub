@@ -1,4 +1,5 @@
 import { memo, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Loader2, FileCheck, CheckCircle, Clock, XCircle, Users, X, ClipboardCheck } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -56,6 +57,7 @@ interface DraftParticipant {
 
 function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const { profile } = useAuth();
 
   const { data: obvs = [], isLoading } = useQuery<OBVWithOwner[]>({
@@ -259,7 +261,7 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
             icon={ClipboardCheck}
             title={t('obvs.emptyTitle')}
             description={t('obvs.emptyDescription')}
-            action={{ label: t('obvs.createFirst'), onClick: () => {} }}
+            action={{ label: t('obvs.createFirst'), onClick: () => navigate(`/proyecto/${projectId}/obvs`) }}
           />
         ) : (
           <div className="divide-y divide-border">

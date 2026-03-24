@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Loader2, ListTodo } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -22,6 +22,7 @@ interface ProjectTasksTabProps {
 
 function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) {
   const { t } = useTranslation();
+  const [emptyDismissed, setEmptyDismissed] = useState(false);
   const { data: profiles = [] } = useProfiles();
   const { data: engineData } = useProjectEngineData(projectId);
 
@@ -131,14 +132,14 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
     );
   }
 
-  if (taskCount === 0) {
+  if (taskCount === 0 && !emptyDismissed) {
     return (
       <div className="space-y-6 animate-fade-in">
         <EmptyState
           icon={ListTodo}
           title={t('tasks.emptyTitle')}
           description={t('tasks.emptyDescription')}
-          action={{ label: t('tasks.createFirst'), onClick: () => {} }}
+          action={{ label: t('tasks.createFirst'), onClick: () => setEmptyDismissed(true) }}
         />
         {aiProjectContext && (
           <div className="flex justify-center">

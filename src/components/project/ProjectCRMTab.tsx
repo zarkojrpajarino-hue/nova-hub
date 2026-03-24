@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { Loader2, Target } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -34,6 +34,7 @@ export interface Lead {
 
 function ProjectCRMTabComponent({ projectId, projectName }: ProjectCRMTabProps) {
   const { t } = useTranslation();
+  const [emptyDismissed, setEmptyDismissed] = useState(false);
   const { data: profiles = [] } = useProfiles();
 
   // Fetch project leads
@@ -87,13 +88,13 @@ function ProjectCRMTabComponent({ projectId, projectName }: ProjectCRMTabProps) 
     );
   }
 
-  if (leads.length === 0) {
+  if (leads.length === 0 && !emptyDismissed) {
     return (
       <EmptyState
         icon={Target}
         title={t('crm.emptyTitle')}
         description={t('crm.emptyDescription')}
-        action={{ label: t('crm.createFirst'), onClick: () => {} }}
+        action={{ label: t('crm.createFirst'), onClick: () => setEmptyDismissed(true) }}
       />
     );
   }
