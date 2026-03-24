@@ -347,6 +347,16 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
           <TabsContent value="predictions" className="space-y-6">
             <PredictionsWidget members={members} period={period} />
           </TabsContent>
+
+          {/* V4.6.2 Competitive Analysis Tab */}
+          <TabsContent value="competitive" className="space-y-6">
+            <CompetitiveAnalysisView />
+          </TabsContent>
+
+          {/* V4.6.3 Weekly Insights Tab */}
+          <TabsContent value="weekly" className="space-y-6">
+            <WeeklyInsightsView />
+          </TabsContent>
         </Tabs>
         </div>
 

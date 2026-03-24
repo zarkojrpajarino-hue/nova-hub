@@ -17,6 +17,7 @@ import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');

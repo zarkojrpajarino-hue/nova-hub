@@ -1,4 +1,4 @@
-// Auto-generated — 7599 keys
+// Auto-generated — 7656 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
@@ -869,7 +869,21 @@ export const en = {
     "invitaciónAgotada": "Invitation limit reached",
     "estaInvitaciónHaExpirado": "This invitation has expired. Ask the project lead for a new link.",
     "estaInvitaciónYaAlcanzó": "This invitation has reached its maximum uses.",
-    "proyecto": "Project"
+    "proyecto": "Project",
+    "whatIsOptimusK": "Que es Optimus-K?",
+    "whatIsOptimusKDesc": "Optimus-K es una plataforma de gestion estrategica para startups. Mide tu progreso real con un motor de fases, valida hipotesis con tu equipo y usa IA para acelerar decisiones.",
+    "featurePhases": "Motor de Fases",
+    "featureMetrics": "Metricas IA",
+    "featureAI": "Validaciones",
+    "tourStep1Title": "Motor de Fases",
+    "tourStep1Desc": "Tu proyecto avanza por 5 fases (0-4). Cada fase tiene objetivos claros y un score que mide tu progreso real.",
+    "tourStep2Title": "Metricas y Analytics",
+    "tourStep2Desc": "Dashboards con KPIs, predicciones IA y benchmarks. Todo lo que necesitas para tomar decisiones basadas en datos.",
+    "tourStep3Title": "Validaciones (OBVs)",
+    "tourStep3Desc": "Registra evidencia real de tu negocio. Tu equipo valida cada OBV para que el progreso sea verificable.",
+    "tourSkip": "Saltar",
+    "tourNext": "Siguiente",
+    "tourStart": "Empezar"
   },
   "learningRoadmap": {
     "seleccionaUnProyecto": "Select a Project",
@@ -2343,7 +2357,25 @@ export const en = {
     "identificaElProblema1": "Identify problem #1",
     "tresAccionesInmediatas": "3 immediate actions",
     "seguimientoDiario": "Daily follow-up",
-    "escalaSiNoMejora": "Escalate if no improvement in 7 days"
+    "escalaSiNoMejora": "Escalate if no improvement in 7 days",
+    "investorUpdate": "Investor Update",
+    "investorUpdateTitle": "Generar Investor Update",
+    "investorUpdateDesc": "Genera un email de actualizacion mensual para inversores usando los datos de tu motor de fases, metricas y milestones.",
+    "investorUpdateGenerate": "Generar Update",
+    "investorUpdateGenerating": "Generando investor update...",
+    "investorUpdateSubject": "Asunto",
+    "investorUpdateHighlights": "Puntos destacados",
+    "investorUpdatePreview": "Vista previa del email",
+    "investorUpdateCopied": "Texto copiado al portapapeles",
+    "investorUpdateCopyFailed": "Error al copiar",
+    "investorUpdateCopyBtn": "Copiar texto",
+    "investorUpdateCopiedBtn": "Copiado",
+    "investorUpdateRegenerate": "Regenerar",
+    "badgePhase": "Fase",
+    "badgeVerified": "Verified",
+    "badgeExported": "Badge exportado como imagen",
+    "badgeExportFailed": "Error al exportar badge",
+    "badgeExportBtn": "Exportar imagen"
   },
   "selectProject": {
     "seleccionaUnProyecto": "Select a Project",
@@ -2456,7 +2488,32 @@ export const en = {
     "leadsConvertidosVsTotal": "Leads: Converted vs Total",
     "sinNombre": "Unnamed",
     "totalLeads": "Total Leads",
-    "ganados": "Won"
+    "ganados": "Won",
+    "competitiveTab": "Competencia",
+    "weeklyTab": "Insights Semanales",
+    "competitiveAnalysis": "Analisis Competitivo",
+    "competitiveNoData": "No hay datos de analisis competitivo disponibles. Ejecuta el generador SWOT para obtener tu primer analisis.",
+    "competitiveGeneratedAt": "Generado el {{date}}",
+    "competitiveCompetitors": "Competidores",
+    "competitiveSWOT": "Analisis SWOT",
+    "competitiveStrengths": "Fortalezas",
+    "competitiveWeaknesses": "Debilidades",
+    "competitiveOpportunities": "Oportunidades",
+    "competitiveThreats": "Amenazas",
+    "competitiveMarketGaps": "Oportunidades de Mercado",
+    "competitiveBenchmarks": "Benchmarks",
+    "competitiveStrategy": "Estrategia Recomendada",
+    "weeklyInsights": "Insights Semanales",
+    "weeklyInsightsNoData": "No hay insights semanales disponibles. Se generan automaticamente cada lunes.",
+    "weeklyInsightsPeriod": "{{start}} - {{end}}",
+    "weeklyInsightsSent": "Enviado",
+    "weeklyInsightsHighlights": "Puntos positivos",
+    "weeklyInsightsConcerns": "Puntos de atencion",
+    "weeklyInsightsRecommendations": "Recomendaciones",
+    "weeklyInsightsPriorities": "Prioridades proxima semana",
+    "acceleratorBenchmarking": "Benchmarking Aceleradora",
+    "acceleratorAnonymize": "Anonimizar",
+    "acceleratorDesc": "Comparacion anonima entre equipos dentro de la aceleradora"
   },
   "cRM": {
     "vistaGeneral": "Overview",
