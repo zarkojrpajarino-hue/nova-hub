@@ -22,6 +22,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const SYSTEM_PROMPT = `You are Optimus.
 
@@ -101,7 +102,11 @@ serve(async (req) => {
     const { supabaseClient, user } = await validateAuth(req);
 
     const body: RitualOptimusRequest = await req.json();
-    const { projectId, nextAction } = body;
+    const { projectId } = body;
+    // Sanitize user-provided free-text input
+    const nextAction = body.nextAction
+      ? sanitizePromptInput(String(body.nextAction), SanitizerPresets.LONG_INPUT).sanitized
+      : '';
 
     if (!projectId) {
       return new Response(

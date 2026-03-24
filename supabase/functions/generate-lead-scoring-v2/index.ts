@@ -14,6 +14,7 @@ import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const TOOL_TYPE = 'lead_scoring';
 const TTL_DAYS = 7;
@@ -126,10 +127,19 @@ serve(async (req) => {
       }],
     };
 
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+    // Sanitize free-text fields in leads before sending to LLM
+    const sanitizedLeads = leads.slice(0, 20).map(l => ({
+      ...l,
+      id: sf(l.id),
+      empresa: sf(l.empresa),
+      notas: l.notas ? sf(l.notas) : undefined,
+    }));
+
     const userPrompt = `Genera un sistema de Lead Scoring para este proyecto.
 
 LEADS (${leads.length} contactos):
-${JSON.stringify(leads.slice(0, 20), null, 2)}
+${JSON.stringify(sanitizedLeads, null, 2)}
 
 BUYER PERSONA (si existe):
 ${buyerPersonaCache?.output ? JSON.stringify(buyerPersonaCache.output, null, 2) : 'No generada aún'}

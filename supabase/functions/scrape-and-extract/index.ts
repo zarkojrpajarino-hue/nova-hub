@@ -15,6 +15,7 @@ import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { callClaude } from '../_shared/anthropic-client.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
@@ -31,12 +32,13 @@ serve(async (req) => {
     if (!rateLimitResult.allowed) {
       return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
+    const rawBody = await req.json();
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.LONG_INPUT).sanitized : '';
     const {
       type, // 'generative' | 'idea' | 'existing'
       // Generative
       urls: competitor_urls,
       // Idea
-      business_pitch,
       social_media_urls,
       website_url,
       linkedin_urls,
@@ -44,11 +46,15 @@ serve(async (req) => {
       analytics_url,
       stripe_url,
       mixpanel_url,
-      linkedin_company,
-      twitter_handle,
+      linkedin_company: rawLinkedinCompany,
+      twitter_handle: rawTwitterHandle,
       // Common
       competitor_urls: comp_urls,
-    } = await req.json();
+    } = rawBody;
+    // Sanitize free-text user inputs
+    const business_pitch = rawBody.business_pitch ? sf(rawBody.business_pitch) : '';
+    const linkedin_company = rawLinkedinCompany ? sf(rawLinkedinCompany) : '';
+    const twitter_handle = rawTwitterHandle ? sf(rawTwitterHandle) : '';
 
     if (!ANTHROPIC_API_KEY) {
       console.warn('ANTHROPIC_API_KEY not configured, using fallback mock data');

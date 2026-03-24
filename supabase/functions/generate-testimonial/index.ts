@@ -8,6 +8,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 
 
@@ -39,36 +40,53 @@ serve(async (req) => {
       throw new Error('No feedback provided yet');
     }
 
+    // Sanitize tester name and company inputs
+    const sanitizedName = sanitizePromptInput(tester.name || '', SanitizerPresets.SHORT_INPUT);
+    if (sanitizedName.blocked) {
+      throw new Error(`Invalid tester name: ${sanitizedName.reason}`);
+    }
+    const sanitizedCompany = sanitizePromptInput(tester.company || 'N/A', SanitizerPresets.SHORT_INPUT);
+    if (sanitizedCompany.blocked) {
+      throw new Error(`Invalid company name: ${sanitizedCompany.reason}`);
+    }
+    const sanitizedFeedback = sanitizePromptInput(tester.feedback, SanitizerPresets.LONG_INPUT);
+    if (sanitizedFeedback.blocked) {
+      throw new Error(`Invalid feedback: ${sanitizedFeedback.reason}`);
+    }
+
+    const safeName = sanitizedName.sanitized;
+    const safeCompany = sanitizedCompany.sanitized;
+    const safeFeedback = sanitizedFeedback.sanitized;
+    const feedbackWordCount = safeFeedback.split(/\s+/).length;
+
     // Generate testimonial with AI
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') || '' });
 
-    const prompt = `Eres un copywriter experto. Convierte este feedback en un testimonial convincente.
+    const prompt = `Eres un editor de texto. Tu trabajo es PULIR el feedback existente, NO inventar contenido nuevo.
 
-FEEDBACK DEL USUARIO:
-"${tester.feedback}"
+REGLAS ESTRICTAS — VIOLACIONES INACEPTABLES:
+1. NUNCA inventes claims, features o resultados que NO estén en el feedback original.
+2. NUNCA añadas números, métricas o porcentajes a menos que aparezcan LITERALMENTE en el feedback original.
+3. Si el feedback es corto (menos de 20 palabras), devuélvelo TAL CUAL con correcciones gramaticales mínimas.
+4. Máximo 3 frases. Usa el mismo nivel de vocabulario que el hablante.
+5. NO exageres, NO embellezcan, NO añadas superlativos que no estén en el original.
+6. Mantén el tono y estilo del hablante original.
+
+FEEDBACK ORIGINAL (${feedbackWordCount} palabras):
+"${safeFeedback}"
 
 CONTEXT:
-- Name: ${tester.name}
+- Name: ${safeName}
 - Role: ${tester.role || 'User'}
-- Company: ${tester.company || 'N/A'}
+- Company: ${safeCompany}
 - Rating: ${tester.rating || 'N/A'}/5
 
-Genera un testimonial que:
-- Suene NATURAL (como lo diría ${tester.name})
-- Específico (menciona features o resultados concretos)
-- Credible (no over-the-top)
-- 2-3 frases máximo
-- Formato: "Como [role] en [company], [product] me ayudó a [specific result]. [Additional insight]."
+${feedbackWordCount < 20 ? 'IMPORTANTE: El feedback tiene menos de 20 palabras. Devuélvelo TAL CUAL con correcciones gramaticales mínimas.' : 'Puedes reorganizar las ideas del feedback para mayor claridad, pero NO añadas información que no esté en el original.'}
 
-EJEMPLOS:
+Al final del testimonial, añade SIEMPRE en una línea separada:
+[Draft IA — verificar con ${safeName} antes de publicar]
 
-✅ GOOD:
-"Como Product Manager en una startup de 15 personas, pasábamos 3 horas semanales en meetings de planning. Con [Product], reducimos eso a 30 minutos. El setup de 1 minuto fue game-changer vs las 2 horas que tomó configurar Jira."
-
-❌ BAD:
-"[Product] is amazing! I love it! Best tool ever! 10/10 would recommend!!!"
-
-Devuelve SOLO el testimonial (sin comillas, sin JSON, solo el texto):`;
+Devuelve SOLO el testimonial + disclaimer (sin comillas, sin JSON, solo el texto):`;
 
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',  // [SCALE] Downgrade: testimonial is template-based, Haiku suffices
@@ -76,7 +94,13 @@ Devuelve SOLO el testimonial (sin comillas, sin JSON, solo el texto):`;
       messages: [{ role: 'user', content: prompt }],
     });
 
-    const testimonial = (message.content[0] as { type: string; text: string }).text.trim();
+    let testimonial = (message.content[0] as { type: string; text: string }).text.trim();
+
+    // Ensure disclaimer is always present
+    const disclaimer = `[Draft IA — verificar con ${safeName} antes de publicar]`;
+    if (!testimonial.includes('[Draft IA')) {
+      testimonial = `${testimonial}\n\n${disclaimer}`;
+    }
 
     // Save draft
     await supabaseClient

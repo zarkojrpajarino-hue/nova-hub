@@ -16,6 +16,7 @@ import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 interface PitchDeckRequest {
@@ -180,22 +181,23 @@ console.error('❌ Error generating pitch deck:', error);
  * Generate 10 pitch deck slides with AI
  */
 async function generateSlides(anthropic: Anthropic, data: PitchDeckRequest): Promise<Slide[]> {
+  const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
   const prompt = `Eres un experto en crear pitch decks para startups que han levantado $100M+ (Y Combinator, 500 Startups, Sequoia).
 
 Crea un pitch deck de 10 slides siguiendo las mejores prácticas de VCs top.
 
 DATOS DEL NEGOCIO:
-Business Name: ${data.businessName}
-Tagline: ${data.tagline || 'N/A'}
-Problem: ${data.problemStatement}
-Solution: ${data.solution}
-Target Customer: ${data.targetCustomer}
-Revenue Model: ${data.revenueModel || 'N/A'}
-Market Size TAM: ${data.marketSize?.tam || 'N/A'}
-Market Size SAM: ${data.marketSize?.sam || 'N/A'}
-Competitors: ${data.competitors?.map((c) => c.name).join(', ') || 'N/A'}
+Business Name: ${sf(data.businessName)}
+Tagline: ${sf(data.tagline) || 'N/A'}
+Problem: ${sf(data.problemStatement)}
+Solution: ${sf(data.solution)}
+Target Customer: ${sf(data.targetCustomer)}
+Revenue Model: ${sf(data.revenueModel) || 'N/A'}
+Market Size TAM: ${sf(data.marketSize?.tam) || 'N/A'}
+Market Size SAM: ${sf(data.marketSize?.sam) || 'N/A'}
+Competitors: ${data.competitors?.map((c) => sf(c.name)).join(', ') || 'N/A'}
 Traction: ${data.traction ? `${data.traction.customers || 0} customers, $${data.traction.mrr || 0} MRR` : 'Pre-launch'}
-Funding Goal: ${data.fundingGoal || 'N/A'}
+Funding Goal: ${sf(data.fundingGoal) || 'N/A'}
 
 ESTRUCTURA OBLIGATORIA (10 slides):
 

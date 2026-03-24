@@ -14,6 +14,7 @@ import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 interface ProjectionInput {
@@ -291,6 +292,8 @@ async function generateInsights(
   const year2 = projections.filter((p) => p.year === 2);
   const year3 = projections.filter((p) => p.year === 3);
 
+  const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+
   const prompt = `Eres un CFO experto analizando proyecciones financieras de una startup.
 
 PROYECCIONES GENERADAS:
@@ -308,6 +311,7 @@ CAC: $${input.cac}
 Churn rate: ${input.churn_rate}%
 Monthly growth: ${input.growth_rate_monthly || 15}%
 Team size by year 3: ${input.team.length}
+Pricing tiers: ${input.pricing.map(p => sf(p.name)).join(', ')}
 
 Tu tarea es analizar estos números y generar:
 

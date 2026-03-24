@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const TOOL_TYPE = 'buyer_persona';
 const TTL_DAYS = 30;
@@ -120,10 +121,11 @@ serve(async (req) => {
       },
     };
 
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
     const userPrompt = `Genera una Buyer Persona para este proyecto basándote en los datos reales de contactos.
 
 PROYECTO:
-${JSON.stringify({ nombre: proj.nombre, descripcion: proj.descripcion, onboarding: proj.onboarding_data }, null, 2)}
+${JSON.stringify({ nombre: sf(proj.nombre), descripcion: sf(proj.descripcion), onboarding: proj.onboarding_data }, null, 2)}
 
 CONTACTOS/LEADS (${contactos.length} registros):
 ${JSON.stringify(contactos.slice(0, 15), null, 2)}

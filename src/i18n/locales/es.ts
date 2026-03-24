@@ -1740,7 +1740,11 @@ export const es = {
     "fastStartTakes4Min": "Fast Start toma ~4 minutos. Puedes completar el Deep Setup despues para desbloquear herramientas avanzadas.",
     "threeOptionsForYourProfile": "3 opciones personalizadas para tu perfil. Elige la que mas te convenza.",
     "geoContextHint": "En {{country}}, el sector de {{industry}} tiene oportunidades unicas. Las ideas estan adaptadas a tu mercado local.",
-    "yourIndustry": "tu industria"
+    "yourIndustry": "tu industria",
+    "firstActionTitle": "Tu primera accion",
+    "firstActionSubtitle": "El motor de fases ha calculado tu prioridad. Completala para activar el sistema.",
+    "doItNow": "Hacerlo ahora",
+    "laterOnDashboard": "Lo hare despues desde el dashboard"
   },
   "pathToMaster": {
     "cargando": "Cargando...",

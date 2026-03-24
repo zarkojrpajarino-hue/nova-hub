@@ -1,4 +1,4 @@
-// Auto-generated — 7540 keys
+// Auto-generated — 7542 keys
 /* eslint-disable */
 export const fr = {
   "nav": {
@@ -2426,7 +2426,9 @@ export const fr = {
     "coachingCashBlindspot": "En tus últimos ciclos, cash tuvo 0 actividad. Considera añadir un compromiso de cash.",
     "coachingCategoríaIgnorada": "Hay categorías ignoradas de forma recurrente. Revisa si son relevantes para tu fase.",
     "coachingSugerenciaConteo": "Basándome en tu historial, 3 compromisos es más realista que 5.",
-    "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos"
+    "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos",
+    "completeYourProject": "Completa tu proyecto",
+    "showFullDashboard": "Mostrar dashboard completo"
   },
   "rootRedirect": {
     "cargando": "Cargando..."

@@ -7,6 +7,7 @@ import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_s
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 // Role labels for display
@@ -526,10 +527,12 @@ function buildContext(
 ): ProjectContext {
   const onboarding = project.onboarding_data || {};
 
+  const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+
   return {
     project: {
-      nombre: String(project.nombre || '').slice(0, 200),
-      descripcion: String(project.descripcion || '').slice(0, 500),
+      nombre: sf(project.nombre) || String(project.nombre || '').slice(0, 200),
+      descripcion: sf(project.descripcion) || String(project.descripcion || '').slice(0, 500),
       fase: project.fase || 'validacion',
       tipo: project.tipo || 'validacion',
       project_state: project.project_state || null,
@@ -546,11 +549,11 @@ function buildContext(
       knowledge: null,
     },
     onboarding: {
-      problema: String(onboarding.problema || onboarding.problema_resuelve || 'No definido').slice(0, 500),
-      cliente_objetivo: String(onboarding.cliente_objetivo || 'No definido').slice(0, 500),
-      solucion: String(onboarding.solucion_propuesta || onboarding.solucion || 'No definida').slice(0, 500),
-      hipotesis: Array.isArray(onboarding.hipotesis) ? onboarding.hipotesis.slice(0, 5).join(', ') : 'No definidas',
-      metricas: String(onboarding.metricas_exito || 'No definidas').slice(0, 300),
+      problema: sf(onboarding.problema || onboarding.problema_resuelve) || 'No definido',
+      cliente_objetivo: sf(onboarding.cliente_objetivo) || 'No definido',
+      solucion: sf(onboarding.solucion_propuesta || onboarding.solucion) || 'No definida',
+      hipotesis: Array.isArray(onboarding.hipotesis) ? onboarding.hipotesis.slice(0, 5).map((h: unknown) => sf(h)).join(', ') : 'No definidas',
+      metricas: sf(onboarding.metricas_exito) || 'No definidas',
     },
     team,
     metrics: {

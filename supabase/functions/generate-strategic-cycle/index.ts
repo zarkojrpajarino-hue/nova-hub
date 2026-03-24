@@ -14,6 +14,7 @@ import { requireEnv } from '../_shared/env-validation.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -102,9 +103,11 @@ Deno.serve(async (req) => {
     const prevCycles = prevCyclesResult.data ?? [];
     const phaseState = phaseResult.data;
 
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+
     const contextSummary = {
-      project_name: project?.nombre,
-      project_description: project?.descripcion,
+      project_name: sf(project?.nombre),
+      project_description: sf(project?.descripcion),
       current_phase: phaseState?.current_phase,
       phase_score: phaseState?.phase_score,
       graduated: phaseState?.graduated,

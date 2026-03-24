@@ -14,6 +14,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 interface LearningPathRequest {
@@ -82,7 +83,14 @@ console.error('❌ Error:', error);
 });
 
 async function generateLearningPath(anthropic: Anthropic, request: LearningPathRequest) {
-  const { founder_profile, business_type, business_phase } = request;
+  const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+  const founder_profile = {
+    ...request.founder_profile,
+    background: sf(request.founder_profile.background),
+    current_skills: request.founder_profile.current_skills.map(s => sf(s)),
+  };
+  const business_type = sf(request.business_type);
+  const business_phase = sf(request.business_phase);
 
   const skillsNeeded: { [key: string]: string[] } = {
     'saas_b2b': ['product_development', 'sales', 'marketing', 'saas_metrics', 'customer_success'],

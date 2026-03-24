@@ -19,6 +19,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 interface RequestBody {
   startupUrl: string;
@@ -55,11 +56,15 @@ serve(async (req) => {
     if (!rateLimitResult.allowed) {
       return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
-    const { startupUrl, industry }: RequestBody = await req.json();
+    const { startupUrl, industry: rawIndustry }: RequestBody = await req.json();
 
     if (!startupUrl) {
       throw new Error('startupUrl is required');
     }
+
+    // Sanitize user-provided free-text inputs
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+    const industry = rawIndustry ? sf(rawIndustry) : undefined;
 
     console.log('Analyzing competitors for:', startupUrl);
 

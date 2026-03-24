@@ -22,6 +22,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 interface RequestBody {
   model: string;
@@ -50,11 +51,17 @@ serve(async (req) => {
     if (!rateLimitResult.allowed) {
       return createRateLimitResponse(rateLimitResult, getCorsHeaders(origin));
     }
-    const { model, idea, targetCustomer }: RequestBody = await req.json();
+    const rawBody: RequestBody = await req.json();
 
-    if (!model || !idea) {
+    if (!rawBody.model || !rawBody.idea) {
       throw new Error('model and idea are required');
     }
+
+    // Sanitize user-provided free-text inputs
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.LONG_INPUT).sanitized : '';
+    const model = sf(rawBody.model);
+    const idea = sf(rawBody.idea);
+    const targetCustomer = sf(rawBody.targetCustomer);
 
     console.log('Validating monetization model:', model);
 

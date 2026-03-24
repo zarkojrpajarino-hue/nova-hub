@@ -15,6 +15,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 interface GrowthPlaybookRequest {
@@ -110,7 +111,14 @@ async function generateGrowthPlaybook(
   request: GrowthPlaybookRequest,
   competitiveData: Record<string, unknown> | null
 ) {
-  const { current_state: metrics, business_info, main_problem } = request;
+  const { current_state: metrics, main_problem: rawMainProblem } = request;
+  const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.LONG_INPUT).sanitized : '';
+  const business_info = {
+    description: sf(request.business_info.description),
+    business_type: sf(request.business_info.business_type),
+    target_customer: sf(request.business_info.target_customer),
+  };
+  const main_problem = sf(rawMainProblem);
 
   // Calculate unit economics
   const ltvCacRatio = metrics.ltv && metrics.cac ? metrics.ltv / metrics.cac : null;

@@ -14,6 +14,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const TOOL_TYPE = 'customer_journey';
 const TTL_DAYS = 14;
@@ -73,9 +74,10 @@ serve(async (req) => {
       nota_datos: 'string | null — nota si los datos son escasos y el journey es estimado',
     };
 
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
     const userPrompt = `Genera el Customer Journey para este proyecto.
 
-PROYECTO: ${proj.nombre}
+PROYECTO: ${sf(proj.nombre)}
 ONBOARDING: ${JSON.stringify(proj.onboarding_data)}
 
 SUBSCRIPCIONES STRIPE (${stripeSubscriptions?.length ?? 0}):

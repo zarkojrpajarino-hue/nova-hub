@@ -12,6 +12,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const TOOL_TYPE = 'comms_guide';
 const TTL_DAYS = 30;
@@ -60,13 +61,25 @@ serve(async (req) => {
       }],
     };
 
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+    // Sanitize pitch payloads (user-generated content from email pitches)
+    const sanitizedPitches = pitches?.length
+      ? pitches.map(p => {
+          const payload = p.payload as Record<string, unknown> | null;
+          if (!payload) return {};
+          return Object.fromEntries(
+            Object.entries(payload).map(([k, v]) => [k, typeof v === 'string' ? sf(v) : v])
+          );
+        })
+      : [];
+
     const userPrompt = `Genera la Guía de Comunicación por canal para este proyecto.
 
 BRAND KIT:
 ${bkCache?.output ? JSON.stringify(bkCache.output, null, 2) : 'No disponible (genera Brand Kit primero)'}
 
 PITCHES ANTERIORES (${pitches?.length ?? 0}):
-${pitches?.length ? JSON.stringify(pitches.map(p => p.payload), null, 2) : 'Ninguno'}
+${sanitizedPitches.length ? JSON.stringify(sanitizedPitches, null, 2) : 'Ninguno'}
 
 SCHEMA: ${JSON.stringify(outputSchema, null, 2)}
 

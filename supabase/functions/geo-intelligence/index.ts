@@ -16,6 +16,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 interface GeoIntelRequest {
@@ -32,7 +33,12 @@ serve(async (req) => {
   }
 
   try {
-    const { city, country, industry, business_type }: GeoIntelRequest = await req.json();
+    const rawBody: GeoIntelRequest = await req.json();
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
+    const city = sf(rawBody.city);
+    const country = sf(rawBody.country);
+    const industry = rawBody.industry ? sf(rawBody.industry) : undefined;
+    const business_type = rawBody.business_type ? sf(rawBody.business_type) : undefined;
 
         const { user, serviceClient: supabaseClient } = await validateAuth(req);
 

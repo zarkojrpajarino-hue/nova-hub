@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 const TOOL_TYPE = 'sales_playbook';
 const TTL_DAYS = 14;
@@ -78,9 +79,10 @@ serve(async (req) => {
       senales_compra: ['string x3 — señales de que el lead quiere comprar'],
     };
 
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.MEDIUM_INPUT).sanitized : '';
     const userPrompt = `Genera un Sales Playbook basado en los deals reales ganados.
 
-PROYECTO: ${proj.nombre}
+PROYECTO: ${sf(proj.nombre)}
 ONBOARDING: ${JSON.stringify(proj.onboarding_data)}
 
 DEALS GANADOS (${deals_ganados.length}):

@@ -16,6 +16,7 @@ import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
 interface MarketResearchRequest {
@@ -89,7 +90,13 @@ serve(async (req) => {
     }
 
     const body: MarketResearchRequest = await req.json();
-    const { idea, industry, targetCustomer, problemStatement, geography = 'global', projectId } = body;
+    const sf = (val: unknown) => val ? sanitizePromptInput(String(val), SanitizerPresets.LONG_INPUT).sanitized : '';
+    const idea = sf(body.idea);
+    const industry = sf(body.industry);
+    const targetCustomer = sf(body.targetCustomer);
+    const problemStatement = sf(body.problemStatement);
+    const geography = sf(body.geography) || 'global';
+    const projectId = body.projectId;
 
     if (!idea || !industry || !problemStatement) {
       return new Response(
@@ -207,6 +214,8 @@ ESTÁNDARES DE CALIDAD:
 ❌ MAL: "Hay interés en el mercado"
 ✅ BIEN: "El problema 'overwhelmed by complex tools' está rising (+30% YoY). Usuarios buscan específicamente 'lightweight', 'simple', 'quick setup' → clara oportunidad para producto simple"
 
+IMPORTANT: All market data is AI-estimated, not verified. Include a disclaimer in your response: 'Datos estimados por IA — verificar con fuentes primarias antes de usar en decisiones.'
+
 IMPORTANTE:
 - Usa datos realistas de 2024-2026
 - Sé específico con números y timeframes
@@ -220,7 +229,7 @@ Devuelve SOLO un JSON array con este formato exacto:
     "trendDirection": "rising",
     "searchVolume": "medium",
     "relatedQueries": ["alternative to Jira", "project tool for small teams", "free project tracker"],
-    "insight": "El problema 'overwhelmed by complex tools' está rising (+30% YoY). Usuarios buscan específicamente 'lightweight', 'simple', 'quick setup' → clara oportunidad para producto simple"
+    "insight": "El problema 'overwhelmed by complex tools' está rising (+30% YoY). Usuarios buscan específicamente 'lightweight', 'simple', 'quick setup' → clara oportunidad para producto simple. Datos estimados por IA — verificar con fuentes primarias antes de usar en decisiones."
   }
 ]`;
 
@@ -268,6 +277,8 @@ ESTÁNDARES DE CALIDAD:
 
 ❌ MAL: "Sentiment negativo"
 ✅ BIEN: "Sentiment: 78% negative, 15% neutral, 7% positive. Patrón común: usuarios quieren simplicidad pero las opciones 'simples' carecen de features críticas"
+
+IMPORTANT: All market data is AI-estimated, not verified. Include a disclaimer in your response: 'Datos estimados por IA — verificar con fuentes primarias antes de usar en decisiones.'
 
 IMPORTANTE:
 - Usa nombres de subreddits reales (r/startups, r/productivity, r/entrepreneur, etc.)
@@ -349,6 +360,8 @@ ESTÁNDARES DE CALIDAD:
 ❌ MAL: "Mercado grande"
 ✅ BIEN: "Crecimiento: CAGR 12.3% (2024-2028). El segmento 'simple tools' está creciendo 2x más rápido (24% CAGR) porque SMBs rechazan enterprise tools complejos"
 
+IMPORTANT: All market data is AI-estimated, not verified. Include a disclaimer in your response: 'Datos estimados por IA — verificar con fuentes primarias antes de usar en decisiones.'
+
 IMPORTANTE:
 - Usa bottom-up approach (número de clientes × precio promedio)
 - Cita fuentes realistas (Gartner, IDC, CB Insights, informes de industria)
@@ -359,7 +372,7 @@ Devuelve SOLO un JSON con este formato exacto:
 {
   "estimatedTAM": "$5.2B",
   "estimatedSAM": "$380M",
-  "rationale": "TAM calculation: 52M startups globally (Crunchbase 2025) × $100 avg annual spend on PM tools = $5.2B. SAM: Focused on 3.8M startups with 5-50 employees in US/EU (our ICP) × $100 = $380M. Market growing at 12.3% CAGR (Gartner). Our 'simple tools' segment growing 24% CAGR as SMBs reject enterprise complexity."
+  "rationale": "TAM calculation: 52M startups globally (Crunchbase 2025) × $100 avg annual spend on PM tools = $5.2B. SAM: Focused on 3.8M startups with 5-50 employees in US/EU (our ICP) × $100 = $380M. Market growing at 12.3% CAGR (Gartner). Our 'simple tools' segment growing 24% CAGR as SMBs reject enterprise complexity. Datos estimados por IA — verificar con fuentes primarias antes de usar en decisiones."
 }`;
 
   const message = await anthropic.messages.create({
@@ -447,6 +460,8 @@ ESTÁNDARES DE CALIDAD:
 
 ❌ MAL: "Hay demanda"
 ✅ BIEN: "Reddit r/productivity tiene 47 posts en 30 días sobre este pain point (avg 234 upvotes). Esto + Google Trends rising 30% YoY + $380M SAM = señal STRONG de demanda insatisfecha"
+
+IMPORTANT: All market data is AI-estimated, not verified. Include a disclaimer in your response: 'Datos estimados por IA — verificar con fuentes primarias antes de usar en decisiones.'
 
 IMPORTANTE:
 - Conecta los datos (trends + social + market)
