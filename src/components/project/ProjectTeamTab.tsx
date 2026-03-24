@@ -5,7 +5,7 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
 import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
 import { ProjectLifecycleActions } from './ProjectLifecycleActions';
-
+import { MembersNudge } from '@/components/subscription/MembersNudge';
 import { useTranslation } from 'react-i18next';
 interface TeamMemberDisplay {
   id: string;
@@ -36,6 +36,7 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
 
   return (
     <div className="space-y-6 animate-fade-in">
+      <MembersNudge currentMemberCount={teamMembers.length} />
       <div className="bg-card border border-border rounded-2xl overflow-hidden">
         <div className="p-5 border-b border-border flex items-center justify-between">
           <div className="flex items-center gap-2.5">

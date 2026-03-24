@@ -6,6 +6,7 @@ import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 import { PlanLimitsIndicator } from '@/components/subscription/PlanLimitsIndicator';
+import { AICallsNudge } from '@/components/subscription/AICallsNudge';
 import { AcquisitionChannelEditor } from './AcquisitionChannelEditor';
 import { useProjectEngineData, useProjectViabilityState, useProjectFunctions } from '@/hooks/useNovaDataOptimized';
 import { ProjectEnginePanel } from './ProjectEnginePanel';
@@ -107,6 +108,9 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       {!isZenMode && Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000) >= 3 && (
         <TrialCountdownBanner projectId={project.id} />
       )}
+
+      {/* V4.5.6 — AI Calls nudge (80%+ usage warning) */}
+      <AICallsNudge projectId={project.id} />
 
       {/* O5.9 — Primeros pasos (visible una vez, post-onboarding) */}
       <FirstStepsPanel projectId={project.id} onNavigateToTab={onNavigateToTab} />

@@ -10,6 +10,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { queryKeys } from '@/lib/queryKeys';
 import { detectMoments, type Moment, type MomentDetectorInput } from '@/lib/moment-detector';
+import { trackTTFV } from '@/lib/analytics';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { useActiveCycle } from '@/hooks/useStrategicCycles';
 
@@ -212,7 +213,23 @@ export function useMomentDetector(projectId: string | undefined) {
       seenMoments: getSeenMoments(projectId!),
     };
 
-    return detectMoments(input);
+    const detected = detectMoments(input);
+
+    // Wire TTFV tracking for first-value moments
+    const ttfvTypes = ['first_obv_validated', 'first_task_completed'] as const;
+    const createdAt = engineData?.project?.created_at;
+    if (createdAt && projectId) {
+      const signupTime = new Date(createdAt).getTime();
+      const secondsSinceSignup = Math.floor((Date.now() - signupTime) / 1000);
+      for (const m of detected) {
+        if (ttfvTypes.includes(m.type as typeof ttfvTypes[number]) && !getSeenMoments(projectId).includes(`ttfv_${m.type}`)) {
+          trackTTFV({ project_id: projectId, action: m.type as 'first_obv_validated' | 'first_task_completed', time_from_signup_seconds: secondsSinceSignup });
+          markMomentSeen(projectId, `ttfv_${m.type}`);
+        }
+      }
+    }
+
+    return detected;
   }, [engineData, extraData, activeCycle, projectId]);
 
   return { moments, topMoment: moments[0] ?? null };
