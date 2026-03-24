@@ -281,3 +281,12 @@ verify_jwt = false
 
 [functions.trial-email-triggers]
 verify_jwt = false
+
+[functions.ai-phase-graduation-advisor]
+verify_jwt = false
+
+[functions.ai-deal-stage-prediction]
+verify_jwt = false
+
+[functions.ai-anomaly-detection]
+verify_jwt = false
