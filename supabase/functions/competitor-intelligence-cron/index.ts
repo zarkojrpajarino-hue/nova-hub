@@ -254,13 +254,29 @@ Devuelve un JSON array de strings con los cambios:
 Si NO hay cambios significativos, devuelve [].`;
 
   try {
+    const startTime = Date.now();
     const message = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1000,
       messages: [{ role: 'user', content: prompt }],
     });
+    const durationMs = Date.now() - startTime;
 
     const responseText = (message.content[0] as { type: string; text: string }).text;
+
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    const supaLog = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+    await logAICall({
+      supabaseClient: supaLog,
+      projectId: undefined,
+      functionName: 'competitor-intelligence-cron',
+      inputData: { competitor: competitor.name },
+      outputData: responseText?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
     const parsed = safeJsonParse<string[]>(responseText, 'array');
     if (!parsed.ok) {
       return [];

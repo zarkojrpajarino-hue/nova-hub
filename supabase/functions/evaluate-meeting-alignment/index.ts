@@ -147,6 +147,7 @@ Responde en este formato JSON exacto:
 
     console.log('🤖 Calling Claude for alignment evaluation...')
 
+    const startTime = Date.now()
     const response = await anthropic.messages.create({
       model:       'claude-sonnet-4-6',
       max_tokens:  1024,
@@ -154,8 +155,17 @@ Responde en este formato JSON exacto:
       system:      SYSTEM_PROMPT,
       messages:    [{ role: 'user', content: userPrompt }],
     })
+    const durationMs = Date.now() - startTime
 
     const text = response.content[0].type === 'text' ? response.content[0].text : ''
+
+    await logAICall({
+      supabaseClient: supabase, projectId: (meeting as Record<string, unknown>).project_id as string, userId: user.id,
+      functionName: 'evaluate-meeting-alignment', inputData: { meeting_id },
+      outputData: text?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-sonnet-4-6',
+    })
 
     // 5. Parsear — fallback si Claude envuelve en ```json
     let alignmentData: Record<string, unknown>

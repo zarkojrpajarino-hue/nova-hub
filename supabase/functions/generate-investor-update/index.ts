@@ -104,13 +104,23 @@ Generate a JSON response:
 
 Keep it concise, data-driven, and investor-friendly (max 300 words for body).`;
 
+    const startTime = Date.now();
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',
       max_tokens: 1500,
       messages: [{ role: 'user', content: prompt }],
     });
+    const durationMs = Date.now() - startTime;
 
     const text = (message.content[0] as { type: string; text: string }).text;
+
+    await logAICall({
+      supabaseClient: supabase, projectId: project_id, userId: user.id,
+      functionName: 'generate-investor-update', inputData: { project_id },
+      outputData: text?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
     const parsed = safeJsonParse<Record<string, unknown>>(text);
 
     if (!parsed.ok) {

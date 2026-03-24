@@ -155,6 +155,7 @@ REGLAS:
 - Responde SOLO con JSON válido.`;
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '' });
+    const startTime = Date.now();
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: 2000,
@@ -162,12 +163,20 @@ REGLAS:
       messages: [{ role: 'user', content: userPrompt }],
     });
 
+    const durationMs = Date.now() - startTime;
     const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
     const parsed = safeJsonParse<Record<string, unknown>>(rawText);
     if (!parsed.ok) {
       return new Response(JSON.stringify({ error: 'Invalid AI response' }), { status: 500, headers });
     }
     const output = parsed.data;
+
+    await logAICall({
+      supabaseClient: supabase, projectId: project_id, userId: user.id,
+      functionName: 'generate-lead-scoring-v2', inputData: { project_id, leads_count: leads.length },
+      outputData: rawText?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: message.usage.input_tokens + message.usage.output_tokens, modelUsed: 'claude-sonnet-4-6',
+    });
 
     const dataSources = [
       ...(leads.length > 0 ? [{ name: `${leads.length} leads`, type: 'observed', updated_at: new Date().toISOString() }] : []),

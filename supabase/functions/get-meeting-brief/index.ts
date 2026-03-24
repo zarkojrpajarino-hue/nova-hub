@@ -156,6 +156,7 @@ serve(async (req) => {
       apiKey: Deno.env.get('ANTHROPIC_API_KEY')!,
     })
 
+    const startTime = Date.now()
     const response = await anthropic.messages.create({
       model:      'claude-sonnet-4-6',
       max_tokens: 1024,
@@ -163,8 +164,17 @@ serve(async (req) => {
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userMessage }],
     })
+    const durationMs = Date.now() - startTime
 
     const rawText = response.content[0].type === 'text' ? response.content[0].text : ''
+
+    await logAICall({
+      supabaseClient: supabase, projectId: project_id, userId: user.id,
+      functionName: 'get-meeting-brief', inputData: { project_id, meeting_type },
+      outputData: rawText?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-sonnet-4-6',
+    })
 
     const parsed = safeJsonParse<Record<string, unknown>>(rawText)
     let brief: Record<string, unknown>

@@ -124,6 +124,7 @@ REGLAS:
 - "why_for_your_business" debe referenciar datos ESPECÍFICOS del negocio (sector, MRR, modelo).
 - Responde SOLO con JSON válido.`;
 
+    const startTime = Date.now();
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -150,7 +151,16 @@ REGLAS:
     }
 
     const aiResult = await response.json();
+    const durationMs = Date.now() - startTime;
     const content = aiResult.content?.[0]?.text ?? '';
+
+    await logAICall({
+      supabaseClient: supabase, projectId: projectId, userId: user.id,
+      functionName: 'analyze-expansion-v1', inputData: { projectId },
+      outputData: content?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (aiResult.usage?.input_tokens ?? 0) + (aiResult.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-sonnet-4-20250514',
+    });
 
     const parsed = safeJsonParse<{ markets: unknown[]; runner_ups?: unknown[] }>(content);
     if (!parsed.ok) {

@@ -104,6 +104,7 @@ serve(async (req) => {
     // 2. Generate everything in ONE call (faster)
     const prompt = buildCompleteBusinessPrompt(businessContext);
 
+    const startTime = Date.now();
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -125,7 +126,21 @@ serve(async (req) => {
     }
 
     const aiData = await response.json();
+    const durationMs = Date.now() - startTime;
     const content = aiData.content?.[0]?.text;
+
+    await logAICall({
+      supabaseClient: supabaseClient,
+      projectId: project_id,
+      userId: user_id,
+      functionName: 'generate-complete-business',
+      inputData: { project_id, idea_name: businessContext.idea_name },
+      outputData: null,
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (aiData.usage?.input_tokens ?? 0) + (aiData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
 
     if (!content) {
       throw new Error('No response from AI');

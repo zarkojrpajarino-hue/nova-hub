@@ -179,6 +179,7 @@ FORMATO DE RESPUESTA (JSON):
 
 Devuelve SOLO el JSON, sin markdown.`;
 
+    const startTime = Date.now();
     const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -205,7 +206,23 @@ Devuelve SOLO el JSON, sin markdown.`;
     }
 
     const aiData = await aiResponse.json();
+    const durationMs = Date.now() - startTime;
     const content = aiData.content[0].text;
+
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    const supaLog = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+    await logAICall({
+      supabaseClient: supaLog,
+      projectId: undefined,
+      userId: user.id,
+      functionName: 'analyze-competitors',
+      inputData: { startupUrl },
+      outputData: content?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (aiData.usage?.input_tokens ?? 0) + (aiData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
 
     // Parse response
     const parsed = safeJsonParse<AnalysisResult>(content);

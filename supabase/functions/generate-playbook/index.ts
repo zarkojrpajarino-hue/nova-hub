@@ -157,6 +157,7 @@ Responde con este JSON exacto:
   ]
 }`;
 
+    const startTime = Date.now();
     const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -187,7 +188,16 @@ Responde con este JSON exacto:
     }
 
     const aiData = await aiResponse.json();
+    const durationMs = Date.now() - startTime;
     const aiContent = aiData.content?.[0]?.text;
+
+    await logAICall({
+      supabaseClient: supabase, projectId: undefined, userId: user.id,
+      functionName: 'generate-playbook', inputData: { userId, roleName },
+      outputData: aiContent?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (aiData.usage?.input_tokens ?? 0) + (aiData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
     
     // Parse AI response
     const parseResult = safeJsonParse(aiContent);

@@ -93,6 +93,7 @@ ${Object.keys(metadata).length > 0 ? `Contexto adicional:
 
 Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
 
+    const startTime = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -135,7 +136,18 @@ Genera 2-3 preguntas de reflexión específicas para esta tarea.`;
     }
 
     const aiResponse = await response.json();
+    const durationMs = Date.now() - startTime;
     const content = aiResponse.content?.[0]?.text || '';
+
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    const supaLog = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+    await logAICall({
+      supabaseClient: supaLog, projectId: undefined, userId: user.id,
+      functionName: 'generate-task-completion-questions', inputData: { taskTitle },
+      outputData: content?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (aiResponse.usage?.input_tokens ?? 0) + (aiResponse.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     // Parse the response
     let questions: Question[] = [];

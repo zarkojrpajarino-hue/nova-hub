@@ -92,6 +92,7 @@ RESPONDE SOLO con JSON válido:
   "disclaimer": "Orientativo. Consultar asesor laboral para condiciones contractuales."
 }`;
 
+    const startTime = Date.now();
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -116,7 +117,21 @@ RESPONDE SOLO con JSON válido:
     }
 
     const aiResult = await response.json();
+    const durationMs = Date.now() - startTime;
     const content = aiResult.content?.[0]?.text ?? '';
+
+    await logAICall({
+      supabaseClient: supabase,
+      projectId: projectId,
+      userId: user.id,
+      functionName: 'generate-hiring-guidance',
+      inputData: { projectId, roleName: roleNameSanitized.sanitized },
+      outputData: content?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (aiResult.usage?.input_tokens ?? 0) + (aiResult.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     const parsed = safeJsonParse(content);
     if (!parsed.ok) {

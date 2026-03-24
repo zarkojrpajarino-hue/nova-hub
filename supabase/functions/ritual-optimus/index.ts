@@ -195,12 +195,14 @@ Ajusta tu tono, profundidad y nivel de riesgo en las recomendaciones a estas pre
 
     const userMessage = `Cycle context for interpretation:\n${JSON.stringify(contextBundle, null, 2)}`;
 
+    const startTime = Date.now();
     const response = await anthropic.messages.create({
       model: 'claude-3-5-sonnet-20241022',
       max_tokens: 1200,
       system: personalizedPrompt,
       messages: [{ role: 'user', content: userMessage }],
     });
+    const durationMs = Date.now() - startTime;
 
     const firstContent = response.content[0];
     const rawText = firstContent.type === 'text' ? firstContent.text : '';
@@ -215,6 +217,20 @@ Ajusta tu tono, profundidad y nivel de riesgo en las recomendaciones a estas pre
       );
     }
     const output = parsed.data;
+
+    // Log AI call
+    await logAICall({
+      supabaseClient: serviceClient,
+      projectId: projectId,
+      userId: user.id,
+      functionName: 'ritual-optimus',
+      inputData: { projectId },
+      outputData: output,
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
 
     // 4. Validar campos mínimos
     const requiredFields = [

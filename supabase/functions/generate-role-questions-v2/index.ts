@@ -252,6 +252,7 @@ Deno.serve(async (req) => {
     // Call AI
     const ANTHROPIC_API_KEY = requireEnv('ANTHROPIC_API_KEY');
 
+    const startTime = Date.now();
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -279,7 +280,16 @@ Deno.serve(async (req) => {
     }
 
     const aiData = await response.json();
+    const durationMs = Date.now() - startTime;
     const content = aiData.content?.[0]?.text;
+
+    await logAICall({
+      supabaseClient: supabase, projectId: undefined, userId: user.id,
+      functionName: 'generate-role-questions-v2', inputData: { role: roleName, meetingType: sanitizedMeetingType },
+      outputData: content?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (aiData.usage?.input_tokens ?? 0) + (aiData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     if (!content) {
       return new Response(

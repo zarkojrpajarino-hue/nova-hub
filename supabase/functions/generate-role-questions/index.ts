@@ -102,6 +102,7 @@ Formato JSON (array):
 
     console.log('Calling Claude API...');
 
+    const startTime = Date.now();
     const response = await fetch("https://api.anthropic.com/v1/messages", {
       method: "POST",
       headers: {
@@ -143,7 +144,18 @@ Formato JSON (array):
     }
 
     const aiResponse = await response.json();
+    const durationMs = Date.now() - startTime;
     console.log('Claude response received');
+
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    const supaLog = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+    await logAICall({
+      supabaseClient: supaLog, projectId: undefined, userId: user.id,
+      functionName: 'generate-role-questions', inputData: { role: roleLabel },
+      outputData: aiResponse.content?.[0]?.text?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: (aiResponse.usage?.input_tokens ?? 0) + (aiResponse.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     // Extract questions from Claude response
     let questions: Array<{ pregunta: string; objetivo: string }> = [];

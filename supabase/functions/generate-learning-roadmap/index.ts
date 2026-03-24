@@ -170,6 +170,7 @@ Responde ÚNICAMENTE con un objeto JSON:
       });
     }
 
+    const startTime = Date.now();
     const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -200,7 +201,22 @@ Responde ÚNICAMENTE con un objeto JSON:
     }
 
     const anthropicData = await anthropicResponse.json();
+    const durationMs = Date.now() - startTime;
     const content = anthropicData.content[0].text;
+
+    // Log AI call
+    await logAICall({
+      supabaseClient: supabaseAdmin,
+      projectId: project_id,
+      userId: user.id,
+      functionName: 'generate-learning-roadmap',
+      inputData: { project_name, industry, business_idea: business_idea.slice(0, 200) },
+      outputData: content?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (anthropicData.usage?.input_tokens ?? 0) + (anthropicData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     // Parse respuesta
     const parseResult = safeJsonParse<{ roadmap: RoadmapStep[] }>(content);

@@ -137,6 +137,7 @@ serve(async (req) => {
         apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '',
       });
 
+      const followupStart = Date.now();
       const followupMessage = await anthropic.messages.create({
         model: 'claude-sonnet-4-6',
         max_tokens: 300,
@@ -151,6 +152,19 @@ No repitas el analisis completo. Si no tienes datos suficientes para responder, 
       });
 
       const answerText = followupMessage.content[0].type === 'text' ? followupMessage.content[0].text : '';
+
+      await logAICall({
+        supabaseClient: supabase,
+        projectId: project_id,
+        userId: user.id,
+        functionName: 'analyze-project-v4-followup',
+        inputData: { project_id, question: question?.slice(0, 200) },
+        outputData: answerText?.slice(0, 500),
+        success: true,
+        executionTimeMs: Date.now() - followupStart,
+        tokensUsed: (followupMessage.usage?.input_tokens ?? 0) + (followupMessage.usage?.output_tokens ?? 0),
+        modelUsed: 'claude-sonnet-4-6',
+      });
 
       return new Response(JSON.stringify({ answer: answerText }), { status: 200, headers });
     }
@@ -370,12 +384,14 @@ REGLAS PARA "contradictions":
       apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '',
     });
 
+    const analysisStart = Date.now();
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6',
       max_tokens: level === 3 ? 4096 : level === 2 ? 3000 : 2000,
       system: SYSTEM_PROMPT,
       messages: [{ role: 'user', content: userPrompt }],
     });
+    const analysisDurationMs = Date.now() - analysisStart;
 
     const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
     let analysisOutput: Record<string, unknown>;
@@ -388,6 +404,20 @@ REGLAS PARA "contradictions":
         status: 500, headers,
       });
     }
+
+    // Log AI call
+    await logAICall({
+      supabaseClient: supabase,
+      projectId: project_id,
+      userId: user.id,
+      functionName: 'analyze-project-v4',
+      inputData: { project_id, level },
+      outputData: null,
+      success: true,
+      executionTimeMs: analysisDurationMs,
+      tokensUsed: message.usage.input_tokens + message.usage.output_tokens,
+      modelUsed: 'claude-sonnet-4-6',
+    });
 
     // ── 6. Calcular data_sources para transparencia ───────────────────────
     const dataSources = buildDataSources(level, projectContext, level2Context, level3Context);

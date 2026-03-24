@@ -89,13 +89,28 @@ Al final del testimonial, añade SIEMPRE en una línea separada:
 
 Devuelve SOLO el testimonial + disclaimer (sin comillas, sin JSON, solo el texto):`;
 
+    const startTime = Date.now();
     const message = await anthropic.messages.create({
       model: 'claude-haiku-4-5-20251001',  // [SCALE] Downgrade: testimonial is template-based, Haiku suffices
       max_tokens: 300,
       messages: [{ role: 'user', content: prompt }],
     });
+    const durationMs = Date.now() - startTime;
 
     let testimonial = (message.content[0] as { type: string; text: string }).text.trim();
+
+    await logAICall({
+      supabaseClient: supabaseClient,
+      projectId: tester.project_id,
+      userId: user.id,
+      functionName: 'generate-testimonial',
+      inputData: { betaTesterId },
+      outputData: testimonial?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     // Ensure disclaimer is always present
     const disclaimer = `[Draft IA — verificar con ${safeName} antes de publicar]`;

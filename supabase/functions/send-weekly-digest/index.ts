@@ -113,13 +113,27 @@ PHASE: ${phase?.current_phase ?? '?'} | Score: ${phase?.phase_score ?? '?'}% | H
 Return JSON: {"subject": "...", "body_text": "...", "body_html": "<html>..."}
 The body_html should be a simple, clean email with the digest summary. Use inline styles.`;
 
+        const digestStart = Date.now();
         const message = await anthropic.messages.create({
           model: 'claude-haiku-4-5-20251001',
           max_tokens: 800,
           messages: [{ role: 'user', content: prompt }],
         });
+        const digestDurationMs = Date.now() - digestStart;
 
         const text = (message.content[0] as { type: string; text: string }).text;
+
+        await logAICall({
+          supabaseClient: supabase,
+          projectId: projectId as string,
+          functionName: 'send-weekly-digest',
+          inputData: { projectId },
+          outputData: text?.slice(0, 500),
+          success: true,
+          executionTimeMs: digestDurationMs,
+          tokensUsed: (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0),
+          modelUsed: 'claude-haiku-4-5-20251001',
+        });
         const parsed = safeJsonParse<DigestData>(text);
 
         if (!parsed.ok) {

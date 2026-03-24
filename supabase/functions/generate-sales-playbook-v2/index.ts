@@ -103,16 +103,25 @@ REGLAS:
 - Máximo 7 pasos, mínimo 4. Responde SOLO con JSON válido.`;
 
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '' });
+    const startTime = Date.now();
     const message = await anthropic.messages.create({
       model: 'claude-sonnet-4-6', max_tokens: 2000,
       system: 'Eres Optimus, motor de inteligencia estratégica. Generas Sales Playbooks basados en datos reales. Responde ÚNICAMENTE con JSON válido.',
       messages: [{ role: 'user', content: userPrompt }],
     });
 
+    const durationMs = Date.now() - startTime;
     const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
     let output: Record<string, unknown>;
     try { output = JSON.parse(rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim()); }
     catch { return new Response(JSON.stringify({ error: 'Error parseando respuesta de IA' }), { status: 500, headers }); }
+
+    await logAICall({
+      supabaseClient: supabase, projectId: project_id, userId: user.id,
+      functionName: 'generate-sales-playbook-v2', inputData: { project_id, deals_count: deals_ganados.length },
+      outputData: rawText?.slice(0, 500), success: true, executionTimeMs: durationMs,
+      tokensUsed: message.usage.input_tokens + message.usage.output_tokens, modelUsed: 'claude-sonnet-4-6',
+    });
 
     const dataSources = [
       ...(deals_ganados.length > 0 ? [{ name: `${deals_ganados.length} deals cerrados`, type: 'observed', updated_at: new Date().toISOString() }] : []),

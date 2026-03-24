@@ -239,13 +239,29 @@ Devuelve SOLO el JSON:
   "next_week_priorities": [...]
 }`;
 
+  const startTime = Date.now();
   const message = await anthropic.messages.create({
     model: 'claude-haiku-4-5-20251001',
     max_tokens: 2000,
     messages: [{ role: 'user', content: prompt }],
   });
+  const durationMs = Date.now() - startTime;
 
   const text = (message.content[0] as { type: string; text: string }).text;
+
+  const { createClient: createLogClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+  const supaLog = createLogClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+  await logAICall({
+    supabaseClient: supaLog,
+    projectId: project.id,
+    functionName: 'generate-weekly-insights',
+    inputData: { project_id: project.id },
+    outputData: text?.slice(0, 500),
+    success: true,
+    executionTimeMs: durationMs,
+    tokensUsed: (message.usage?.input_tokens ?? 0) + (message.usage?.output_tokens ?? 0),
+    modelUsed: 'claude-haiku-4-5-20251001',
+  });
   const parsed = safeJsonParse<Record<string, unknown>>(text);
 
   if (!parsed.ok) {

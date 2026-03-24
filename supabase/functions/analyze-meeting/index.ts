@@ -164,6 +164,7 @@ serve(async (req) => {
 
     console.log('🤖 Calling Claude (claude-sonnet-4-6)...')
 
+    const startTime = Date.now()
     const response = await anthropic.messages.create({
       model:       'claude-sonnet-4-6',
       max_tokens:  4096,
@@ -171,8 +172,22 @@ serve(async (req) => {
       system:      SYSTEM_PROMPT,
       messages:    [{ role: 'user', content: userPrompt }],
     })
+    const durationMs = Date.now() - startTime
 
     const analysisText = response.content[0].type === 'text' ? response.content[0].text : ''
+
+    await logAICall({
+      supabaseClient: supabase,
+      projectId: meeting.project_id as string,
+      userId: user.id,
+      functionName: 'analyze-meeting',
+      inputData: { meetingId },
+      outputData: analysisText?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (response.usage?.input_tokens ?? 0) + (response.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-sonnet-4-6',
+    })
     console.log('✅ Claude analysis received, length:', analysisText.length)
 
     // 6. Parsear JSON — usa safeJsonParse que maneja ```json blocks automáticamente

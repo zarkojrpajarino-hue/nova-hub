@@ -125,6 +125,7 @@ serve(async (req) => {
       bodyText,
     });
 
+    const startTime = Date.now();
     const aiResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -150,7 +151,23 @@ serve(async (req) => {
     }
 
     const aiData = await aiResponse.json();
+    const durationMs = Date.now() - startTime;
     const aiContent = aiData.content[0].text;
+
+    const { createClient } = await import('https://esm.sh/@supabase/supabase-js@2');
+    const supaLog = createClient(Deno.env.get('SUPABASE_URL') ?? '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '');
+    await logAICall({
+      supabaseClient: supaLog,
+      projectId: undefined,
+      userId: user.id,
+      functionName: 'extract-business-info',
+      inputData: { url: parsedUrl.hostname, context_type },
+      outputData: aiContent?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (aiData.usage?.input_tokens ?? 0) + (aiData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-haiku-4-5-20251001',
+    });
 
     // Parse AI response (should be JSON)
     let businessInfo: BusinessInfo;

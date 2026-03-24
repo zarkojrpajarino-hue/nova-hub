@@ -288,6 +288,7 @@ Deno.serve(async (req) => {
 
     console.log('Calling Claude API with context for', teamWithMetrics.length, 'members');
 
+    const startTime = Date.now();
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -315,7 +316,22 @@ Deno.serve(async (req) => {
     }
 
     const aiData = await response.json();
+    const durationMs = Date.now() - startTime;
     const content = aiData.content?.[0]?.text;
+
+    // Log AI call
+    await logAICall({
+      supabaseClient: supabase,
+      projectId: projectId,
+      userId: authUserId,
+      functionName: 'generate-tasks-v2',
+      inputData: { projectId, teamSize: teamWithMetrics.length },
+      outputData: content?.slice(0, 500),
+      success: true,
+      executionTimeMs: durationMs,
+      tokensUsed: (aiData.usage?.input_tokens ?? 0) + (aiData.usage?.output_tokens ?? 0),
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
 
     if (!content) {
       return new Response(
