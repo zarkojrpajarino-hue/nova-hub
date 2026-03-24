@@ -11,6 +11,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
 import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
@@ -88,6 +89,10 @@ serve(async (req) => {
   try {
         const { user, serviceClient: supabaseClient } = await validateAuth(req);
 
+    // V5.6.14 — Per-function rate limit
+    const rl = await checkRateLimit(`ai_fn_financial_projections_${user.id}`, 'generate-financial-projections', RateLimitPresets.AI_GENERATION);
+    if (!rl.allowed) return createRateLimitResponse(rl, getCorsHeaders(origin));
+
     const input: ProjectionInput = await req.json();
     const {
       projectId,
@@ -111,6 +116,23 @@ serve(async (req) => {
     }
 
     await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
+
+    // V5.6.2 — Check ai_analysis_cache (TTL 7 days)
+    const CACHE_TTL_DAYS = 7;
+    const { data: aiCached } = await supabaseClient
+      .from('ai_analysis_cache')
+      .select('output, generated_at, data_sources')
+      .eq('project_id', projectId)
+      .eq('cache_key', 'financial_projections')
+      .maybeSingle();
+
+    const aiCacheAge = aiCached ? (Date.now() - new Date(aiCached.generated_at).getTime()) / 86_400_000 : Infinity;
+    if (aiCached && aiCacheAge < CACHE_TTL_DAYS) {
+      return new Response(
+        JSON.stringify({ ...aiCached.output, cached: true, generated_at: aiCached.generated_at, cache_age_days: Math.round(aiCacheAge) }),
+        { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      );
+    }
 
     // AI call limit check
     await enforceAICallLimit(supabaseClient, projectId, origin);
@@ -253,6 +275,33 @@ serve(async (req) => {
     });
 
     console.log(`✅ Financial projections generated in ${executionTimeMs}ms`);
+
+    // V5.6.2 — Store in ai_analysis_cache for future cache hits
+    const cacheExpiresAt = new Date();
+    cacheExpiresAt.setDate(cacheExpiresAt.getDate() + CACHE_TTL_DAYS);
+    const cacheOutput = {
+      success: true,
+      projections,
+      insights: insights.analysis,
+      summary: {
+        total_months: projections.length,
+        year_1_revenue: projections.filter((p) => p.year === 1).reduce((sum, p) => sum + p.revenue, 0),
+        year_2_revenue: projections.filter((p) => p.year === 2).reduce((sum, p) => sum + p.revenue, 0),
+        year_3_revenue: projections.filter((p) => p.year === 3).reduce((sum, p) => sum + p.revenue, 0),
+        break_even_month: projections.find((p) => p.net_profit > 0)?.month_index || null,
+        final_cash: projections[projections.length - 1].cash_balance,
+      },
+    };
+    await supabaseClient.from('ai_analysis_cache').upsert({
+      project_id: projectId,
+      cache_key: 'financial_projections',
+      analysis_level: 1,
+      generated_at: new Date().toISOString(),
+      expires_at: cacheExpiresAt.toISOString(),
+      data_sources: [{ name: 'User inputs', type: 'declared', updated_at: null }],
+      output: cacheOutput,
+      tokens_used: insights.tokensUsed,
+    }, { onConflict: 'project_id,cache_key' }).catch(() => { /* graceful */ });
 
     return new Response(
       JSON.stringify({

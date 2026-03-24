@@ -7,7 +7,21 @@ type KPIUpdate = Database['public']['Tables']['kpis']['Update'];
 type KPIStatus = Database['public']['Enums']['kpi_status'];
 type KPIType = Database['public']['Enums']['kpi_type'];
 
+/** KPI with joined owner + validations — return type for findPendingForValidation */
+export interface KPIWithValidations extends KPI {
+  owner: { id: string; nombre: string; color: string };
+  validations: Array<{
+    validator_id: string;
+    approved: boolean;
+    comentario: string | null;
+    validator_nombre: string;
+  }>;
+}
+
 export class KPIRepository {
+  // V5.6.10 — Specific columns for list views instead of select('*')
+  private static readonly LIST_COLUMNS = 'id, owner_id, project_id, type, status, titulo, valor, evidencia_url, created_at, updated_at' as const;
+
   /**
    * Find a KPI by ID
    */
@@ -28,12 +42,12 @@ export class KPIRepository {
   async findByOwner(ownerId: string): Promise<KPI[]> {
     const { data, error } = await supabase
       .from('kpis')
-      .select('*')
+      .select(KPIRepository.LIST_COLUMNS)
       .eq('owner_id', ownerId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data as KPI[];
   }
 
   /**
@@ -42,13 +56,13 @@ export class KPIRepository {
   async findByTypeAndOwner(type: KPIType, ownerId: string): Promise<KPI[]> {
     const { data, error } = await supabase
       .from('kpis')
-      .select('*')
+      .select(KPIRepository.LIST_COLUMNS)
       .eq('type', type)
       .eq('owner_id', ownerId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data as KPI[];
   }
 
   /**
@@ -105,8 +119,7 @@ export class KPIRepository {
           comentario: v.comentario,
           validator_nombre: v.validator?.nombre || 'Desconocido',
         })),
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any -- Supabase join result shape diverges from base KPI type
-      })) as any;
+      })) as KPIWithValidations[];
   }
 
   /**

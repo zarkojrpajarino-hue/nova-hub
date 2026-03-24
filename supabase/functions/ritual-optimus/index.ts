@@ -25,16 +25,23 @@ import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
 import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
+import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 const SYSTEM_PROMPT = `You are Optimus.
 
 You are now performing a Strategic Cycle Interpretation.
 This is not a weekly recommendation. It is a cycle-level reading — retrospective and prospective.
 
-You have three sources of truth:
+You have three sources of truth (plus optional cycle learning):
 1. The engine state at cycle opening (what the project looked like when the cycle started)
 2. The engine state at cycle closing (what changed by the end)
 3. The founder's ritual responses (their structured analysis of what happened)
+4. cycle_learning (optional): comparison with the previous cycle — did the success_signals improve? What pattern emerged?
+
+If cycle_learning is present:
+- Reference whether the previous cycle's success_signal was achieved
+- Name the pattern (e.g., "two consecutive progress cycles" or "regression after progress")
+- Use this to calibrate your confidence and recommended_action
 
 Your job:
 1. Synthesize what the cycle actually showed — the real pattern, not the founder's description
@@ -103,6 +110,10 @@ serve(async (req) => {
   try {
     const { supabaseClient, serviceClient, user } = await validateAuth(req);
 
+    // V5.6.14 — Per-function rate limit
+    const rl = await checkRateLimit(`ai_fn_ritual_optimus_${user.id}`, 'ritual-optimus', RateLimitPresets.AI_GENERATION);
+    if (!rl.allowed) return createRateLimitResponse(rl, getCorsHeaders(origin));
+
     const body: RitualOptimusRequest = await req.json();
     const { projectId } = body;
 
@@ -150,6 +161,31 @@ serve(async (req) => {
       );
     }
 
+    // V5.6.8 — Cycle Feedback Loop: check if previous cycle's success_signals improved
+    let cycleLearning: Record<string, unknown> | null = null;
+    const { data: prevCycles } = await supabaseClient
+      .from('strategic_cycles')
+      .select('cycle_index, cycle_evaluation, success_signal, invalidation_condition, closed_at')
+      .eq('project_id', projectId)
+      .not('closed_at', 'is', null)
+      .not('cycle_evaluation', 'is', null)
+      .order('closed_at', { ascending: false })
+      .limit(2);
+
+    if (prevCycles && prevCycles.length >= 2) {
+      const lastCycle = prevCycles[0];
+      const prevCycle = prevCycles[1];
+      cycleLearning = {
+        previous_cycle_evaluation: prevCycle.cycle_evaluation,
+        previous_success_signal: prevCycle.success_signal,
+        current_cycle_evaluation: lastCycle.cycle_evaluation,
+        improved: lastCycle.cycle_evaluation === 'progress' && prevCycle.cycle_evaluation !== 'progress',
+        pattern: prevCycle.cycle_evaluation === lastCycle.cycle_evaluation
+          ? `consistent_${lastCycle.cycle_evaluation}`
+          : `${prevCycle.cycle_evaluation}_to_${lastCycle.cycle_evaluation}`,
+      };
+    }
+
     // 1. Obtener el bundle del ciclo cerrado
     const { data: contextBundle, error: contextError } = await supabaseClient.rpc(
       'get_ritual_optimus_context',
@@ -193,7 +229,11 @@ serve(async (req) => {
 Ajusta tu tono, profundidad y nivel de riesgo en las recomendaciones a estas preferencias.`;
     }
 
-    const userMessage = `Cycle context for interpretation:\n${JSON.stringify(contextBundle, null, 2)}`;
+    // V5.6.8 — Inject cycle learning into context
+    const enrichedContext = cycleLearning
+      ? { ...contextBundle, cycle_learning: cycleLearning }
+      : contextBundle;
+    const userMessage = `Cycle context for interpretation:\n${JSON.stringify(enrichedContext, null, 2)}`;
 
     const startTime = Date.now();
     const response = await anthropic.messages.create({

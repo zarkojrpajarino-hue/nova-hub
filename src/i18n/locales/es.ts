@@ -3694,6 +3694,8 @@ export const es = {
     "desconocido": "Desconocido"
   },
   "analysis": {
+    "analisisPreliminar": "Analisis preliminar",
+    "basadoEnDatosDeHace": "Basado en datos de hace {{days}} dias",
     "datosActualizadosRegenerar": "Datos actualizados — regenerar",
     "generando": "Generando...",
     "regenerar": "Regenerar",

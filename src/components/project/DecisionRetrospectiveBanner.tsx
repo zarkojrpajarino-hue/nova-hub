@@ -39,9 +39,8 @@ function usePendingRetrospectives(projectId: string | undefined) {
     enabled:   !!projectId,
     staleTime: 5 * 60_000,
     queryFn:   async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
-        .from('decision_retrospectives')
+      const { data } = await supabase
+        .from('decision_retrospectives' as never)
         .select('id, decision_summary, decision_made_at, retrospective_due_at, filled_at')
         .eq('project_id', projectId!)
         .is('filled_at', null)
@@ -79,9 +78,8 @@ export function DecisionRetrospectiveBanner({ projectId }: DecisionRetrospective
 
   const fillMutation = useMutation({
     mutationFn: async ({ id, outcome, correct }: { id: string; outcome: string; correct: boolean }) => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { error } = await (supabase as any)
-        .from('decision_retrospectives')
+      const { error } = await supabase
+        .from('decision_retrospectives' as never)
         .update({
           outcome_text: outcome,
           was_correct:  correct,

@@ -21,18 +21,21 @@ export class OBVRepository {
     return data;
   }
 
+  // V5.6.10 — Specific columns for list views instead of select('*')
+  private static readonly LIST_COLUMNS = 'id, project_id, titulo, tipo, status, pipeline_status, nombre_contacto, empresa, valor_potencial, es_venta, created_by, created_at, updated_at' as const;
+
   /**
    * Find all OBVs for a project
    */
   async findByProject(projectId: string): Promise<OBV[]> {
     const { data, error } = await supabase
       .from('obvs')
-      .select('*')
+      .select(OBVRepository.LIST_COLUMNS)
       .eq('project_id', projectId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data as OBV[];
   }
 
   /**
@@ -41,12 +44,12 @@ export class OBVRepository {
   async findByCreator(userId: string): Promise<OBV[]> {
     const { data, error } = await supabase
       .from('obvs')
-      .select('*')
+      .select(OBVRepository.LIST_COLUMNS)
       .eq('created_by', userId)
       .order('created_at', { ascending: false });
 
     if (error) throw error;
-    return data;
+    return data as OBV[];
   }
 
   /**

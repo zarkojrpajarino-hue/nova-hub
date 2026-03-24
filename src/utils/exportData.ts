@@ -119,8 +119,7 @@ export async function downloadPDF(
   doc.setTextColor(0);
 
   // Add table
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- jsPDF plugin autoTable not typed
-  (doc as any).autoTable({
+  doc.autoTable({
     startY: 35,
     head: [columns.map((col) => col.header)],
     body: data.map((row) => columns.map((col) => {
@@ -152,8 +151,7 @@ export async function downloadPDF(
   });
 
   // Add page numbers
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any -- jsPDF internal API not fully typed
-  const pageCount = (doc as any).internal.getNumberOfPages();
+  const pageCount = doc.internal.getNumberOfPages();
   for (let i = 1; i <= pageCount; i++) {
     doc.setPage(i);
     doc.setFontSize(8);

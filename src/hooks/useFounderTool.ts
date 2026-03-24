@@ -70,9 +70,8 @@ export function useFounderTool<T = Record<string, unknown>>(
     enabled: !!projectId,
     staleTime: 60_000,
     queryFn: async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
-        .from('founder_tool_cache')
+      const { data } = await supabase
+        .from('founder_tool_cache' as never)
         .select('*')
         .eq('project_id', projectId!)
         .eq('tool_type', toolType)

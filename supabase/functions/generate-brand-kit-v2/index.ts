@@ -17,6 +17,7 @@ import { logAICall } from '../_shared/aiLogger.ts';
 
 const TOOL_TYPE = 'brand_kit';
 const TTL_DAYS = 30;
+const AI_CACHE_TTL_DAYS = 180; // V5.6.3 — Brand kit is long-lived
 
 function expiresAt(): string { const d = new Date(); d.setDate(d.getDate() + TTL_DAYS); return d.toISOString(); }
 
@@ -26,7 +27,8 @@ serve(async (req) => {
 
   try {
     const { user, serviceClient: supabase } = await validateAuth(req);
-    const rl = await checkRateLimit(supabase, user.id, 'generate-brand-kit-v2', RateLimitPresets.AI_GENERATION);
+    // V5.6.14 — Per-function rate limit with function-specific key
+    const rl = await checkRateLimit(`ai_fn_brand_kit_${user.id}`, 'generate-brand-kit-v2', RateLimitPresets.AI_GENERATION);
     if (!rl.allowed) return createRateLimitResponse(rl, headers);
 
     const { project_id } = await req.json() as { project_id: string };
@@ -40,6 +42,16 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
     }
 
+    // V5.6.3 — Check ai_analysis_cache first (TTL 180 days)
+    const { data: aiCached } = await supabase.from('ai_analysis_cache')
+      .select('output, generated_at, data_sources')
+      .eq('project_id', project_id).eq('cache_key', 'brand_kit').maybeSingle();
+    const aiCacheAge = aiCached ? (Date.now() - new Date(aiCached.generated_at).getTime()) / 86_400_000 : Infinity;
+    if (aiCached && aiCacheAge < AI_CACHE_TTL_DAYS) {
+      return new Response(JSON.stringify({ ...aiCached.output, cached: true, generated_at: aiCached.generated_at, cache_age_days: Math.round(aiCacheAge) }), { status: 200, headers });
+    }
+
+    // Legacy founder_tool_cache check
     const { data: cached } = await supabase.from('founder_tool_cache').select('*')
       .eq('project_id', project_id).eq('tool_type', TOOL_TYPE).maybeSingle();
     const isStale = cached ? new Date() > new Date(cached.expires_at) : false;
@@ -112,6 +124,15 @@ REGLAS:
 
     const now = new Date().toISOString();
     await supabase.from('founder_tool_cache').upsert({ project_id, tool_type: TOOL_TYPE, generated_at: now, expires_at: expiresAt(), data_sources: dataSources, output, tokens_used: message.usage.input_tokens + message.usage.output_tokens }, { onConflict: 'project_id,tool_type' });
+
+    // V5.6.3 — Store in ai_analysis_cache (180d TTL)
+    const brandCacheExpires = new Date(); brandCacheExpires.setDate(brandCacheExpires.getDate() + AI_CACHE_TTL_DAYS);
+    await supabase.from('ai_analysis_cache').upsert({
+      project_id, cache_key: 'brand_kit', analysis_level: 1,
+      generated_at: now, expires_at: brandCacheExpires.toISOString(),
+      data_sources: dataSources, output,
+      tokens_used: message.usage.input_tokens + message.usage.output_tokens,
+    }, { onConflict: 'project_id,cache_key' }).catch(() => {});
 
     return new Response(JSON.stringify({ ...output, cached: false, generated_at: now, data_sources: dataSources }), { status: 200, headers });
 

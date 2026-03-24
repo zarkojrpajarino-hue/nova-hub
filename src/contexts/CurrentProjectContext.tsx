@@ -1,12 +1,15 @@
 // @refresh reset
 /**
- * 🎯 CURRENT PROJECT CONTEXT
+ * CURRENT PROJECT CONTEXT — V5.5.5 Simplified
  *
- * Project-scoped architecture: All data belongs to ONE project at a time
- * User selects which project they're working in
+ * The context stores ONLY currentProjectId + switchProject().
+ * Project data is derived from the useQuery result, not duplicated in state.
+ * This prevents stale project objects when query data refreshes.
+ *
+ * Backward-compatible: still exposes currentProject, userProjects, etc.
  */
 
-import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import React, { createContext, useContext, useState, useEffect, useMemo, ReactNode } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -63,9 +66,13 @@ const STORAGE_KEY = 'nova-hub:current-project-id';
 
 export function CurrentProjectProvider({ children }: CurrentProjectProviderProps) {
   const { user, profile } = useAuth();
-  const [currentProject, setCurrentProjectState] = useState<Project | null>(null);
 
-  // Fetch user's projects
+  // V5.5.5: Context only stores the ID, not the full project object
+  const [currentProjectId, setCurrentProjectId] = useState<string | null>(() => {
+    return localStorage.getItem(STORAGE_KEY);
+  });
+
+  // Fetch user's projects (same query as before)
   const { data: userProjects = [], isLoading } = useQuery<Project[]>({
     queryKey: ['user-projects', user?.id, profile?.id],
     queryFn: async () => {
@@ -85,15 +92,13 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
       ).order('created_at', { ascending: false });
 
       if (error) {
-        // 403 = sesión expirada o token sin role authenticated
-        // Degradar a [] en lugar de propagar el error
         return [];
       }
 
       return data;
     },
     enabled: !!user && !!profile,
-    staleTime: 1000 * 60 * 5, // 5 minutes
+    staleTime: 1000 * 60 * 5,
   });
 
   // Get project IDs where user is a member
@@ -107,49 +112,47 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
     return data.map(pm => pm.project_id).join(',');
   }
 
-  // Load persisted project on mount
+  // V5.5.5: Derive currentProject from query data + stored ID
+  const currentProject = useMemo(() => {
+    if (!currentProjectId || userProjects.length === 0) return null;
+    return userProjects.find(p => p.id === currentProjectId) ?? null;
+  }, [currentProjectId, userProjects]);
+
+  // Auto-select on mount if no saved project or saved project not found
   useEffect(() => {
     if (!user || userProjects.length === 0) return;
 
-    const savedProjectId = localStorage.getItem(STORAGE_KEY);
-
-    if (savedProjectId) {
-      // Try to load saved project
-      const savedProject = userProjects.find(p => p.id === savedProjectId);
-      if (savedProject) {
-        setCurrentProjectState(savedProject);
-        return;
-      }
+    if (currentProjectId) {
+      const found = userProjects.find(p => p.id === currentProjectId);
+      if (found) return; // Already valid
     }
 
-    // If no saved project or not found, auto-select first
+    // Auto-select first project if only one
     if (userProjects.length === 1) {
-      setCurrentProjectState(userProjects[0]);
+      setCurrentProjectId(userProjects[0].id);
       localStorage.setItem(STORAGE_KEY, userProjects[0].id);
     }
-  }, [user, userProjects]);
+  }, [user, userProjects, currentProjectId]);
 
-  // Set current project and persist
-  const setCurrentProject = (project: Project | null) => {
-    setCurrentProjectState(project);
-    if (project) {
-      localStorage.setItem(STORAGE_KEY, project.id);
-    } else {
-      localStorage.removeItem(STORAGE_KEY);
-    }
+  // Switch to a different project (by ID)
+  const switchProject = (projectId: string) => {
+    setCurrentProjectId(projectId);
+    localStorage.setItem(STORAGE_KEY, projectId);
   };
 
-  // Switch to a different project
-  const switchProject = (projectId: string) => {
-    const project = userProjects.find(p => p.id === projectId);
+  // Set current project (backward compat — accepts full object or null)
+  const setCurrentProject = (project: Project | null) => {
     if (project) {
-      setCurrentProject(project);
+      switchProject(project.id);
+    } else {
+      clearCurrentProject();
     }
   };
 
   // Clear current project
   const clearCurrentProject = () => {
-    setCurrentProject(null);
+    setCurrentProjectId(null);
+    localStorage.removeItem(STORAGE_KEY);
   };
 
   const value: CurrentProjectContextType = {
@@ -182,4 +185,3 @@ export function useCurrentProject() {
   }
   return context;
 }
-

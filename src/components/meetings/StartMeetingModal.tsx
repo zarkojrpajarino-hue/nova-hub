@@ -48,6 +48,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { FUNCTIONS_URL, SUPABASE_ANON_KEY } from '@/integrations/supabase/config'
 
 import { useTranslation } from 'react-i18next';
+import { getMeetingTypes, getDiscussionAreas, type MeetingType } from '@/data/meetingTypeData';
+
 interface MeetingBrief {
   headline:         string
   engine_status:    string
@@ -55,15 +57,6 @@ interface MeetingBrief {
   suggested_topics: string[]
   risk_flags:       string[]
   confidence:       'high' | 'medium' | 'low'
-}
-
-// Types
-interface MeetingType {
-  id: string;
-  label: string;
-  description: string;
-  icon: React.ElementType;
-  category: string;
 }
 
 interface Participant {

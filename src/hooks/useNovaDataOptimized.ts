@@ -1,524 +1,35 @@
 /**
- * OPTIMIZED VERSION OF useNovaData
+ * useNovaDataOptimized — BARREL FILE (V5.5.4)
  *
- * MEJORAS:
- * 1. Queries específicas en lugar de globales
- * 2. Filtrado en base de datos en lugar de cliente
- * 3. JOINs para reducir queries de N+1
- * 4. Eliminación de sobre-fetching
+ * Re-exports from split modules for backward compatibility.
+ * Engine, viability, weekly, and ritual hooks remain here.
  *
- * ANTES: 8 hooks → 8 queries separadas → filtrado en cliente
- * DESPUÉS: Hooks específicos → 1 query optimizada por recurso
+ * Split modules:
+ *   - src/hooks/useProjects.ts (project queries)
+ *   - src/hooks/useProjectMembers.ts (member queries)
+ *   - src/hooks/useLeads.ts (lead queries)
+ *   - src/hooks/useMemberStatsHook.ts (stats/objectives queries)
  */
 
 import { useMemo } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { queryKeys } from '@/lib/queryKeys';
+import { invalidateOBVData, invalidateProjectData } from '@/lib/invalidation-helpers';
 
 // ============================================================================
-// TYPES (mantener compatibilidad con useNovaData original)
+// RE-EXPORTS from split modules (backward compat)
 // ============================================================================
 
-export interface Profile {
-  id: string;
-  auth_id: string;
-  email: string;
-  nombre: string;
-  avatar: string | null;
-  color: string;
-  especialization: string | null;
-  created_at: string;
-}
+export type { Profile, ProjectMemberWithProfile, MemberStats } from './useProjectMembers';
+export type { Project, ProjectStat } from './useProjects';
+export type { Lead } from './useLeads';
+export type { Objective } from './useMemberStatsHook';
 
-export interface Project {
-  id: string;
-  nombre: string;
-  descripcion: string | null;
-  fase: string;
-  tipo: string;
-  onboarding_completed: boolean;
-  onboarding_data: Record<string, unknown> | null;
-  icon: string;
-  color: string;
-  created_at: string;
-  created_by?: string | null;
-  paused_at?: string | null;
-  archived_at?: string | null;
-  deleted_at?: string | null;
-}
-
-export interface ProjectMemberWithProfile {
-  id: string;
-  project_id: string;
-  member_id: string;
-  role: string;
-  is_lead: boolean;
-  role_accepted: boolean;
-  role_accepted_at: string | null;
-  role_responsibilities: string[] | null;
-  performance_score: number;
-  // Datos del miembro unidos
-  member: Profile;
-}
-
-export interface Lead {
-  id: string;
-  project_id: string;
-  nombre: string;
-  empresa: string | null;
-  status: string;
-  valor_potencial: number | null;
-  responsable_id: string | null;
-}
-
-export interface MemberStats {
-  id: string;
-  nombre: string;
-  color: string;
-  avatar: string | null;
-  email: string;
-  obvs: number;
-  lps: number;
-  bps: number;
-  cps: number;
-  facturacion: number;
-  margen: number;
-}
-
-export interface ProjectStat {
-  id: string;
-  facturacion?: number;
-  margen?: number;
-  total_obvs?: number;
-  leads_ganados?: number;
-}
-
-export interface Objective {
-  id: string;
-  name: string;
-  target_value: number;
-  unit: string;
-  period: string;
-}
-
-// ============================================================================
-// HOOKS GLOBALES (mantener para backward compatibility)
-// ============================================================================
-
-/**
- * Hook para obtener todos los perfiles
- * USO: Dashboard global, selección de usuarios
- */
-export function useProfiles() {
-  return useQuery({
-    queryKey: queryKeys.members.profiles,
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return [] as Profile[];
-
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .order('nombre');
-
-      if (error) throw error;
-      return data as Profile[];
-    },
-  });
-}
-
-/**
- * Hook para obtener todos los proyectos
- * USO: Lista de proyectos en ProjectsView
- *
- * Incluye phase_state (LEFT JOIN project_phase_state) para exponer
- * current_phase, phase_score, phase_status y hard_signal_met del engine.
- * Source of truth para la fase: project.phase_state.current_phase
- * project.fase = legacy ENUM (no usado por engines — ver ENGINE_SPEC_V1.md)
- */
-export function useProjects() {
-  return useQuery({
-    queryKey: queryKeys.projects.withPhaseState,
-    queryFn: async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return [];
-
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, entry_mode, graduation_eligible_since, graduated)')
-        .order('nombre');
-
-      if (error) throw error;
-      return data as (Project & {
-        phase_state: {
-          current_phase: number;
-          phase_score: number;
-          phase_status: string;
-          hard_signal_met: boolean;
-          last_calculated_at: string;
-          entry_mode: string | null;
-          graduation_eligible_since: string | null;
-          graduated: boolean;
-        } | null;
-      })[];
-    },
-  });
-}
-
-/**
- * Hook para obtener stats globales de miembros
- * USO: Rankings, comparaciones globales
- */
-export function useMemberStats() {
-  return useQuery({
-    queryKey: queryKeys.members.stats,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('member_stats')
-        .select('*');
-
-      if (error) throw error;
-      return data as MemberStats[];
-    },
-  });
-}
-
-/**
- * Hook para obtener objetivos globales
- */
-export function useObjectives() {
-  return useQuery({
-    queryKey: queryKeys.objectives,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('objectives')
-        .select('*');
-
-      if (error) throw error;
-      return data as Objective[];
-    },
-  });
-}
-
-/**
- * Hook para obtener stats de miembro actual por email
- */
-export function useCurrentMemberStats(email: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.members.statsByEmail(email!),
-    queryFn: async () => {
-      if (!email) return null;
-      const { data, error } = await supabase
-        .from('member_stats')
-        .select('*')
-        .eq('email', email)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as MemberStats | null;
-    },
-    enabled: !!email,
-  });
-}
-
-// ============================================================================
-// HOOKS OPTIMIZADOS ESPECÍFICOS POR PROYECTO
-// ============================================================================
-
-/**
- * ✨ NUEVO: Hook optimizado para datos completos de un proyecto
- *
- * ANTES (useProjectMembers global):
- * - Query trae TODOS los project_members de TODOS los proyectos
- * - Filtrado en cliente: projectMembers.filter(pm => pm.project_id === projectId)
- * - Luego otro find para unir con members
- *
- * DESPUÉS:
- * - Query trae SOLO los miembros de este proyecto
- * - JOIN en base de datos con member_stats
- * - Una sola query, datos ya unidos
- *
- * MEJORA: ~70% menos datos transferidos, ~80% más rápido
- */
-export function useProjectTeamMembers(projectId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.members.byProject(projectId!),
-    queryFn: async () => {
-      if (!projectId) return [];
-
-      const { data, error } = await supabase
-        .from('project_members')
-        .select('id, project_id, member_id, role, created_at, member:members!member_id(id, auth_id, email, nombre, avatar, color, especialization, created_at)')
-        .eq('project_id', projectId);
-
-      if (error) throw error;
-
-      // Transformar para compatibilidad con código existente
-      return (data || []).map(pm => ({
-        id: pm.id,
-        project_id: pm.project_id,
-        member_id: pm.member_id,
-        role: pm.role,
-        is_lead: false, // Default value - column doesn't exist in DB
-        role_accepted: true, // Default true - auto-accepted after onboarding
-        role_accepted_at: pm.created_at, // Use created_at as fallback
-        role_responsibilities: null, // Default null - column doesn't exist in DB
-        performance_score: 0, // Default value - column doesn't exist in DB
-        member: pm.member as Profile,
-      })) as ProjectMemberWithProfile[];
-    },
-    enabled: !!projectId,
-  });
-}
-
-/**
- * ✨ NUEVO: Hook optimizado para leads de un proyecto específico
- *
- * ANTES (useLeads global + usePipelineGlobal):
- * - Query trae TODOS los leads
- * - Filtrado en cliente
- *
- * DESPUÉS:
- * - Query trae SOLO leads del proyecto
- * - Filtrado en base de datos
- *
- * MEJORA: ~90% menos datos en proyectos con muchos leads
- */
-export function useProjectLeads(projectId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.leads.byProject(projectId!),
-    queryFn: async () => {
-      if (!projectId) return [];
-
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Lead[];
-    },
-    enabled: !!projectId,
-  });
-}
-
-/**
- * ✨ NUEVO: Hook para stats de un proyecto específico
- *
- * ANTES (useProjectStats global):
- * - Query trae stats de TODOS los proyectos
- * - Búsqueda con find() en cliente
- *
- * DESPUÉS:
- * - Query trae SOLO el stat de este proyecto
- * - Búsqueda en base de datos
- */
-export function useProjectStats(projectId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.projects.stats(projectId!),
-    queryFn: async () => {
-      if (!projectId) return null;
-
-      const { data, error } = await supabase
-        .from('project_stats')
-        .select('*')
-        .eq('id', projectId)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as ProjectStat | null;
-    },
-    enabled: !!projectId,
-  });
-}
-
-/**
- * ✨ NUEVO: Hook para un proyecto específico con sus stats
- * Combina proyecto + stats en una sola query
- */
-export function useProjectWithStats(projectId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.projects.withStats(projectId!),
-    queryFn: async () => {
-      if (!projectId) return null;
-
-      const { data, error } = await supabase
-        .from('projects')
-        .select('*, stats:project_stats!id(*)')
-        .eq('id', projectId)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!projectId,
-  });
-}
-
-/**
- * ✨ NUEVO: Hook para datos completos de un proyecto (TODO EN UNO)
- *
- * USO: ProjectPage que necesita todo
- *
- * ANTES: 5 hooks separados
- * - useProjects()
- * - useProjectMembers()
- * - useMemberStats()
- * - useProjectStats()
- * - usePipelineGlobal()
- *
- * DESPUÉS: 1 hook con toda la data necesaria
- *
- * MEJORA: De 5 queries a 1 query, ~85% menos overhead
- */
-export function useProjectComplete(projectId: string | undefined) {
-  return useQuery({
-    queryKey: queryKeys.projects.complete(projectId!),
-    queryFn: async () => {
-      if (!projectId) return null;
-
-      // Una sola query con todos los JOINs necesarios
-      const { data: project, error: projectError } = await supabase
-        .from('projects')
-        .select('*, project_members(id, project_id, member_id, role, created_at, member:members!member_id(*))')
-        .eq('id', projectId)
-        .maybeSingle();
-
-      if (projectError) throw projectError;
-      if (!project) return null;
-
-      // Query paralela para stats (no está en relación directa)
-      const { data: stats, error: statsError } = await supabase
-        .from('project_stats')
-        .select('*')
-        .eq('id', projectId)
-        .maybeSingle();
-
-      if (statsError) throw statsError;
-
-      // Query paralela para leads
-      const { data: leads, error: leadsError } = await supabase
-        .from('leads')
-        .select('*')
-        .eq('project_id', projectId)
-        .order('created_at', { ascending: false });
-
-      if (leadsError) throw leadsError;
-
-      return {
-        project,
-        stats,
-        leads: leads || [],
-        teamMembers: project.project_members || [],
-      };
-    },
-    enabled: !!projectId,
-  });
-}
-
-// ============================================================================
-// HOOKS PARA COMPATIBILIDAD CON CÓDIGO EXISTENTE
-// ============================================================================
-
-/**
- * Hook global para todos los project_members (mantener para vistas que lo necesiten)
- * @deprecated Use useProjectTeamMembers(projectId) instead.
- * This hook fetches ALL project_members across ALL projects (N+1 risk).
- * Callers should migrate to the project-scoped version.
- */
-export function useProjectMembers() {
-  return useQuery({
-    queryKey: queryKeys.members.all,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('project_members')
-        .select('id, project_id, member_id, role, created_at, member:members!member_id(id, auth_id, email, nombre, avatar, color, especialization, created_at)')
-        .limit(500);  // [SCALE] Safety cap — prevents runaway queries
-
-      if (error) throw error;
-
-      // Transform to match interface
-      return (data || []).map(pm => ({
-        id: pm.id,
-        project_id: pm.project_id,
-        member_id: pm.member_id,
-        role: pm.role,
-        is_lead: false,
-        role_accepted: true,
-        role_accepted_at: pm.created_at,
-        role_responsibilities: null,
-        performance_score: 0,
-        member: pm.member as Profile,
-      })) as ProjectMemberWithProfile[];
-    },
-    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
-  });
-}
-
-/**
- * Hook global para todos los leads
- * @deprecated Use useProjectLeads(projectId) instead.
- * This hook fetches ALL leads across ALL projects (N+1 risk).
- */
-export function useLeads() {
-  return useQuery({
-    queryKey: queryKeys.leads.all,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('leads')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(500);  // [SCALE] Safety cap — prevents runaway queries
-
-      if (error) throw error;
-      return data as Lead[];
-    },
-    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
-  });
-}
-
-/**
- * Hook para pipeline global (todas las stages de todos los proyectos)
- * @deprecated Use useProjectLeads(projectId) instead.
- * This hook fetches ALL pipeline data across ALL projects.
- */
-export function usePipelineGlobal() {
-  return useQuery({
-    queryKey: queryKeys.leads.pipeline,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('pipeline_global')
-        .select('*')
-        .limit(500);  // [SCALE] Safety cap — prevents runaway queries
-
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
-  });
-}
-
-/**
- * Hook para stats globales de proyectos
- * @deprecated Use useProjectStats(projectId) instead.
- * This hook fetches stats for ALL projects.
- */
-export function useProjectStatsGlobal() {
-  return useQuery({
-    queryKey: queryKeys.projects.statsGlobal,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('project_stats')
-        .select('*');
-
-      if (error) throw error;
-      return data;
-    },
-    staleTime: 5 * 60 * 1000, // 5 min — reduce refetch frequency for global query
-  });
-}
+export { useProfiles, useProjectTeamMembers, useProjectMembers, useMemberStats, useCurrentMemberStats } from './useProjectMembers';
+export { useProjects, useProjectStats, useProjectWithStats, useProjectStatsGlobal } from './useProjects';
+export { useProjectLeads, useLeads, usePipelineGlobal } from './useLeads';
+export { useObjectives, useProjectComplete } from './useMemberStatsHook';
 
 // ============================================================================
 // ENGINE DATA HOOK
@@ -531,9 +42,7 @@ export interface ProjectEngineData {
     phase_status: string;
     hard_signal_met: boolean;
     last_calculated_at: string;
-    // DEUDA.PE.8/AUD.B.2: bloqueo principal computado en SQL
     primary_block: string;
-    // [F23] Campos de progresión v2
     entry_mode: string | null;
     phase_entered_at: string;
     graduation_eligible_since: string | null;
@@ -584,8 +93,6 @@ export interface ProjectEngineData {
   }[];
 }
 
-// ── Sub-interfaces por dominio ────────────────────────────────────────────────
-
 export interface PhaseEngineData {
   phaseState: ProjectEngineData['phaseState'];
   phaseHistory: ProjectEngineData['phaseHistory'];
@@ -602,9 +109,6 @@ export interface RiskEngineData {
 }
 
 // ── Hooks de dominio ──────────────────────────────────────────────────────────
-// Cada uno usa el prefijo ['project-engine', projectId, '<dominio>'] para que
-// la invalidación por prefijo en useRealtimeSubscription (exact: false) siga
-// funcionando sin cambios en ese archivo.
 
 export function useProjectPhaseData(projectId: string | undefined) {
   return useQuery({
@@ -621,7 +125,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
           .select('phase, phase_score, change_reason, calculated_at')
           .eq('project_id', projectId!)
           .order('calculated_at', { ascending: false })
-          .limit(8),  // [PI27] Ampliado de 2 a 8 para PhaseRunwayIndicator
+          .limit(8),
       ]);
       if (stateResult.error)   throw stateResult.error;
       if (historyResult.error) throw historyResult.error;
@@ -705,10 +209,6 @@ export function useProjectCoverageData(projectId: string | undefined) {
   });
 }
 
-// ── Aggregator — composición de hooks de dominio ──────────────────────────────
-// No hace queries propias. Componentes simples pueden usar los hooks de dominio
-// directamente; pantallas compuestas usan este aggregador.
-
 export function useProjectEngineData(projectId: string | undefined) {
   const phase    = useProjectPhaseData(projectId);
   const prob     = useProjectProbabilityData(projectId);
@@ -755,7 +255,7 @@ export function useProjectViabilityState(projectId: string | undefined) {
         .eq('project_id', projectId!)
         .single();
       if (error) {
-        if (error.code === 'PGRST116') return null; // sin fila aún
+        if (error.code === 'PGRST116') return null;
         throw error;
       }
       return data as ViabilityStateData;
@@ -792,7 +292,7 @@ export interface WeeklyReview {
   has_regression: boolean;
   has_transition: boolean;
   created_at: string;
-  read_at: string | null; // migr 00055 — NULL = no leída (weekly_pending = true)
+  read_at: string | null;
 }
 
 export function useLatestWeeklyReview(projectId: string | undefined) {
@@ -807,7 +307,7 @@ export function useLatestWeeklyReview(projectId: string | undefined) {
         .limit(1)
         .single();
       if (error) {
-        if (error.code === 'PGRST116') return null; // sin fila aún
+        if (error.code === 'PGRST116') return null;
         throw error;
       }
       return data as WeeklyReview;
@@ -816,14 +316,6 @@ export function useLatestWeeklyReview(projectId: string | undefined) {
   });
 }
 
-// ============================================================================
-// SURFACE SELECTION — V11.3
-// ============================================================================
-// AUD.M.3: useActiveSurface extraído a src/hooks/useActiveSurface.ts
-// Importar directamente desde '@/hooks/useActiveSurface'.
-
-// Hook: ciclos estratégicos cerrados mientras el usuario estaba ausente
-// Necesario para changes_since_last_seen.cycle_closed_while_away + ritual_missed
 export function useStrategicCyclesWhileAway(
   projectId: string | undefined,
   lastSeenAt: string | null,
@@ -851,7 +343,6 @@ export function useStrategicCyclesWhileAway(
   });
 }
 
-// Hook: lee last_seen_at del usuario para este proyecto
 export function useProjectUserState(
   projectId: string | undefined,
   userId: string | undefined,
@@ -872,7 +363,6 @@ export function useProjectUserState(
   });
 }
 
-// Hook: ritual_pending = cycle_due OR urgent_reset_requested
 export function useRitualPending(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.ritualPending(projectId!),
@@ -886,7 +376,6 @@ export function useRitualPending(projectId: string | undefined) {
         .maybeSingle();
       if (error) throw error;
       if (!data) return false;
-      // cycle_due: CURRENT_DATE >= end_date - 6 días (semana 4 del ciclo)
       const endDate = new Date(data.end_date);
       const cycleDueThreshold = new Date(endDate.getTime() - 6 * 24 * 60 * 60 * 1000);
       const cycleDue = new Date() >= cycleDueThreshold;
@@ -896,7 +385,6 @@ export function useRitualPending(projectId: string | undefined) {
   });
 }
 
-// Mutation: marcar weekly review como leída (founder hace click en "Continue execution")
 export function useMarkWeeklyReviewRead() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -908,15 +396,11 @@ export function useMarkWeeklyReviewRead() {
       if (error) throw error;
     },
     onSuccess: (_data, variables) => {
-      // Invalidar para que hasUnreadWeekly recalcule
       queryClient.invalidateQueries({ queryKey: queryKeys.weeklyReview(variables.projectId) });
     },
   });
 }
 
-// Mutation: actualizar last_seen_at en project_user_state
-// No invalida ['project-user-state'] — el valor capturado al inicio de sesión
-// debe mantenerse para la detección de re-entry durante esta visita.
 export function useUpdateLastSeenAt() {
   return useMutation({
     mutationFn: async ({ projectId, userId }: { projectId: string; userId: string }) => {
@@ -931,10 +415,6 @@ export function useUpdateLastSeenAt() {
   });
 }
 
-// Mutation: completar el ritual estratégico de cierre de ciclo
-// Llama a submit_strategic_reset() que internamente cierra el ciclo y crea el N+1.
-// Returns: 'progress' | 'stagnation' | 'regression'
-// SR10.V2.1: invalida el Focus Block (engine phase/probability/risk) tras completar.
 export function useSubmitRitual() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -961,18 +441,12 @@ export function useSubmitRitual() {
       return data as 'progress' | 'stagnation' | 'regression';
     },
     onSuccess: (_data, { projectId }) => {
-      // SR10.V2.1 — el ritual puede cambiar phase_score y execution_rate.
-      // Invalidar engine para que el Focus Block muestre datos frescos.
-      queryClient.invalidateQueries({ queryKey: queryKeys.engine.all(projectId) });
-      queryClient.invalidateQueries({ queryKey: queryKeys.projects.context(projectId) });
+      invalidateProjectData(queryClient, projectId);
       queryClient.invalidateQueries({ queryKey: queryKeys.ritualPending(projectId) });
     },
   });
 }
 
-// Mutation: cerrar ciclo estratégico activo sin ritual (pivot total — EC13.4)
-// Llama a close_cycle_for_pivot() que delega en close_strategic_cycle('pivot').
-// Invalida ritual-pending para que useActiveSurface recalcule surface.
 export function useCloseCycleForPivot() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -981,7 +455,7 @@ export function useCloseCycleForPivot() {
         p_project_id: projectId,
       });
       if (error) throw error;
-      return data as string | null; // cycle_evaluation or null (no active cycle)
+      return data as string | null;
     },
     onSuccess: (_data, projectId) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.ritualPending(projectId) });
@@ -989,8 +463,6 @@ export function useCloseCycleForPivot() {
   });
 }
 
-// Hook: owner status de las 3 funciones críticas (demand / delivery / cash)
-// Devuelve hasOwner=true si owner_user_id IS NOT NULL (sin resolver nombre — v1)
 export function useProjectFunctions(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.projects.functions(projectId!),
@@ -1010,7 +482,6 @@ export function useProjectFunctions(projectId: string | undefined) {
   });
 }
 
-// Hook: ciclos estratégicos cerrados (closed_at IS NOT NULL)
 export function useClosedCyclesCount(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.cycles.closedCount(projectId!),
@@ -1027,10 +498,6 @@ export function useClosedCyclesCount(projectId: string | undefined) {
   });
 }
 
-// Mutation: reemplazar participantes de un OBV existente (split crédito — EC13.10)
-// Llama a upsert_obv_participants() SECURITY DEFINER que hace DELETE+INSERT atómico.
-// El caller incluye TODOS los participantes (owner + colaboradores) con sus %.
-// owner_id de obvs nunca cambia — historial preservado.
 export function useUpsertOBVParticipants() {
   const queryClient = useQueryClient();
   return useMutation({
@@ -1049,55 +516,7 @@ export function useUpsertOBVParticipants() {
       if (error) throw error;
     },
     onSuccess: (_data, { projectId }) => {
-      queryClient.invalidateQueries({ queryKey: queryKeys.obvs.byProject(projectId) });
-      // V4.4.5: Invalidate engine so phase scores reflect OBV participant changes
-      queryClient.invalidateQueries({ queryKey: queryKeys.engine.all(projectId) });
+      invalidateOBVData(queryClient, projectId);
     },
   });
 }
-
-// ============================================================================
-// MIGRATION GUIDE
-// ============================================================================
-
-/**
- * GUÍA DE MIGRACIÓN:
- *
- * ANTES (ProjectPage.tsx):
- * ```typescript
- * const { data: projects = [] } = useProjects();
- * const { data: projectMembers = [] } = useProjectMembers();
- * const { data: members = [] } = useMemberStats();
- * const { data: projectStats = [] } = useProjectStats();
- * const { data: allLeads = [] } = usePipelineGlobal();
- *
- * const project = projects.find(p => p.id === projectId);
- * const stats = projectStats.find(s => s.id === projectId);
- * const teamMembers = projectMembers
- *   .filter(pm => pm.project_id === projectId)
- *   .map(pm => {
- *     const member = members.find(m => m.id === pm.member_id);
- *     return member ? { ...member, ...pm } : null;
- *   })
- *   .filter(Boolean);
- * const projectLeads = allLeads.filter(l => l.project_id === projectId);
- * ```
- *
- * DESPUÉS (ProjectPage.tsx optimizado):
- * ```typescript
- * // OPCIÓN 1: Todo en uno
- * const { data, isLoading } = useProjectComplete(projectId);
- * const { project, stats, leads, teamMembers } = data || {};
- *
- * // OPCIÓN 2: Queries específicas separadas
- * const { data: project } = useProjectWithStats(projectId);
- * const { data: teamMembers = [] } = useProjectTeamMembers(projectId);
- * const { data: leads = [] } = useProjectLeads(projectId);
- * ```
- *
- * MEJORA:
- * - De 5 queries a 1-3 queries
- * - De ~500KB a ~50KB de datos (en proyecto promedio)
- * - De ~1500ms a ~300ms de carga
- * - Elimina 3 operaciones filter/find/map en cliente
- */

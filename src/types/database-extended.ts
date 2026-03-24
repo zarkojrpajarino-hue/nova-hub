@@ -274,3 +274,50 @@ export type LeadStatus =
 
 // Tipos de cobro_estado
 export type CobroEstado = 'pendiente' | 'cobrado_parcial' | 'cobrado_total' | 'atrasado';
+
+// =====================================================
+// UNTYPED TABLES — V5.5.8 (remove `as any` casts)
+// =====================================================
+
+export interface FounderToolCacheRow {
+  id: string;
+  project_id: string;
+  tool_type: string;
+  output: Record<string, unknown>;
+  data_sources: Array<{
+    name: string;
+    type: 'observed' | 'declared' | 'estimated' | 'inferred';
+    updated_at: string | null;
+  }>;
+  generated_at: string;
+  expires_at: string;
+  founder_notes: string | null;
+  created_at: string;
+}
+
+export interface DecisionRetrospectiveRow {
+  id: string;
+  project_id: string;
+  decision_summary: string;
+  decision_made_at: string;
+  retrospective_due_at: string;
+  outcome_text: string | null;
+  was_correct: boolean | null;
+  filled_at: string | null;
+  created_at: string;
+}
+
+// ── RPC parameter types ──────────────────────────────────────────────────────
+
+export interface ComputeMRRForecastParams {
+  p_project_id: string;
+  p_months_ahead: number;
+}
+
+export interface RunCashFlowStressTestParams {
+  p_project_id: string;
+}
+
+export interface DetectFinancialRisksParams {
+  p_project_id: string;
+}

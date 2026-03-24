@@ -40,7 +40,7 @@ async function fetchMRRForecast(projectId: string, monthsAhead: number = 6): Pro
   const { data, error } = await supabase.rpc('compute_mrr_forecast', {
     p_project_id: projectId,
     p_months_ahead: monthsAhead,
-  } as any)
+  } as Record<string, unknown>)
   if (error) throw error
   return data as unknown as MRRForecastData
 }
@@ -80,7 +80,7 @@ export interface StressTestData {
 async function fetchStressTest(projectId: string): Promise<StressTestData> {
   const { data, error } = await supabase.rpc('run_cash_flow_stress_test', {
     p_project_id: projectId,
-  } as any)
+  } as Record<string, unknown>)
   if (error) throw error
   return data as unknown as StressTestData
 }
@@ -112,7 +112,7 @@ export interface FinancialRisksData {
 async function fetchFinancialRisks(projectId: string): Promise<FinancialRisksData> {
   const { data, error } = await supabase.rpc('detect_financial_risks', {
     p_project_id: projectId,
-  } as any)
+  } as Record<string, unknown>)
   if (error) throw error
   return data as unknown as FinancialRisksData
 }

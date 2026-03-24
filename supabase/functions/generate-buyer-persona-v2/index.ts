@@ -32,7 +32,8 @@ serve(async (req) => {
   try {
     const { user, serviceClient: supabase } = await validateAuth(req);
 
-    const rl = await checkRateLimit(supabase, user.id, 'generate-buyer-persona-v2', RateLimitPresets.AI_GENERATION);
+    // V5.6.14 — Per-function rate limit with function-specific key
+    const rl = await checkRateLimit(`ai_fn_buyer_persona_${user.id}`, 'generate-buyer-persona-v2', RateLimitPresets.AI_GENERATION);
     if (!rl.allowed) return createRateLimitResponse(rl, headers);
 
     const { project_id } = await req.json() as { project_id: string };
@@ -50,7 +51,22 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
     }
 
-    // Leer caché
+    // V5.6.1 — Check ai_analysis_cache first (TTL 30 days)
+    const { data: aiCached } = await supabase
+      .from('ai_analysis_cache')
+      .select('output, generated_at, data_sources')
+      .eq('project_id', project_id)
+      .eq('cache_key', 'buyer_persona')
+      .maybeSingle();
+
+    const aiCacheAge = aiCached ? (Date.now() - new Date(aiCached.generated_at).getTime()) / 86_400_000 : Infinity;
+    if (aiCached && aiCacheAge < TTL_DAYS) {
+      return new Response(JSON.stringify({ ...aiCached.output, cached: true, generated_at: aiCached.generated_at, cache_age_days: Math.round(aiCacheAge) }), {
+        status: 200, headers,
+      });
+    }
+
+    // Leer caché legacy (founder_tool_cache)
     const { data: cached } = await supabase
       .from('founder_tool_cache')
       .select('*')
@@ -180,6 +196,18 @@ REGLAS:
       output,
       tokens_used: message.usage.input_tokens + message.usage.output_tokens,
     }, { onConflict: 'project_id,tool_type' });
+
+    // V5.6.1 — Store in ai_analysis_cache for cross-function cache reads
+    await supabase.from('ai_analysis_cache').upsert({
+      project_id,
+      cache_key: 'buyer_persona',
+      analysis_level: 1,
+      generated_at: now,
+      expires_at: expiresAt(),
+      data_sources: dataSources,
+      output,
+      tokens_used: message.usage.input_tokens + message.usage.output_tokens,
+    }, { onConflict: 'project_id,cache_key' }).catch(() => { /* ai_analysis_cache may not have cache_key column yet */ });
 
     return new Response(JSON.stringify({ ...output, cached: false, generated_at: now, data_sources: dataSources }), {
       status: 200, headers,

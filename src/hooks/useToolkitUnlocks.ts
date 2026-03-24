@@ -108,9 +108,8 @@ export function useToolkitUnlocks(projectId: string | undefined): {
           .eq('provider', 'stripe')
           .eq('status', 'active'),
 
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
-        (supabase as any)
-          .from('founder_tool_cache')
+        supabase
+          .from('founder_tool_cache' as never)
           .select('tool_type, generated_at')   // V2.1: incluir generated_at para Phase 2
           .eq('project_id', projectId!)
           .gt('expires_at', new Date().toISOString()),

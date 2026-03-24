@@ -14,6 +14,7 @@ import { useOnboarding } from '@/hooks/useOnboarding';
 import { WelcomeModal } from '@/components/onboarding/WelcomeModal';
 import { Menu, X } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { FeatureErrorBoundary } from '@/components/shared/FeatureErrorBoundary';
 import { useNavigationHistory } from '@/hooks/useNavigationHistory';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { usePhaseTransitionNotification } from '@/hooks/usePhaseTransitionNotification';
@@ -223,6 +224,7 @@ function IndexContent() {
             <TrialCountdownBanner projectId={currentProject.id} className="mx-8 mt-4" />
           )}
 
+          <FeatureErrorBoundary featureName="Main Content">
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               {/* Rutas relativas al proyecto */}
@@ -254,6 +256,7 @@ function IndexContent() {
               <Route path="pricing" element={<PricingPageView />} />
             </Routes>
           </Suspense>
+          </FeatureErrorBoundary>
         </main>
 
         {/* Global Search */}

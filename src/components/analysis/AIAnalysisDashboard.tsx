@@ -144,6 +144,21 @@ export function AIAnalysisDashboard({
                 {t('pricing.aiUsageBadge', { used: aiCalls.used, limit: aiCalls.limit })}
               </Badge>
             )}
+            {/* V5.6.4 — Confidence disclaimer */}
+            {cachedAnalysis && cachedAnalysis.confidence_overall < 0.6 && (
+              <Badge className="text-xs bg-orange-100 text-orange-700 border-orange-200">
+                {t('analysis.analisisPreliminar')}
+              </Badge>
+            )}
+            {/* V5.6.4 — Cache age indicator */}
+            {cachedAnalysis?.cached && cachedAnalysis.generated_at && (() => {
+              const ageDays = Math.floor((Date.now() - new Date(cachedAnalysis.generated_at).getTime()) / 86_400_000);
+              return ageDays > 0 ? (
+                <Badge variant="outline" className="text-xs text-gray-400">
+                  {t('analysis.basadoEnDatosDeHace', { days: ageDays })}
+                </Badge>
+              ) : null;
+            })()}
           </div>
           {cachedAnalysis && (
             <p className="text-xs text-gray-500 mt-1">

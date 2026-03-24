@@ -104,9 +104,8 @@ function useGeneratedTools(projectId: string | undefined) {
     enabled:   !!projectId,
     staleTime: 2 * 60_000,
     queryFn:   async () => {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const { data } = await (supabase as any)
-        .from('founder_tool_cache')
+      const { data } = await supabase
+        .from('founder_tool_cache' as never)
         .select('tool_type')
         .eq('project_id', projectId!);
       return ((data ?? []) as { tool_type: string }[]).map(r => r.tool_type as ToolType);
