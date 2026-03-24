@@ -26,6 +26,8 @@ export function useCreateTask() {
     onSuccess: (_data, variables) => {
       if (variables.project_id) {
         queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(variables.project_id) });
+        // V4.4.4: Invalidate engine so phase scores reflect the new task
+        queryClient.invalidateQueries({ queryKey: queryKeys.engine.all(variables.project_id) });
       }
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
     },

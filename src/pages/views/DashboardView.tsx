@@ -112,18 +112,21 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     margen: objectivesMap.margen * Math.max(members.length, 1),
   };
 
-  // Transform members for widgets
-  const membersForRanking = members.map(m => ({
-    id: m.id,
-    nombre: m.nombre,
-    color: m.color || '#6366F1',
-    obvs: Number(m.obvs) || 0,
-    margen: Number(m.margen) || 0,
-    lps: Number(m.lps) || 0,
-    bps: Number(m.bps) || 0,
-    cps: Number(m.cps) || 0,
-    facturacion: Number(m.facturacion) || 0,
-  }));
+  // V4.4.10: Memoize to avoid re-renders of TopRankingsWidget
+  const membersForRanking = useMemo(() =>
+    members.map(m => ({
+      id: m.id,
+      nombre: m.nombre,
+      color: m.color || '#6366F1',
+      obvs: Number(m.obvs) || 0,
+      margen: Number(m.margen) || 0,
+      lps: Number(m.lps) || 0,
+      bps: Number(m.bps) || 0,
+      cps: Number(m.cps) || 0,
+      facturacion: Number(m.facturacion) || 0,
+    })),
+    [members]
+  );
 
   // O5.V2.2 — Check if user has zero data
   const hasZeroData = members.length === 0

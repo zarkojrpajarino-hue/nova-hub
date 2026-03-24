@@ -113,6 +113,9 @@ export function useCRMPipeline(
       toast.success(`Lead movido a ${stageName}`);
 
       queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
+      // V4.4.6: Use queryKeys.leads.all for broad invalidation instead of raw string
+      queryClient.invalidateQueries({ queryKey: queryKeys.leads.all });
+      // Also invalidate legacy key used by ProjectCRMTab (prefix match)
       queryClient.invalidateQueries({ queryKey: ['project_leads'] as const });
     } catch (_error) {
       toast.error('Error al mover el lead');

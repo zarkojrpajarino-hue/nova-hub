@@ -1050,6 +1050,8 @@ export function useUpsertOBVParticipants() {
     },
     onSuccess: (_data, { projectId }) => {
       queryClient.invalidateQueries({ queryKey: queryKeys.obvs.byProject(projectId) });
+      // V4.4.5: Invalidate engine so phase scores reflect OBV participant changes
+      queryClient.invalidateQueries({ queryKey: queryKeys.engine.all(projectId) });
     },
   });
 }
