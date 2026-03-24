@@ -13,9 +13,10 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
@@ -61,6 +62,11 @@ Deno.serve(async (req) => {
     // Parse request body
     const body: GenerateRolesRequest = await req.json();
     const { project_id, project_name, industry, business_idea, work_mode } = body;
+
+    // B2.B — Verify project membership
+    if (project_id) {
+      await verifyProjectMembership(supabaseAdmin, user.id, project_id, origin);
+    }
 
     // Validate required fields
     if (!project_id || !project_name || !industry || !business_idea || !work_mode) {

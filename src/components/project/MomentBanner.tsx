@@ -6,7 +6,7 @@
  * Warnings: banner persistente con CTA.
  */
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, memo } from 'react';
 import { X, PartyPopper, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMomentDetector, markMomentSeen, persistMoment } from '@/hooks/useMomentDetector';
@@ -65,7 +65,7 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
   );
 }
 
-export function MomentBanner({ projectId }: MomentBannerProps) {
+export const MomentBanner = memo(function MomentBanner({ projectId }: MomentBannerProps) {
   const { topMoment } = useMomentDetector(projectId);
   const [dismissed, setDismissed] = useState(false);
   const [confettiFired, setConfettiFired] = useState(false);
@@ -91,4 +91,4 @@ export function MomentBanner({ projectId }: MomentBannerProps) {
       projectId={projectId}
     />
   );
-}
+});

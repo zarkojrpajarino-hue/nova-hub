@@ -17,7 +17,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 
 const MAX_INSIGHTS = 10
 
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
   const serviceClient  = createClient(supabaseUrl, serviceRoleKey)
 
   try {
-    await validateAuth(req)
+    const { user } = await validateAuth(req)
     const { project_id } = await req.json()
 
     if (!project_id) {
@@ -93,6 +93,9 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       )
     }
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(serviceClient, user.id, project_id, origin)
 
     // Read all active (non-expired) insights for this project
     const now = new Date().toISOString()

@@ -17,7 +17,7 @@
  */
 
 import { Info, X } from 'lucide-react';
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
@@ -57,7 +57,7 @@ function getRiskInputs(t: (k: string) => string): InputDef[] {
   ];
 }
 
-export function DataCompletenessCard({ engineData, onNavigateToTab }: DataCompletenessCardProps) {
+export const DataCompletenessCard = memo(function DataCompletenessCard({ engineData, onNavigateToTab }: DataCompletenessCardProps) {
   const { t } = useTranslation();
   const [dismissed, setDismissed] = useState(false);
 
@@ -159,4 +159,4 @@ export function DataCompletenessCard({ engineData, onNavigateToTab }: DataComple
       </div>
     </div>
   );
-}
+});

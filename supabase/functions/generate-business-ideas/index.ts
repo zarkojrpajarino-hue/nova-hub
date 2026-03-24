@@ -21,6 +21,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuthWithUserId } from '../_shared/auth.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -50,8 +52,34 @@ serve(async (req) => {
       throw new Error('User interests not found. Complete onboarding first.');
     }
 
-    // 2. Generar ideas con GPT-4
+    // V4.3.7 — Check ai_analysis_cache before calling LLM
+    const cacheKey = `business_ideas_${user_id}`;
+    const { data: cached } = await supabaseClient
+      .from('ai_analysis_cache')
+      .select('*')
+      .eq('cache_key', cacheKey)
+      .order('generated_at', { ascending: false })
+      .limit(1)
+      .maybeSingle();
+
+    if (cached && cached.expires_at && new Date(cached.expires_at) > new Date()) {
+      console.log('Returning cached business ideas for user:', user_id);
+      return new Response(
+        JSON.stringify({
+          ...(cached.output as Record<string, unknown>),
+          cached: true,
+          generated_at: cached.generated_at,
+        }),
+        {
+          headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
+          status: 200,
+        }
+      );
+    }
+
+    // 2. Generar ideas con Claude
     const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
+    const startTime = Date.now();
 
     const prompt = buildIdeaGenerationPrompt(interests as UserInterests);
 
@@ -167,16 +195,47 @@ console.error('Parse error');
       }
     }
 
+    const resultPayload = {
+      ideas: savedIdeas,
+      total_generated: savedIdeas.length,
+      ideas_filtered_out: ideasFilteredOut + (ideas.length - filteredIdeas.length),
+      filter_reasons: filterReasons,
+      message: `${savedIdeas.length} ideas de negocio generadas personalizadas para ti`,
+      next_step: 'select_idea',
+      success: true,
+    };
+
+    // V4.3.7 — Store result in ai_analysis_cache (TTL 24h)
+    const cacheExpiry = new Date();
+    cacheExpiry.setHours(cacheExpiry.getHours() + 24);
+    await supabaseClient.from('ai_analysis_cache').insert({
+      cache_key: cacheKey,
+      generated_at: new Date().toISOString(),
+      expires_at: cacheExpiry.toISOString(),
+      output: resultPayload,
+      tokens_used: aiData.usage?.input_tokens + aiData.usage?.output_tokens || null,
+      model: 'claude-3-5-sonnet-20241022',
+    }).then(({ error: cacheErr }) => {
+      if (cacheErr) console.error('Cache insert failed:', cacheErr);
+    });
+
+    // V4.3.6 — Log AI call
+    const executionTimeMs = Date.now() - startTime;
+    await logAICall({
+      supabaseClient,
+      projectId: undefined,
+      userId: user_id,
+      functionName: 'generate-business-ideas',
+      inputData: { user_id, interests_summary: interests.hobbies },
+      outputData: { total_generated: savedIdeas.length },
+      success: true,
+      executionTimeMs,
+      tokensUsed: aiData.usage?.input_tokens + aiData.usage?.output_tokens || undefined,
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
+
     return new Response(
-      JSON.stringify({
-        ideas: savedIdeas,
-        total_generated: savedIdeas.length,
-        ideas_filtered_out: ideasFilteredOut + (ideas.length - filteredIdeas.length),
-        filter_reasons: filterReasons,
-        message: `${savedIdeas.length} ideas de negocio generadas personalizadas para ti`,
-        next_step: 'select_idea',
-        success: true,
-      }),
+      JSON.stringify(resultPayload),
       {
         headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
         status: 200,

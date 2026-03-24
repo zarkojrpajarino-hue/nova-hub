@@ -7,9 +7,10 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
@@ -89,19 +90,8 @@ Deno.serve(async (req) => {
       });
     }
 
-    // Verificar que el usuario es miembro del proyecto
-    const { data: userProfile } = await supabaseAdmin
-      .from('profiles')
-      .select('id')
-      .eq('auth_id', user.id)
-      .single();
-
-    if (!userProfile) {
-      return new Response(
-        JSON.stringify({ error: 'User profile not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
-      );
-    }
+    // B2.B — Use shared verifyProjectMembership
+    await verifyProjectMembership(supabaseAdmin, user.id, project_id, origin);
 
     const { data: userMembership } = await supabaseAdmin
       .from('project_members')

@@ -10,7 +10,7 @@
  * - "Ver señales ▼": expande panel inline con bullets y contexto.
  */
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, memo } from 'react'
 import { useNavigate } from 'react-router-dom'
 import { ChevronDown, ChevronUp, AlertTriangle, ShieldCheck, ShieldAlert, ShieldOff } from 'lucide-react'
 import { Button } from '@/components/ui/button'
@@ -107,7 +107,7 @@ const SOURCE_LABEL: Partial<Record<string, string>> = {
   ai_inferred:     t('project.estimación'),
 }
 
-export function NextActionFocusBlock({
+export const NextActionFocusBlock = memo(function NextActionFocusBlock({
   projectId,
   onNavigateToTab,
 }: NextActionFocusBlockProps) {
@@ -374,4 +374,4 @@ export function NextActionFocusBlock({
       )}
     </div>
   )
-}
+});

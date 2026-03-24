@@ -12,7 +12,7 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
@@ -47,18 +47,8 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
 
-    // Verify user is a member of the project
-    const { data: memberCheck } = await supabase
-      .from('project_members')
-      .select('id')
-      .eq('project_id', projectId)
-      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', user.id).single()).data?.id ?? '')
-      .maybeSingle();
-
-    if (!memberCheck) {
-      return new Response(JSON.stringify({ error: 'Not a member of this project' }),
-        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
-    }
+    // B2.B — Use shared verifyProjectMembership
+    await verifyProjectMembership(supabase, user.id, projectId, origin);
 
     const { data: project } = await supabase
       .from('projects')

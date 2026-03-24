@@ -11,7 +11,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts'
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3'
 
@@ -74,6 +74,11 @@ serve(async (req) => {
         JSON.stringify({ error: 'Meeting not found' }),
         { status: 404, headers: jsonHeaders },
       )
+    }
+
+    // B2.B — Verify project membership via meeting's project_id
+    if (meeting.project_id) {
+      await verifyProjectMembership(supabase, user.id, meeting.project_id, origin)
     }
 
     const { data: insights } = await supabase

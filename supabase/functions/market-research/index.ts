@@ -12,7 +12,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
@@ -97,6 +97,11 @@ serve(async (req) => {
     const problemStatement = sf(body.problemStatement);
     const geography = sf(body.geography) || 'global';
     const projectId = body.projectId;
+
+    // B2.B — Verify project membership if projectId provided
+    if (projectId) {
+      await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
+    }
 
     if (!idea || !industry || !problemStatement) {
       return new Response(

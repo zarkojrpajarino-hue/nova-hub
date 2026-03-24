@@ -21,9 +21,6 @@ vi.mock('@/components/dashboard/WeeklyEvolutionChart', () => ({
 vi.mock('@/components/dashboard/TopRankingsWidget', () => ({
   TopRankingsWidget: () => <div data-testid="top-rankings-widget">Rankings</div>,
 }));
-vi.mock('@/components/dashboard/RecentActivityFeed', () => ({
-  RecentActivityFeed: () => <div data-testid="recent-activity-feed">Activity</div>,
-}));
 vi.mock('@/components/dashboard/PendingValidationsWidget', () => ({
   PendingValidationsWidget: () => <div data-testid="pending-validations-widget">Validations</div>,
 }));

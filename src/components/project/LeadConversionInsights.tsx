@@ -9,9 +9,8 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { TrendingUp, Clock } from 'lucide-react';
 import { SourceBadge } from '@/components/shared/SourceBadge';
-
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
+
 interface StageTransition {
   from_status: string;
   to_status: string;

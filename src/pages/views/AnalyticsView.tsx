@@ -17,6 +17,8 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { ExportButton } from '@/components/export/ExportButton';
 import { AnalyticsPreviewModal } from '@/components/preview/AnalyticsPreviewModal';
+import { CompetitiveAnalysisView } from '@/components/analytics/CompetitiveAnalysisView';
+import { WeeklyInsightsView } from '@/components/analytics/WeeklyInsightsView';
 
 import { useTranslation } from 'react-i18next';
 interface AnalyticsViewProps {
@@ -238,11 +240,13 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
 
         {/* Main Tabs */}
         <Tabs defaultValue="partners" className="space-y-6">
-          <TabsList className="grid grid-cols-4 w-fit">
+          <TabsList className="grid grid-cols-6 w-fit">
             <TabsTrigger value="partners">{t('analytics.comparativaSocios')}</TabsTrigger>
             <TabsTrigger value="projects">{t('analytics.comparativaProyectos')}</TabsTrigger>
             <TabsTrigger value="temporal">{t('analytics.evoluciónTemporal')}</TabsTrigger>
             <TabsTrigger value="predictions">{t('analytics.predicciones')}</TabsTrigger>
+            <TabsTrigger value="competitive">{t('analytics.competitiveTab')}</TabsTrigger>
+            <TabsTrigger value="weekly">{t('analytics.weeklyTab')}</TabsTrigger>
           </TabsList>
 
           {/* Partners Comparison Tab */}

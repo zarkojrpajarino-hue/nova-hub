@@ -7,7 +7,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 
 interface SlackMessage {
@@ -36,6 +36,11 @@ serve(async (req) => {
 
     // Initialize Supabase client
         const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    // B2.B — Verify project membership
+    if (project_id) {
+      await verifyProjectMembership(supabaseClient, user.id, project_id, origin);
+    }
 
     const rateLimitResult = await checkRateLimit(user.id, 'send-slack-notification', RateLimitPresets.AI_GENERATION);
     if (!rateLimitResult.allowed) {

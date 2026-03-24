@@ -31,35 +31,40 @@ export default defineConfig(({ mode }) => ({
       output: {
         // ✨ OPTIMIZADO: Code splitting por vendors
         manualChunks: {
-          // React core
-          'react-vendor': ['react', 'react-dom', 'react-router-dom'],
+          // V4.9.1 — Optimized manual chunks for code splitting
+          'vendor-react': ['react', 'react-dom', 'react-router-dom'],
 
-          // React Query
-          'tanstack-vendor': ['@tanstack/react-query'],
+          'vendor-query': ['@tanstack/react-query'],
 
           // Supabase
           'supabase-vendor': ['@supabase/supabase-js'],
 
-          // UI libraries
-          'ui-vendor': [
+          // UI libraries (Radix + CVA + merge utils)
+          'vendor-ui': [
             '@radix-ui/react-dialog',
             '@radix-ui/react-dropdown-menu',
             '@radix-ui/react-tabs',
             '@radix-ui/react-tooltip',
             '@radix-ui/react-select',
+            'class-variance-authority',
+            'clsx',
+            'tailwind-merge',
           ],
 
           // Charts
-          'charts-vendor': ['recharts'],
+          'vendor-charts': ['recharts'],
 
           // Icons
           'icons-vendor': ['lucide-react'],
 
+          // i18n
+          'vendor-i18n': ['i18next', 'react-i18next'],
+
           // Forms & Validation
-          'forms-vendor': ['react-hook-form', 'zod'],
+          'vendor-forms': ['react-hook-form', 'zod', '@hookform/resolvers'],
 
           // Utilities
-          'utils-vendor': ['date-fns', 'clsx', 'tailwind-merge'],
+          'utils-vendor': ['date-fns'],
         },
 
         // ✨ OPTIMIZADO: Nombres de chunks consistentes

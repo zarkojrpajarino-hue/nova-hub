@@ -5,7 +5,7 @@
  * Muestra días restantes y permite upgrade
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
@@ -20,7 +20,7 @@ interface TrialCountdownBannerProps {
   className?: string;
 }
 
-export function TrialCountdownBanner({ projectId, className }: TrialCountdownBannerProps) {
+export const TrialCountdownBanner = memo(function TrialCountdownBanner({ projectId, className }: TrialCountdownBannerProps) {
   const { t } = useTranslation();
   const { isTrial, daysLeft, isExpiringSoon: _isExpiringSoon } = useTrialStatus(projectId);
   const availablePlans = useAvailablePlans();
@@ -169,4 +169,4 @@ export function TrialCountdownBanner({ projectId, className }: TrialCountdownBan
       />
     </>
   );
-}
+});

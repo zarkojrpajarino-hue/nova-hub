@@ -12,7 +12,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 
 const ASANA_API = 'https://app.asana.com/api/1.0'
 
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { user } = await validateAuth(req)
+    const { user, serviceClient } = await validateAuth(req)
     const { project_id, pat } = await req.json()
 
     if (!project_id || !pat) {
@@ -33,6 +33,9 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       )
     }
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(serviceClient, user.id, project_id, origin)
 
     // 1. Validar PAT contra Asana API — obtener usuario y primer workspace
     let workspaceGid = ''

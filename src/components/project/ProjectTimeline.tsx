@@ -5,6 +5,7 @@
  * Usa datos de project_phase_history, decision_events, strategic_cycles.
  */
 
+import { memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -113,7 +114,7 @@ interface ProjectTimelineProps {
   projectId: string;
 }
 
-export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
+export const ProjectTimeline = memo(function ProjectTimeline({ projectId }: ProjectTimelineProps) {
   const { t } = useTranslation();
   const { data: events, isLoading } = useProjectTimeline(projectId, t);
 
@@ -163,4 +164,4 @@ export function ProjectTimeline({ projectId }: ProjectTimelineProps) {
       </div>
     </div>
   );
-}
+});

@@ -200,3 +200,29 @@ export function trackIntegrationError(props: {
 }) {
   posthog.capture('integration_error', props);
 }
+
+// ─────────────────────────────────────────────────────────────────────────────
+// V4.6.5 — TTFV (Time to First Value) tracking
+// Fires when a user completes their first meaningful action:
+//   first OBV, first task completed, first KPI.
+// timeFromSignup = seconds between profile creation and this event.
+// ─────────────────────────────────────────────────────────────────────────────
+
+export type TTFVAction = 'first_obv' | 'first_task_completed' | 'first_kpi';
+
+/**
+ * Track Time-to-First-Value.
+ * Call this from moment-detector handlers when first_obv, first_task_completed
+ * or first_kpi moments are detected.
+ */
+export function trackTTFV(props: {
+  project_id: string;
+  action: TTFVAction;
+  time_from_signup_seconds: number;
+}) {
+  posthog.capture('ttfv', {
+    project_id: props.project_id,
+    action: props.action,
+    timeFromSignup: props.time_from_signup_seconds,
+  });
+}

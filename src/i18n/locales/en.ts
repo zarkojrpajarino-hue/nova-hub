@@ -1,4 +1,4 @@
-// Auto-generated — 7542 keys
+// Auto-generated — 7599 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
@@ -1609,7 +1609,11 @@ export const en = {
     "fastStartTakes4Min": "Fast Start toma ~4 minutos. Puedes completar el Deep Setup despues para desbloquear herramientas avanzadas.",
     "threeOptionsForYourProfile": "3 opciones personalizadas para tu perfil. Elige la que mas te convenza.",
     "geoContextHint": "En {{country}}, el sector de {{industry}} tiene oportunidades unicas. Las ideas estan adaptadas a tu mercado local.",
-    "yourIndustry": "tu industria"
+    "yourIndustry": "tu industria",
+    "firstActionTitle": "Tu primera accion",
+    "firstActionSubtitle": "El motor de fases ha calculado tu prioridad. Completala para activar el sistema.",
+    "doItNow": "Hacerlo ahora",
+    "laterOnDashboard": "Lo hare despues desde el dashboard"
   },
   "pathToMaster": {
     "cargando": "Loading...",
@@ -6984,7 +6988,25 @@ export const en = {
     "análisisDeMercadoY": "Market analysis and ideal customer profiles",
     "respuestaEnMenosDe": "Response in less than 2 hours",
     "funcionalidadPremium": "Premium feature",
-    "upgradeComingSoon": "The payment system will be available soon. Your selection has been recorded."
+    "upgradeComingSoon": "The payment system will be available soon. Your selection has been recorded.",
+    "nudge": {
+      "aiCallsUsed": "{{used}}/{{limit}} llamadas IA usadas",
+      "aiCallsRemaining": "{{remaining}} restantes",
+      "noCallsRemaining": "Sin llamadas restantes este mes",
+      "aiCallsRunningLow": "Tus llamadas IA se estan agotando",
+      "aiLimitReached": "Limite de llamadas IA alcanzado",
+      "upgradeForMore": "Upgrade para mas",
+      "upgrade": "Upgrade",
+      "dismiss": "Cerrar",
+      "memberLimitReached": "Limite de {{count}} miembros alcanzado",
+      "memberLimitNear": "{{current}} de {{limit}} miembros usados",
+      "memberUpgradeHint": "Upgrade tu plan para invitar a mas miembros a tu equipo.",
+      "projectLimitReached": "Limite de {{limit}} proyecto(s) alcanzado",
+      "projectUpgradeHint": "Upgrade tu plan para crear mas proyectos.",
+      "manageBilling": "Gestionar facturacion",
+      "authRequired": "Debes iniciar sesion para acceder al portal de facturacion.",
+      "portalError": "Error al abrir el portal de facturacion. Intenta de nuevo."
+    }
   },
   "tasks": {
     "aiTaskExecutor": "AI Task Executor",
@@ -7525,8 +7547,28 @@ export const en = {
     "pricingTitle": "Plans for every stage",
     "pricingSub": "Choose the plan that fits your startup",
     "starterDesc": "To validate and explore your idea",
+    "starterItems": [
+      "25 members",
+      "500 tasks",
+      "Basic KPIs",
+      "Email support"
+    ],
     "proDesc": "To grow and scale your business",
+    "proItems": [
+      "100 members",
+      "Unlimited tasks",
+      "Advanced analytics",
+      "AI features",
+      "Priority support"
+    ],
     "enterpriseDesc": "Custom enterprise solution",
+    "enterpriseItems": [
+      "Unlimited members",
+      "Everything unlimited",
+      "Custom integrations",
+      "Dedicated manager",
+      "Guaranteed SLA"
+    ],
     "popular": "Most popular",
     "perMonth": "/month",
     "startWith": "Start with {{plan}}",

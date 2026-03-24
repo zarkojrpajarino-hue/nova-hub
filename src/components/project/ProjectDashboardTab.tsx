@@ -26,7 +26,7 @@ import type { PhaseStatKey } from '@/lib/phase-features';
 import { PhaseRoadmap } from './PhaseRoadmap';
 import { CycleDashboard } from './CycleDashboard';
 import { MomentBanner } from './MomentBanner';
-import { OptimusProfileCard } from './OptimusProfileCard';
+// OptimusProfileCard removed from dashboard — component file kept for Settings migration
 import { ProjectTimeline } from './ProjectTimeline';
 import { TeamRecommendation } from './TeamRecommendation';
 import { LeadConversionInsights } from './LeadConversionInsights';
@@ -348,7 +348,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
           {/* Sidebar items hidden in Zen Mode */}
           {!isZenMode && (
             <>
-              <OptimusProfileCard projectId={project.id} />
+              {/* OptimusProfileCard removed — V4.4.15 */}
               <PlanLimitsIndicator projectId={project.id} />
               <FeatureTeasersPanel projectId={project.id} />
               {showDelegationHint && (

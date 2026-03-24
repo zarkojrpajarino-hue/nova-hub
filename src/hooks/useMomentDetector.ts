@@ -61,7 +61,7 @@ export function useMomentDetector(projectId: string | undefined) {
       const now = new Date();
       const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
 
-      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult, obvCountResult, taskCountResult, aiCallsResult, projectCountResult] = await Promise.all([
+      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult, obvCountResult, taskCountResult, aiCallsResult, projectCountResult, obvValidatedResult] = await Promise.all([
         supabase
           .from('obvs')
           .select('id')
@@ -125,6 +125,12 @@ export function useMomentDetector(projectId: string | undefined) {
         supabase
           .from('project_members')
           .select('project_id', { count: 'exact', head: true }),
+        // [V4.8.4] Total validated OBVs for micro-celebrations
+        supabase
+          .from('obvs')
+          .select('id', { count: 'exact', head: true })
+          .eq('project_id', projectId!)
+          .eq('status', 'validated'),
       ]);
 
       const mrrData = mrrResult.data ?? [];
@@ -153,6 +159,7 @@ export function useMomentDetector(projectId: string | undefined) {
         runwayMonths,
         totalOBVs: obvCountResult.count ?? 0,
         totalTasksCompleted: taskCountResult.count ?? 0,
+        totalOBVsValidated: obvValidatedResult.count ?? 0,
         aiCallsUsed: aiCallsResult.count ?? 0,
         projectCount: projectCountResult.count ?? 0,
       };
@@ -198,6 +205,8 @@ export function useMomentDetector(projectId: string | undefined) {
       activeCycleScore: activeCycle?.cycle_score ?? null,
       totalOBVs: extraData.totalOBVs,
       totalTasksCompleted: extraData.totalTasksCompleted,
+      totalOBVsValidated: extraData.totalOBVsValidated,
+      hasTeamMembers: extraData.teamSize >= 2,
       aiCallsUsed: extraData.aiCallsUsed,
       projectCount: extraData.projectCount,
       seenMoments: getSeenMoments(projectId!),

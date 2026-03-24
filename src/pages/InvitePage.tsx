@@ -11,10 +11,11 @@ import { useQuery, useMutation } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { Loader2, Users, CheckCircle2, AlertTriangle } from 'lucide-react';
+import { Loader2, Users, CheckCircle2, AlertTriangle, Rocket, BarChart3, Target } from 'lucide-react';
 import { toast } from 'sonner';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { useEffect, useState } from 'react';
+import { Separator } from '@/components/ui/separator';
 
 import { useTranslation } from 'react-i18next';
 export default function InvitePage() {
@@ -22,6 +23,9 @@ export default function InvitePage() {
   const { token } = useParams<{ token: string }>();
   const navigate = useNavigate();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+  const [showMiniTour, setShowMiniTour] = useState(false);
+  const [tourStep, setTourStep] = useState(0);
+  const [acceptedProjectId, setAcceptedProjectId] = useState<string | null>(null);
 
   // Check auth
   useEffect(() => {
@@ -65,8 +69,9 @@ export default function InvitePage() {
     },
     onSuccess: (data) => {
       toast.success(t('invite.teHasUnidoAl'));
-      // Navigate to mini-onboarding or project
-      navigate(`/proyecto/${data.project_id}`);
+      setAcceptedProjectId(data.project_id ?? null);
+      setShowMiniTour(true);
+      setTourStep(0);
     },
     onError: (err: Error) => {
       toast.error(err.message || t('invite.errorAlAceptarInvitación'));
@@ -121,6 +126,74 @@ export default function InvitePage() {
     );
   }
 
+  // Mini-tour steps
+  const tourSteps = [
+    {
+      icon: <Rocket className="h-8 w-8 text-[#5CE1E6]" />,
+      title: t('invite.tourStep1Title'),
+      desc: t('invite.tourStep1Desc'),
+    },
+    {
+      icon: <BarChart3 className="h-8 w-8 text-[#FF66C4]" />,
+      title: t('invite.tourStep2Title'),
+      desc: t('invite.tourStep2Desc'),
+    },
+    {
+      icon: <Target className="h-8 w-8 text-[#7C3AED]" />,
+      title: t('invite.tourStep3Title'),
+      desc: t('invite.tourStep3Desc'),
+    },
+  ];
+
+  // Post-acceptance mini-tour
+  if (showMiniTour) {
+    const step = tourSteps[tourStep];
+    const isLast = tourStep === tourSteps.length - 1;
+
+    return (
+      <div className="flex items-center justify-center min-h-screen p-4">
+        <Card className="max-w-md w-full">
+          <CardContent className="pt-8 pb-8 text-center">
+            <div className="flex justify-center mb-4">{step.icon}</div>
+            <h2 className="text-lg font-bold mb-2">{step.title}</h2>
+            <p className="text-sm text-muted-foreground mb-6">{step.desc}</p>
+
+            <div className="flex items-center justify-center gap-1.5 mb-6">
+              {tourSteps.map((_, i) => (
+                <div
+                  key={i}
+                  className={`w-2 h-2 rounded-full ${i === tourStep ? 'bg-primary' : 'bg-muted-foreground/30'}`}
+                />
+              ))}
+            </div>
+
+            <div className="flex gap-2">
+              <Button
+                variant="ghost"
+                className="flex-1"
+                onClick={() => navigate(`/proyecto/${acceptedProjectId}`)}
+              >
+                {t('invite.tourSkip')}
+              </Button>
+              <Button
+                className="flex-1"
+                onClick={() => {
+                  if (isLast) {
+                    navigate(`/proyecto/${acceptedProjectId}`);
+                  } else {
+                    setTourStep(tourStep + 1);
+                  }
+                }}
+              >
+                {isLast ? t('invite.tourStart') : t('invite.tourNext')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   return (
     <div className="flex items-center justify-center min-h-screen p-4">
       <Card className="max-w-md w-full">
@@ -152,6 +225,29 @@ export default function InvitePage() {
                 {roleConfig?.desc && (
                   <p className="text-xs text-muted-foreground">{roleConfig.desc}</p>
                 )}
+              </div>
+            </div>
+          </div>
+
+          {/* V4.8.5 — What is Optimus-K? product explanation */}
+          <Separator className="my-4" />
+          <div className="bg-gradient-to-br from-[#5CE1E6]/10 to-[#7C3AED]/10 rounded-lg p-4 mb-4">
+            <h3 className="text-sm font-semibold mb-2">{t('invite.whatIsOptimusK')}</h3>
+            <p className="text-xs text-muted-foreground leading-relaxed">
+              {t('invite.whatIsOptimusKDesc')}
+            </p>
+            <div className="flex gap-3 mt-3">
+              <div className="text-center flex-1">
+                <Rocket className="h-4 w-4 mx-auto mb-1 text-[#5CE1E6]" />
+                <p className="text-[10px] text-muted-foreground">{t('invite.featurePhases')}</p>
+              </div>
+              <div className="text-center flex-1">
+                <BarChart3 className="h-4 w-4 mx-auto mb-1 text-[#FF66C4]" />
+                <p className="text-[10px] text-muted-foreground">{t('invite.featureMetrics')}</p>
+              </div>
+              <div className="text-center flex-1">
+                <Target className="h-4 w-4 mx-auto mb-1 text-[#7C3AED]" />
+                <p className="text-[10px] text-muted-foreground">{t('invite.featureAI')}</p>
               </div>
             </div>
           </div>

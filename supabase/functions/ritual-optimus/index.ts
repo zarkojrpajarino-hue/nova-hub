@@ -19,10 +19,11 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 const SYSTEM_PROMPT = `You are Optimus.
 
@@ -99,10 +100,15 @@ serve(async (req) => {
   }
 
   try {
-    const { supabaseClient, user } = await validateAuth(req);
+    const { supabaseClient, serviceClient, user } = await validateAuth(req);
 
     const body: RitualOptimusRequest = await req.json();
     const { projectId } = body;
+
+    // B2.B — Verify project membership
+    if (projectId) {
+      await verifyProjectMembership(serviceClient, user.id, projectId, origin);
+    }
     // Sanitize user-provided free-text input
     const nextAction = body.nextAction
       ? sanitizePromptInput(String(body.nextAction), SanitizerPresets.LONG_INPUT).sanitized

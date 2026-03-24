@@ -1,3 +1,4 @@
+import { memo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, User, TrendingDown, Calendar, Loader2, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -17,7 +18,7 @@ interface Alert {
   icon: typeof AlertTriangle;
 }
 
-export function SmartAlertsWidget({ hideHeader = false }: { hideHeader?: boolean }) {
+export const SmartAlertsWidget = memo(function SmartAlertsWidget({ hideHeader = false }: { hideHeader?: boolean }) {
   const { t } = useTranslation();
   const { data: profiles = [] } = useProfiles();
   const { data: projects = [] } = useProjects();
@@ -198,4 +199,4 @@ export function SmartAlertsWidget({ hideHeader = false }: { hideHeader?: boolean
       </div>
     </div>
   );
-}
+});

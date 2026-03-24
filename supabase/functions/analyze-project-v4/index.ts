@@ -12,7 +12,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
@@ -162,26 +162,8 @@ No repitas el analisis completo. Si no tienes datos suficientes para responder, 
       });
     }
 
-    // ── 1. Verificar pertenencia al proyecto ───────────────────────────────
-    const { data: membership } = await supabase
-      .from('project_members')
-      .select('id')
-      .eq('project_id', project_id)
-      .eq('member_id', user.id)
-      .maybeSingle();
-
-    if (!membership) {
-      // Verificar si es el creador
-      const { data: proj } = await supabase
-        .from('projects')
-        .select('id')
-        .eq('id', project_id)
-        .eq('created_by', user.id)
-        .maybeSingle();
-      if (!proj) {
-        return new Response(JSON.stringify({ error: 'Acceso denegado' }), { status: 403, headers });
-      }
-    }
+    // ── 1. B2.B — Use shared verifyProjectMembership ───────────────────────
+    await verifyProjectMembership(supabase, user.id, project_id, req.headers.get('Origin'));
 
     // ── 2. Leer caché y evaluar stale ─────────────────────────────────────
     const { data: cached } = await supabase

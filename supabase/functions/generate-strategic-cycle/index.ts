@@ -11,10 +11,11 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -48,18 +49,28 @@ Deno.serve(async (req) => {
       );
     }
 
-    // Verify user is a member of the project
-    const { data: memberCheck } = await supabase
-      .from('project_members')
-      .select('id')
-      .eq('project_id', projectId)
-      .eq('member_id', (await supabase.from('profiles').select('id').eq('auth_id', user.id).single()).data?.id ?? '')
+    // B2.B — Use shared verifyProjectMembership
+    await verifyProjectMembership(supabase, user.id, projectId, origin);
+
+    // V4.3.8 — Check ai_analysis_cache before calling LLM
+    const cacheKey = `strategic_cycle_${projectId}`;
+    const { data: cached } = await supabase
+      .from('ai_analysis_cache')
+      .select('*')
+      .eq('cache_key', cacheKey)
+      .order('generated_at', { ascending: false })
+      .limit(1)
       .maybeSingle();
 
-    if (!memberCheck) {
+    if (cached && cached.expires_at && new Date(cached.expires_at) > new Date()) {
+      console.log('Returning cached strategic cycle for project:', projectId);
       return new Response(
-        JSON.stringify({ error: 'Not a member of this project' }),
-        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+        JSON.stringify({
+          ...(cached.output as Record<string, unknown>),
+          cached: true,
+          generated_at: cached.generated_at,
+        }),
+        { headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
 
@@ -148,6 +159,7 @@ Genera un título de ciclo (5-7 palabras) que resuma la estrategia.`;
     }
 
     // Call Claude
+    const llmStartTime = Date.now();
     const systemPrompt = `Eres un estratega de startups de élite. Genera objetivos estratégicos para ciclos de 90 días.
 
 FORMATO DE RESPUESTA (JSON válido):
@@ -262,6 +274,35 @@ REGLAS:
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+
+    // V4.3.8 — Store result in ai_analysis_cache (TTL 24h)
+    const cacheExpiry = new Date();
+    cacheExpiry.setHours(cacheExpiry.getHours() + 24);
+    await supabase.from('ai_analysis_cache').insert({
+      cache_key: cacheKey,
+      project_id: projectId,
+      generated_at: new Date().toISOString(),
+      expires_at: cacheExpiry.toISOString(),
+      output: { success: true, cycle: newCycle },
+      tokens_used: aiResult.usage?.input_tokens + aiResult.usage?.output_tokens || null,
+      model: 'claude-3-5-sonnet-20241022',
+    }).then(({ error: cacheErr }) => {
+      if (cacheErr) console.error('Cache insert failed:', cacheErr);
+    });
+
+    // V4.3.6 — Log AI call
+    await logAICall({
+      supabaseClient: supabase,
+      projectId,
+      userId: user.id,
+      functionName: 'generate-strategic-cycle',
+      inputData: { projectId, trigger, cycleIndex: nextIndex },
+      outputData: { cycleId: newCycle?.id },
+      success: true,
+      executionTimeMs: Date.now() - llmStartTime,
+      tokensUsed: aiResult.usage?.input_tokens + aiResult.usage?.output_tokens || undefined,
+      modelUsed: 'claude-3-5-sonnet-20241022',
+    });
 
     return new Response(
       JSON.stringify({ success: true, cycle: newCycle }),

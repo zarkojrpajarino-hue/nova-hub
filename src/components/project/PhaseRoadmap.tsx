@@ -13,7 +13,7 @@
  * - V24.4: PhaseScoreBar (progreso 0-100 con marca en 75)
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { CheckCircle2, ChevronDown, ChevronUp, Lock, GraduationCap } from 'lucide-react';
 import { PHASE_LABELS, PHASE_DESCRIPTIONS, PHASE_METHODOLOGY } from '@/lib/engine';
@@ -102,7 +102,7 @@ interface PhaseRoadmapProps {
   engineData: ProjectEngineData | null | undefined;
 }
 
-export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
+export const PhaseRoadmap = memo(function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState(false);
 
@@ -250,4 +250,4 @@ export function PhaseRoadmap({ engineData }: PhaseRoadmapProps) {
       )}
     </div>
   );
-}
+});

@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useState, useEffect, lazy, Suspense } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, Zap, CheckCircle2, Activity, Plus, Sparkles, ShoppingCart } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, CheckCircle2, Activity, Plus, Sparkles, ShoppingCart } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
@@ -17,7 +17,7 @@ const WeeklyEvolutionChart = lazy(() =>
   import('@/components/dashboard/WeeklyEvolutionChart').then(m => ({ default: m.WeeklyEvolutionChart }))
 );
 import { TopRankingsWidget } from '@/components/dashboard/TopRankingsWidget';
-import { RecentActivityFeed } from '@/components/dashboard/RecentActivityFeed';
+// RecentActivityFeed removed — V4.4.13 (queryFn returns [] always, activity_log table does not exist)
 import { PendingValidationsWidget } from '@/components/dashboard/PendingValidationsWidget';
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
 import { EmptyStateDashboard } from '@/components/dashboard/EmptyStateDashboard';
@@ -315,15 +315,10 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <TopRankingsWidget members={membersForRanking} hideHeader />
         </OsWindow>
 
-        {/* Activity & Validations */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-          <OsWindow title={t('dashboard.actividadReciente')} icon={Zap}>
-            <RecentActivityFeed hideHeader />
-          </OsWindow>
-          <OsWindow title={t('dashboard.validacionesPendientes')} icon={CheckCircle2}>
-            <PendingValidationsWidget hideHeader />
-          </OsWindow>
-        </div>
+        {/* Validations */}
+        <OsWindow title={t('dashboard.validacionesPendientes')} icon={CheckCircle2}>
+          <PendingValidationsWidget hideHeader />
+        </OsWindow>
       </div>
 
       {/* Floating Help Widget */}

@@ -10,7 +10,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts'
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3'
 import { safeJsonParse } from '../_shared/safe-json-parse.ts'
@@ -66,6 +66,9 @@ serve(async (req) => {
     }
 
     const { user, serviceClient: supabase } = await validateAuth(req)
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(supabase, user.id, project_id, origin)
 
     const rateLimitResult = await checkRateLimit(user.id, 'get-meeting-brief', RateLimitPresets.AI_GENERATION)
     if (!rateLimitResult.allowed) return createRateLimitResponse(rateLimitResult, corsHeaders)

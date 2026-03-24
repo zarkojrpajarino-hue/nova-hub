@@ -16,6 +16,10 @@ export type MomentType =
   | 'phase_speed'
   | 'first_obv'
   | 'first_task_completed'
+  | 'first_obv_validated'
+  | 'first_team_member'
+  | 'fifth_obv'
+  | 'tenth_task'
   | 'stagnation_warning'
   | 'hard_signal_close'
   | 'cycle_ending_soon'
@@ -60,6 +64,8 @@ export interface MomentDetectorInput {
   // Micro-celebrations
   totalOBVs: number;               // total OBVs in project
   totalTasksCompleted: number;     // total tasks with status=done
+  totalOBVsValidated: number;      // total OBVs with status='validated'
+  hasTeamMembers: boolean;         // teamSize >= 2 (founder + 1 member)
   // F30: Financial runway
   runwayMonths: number | null;     // from key_metrics or stress test (null if unknown)
   // Upgrade nudge data
@@ -149,6 +155,48 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       severity: 'celebration',
       title: '¡Primera tarea completada!',
       message: 'Has ejecutado tu primera acción. El motor de fases ahora tiene datos para calcular tu velocidad.',
+    });
+  }
+
+  // [V4.8.4] First OBV validated
+  if (input.totalOBVsValidated === 1 && !input.seenMoments.includes('first_obv_validated')) {
+    moments.push({
+      type: 'first_obv_validated',
+      severity: 'celebration',
+      title: '¡Primera OBV validada!',
+      message: 'Tu equipo ha validado tu primera evidencia. Las validaciones son el corazón del sistema de fases.',
+    });
+  }
+
+  // [V4.8.4] First team member (teamSize >= 2)
+  if (input.hasTeamMembers && !input.seenMoments.includes('first_team_member')) {
+    moments.push({
+      type: 'first_team_member',
+      severity: 'celebration',
+      title: '¡Primer miembro del equipo!',
+      message: 'Ya no estás solo. Los equipos con 2+ miembros avanzan un 40% más rápido en promedio.',
+    });
+  }
+
+  // [V4.8.4] 5th OBV milestone
+  if (input.totalOBVs === 5 && !input.seenMoments.includes('fifth_obv')) {
+    moments.push({
+      type: 'fifth_obv',
+      severity: 'celebration',
+      title: '¡5 OBVs registradas!',
+      message: 'Llevas 5 validaciones. Estás construyendo un historial sólido de evidencia.',
+      data: { totalOBVs: 5 },
+    });
+  }
+
+  // [V4.8.4] 10th task completed
+  if (input.totalTasksCompleted === 10 && !input.seenMoments.includes('tenth_task')) {
+    moments.push({
+      type: 'tenth_task',
+      severity: 'celebration',
+      title: '¡10 tareas completadas!',
+      message: 'Has ejecutado 10 acciones. Tu velocidad de ejecución ya es medible y consistente.',
+      data: { totalTasks: 10 },
     });
   }
 

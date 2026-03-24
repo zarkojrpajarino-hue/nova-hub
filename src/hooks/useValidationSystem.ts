@@ -161,48 +161,41 @@ export function useMyPendingValidations() {
       
       if (error) throw error;
       
-      // Enrich with owner and item data
-      const enriched: PendingValidationItem[] = [];
-      
-      for (const pv of data || []) {
-        const item: PendingValidationItem = {
+      if (!data || data.length === 0) return [];
+
+      // Batch-fetch all owner profiles in one query (fixes N+1 waterfall)
+      const ownerIds = [...new Set(data.map(pv => pv.owner_id).filter(Boolean))];
+      const { data: owners } = ownerIds.length > 0
+        ? await supabase.from('profiles').select('id, nombre, color').in('id', ownerIds)
+        : { data: [] };
+      const ownerMap = new Map((owners ?? []).map(o => [o.id, o]));
+
+      // Batch-fetch all KPI titles in one query
+      const kpiIds = data.map(pv => pv.kpi_id).filter(Boolean) as string[];
+      const { data: kpis } = kpiIds.length > 0
+        ? await supabase.from('kpis').select('id, titulo').in('id', kpiIds)
+        : { data: [] };
+      const kpiMap = new Map((kpis ?? []).map(k => [k.id, k.titulo]));
+
+      // Batch-fetch all OBV titles in one query
+      const obvIds = data.map(pv => pv.obv_id).filter(Boolean) as string[];
+      const { data: obvs } = obvIds.length > 0
+        ? await supabase.from('obvs').select('id, titulo').in('id', obvIds)
+        : { data: [] };
+      const obvMap = new Map((obvs ?? []).map(o => [o.id, o.titulo]));
+
+      // Enrich all items without extra queries
+      return data.map(pv => {
+        const owner = ownerMap.get(pv.owner_id);
+        const titulo = pv.kpi_id ? kpiMap.get(pv.kpi_id) : pv.obv_id ? obvMap.get(pv.obv_id) : undefined;
+        return {
           ...pv,
           item_type: pv.item_type as 'kpi' | 'obv',
-        };
-        
-        // Get owner info
-        const { data: owner } = await supabase
-          .from('profiles')
-          .select('nombre, color')
-          .eq('id', pv.owner_id)
-          .single();
-        
-        if (owner) {
-          item.owner_nombre = owner.nombre;
-          item.owner_color = owner.color;
-        }
-        
-        // Get item title
-        if (pv.kpi_id) {
-          const { data: kpi } = await supabase
-            .from('kpis')
-            .select('titulo')
-            .eq('id', pv.kpi_id)
-            .single();
-          item.titulo = kpi?.titulo;
-        } else if (pv.obv_id) {
-          const { data: obv } = await supabase
-            .from('obvs')
-            .select('titulo')
-            .eq('id', pv.obv_id)
-            .single();
-          item.titulo = obv?.titulo;
-        }
-        
-        enriched.push(item);
-      }
-      
-      return enriched;
+          owner_nombre: owner?.nombre,
+          owner_color: owner?.color,
+          titulo,
+        } as PendingValidationItem;
+      });
     },
     enabled: !!profile?.id,
   });

@@ -17,7 +17,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
 import { Resend } from 'https://esm.sh/resend@2.0.0';
 
@@ -44,6 +44,9 @@ serve(async (req) => {
     }
 
         const { user, serviceClient: supabaseClient } = await validateAuth(req);
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(supabaseClient, user.id, project_id, origin);
 
     const rateLimitResult = await checkRateLimit(user.id, 'send-email-real', { maxRequests: 5, windowMs: 60000 });
     if (!rateLimitResult.allowed) {

@@ -5,7 +5,7 @@
  * Usa Recharts para visualización profesional
  */
 
-import { useState } from 'react';
+import { useState, memo } from 'react';
 import {
   LineChart,
   Line,
@@ -49,7 +49,7 @@ function getMETRICS(t: (k: string) => string) {
 ] as const;
 }
 
-export function EvolutionChart({ data }: EvolutionChartProps) {
+export const EvolutionChart = memo(function EvolutionChart({ data }: EvolutionChartProps) {
   const { t } = useTranslation();
   const [selectedMetric, setSelectedMetric] = useState<MetricType>('all');
 
@@ -196,4 +196,4 @@ export function EvolutionChart({ data }: EvolutionChartProps) {
       </CardContent>
     </Card>
   );
-}
+});

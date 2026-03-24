@@ -5,9 +5,10 @@ import type { Project, TeamMember, EnrichedTeamMember, OBV, Lead, Task, ProjectC
 import { TasksGenerationRequestSchema, validateRequestSafe } from '../_shared/validation-schemas.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 
 // Role labels for display
@@ -63,6 +64,9 @@ Deno.serve(async (req) => {
     const supabase = createClient(supabaseUrl, supabaseServiceKey, {
       auth: { autoRefreshToken: false, persistSession: false }
     });
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(supabase, authUserId, projectId, origin);
 
     console.log('Generating tasks for project:', projectId);
 
