@@ -16,6 +16,7 @@ import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
 
@@ -114,6 +115,8 @@ serve(async (req) => {
     // B2.B — Verify project membership
     if (projectId) {
       await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
+      // AI call limit check
+      await enforceAICallLimit(supabaseClient, projectId, origin);
     }
 
     if (!projectId || !businessName || !problemStatement || !solution) {

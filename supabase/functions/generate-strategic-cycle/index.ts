@@ -16,6 +16,7 @@ import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_s
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -51,6 +52,9 @@ Deno.serve(async (req) => {
 
     // B2.B — Use shared verifyProjectMembership
     await verifyProjectMembership(supabase, user.id, projectId, origin);
+
+    // AI call limit check
+    await enforceAICallLimit(supabase, projectId, origin);
 
     // V4.3.8 — Check ai_analysis_cache before calling LLM
     const cacheKey = `strategic_cycle_${projectId}`;

@@ -17,6 +17,7 @@ import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_s
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 
 // ── TTL por nivel ─────────────────────────────────────────────────────────────
 
@@ -82,6 +83,11 @@ serve(async (req) => {
     };
 
     const { project_id, mode = 'generate' } = body;
+
+    // AI call limit check
+    if (project_id) {
+      await enforceAICallLimit(supabase, project_id, req.headers.get('Origin'));
+    }
 
     // Sanitize free-text user inputs
     if (body.additional_context) {

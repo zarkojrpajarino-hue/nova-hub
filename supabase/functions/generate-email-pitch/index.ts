@@ -31,6 +31,7 @@ import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -102,6 +103,8 @@ serve(async (req) => {
 
     if (project_id) {
       await verifyProjectMembership(supabaseClient, user_id, project_id, origin);
+      // AI call limit check
+      await enforceAICallLimit(supabaseClient, project_id, origin);
     }
 
     let lead: LeadRecord | null = null;

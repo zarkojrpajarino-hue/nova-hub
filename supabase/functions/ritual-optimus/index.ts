@@ -24,6 +24,7 @@ import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 
 const SYSTEM_PROMPT = `You are Optimus.
 
@@ -108,6 +109,8 @@ serve(async (req) => {
     // B2.B — Verify project membership
     if (projectId) {
       await verifyProjectMembership(serviceClient, user.id, projectId, origin);
+      // AI call limit check
+      await enforceAICallLimit(serviceClient, projectId, origin);
     }
     // Sanitize user-provided free-text input
     const nextAction = body.nextAction

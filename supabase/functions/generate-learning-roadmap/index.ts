@@ -11,6 +11,7 @@ import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
@@ -92,6 +93,9 @@ Deno.serve(async (req) => {
 
     // B2.B — Use shared verifyProjectMembership
     await verifyProjectMembership(supabaseAdmin, user.id, project_id, origin);
+
+    // AI call limit check
+    await enforceAICallLimit(supabaseAdmin, project_id, origin);
 
     const { data: userMembership } = await supabaseAdmin
       .from('project_members')

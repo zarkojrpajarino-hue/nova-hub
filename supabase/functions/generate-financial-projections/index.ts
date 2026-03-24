@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 
@@ -110,6 +111,9 @@ serve(async (req) => {
     }
 
     await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
+
+    // AI call limit check
+    await enforceAICallLimit(supabaseClient, projectId, origin);
 
     // [B10] Cap growth_rate to reasonable bounds (max 50% monthly, min -20%)
     const cappedGrowthRate = Math.max(-20, Math.min(50, growth_rate_monthly));

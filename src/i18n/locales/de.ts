@@ -1,4 +1,4 @@
-// Auto-generated — 7583 keys
+// Auto-generated — 7656 keys
 /* eslint-disable */
 export const de = {
   "nav": {
@@ -1042,7 +1042,21 @@ export const de = {
     "invitaciónAgotada": "Invitación agotada",
     "estaInvitaciónHaExpirado": "Esta invitación ha expirado. Pide un nuevo enlace al líder del proyecto.",
     "estaInvitaciónYaAlcanzó": "Esta invitación ya alcanzó el máximo de usos.",
-    "proyecto": "Proyecto"
+    "proyecto": "Proyecto",
+    "whatIsOptimusK": "Que es Optimus-K?",
+    "whatIsOptimusKDesc": "Optimus-K es una plataforma de gestion estrategica para startups. Mide tu progreso real con un motor de fases, valida hipotesis con tu equipo y usa IA para acelerar decisiones.",
+    "featurePhases": "Motor de Fases",
+    "featureMetrics": "Metricas IA",
+    "featureAI": "Validaciones",
+    "tourStep1Title": "Motor de Fases",
+    "tourStep1Desc": "Tu proyecto avanza por 5 fases (0-4). Cada fase tiene objetivos claros y un score que mide tu progreso real.",
+    "tourStep2Title": "Metricas y Analytics",
+    "tourStep2Desc": "Dashboards con KPIs, predicciones IA y benchmarks. Todo lo que necesitas para tomar decisiones basadas en datos.",
+    "tourStep3Title": "Validaciones (OBVs)",
+    "tourStep3Desc": "Registra evidencia real de tu negocio. Tu equipo valida cada OBV para que el progreso sea verificable.",
+    "tourSkip": "Saltar",
+    "tourNext": "Siguiente",
+    "tourStart": "Empezar"
   },
   "learningRoadmap": {
     "seleccionaUnProyecto": "Selecciona un Proyecto",
@@ -2512,7 +2526,25 @@ export const de = {
     "identificaElProblema1": "Identifica el problema #1",
     "tresAccionesInmediatas": "3 acciones inmediatas",
     "seguimientoDiario": "Seguimiento diario",
-    "escalaSiNoMejora": "Escala si no mejora en 7 días"
+    "escalaSiNoMejora": "Escala si no mejora en 7 días",
+    "investorUpdate": "Investor Update",
+    "investorUpdateTitle": "Generar Investor Update",
+    "investorUpdateDesc": "Genera un email de actualizacion mensual para inversores usando los datos de tu motor de fases, metricas y milestones.",
+    "investorUpdateGenerate": "Generar Update",
+    "investorUpdateGenerating": "Generando investor update...",
+    "investorUpdateSubject": "Asunto",
+    "investorUpdateHighlights": "Puntos destacados",
+    "investorUpdatePreview": "Vista previa del email",
+    "investorUpdateCopied": "Texto copiado al portapapeles",
+    "investorUpdateCopyFailed": "Error al copiar",
+    "investorUpdateCopyBtn": "Copiar texto",
+    "investorUpdateCopiedBtn": "Copiado",
+    "investorUpdateRegenerate": "Regenerar",
+    "badgePhase": "Fase",
+    "badgeVerified": "Verified",
+    "badgeExported": "Badge exportado como imagen",
+    "badgeExportFailed": "Error al exportar badge",
+    "badgeExportBtn": "Exportar imagen"
   },
   "selectProject": {
     "seleccionaUnProyecto": "Selecciona un Proyecto",
@@ -2625,7 +2657,32 @@ export const de = {
     "leadsConvertidosVsTotal": "Leads: Convertidos vs Total",
     "sinNombre": "Sin nombre",
     "totalLeads": "Total Leads",
-    "ganados": "Ganados"
+    "ganados": "Ganados",
+    "competitiveTab": "Competencia",
+    "weeklyTab": "Insights Semanales",
+    "competitiveAnalysis": "Analisis Competitivo",
+    "competitiveNoData": "No hay datos de analisis competitivo disponibles. Ejecuta el generador SWOT para obtener tu primer analisis.",
+    "competitiveGeneratedAt": "Generado el {{date}}",
+    "competitiveCompetitors": "Competidores",
+    "competitiveSWOT": "Analisis SWOT",
+    "competitiveStrengths": "Fortalezas",
+    "competitiveWeaknesses": "Debilidades",
+    "competitiveOpportunities": "Oportunidades",
+    "competitiveThreats": "Amenazas",
+    "competitiveMarketGaps": "Oportunidades de Mercado",
+    "competitiveBenchmarks": "Benchmarks",
+    "competitiveStrategy": "Estrategia Recomendada",
+    "weeklyInsights": "Insights Semanales",
+    "weeklyInsightsNoData": "No hay insights semanales disponibles. Se generan automaticamente cada lunes.",
+    "weeklyInsightsPeriod": "{{start}} - {{end}}",
+    "weeklyInsightsSent": "Enviado",
+    "weeklyInsightsHighlights": "Puntos positivos",
+    "weeklyInsightsConcerns": "Puntos de atencion",
+    "weeklyInsightsRecommendations": "Recomendaciones",
+    "weeklyInsightsPriorities": "Prioridades proxima semana",
+    "acceleratorBenchmarking": "Benchmarking Aceleradora",
+    "acceleratorAnonymize": "Anonimizar",
+    "acceleratorDesc": "Comparacion anonima entre equipos dentro de la aceleradora"
   },
   "cRM": {
     "crmPipeline": "CRM Pipeline",
@@ -7170,7 +7227,25 @@ export const de = {
     "análisisDeMercadoY": "Análisis de mercado y perfiles de cliente ideal",
     "respuestaEnMenosDe": "Respuesta en menos de 2 horas",
     "funcionalidadPremium": "Funcionalidad premium",
-    "upgradeComingSoon": "El sistema de pagos estará disponible pronto. Tu selección ha sido registrada."
+    "upgradeComingSoon": "El sistema de pagos estará disponible pronto. Tu selección ha sido registrada.",
+    "nudge": {
+      "aiCallsUsed": "{{used}}/{{limit}} llamadas IA usadas",
+      "aiCallsRemaining": "{{remaining}} restantes",
+      "noCallsRemaining": "Sin llamadas restantes este mes",
+      "aiCallsRunningLow": "Tus llamadas IA se estan agotando",
+      "aiLimitReached": "Limite de llamadas IA alcanzado",
+      "upgradeForMore": "Upgrade para mas",
+      "upgrade": "Upgrade",
+      "dismiss": "Cerrar",
+      "memberLimitReached": "Limite de {{count}} miembros alcanzado",
+      "memberLimitNear": "{{current}} de {{limit}} miembros usados",
+      "memberUpgradeHint": "Upgrade tu plan para invitar a mas miembros a tu equipo.",
+      "projectLimitReached": "Limite de {{limit}} proyecto(s) alcanzado",
+      "projectUpgradeHint": "Upgrade tu plan para crear mas proyectos.",
+      "manageBilling": "Gestionar facturacion",
+      "authRequired": "Debes iniciar sesion para acceder al portal de facturacion.",
+      "portalError": "Error al abrir el portal de facturacion. Intenta de nuevo."
+    }
   },
   "pricing": {
     "title": "Elige el plan perfecto para tu startup",

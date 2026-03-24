@@ -9,6 +9,7 @@ import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { enforceAICallLimit } from '../_shared/aiLimitCheck.ts';
 
 
 // Role labels for display
@@ -67,6 +68,9 @@ Deno.serve(async (req) => {
 
     // B2.B — Verify project membership
     await verifyProjectMembership(supabase, authUserId, projectId, origin);
+
+    // AI call limit check
+    await enforceAICallLimit(supabase, projectId, origin);
 
     console.log('Generating tasks for project:', projectId);
 
