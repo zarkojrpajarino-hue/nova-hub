@@ -83,67 +83,71 @@ interface FeatureGateProps {
 
 /**
  * Información de display para cada feature
- * Define el nombre, descripción y plan mínimo requerido
+ * Define el nombre, descripción y plan mínimo requerido.
+ * Recibe `t` como parámetro porque debe llamarse dentro de un componente
+ * (useTranslation() no está disponible a nivel de módulo).
  */
-const FEATURE_INFO: Record<
+function getFeatureInfo(t: (key: string) => string): Record<
   GateableFeature,
   {
     name: string;
     description: string;
     requiredPlan: 'starter' | 'pro' | 'advanced' | 'enterprise';
   }
-> = {
-  ai_role_generation: {
-    name: 'Generación de Roles con IA',
-    description: t('subscription.creaRolesDeEquipo'),
-    requiredPlan: 'starter',
-  },
-  ai_task_generation: {
-    name: 'Generación de Tareas con IA',
-    description: t('subscription.generaTareasInteligentesY'),
-    requiredPlan: 'pro',
-  },
-  ai_logo_generation: {
-    name: 'Generación de Logo con IA',
-    description: t('subscription.creaLogosProfesionalesY'),
-    requiredPlan: 'pro',
-  },
-  ai_buyer_persona: {
-    name: 'Buyer Persona con IA',
-    description: t('subscription.análisisInteligenteDeTu'),
-    requiredPlan: 'pro',
-  },
-  advanced_analytics: {
-    name: t('subscription.analyticsAvanzados'),
-    description: t('subscription.dashboardsDetalladosConMétricas'),
-    requiredPlan: 'advanced',
-  },
-  custom_branding: {
-    name: t('subscription.brandingPersonalizado'),
-    description: t('subscription.personalizaColoresLogosY'),
-    requiredPlan: 'advanced',
-  },
-  api_access: {
-    name: 'Acceso a API',
-    description: t('subscription.integraNovaHubCon'),
-    requiredPlan: 'advanced',
-  },
-  priority_support: {
-    name: t('subscription.soportePrioritario'),
-    description: t('subscription.respuestasGarantizadasEnMenos'),
-    requiredPlan: 'advanced',
-  },
-  white_label: {
-    name: t('subscription.whiteLabel'),
-    description: t('subscription.eliminaTodaMarcaDe'),
-    requiredPlan: 'enterprise',
-  },
-  custom_domain: {
-    name: t('subscription.dominioPersonalizado'),
-    description: t('subscription.usaTuPropioDominio'),
-    requiredPlan: 'enterprise',
-  },
-};
+> {
+  return {
+    ai_role_generation: {
+      name: 'Generación de Roles con IA',
+      description: t('subscription.creaRolesDeEquipo'),
+      requiredPlan: 'starter',
+    },
+    ai_task_generation: {
+      name: 'Generación de Tareas con IA',
+      description: t('subscription.generaTareasInteligentesY'),
+      requiredPlan: 'pro',
+    },
+    ai_logo_generation: {
+      name: 'Generación de Logo con IA',
+      description: t('subscription.creaLogosProfesionalesY'),
+      requiredPlan: 'pro',
+    },
+    ai_buyer_persona: {
+      name: 'Buyer Persona con IA',
+      description: t('subscription.análisisInteligenteDeTu'),
+      requiredPlan: 'pro',
+    },
+    advanced_analytics: {
+      name: t('subscription.analyticsAvanzados'),
+      description: t('subscription.dashboardsDetalladosConMétricas'),
+      requiredPlan: 'advanced',
+    },
+    custom_branding: {
+      name: t('subscription.brandingPersonalizado'),
+      description: t('subscription.personalizaColoresLogosY'),
+      requiredPlan: 'advanced',
+    },
+    api_access: {
+      name: 'Acceso a API',
+      description: t('subscription.integraNovaHubCon'),
+      requiredPlan: 'advanced',
+    },
+    priority_support: {
+      name: t('subscription.soportePrioritario'),
+      description: t('subscription.respuestasGarantizadasEnMenos'),
+      requiredPlan: 'advanced',
+    },
+    white_label: {
+      name: t('subscription.whiteLabel'),
+      description: t('subscription.eliminaTodaMarcaDe'),
+      requiredPlan: 'enterprise',
+    },
+    custom_domain: {
+      name: t('subscription.dominioPersonalizado'),
+      description: t('subscription.usaTuPropioDominio'),
+      requiredPlan: 'enterprise',
+    },
+  };
+}
 
 /**
  * FeatureGate - Controla acceso a features premium
@@ -167,6 +171,7 @@ export function FeatureGate({
   const { t } = useTranslation();
   // Hook must be called unconditionally before any early returns
   const { canUseFeature, isLoading, plan } = useFeatureAccess(projectId);
+  const FEATURE_INFO = getFeatureInfo(t);
 
   // 🎯 FEATURE FLAG: If payments are disabled, grant full access to everything
   // This allows testing with known users before activating payment system

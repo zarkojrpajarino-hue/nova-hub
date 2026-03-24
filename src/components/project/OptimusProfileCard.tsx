@@ -12,7 +12,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface OptimusProfileCardProps {
   projectId: string;
 }

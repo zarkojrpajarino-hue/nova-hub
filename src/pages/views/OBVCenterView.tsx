@@ -110,7 +110,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
       // Get profiles
       const { data: profiles } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id, nombre, color');
 
       const profileMap = new Map(profiles?.map(p => [p.id, p]) || []);

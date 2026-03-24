@@ -56,7 +56,7 @@ export function OneOnOnePrep() {
     queryKey: ['team-members'],
     queryFn: async () => {
       const { data, error } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id, nombre, email, color')
         .neq('id', profile?.id)
         .order('nombre');

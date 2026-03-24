@@ -1,6 +1,6 @@
 import { memo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileCheck, TrendingUp, Target, Users, Wallet, Calendar } from 'lucide-react';
+import { FileCheck, TrendingUp, Target, Users, Wallet, Calendar, ChevronRight } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaData';
@@ -86,6 +86,15 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
 
   return (
     <div className="space-y-6 animate-fade-in">
+      {/* PI27.5 — Moment Banner (celebraciones + coaching proactivo) */}
+      <MomentBanner projectId={project.id} />
+
+      {/* F19.A.3 — Next Action Focus Block (primer elemento del dashboard) */}
+      <NextActionFocusBlock
+        projectId={project.id}
+        onNavigateToTab={onNavigateToTab}
+      />
+
       {/* Trial Countdown Banner — [B3/U3.5] No mostrar Day 0-2 (ansiedad innecesaria) */}
       {Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000) >= 3 && (
         <TrialCountdownBanner projectId={project.id} />
@@ -95,20 +104,19 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       <FirstStepsPanel projectId={project.id} onNavigateToTab={onNavigateToTab} />
 
       {/* O5.10 — Completa tu proyecto (perfil estratégico + primeras acciones) */}
-      <FaseBPanel
-        projectId={project.id}
-        totalOBVs={totalOBVs}
-        onNavigateToTab={onNavigateToTab}
-      />
-
-      {/* PI27.5 — Moment Banner (celebraciones + coaching proactivo) */}
-      <MomentBanner projectId={project.id} />
-
-      {/* F19.A.3 — Next Action Focus Block (primer elemento del dashboard) */}
-      <NextActionFocusBlock
-        projectId={project.id}
-        onNavigateToTab={onNavigateToTab}
-      />
+      <details className="group">
+        <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+          <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+          {t('project.completeYourProject')}
+        </summary>
+        <div className="mt-3">
+          <FaseBPanel
+            projectId={project.id}
+            totalOBVs={totalOBVs}
+            onNavigateToTab={onNavigateToTab}
+          />
+        </div>
+      </details>
 
       {/* V24.1-4 / CE25.9 — Phase Roadmap o Cycle Dashboard según graduación */}
       {/* [B3/U3.2] Ocultar PhaseRoadmap completo en Fase 0-1 (abrumador) — solo mostrar en Fase 2+ */}

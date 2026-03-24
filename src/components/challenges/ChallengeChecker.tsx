@@ -159,7 +159,7 @@ export function ChallengeChecker({ role, currentUserId, onChallengeSuccess }: Ch
       // Load current Master info
       if (result.current_master_id) {
         const { data: masterData } = await supabase
-          .from('members')
+          .from('profiles')
           .select('nombre')
           .eq('id', result.current_master_id)
           .single();

@@ -82,7 +82,7 @@ export function StartChallengeDialog({
     try {
       // Obtener member_id del usuario actual
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', currentUserId)
         .single();

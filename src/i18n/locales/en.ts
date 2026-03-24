@@ -1,4 +1,4 @@
-// Auto-generated — 7549 keys
+// Auto-generated — 7540 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
@@ -7532,7 +7532,42 @@ export const en = {
     "finalTitle": "Ready to structure your startup?",
     "finalSub": "Start free today. No credit card required.",
     "finalCta": "Start your onboarding",
-    "copyright": "© {{year}} Optimus-K. All rights reserved."
+    "copyright": "© {{year}} Optimus-K. All rights reserved.",
+    "trusted": "Confiado por 2,000+ emprendedores",
+    "navPlatform": "Plataforma",
+    "navSolutions": "Soluciones",
+    "navResources": "Recursos",
+    "navBlog": "Blog",
+    "path4Title": "Tengo una emergencia",
+    "path4Desc": "Actuaciones inmediatas para crisis de cash flow, equipo o traccion.",
+    "path4Cta": "Solucionalo ya",
+    "featExplore": "Explorar todo",
+    "starterName": "Starter",
+    "starterCta": "Elegir Starter",
+    "proName": "Pro",
+    "proCta": "Acceder a Pro",
+    "enterpriseName": "Enterprise",
+    "enterpriseCta": "Habla con ventas",
+    "scaleTitle": "Escala sin compromisos para el fundador moderno.",
+    "scaleSub": "Despliega tu instancia con 99.9% uptime garantizado. OPTIMUS-K no es solo una plataforma, es tu motor operacional.",
+    "scaleLatency": "Latencia",
+    "scaleOptimized": "OLED optimizado",
+    "footerDesc": "Infraestructura de nueva generacion para la era de los datos. Construye, escala y manifiesta tu vision.",
+    "footerProduct": "Producto",
+    "footerCompany": "Compania",
+    "footerLegal": "Legal",
+    "footerDashboard": "Dashboard",
+    "footerCRM": "CRM",
+    "footerAnalytics": "Analytics",
+    "footerPricing": "Precios",
+    "footerAbout": "Sobre nosotros",
+    "footerBlog": "Blog",
+    "footerCareers": "Carreras",
+    "footerPrivacy": "Privacidad",
+    "footerTerms": "Terminos",
+    "footerCookies": "Politica de cookies",
+    "footerSecurity": "Seguridad",
+    "footerStatus": "Sistema operativo"
   },
   "optimus": {
     "feedbackIrrelevant": "Not relevant",

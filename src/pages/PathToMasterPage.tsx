@@ -66,7 +66,7 @@ export function PathToMasterPage() {
     try {
       // Obtener member_id
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', user!.id)
         .single();
@@ -112,7 +112,7 @@ export function PathToMasterPage() {
 
   const handleStartExploration = async (role: string) => {
     const { data: member } = await supabase
-      .from('members')
+      .from('profiles')
       .select('id')
       .eq('auth_id', user!.id)
       .single();

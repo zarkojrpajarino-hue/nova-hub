@@ -64,7 +64,7 @@ export function ExplorationDashboard() {
   const loadExplorations = async () => {
     try {
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', user!.id)
         .single();
@@ -106,7 +106,7 @@ export function ExplorationDashboard() {
   const loadPendingFeedback = async () => {
     try {
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', user!.id)
         .single();
@@ -128,7 +128,7 @@ export function ExplorationDashboard() {
         .from('role_exploration_periods')
         .select(`
           *,
-          member:members(id, nombre, email),
+          member:profiles(id, nombre, email),
           project:projects(nombre)
         `)
         .in('project_id', projectIds)
@@ -163,7 +163,7 @@ export function ExplorationDashboard() {
   const loadPhaseProgress = async () => {
     try {
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', user!.id)
         .single();
@@ -185,7 +185,7 @@ export function ExplorationDashboard() {
   const loadCurrentRoles = async () => {
     try {
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', user!.id)
         .single();
@@ -210,7 +210,7 @@ export function ExplorationDashboard() {
   const handleStartExploration = async (role: string) => {
     try {
       const { data: member } = await supabase
-        .from('members')
+        .from('profiles')
         .select('id')
         .eq('auth_id', user!.id)
         .single();
