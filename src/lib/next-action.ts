@@ -118,6 +118,17 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
       };
     }
 
+    // 4b. Revenue below minimum threshold → need more revenue to qualify for Phase 3
+    const revenueMomentum = engineData.probability?.revenue_momentum_input ?? 0;
+    if (hardSignalMet && revenueMomentum < 50) {
+      return {
+        title: 'Aumenta los ingresos para cualificar a Fase 3',
+        description: 'La señal dura se cumple pero el revenue aún no alcanza el umbral mínimo. Registra más ingresos para avanzar.',
+        actionType: 'add_metrics',
+        ctaLabel: 'Ver métricas',
+      };
+    }
+
     // 5. Demand débil pero hard signal cumplida y score alto → canal (señal suficiente para estructurar)
     if (demandWeak && hardSignalMet && phaseScore >= 70) {
       return {
@@ -168,6 +179,17 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
   // opsWeak aquí = regresión operativa (pasaron fase 3, algo se ha degradado).
   // probStatus = proxy de crecimiento MRR (O4.1): inactive/low_confidence → sin datos.
   if (phase === 4) {
+    // 8b. Regression check: consecutive low scores + hard signal lost → warn
+    const consecutiveLow = engineData.phaseState?.consecutive_low_score ?? 0;
+    if (consecutiveLow >= 3 && !hardSignalMet) {
+      return {
+        title: 'Riesgo de regresión de fase',
+        description: `Tu score lleva ${consecutiveLow} semanas por debajo del umbral y las señales duras no se cumplen. Si continúa, podrías regresar a la fase anterior.`,
+        actionType: 'add_metrics',
+        ctaLabel: 'Revisar métricas',
+      };
+    }
+
     // 9. Ops degradadas → OBV operativo urgente
     if (opsWeak) {
       return {

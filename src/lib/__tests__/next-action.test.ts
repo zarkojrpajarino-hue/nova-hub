@@ -19,12 +19,15 @@ function makeEngineData(overrides: {
   riskLevel?: string;
   probStatus?: string;
   coverage?: Array<{ function_type: string; coverage_level: string }>;
+  revenueInput?: number;
+  consecutiveLowScore?: number;
 }): ProjectEngineData {
   return {
     phaseState: {
       current_phase: overrides.phase ?? 1,
       phase_score: overrides.phaseScore ?? 50,
       hard_signal_met: overrides.hardSignalMet ?? false,
+      consecutive_low_score: overrides.consecutiveLowScore ?? 0,
     },
     risk: {
       risk_status: overrides.riskStatus ?? 'insufficient_data',
@@ -32,6 +35,7 @@ function makeEngineData(overrides: {
     },
     probability: {
       probability_status: overrides.probStatus ?? 'inactive',
+      revenue_momentum_input: overrides.revenueInput ?? 60,
     },
     coverage: overrides.coverage ?? [],
   } as unknown as ProjectEngineData;

@@ -28,7 +28,10 @@ export type MomentType =
   | 'low_runway_alert'
   | 'upgrade_ai_limit'
   | 'upgrade_team_limit'
-  | 'upgrade_project_limit';
+  | 'upgrade_project_limit'
+  | 'trajectory_warning'   // V5.2.10
+  | 'coverage_gap'         // V5.2.11
+  | 'churn_risk';          // V5.2.12
 
 export type MomentSeverity = 'celebration' | 'info' | 'warning';
 
@@ -73,6 +76,15 @@ export interface MomentDetectorInput {
   projectCount: number;          // user's total projects
   // Currency symbol (e.g. '€', '$', '£') — optional, omitted = no symbol
   currency?: string;
+  // V5.2.11 — Function type coverage for coverage_gap detection
+  functionCoverage?: {
+    demand: boolean;             // has tasks/obvs for demand
+    delivery: boolean;           // has tasks/obvs for delivery
+    cash: boolean;               // has tasks/obvs for cash
+  };
+  // V5.2.12 — MRR history for churn_risk detection
+  mrrChange4wPct?: number;       // % change in MRR over 4 weeks (e.g. 2.5 = +2.5%)
+  previousTeamSize?: number;     // team size 4 weeks ago (to detect decrease)
   // Previously seen moments (to avoid repeating)
   seenMoments: string[];         // array of moment types already shown
 }
@@ -286,6 +298,69 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       title: 'Alerta de runway',
       message: `Tu runway es de ${Math.round(input.runwayMonths)} meses. Revisa tu estrategia financiera.`,
       data: { runwayMonths: input.runwayMonths },
+    });
+  }
+
+  // ── V5.2.10 — Trajectory warning ─────────────────────────────
+  // If phase_score < 50 AND weeksInPhase > (expected_weeks / 2), fire warning
+  const EXPECTED_WEEKS: Record<number, number> = { 0: 4, 1: 8, 2: 12, 3: 16 };
+  const expectedWeeks = EXPECTED_WEEKS[input.currentPhase];
+  if (
+    expectedWeeks !== undefined
+    && input.phaseScore < 50
+    && input.weeksInPhase > expectedWeeks / 2
+    && input.currentPhase < 4
+    && !input.seenMoments.includes(`trajectory_warning_${weekKey}`)
+  ) {
+    const remaining = expectedWeeks - input.weeksInPhase;
+    moments.push({
+      type: 'trajectory_warning',
+      severity: 'warning',
+      title: 'Trayectoria en riesgo',
+      message: `Llevas ${input.weeksInPhase} de ${expectedWeeks} semanas esperadas en Fase ${input.currentPhase} con score ${Math.round(input.phaseScore)}%. ${remaining > 0 ? `Quedan ~${remaining} semanas.` : 'Ya superaste el tiempo esperado.'} Revisa tus prioridades.`,
+      data: { weeksInPhase: input.weeksInPhase, expectedWeeks, phaseScore: input.phaseScore },
+    });
+  }
+
+  // ── V5.2.11 — Coverage gap ─────────────────────────────────
+  // If in a phase >2 weeks and any core function_type coverage is missing
+  if (
+    input.functionCoverage
+    && input.weeksInPhase > 2
+    && input.currentPhase >= 1
+    && input.currentPhase < 4
+  ) {
+    const gaps: string[] = [];
+    if (!input.functionCoverage.demand) gaps.push('demanda');
+    if (!input.functionCoverage.delivery) gaps.push('entrega');
+    if (!input.functionCoverage.cash) gaps.push('monetización');
+    if (gaps.length > 0 && !input.seenMoments.includes(`coverage_gap_${weekKey}`)) {
+      moments.push({
+        type: 'coverage_gap',
+        severity: 'warning',
+        title: 'Área sin cubrir',
+        message: `Llevas ${input.weeksInPhase} semanas en Fase ${input.currentPhase} sin actividad en: ${gaps.join(', ')}. Las startups que cubren las 3 áreas avanzan más rápido.`,
+        data: { gaps, weeksInPhase: input.weeksInPhase },
+      });
+    }
+  }
+
+  // ── V5.2.12 — Churn risk ──────────────────────────────────
+  // If hasFirstSale AND MRR stagnant (<5% change in 4w) AND team shrank
+  if (
+    input.hasFirstSale
+    && input.mrrChange4wPct !== undefined
+    && Math.abs(input.mrrChange4wPct) < 5
+    && input.previousTeamSize !== undefined
+    && input.teamSize < input.previousTeamSize
+    && !input.seenMoments.includes(`churn_risk_${weekKey}`)
+  ) {
+    moments.push({
+      type: 'churn_risk',
+      severity: 'warning',
+      title: 'Riesgo de churn',
+      message: `Tu MRR lleva 4 semanas estancado (${input.mrrChange4wPct > 0 ? '+' : ''}${input.mrrChange4wPct.toFixed(1)}%) y el equipo se redujo de ${input.previousTeamSize} a ${input.teamSize}. Revisa retención de clientes y equipo.`,
+      data: { mrrChange4wPct: input.mrrChange4wPct, teamSize: input.teamSize, previousTeamSize: input.previousTeamSize },
     });
   }
 

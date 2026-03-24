@@ -2195,6 +2195,7 @@ export const es = {
     "conversión": "Conversión",
     "facturación": "Facturación",
     "margen": "Margen",
+    "tareasSemanales": "Tareas esta semana",
     "leadsGanados0": "Leads ganados",
     "últimaReunión": "Última reunión",
     "verTodas": "Ver todas",
@@ -4083,7 +4084,11 @@ export const es = {
     "fechaEsperadaDeCobro": "Fecha Esperada de Cobro",
     "emptyTitle": "Registra tu primer lead",
     "emptyDescription": "El CRM te ayuda a gestionar tu pipeline de ventas desde el primer contacto",
-    "createFirst": "Crear lead"
+    "createFirst": "Crear lead",
+    "obvFromDeal": "Venta desde deal",
+    "obvCreatedFromDeal": "OBV creada desde deal cerrado",
+    "viewObv": "Ver OBV",
+    "obvCreationFailed": "No se pudo crear la OBV automática"
   },
   "obvs": {
     "emptyTitle": "Crea tu primera OBV",

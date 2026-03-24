@@ -1,4 +1,4 @@
-// Auto-generated — 7656 keys
+// Auto-generated — 7668 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
@@ -1627,7 +1627,11 @@ export const en = {
     "firstActionTitle": "Tu primera accion",
     "firstActionSubtitle": "El motor de fases ha calculado tu prioridad. Completala para activar el sistema.",
     "doItNow": "Hacerlo ahora",
-    "laterOnDashboard": "Lo hare despues desde el dashboard"
+    "laterOnDashboard": "Lo hare despues desde el dashboard",
+    "loadErrorTitle": "Error al cargar el proyecto",
+    "loadErrorDescription": "No se pudo cargar la informacion del proyecto. Revisa tu conexion e intentalo de nuevo.",
+    "goBack": "Volver",
+    "retry": "Reintentar"
   },
   "pathToMaster": {
     "cargando": "Loading...",
@@ -2314,10 +2318,14 @@ export const en = {
       "description": "Crea tu primera OBV para empezar a validar la actividad del equipo."
     },
     "completeYourProject": "Completa tu proyecto",
-    "showFullDashboard": "Mostrar dashboard completo"
+    "showFullDashboard": "Mostrar dashboard completo",
+    "tareasSemanales": "Tareas esta semana"
   },
   "rootRedirect": {
-    "cargando": "Loading..."
+    "cargando": "Loading...",
+    "timeoutTitle": "La carga esta tardando demasiado",
+    "timeoutDescription": "No se pudo completar la carga en el tiempo esperado. Revisa tu conexion e intentalo de nuevo.",
+    "retry": "Reintentar"
   },
   "selectOnboardingType": {
     "crearNuevoProyecto": "Create New Project",
@@ -3907,7 +3915,11 @@ export const en = {
     "fechaEsperadaDeCobro": "Expected Payment Date",
     "emptyTitle": "Register your first lead",
     "emptyDescription": "The CRM helps you manage your sales pipeline from the first contact",
-    "createFirst": "Create lead"
+    "createFirst": "Create lead",
+    "obvFromDeal": "Venta desde deal",
+    "obvCreatedFromDeal": "OBV creada desde deal cerrado",
+    "viewObv": "Ver OBV",
+    "obvCreationFailed": "No se pudo crear la OBV automática"
   },
   "demo": {
     "modoDemostraciónActivo": "Demo Mode Active",

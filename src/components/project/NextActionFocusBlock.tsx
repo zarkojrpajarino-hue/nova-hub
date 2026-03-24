@@ -37,10 +37,10 @@ interface NextActionFocusBlockProps {
 }
 
 // F20.V2.3 — lee urgent_decisions del análisis más reciente (cualquier nivel)
-function useAnalysisUrgentDecisions(projectId: string) {
-  const { t } = useTranslation();
+// V5.2.9 — also extracts benchmarking signal for risk elevation
+function useAnalysisSignals(projectId: string) {
   return useQuery({
-    queryKey: ['analysis-urgent', projectId],
+    queryKey: ['analysis-signals', projectId],
     staleTime: 5 * 60_000,
     queryFn: async () => {
       const { data } = await supabase
@@ -50,9 +50,15 @@ function useAnalysisUrgentDecisions(projectId: string) {
         .order('generated_at', { ascending: false })
         .limit(1)
         .maybeSingle()
-      if (!data) return []
+      if (!data) return { urgentDecisions: [], benchmarkSignal: undefined }
       const sections = data.sections as AnalysisSection | null
-      return sections?.urgent_decisions ?? []
+      const urgentDecisions = sections?.urgent_decisions ?? []
+      // V5.2.9 — Extract benchmarking percentile from phase_fit or executive_summary
+      const momentumScore = sections?.executive_summary?.momentum_score
+      const benchmarkSignal = momentumScore !== undefined
+        ? { percentile: momentumScore, isBottom20: momentumScore < 20 }
+        : undefined
+      return { urgentDecisions, benchmarkSignal }
     },
   })
 }
@@ -122,7 +128,9 @@ export const NextActionFocusBlock = memo(function NextActionFocusBlock({
   const { data: overdueData } = useOverdueTasks(projectId)
   const overdueCount = overdueData?.overdueCount ?? 0
   const oldestOverdueDays = overdueData?.oldestOverdueDays ?? 0
-  const { data: urgentDecisions = [] } = useAnalysisUrgentDecisions(projectId)
+  const { data: analysisSignals } = useAnalysisSignals(projectId)
+  const urgentDecisions = analysisSignals?.urgentDecisions ?? []
+  const benchmarkSignal = analysisSignals?.benchmarkSignal
   const { data: trendsData } = useExecutionTrends(projectId, 4)
 
   // ER29.10 — Detect consistent trend (4 weeks same direction)
@@ -147,6 +155,7 @@ export const NextActionFocusBlock = memo(function NextActionFocusBlock({
     { overdueCount, oldestOverdueDays },
     projectCtx ?? { mode: 'solo', teamSize: 0, operationalComplexity: 'low' },
     urgentDecisions,
+    benchmarkSignal,
   )
 
   // AUD.A.4 — PostHog: impression cuando el bloque se muestra

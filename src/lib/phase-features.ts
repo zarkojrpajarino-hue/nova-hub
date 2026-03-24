@@ -36,7 +36,7 @@ export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
     obvs:         'primary',
     tareas:       'primary',
     equipo:       'secondary',
-    crm:          'teaser',
+    crm:          'secondary',
     financiero:   'teaser',
     'negocio-ia': 'teaser',
     reuniones:    'secondary',
@@ -97,12 +97,10 @@ export const TAB_TEASER_REASONS: Record<string, Partial<Record<number, string>>>
   },
   crm: {
     0: 'El CRM se activa cuando tengas clientes potenciales. Ahora el foco es explorar ideas.',
-    1: 'El CRM cobra valor cuando tienes leads cualificados. Ahora el foco es validar el problema con evidencia real.',
   },
   financiero: {
     0: 'Las finanzas importan cuando hay un negocio en marcha. Primero, valida tu idea.',
     1: 'Las finanzas importan cuando hay ingresos. Ahora el objetivo es validar la demanda.',
-    2: 'En Fase 2 el foco es la solución. Financiero se activa cuando entras en Revenue.',
   },
   'negocio-ia': {
     0: 'Las proyecciones IA necesitan datos reales. Disponible a partir de Fase 3.',
@@ -121,8 +119,8 @@ export const TAB_TEASER_REASONS: Record<string, Partial<Record<number, string>>>
 
 // La condición de desbloqueo para cada tab (para PhaseTeaserModal)
 export const TAB_UNLOCK_CONDITIONS: Record<string, string> = {
-  crm:          'Entras en Fase 2 con al menos 1 lead cualificado registrado.',
-  financiero:   'Entras en Fase 3 con al menos 1 ingreso registrado.',
+  crm:          'Se desbloquea en Fase 1 como herramienta secundaria.',
+  financiero:   'Se desbloquea en Fase 2 como herramienta secundaria.',
   'negocio-ia': 'Entras en Fase 3 con modelo de negocio validado.',
 }
 
@@ -179,7 +177,7 @@ export const SIDEBAR_PHASE_CONFIG: Record<number, Record<string, SidebarItemStat
     'validaciones': 'visible',
     'obvs': 'visible',
     'startup-os': 'visible',
-    'crm': 'teaser',
+    'crm': 'visible',
     'financiero': 'teaser',
     'meetings': 'hidden',
     'analisis-ia': 'hidden',
@@ -206,7 +204,7 @@ export const SIDEBAR_PHASE_CONFIG: Record<number, Record<string, SidebarItemStat
     'obvs': 'visible',
     'startup-os': 'visible',
     'crm': 'visible',
-    'financiero': 'teaser',
+    'financiero': 'visible',
     'meetings': 'teaser',
     'analisis-ia': 'teaser',
     'toolkit': 'teaser',
@@ -277,13 +275,59 @@ export type PhaseStatKey =
   | 'mrr_growth'
   | 'ideas_explored'
   | 'problems_identified'
+  | 'tasks_completed_weekly'
+  | 'lead_conversion_rate'  // V5.2.7 — cerrado_ganado / total_leads
+  | 'kpi_count'             // V5.2.8 — KPIs registered in project
 
 export const PHASE_STATS_CONFIG: Record<number, PhaseStatKey[]> = {
   0: ['ideas_explored', 'problems_identified', 'days_active', 'team_count'],
-  1: ['total_obvs', 'leads_count', 'team_count', 'days_active'],
-  2: ['total_obvs', 'leads_count', 'conversion_rate', 'team_count'],
-  3: ['facturacion', 'leads_ganados', 'team_count', 'margen'],
-  4: ['facturacion', 'margen', 'leads_ganados', 'team_count'],
+  1: ['total_obvs', 'kpi_count', 'tasks_completed_weekly', 'days_active'],          // V5.2.8: kpi_count as secondary signal
+  2: ['total_obvs', 'kpi_count', 'tasks_completed_weekly', 'conversion_rate'],       // V5.2.8: kpi_count as secondary signal
+  3: ['facturacion', 'lead_conversion_rate', 'leads_ganados', 'margen'],             // V5.2.7: lead_conversion_rate
+  4: ['facturacion', 'margen', 'lead_conversion_rate', 'leads_ganados'],             // V5.2.7: lead_conversion_rate
+}
+
+/**
+ * V5.2.8 — KPI graduation threshold per phase.
+ * Dashboard / next-action should display: "Phase-relevant KPIs: X/TARGET needed for graduation".
+ */
+export const KPI_GRADUATION_THRESHOLD: Record<number, number> = {
+  0: 0,
+  1: 3,
+  2: 3,
+  3: 5,
+  4: 5,
+}
+
+// ── 4b. Task completion scoring by function_type ─────────────────────────────
+//
+// En Fases 1–2 las tareas completadas semanalmente contribuyen como señal secundaria.
+// El peso depende del function_type: demand tasks valen 3x, delivery 1x.
+// Usado en: computeTaskCompletionScore() para alimentar el phase scoring.
+
+export const TASK_COMPLETION_WEIGHTS: Record<string, number> = {
+  demand:   3,
+  delivery: 1,
+  cash:     1,
+  support:  0,
+}
+
+/**
+ * Computa un score de tareas completadas ponderado por relevancia de fase.
+ * @param completedTasks - Array de { function_type: string } tareas completadas esta semana
+ * @param phase - Fase actual del proyecto (0–4)
+ * @returns Score ponderado (0+). Solo contribuye en fases 1–2.
+ */
+export function computeTaskCompletionScore(
+  completedTasks: { function_type: string | null }[],
+  phase: number,
+): number {
+  // Solo contribuye en fases 1–2
+  if (phase < 1 || phase > 2) return 0;
+  return completedTasks.reduce((acc, t) => {
+    const ft = t.function_type ?? 'support';
+    return acc + (TASK_COMPLETION_WEIGHTS[ft] ?? 0);
+  }, 0);
 }
 
 // ── 5. Phase relevance por task function_type — para KanbanColumn ─────────────

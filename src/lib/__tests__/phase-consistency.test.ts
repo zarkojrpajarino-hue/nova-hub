@@ -22,7 +22,7 @@ const EXPECTED_UNLOCK_PHASE: Record<string, number> = {
   obvs:         1,  // teaser in 0, primary in 1
   equipo:       1,  // teaser in 0, secondary in 1
   reuniones:    1,  // teaser in 0, secondary in 1
-  crm:          2,  // teaser in 0-1, secondary in 2
+  crm:          1,  // teaser in 0, secondary in 1 (V5.2.1)
   financiero:   2,  // teaser in 0-1, secondary in 2
   'negocio-ia': 3,  // teaser in 0-2, secondary in 3
   expansion:    3,  // teaser in 0-2, secondary in 3

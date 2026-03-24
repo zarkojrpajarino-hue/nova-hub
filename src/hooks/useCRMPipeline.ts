@@ -2,8 +2,10 @@ import { useState, useMemo, useCallback } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useQueryClient } from '@tanstack/react-query';
 import { toast } from 'sonner';
+import { useTranslation } from 'react-i18next';
 import { queryKeys } from '@/lib/queryKeys';
 import { leadService } from '@/services/LeadService';
+import { obvService } from '@/services/OBVService';
 import { PIPELINE_STAGES } from '@/components/crm/pipeline-stages';
 import type { DropResult } from '@hello-pangea/dnd';
 import type { Database } from '@/integrations/supabase/types';
@@ -51,6 +53,7 @@ export function useCRMPipeline(
 ) {
   const { profile } = useAuth();
   const queryClient = useQueryClient();
+  const { t } = useTranslation();
 
   const [showForm, setShowForm] = useState(false);
   const [selectedLead, setSelectedLead] = useState<Lead | null>(null);
@@ -111,6 +114,41 @@ export function useCRMPipeline(
 
       const stageName = PIPELINE_STAGES.find(s => s.id === newStatus)?.label;
       toast.success(`Lead movido a ${stageName}`);
+
+      // V5.2.6 — Auto-create OBV draft when lead transitions to cerrado_ganado
+      if (newStatus === 'cerrado_ganado') {
+        const closedLead = leads.find(l => l.id === leadId);
+        if (closedLead) {
+          try {
+            const obv = await obvService.create({
+              titulo: `${t('crm.obvFromDeal')}: ${closedLead.nombre}`,
+              tipo: 'venta',
+              obv_outcome: 'pending',
+              owner_id: profile.id,
+              project_id: closedLead.project_id,
+              facturacion: closedLead.valor_potencial ?? 0,
+              empresa: closedLead.empresa,
+              nombre_contacto: closedLead.nombre,
+              email_contacto: closedLead.email,
+              telefono_contacto: closedLead.telefono,
+              source: 'crm_auto',
+              pipeline_status: 'cerrado_ganado',
+              status: 'draft',
+            });
+            toast.success(t('crm.obvCreatedFromDeal'), {
+              action: {
+                label: t('crm.viewObv'),
+                onClick: () => {
+                  window.location.hash = `#/obvs/${obv.id}`;
+                },
+              },
+            });
+          } catch (_obvError) {
+            // OBV creation failure should not block the lead status update
+            toast.warning(t('crm.obvCreationFailed'));
+          }
+        }
+      }
 
       queryClient.invalidateQueries({ queryKey: queryKeys.leads.pipeline });
       // V4.4.6: Use queryKeys.leads.all for broad invalidation instead of raw string

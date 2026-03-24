@@ -58,6 +58,14 @@ export interface AnalysisUrgentDecision {
   cta: { label: string; view: string }
 }
 
+/** V5.2.9 — Benchmarking data from ai_analysis_cache */
+export interface AnalysisBenchmarkSignal {
+  /** Phase score percentile (0-100) relative to similar projects */
+  percentile?: number
+  /** Whether the project is in bottom 20% for its phase */
+  isBottom20?: boolean
+}
+
 export function buildNextAction(
   engineData:    ProjectEngineData | null | undefined,
   agentInsights: SynthesizedInsight[],
@@ -65,6 +73,8 @@ export function buildNextAction(
   context:       ProjectContext,
   /** F20.V2.3 — urgent decisions from latest AI analysis */
   urgentDecisions?: AnalysisUrgentDecision[],
+  /** V5.2.9 — benchmarking signal from ai_analysis_cache */
+  benchmarkSignal?: AnalysisBenchmarkSignal,
 ): EnrichedNextAction {
   const signals: string[] = []
   const riskLevel = engineData?.risk?.risk_level ?? 'low'
@@ -145,6 +155,11 @@ export function buildNextAction(
     }
   }
 
+  // ── 4b. V5.2.9 — Benchmarking bottom-20% risk elevation ─────────────────────
+  if (benchmarkSignal?.isBottom20) {
+    signals.push(`Benchmarking: proyecto en el 20% inferior para esta fase (percentil ${benchmarkSignal.percentile ?? '?'})`)
+  }
+
   // ── 5. Señales de warning de agents (secundarias) ────────────────────────────
   const warningInsights = agentInsights.filter((i) => i.content.severity === 'warning')
   for (const w of warningInsights.slice(0, 2)) {
@@ -217,8 +232,10 @@ export function buildNextAction(
     signals.some((s) => s.includes('vencida') || s.includes('crítica'))
       ? 'medium'
       : 'low'
+  // V5.2.9 — Elevate risk if benchmarking shows bottom 20%
+  const benchmarkElevated = benchmarkSignal?.isBottom20 && baseUrgency === 'low'
   const adjustedUrgency: EnrichedNextAction['urgency'] =
-    context.operationalComplexity === 'high' && baseUrgency === 'low'
+    (context.operationalComplexity === 'high' && baseUrgency === 'low') || benchmarkElevated
       ? 'medium'
       : baseUrgency
 

@@ -1,6 +1,6 @@
-import { memo, useState } from 'react';
+import { memo, useState, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { FileCheck, TrendingUp, Target, Users, Wallet, Calendar, ChevronRight } from 'lucide-react';
+import { FileCheck, TrendingUp, Target, Users, Wallet, Calendar, ChevronRight, CheckSquare } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaDataOptimized';
@@ -9,6 +9,8 @@ import { PlanLimitsIndicator } from '@/components/subscription/PlanLimitsIndicat
 import { AICallsNudge } from '@/components/subscription/AICallsNudge';
 import { AcquisitionChannelEditor } from './AcquisitionChannelEditor';
 import { useProjectEngineData, useProjectViabilityState, useProjectFunctions } from '@/hooks/useNovaDataOptimized';
+import { useQuery } from '@tanstack/react-query';
+import { supabase } from '@/integrations/supabase/client';
 import { ProjectEnginePanel } from './ProjectEnginePanel';
 import { ProbabilityBreakdown } from './ProbabilityBreakdown';
 import { RiskBreakdown } from './RiskBreakdown';
@@ -73,6 +75,27 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
   const phaseFeatures = usePhaseFeatures(project.id);
   const phaseStats = phaseFeatures.getPhaseStats();
 
+
+  // V5.2.5 — Tasks completed this week (secondary signal for Phases 1-2)
+  const weekStart = useMemo(() => {
+    const d = new Date();
+    d.setDate(d.getDate() - d.getDay());
+    d.setHours(0, 0, 0, 0);
+    return d.toISOString();
+  }, []);
+  const { data: tasksCompletedWeekly = 0 } = useQuery({
+    queryKey: ['tasks-completed-weekly', project.id, weekStart],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('tasks')
+        .select('id', { count: 'exact', head: true })
+        .eq('project_id', project.id)
+        .eq('status', 'done')
+        .gte('updated_at', weekStart);
+      return count ?? 0;
+    },
+    enabled: !!project.id && (currentPhase === 1 || currentPhase === 2),
+  });
 
   const fastStartCompleted = project.onboarding_data?.fast_start_completed === true;
 
@@ -179,6 +202,9 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
                 color="#8B5CF6"
                 delay={4}
               />
+            )}
+            {phaseStats.includes('tasks_completed_weekly' as PhaseStatKey) && (
+              <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#8B5CF6" delay={4} />
             )}
             {phaseStats.includes('conversion_rate' as PhaseStatKey) && Number(stats?.leads_ganados ?? 0) > 0 && (
               <StatCard
