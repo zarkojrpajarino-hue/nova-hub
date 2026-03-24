@@ -4,6 +4,8 @@ import { RoleQuestionsV2RequestSchema, validateRequestSafe } from '../_shared/va
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 // Types for nested Supabase query results
 interface ProfileNested {

@@ -15,6 +15,7 @@ import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_s
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 const TOOL_TYPE = 'lead_scoring';
 const TTL_DAYS = 7;

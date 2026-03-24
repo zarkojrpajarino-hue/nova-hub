@@ -16,7 +16,7 @@ import Stripe from 'https://esm.sh/stripe@14'
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import md5 from 'https://esm.sh/md5'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 import { withRetry } from '../_shared/retry.ts'
 import { normalizeStripeSubscription } from '../_shared/normalizers/stripe-financial.ts'
 import type { ContractEntity } from '../_shared/normalizers/stripe-financial.ts'
@@ -66,8 +66,10 @@ Deno.serve(async (req) => {
       isServiceRole = payload?.role === 'service_role'
     } catch { /* not a valid JWT — will fail validateAuth below */ }
 
+    let authUser: { id: string } | null = null
     if (!isServiceRole) {
-      await validateAuth(req)
+      const authResult = await validateAuth(req)
+      authUser = authResult.user
     }
     const { project_id, connection_id } = await req.json()
 
@@ -76,6 +78,11 @@ Deno.serve(async (req) => {
         JSON.stringify({ ok: false, reason: 'missing_params' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       )
+    }
+
+    // B2.B — Verify project membership (skip for service role/cron)
+    if (authUser) {
+      await verifyProjectMembership(serviceClient, authUser.id, project_id, origin)
     }
 
     // ──────────────────────────────────────────────────────────────────────────

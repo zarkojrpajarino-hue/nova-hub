@@ -10,6 +10,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 
 serve(async (req) => {

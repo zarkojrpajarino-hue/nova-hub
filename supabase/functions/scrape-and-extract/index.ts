@@ -16,6 +16,7 @@ import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { callClaude } from '../_shared/anthropic-client.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 

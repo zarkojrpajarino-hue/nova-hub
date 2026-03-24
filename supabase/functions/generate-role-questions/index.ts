@@ -4,6 +4,8 @@ import { RoleQuestionsRequestSchema, validateRequestSafe } from '../_shared/vali
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 // [B6] In-memory cache by role label (survives between Deno Deploy invocations)
 const roleCache = new Map<string, { questions: unknown[]; cachedAt: number }>();

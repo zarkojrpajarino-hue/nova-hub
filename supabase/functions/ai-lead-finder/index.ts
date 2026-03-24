@@ -29,6 +29,7 @@ import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 interface BuyerPersona extends Record<string, unknown> {
   industry?: string;

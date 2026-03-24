@@ -12,7 +12,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 
 const HOLDED_API = 'https://api.holded.com/api'
 
@@ -24,7 +24,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { user } = await validateAuth(req)
+    const { user, serviceClient } = await validateAuth(req)
     const { project_id, api_key } = await req.json()
 
     if (!project_id || !api_key) {
@@ -33,6 +33,9 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       )
     }
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(serviceClient, user.id, project_id, origin)
 
     // 1. Validar API Key contra Holded API — llamar endpoint de facturas con limit=1
     let accountInfo: Record<string, unknown> = {}

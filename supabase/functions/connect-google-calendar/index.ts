@@ -43,7 +43,7 @@ Deno.serve(async (req) => {
   }
 
   try {
-    const { user } = await validateAuth(req)
+    const { user, serviceClient } = await validateAuth(req)
     const body = await req.json() as {
       project_id: string
       action: 'get_auth_url' | 'exchange_code'
@@ -60,6 +60,9 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       )
     }
+
+    // B2.B — Verify project membership
+    await verifyProjectMembership(serviceClient, user.id, project_id, origin)
 
     const clientId     = Deno.env.get('GOOGLE_OAUTH_CLIENT_ID')
     const clientSecret = Deno.env.get('GOOGLE_OAUTH_CLIENT_SECRET')

@@ -9,9 +9,10 @@
 
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { requireEnv } from '../_shared/env-validation.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');
@@ -35,29 +36,8 @@ Deno.serve(async (req) => {
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
     }
 
-    // Verify user is a member of the project
-    const { data: userProfile } = await supabase
-      .from('profiles')
-      .select('id')
-      .eq('auth_id', user.id)
-      .single();
-
-    if (!userProfile) {
-      return new Response(JSON.stringify({ error: 'User profile not found' }),
-        { status: 404, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
-    }
-
-    const { data: membership } = await supabase
-      .from('project_members')
-      .select('id')
-      .eq('project_id', projectId)
-      .eq('member_id', userProfile.id)
-      .maybeSingle();
-
-    if (!membership) {
-      return new Response(JSON.stringify({ error: 'Not a member of this project' }),
-        { status: 403, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } });
-    }
+    // B2.B — Use shared verifyProjectMembership
+    await verifyProjectMembership(supabase, user.id, projectId, origin);
 
     // Check cache (rate limit: 1 per 14 days)
     const { data: cached } = await supabase

@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 const TOOL_TYPE = 'brand_kit';
 const TTL_DAYS = 30;

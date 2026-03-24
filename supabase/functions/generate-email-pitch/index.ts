@@ -30,6 +30,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuthWithUserId, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 serve(async (req) => {
   const origin = req.headers.get('Origin');

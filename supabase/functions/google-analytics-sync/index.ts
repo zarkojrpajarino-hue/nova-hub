@@ -12,7 +12,7 @@
 
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
-import { validateAuth } from '../_shared/auth.ts';
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { logAICall } from '../_shared/aiLogger.ts';
 
 
@@ -88,7 +88,7 @@ serve(async (req) => {
   const startTime = Date.now();
 
   try {
-        const { serviceClient: supabaseClient } = await validateAuth(req);
+        const { user, serviceClient: supabaseClient } = await validateAuth(req);
 
     const body: GARequest = await req.json();
     const { projectId, accessToken, authCode, propertyId, startDate, endDate } = body;
@@ -100,7 +100,10 @@ serve(async (req) => {
       );
     }
 
-    console.log('📊 Syncing Google Analytics for project:', projectId);
+    // B2.B — Verify project membership
+    await verifyProjectMembership(supabaseClient, user.id, projectId, origin);
+
+    console.log('Syncing Google Analytics for project:', projectId);
 
     let token = accessToken;
 

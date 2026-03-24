@@ -16,6 +16,7 @@ import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 Deno.serve(async (req) => {
   const origin = req.headers.get('Origin');

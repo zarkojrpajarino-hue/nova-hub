@@ -13,6 +13,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 // ── M18.11: Tipos de Whisper verbose_json ─────────────────────────────────────
 

@@ -31,7 +31,7 @@
 
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts'
-import { validateAuth } from '../_shared/auth.ts'
+import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts'
 import { normalizeGCalEvent } from '../_shared/normalizers/gcal-calendar.ts'
 import type { ContractEntity } from '../_shared/normalizers/gcal-calendar.ts'
 
@@ -96,7 +96,11 @@ Deno.serve(async (req) => {
     const authToken = req.headers.get('Authorization')?.replace('Bearer ', '') ?? ''
     let isServiceRole = false
     try { const p = JSON.parse(atob(authToken.split('.')[1] ?? '')); isServiceRole = p?.role === 'service_role' } catch {}
-    if (!isServiceRole) { await validateAuth(req) }
+    let authUser: { id: string } | null = null
+    if (!isServiceRole) {
+      const authResult = await validateAuth(req)
+      authUser = authResult.user
+    }
     const { project_id, connection_id } = await req.json()
 
     if (!project_id || !connection_id) {
@@ -104,6 +108,11 @@ Deno.serve(async (req) => {
         JSON.stringify({ ok: false, reason: 'missing_params' }),
         { status: 400, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       )
+    }
+
+    // B2.B — Verify project membership (skip for service role/cron)
+    if (authUser) {
+      await verifyProjectMembership(serviceClient, authUser.id, project_id, origin)
     }
 
     if (!clientId || !clientSecret) {

@@ -16,6 +16,8 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
+import { logAICall } from '../_shared/aiLogger.ts';
 
 interface RequestBody {
   urls: string[];
@@ -46,7 +48,14 @@ serve(async (req) => {
   }
 
     await validateAuth(req);
-    const { urls, myIdea }: RequestBody = await req.json();
+    const rawBody: RequestBody = await req.json();
+    const urls = rawBody.urls;
+    // B2.C — Sanitize user text before LLM
+    const myIdeaSanitized = sanitizePromptInput(rawBody.myIdea || '', SanitizerPresets.LONG_INPUT);
+    if (myIdeaSanitized.blocked) {
+      throw new Error(myIdeaSanitized.reason || 'Input blocked');
+    }
+    const myIdea = myIdeaSanitized.sanitized;
 
     if (!urls || !Array.isArray(urls) || urls.length === 0) {
       throw new Error('urls array is required and must not be empty');
