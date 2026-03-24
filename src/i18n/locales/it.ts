@@ -1,4 +1,4 @@
-// Auto-generated — 7656 keys
+// Auto-generated — 7716 keys
 /* eslint-disable */
 export const it = {
   "nav": {
@@ -1796,7 +1796,11 @@ export const it = {
     "firstActionTitle": "Tu primera accion",
     "firstActionSubtitle": "El motor de fases ha calculado tu prioridad. Completala para activar el sistema.",
     "doItNow": "Hacerlo ahora",
-    "laterOnDashboard": "Lo hare despues desde el dashboard"
+    "laterOnDashboard": "Lo hare despues desde el dashboard",
+    "loadErrorTitle": "Error al cargar el proyecto",
+    "loadErrorDescription": "No se pudo cargar la informacion del proyecto. Revisa tu conexion e intentalo de nuevo.",
+    "goBack": "Volver",
+    "retry": "Reintentar"
   },
   "pathToMaster": {
     "cargando": "Cargando...",
@@ -2483,10 +2487,14 @@ export const it = {
     "coachingCashBlindspot": "En tus últimos ciclos, cash tuvo 0 actividad. Considera añadir un compromiso de cash.",
     "coachingCategoríaIgnorada": "Hay categorías ignoradas de forma recurrente. Revisa si son relevantes para tu fase.",
     "coachingSugerenciaConteo": "Basándome en tu historial, 3 compromisos es más realista que 5.",
-    "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos"
+    "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos",
+    "tareasSemanales": "Tareas esta semana"
   },
   "rootRedirect": {
-    "cargando": "Cargando..."
+    "cargando": "Cargando...",
+    "timeoutTitle": "La carga esta tardando demasiado",
+    "timeoutDescription": "No se pudo completar la carga en el tiempo esperado. Revisa tu conexion e intentalo de nuevo.",
+    "retry": "Reintentar"
   },
   "selectOnboardingType": {
     "crearNuevoProyecto": "Crear Nuevo Proyecto",
@@ -3591,7 +3599,8 @@ export const it = {
     "perfilActualizado": "Perfil actualizado",
     "avatar": "Avatar",
     "tuNombre": "Tu nombre",
-    "guardarCambios": "Guardar cambios"
+    "guardarCambios": "Guardar cambios",
+    "subscription": "Suscripcion"
   },
   "startupOS": {
     "noProjectSelected": "No project selected"
@@ -3833,7 +3842,9 @@ export const it = {
     "benchmarkMRRGrowth": "MRR Growth",
     "benchmarkIterationVelocity": "Velocidad de iteración",
     "benchmarkTeamProductivity": "Productividad del equipo",
-    "benchmarkPlaceholder": "Benchmark disponible cuando haya 30+ proyectos en la plataforma. Verás tu percentil comparado con startups en fase similar."
+    "benchmarkPlaceholder": "Benchmark disponible cuando haya 30+ proyectos en la plataforma. Verás tu percentil comparado con startups en fase similar.",
+    "analisisPreliminar": "Analisis preliminar",
+    "basadoEnDatosDeHace": "Basado en datos de hace {{days}} dias"
   },
   "challenges": {
     "progresoGeneral": "Progreso General",
@@ -4076,7 +4087,11 @@ export const it = {
     "fechaEsperadaDeCobro": "Fecha Esperada de Cobro",
     "emptyTitle": "Registra tu primer lead",
     "emptyDescription": "El CRM te ayuda a gestionar tu pipeline de ventas desde el primer contacto",
-    "createFirst": "Crear lead"
+    "createFirst": "Crear lead",
+    "obvFromDeal": "Venta desde deal",
+    "obvCreatedFromDeal": "OBV creada desde deal cerrado",
+    "viewObv": "Ver OBV",
+    "obvCreationFailed": "No se pudo crear la OBV automática"
   },
   "obvs": {
     "emptyTitle": "Crea tu primera OBV",
@@ -7023,7 +7038,8 @@ export const it = {
     "entendidoContinuar": "Entendido, Continuar",
     "junior": "Junior",
     "senior": "Senior",
-    "expert": "Expert"
+    "expert": "Expert",
+    "memberLimitReached": "Has alcanzado el limite de {{limit}} miembros en tu plan actual. Actualiza tu plan para invitar mas."
   },
   "rotation": {
     "analizandoCompatibilidades": "Analizando compatibilidades...",
@@ -7310,7 +7326,8 @@ export const it = {
     "periodLabel": "Pro trial: {{days}} dias restantes",
     "exploreSub": "Explora todas las funcionalidades Pro durante tu periodo de prueba.",
     "viewPlans": "Ver planes",
-    "daysOf14": "{{days}} de 14 dias"
+    "daysOf14": "{{days}} de 14 dias",
+    "daysOf21": "{{days}} de 21 dias"
   },
   "tasks": {
     "aiTaskExecutor": "AI Task Executor",
@@ -7896,5 +7913,62 @@ export const it = {
   },
   "emptyState": {
     "suggestions": "Ideas para empezar"
+  },
+  "obvForm": {
+    "cancelConfirmTitle": "Descartar cambios",
+    "cancelConfirmDescription": "Has modificado el formulario. Si sales, perderas los cambios no guardados.",
+    "cancelConfirmDiscard": "Descartar",
+    "cancelConfirmKeep": "Seguir editando",
+    "draftRecovered": "Borrador recuperado desde tu ultima sesion",
+    "stepHasErrors": "Este paso tiene errores"
+  },
+  "taskForm": {
+    "titleRequired": "El titulo es obligatorio",
+    "taskLimitTitle": "Limite de tareas activas alcanzado",
+    "taskLimitDescription": "Tu proyecto ya tiene 5 tareas activas. Completa alguna para poder crear nuevas.",
+    "completeTask": "Completar",
+    "taskCompleted": "Tarea completada",
+    "errorCompletingTask": "Error al completar la tarea"
+  },
+  "crmView": {
+    "emptyTitle": "Sin leads en el pipeline",
+    "emptyDescription": "Aun no tienes leads. Usa AI Lead Finder para descubrir clientes potenciales o anade uno manualmente.",
+    "addLeadManually": "Anadir lead",
+    "useAIFinder": "AI Lead Finder",
+    "leadMoved": "Lead movido a {{stage}}"
+  },
+  "sidebarExtra": {
+    "newProject": "Nuevo Proyecto",
+    "newBadgeExpired": "ya no es nuevo"
+  },
+  "onboardingBanner": {
+    "confirmRevenue": "Confirma tus ingresos con una OBV de tipo venta para desbloquear todas las funcionalidades",
+    "createRevenueOBV": "Crear OBV de venta",
+    "onboardingAbandonedTitle": "Completa tu configuracion",
+    "onboardingAbandonedMessage": "Termina tu setup para desbloquear todas las funcionalidades"
+  },
+  "onboardingTracking": {
+    "stepTransition": "Transicion de paso en onboarding"
+  },
+  "manageSubscription": {
+    "paymentsDisabled": "El sistema de pagos no esta activo.",
+    "currentPlan": "Plan actual",
+    "statusTrial": "Prueba gratuita",
+    "statusActive": "Activa",
+    "statusPastDue": "Pago pendiente",
+    "statusCancelled": "Cancelada",
+    "statusFree": "Gratuito",
+    "perMonth": "mes",
+    "managePlan": "Gestionar plan",
+    "upgradePlan": "Mejorar plan",
+    "trialDaysLeft": "{{days}} dias restantes de prueba gratuita",
+    "renewsOn": "Se renueva el {{date}}",
+    "usage": "Uso actual",
+    "members": "Miembros",
+    "aiCalls": "Llamadas IA",
+    "projects": "Proyectos",
+    "unlimited": "ilimitado",
+    "billing": "Facturacion",
+    "cancelNote": "Para cancelar tu suscripcion, accede al portal de facturacion de Stripe."
   }
 } as const;
