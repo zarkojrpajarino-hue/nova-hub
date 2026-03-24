@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { Users, Crown, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROLE_CONFIG } from '@/data/mockData';
-import type { Project } from '@/hooks/useNovaData';
+import type { Project } from '@/hooks/useNovaDataOptimized';
 import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
 import { ProjectLifecycleActions } from './ProjectLifecycleActions';
 import { MembersNudge } from '@/components/subscription/MembersNudge';

@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { Loader2, Target } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useProfiles } from '@/hooks/useNovaData';
+import { useProfiles } from '@/hooks/useNovaDataOptimized';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
 import { EmptyState } from '@/components/shared/EmptyState';
 import type { Database } from '@/integrations/supabase/types';

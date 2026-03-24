@@ -2,7 +2,7 @@ import { memo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { AlertTriangle, User, TrendingDown, Calendar, Loader2, CheckCircle } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useProfiles, useProjects, useMemberStats, useObjectives } from '@/hooks/useNovaData';
+import { useProfiles, useProjects, useMemberStats, useObjectives } from '@/hooks/useNovaDataOptimized';
 import { cn } from '@/lib/utils';
 import { differenceInDays } from 'date-fns';
 import { SourceBadge } from '@/components/shared/SourceBadge';

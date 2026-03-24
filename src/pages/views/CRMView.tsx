@@ -9,7 +9,7 @@
 import { useState, useMemo } from 'react';
 import { Loader2, LayoutDashboard, Kanban, List, Users, TrendingUp, Target, DollarSign, Brain, Sparkles, Mail } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
-import { usePipelineGlobal, useProjects, useProfiles } from '@/hooks/useNovaData';
+import { usePipelineGlobal, useProjects, useProfiles } from '@/hooks/useNovaDataOptimized';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
 import { CRMFilters } from '@/components/crm/CRMFilters';
 import { AILeadScoring } from '@/components/crm/AILeadScoring';

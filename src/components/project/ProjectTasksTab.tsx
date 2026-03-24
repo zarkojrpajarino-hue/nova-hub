@@ -2,7 +2,7 @@ import { memo, useState } from 'react';
 import { Loader2, ListTodo } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-import { useProfiles } from '@/hooks/useNovaData';
+import { useProfiles } from '@/hooks/useNovaDataOptimized';
 import { KanbanBoard } from '@/components/tasks/KanbanBoard';
 import { AITaskGenerator } from '@/components/tasks/AITaskGenerator';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';

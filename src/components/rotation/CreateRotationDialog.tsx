@@ -22,8 +22,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Loader2, AlertCircle, CheckCircle2, ArrowLeftRight } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjects } from '@/hooks/useNovaData';
-import { useProjectMembers, useProfiles } from '@/hooks/useNovaData';
+import { useProjects, useProjectMembers, useProfiles } from '@/hooks/useNovaDataOptimized';
 import { useCreateRotationRequest, useCalculateCompatibility, CompatibilityAnalysis } from '@/hooks/useRoleRotation';
 
 import { useTranslation } from 'react-i18next';

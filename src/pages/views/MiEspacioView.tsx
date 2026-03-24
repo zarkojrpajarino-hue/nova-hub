@@ -4,8 +4,7 @@ import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { ValidationCard } from '@/components/nova/ValidationCard';
 import { useAuth } from '@/hooks/useAuth';
-import { useCurrentMemberStats, useProjectMembers, useObjectives, useProjectStats } from '@/hooks/useNovaData';
-import { useProjects } from '@/hooks/useNovaDataOptimized';
+import { useCurrentMemberStats, useProjectMembers, useObjectives, useProjectStatsGlobal, useProjects } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
@@ -31,7 +30,7 @@ export function MiEspacioView({ onNewOBV }: MiEspacioViewProps) {
   const { data: projects = [], isLoading: loadingProjects } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
   const { data: objectives = [] } = useObjectives();
-  const { data: projectStats = [] } = useProjectStats();
+  const { data: projectStats = [] } = useProjectStatsGlobal();
   const [showTaskForm, setShowTaskForm] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 

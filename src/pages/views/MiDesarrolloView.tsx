@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Badge } from '@/components/ui/badge';
 import { useAuth } from '@/hooks/useAuth';
 import { useRolePerformance, useRoleRankings, type RoleRanking } from '@/hooks/useDevelopment';
-import { useProjectMembers, type ProjectMember } from '@/hooks/useNovaData';
+import { useProjectMembers, type ProjectMemberWithProfile } from '@/hooks/useNovaDataOptimized';
 import { RolePerformanceCard } from '@/components/development/RolePerformanceCard';
 import { InsightsList } from '@/components/development/InsightsList';
 import { PlaybookViewer } from '@/components/development/PlaybookViewer';
@@ -42,8 +42,8 @@ export function MiDesarrolloView() {
   // Get user's roles
   const userRoles = useMemo(() => {
     const roles = projectMembers
-      .filter((pm: ProjectMember) => pm.member_id === profile?.id)
-      .map((pm: ProjectMember) => pm.role);
+      .filter((pm: ProjectMemberWithProfile) => pm.member_id === profile?.id)
+      .map((pm: ProjectMemberWithProfile) => pm.role);
     return [...new Set(roles)] as string[];
   }, [projectMembers, profile?.id]);
 

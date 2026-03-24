@@ -11,7 +11,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { HowItWorks } from '@/components/ui/how-it-works';
-import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
+import { useMemberStats, useObjectives } from '@/hooks/useNovaDataOptimized';
 // S5.2 — Lazy load chart components (recharts is heavy)
 const WeeklyEvolutionChart = lazy(() =>
   import('@/components/dashboard/WeeklyEvolutionChart').then(m => ({ default: m.WeeklyEvolutionChart }))

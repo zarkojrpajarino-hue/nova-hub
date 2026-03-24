@@ -1,6 +1,6 @@
 import { Checkbox } from '@/components/ui/checkbox';
 import { Label } from '@/components/ui/label';
-import type { MemberStats } from '@/hooks/useNovaData';
+import type { MemberStats } from '@/hooks/useNovaDataOptimized';
 
 import { useTranslation } from 'react-i18next';
 interface AnalyticsFiltersProps {

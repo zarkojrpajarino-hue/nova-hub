@@ -10,7 +10,7 @@ import { Badge } from '@/components/ui/badge';
 import { X, Loader2 } from 'lucide-react';
 import { useCreateInsight, useUpdateInsight, type UserInsight } from '@/hooks/useDevelopment';
 import { useAuth } from '@/hooks/useAuth';
-import { useProjects } from '@/hooks/useNovaData';
+import { useProjects } from '@/hooks/useNovaDataOptimized';
 import { toast } from 'sonner';
 
 import { useTranslation } from 'react-i18next';

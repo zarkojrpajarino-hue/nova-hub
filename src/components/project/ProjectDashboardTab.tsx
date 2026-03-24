@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { FileCheck, TrendingUp, Target, Users, Wallet, Calendar, ChevronRight } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
 import { ROLE_CONFIG } from '@/data/mockData';
-import type { Project } from '@/hooks/useNovaData';
+import type { Project } from '@/hooks/useNovaDataOptimized';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 import { PlanLimitsIndicator } from '@/components/subscription/PlanLimitsIndicator';
 import { AICallsNudge } from '@/components/subscription/AICallsNudge';

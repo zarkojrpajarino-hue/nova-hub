@@ -5,7 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { FileText, Filter } from 'lucide-react';
-import { useMemberStats, useProjects, useProjectStats } from '@/hooks/useNovaData';
+import { useMemberStats, useProjects, useProjectStatsGlobal } from '@/hooks/useNovaDataOptimized';
 import { PartnerComparisonTable } from '@/components/analytics/PartnerComparisonTable';
 import { PartnerRadarChart } from '@/components/analytics/PartnerRadarChart';
 import { ProjectComparisonCharts } from '@/components/analytics/ProjectComparisonCharts';
@@ -38,7 +38,7 @@ function AnalyticsContent({ onNewOBV, isDemoMode: _isDemoMode = false }: Analyti
   // Real data hooks
   const { data: members = [] } = useMemberStats();
   const { data: projects = [] } = useProjects();
-  const { data: projectStats = [] } = useProjectStats();
+  const { data: projectStats = [] } = useProjectStatsGlobal();
 
   const handleExportCSV = (data: unknown[], filename: string) => {
     if (!data.length) return;

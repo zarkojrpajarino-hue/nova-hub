@@ -2,7 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { CheckCircle2, Check, X, Loader2 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
-import { useProfiles } from '@/hooks/useNovaData';
+import { useProfiles } from '@/hooks/useNovaDataOptimized';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';

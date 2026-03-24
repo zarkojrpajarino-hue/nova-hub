@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Sparkles, ArrowRightLeft, TrendingUp, AlertCircle, Loader2, RefreshCw } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { useProfiles, useProjectMembers } from '@/hooks/useNovaData';
+import { useProfiles, useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { toast } from 'sonner';
 
 import { useTranslation } from 'react-i18next';

@@ -2,7 +2,7 @@ import { useMemo, useState } from 'react';
 import { BookOpen, Trophy, Users, Crown, Diamond, Award, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { RankingCard } from '@/components/nova/RankingCard';
-import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
+import { useMemberStats, useObjectives } from '@/hooks/useNovaDataOptimized';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { KPITabContent } from '@/components/kpi/KPITabContent';
 import { ValidationOrderCard } from '@/components/validation/ValidationOrderCard';

@@ -5,7 +5,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRoleRankings, useRolePerformance } from '@/hooks/useDevelopment';
-import { useProfiles, useProjects, useProjectMembers } from '@/hooks/useNovaData';
+import { useProfiles, useProjects, useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';

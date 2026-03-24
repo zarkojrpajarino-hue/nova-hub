@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar, Legend, Tooltip } from 'recharts';
-import type { MemberStats } from '@/hooks/useNovaData';
+import type { MemberStats } from '@/hooks/useNovaDataOptimized';
 
 import { useTranslation } from 'react-i18next';
 interface PartnerRadarChartProps {

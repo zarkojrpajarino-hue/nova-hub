@@ -6,7 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { useObjectives, useProfiles } from '@/hooks/useNovaData';
+import { useObjectives, useProfiles } from '@/hooks/useNovaDataOptimized';
 import { useUpdateObjective, useUserRoles, useUpdateUserRole } from '@/hooks/useSettings';
 import { useAuth } from '@/hooks/useAuth';
 

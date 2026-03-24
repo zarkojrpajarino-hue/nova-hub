@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Calendar, Zap, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
-import { useMemberStats, useProjects, useProjectMembers } from '@/hooks/useNovaData';
+import { useMemberStats, useProjects, useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { Button } from '@/components/ui/button';
 import { AIRoleQuestionsGenerator } from '@/components/roles/AIRoleQuestionsGenerator';

@@ -2,7 +2,7 @@ import { useMemo } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { queryKeys } from '@/lib/queryKeys';
-import { useMemberStats, useObjectives } from '@/hooks/useNovaData';
+import { useMemberStats, useObjectives } from '@/hooks/useNovaDataOptimized';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_MEMBERS, DEMO_FINANCIAL, DEMO_FINANCIAL_METRICS, DEMO_PENDING_PAYMENTS } from '@/data/demoData';
 

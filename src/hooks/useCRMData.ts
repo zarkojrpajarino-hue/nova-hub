@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { usePipelineGlobal, useProjects, useProfiles } from '@/hooks/useNovaData';
+import { usePipelineGlobal, useProjects, useProfiles } from '@/hooks/useNovaDataOptimized';
 import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_LEADS, DEMO_PROJECTS, DEMO_MEMBERS } from '@/data/demoData';
 

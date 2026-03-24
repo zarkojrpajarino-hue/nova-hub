@@ -3,7 +3,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Checkbox } from '@/components/ui/checkbox';
 import { ChevronUp, ChevronDown } from 'lucide-react';
 import { cn } from '@/lib/utils';
-import type { MemberStats } from '@/hooks/useNovaData';
+import type { MemberStats } from '@/hooks/useNovaDataOptimized';
 
 import { useTranslation } from 'react-i18next';
 interface PartnerComparisonTableProps {

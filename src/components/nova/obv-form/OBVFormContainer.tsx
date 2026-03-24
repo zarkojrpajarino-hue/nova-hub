@@ -10,8 +10,7 @@ import { OBVStep3BasicInfo } from './OBVStep3BasicInfo';
 import { OBVStep4Lead } from './OBVStep4Lead';
 import { OBVStep5SaleDetails } from './OBVStep5SaleDetails';
 import { OBVStep6Evidence } from './OBVStep6Evidence';
-import { useMemberStats } from '@/hooks/useNovaData';
-import { useProjects } from '@/hooks/useNovaData';
+import { useMemberStats, useProjects } from '@/hooks/useNovaDataOptimized';
 
 import { useTranslation } from 'react-i18next';
 interface OBVFormContainerProps {

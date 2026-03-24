@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { useAuth } from '@/hooks/useAuth';
 import { useTeamMasters, useMasterApplications, useMasterChallenges, useMyMasterApplications } from '@/hooks/useMasters';
-import { useProfiles, useProjectMembers } from '@/hooks/useNovaData';
+import { useProfiles, useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { MasterCard } from '@/components/masters/MasterCard';
 import { ApplicationsList } from '@/components/masters/ApplicationsList';
 import { ChallengesList } from '@/components/masters/ChallengesList';
