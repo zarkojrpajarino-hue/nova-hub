@@ -28,7 +28,7 @@ export interface RolePermissions {
 
 const FULL_TABS = ['dashboard', 'equipo', 'crm', 'tareas', 'obvs', 'financiero', 'negocio-ia', 'expansion'];
 
-function computePermissions(role: string | null, isLead: boolean): RolePermissions {
+export function computePermissions(role: string | null, isLead: boolean): RolePermissions {
   const isFounder = isLead || role === 'strategy';
 
   if (isFounder) {

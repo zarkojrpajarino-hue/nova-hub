@@ -42,19 +42,22 @@ const mockUser = {
   color: '#6366F1',
 };
 
+const TEST_PROJECT_ID = 'test-project-123';
+
 const defaultProps = {
   currentView: 'dashboard',
   setCurrentView: vi.fn(),
   currentUser: mockUser,
   onSignOut: vi.fn(),
+  projectId: TEST_PROJECT_ID,
 };
 
 const queryClient = new QueryClient({ defaultOptions: { queries: { retry: false } } });
 
-function renderSidebar(props = {}) {
+function renderSidebar(props = {}, route = `/proyecto/${TEST_PROJECT_ID}`) {
   return render(
     <QueryClientProvider client={queryClient}>
-      <MemoryRouter initialEntries={['/']}>
+      <MemoryRouter initialEntries={[route]}>
         <NovaSidebar {...defaultProps} {...props} />
       </MemoryRouter>
     </QueryClientProvider>

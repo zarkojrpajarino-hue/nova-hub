@@ -65,11 +65,20 @@ export interface MomentDetectorInput {
   // Upgrade nudge data
   aiCallsUsed: number;           // from ai_generations_log count this month
   projectCount: number;          // user's total projects
+  // Currency symbol (e.g. '€', '$', '£') — optional, omitted = no symbol
+  currency?: string;
   // Previously seen moments (to avoid repeating)
   seenMoments: string[];         // array of moment types already shown
 }
 
 const MRR_MILESTONES = [1000, 5000, 10000, 50000];
+
+/** Format a number as currency. Uses symbol if provided, falls back to locale-agnostic format. */
+function formatCurrency(amount: number, currency?: string, shortLabel?: string): string {
+  const symbol = currency || '';
+  const value = shortLabel || String(Math.round(amount));
+  return symbol ? `${symbol}${value}` : value;
+}
 
 export function detectMoments(input: MomentDetectorInput): Moment[] {
   const moments: Moment[] = [];
@@ -92,20 +101,21 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       type: 'first_revenue',
       severity: 'celebration',
       title: '¡Primer ingreso registrado!',
-      message: `Tu MRR es €${Math.round(input.currentMrr)}. El modelo genera dinero.`,
+      message: `Tu MRR es ${formatCurrency(input.currentMrr, input.currency)}. El modelo genera dinero.`,
       data: { mrr: input.currentMrr },
     });
   }
 
-  // Revenue milestones (€1k, €5k, €10k, €50k)
+  // Revenue milestones (1k, 5k, 10k, 50k — currency-agnostic)
   for (const milestone of MRR_MILESTONES) {
     const milestoneKey = `revenue_milestone_${milestone}`;
     if (input.currentMrr >= milestone && input.previousMrr < milestone && !input.seenMoments.includes(milestoneKey)) {
+      const label = milestone >= 1000 ? `${milestone / 1000}k` : String(milestone);
       moments.push({
         type: 'revenue_milestone',
         severity: 'celebration',
-        title: `¡MRR cruzó €${milestone >= 1000 ? `${milestone / 1000}k` : milestone}!`,
-        message: `Tu MRR alcanzó €${Math.round(input.currentMrr)}. Sigue escalando.`,
+        title: `¡MRR cruzó ${formatCurrency(milestone, input.currency, label)}!`,
+        message: `Tu MRR alcanzó ${formatCurrency(input.currentMrr, input.currency)}. Sigue escalando.`,
         data: { milestone, mrr: input.currentMrr },
       });
     }
@@ -158,8 +168,9 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
   // but reappear each new week until resolved.
   const weekKey = Math.floor(Date.now() / (7 * 86_400_000));
 
-  // Stagnation warning (≥8 weeks, score didn't improve ≥10 pts in 4 weeks)
-  if (input.weeksInPhase >= 8 && input.scoreChange4w < 10 && input.currentPhase < 4
+  // Stagnation warning — threshold is more lenient in Phase 0 (12 weeks) vs later phases (8 weeks)
+  const stagnationWeeks = input.currentPhase === 0 ? 12 : 8;
+  if (input.weeksInPhase >= stagnationWeeks && input.scoreChange4w < 10 && input.currentPhase < 4
     && !input.seenMoments.includes(`stagnation_warning_${weekKey}`)) {
     moments.push({
       type: 'stagnation_warning',

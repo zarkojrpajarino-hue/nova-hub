@@ -37,8 +37,8 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
     return map;
   }, [objectives]);
 
-  // Transform members for RankingCard compatibility
-  const membersForRanking = members.map(m => ({
+  // Transform members for RankingCard compatibility (memoized to prevent unnecessary re-renders)
+  const membersForRanking = useMemo(() => members.map(m => ({
     id: m.id,
     nombre: m.nombre,
     color: m.color || '#6366F1',
@@ -53,7 +53,7 @@ export function KPIsView({ onNewOBV }: KPIsViewProps) {
     exploracion: 0,
     validacion: 0,
     venta: 0,
-  }));
+  })), [members]);
 
   const sortedByLPs = [...membersForRanking].sort((a, b) => b.lps - a.lps);
   const sortedByBPs = [...membersForRanking].sort((a, b) => b.bps - a.bps);

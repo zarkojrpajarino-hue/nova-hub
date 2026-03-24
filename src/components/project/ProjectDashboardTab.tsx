@@ -272,7 +272,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
           )}
 
           {/* F29 — Execution trends + Pipeline velocity (phase 2+) */}
-          {/* V4.4.14: WhatIfSimulator removed from dashboard (kept in component library for analytics tab) */}
+          {/* V4.4.14: WhatIfSimulator deleted (dead code — Pearson with N=4 is statistically meaningless) */}
           {currentPhase >= 2 && (
             <>
               <ExecutionTrendsCard projectId={project.id} />
