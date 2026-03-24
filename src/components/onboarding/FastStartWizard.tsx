@@ -21,7 +21,7 @@ import { useNavigate } from 'react-router-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp, Loader2, Zap } from 'lucide-react';
+import { CheckCircle2, Sparkles, Rocket, ArrowRight, TrendingUp, Loader2, Zap, AlertTriangle, RefreshCw, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import confetti from '@/lib/confetti';
 import type { Json } from '@/integrations/supabase/types';
@@ -64,6 +64,8 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   const [cachedOD, setCachedOD] = useState<Record<string, unknown>>({});
   // Tanda de ideas generativas guardada (para rehydración si el usuario refresca)
   const [savedTanda, setSavedTanda] = useState<BusinessIdea[] | undefined>(undefined);
+  // Error state for initial project load failure
+  const [loadError, setLoadError] = useState(false);
 
   // ─────────────────────────────────────────────────────────────────────────
   // Mount: cargar proyecto + rehidratación de fase
@@ -78,7 +80,7 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
 
       if (error) {
         toast.error(t('onboarding.errorAlCargarEl'));
-        setPhase('fase-a');
+        setLoadError(true);
         return;
       }
 
@@ -287,6 +289,37 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   // ─────────────────────────────────────────────────────────────────────────
   // Render
   // ─────────────────────────────────────────────────────────────────────────
+  if (loadError) {
+    return (
+      <div className="flex items-center justify-center py-16">
+        <Card className="max-w-md border-2 border-red-200">
+          <CardContent className="pt-12 pb-12 text-center space-y-4">
+            <AlertTriangle className="h-12 w-12 text-red-500 mx-auto" />
+            <p className="text-lg font-semibold text-gray-900">{t('onboarding.loadErrorTitle')}</p>
+            <p className="text-sm text-muted-foreground">{t('onboarding.loadErrorDescription')}</p>
+            <div className="flex gap-3 justify-center pt-2">
+              <Button
+                variant="outline"
+                onClick={() => navigate('/select-project')}
+                className="gap-2"
+              >
+                <ArrowLeft className="h-4 w-4" />
+                {t('onboarding.goBack')}
+              </Button>
+              <Button
+                onClick={() => { setLoadError(false); setPhase('loading'); window.location.reload(); }}
+                className="gap-2"
+              >
+                <RefreshCw className="h-4 w-4" />
+                {t('onboarding.retry')}
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+    );
+  }
+
   if (phase === 'loading') {
     return (
       <div className="flex items-center justify-center py-16">

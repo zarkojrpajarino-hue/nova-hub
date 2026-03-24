@@ -139,7 +139,7 @@ serve(async (req) => {
 
       const followupStart = Date.now();
       const followupMessage = await anthropic.messages.create({
-        model: 'claude-sonnet-4-6',
+        model: 'claude-haiku-4-5-20251001',
         max_tokens: 300,
         system: `Eres Optimus, el motor de inteligencia estrategica de Optimus-K.
 El usuario tiene un analisis generado de su proyecto y hace una pregunta de seguimiento.
@@ -163,7 +163,7 @@ No repitas el analisis completo. Si no tienes datos suficientes para responder, 
         success: true,
         executionTimeMs: Date.now() - followupStart,
         tokensUsed: (followupMessage.usage?.input_tokens ?? 0) + (followupMessage.usage?.output_tokens ?? 0),
-        modelUsed: 'claude-sonnet-4-6',
+        modelUsed: 'claude-haiku-4-5-20251001',
       });
 
       return new Response(JSON.stringify({ answer: answerText }), { status: 200, headers });

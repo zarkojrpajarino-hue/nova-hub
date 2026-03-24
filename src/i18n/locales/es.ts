@@ -1125,6 +1125,10 @@ export const es = {
   },
   "onboarding": {
     "cargandoOnboarding": "Cargando onboarding...",
+    "loadErrorTitle": "Error al cargar el proyecto",
+    "loadErrorDescription": "No se pudo cargar la informacion del proyecto. Revisa tu conexion e intentalo de nuevo.",
+    "goBack": "Volver",
+    "retry": "Reintentar",
     "errorNoSePudo": "Error: No se pudo cargar el proyecto",
     "bienvenidoA": "Bienvenido a",
     "completaEsteFormularioY": "Completa este formulario y en minutos tendrás tu proyecto configurado",
@@ -2486,7 +2490,10 @@ export const es = {
     "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos"
   },
   "rootRedirect": {
-    "cargando": "Cargando..."
+    "cargando": "Cargando...",
+    "timeoutTitle": "La carga esta tardando demasiado",
+    "timeoutDescription": "No se pudo completar la carga en el tiempo esperado. Revisa tu conexion e intentalo de nuevo.",
+    "retry": "Reintentar"
   },
   "selectOnboardingType": {
     "crearNuevoProyecto": "Crear Nuevo Proyecto",

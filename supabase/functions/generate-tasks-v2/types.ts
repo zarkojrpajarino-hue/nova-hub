@@ -36,7 +36,6 @@ export interface TeamMember {
 export interface EnrichedTeamMember {
   member_id: string;
   nombre: string;
-  email: string;
   role: string;
   roleLabel: string;
   especialization: string | null;

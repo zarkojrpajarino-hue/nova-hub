@@ -157,7 +157,7 @@ REGLAS:
     const anthropic = new Anthropic({ apiKey: Deno.env.get('ANTHROPIC_API_KEY') ?? '' });
     const startTime = Date.now();
     const message = await anthropic.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-haiku-4-5-20251001',
       max_tokens: 2000,
       system: 'Eres Optimus, motor de inteligencia estratégica de Optimus-K. Generas sistemas de lead scoring basados en datos reales. Responde ÚNICAMENTE con JSON válido.',
       messages: [{ role: 'user', content: userPrompt }],
@@ -175,7 +175,7 @@ REGLAS:
       supabaseClient: supabase, projectId: project_id, userId: user.id,
       functionName: 'generate-lead-scoring-v2', inputData: { project_id, leads_count: leads.length },
       outputData: rawText?.slice(0, 500), success: true, executionTimeMs: durationMs,
-      tokensUsed: message.usage.input_tokens + message.usage.output_tokens, modelUsed: 'claude-sonnet-4-6',
+      tokensUsed: message.usage.input_tokens + message.usage.output_tokens, modelUsed: 'claude-haiku-4-5-20251001',
     });
 
     const dataSources = [

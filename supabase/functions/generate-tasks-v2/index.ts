@@ -225,7 +225,6 @@ Deno.serve(async (req) => {
         return {
           member_id: memberId,
           nombre: tm.profiles.nombre,
-          email: tm.profiles.email,
           role: tm.role || 'operations',
           roleLabel: ROLE_LABELS[tm.role || 'operations'] || tm.role,
           especialization: tm.profiles.especialization,

@@ -8,12 +8,13 @@
  * - Si tiene proyecto seleccionado → /proyecto/:projectId
  */
 
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import { OptimusLogo } from '@/components/brand/OptimusLogo';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
-import { Loader2 } from 'lucide-react';
+import { Loader2, AlertTriangle, RefreshCw } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 import { useTranslation } from 'react-i18next';
 export function RootRedirect() {
@@ -21,12 +22,24 @@ export function RootRedirect() {
   const navigate = useNavigate();
   const { isAuthenticated, loading: authLoading, profileLoading } = useAuth();
   const { currentProject, userProjects, isLoading: projectsLoading } = useCurrentProject();
+  const [timedOut, setTimedOut] = useState(false);
+
+  // Timeout: if loading doesn't complete in 10s, show error
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setTimedOut(true);
+    }, 10_000);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     // CRÍTICO: Esperar a que TODO esté cargado (auth, profile, y proyectos)
     if (authLoading || projectsLoading || profileLoading) {
       return;
     }
+
+    // Loading completed — cancel timeout state
+    setTimedOut(false);
 
     // Si no está autenticado, ir a landing
     if (!isAuthenticated) {
@@ -49,6 +62,23 @@ export function RootRedirect() {
     // Si tiene proyecto seleccionado, ir al dashboard de ese proyecto
     navigate(`/proyecto/${currentProject.id}`, { replace: true });
   }, [isAuthenticated, authLoading, projectsLoading, profileLoading, currentProject, userProjects, navigate]);
+
+  // Timeout error state
+  if (timedOut && (authLoading || projectsLoading || profileLoading)) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <AlertTriangle className="w-12 h-12 text-destructive mx-auto mb-4" />
+          <h2 className="text-xl font-semibold mb-2">{t('rootRedirect.timeoutTitle')}</h2>
+          <p className="text-sm text-muted-foreground mb-6">{t('rootRedirect.timeoutDescription')}</p>
+          <Button onClick={() => window.location.reload()} className="gap-2">
+            <RefreshCw className="w-4 h-4" />
+            {t('rootRedirect.retry')}
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   // Loading state
   return (

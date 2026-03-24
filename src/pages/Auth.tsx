@@ -43,8 +43,8 @@ export default function Auth() {
       emailSchema.parse(email);
       passwordSchema.parse(password);
     } catch (_error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
+      if (_error instanceof z.ZodError) {
+        toast.error(_error.errors[0].message);
         return;
       }
     }
