@@ -29,9 +29,15 @@ export type MomentType =
   | 'upgrade_ai_limit'
   | 'upgrade_team_limit'
   | 'upgrade_project_limit'
+  | 'upgrade_aha_obv_validated'
+  | 'upgrade_aha_team_growing'
+  | 'upgrade_aha_ai_half'
+  | 'upgrade_aha_kpi_trending'
+  | 'upgrade_aha_integration'
   | 'trajectory_warning'   // V5.2.10
   | 'coverage_gap'         // V5.2.11
-  | 'churn_risk';          // V5.2.12
+  | 'churn_risk'           // V5.2.12
+  | 'onboarding_abandoned'; // V5.4.11
 
 export type MomentSeverity = 'celebration' | 'info' | 'warning';
 
@@ -85,6 +91,12 @@ export interface MomentDetectorInput {
   // V5.2.12 — MRR history for churn_risk detection
   mrrChange4wPct?: number;       // % change in MRR over 4 weeks (e.g. 2.5 = +2.5%)
   previousTeamSize?: number;     // team size 4 weeks ago (to detect decrease)
+  // V5.3.8 — Aha moment upgrade triggers
+  kpiConsecutiveUpWeeks?: number;  // consecutive weeks any KPI trended up (0 if none)
+  triedIntegration?: boolean;      // user clicked/tried any integration
+  // V5.4.11 — Onboarding abandonment detection
+  onboardingCompleted?: boolean;   // from projects.onboarding_completed
+  projectAgeHours?: number;        // hours since project creation
   // Previously seen moments (to avoid repeating)
   seenMoments: string[];         // array of moment types already shown
 }
@@ -393,6 +405,76 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       severity: 'info',
       title: 'Segundo proyecto',
       message: 'Gestiona hasta 5 proyectos con Pro. Cada proyecto tiene su propio motor de fases.',
+    });
+  }
+
+  // ── V5.3.8 — Aha moment upgrade triggers ──────────────────────
+
+  // When first OBV is validated → hint benchmarking
+  if (input.totalOBVsValidated >= 1 && !input.seenMoments.includes('upgrade_aha_obv_validated')) {
+    moments.push({
+      type: 'upgrade_aha_obv_validated',
+      severity: 'info',
+      title: 'Desbloquea benchmarking',
+      message: 'Scale desbloquea benchmarking para comparar tus validaciones con otros proyectos.',
+    });
+  }
+
+  // When team size >= 3 → hint priority support
+  if (input.teamSize >= 3 && !input.seenMoments.includes('upgrade_aha_team_growing')) {
+    moments.push({
+      type: 'upgrade_aha_team_growing',
+      severity: 'info',
+      title: 'Equipo creciendo',
+      message: 'Pro: soporte prioritario para equipos en crecimiento.',
+    });
+  }
+
+  // When AI calls used >= 10 (half of free) → hint Pro limit
+  if (input.aiCallsUsed >= 10 && !input.seenMoments.includes('upgrade_aha_ai_half')) {
+    moments.push({
+      type: 'upgrade_aha_ai_half',
+      severity: 'info',
+      title: 'Sacas partido a la IA',
+      message: 'Pro: 100 analisis IA al mes para potenciar tu crecimiento.',
+    });
+  }
+
+  // When any KPI trends up 2 consecutive weeks → hint predictive analytics
+  if (input.kpiConsecutiveUpWeeks !== undefined && input.kpiConsecutiveUpWeeks >= 2
+    && !input.seenMoments.includes('upgrade_aha_kpi_trending')) {
+    moments.push({
+      type: 'upgrade_aha_kpi_trending',
+      severity: 'info',
+      title: 'KPIs en tendencia alcista',
+      message: 'Scale: analiticas predictivas para mantener tu impulso.',
+    });
+  }
+
+  // When user tries integration → hint Scale integrations
+  if (input.triedIntegration && !input.seenMoments.includes('upgrade_aha_integration')) {
+    moments.push({
+      type: 'upgrade_aha_integration',
+      severity: 'info',
+      title: 'Integraciones disponibles',
+      message: 'Scale: sincroniza con Stripe, Asana y mas.',
+    });
+  }
+
+  // ── V5.4.11 — Onboarding abandoned ─────────────────────────────
+  // Fires if onboarding_completed is false AND project age > 24 hours
+  if (
+    input.onboardingCompleted === false
+    && input.projectAgeHours !== undefined
+    && input.projectAgeHours > 24
+    && !input.seenMoments.includes('onboarding_abandoned')
+  ) {
+    moments.push({
+      type: 'onboarding_abandoned',
+      severity: 'warning',
+      title: 'Completa tu configuracion',
+      message: 'Termina tu setup para desbloquear todas las funcionalidades.',
+      data: { projectAgeHours: input.projectAgeHours },
     });
   }
 

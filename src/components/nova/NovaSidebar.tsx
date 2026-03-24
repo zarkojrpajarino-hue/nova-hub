@@ -126,7 +126,9 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
   const phaseConfig = SIDEBAR_PHASE_CONFIG[phase] ?? SIDEBAR_PHASE_CONFIG[4];
 
   // UI.A.4 — "NUEVO" badge: detect newly visible items after phase change
+  // V5.4.8 — Persist NEW badge for 7 days using first-seen timestamps
   const lsKey = projectId ? `optimus_last_seen_phase_${projectId}` : null;
+  const newBadgeLsKey = projectId ? `optimus_new_badge_dates_${projectId}` : null;
   const [clickedNewItems, setClickedNewItems] = useState<Set<string>>(new Set());
 
   const newlyVisibleItems = useMemo(() => {
@@ -145,6 +147,26 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
     }
     return result;
   }, [lsKey, phase]);
+
+  // V5.4.8 — Record first-seen date for new items and check 7-day window
+  useEffect(() => {
+    if (!newBadgeLsKey || newlyVisibleItems.size === 0) return;
+    try {
+      const stored = JSON.parse(localStorage.getItem(newBadgeLsKey) ?? '{}') as Record<string, number>;
+      let changed = false;
+      for (const itemId of newlyVisibleItems) {
+        if (!stored[itemId]) {
+          stored[itemId] = Date.now();
+          changed = true;
+        }
+      }
+      if (changed) {
+        localStorage.setItem(newBadgeLsKey, JSON.stringify(stored));
+      }
+    } catch {
+      // Ignore parse errors
+    }
+  }, [newBadgeLsKey, newlyVisibleItems]);
 
   // Persist current phase on mount/change
   useEffect(() => {
@@ -178,9 +200,24 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
     return phaseConfig[itemId] ?? 'visible';
   }, [phaseConfig]);
 
+  // V5.4.8 — isNew checks 7-day persistence window
   const isNewItem = useCallback((itemId: string): boolean => {
-    return newlyVisibleItems.has(itemId) && !clickedNewItems.has(itemId);
-  }, [newlyVisibleItems, clickedNewItems]);
+    if (!newlyVisibleItems.has(itemId) || clickedNewItems.has(itemId)) return false;
+    // Check if within 7-day window
+    if (newBadgeLsKey) {
+      try {
+        const stored = JSON.parse(localStorage.getItem(newBadgeLsKey) ?? '{}') as Record<string, number>;
+        const firstSeen = stored[itemId];
+        if (firstSeen) {
+          const SEVEN_DAYS_MS = 7 * 24 * 60 * 60 * 1000;
+          if (Date.now() - firstSeen > SEVEN_DAYS_MS) return false;
+        }
+      } catch {
+        // Ignore
+      }
+    }
+    return true;
+  }, [newlyVisibleItems, clickedNewItems, newBadgeLsKey]);
 
   // Filter items by phase visibility (removes hidden, keeps visible + teaser)
   const filterByPhase = useCallback((items: NavItem[]): NavItem[] => {
@@ -304,18 +341,36 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
       className="w-64 bg-sidebar border-r border-sidebar-border flex flex-col h-screen fixed z-50"
       aria-label={t('nav.mainNavigation', t('nova.navegaciónPrincipal'))}
     >
-      {/* Logo */}
+      {/* Logo + New Project */}
       <div className="p-5 border-b border-sidebar-border">
         <div className="flex items-center gap-3" role="banner">
           <div aria-label={t('nova.logoOptimusk')}>
             <OptimusLogo size={40} variant="auto" />
           </div>
-          <div>
+          <div className="flex-1">
             <span className="font-bold text-lg tracking-tight">OPTIMUS-K</span>
             <span className="ml-2 text-[10px] bg-primary/20 text-primary px-2 py-0.5 rounded-md font-semibold">
               BETA
             </span>
           </div>
+          {/* V5.4.7 — New Project button */}
+          <TooltipProvider delayDuration={200}>
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <button
+                  onClick={() => navigate('/create-project')}
+                  className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
+                  aria-label={t('sidebarExtra.newProject')}
+                >
+                  <FolderKanban size={14} className="absolute opacity-0" />
+                  <span className="text-lg font-light leading-none">+</span>
+                </button>
+              </TooltipTrigger>
+              <TooltipContent side="bottom">
+                <p className="text-xs">{t('sidebarExtra.newProject')}</p>
+              </TooltipContent>
+            </Tooltip>
+          </TooltipProvider>
         </div>
       </div>
 

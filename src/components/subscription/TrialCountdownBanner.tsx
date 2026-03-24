@@ -150,11 +150,11 @@ export const TrialCountdownBanner = memo(function TrialCountdownBanner({ project
                   'h-full transition-all duration-500 rounded-full',
                   variant === 'destructive' ? 'bg-red-500' : 'bg-blue-500'
                 )}
-                style={{ width: `${(daysLeft / 14) * 100}%` }}
+                style={{ width: `${(daysLeft / 21) * 100}%` }}
               />
             </div>
             <p className="text-xs text-gray-600 mt-1">
-              {t('trial.daysOf14', { days: daysLeft })}
+              {t('trial.daysOf21', { days: daysLeft })}
             </p>
           </div>
         )}

@@ -24,11 +24,11 @@
  *   - Modales de upgrade visibles
  *   - FeatureGate aplicando restricciones
  *
- * ESTADO ACTUAL: false (Testing con conocidos - TODO GRATIS)
+ * ESTADO ACTUAL: true (Pagos activos)
  *
  * Para activar pagos: Cambia a `true` cuando estés listo para monetizar
  */
-export const ENABLE_PAYMENTS = false;
+export const ENABLE_PAYMENTS = true;
 
 /**
  * DEMO_MODE: Controla si se muestran datos demo en lugar de datos reales
@@ -44,7 +44,7 @@ export const DEMO_MODE = false;
  * - true: Muestra badges "Pro", "Enterprise" en el UI (sin bloquear)
  * - false: Oculta completamente referencias a planes premium
  */
-export const SHOW_UPGRADE_HINTS = false;
+export const SHOW_UPGRADE_HINTS = true;
 
 // ============================================================================
 // 🚀 FEATURES EN DESARROLLO (Beta Features)
@@ -87,10 +87,11 @@ export const PLAN_TIERS = {
   free: {
     name: 'Starter',
     price: 0, // cents/month
-    projects: 1,
-    members: 3,
-    aiCalls: 20,
-    analyticsWindow: 30, // days
+    priceAnnual: 0, // cents/year
+    projects: 3,
+    members: 7,
+    aiCalls: 50,
+    analyticsWindow: 90, // days
     integrations: false,
     meetingIntelligence: false,
     benchmarking: false,
@@ -99,6 +100,7 @@ export const PLAN_TIERS = {
   pro: {
     name: 'Pro',
     price: 2900, // $29/month
+    priceAnnual: 27800, // $278/year (20% discount)
     projects: 5,
     members: 10,
     aiCalls: 100,
@@ -111,6 +113,7 @@ export const PLAN_TIERS = {
   scale: {
     name: 'Scale',
     price: 7900, // $79/month
+    priceAnnual: 75800, // $758/year (20% discount)
     projects: -1, // unlimited
     members: -1, // unlimited
     aiCalls: 500,

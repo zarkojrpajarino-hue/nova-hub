@@ -27,7 +27,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { UserPlus, Mail, Briefcase, AlertCircle } from 'lucide-react';
-import { useFeatureAccess } from '@/hooks/useSubscription';
+import { useFeatureAccess, useCurrentPlanTier } from '@/hooks/useSubscription';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import type { Database } from '@/integrations/supabase/types';
@@ -64,6 +64,7 @@ export function InviteMemberWizard({
   const { t } = useTranslation();
   const { getLimitInfo } = useFeatureAccess(projectId);
   const membersLimit = getLimitInfo('members');
+  const { tier } = useCurrentPlanTier(projectId);
 
   const [email, setEmail] = useState('');
   // C3.2 — selectedRole almacena directamente un valor de specialization_role
@@ -119,7 +120,21 @@ export function InviteMemberWizard({
         return;
       }
 
-      // 3. Añadir a project_members con el rol seleccionado
+      // 3. Server-side member count check against plan limit (V5.3.13)
+      const planMemberLimit = tier.members;
+      if (planMemberLimit !== -1) {
+        const { count: memberCount } = await supabase
+          .from('project_members')
+          .select('id', { count: 'exact', head: true })
+          .eq('project_id', projectId);
+
+        if (memberCount !== null && memberCount >= planMemberLimit) {
+          setError(t('roles.memberLimitReached', { limit: planMemberLimit }));
+          return;
+        }
+      }
+
+      // 4. Añadir a project_members con el rol seleccionado
       const { error: insertError } = await supabase
         .from('project_members')
         .insert({

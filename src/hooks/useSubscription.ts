@@ -480,6 +480,23 @@ export function useCreateProjectWithSubscription() {
     mutationFn: async (input: CreateProjectInput) => {
       if (!profile) throw new Error('User not authenticated');
 
+      // V5.3.14 — Server-side project count check against plan limit
+      if (isPaymentsEnabled()) {
+        // Count user's existing projects
+        const { count: projectCount } = await supabase
+          .from('project_members')
+          .select('id', { count: 'exact', head: true })
+          .eq('member_id', profile.id);
+
+        // Determine the plan limit — for new project, use free tier as default
+        const planKey = input.plan_id === 'free_trial' ? 'free' : 'pro';
+        const limit = PLAN_TIERS[planKey as keyof typeof PLAN_TIERS]?.projects ?? PLAN_TIERS.free.projects;
+
+        if (limit !== -1 && projectCount !== null && projectCount >= limit) {
+          throw new Error(`Has alcanzado el limite de ${limit} proyectos en tu plan actual. Actualiza tu plan para crear mas.`);
+        }
+      }
+
       // 1. Create project
       const { data: project, error: projectError } = await supabase
         .from('projects')
@@ -500,7 +517,7 @@ export function useCreateProjectWithSubscription() {
       const isTrial = input.plan_id === 'free_trial';
       const trialEndsAt = isTrial ? new Date() : null;
       if (trialEndsAt) {
-        trialEndsAt.setDate(trialEndsAt.getDate() + 14); // 14 days
+        trialEndsAt.setDate(trialEndsAt.getDate() + 21); // 21 days
       }
 
       const { error: subError } = await supabase

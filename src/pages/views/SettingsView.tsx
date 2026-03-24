@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { User, Bell, Shield, LogOut, ChevronRight, FileText } from 'lucide-react';
+import { User, Bell, Shield, LogOut, ChevronRight, FileText, CreditCard } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -11,6 +11,7 @@ import { ProfileSettings } from '@/components/settings/ProfileSettings';
 import { NotificationSettings } from '@/components/settings/NotificationSettings';
 import { AdminSettings } from '@/components/settings/AdminSettings';
 import { DocumentManager } from '@/components/evidence';
+import { ManageSubscription } from '@/components/subscription/ManageSubscription';
 import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { SettingsPreviewModal } from '@/components/preview/SettingsPreviewModal';
@@ -20,7 +21,7 @@ interface SettingsViewProps {
   onNewOBV?: () => void;
 }
 
-type SettingsTab = 'profile' | 'notifications' | 'admin' | 'evidence';
+type SettingsTab = 'profile' | 'notifications' | 'admin' | 'evidence' | 'subscription';
 
 export function SettingsView({ onNewOBV }: SettingsViewProps) {
   const { t } = useTranslation();
@@ -43,6 +44,7 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
   const tabs = [
     { id: 'profile' as const, label: t('settings.miPerfil'), icon: User },
     { id: 'notifications' as const, label: t('settings.notificaciones'), icon: Bell },
+    { id: 'subscription' as const, label: t('settings.subscription'), icon: CreditCard },
     { id: 'evidence' as const, label: t('settings.fuentesDeEvidencia0'), icon: FileText },
     ...(isAdmin ? [{ id: 'admin' as const, label: t('settings.administración'), icon: Shield }] : []),
   ];
@@ -122,6 +124,7 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
 
           {/* Content */}
           <div className="flex-1">
+            {activeTab === 'subscription' && <ManageSubscription />}
             {activeTab === 'profile' && <ProfileSettings />}
             {activeTab === 'notifications' && <NotificationSettings />}
             {activeTab === 'evidence' && currentProject && (

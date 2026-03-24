@@ -7,7 +7,7 @@
  */
 
 import { useState, useMemo } from 'react';
-import { Loader2, LayoutDashboard, Kanban, List, Users, TrendingUp, Target, DollarSign, Brain, Sparkles, Mail } from 'lucide-react';
+import { Loader2, LayoutDashboard, Kanban, List, Users, TrendingUp, Target, DollarSign, Brain, Sparkles, Mail, Plus, Search as SearchIcon } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { usePipelineGlobal, useProjects, useProfiles } from '@/hooks/useNovaDataOptimized';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
@@ -25,6 +25,8 @@ import { CRMPreviewModal } from '@/components/preview/CRMPreviewModal';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { useFeatureUnlock } from '@/hooks/useUnlockProgress';
 import { UnlockGate } from '@/components/project/UnlockProgress';
+import { AICallsNudge } from '@/components/subscription/AICallsNudge';
+import { Button } from '@/components/ui/button';
 
 import { useTranslation } from 'react-i18next';
 interface CRMViewProps {
@@ -183,6 +185,27 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
           </TabsList>
 
           <TabsContent value="overview" className="space-y-6">
+            {/* V5.4.5 — Empty state CTA when no leads */}
+            {filteredLeads.length === 0 && (
+              <div className="flex flex-col items-center justify-center py-12 px-6 rounded-xl border-2 border-dashed border-muted-foreground/20 bg-muted/30">
+                <SearchIcon className="h-12 w-12 text-muted-foreground/40 mb-4" />
+                <h3 className="text-lg font-semibold mb-2">{t('crmView.emptyTitle')}</h3>
+                <p className="text-sm text-muted-foreground text-center max-w-md mb-6">
+                  {t('crmView.emptyDescription')}
+                </p>
+                <div className="flex items-center gap-3">
+                  <Button onClick={() => setViewMode('ai-finder')} className="gap-2">
+                    <Sparkles size={16} />
+                    {t('crmView.useAIFinder')}
+                  </Button>
+                  <Button variant="outline" onClick={() => setViewMode('pipeline')} className="gap-2">
+                    <Plus size={16} />
+                    {t('crmView.addLeadManually')}
+                  </Button>
+                </div>
+              </div>
+            )}
+
             {/* Header with Export Button */}
             <div className="flex items-center justify-between mb-4">
               <div>
@@ -400,14 +423,17 @@ export function CRMView({ onNewOBV }: CRMViewProps) {
           </TabsContent>
 
           <TabsContent value="ai-finder">
+            <AICallsNudge projectId={currentProject?.id} compact />
             <AILeadFinder />
           </TabsContent>
 
           <TabsContent value="email-pitch">
+            <AICallsNudge projectId={currentProject?.id} compact />
             <EmailPitchGenerator />
           </TabsContent>
 
           <TabsContent value="insights">
+            <AICallsNudge projectId={currentProject?.id} compact />
             <AILeadScoring leads={filteredLeads} />
           </TabsContent>
         </Tabs>

@@ -18,6 +18,7 @@ import { useNavigationHistory } from '@/hooks/useNavigationHistory';
 import { useCurrentProject } from '@/contexts/CurrentProjectContext';
 import { usePhaseTransitionNotification } from '@/hooks/usePhaseTransitionNotification';
 import { PhaseTransitionModal } from '@/components/nova/PhaseTransitionModal';
+import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 
 // Lazy load views for better code splitting
 const DashboardView = lazy(() => import('./views/DashboardView').then(m => ({ default: m.DashboardView })));
@@ -217,6 +218,11 @@ function IndexContent() {
           !isMobile && "ml-64",
           isDemoMode && "pt-12"
         )}>
+          {/* Trial Countdown Banner — visible on ALL pages */}
+          {currentProject?.id && (
+            <TrialCountdownBanner projectId={currentProject.id} className="mx-8 mt-4" />
+          )}
+
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
               {/* Rutas relativas al proyecto */}

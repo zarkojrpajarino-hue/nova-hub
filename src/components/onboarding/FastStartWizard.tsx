@@ -26,6 +26,7 @@ import { Button } from '@/components/ui/button';
 import confetti from '@/lib/confetti';
 import type { Json } from '@/integrations/supabase/types';
 import { trackOnboardingStarted, trackOnboardingCompleted } from '@/lib/analytics';
+import posthog from 'posthog-js';
 
 import { FaseACommon, type FaseAAnswers } from './fast-start/FaseACommon';
 import { GenerativeFastStart } from './fast-start/GenerativeFastStart';
@@ -66,6 +67,8 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   const [savedTanda, setSavedTanda] = useState<BusinessIdea[] | undefined>(undefined);
   // Error state for initial project load failure
   const [loadError, setLoadError] = useState(false);
+  // V5.4.10 — Track step timing for granular funnel analytics
+  const [phaseStartTime, setPhaseStartTime] = useState<number>(Date.now());
 
   // ─────────────────────────────────────────────────────────────────────────
   // Mount: cargar proyecto + rehidratación de fase
@@ -102,9 +105,26 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
       if (od.fase_a_completed === true && od.fase_a_answers) {
         setFaseAAnswers(od.fase_a_answers as FaseAAnswers);
         setPhase('path-specific');
+        // V5.4.10 — Track rehydration to path-specific
+        posthog.capture('onboarding_step_transition', {
+          project_id: projectId,
+          step_name: 'rehydrate-to-path-specific',
+          time_spent_seconds: 0,
+          completion_status: 'rehydrated',
+          onboarding_type: savedType,
+        });
       } else {
         setPhase('fase-a');
+        // V5.4.10 — Track start of fase-a
+        posthog.capture('onboarding_step_transition', {
+          project_id: projectId,
+          step_name: 'loading-to-fase-a',
+          time_spent_seconds: 0,
+          completion_status: 'started',
+          onboarding_type: savedType,
+        });
       }
+      setPhaseStartTime(Date.now());
       trackOnboardingStarted({ project_id: projectId });
     };
 
@@ -122,6 +142,17 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   // ─────────────────────────────────────────────────────────────────────────
   const handleFaseAComplete = async (answers: FaseAAnswers) => {
     setFaseAAnswers(answers);
+
+    // V5.4.10 — Granular tracking: fase-a completed
+    const timeSpent = Math.round((Date.now() - phaseStartTime) / 1000);
+    posthog.capture('onboarding_step_transition', {
+      project_id: projectId,
+      step_name: 'fase-a',
+      time_spent_seconds: timeSpent,
+      completion_status: 'completed',
+      onboarding_type: onboardingType,
+    });
+    setPhaseStartTime(Date.now());
 
     try {
       // onboarding_sessions: guardar respuestas de Fase A
@@ -165,6 +196,16 @@ export function FastStartWizard({ projectId, onComplete }: FastStartWizardProps)
   // Path-specific completo → save final + celebración
   // ─────────────────────────────────────────────────────────────────────────
   const handlePathComplete = async (data: Record<string, unknown>) => {
+    // V5.4.10 — Granular tracking: path-specific completed
+    const timeSpent = Math.round((Date.now() - phaseStartTime) / 1000);
+    posthog.capture('onboarding_step_transition', {
+      project_id: projectId,
+      step_name: `path-specific-${onboardingType}`,
+      time_spent_seconds: timeSpent,
+      completion_status: 'completed',
+      onboarding_type: onboardingType,
+    });
+
     try {
       const now = new Date().toISOString();
 

@@ -112,8 +112,8 @@ export function useCRMPipeline(
         profile.id
       );
 
-      const stageName = PIPELINE_STAGES.find(s => s.id === newStatus)?.label;
-      toast.success(`Lead movido a ${stageName}`);
+      const stageName = PIPELINE_STAGES.find(s => s.id === newStatus)?.label ?? newStatus;
+      toast.success(t('crmView.leadMoved', { stage: stageName }));
 
       // V5.2.6 — Auto-create OBV draft when lead transitions to cerrado_ganado
       if (newStatus === 'cerrado_ganado') {

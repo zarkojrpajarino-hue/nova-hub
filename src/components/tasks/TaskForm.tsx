@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { Loader2, Calendar, Flag, User, Layers, Shield } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Loader2, Calendar, Flag, User, Layers, Shield, CheckCircle2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
@@ -38,11 +38,24 @@ function getFUNCTION_TYPE_OPTIONS(t: (k: string) => string) {
 ];
 }
 
+interface ActiveTask {
+  id: string;
+  titulo: string;
+  status: string;
+}
+
 export function TaskForm({ projectId, projectMembers, open, onOpenChange }: TaskFormProps) {
   const { t } = useTranslation();
   const { profile } = useAuth();
   const queryClient = useQueryClient();
   const [isSubmitting, setIsSubmitting] = useState(false);
+  // V5.4.3 — Track if title field has been touched (for inline validation)
+  const [titleTouched, setTitleTouched] = useState(false);
+  // V5.4.4 — Task limit state
+  const [showTaskLimit, setShowTaskLimit] = useState(false);
+  const [activeTasks, setActiveTasks] = useState<ActiveTask[]>([]);
+  const [completingTaskId, setCompletingTaskId] = useState<string | null>(null);
+
   const [formData, setFormData] = useState({
     titulo: '',
     descripcion: '',
@@ -53,13 +66,54 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
     functionType: '',
   });
 
+  // V5.4.3 — Inline validation
+  const titleError = titleTouched && !formData.titulo.trim();
+  const isSubmitDisabled = isSubmitting || !formData.titulo.trim();
+
+  // Reset state when dialog opens
+  useEffect(() => {
+    if (open) {
+      setTitleTouched(false);
+      setShowTaskLimit(false);
+      setActiveTasks([]);
+    }
+  }, [open]);
+
+  // V5.4.4 — Complete a task from the limit modal
+  const handleCompleteTask = async (taskId: string) => {
+    setCompletingTaskId(taskId);
+    try {
+      const { error } = await supabase
+        .from('tasks')
+        .update({ status: 'done' })
+        .eq('id', taskId);
+      if (error) throw error;
+
+      toast.success(t('taskForm.taskCompleted'));
+      setActiveTasks(prev => prev.filter(task => task.id !== taskId));
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
+      queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
+
+      // If we freed a slot, close the limit modal
+      if (activeTasks.length <= 5) {
+        setShowTaskLimit(false);
+      }
+    } catch {
+      toast.error(t('taskForm.errorCompletingTask'));
+    } finally {
+      setCompletingTaskId(null);
+    }
+  };
+
   const handleSubmit = async () => {
+    // V5.4.3 — Mark title as touched on submit attempt
+    setTitleTouched(true);
+
     if (!formData.titulo.trim()) {
-      toast.error(t('tasks.elTítuloEsObligatorio'));
       return;
     }
 
-    // C3.6 — leader ≠ executor
+    // C3.6 — leader != executor
     if (formData.leaderId && formData.assigneeId && formData.leaderId === formData.assigneeId) {
       toast.error(t('tasks.elResponsableYEl'));
       return;
@@ -69,16 +123,18 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
 
     try {
       // Check active tasks limit (5 tasks per project)
-      const { data: activeTasks, error: countError } = await supabase
+      const { data: activeTasksData, error: countError } = await supabase
         .from('tasks')
-        .select('id', { count: 'exact', head: false })
+        .select('id, titulo, status')
         .eq('project_id', projectId)
         .neq('status', 'done');
 
       if (countError) throw countError;
 
-      if (activeTasks && activeTasks.length >= 5) {
-        toast.error(t('tasks.máximo5TareasActivas'));
+      if (activeTasksData && activeTasksData.length >= 5) {
+        // V5.4.4 — Show task limit modal with active tasks instead of toast
+        setActiveTasks(activeTasksData as ActiveTask[]);
+        setShowTaskLimit(true);
         setIsSubmitting(false);
         return;
       }
@@ -89,7 +145,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
         descripcion: formData.descripcion || null,
         assignee_id: formData.assigneeId || profile?.id || null,
         // leader_id is intentionally NOT auto-assigned.
-        // NULL = sin dato (tareas sin liderazgo explícito no cuentan en E4.5 analytics).
+        // NULL = sin dato (tareas sin liderazgo explicito no cuentan en E4.5 analytics).
         leader_id: formData.leaderId || null,
         prioridad: parseInt(formData.prioridad),
         fecha_limite: formData.fechaLimite || null,
@@ -105,6 +161,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 
       setFormData({ titulo: '', descripcion: '', assigneeId: '', leaderId: '', prioridad: '2', fechaLimite: '', functionType: '' });
+      setTitleTouched(false);
       onOpenChange(false);
     } catch (_error) {
       toast.error(t('tasks.errorAlCrearLa'));
@@ -121,14 +178,56 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
             <DialogTitle>{t('tasks.nuevaTarea')}</DialogTitle>
           </DialogHeader>
 
+          {/* V5.4.4 — Task limit section */}
+          {showTaskLimit && (
+            <div className="bg-amber-50 dark:bg-amber-950/30 border border-amber-200 dark:border-amber-800 rounded-lg p-4 space-y-3">
+              <h4 className="font-semibold text-amber-800 dark:text-amber-300 text-sm">
+                {t('taskForm.taskLimitTitle')}
+              </h4>
+              <p className="text-xs text-amber-700 dark:text-amber-400">
+                {t('taskForm.taskLimitDescription')}
+              </p>
+              <div className="space-y-2 max-h-48 overflow-y-auto">
+                {activeTasks.map(task => (
+                  <div key={task.id} className="flex items-center justify-between bg-card rounded-md px-3 py-2 border">
+                    <div className="flex-1 min-w-0">
+                      <p className="text-sm font-medium truncate">{task.titulo}</p>
+                      <p className="text-xs text-muted-foreground">{task.status}</p>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="ml-2 shrink-0 gap-1 text-green-700 border-green-300 hover:bg-green-50"
+                      onClick={() => handleCompleteTask(task.id)}
+                      disabled={completingTaskId === task.id}
+                    >
+                      {completingTaskId === task.id ? (
+                        <Loader2 className="w-3 h-3 animate-spin" />
+                      ) : (
+                        <CheckCircle2 className="w-3 h-3" />
+                      )}
+                      {t('taskForm.completeTask')}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="space-y-4 mt-4">
+            {/* V5.4.3 — Title with inline validation */}
             <div>
-              <Label>Título *</Label>
+              <Label>Titulo *</Label>
               <Input
                 value={formData.titulo}
                 onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
+                onBlur={() => setTitleTouched(true)}
                 placeholder={t('tasks.prepararPresentaciónDelPitch')}
+                className={titleError ? 'border-destructive focus-visible:ring-destructive' : ''}
               />
+              {titleError && (
+                <p className="text-xs text-destructive mt-1">{t('taskForm.titleRequired')}</p>
+              )}
             </div>
 
             <div>
@@ -280,7 +379,7 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
               <Button
                 className="flex-1"
                 onClick={handleSubmit}
-                disabled={isSubmitting}
+                disabled={isSubmitDisabled}
               >
                 {isSubmitting ? (
                   <>

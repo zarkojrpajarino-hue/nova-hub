@@ -3536,6 +3536,7 @@ export const es = {
     "miPerfil": "Mi Perfil",
     "notificaciones": "Notificaciones",
     "fuentesDeEvidencia0": "Fuentes de Evidencia",
+    "subscription": "Suscripcion",
     "administración": "Administración",
     "configuración": "Configuración",
     "gestionaTuPerfilY": "Gestiona tu perfil y preferencias",
@@ -7004,6 +7005,7 @@ export const es = {
     "elRolEsObligatorio": "El rol es obligatorio",
     "usuarioNoRegistradoPídele": "Usuario no registrado. Pídele que se registre primero en Optimus-K.",
     "errorAlAñadirEl": "Error al añadir el miembro. Por favor intenta de nuevo.",
+    "memberLimitReached": "Has alcanzado el limite de {{limit}} miembros en tu plan actual. Actualiza tu plan para invitar mas.",
     "sinRolAsignado": "Sin rol asignado",
     "añadiendo": "Añadiendo...",
     "añadirMiembro": "Añadir miembro",
@@ -7314,7 +7316,8 @@ export const es = {
     "periodLabel": "Pro trial: {{days}} dias restantes",
     "exploreSub": "Explora todas las funcionalidades Pro durante tu periodo de prueba.",
     "viewPlans": "Ver planes",
-    "daysOf14": "{{days}} de 14 dias"
+    "daysOf14": "{{days}} de 14 dias",
+    "daysOf21": "{{days}} de 21 dias"
   },
   "tasks": {
     "aiTaskExecutor": "AI Task Executor",
@@ -7900,5 +7903,62 @@ export const es = {
   },
   "emptyState": {
     "suggestions": "Ideas para empezar"
+  },
+  "obvForm": {
+    "cancelConfirmTitle": "Descartar cambios",
+    "cancelConfirmDescription": "Has modificado el formulario. Si sales, perderas los cambios no guardados.",
+    "cancelConfirmDiscard": "Descartar",
+    "cancelConfirmKeep": "Seguir editando",
+    "draftRecovered": "Borrador recuperado desde tu ultima sesion",
+    "stepHasErrors": "Este paso tiene errores"
+  },
+  "taskForm": {
+    "titleRequired": "El titulo es obligatorio",
+    "taskLimitTitle": "Limite de tareas activas alcanzado",
+    "taskLimitDescription": "Tu proyecto ya tiene 5 tareas activas. Completa alguna para poder crear nuevas.",
+    "completeTask": "Completar",
+    "taskCompleted": "Tarea completada",
+    "errorCompletingTask": "Error al completar la tarea"
+  },
+  "crmView": {
+    "emptyTitle": "Sin leads en el pipeline",
+    "emptyDescription": "Aun no tienes leads. Usa AI Lead Finder para descubrir clientes potenciales o anade uno manualmente.",
+    "addLeadManually": "Anadir lead",
+    "useAIFinder": "AI Lead Finder",
+    "leadMoved": "Lead movido a {{stage}}"
+  },
+  "sidebarExtra": {
+    "newProject": "Nuevo Proyecto",
+    "newBadgeExpired": "ya no es nuevo"
+  },
+  "onboardingBanner": {
+    "confirmRevenue": "Confirma tus ingresos con una OBV de tipo venta para desbloquear todas las funcionalidades",
+    "createRevenueOBV": "Crear OBV de venta",
+    "onboardingAbandonedTitle": "Completa tu configuracion",
+    "onboardingAbandonedMessage": "Termina tu setup para desbloquear todas las funcionalidades"
+  },
+  "onboardingTracking": {
+    "stepTransition": "Transicion de paso en onboarding"
+  },
+  "manageSubscription": {
+    "paymentsDisabled": "El sistema de pagos no esta activo.",
+    "currentPlan": "Plan actual",
+    "statusTrial": "Prueba gratuita",
+    "statusActive": "Activa",
+    "statusPastDue": "Pago pendiente",
+    "statusCancelled": "Cancelada",
+    "statusFree": "Gratuito",
+    "perMonth": "mes",
+    "managePlan": "Gestionar plan",
+    "upgradePlan": "Mejorar plan",
+    "trialDaysLeft": "{{days}} dias restantes de prueba gratuita",
+    "renewsOn": "Se renueva el {{date}}",
+    "usage": "Uso actual",
+    "members": "Miembros",
+    "aiCalls": "Llamadas IA",
+    "projects": "Proyectos",
+    "unlimited": "ilimitado",
+    "billing": "Facturacion",
+    "cancelNote": "Para cancelar tu suscripcion, accede al portal de facturacion de Stripe."
   }
 } as const;

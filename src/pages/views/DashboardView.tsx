@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useState, useEffect, lazy, Suspense } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, CheckCircle2, Activity, Plus, Sparkles, ShoppingCart } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, CheckCircle2, Activity, Plus, Sparkles, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
@@ -41,6 +41,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [onboardingProgress, setOnboardingProgress] = useState<{ progress: number; fastStartCompleted: boolean; deepSetupSections: string[]; onboardingType: string } | null>(null);
   const [userId, setUserId] = useState<string>('');
+  // V5.4.9 — Revenue confirmation banner for existing/scale businesses
+  const [showRevenueBanner, setShowRevenueBanner] = useState(false);
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
 
@@ -69,6 +71,23 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           deepSetupSections: (od?.deep_setup_sections as string[]) || [],
           onboardingType: (od?.onboarding_type as string) || 'idea',
         });
+
+        // V5.4.9 — Check if existing/scale business needs revenue OBV confirmation
+        const obType = od?.onboarding_type as string | undefined;
+        if (obType === 'existing') {
+          const faseA = od?.fase_a_answers as Record<string, unknown> | undefined;
+          if (faseA?.generates_revenue) {
+            // Check if user has at least 1 OBV of type venta
+            const { count } = await supabase
+              .from('obvs')
+              .select('id', { count: 'exact', head: true })
+              .eq('project_id', projectId)
+              .eq('tipo', 'venta');
+            if (count === 0) {
+              setShowRevenueBanner(true);
+            }
+          }
+        }
       }
     };
 
@@ -195,6 +214,23 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             onboardingType={onboardingProgress.onboardingType}
           />
         )}
+        {/* V5.4.9 — Revenue confirmation banner */}
+        {showRevenueBanner && projectId && (
+          <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800">
+            <ShoppingCart className="h-5 w-5 text-amber-600 shrink-0" />
+            <p className="flex-1 text-sm text-amber-800 dark:text-amber-300">
+              {t('onboardingBanner.confirmRevenue')}
+            </p>
+            <button
+              onClick={() => navigate(`/proyecto/${projectId}/obvs?new=true`)}
+              className="inline-flex items-center gap-1.5 px-4 py-2 rounded-lg bg-amber-600 hover:bg-amber-700 text-white text-sm font-medium transition-colors shrink-0"
+            >
+              {t('onboardingBanner.createRevenueOBV')}
+              <ArrowRight size={14} />
+            </button>
+          </div>
+        )}
+
         {/* How it works */}
         <HowItWorks
           title={t('dashboard.cómoFunciona')}
