@@ -23,7 +23,7 @@ vi.mock('@/hooks/useDevelopment', () => ({
   useRolePerformance: () => ({ data: [] }),
 }));
 
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProfiles: () => ({ data: [] }),
   useProjects: () => ({ data: [], isLoading: false }),
   useProjectMembers: () => ({ data: [] }),

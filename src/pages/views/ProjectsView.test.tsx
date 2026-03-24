@@ -14,7 +14,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   },
 }));
 
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProjects: () => ({ data: [], isLoading: false }),
   useProjectMembers: () => ({ data: [] }),
   useMemberStats: () => ({ data: [] }),

@@ -62,7 +62,7 @@ vi.mock('@/hooks/useMasters', () => ({
   useMyMasterApplications: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProfiles: vi.fn(() => ({ data: [], isLoading: false })),
   useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
 }));

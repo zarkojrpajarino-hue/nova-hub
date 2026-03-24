@@ -79,7 +79,7 @@ vi.mock('@/hooks/useDevelopment', () => ({
   useRoleRankings: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 

@@ -66,7 +66,7 @@ vi.mock('@/integrations/supabase/client', () => ({
 }));
 
 // Mock data hooks
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useMemberStats: vi.fn(() => ({
     data: [
       { id: 'user1', nombre: 'Test User', obvs: 10, lps: 2, bps: 15, cps: 8, facturacion: 5000, margen: 2500, color: '#6366F1' }

@@ -58,7 +58,7 @@ vi.mock('@/components/export/ExportButton', () => ({
   ExportButton: () => <div data-testid="export-button">Export</div>,
 }));
 
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   usePipelineGlobal: vi.fn(() => ({ data: [], isLoading: false })),
   useProjects: vi.fn(() => ({ data: [], isLoading: false })),
   useProfiles: vi.fn(() => ({ data: [], isLoading: false })),

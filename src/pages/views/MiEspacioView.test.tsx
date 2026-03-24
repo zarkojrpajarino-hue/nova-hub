@@ -59,16 +59,12 @@ vi.mock('@/components/tasks/TaskForm', () => ({
   TaskForm: () => null,
 }));
 
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useCurrentMemberStats: vi.fn(() => ({ data: null, isLoading: false })),
   useProjects: vi.fn(() => ({ data: [], isLoading: false })),
   useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
   useObjectives: vi.fn(() => ({ data: [], isLoading: false })),
-  useProjectStats: vi.fn(() => ({ data: [], isLoading: false })),
-}));
-
-vi.mock('@/hooks/useNovaDataOptimized', () => ({
-  useProjects: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectStatsGlobal: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
 describe('MiEspacioView', () => {

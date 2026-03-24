@@ -31,7 +31,7 @@ vi.mock('@/components/ui/section-help', () => ({
 }));
 
 // Mock data hooks
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useMemberStats: vi.fn(() => ({ 
     data: [
       { id: 'user1', nombre: 'Test User', lps: 5, bps: 20, cps: 10, color: '#6366F1' }

@@ -52,10 +52,10 @@ vi.mock('@/components/export/ExportButton', () => ({
 }));
 
 // Mock data hooks
-vi.mock('@/hooks/useNovaData', () => ({
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useMemberStats: vi.fn(() => ({ data: [], isLoading: false })),
   useProjects: vi.fn(() => ({ data: [], isLoading: false })),
-  useProjectStats: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectStatsGlobal: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
 describe('AnalyticsView', () => {
