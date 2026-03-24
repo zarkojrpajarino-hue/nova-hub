@@ -28,6 +28,8 @@ const BASE_INPUT: MomentDetectorInput = {
   runwayMonths: null,
   totalOBVs: 0,
   totalTasksCompleted: 0,
+  aiCallsUsed: 0,
+  projectCount: 1,
   seenMoments: [],
 };
 
