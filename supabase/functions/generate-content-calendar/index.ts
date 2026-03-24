@@ -138,7 +138,7 @@ serve(async (req) => {
       success: true,
       executionTimeMs,
       tokensUsed: ideas.tokensUsed,
-      modelUsed: 'claude-3-5-sonnet-20241022',
+      modelUsed: 'claude-haiku-4-5-20251001',
     });
 
     console.log(`✅ Content calendar generated in ${executionTimeMs}ms`);
@@ -250,7 +250,7 @@ Devuelve SOLO un JSON array con este formato exacto (${numIdeas} items):
 ]`;
 
   const message = await anthropic.messages.create({
-    model: 'claude-3-5-sonnet-20241022',
+    model: 'claude-haiku-4-5-20251001',
     max_tokens: 8000,
     messages: [{ role: 'user', content: prompt }],
   });

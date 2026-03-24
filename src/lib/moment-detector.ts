@@ -21,7 +21,10 @@ export type MomentType =
   | 'cycle_ending_soon'
   | 'regression_risk'
   | 'bottleneck_alert'
-  | 'low_runway_alert';
+  | 'low_runway_alert'
+  | 'upgrade_ai_limit'
+  | 'upgrade_team_limit'
+  | 'upgrade_project_limit';
 
 export type MomentSeverity = 'celebration' | 'info' | 'warning';
 
@@ -59,6 +62,9 @@ export interface MomentDetectorInput {
   totalTasksCompleted: number;     // total tasks with status=done
   // F30: Financial runway
   runwayMonths: number | null;     // from key_metrics or stress test (null if unknown)
+  // Upgrade nudge data
+  aiCallsUsed: number;           // from ai_generations_log count this month
+  projectCount: number;          // user's total projects
   // Previously seen moments (to avoid repeating)
   seenMoments: string[];         // array of moment types already shown
 }
@@ -221,6 +227,38 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       title: 'Alerta de runway',
       message: `Tu runway es de ${Math.round(input.runwayMonths)} meses. Revisa tu estrategia financiera.`,
       data: { runwayMonths: input.runwayMonths },
+    });
+  }
+
+  // ── Upgrade nudges ───────────────────────────────────────────
+
+  // AI calls approaching free-tier limit (18/20 = 90%)
+  if (input.aiCallsUsed >= 18 && !input.seenMoments.includes('upgrade_ai_limit')) {
+    moments.push({
+      type: 'upgrade_ai_limit',
+      severity: 'info',
+      title: 'Casi al límite de IA',
+      message: `Has usado ${input.aiCallsUsed}/20 llamadas IA este mes. Actualiza a Pro para 100 llamadas.`,
+    });
+  }
+
+  // Team size hitting free-tier boundary
+  if (input.teamSize >= 3 && !input.seenMoments.includes('upgrade_team_limit')) {
+    moments.push({
+      type: 'upgrade_team_limit',
+      severity: 'info',
+      title: 'Equipo creciendo',
+      message: 'Tu equipo tiene 3+ miembros. Pro te da hasta 10 miembros + roles avanzados.',
+    });
+  }
+
+  // Multiple projects
+  if (input.projectCount >= 2 && !input.seenMoments.includes('upgrade_project_limit')) {
+    moments.push({
+      type: 'upgrade_project_limit',
+      severity: 'info',
+      title: 'Segundo proyecto',
+      message: 'Gestiona hasta 5 proyectos con Pro. Cada proyecto tiene su propio motor de fases.',
     });
   }
 

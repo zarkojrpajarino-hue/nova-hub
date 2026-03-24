@@ -53,11 +53,15 @@ export function useMomentDetector(projectId: string | undefined) {
   const { data: engineData } = useProjectEngineData(projectId);
   const { data: activeCycle } = useActiveCycle(projectId);
 
-  // Additional data: first sale, MRR, team
+  // Additional data: first sale, MRR, team, AI usage, project count
   const { data: extraData } = useQuery({
     queryKey: queryKeys.momentDetector(projectId!),
     queryFn: async () => {
-      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult, obvCountResult, taskCountResult] = await Promise.all([
+      // Current month start for AI call counting
+      const now = new Date();
+      const startOfMonth = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), 1)).toISOString();
+
+      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult, obvCountResult, taskCountResult, aiCallsResult, projectCountResult] = await Promise.all([
         supabase
           .from('obvs')
           .select('id')
@@ -111,6 +115,16 @@ export function useMomentDetector(projectId: string | undefined) {
           .select('id', { count: 'exact', head: true })
           .eq('project_id', projectId!)
           .eq('status', 'done'),
+        // [V4.5.6] AI calls used this month (for upgrade nudge)
+        supabase
+          .from('ai_generations_log')
+          .select('id', { count: 'exact', head: true })
+          .eq('project_id', projectId!)
+          .gte('created_at', startOfMonth),
+        // [V4.5.6] Total projects the user belongs to (for upgrade nudge)
+        supabase
+          .from('project_members')
+          .select('project_id', { count: 'exact', head: true }),
       ]);
 
       const mrrData = mrrResult.data ?? [];
@@ -139,6 +153,8 @@ export function useMomentDetector(projectId: string | undefined) {
         runwayMonths,
         totalOBVs: obvCountResult.count ?? 0,
         totalTasksCompleted: taskCountResult.count ?? 0,
+        aiCallsUsed: aiCallsResult.count ?? 0,
+        projectCount: projectCountResult.count ?? 0,
       };
     },
     enabled: !!projectId,
@@ -182,6 +198,8 @@ export function useMomentDetector(projectId: string | undefined) {
       activeCycleScore: activeCycle?.cycle_score ?? null,
       totalOBVs: extraData.totalOBVs,
       totalTasksCompleted: extraData.totalTasksCompleted,
+      aiCallsUsed: extraData.aiCallsUsed,
+      projectCount: extraData.projectCount,
       seenMoments: getSeenMoments(projectId!),
     };
 

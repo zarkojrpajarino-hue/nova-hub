@@ -66,38 +66,6 @@ export const ENABLE_ANALYTICS = true;
 export const ENABLE_INTEGRATIONS = true;
 
 // ============================================================================
-// 📊 CONFIGURACIÓN DE LÍMITES (Solo aplica si ENABLE_PAYMENTS = true)
-// ============================================================================
-
-/**
- * Límites por plan de suscripción
- * Estos límites solo se aplican cuando ENABLE_PAYMENTS = true
- */
-export const PLAN_LIMITS = {
-  FREE: {
-    maxProjects: 3,
-    maxTeamMembers: 5,
-    maxStorageGB: 5,
-    aiRequestsPerMonth: 50,
-    analyticsHistory: 30, // days
-  },
-  PRO: {
-    maxProjects: 25,
-    maxTeamMembers: 25,
-    maxStorageGB: 100,
-    aiRequestsPerMonth: 1000,
-    analyticsHistory: 365, // days
-  },
-  ENTERPRISE: {
-    maxProjects: -1, // unlimited
-    maxTeamMembers: -1, // unlimited
-    maxStorageGB: -1, // unlimited
-    aiRequestsPerMonth: -1, // unlimited
-    analyticsHistory: -1, // unlimited
-  },
-};
-
-// ============================================================================
 // PLAN TIERS — Canonical tier definitions for monetization
 // ============================================================================
 
@@ -109,6 +77,7 @@ export const PLAN_LIMITS = {
  *   - PlanSelectionModal (display)
  *   - FeatureGate (access control)
  *   - useSubscription (limit checking)
+ *   - PLAN_LIMITS (legacy shape, derived below)
  *
  * NOTE: Stripe product/price IDs are NOT included here.
  * They must be configured by the developer in Stripe Dashboard
@@ -120,7 +89,7 @@ export const PLAN_TIERS = {
     price: 0, // cents/month
     projects: 1,
     members: 3,
-    aiCalls: 10,
+    aiCalls: 20,
     analyticsWindow: 30, // days
     integrations: false,
     meetingIntelligence: false,
@@ -155,6 +124,41 @@ export const PLAN_TIERS = {
 
 export type PlanTierKey = keyof typeof PLAN_TIERS;
 export type PlanTier = (typeof PLAN_TIERS)[PlanTierKey];
+
+// ============================================================================
+// PLAN_LIMITS — Legacy shape derived from PLAN_TIERS
+// ============================================================================
+
+/**
+ * PLAN_LIMITS: Legacy shape derived from PLAN_TIERS (the authoritative source above).
+ *
+ * Mapping: FREE -> free, PRO -> pro, ENTERPRISE -> scale.
+ * StorageGB has no equivalent in PLAN_TIERS, so it keeps its own defaults.
+ * If you need to change limits, edit PLAN_TIERS -- this object follows automatically.
+ */
+export const PLAN_LIMITS = {
+  FREE: {
+    maxProjects: PLAN_TIERS.free.projects,
+    maxTeamMembers: PLAN_TIERS.free.members,
+    maxStorageGB: 5,
+    aiRequestsPerMonth: PLAN_TIERS.free.aiCalls,
+    analyticsHistory: PLAN_TIERS.free.analyticsWindow,
+  },
+  PRO: {
+    maxProjects: PLAN_TIERS.pro.projects,
+    maxTeamMembers: PLAN_TIERS.pro.members,
+    maxStorageGB: 100,
+    aiRequestsPerMonth: PLAN_TIERS.pro.aiCalls,
+    analyticsHistory: PLAN_TIERS.pro.analyticsWindow,
+  },
+  ENTERPRISE: {
+    maxProjects: PLAN_TIERS.scale.projects,
+    maxTeamMembers: PLAN_TIERS.scale.members,
+    maxStorageGB: -1, // unlimited
+    aiRequestsPerMonth: PLAN_TIERS.scale.aiCalls,
+    analyticsHistory: PLAN_TIERS.scale.analyticsWindow,
+  },
+};
 
 // ============================================================================
 // 📝 NOTAS PARA EL FUTURO

@@ -1,7 +1,7 @@
 /**
  * 🤖 GENERATE PROJECT ROLES (v2)
  *
- * Edge Function que genera roles personalizados con OpenAI
+ * Edge Function que genera roles personalizados con Anthropic
  * basados en el proyecto, industria, idea de negocio y work mode
  *
  * NUEVA LÓGICA:
@@ -17,7 +17,7 @@ import { validateAuth } from '../_shared/auth.ts';
 import { sanitizePromptInput, SanitizerPresets } from '../_shared/ai-prompt-sanitizer.ts';
 import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
-const OPENAI_API_KEY = Deno.env.get('OPENAI_API_KEY');
+const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
 
 interface GenerateRolesRequest {
   project_id: string;
@@ -149,7 +149,7 @@ Deno.serve(async (req) => {
     // Determinar cantidad de roles según work mode
     const roleCount = work_mode === 'individual' ? 5 : work_mode === 'team_small' ? 8 : 12;
 
-    // Prompt para OpenAI
+    // Prompt para Anthropic
     const systemPrompt = `Eres un experto en estructura organizacional y recursos humanos para startups y negocios digitales.
 Tu tarea es generar roles personalizados y estratégicos para un proyecto empresarial.
 
@@ -195,36 +195,36 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
   ]
 }`;
 
-    // Llamar a OpenAI
-    if (!OPENAI_API_KEY) {
+    // Llamar a Anthropic
+    if (!ANTHROPIC_API_KEY) {
       return new Response(JSON.stringify({
-        error: 'OpenAI API key not configured'
+        error: 'Anthropic API key not configured'
       }), {
         status: 500,
         headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) },
       });
     }
 
-    const openAIResponse = await fetch('https://api.openai.com/v1/chat/completions', {
+    const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${OPENAI_API_KEY}`,
         'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_API_KEY,
+        'anthropic-version': '2023-06-01',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
+        model: 'claude-haiku-4-5-20251001',
+        max_tokens: 4096,
+        system: systemPrompt,
         messages: [
-          { role: 'system', content: systemPrompt },
           { role: 'user', content: userPrompt }
         ],
-        temperature: 0.8,
-        response_format: { type: 'json_object' },
       }),
     });
 
-    if (!openAIResponse.ok) {
-      const errorData = await openAIResponse.text();
-      console.error('OpenAI Error:', errorData);
+    if (!anthropicResponse.ok) {
+      const errorData = await anthropicResponse.text();
+      console.error('Anthropic Error:', errorData);
       return new Response(JSON.stringify({
         error: 'Failed to generate roles with AI',
         details: errorData
@@ -234,13 +234,13 @@ Responde ÚNICAMENTE con un objeto JSON con esta estructura:
       });
     }
 
-    const openAIData = await openAIResponse.json();
-    const content = openAIData.choices[0].message.content;
+    const anthropicData = await anthropicResponse.json();
+    const content = anthropicData.content[0].text;
 
     // Parse respuesta
     const parseResult = safeJsonParse<{ roles: GeneratedRole[] }>(content);
     if (!parseResult.ok) {
-      console.error('Failed to parse OpenAI response:', content);
+      console.error('Failed to parse Anthropic response:', content);
       return new Response(JSON.stringify({
         error: 'Invalid response format from AI'
       }), {
