@@ -14,7 +14,7 @@ import { Label } from '@/components/ui/label';
 import { PartnerComparisonTable } from '@/components/analytics/PartnerComparisonTable';
 import { Users2 } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
-import type { MemberStats } from '@/hooks/useNovaData';
+import type { MemberStats } from '@/hooks/useNovaDataOptimized';
 
 interface AcceleratorBenchmarkingProps {
   members: MemberStats[];
