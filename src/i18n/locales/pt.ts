@@ -1,4 +1,4 @@
-// Auto-generated — 7540 keys
+// Auto-generated — 7583 keys
 /* eslint-disable */
 export const pt = {
   "nav": {
@@ -74,19 +74,39 @@ export const pt = {
     "pathsSub": "Escolha seu caminho e a IA vai te guiar.",
     "path1Title": "Sem ideia? A IA te guia",
     "path1Desc": "Explore opcoes de negocio geradas por IA, analise mercados e descubra seu caminho.",
-    "path1Items": ["Opcoes de negocio com IA", "Analise de mercado express", "Trilha de aprendizado personalizada", "Plano financeiro basico"],
+    "path1Items": [
+      "Opcoes de negocio com IA",
+      "Analise de mercado express",
+      "Trilha de aprendizado personalizada",
+      "Plano financeiro basico"
+    ],
     "path1Cta": "Comecar a explorar",
     "path2Title": "Tenho uma ideia",
     "path2Desc": "Valide seu conceito com dados reais, crie seu MVP e defina sua estrategia go-to-market.",
-    "path2Items": ["SWOT e concorrentes", "Prototipo rapido", "Estrategia go-to-market", "Roadmap de validacao"],
+    "path2Items": [
+      "SWOT e concorrentes",
+      "Prototipo rapido",
+      "Estrategia go-to-market",
+      "Roadmap de validacao"
+    ],
     "path2Cta": "Validar minha ideia",
     "path3Title": "Tenho uma startup",
     "path3Desc": "Diagnostique sua operacao atual, otimize processos e prepare o proximo salto.",
-    "path3Items": ["Diagnostico de saude", "Benchmarking do setor", "Frameworks de crescimento", "Plano de acao proativo"],
+    "path3Items": [
+      "Diagnostico de saude",
+      "Benchmarking do setor",
+      "Frameworks de crescimento",
+      "Plano de acao proativo"
+    ],
     "path3Cta": "Obter diagnostico",
     "path4Title": "Tenho uma emergencia",
     "path4Desc": "Acoes imediatas para crises de fluxo de caixa, equipe ou tracao.",
-    "path4Items": ["Acoes imediatas", "Acompanhamento diario", "Empoderamento do fundador", "Plano de contingencia"],
+    "path4Items": [
+      "Acoes imediatas",
+      "Acompanhamento diario",
+      "Empoderamento do fundador",
+      "Plano de contingencia"
+    ],
     "path4Cta": "Resolver agora",
     "featuresTitle": "O futuro da execucao criativa",
     "featuresSub": "Pare de colar ferramentas. Optimus-K e sua tela unica de fundador.",
@@ -107,15 +127,32 @@ export const pt = {
     "pricingSub": "De fundadores solo a equipes enterprise",
     "starterName": "Starter",
     "starterDesc": "Para validar e explorar sua ideia",
-    "starterItems": ["25 membros", "500 tarefas", "KPIs basicos", "Suporte por email"],
+    "starterItems": [
+      "25 membros",
+      "500 tarefas",
+      "KPIs basicos",
+      "Suporte por email"
+    ],
     "starterCta": "Escolher Starter",
     "proName": "Pro",
     "proDesc": "Para crescer e escalar seu negocio",
-    "proItems": ["100 membros", "Tarefas ilimitadas", "Analytics avancado", "Funcoes IA", "Suporte prioritario"],
+    "proItems": [
+      "100 membros",
+      "Tarefas ilimitadas",
+      "Analytics avancado",
+      "Funcoes IA",
+      "Suporte prioritario"
+    ],
     "proCta": "Acessar Pro",
     "enterpriseName": "Enterprise",
     "enterpriseDesc": "Solucao enterprise personalizada",
-    "enterpriseItems": ["Membros ilimitados", "Tudo ilimitado", "Integracoes customizadas", "Gerente dedicado", "SLA garantido"],
+    "enterpriseItems": [
+      "Membros ilimitados",
+      "Tudo ilimitado",
+      "Integracoes customizadas",
+      "Gerente dedicado",
+      "SLA garantido"
+    ],
     "enterpriseCta": "Falar com vendas",
     "popular": "Popular",
     "perMonth": "/mes",
@@ -179,8 +216,7 @@ export const pt = {
     "appAnalytics": "Analytics",
     "appRankings": "Rankings",
     "startWith": "Comecar com {{plan}}",
-    "contactSales": "Contatar vendas",
-    "copyright": "© {{year}} OPTIMUS-K. Todos os direitos reservados."
+    "contactSales": "Contatar vendas"
   },
   "aIAnalysis": {
     "seleccionaUnProyectoDesde": "Selecciona un proyecto desde el selector en el header",
@@ -1786,7 +1822,11 @@ export const pt = {
     "fastStartTakes4Min": "Fast Start toma ~4 minutos. Puedes completar el Deep Setup despues para desbloquear herramientas avanzadas.",
     "threeOptionsForYourProfile": "3 opciones personalizadas para tu perfil. Elige la que mas te convenza.",
     "geoContextHint": "En {{country}}, el sector de {{industry}} tiene oportunidades unicas. Las ideas estan adaptadas a tu mercado local.",
-    "yourIndustry": "tu industria"
+    "yourIndustry": "tu industria",
+    "firstActionTitle": "Tu primera accion",
+    "firstActionSubtitle": "El motor de fases ha calculado tu prioridad. Completala para activar el sistema.",
+    "doItNow": "Hacerlo ahora",
+    "laterOnDashboard": "Lo hare despues desde el dashboard"
   },
   "pathToMaster": {
     "cargando": "Cargando...",
@@ -2471,7 +2511,9 @@ export const pt = {
     "coachingCashBlindspot": "En tus últimos ciclos, cash tuvo 0 actividad. Considera añadir un compromiso de cash.",
     "coachingCategoríaIgnorada": "Hay categorías ignoradas de forma recurrente. Revisa si son relevantes para tu fase.",
     "coachingSugerenciaConteo": "Basándome en tu historial, 3 compromisos es más realista que 5.",
-    "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos"
+    "tareasDesdeCompromisos": "{{count}} tareas borrador creadas desde tus compromisos",
+    "completeYourProject": "Completa tu proyecto",
+    "showFullDashboard": "Mostrar dashboard completo"
   },
   "rootRedirect": {
     "cargando": "Cargando..."
