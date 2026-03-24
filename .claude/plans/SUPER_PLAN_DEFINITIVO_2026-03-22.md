@@ -104,7 +104,7 @@
 #### B3 — UX Simplificación ✅ EJECUTADO (F23-F28)
 - [x] U3.1: Fix Fase 0 NextAction — implementado en next-action.ts (phase === 0)
 - [x] U3.2: Dashboard 2-fase — ProjectDashboardTab oculta componentes en Phase 0-1
-- [x] U3.3: Onboarding 8Q — FaseACommon SKIPPED_STEPS=[4,5], TOTAL_QUESTIONS=8
+- [x] U3.3: Onboarding 4Q — FaseACommon SKIPPED_STEPS=[2,4,5,6,8], TOTAL_QUESTIONS=4 (más agresivo que plan original de 8Q)
 - [x] U3.4: FirstStepsPanel con botones de navegación — onNavigateToTab prop
 - [x] U3.5: TrialCountdownBanner desde Day 3 — condición `>= 3` en ProjectDashboardTab
 - [x] U3.6: Score bar + unlock checklist en PhaseRoadmap — PhaseScoreBar + señal dura agrupada
@@ -214,8 +214,8 @@ B5 (datos) → B8 (growth) — dashboards dan razón para volver
 | Concepto | Cantidad |
 |---|---|
 | Items totales | **72** (57 v1 + 30 v3 - 15 duplicados) |
-| Ya ejecutados | **67** (todos los bloques + M2.5 + M2.7 + G8.6) |
-| Pendientes | **5** (M2.4 Stripe keys + M2.6 landing + G8.1-5 business) |
+| Ya ejecutados | **67** (todos los bloques + M2.5 + M2.7 + G8.6) — verificado contra código 2026-03-24 |
+| Pendientes | **5** (M2.4 Stripe keys + M2.6 landing "First 100 Founders" + G8.1-5 business ops) |
 | Falsos positivos filtrados | 5 |
 | Esfuerzo dev total | ~14 días |
 | Presupuesto | €3,500 |

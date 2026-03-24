@@ -158,14 +158,15 @@ Hook principal con phase_state: `useProjects()` en `src/hooks/useNovaDataOptimiz
 | **`SUPER_PLAN_DEFINITIVO` (en .claude/plans/)** | Plan de CALIDAD + GROWTH generado por el protocolo "súper análisis y plan". Bugs, seguridad, UX, monetización, datos. | Cuando el usuario pide corregir, optimizar, o lanzar. Es el output del análisis de agentes. |
 
 **Relación entre ambos:**
-- TASK_LIST contiene las fases de features (F1-F31). Cerradas: 1-13, 15, 17-28. Pendientes con datos reales: 14, 29-31.
+- TASK_LIST contiene las fases de features (F1-F31). Cerradas: 1-13, 15, 17-31 + GUARD. F16 activa. F14 parcial (3/5).
 - SUPER_PLAN contiene correcciones transversales que NO son fases (seguridad, UX, monetización, IA, datos, growth).
 - Un item del SUPER_PLAN puede referenciar archivos de una fase (ej: "Fix en FastStartWizard.tsx creado en F23").
 - **Nunca duplicar tareas entre ambos.** Si una corrección es específica de una fase, va en TASK_LIST como DEUDA de esa fase. Si es transversal, va en SUPER_PLAN.
 
-**Estado actual (2026-03-22):**
-- TASK_LIST: 20 fases cerradas (1-13, 15, 17-28). F16 activa. F14, 29-31 pendientes (requieren datos reales).
-- SUPER_PLAN: 72 items, 10 ejecutados (B0+H7), 62 pendientes. Scorecard 5.4/10.
+**Estado actual (2026-03-24, verificado contra código):**
+- TASK_LIST: 30 fases cerradas (1-13, 15, 17-31, GUARD). F16 activa. F14 parcial (3/5, ENABLE_PAYMENTS=false).
+- SUPER_PLAN DEFINITIVO: 72 items, 67 ejecutados, 5 pendientes (M2.4 Stripe keys, M2.6 landing, G8.1-5 growth ops). Scorecard 5.4/10.
+- SUPER_PLAN UI PERFECTA: 25 tareas en 6 bloques. B1 sidebar DONE. B2 HowItWorks 42%. B3 UnlockGate parcial. B4 rebranding ~90%. B5-B6 pendientes.
 
 ### Norma: súper análisis y plan
 

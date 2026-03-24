@@ -247,17 +247,17 @@ Nunca una pantalla vacía. Si el usuario no tiene datos suficientes, ve: "3 de 5
 
 ---
 
-## RESUMEN
+## RESUMEN — Estado verificado 2026-03-24
 
-| Bloque | Tareas | Impacto |
-|--------|--------|---------|
-| **1. Sidebar adaptativo** | 5 | ★★★★★ El cambio más transformacional |
-| **2. HowItWorks completo** | 4 | ★★★★☆ El cliente entiende cada feature |
-| **3. UnlockProgress everywhere** | 4 | ★★★★★ Nunca pantalla vacía |
-| **4. Rebranding Nova → Optimus-K** | 5 | ★★★☆☆ Coherencia de marca |
-| **5. Empty states** | 3 | ★★★★☆ Primera impresión |
-| **6. Cleanup técnico** | 4 | ★★★☆☆ Menos deuda |
-| **TOTAL** | **25 tareas** | |
+| Bloque | Tareas | Estado | Notas |
+|--------|--------|--------|-------|
+| **1. Sidebar adaptativo** | 5 | ✅ DONE | SIDEBAR_PHASE_CONFIG + filtrado + teasers + badge dot pulsante. Teaser usa toast (no modal). |
+| **2. HowItWorks completo** | 4 | ⚠️ 42% | 26/62 secciones tienen dataInputs/dataOutputs. 36 pendientes. |
+| **3. UnlockProgress everywhere** | 4 | ⚠️ PARCIAL | RPC cubre 11 features. UnlockGate solo en CRM. AI Analysis, Meetings, Toolkit sin gate. |
+| **4. Rebranding Nova → Optimus-K** | 5 | ⚠️ ~90% | i18n/CSS/Edge functions limpios. ProjectPage.tsx tiene hardcodes y bug t() en module scope. |
+| **5. Empty states** | 3 | ❌ LIMITADO | Solo EmptyStateDashboard existe. No hay componente genérico reutilizable. |
+| **6. Cleanup técnico** | 4 | ❌ PENDIENTE | ProjectPage.tsx sigue vivo (480+ líneas). |
+| **TOTAL** | **25 tareas** | **~40% ejecutado** | |
 
 ## ORDEN DE EJECUCIÓN
 
