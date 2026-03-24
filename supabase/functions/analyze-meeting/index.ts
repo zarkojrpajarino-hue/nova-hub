@@ -14,6 +14,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 interface ProjectMember {
   id:     string;
@@ -173,39 +174,20 @@ serve(async (req) => {
     const analysisText = response.content[0].type === 'text' ? response.content[0].text : ''
     console.log('✅ Claude analysis received, length:', analysisText.length)
 
-    // 6. Parsear JSON — DEUDA.3: fallback para cuando Claude envuelve el JSON en ```json
-    let insights: Record<string, unknown[]>
-    try {
-      insights = JSON.parse(analysisText)
-    } catch {
-      // Claude a veces envuelve la respuesta en un bloque ```json … ``` — intentar extraerlo
-      const fenced = analysisText.match(/```(?:json)?\s*([\s\S]*?)```/)
-      if (fenced) {
-        try {
-          insights = JSON.parse(fenced[1])
-        } catch (innerError) {
-          console.error('Error parsing Claude fenced response:', innerError)
-          return new Response(
-            JSON.stringify({
-              error:   'parse_error',
-              message: 'Claude returned invalid JSON even inside a fenced block.',
-              raw:     analysisText.slice(0, 200),
-            }),
-            { status: 422, headers: jsonHeaders },
-          )
-        }
-      } else {
-        console.error('Error parsing Claude response — no valid JSON found')
-        return new Response(
-          JSON.stringify({
-            error:   'parse_error',
-            message: 'Claude returned non-JSON output. Retry or check the prompt.',
-            raw:     analysisText.slice(0, 200),
-          }),
-          { status: 422, headers: jsonHeaders },
-        )
-      }
+    // 6. Parsear JSON — usa safeJsonParse que maneja ```json blocks automáticamente
+    const parsed = safeJsonParse<Record<string, unknown[]>>(analysisText)
+    if (!parsed.ok) {
+      console.error('Error parsing Claude response:', parsed.error)
+      return new Response(
+        JSON.stringify({
+          error:   'parse_error',
+          message: 'Invalid AI response',
+          raw:     analysisText.slice(0, 200),
+        }),
+        { status: 422, headers: jsonHeaders },
+      )
     }
+    const insights = parsed.data
 
     console.log('✅ Insights parsed:', {
       tasks:     insights.tasks?.length      ?? 0,

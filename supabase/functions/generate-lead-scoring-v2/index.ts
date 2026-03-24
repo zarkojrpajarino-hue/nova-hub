@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 const TOOL_TYPE = 'lead_scoring';
 const TTL_DAYS = 7;
@@ -151,12 +152,11 @@ REGLAS:
     });
 
     const rawText = message.content[0].type === 'text' ? message.content[0].text : '';
-    let output: Record<string, unknown>;
-    try {
-      output = JSON.parse(rawText.replace(/^```json\s*/i, '').replace(/```\s*$/, '').trim());
-    } catch {
-      return new Response(JSON.stringify({ error: 'Error parseando respuesta de IA' }), { status: 500, headers });
+    const parsed = safeJsonParse<Record<string, unknown>>(rawText);
+    if (!parsed.ok) {
+      return new Response(JSON.stringify({ error: 'Invalid AI response' }), { status: 500, headers });
     }
+    const output = parsed.data;
 
     const dataSources = [
       ...(leads.length > 0 ? [{ name: `${leads.length} leads`, type: 'observed', updated_at: new Date().toISOString() }] : []),

@@ -195,7 +195,7 @@ export function buildNextAction(
     if (score >= 75 && !hardSignalMet && phase < 4) {
       signals.push(`Score OK (${Math.round(score)}). Falta señal dura para avanzar a Fase ${phase + 1}.`)
     } else if (score < 75 && score >= 50 && phase < 4) {
-      signals.push(`Score en fricción (${Math.round(score)}/75). Necesitas más evidencia para avanzar.`)
+      signals.push(`Ganando tracción (${Math.round(score)}/75). Más evidencia te acerca al siguiente nivel.`)
     }
     // [P4.4] Score impact estimado por acción según fase
     if (score < 75 && phase < 4) {

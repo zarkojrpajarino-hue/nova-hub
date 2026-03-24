@@ -1,4 +1,4 @@
-// Auto-generated — 7540 keys
+// Auto-generated — 7542 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
@@ -2294,7 +2294,9 @@ export const en = {
     "emptyOBVs": {
       "title": "Crea tu primera OBV",
       "description": "Crea tu primera OBV para empezar a validar la actividad del equipo."
-    }
+    },
+    "completeYourProject": "Completa tu proyecto",
+    "showFullDashboard": "Mostrar dashboard completo"
   },
   "rootRedirect": {
     "cargando": "Loading..."

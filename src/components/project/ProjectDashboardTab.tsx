@@ -1,4 +1,4 @@
-import { memo } from 'react';
+import { memo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { FileCheck, TrendingUp, Target, Users, Wallet, Calendar, ChevronRight } from 'lucide-react';
 import { StatCard } from '@/components/nova/StatCard';
@@ -77,6 +77,16 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
 
   const fastStartCompleted = project.onboarding_data?.fast_start_completed === true;
 
+  // Zen Mode — simplified dashboard for first 7 days in Phase 0-1
+  const daysActive = project?.created_at
+    ? Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86400000)
+    : 0;
+  const [zenDismissed, setZenDismissed] = useState(() => {
+    try { return JSON.parse(localStorage.getItem(`zen_dismissed_${project.id}`) || 'false'); }
+    catch { return false; }
+  });
+  const isZenMode = !zenDismissed && daysActive < 7 && (currentPhase ?? 0) < 2;
+
   // EC13.6: Solo founder in Phase 4 — < 2 functions delegated to non-founders
   // "delegated" = owner_user_id IS NOT NULL AND != project creator (mirrors O4.3 SQL logic)
   const delegatedCount = (functionOwners ?? []).filter(
@@ -95,28 +105,30 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         onNavigateToTab={onNavigateToTab}
       />
 
-      {/* Trial Countdown Banner — [B3/U3.5] No mostrar Day 0-2 (ansiedad innecesaria) */}
-      {Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000) >= 3 && (
+      {/* Trial Countdown Banner — [B3/U3.5] No mostrar Day 0-2 (ansiedad innecesaria) — hidden in Zen Mode */}
+      {!isZenMode && Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000) >= 3 && (
         <TrialCountdownBanner projectId={project.id} />
       )}
 
       {/* O5.9 — Primeros pasos (visible una vez, post-onboarding) */}
       <FirstStepsPanel projectId={project.id} onNavigateToTab={onNavigateToTab} />
 
-      {/* O5.10 — Completa tu proyecto (perfil estratégico + primeras acciones) */}
-      <details className="group">
-        <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
-          <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
-          {t('project.completeYourProject')}
-        </summary>
-        <div className="mt-3">
-          <FaseBPanel
-            projectId={project.id}
-            totalOBVs={totalOBVs}
-            onNavigateToTab={onNavigateToTab}
-          />
-        </div>
-      </details>
+      {/* O5.10 — Completa tu proyecto (perfil estratégico + primeras acciones) — hidden in Zen Mode */}
+      {!isZenMode && (
+        <details className="group">
+          <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
+            <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
+            {t('project.completeYourProject')}
+          </summary>
+          <div className="mt-3">
+            <FaseBPanel
+              projectId={project.id}
+              totalOBVs={totalOBVs}
+              onNavigateToTab={onNavigateToTab}
+            />
+          </div>
+        </details>
+      )}
 
       {/* V24.1-4 / CE25.9 — Phase Roadmap o Cycle Dashboard según graduación */}
       {/* [B3/U3.2] Ocultar PhaseRoadmap completo en Fase 0-1 (abrumador) — solo mostrar en Fase 2+ */}
@@ -144,14 +156,16 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         {/* Main Content */}
         <div className="lg:col-span-9 space-y-6">
           {/* Stats Grid — F19.C.5: adaptadas por fase (no mostrar €0 en fases tempranas) */}
+          {/* V4.1.14: hide zero-value stats — Zen Mode: hide entire grid unless any stat > 0 */}
+          {(!isZenMode || totalOBVs > 0 || leadsCount > 0 || teamMembers.length > 0 || facturacion > 0 || margen > 0 || Number(stats?.leads_ganados ?? 0) > 0) && (
           <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {phaseStats.includes('total_obvs' as PhaseStatKey) && (
+            {phaseStats.includes('total_obvs' as PhaseStatKey) && totalOBVs > 0 && (
               <StatCard icon={FileCheck} value={totalOBVs} label={t('project.obvs')} progress={0} color="#6366F1" delay={1} />
             )}
-            {phaseStats.includes('leads_count' as PhaseStatKey) && (
+            {phaseStats.includes('leads_count' as PhaseStatKey) && leadsCount > 0 && (
               <StatCard icon={Target} value={leadsCount} label={t('project.leads')} progress={0} color="#F59E0B" delay={2} />
             )}
-            {phaseStats.includes('team_count' as PhaseStatKey) && (
+            {phaseStats.includes('team_count' as PhaseStatKey) && teamMembers.length > 0 && (
               <StatCard icon={Users} value={teamMembers.length} label={t('project.miembros')} progress={0} color="#EC4899" delay={3} />
             )}
             {phaseStats.includes('days_active' as PhaseStatKey) && (
@@ -164,7 +178,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
                 delay={4}
               />
             )}
-            {phaseStats.includes('conversion_rate' as PhaseStatKey) && (
+            {phaseStats.includes('conversion_rate' as PhaseStatKey) && Number(stats?.leads_ganados ?? 0) > 0 && (
               <StatCard
                 icon={TrendingUp}
                 value={`${Math.round((Number(stats?.leads_ganados ?? 0) / Math.max(leadsCount, 1)) * 100)}%`}
@@ -174,16 +188,17 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
                 delay={4}
               />
             )}
-            {phaseStats.includes('facturacion' as PhaseStatKey) && (
+            {phaseStats.includes('facturacion' as PhaseStatKey) && facturacion > 0 && (
               <StatCard icon={TrendingUp} value={`€${facturacion}`} label={t('project.facturación')} progress={0} color="#3B82F6" delay={4} />
             )}
-            {phaseStats.includes('margen' as PhaseStatKey) && (
+            {phaseStats.includes('margen' as PhaseStatKey) && margen > 0 && (
               <StatCard icon={Wallet} value={`€${margen}`} label={t('project.margen')} progress={0} color="#22C55E" delay={5} />
             )}
-            {phaseStats.includes('leads_ganados' as PhaseStatKey) && (
+            {phaseStats.includes('leads_ganados' as PhaseStatKey) && Number(stats?.leads_ganados ?? 0) > 0 && (
               <StatCard icon={Target} value={Number(stats?.leads_ganados ?? 0)} label={t('project.leadsGanados0')} progress={0} color="#22C55E" delay={5} />
             )}
           </div>
+          )}
 
           {/* Team Overview */}
       <div className="grid grid-cols-2 gap-6">
@@ -250,11 +265,13 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         </div>
       </div>
 
-          {/* U6.V2.3 — Data completeness warning antes de scores del motor */}
-          <DataCompletenessCard
-            engineData={engineData}
-            onNavigateToTab={onNavigateToTab}
-          />
+          {/* U6.V2.3 — Data completeness warning antes de scores del motor — hidden in Zen Mode */}
+          {!isZenMode && (
+            <DataCompletenessCard
+              engineData={engineData}
+              onNavigateToTab={onNavigateToTab}
+            />
+          )}
 
           {/* F29 — Execution trends + Pipeline velocity (phase 2+) */}
           {currentPhase >= 2 && (
@@ -289,14 +306,27 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
 
           {/* Weekly Review: movido a WeeklySurface (V11.3 — Rule 2: 1 surface = 1 time context) */}
 
-          {/* Acquisition Channels (O2.3) — id para scroll desde FaseBPanel */}
-          <div id="acquisition-channel-editor">
-            <AcquisitionChannelEditor projectId={project.id} />
-          </div>
+          {/* Acquisition Channels (O2.3) — id para scroll desde FaseBPanel — hidden in Zen Mode */}
+          {!isZenMode && (
+            <div id="acquisition-channel-editor">
+              <AcquisitionChannelEditor projectId={project.id} />
+            </div>
+          )}
         </div>
+
+        {/* Zen Mode dismiss toggle */}
+        {isZenMode && (
+          <button
+            onClick={() => { setZenDismissed(true); localStorage.setItem(`zen_dismissed_${project.id}`, 'true'); }}
+            className="text-xs text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 transition-colors"
+          >
+            {t('project.showFullDashboard')}
+          </button>
+        )}
 
         {/* Sidebar */}
         <div className="lg:col-span-3 space-y-4">
+          {/* ProjectEnginePanel — always visible (kept in Zen Mode) */}
           <ProjectEnginePanel
             projectId={project.id}
             engineData={engineData}
@@ -319,23 +349,29 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
               }
             } : undefined}
           />
-          <OptimusProfileCard projectId={project.id} />
-          <PlanLimitsIndicator projectId={project.id} />
-          <FeatureTeasersPanel projectId={project.id} />
-          {showDelegationHint && (
-            <FunctionDelegationHint
-              onNavigateToTeam={onNavigateToTab ? () => onNavigateToTab('equipo') : undefined}
-            />
+          {/* Sidebar items hidden in Zen Mode */}
+          {!isZenMode && (
+            <>
+              <OptimusProfileCard projectId={project.id} />
+              <PlanLimitsIndicator projectId={project.id} />
+              <FeatureTeasersPanel projectId={project.id} />
+              {showDelegationHint && (
+                <FunctionDelegationHint
+                  onNavigateToTeam={onNavigateToTab ? () => onNavigateToTab('equipo') : undefined}
+                />
+              )}
+              <DataCompletenessGuide projectId={project.id} />
+              {currentPhase >= 2 && (
+                <InvestorSummary
+                  projectId={project.id}
+                  projectName={project.nombre || t('project.miProyecto')}
+                  engineData={engineData}
+                />
+              )}
+              <LeadConversionInsights projectId={project.id} />
+            </>
           )}
-          <DataCompletenessGuide projectId={project.id} />
-          {currentPhase >= 2 && (
-            <InvestorSummary
-              projectId={project.id}
-              projectName={project.nombre || t('project.miProyecto')}
-              engineData={engineData}
-            />
-          )}
-          <LeadConversionInsights projectId={project.id} />
+          {/* ProjectTimeline — always visible (kept in Zen Mode) */}
           <ProjectTimeline projectId={project.id} />
         </div>
       </div>

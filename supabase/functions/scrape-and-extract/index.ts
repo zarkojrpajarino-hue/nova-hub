@@ -13,6 +13,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse } from '../_shared/rate-limiter-persistent.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 import { callClaude } from '../_shared/anthropic-client.ts';
 
 const ANTHROPIC_API_KEY = Deno.env.get('ANTHROPIC_API_KEY');
@@ -178,8 +179,11 @@ Identify their value props, target audiences, business models, key features, and
     const response = await callClaude(systemPrompt, userPrompt, ANTHROPIC_API_KEY!, 8000);
 
     // Clean and parse response
-    const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(cleaned);
+    const parsed = safeJsonParse<Record<string, unknown>>(response);
+    if (!parsed.ok) {
+      throw new Error('Invalid AI response');
+    }
+    return parsed.data;
   } catch (error) {
         if (error instanceof Response) return error;
 console.error('Error generating from competitors:', error);
@@ -263,8 +267,11 @@ ${competitorContent.map((c, i) => `${i + 1}. ${c.url}:\n${c.content.substring(0,
 Extract: value prop, target audience, features, pricing, founder backgrounds (infer from pitch), competitive analysis, and SWOT.`;
 
     const response = await callClaude(systemPrompt, userPrompt, ANTHROPIC_API_KEY!, 8000);
-    const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(cleaned);
+    const parsed = safeJsonParse<Record<string, unknown>>(response);
+    if (!parsed.ok) {
+      throw new Error('Invalid AI response');
+    }
+    return parsed.data;
   } catch (error) {
         if (error instanceof Response) return error;
 console.error('Error extracting for idea:', error);
@@ -351,8 +358,11 @@ ${competitorContent.map((c, i) => `${i + 1}. ${c.url}:\n${c.content.substring(0,
 Extract: website value prop/features/pricing, estimate metrics (MRR, customers, etc. - be realistic), team info, and competitive SWOT analysis.`;
 
     const response = await callClaude(systemPrompt, userPrompt, ANTHROPIC_API_KEY!, 8000);
-    const cleaned = response.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    return JSON.parse(cleaned);
+    const parsed = safeJsonParse<Record<string, unknown>>(response);
+    if (!parsed.ok) {
+      throw new Error('Invalid AI response');
+    }
+    return parsed.data;
   } catch (error) {
         if (error instanceof Response) return error;
 console.error('Error extracting for existing:', error);

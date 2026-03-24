@@ -21,6 +21,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 const SYSTEM_PROMPT = `You are Optimus.
 
@@ -190,23 +191,16 @@ Ajusta tu tono, profundidad y nivel de riesgo en las recomendaciones a estas pre
     const firstContent = response.content[0];
     const rawText = firstContent.type === 'text' ? firstContent.text : '';
 
-    // 3. Parsear la respuesta JSON
-    let output: OptimusOutput;
-    try {
-      // Claude puede devolver el JSON envuelto en ```json ... ``` — limpiar si es necesario
-      const cleaned = rawText
-        .replace(/^```json\s*/i, '')
-        .replace(/^```\s*/i, '')
-        .replace(/\s*```$/, '')
-        .trim();
-      output = JSON.parse(cleaned);
-    } catch {
-      console.error('Failed to parse Optimus output:', rawText);
+    // 3. Parsear la respuesta JSON — safeJsonParse maneja ```json blocks automáticamente
+    const parsed = safeJsonParse<OptimusOutput>(rawText);
+    if (!parsed.ok) {
+      console.error('Failed to parse Optimus output:', parsed.error, rawText);
       return new Response(
-        JSON.stringify({ error: 'Optimus output parsing failed', raw: rawText }),
+        JSON.stringify({ error: 'Invalid AI response', raw: rawText }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } },
       );
     }
+    const output = parsed.data;
 
     // 4. Validar campos mínimos
     const requiredFields = [

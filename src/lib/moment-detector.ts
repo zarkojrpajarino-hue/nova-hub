@@ -14,6 +14,8 @@ export type MomentType =
   | 'revenue_milestone'
   | 'team_growth'
   | 'phase_speed'
+  | 'first_obv'
+  | 'first_task_completed'
   | 'stagnation_warning'
   | 'hard_signal_close'
   | 'cycle_ending_soon'
@@ -52,6 +54,9 @@ export interface MomentDetectorInput {
   activeCycleScore: number | null;
   // Bottleneck
   activeBlockDays: number;         // days of oldest active strategic_block (0 if none)
+  // Micro-celebrations
+  totalOBVs: number;               // total OBVs in project
+  totalTasksCompleted: number;     // total tasks with status=done
   // F30: Financial runway
   runwayMonths: number | null;     // from key_metrics or stress test (null if unknown)
   // Previously seen moments (to avoid repeating)
@@ -108,6 +113,26 @@ export function detectMoments(input: MomentDetectorInput): Moment[] {
       title: '¡Equipo creciendo!',
       message: `${input.newMembersThisWeek} nuevo${input.newMembersThisWeek > 1 ? 's' : ''} miembro${input.newMembersThisWeek > 1 ? 's' : ''} se unió al proyecto. Ahora sois ${input.teamSize}.`,
       data: { newMembers: input.newMembersThisWeek, totalSize: input.teamSize },
+    });
+  }
+
+  // First OBV created
+  if (input.totalOBVs === 1 && !input.seenMoments.includes('first_obv')) {
+    moments.push({
+      type: 'first_obv',
+      severity: 'celebration',
+      title: '¡Primera OBV registrada!',
+      message: 'Has creado tu primera validación. Cada OBV es evidencia real de progreso.',
+    });
+  }
+
+  // First task completed
+  if (input.totalTasksCompleted === 1 && !input.seenMoments.includes('first_task_completed')) {
+    moments.push({
+      type: 'first_task_completed',
+      severity: 'celebration',
+      title: '¡Primera tarea completada!',
+      message: 'Has ejecutado tu primera acción. El motor de fases ahora tiene datos para calcular tu velocidad.',
     });
   }
 

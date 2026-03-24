@@ -15,6 +15,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 
 interface WeeklyMetrics {
@@ -244,11 +245,11 @@ Devuelve SOLO el JSON:
   });
 
   const text = (message.content[0] as { type: string; text: string }).text;
-  const jsonMatch = text.match(/\{[\s\S]*\}/);
+  const parsed = safeJsonParse<Record<string, unknown>>(text);
 
-  if (!jsonMatch) {
+  if (!parsed.ok) {
     throw new Error('Failed to parse insights');
   }
 
-  return JSON.parse(jsonMatch[0]);
+  return parsed.data;
 }

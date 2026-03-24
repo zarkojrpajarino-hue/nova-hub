@@ -6,6 +6,7 @@ import { TasksGenerationRequestSchema, validateRequestSafe } from '../_shared/va
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
 import { EvidenceMetricsTracker } from '../_shared/evidence-instrumentation.ts';
 import { validateAuth } from '../_shared/auth.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 
 // Role labels for display
@@ -317,17 +318,15 @@ Deno.serve(async (req) => {
     console.log('AI response received, parsing...');
 
     // 8. Parse response
-    const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    let parsed;
-    try {
-      parsed = JSON.parse(cleanContent);
-    } catch (parseErr) {
-      console.error('JSON parse error:', parseErr, 'content preview:', cleanContent.substring(0, 200));
+    const parseResult = safeJsonParse<{ tasks?: unknown[] }>(content);
+    if (!parseResult.ok) {
+      console.error('JSON parse error:', parseResult.error, 'content preview:', content.substring(0, 200));
       return new Response(
-        JSON.stringify({ error: 'Failed to parse AI response' }),
+        JSON.stringify({ error: 'Invalid AI response' }),
         { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
       );
     }
+    const parsed = parseResult.data;
 
     const generatedTasks = parsed.tasks || [];
     console.log('Parsed', generatedTasks.length, 'tasks');

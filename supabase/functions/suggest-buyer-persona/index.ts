@@ -17,6 +17,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 interface RequestBody {
   idea: string;
@@ -127,24 +128,17 @@ Devuelve SOLO el JSON, sin markdown.`;
     const content = aiData.content[0].text;
 
     // Parse response
-    const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+    const parsed = safeJsonParse<{ suggestions: string[] }>(content);
     let result: { suggestions: string[] };
 
-    try {
-      result = JSON.parse(cleanContent);
-
-      // Validate that we have at least 3 suggestions
-      if (!result.suggestions || result.suggestions.length < 3) {
-        throw new Error('AI returned less than 3 buyer personas');
-      }
-
-    } catch (e) {
-          if (error instanceof Response) return error;
-console.error('Parse error:', e);
+    if (parsed.ok && parsed.data.suggestions && parsed.data.suggestions.length >= 3) {
+      result = parsed.data;
+    } else {
+      console.error('Parse error or insufficient suggestions:', parsed.ok ? 'less than 3' : parsed.error);
       console.error('Raw content:', content);
 
       // Fallback: extract suggestions from text
-      const lines = content.split('\n').filter(line => line.trim().length > 20);
+      const lines = content.split('\n').filter((line: string) => line.trim().length > 20);
       result = {
         suggestions: lines.slice(0, 5),
       };

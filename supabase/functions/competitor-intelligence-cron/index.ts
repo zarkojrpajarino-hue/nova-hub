@@ -13,6 +13,7 @@
 import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -259,13 +260,11 @@ Si NO hay cambios significativos, devuelve [].`;
     });
 
     const responseText = (message.content[0] as { type: string; text: string }).text;
-    const jsonMatch = responseText.match(/\[[\s\S]*\]/);
-
-    if (!jsonMatch) {
+    const parsed = safeJsonParse<string[]>(responseText, 'array');
+    if (!parsed.ok) {
       return [];
     }
-
-    const changes = JSON.parse(jsonMatch[0]);
+    const changes = parsed.data;
     return Array.isArray(changes) ? changes : [];
   } catch (error) {
     console.error('AI detection failed:', error);

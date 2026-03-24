@@ -57,7 +57,7 @@ export function useMomentDetector(projectId: string | undefined) {
   const { data: extraData } = useQuery({
     queryKey: queryKeys.momentDetector(projectId!),
     queryFn: async () => {
-      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult] = await Promise.all([
+      const [saleResult, mrrResult, teamResult, scoreHistoryResult, blocksResult, runwayResult, obvCountResult, taskCountResult] = await Promise.all([
         supabase
           .from('obvs')
           .select('id')
@@ -100,6 +100,17 @@ export function useMomentDetector(projectId: string | undefined) {
           .order('date', { ascending: false })
           .limit(1)
           .maybeSingle(),
+        // [V4.1.23] Total OBVs for micro-celebrations
+        supabase
+          .from('obvs')
+          .select('id', { count: 'exact', head: true })
+          .eq('project_id', projectId!),
+        // [V4.1.23] Total completed tasks for micro-celebrations
+        supabase
+          .from('tasks')
+          .select('id', { count: 'exact', head: true })
+          .eq('project_id', projectId!)
+          .eq('status', 'done'),
       ]);
 
       const mrrData = mrrResult.data ?? [];
@@ -126,6 +137,8 @@ export function useMomentDetector(projectId: string | undefined) {
         scoreHistory: (scoreHistoryResult.data ?? []).reverse().map(h => Number(h.phase_score)),
         activeBlockDays,
         runwayMonths,
+        totalOBVs: obvCountResult.count ?? 0,
+        totalTasksCompleted: taskCountResult.count ?? 0,
       };
     },
     enabled: !!projectId,
@@ -167,6 +180,8 @@ export function useMomentDetector(projectId: string | undefined) {
       newMembersThisWeek: extraData.newMembersThisWeek,
       activeCycleDaysRemaining: cycleDaysRemaining,
       activeCycleScore: activeCycle?.cycle_score ?? null,
+      totalOBVs: extraData.totalOBVs,
+      totalTasksCompleted: extraData.totalTasksCompleted,
       seenMoments: getSeenMoments(projectId!),
     };
 

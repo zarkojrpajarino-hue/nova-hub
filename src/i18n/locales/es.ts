@@ -1959,6 +1959,7 @@ export const es = {
     "crítico": "Crítico",
     "completaTuProyecto": "Completa tu proyecto",
     "completeYourProject": "Completa tu proyecto",
+    "showFullDashboard": "Mostrar dashboard completo",
     "perfecto": "Perfecto",
     "completaTuContexto": "Completa tu contexto",
     "sectorIndustria": "Sector / industria",

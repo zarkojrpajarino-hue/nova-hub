@@ -24,6 +24,10 @@ const BASE_INPUT: MomentDetectorInput = {
   newMembersThisWeek: 0,
   activeCycleDaysRemaining: null,
   activeCycleScore: null,
+  activeBlockDays: 0,
+  runwayMonths: null,
+  totalOBVs: 0,
+  totalTasksCompleted: 0,
   seenMoments: [],
 };
 

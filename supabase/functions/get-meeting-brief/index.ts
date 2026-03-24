@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth } from '../_shared/auth.ts'
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts'
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3'
+import { safeJsonParse } from '../_shared/safe-json-parse.ts'
 
 const SYSTEM_PROMPT = `You are Optimus, a strategic advisor for startup founders.
 You are preparing a pre-meeting brief for the founder.
@@ -161,10 +162,11 @@ serve(async (req) => {
 
     const rawText = response.content[0].type === 'text' ? response.content[0].text : ''
 
+    const parsed = safeJsonParse<Record<string, unknown>>(rawText)
     let brief: Record<string, unknown>
-    try {
-      brief = JSON.parse(rawText)
-    } catch {
+    if (parsed.ok) {
+      brief = parsed.data
+    } else {
       // Fallback si Claude no devuelve JSON puro
       brief = {
         headline: 'Brief no disponible — estado del motor cargado',

@@ -18,6 +18,7 @@ import { serve } from 'https://deno.land/std@0.168.0/http/server.ts';
 import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-config.ts';
 import { validateAuth } from '../_shared/auth.ts';
 import { checkRateLimit, createRateLimitResponse, RateLimitPresets } from '../_shared/rate-limiter-persistent.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 interface RequestBody {
   startupUrl: string;
@@ -201,15 +202,15 @@ Devuelve SOLO el JSON, sin markdown.`;
     const content = aiData.content[0].text;
 
     // Parse response
-    const cleanContent = content.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-    let analysis: AnalysisResult;
-
-    try {
-      analysis = JSON.parse(cleanContent);
-    } catch (parseErr) {
-      console.error('JSON parse error:', parseErr, 'Raw:', content?.substring(0, 200));
-      throw new Error('Failed to parse AI response as JSON');
+    const parsed = safeJsonParse<AnalysisResult>(content);
+    if (!parsed.ok) {
+      console.error('JSON parse error:', parsed.error, 'Raw:', content?.substring(0, 200));
+      return new Response(
+        JSON.stringify({ error: 'Invalid AI response' }),
+        { status: 500, headers: { 'Content-Type': 'application/json', ...getCorsHeaders(origin) } }
+      );
     }
+    const analysis = parsed.data;
 
     return new Response(
       JSON.stringify({

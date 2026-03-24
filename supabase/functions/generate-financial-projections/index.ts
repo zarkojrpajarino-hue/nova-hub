@@ -13,6 +13,7 @@ import { getCorsHeaders, handleCorsPreflightRequest } from '../_shared/cors-conf
 import { validateAuth, verifyProjectMembership } from '../_shared/auth.ts';
 import Anthropic from 'https://esm.sh/@anthropic-ai/sdk@0.24.3';
 import { logAICall } from '../_shared/aiLogger.ts';
+import { safeJsonParse } from '../_shared/safe-json-parse.ts';
 
 
 interface ProjectionInput {
@@ -373,13 +374,13 @@ Devuelve SOLO un JSON con este formato exacto:
   const responseText = (message.content[0] as { type: string; text: string }).text;
   const tokensUsed = message.usage.input_tokens + message.usage.output_tokens;
 
-  const jsonMatch = responseText.match(/\{[\s\S]*\}/);
-  if (!jsonMatch) {
+  const parsed = safeJsonParse<Record<string, unknown>>(responseText);
+  if (!parsed.ok) {
     throw new Error('Failed to parse insights response');
   }
 
   return {
-    analysis: JSON.parse(jsonMatch[0]),
+    analysis: parsed.data,
     tokensUsed,
   };
 }
