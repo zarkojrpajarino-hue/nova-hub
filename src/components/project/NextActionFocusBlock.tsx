@@ -230,8 +230,7 @@ export function NextActionFocusBlock({
         onNavigateToTab?.('tareas')
         break
       case 'open_meeting':
-        // F19.V2.3: tab 'reuniones' en PHASE_TAB_CONFIG pero no en ProjectPage TABS todavía.
-        // Navegar a tareas como alternativa funcional hasta que el tab se implemente.
+        // Tab 'reuniones' planificado pero no implementado. Fallback a tareas.
         onNavigateToTab?.('tareas')
         break
       default:

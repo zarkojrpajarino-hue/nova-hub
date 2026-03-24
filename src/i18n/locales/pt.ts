@@ -3014,7 +3014,21 @@ export const pt = {
     "individual": "Individual",
     "equipo": "Time",
     "empresa": "Empresa",
-    "sinRoles": "Sem Papéis"
+    "sinRoles": "Sem Papéis",
+    "dataInputs": {
+      "userInput": "Input do usuário",
+      "ideaDescription": "Descrição da sua ideia ou projeto",
+      "industryAndMarket": "Indústria e mercado-alvo",
+      "targetCustomer": "Cliente ideal e segmento-alvo",
+      "aiGeneration": "Geração com IA",
+      "brandingComplete": "Branding completo (logo, cores, tipografia)",
+      "productsWithPricing": "Produtos com precificação estratégica",
+      "competitiveAnalysis": "Análise competitiva e battle cards"
+    },
+    "dataOutputs": {
+      "buyerPersonas": "Buyer Personas (cliente ideal)",
+      "valuePropositions": "Value Propositions (por que comprar)"
+    }
   },
   "rankings": {
     "participantes": "Participantes",
@@ -3692,7 +3706,15 @@ export const pt = {
     "bizum": "Bizum",
     "stripe": "Stripe",
     "númeroDeFactura": "Número da Nota Fiscal",
-    "fechaEsperadaDeCobro": "Data Esperada de Cobrança"
+    "fechaEsperadaDeCobro": "Data Esperada de Cobrança",
+    "emptyTitle": "Registre seu primeiro lead",
+    "emptyDescription": "O CRM ajuda a gerenciar seu pipeline de vendas desde o primeiro contato",
+    "createFirst": "Criar lead"
+  },
+  "obvs": {
+    "emptyTitle": "Crie sua primeira OBV",
+    "emptyDescription": "As OBVs validam suas hipoteses e geram evidencias para seu negocio",
+    "createFirst": "Criar OBV"
   },
   "demo": {
     "modoDemostraciónActivo": "Modo Demonstração Ativo",
@@ -6971,7 +6993,10 @@ export const pt = {
     "siguientePaso": "Próximo Passo",
     "scriptCopiadoAlPortapapeles": "Script copiado para a área de transferência",
     "copiado": "Copiado",
-    "copiar0": "Copiar"
+    "copiar0": "Copiar",
+    "emptyTitle": "Crie sua primeira tarefa",
+    "emptyDescription": "As tarefas ajudam a organizar e executar seu plano de acao",
+    "createFirst": "Criar tarefa"
   },
   "team": {
     "generaAgendasPersonalizadasCon": "Gera agendas personalizadas com IA baseadas em performance recente",

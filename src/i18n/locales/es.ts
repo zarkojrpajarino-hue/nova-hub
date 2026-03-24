@@ -409,7 +409,12 @@ export const es = {
     "plantillasPorCanalListas": "Plantillas por canal listas para usar.",
     "customerJourney": "Customer Journey",
     "mapaDeEtapasCon": "Mapa de etapas con datos reales de Stripe y CRM.",
-    "verHerramienta": "Ver herramienta"
+    "verHerramienta": "Ver herramienta",
+    "toolkitSubtitle": "6 herramientas IA que se desbloquean según la actividad real de tu negocio",
+    "availableCount": "{{count}} disponible para generar",
+    "availableCount_plural": "{{count}} disponibles para generar",
+    "generatedCount": "{{count}} generada",
+    "generatedCount_plural": "{{count}} generadas"
   },
   "integrations": {
     "cargando": "Cargando...",
@@ -3281,7 +3286,21 @@ export const es = {
     "individual": "Individual",
     "equipo": "Equipo",
     "empresa": "Empresa",
-    "sinRoles": "Sin Roles"
+    "sinRoles": "Sin Roles",
+    "dataInputs": {
+      "userInput": "Input del usuario",
+      "ideaDescription": "Descripción de tu idea o proyecto",
+      "industryAndMarket": "Industria y mercado objetivo",
+      "targetCustomer": "Cliente ideal y segmento target",
+      "aiGeneration": "Generación con IA",
+      "brandingComplete": "Branding completo (logo, colores, tipografía)",
+      "productsWithPricing": "Productos con pricing estratégico",
+      "competitiveAnalysis": "Análisis competitivo y battle cards"
+    },
+    "dataOutputs": {
+      "buyerPersonas": "Buyer Personas (cliente ideal)",
+      "valuePropositions": "Value Propositions (por qué comprar)"
+    }
   },
   "rankings": {
     "participantes": "Participantes",
@@ -3959,7 +3978,15 @@ export const es = {
     "bizum": "Bizum",
     "stripe": "Stripe",
     "númeroDeFactura": "Número de Factura",
-    "fechaEsperadaDeCobro": "Fecha Esperada de Cobro"
+    "fechaEsperadaDeCobro": "Fecha Esperada de Cobro",
+    "emptyTitle": "Registra tu primer lead",
+    "emptyDescription": "El CRM te ayuda a gestionar tu pipeline de ventas desde el primer contacto",
+    "createFirst": "Crear lead"
+  },
+  "obvs": {
+    "emptyTitle": "Crea tu primera OBV",
+    "emptyDescription": "Las OBVs validan tus hipótesis y generan evidencia para tu negocio",
+    "createFirst": "Crear OBV"
   },
   "demo": {
     "modoDemostraciónActivo": "Modo Demostración Activo",
@@ -7303,7 +7330,10 @@ export const es = {
     "siguientePaso": "Siguiente Paso",
     "scriptCopiadoAlPortapapeles": "Script copiado al portapapeles",
     "copiado": "Copiado",
-    "copiar0": "Copiar"
+    "copiar0": "Copiar",
+    "emptyTitle": "Crea tu primera tarea",
+    "emptyDescription": "Las tareas te ayudan a organizar y ejecutar tu plan de acción",
+    "createFirst": "Crear tarea"
   },
   "team": {
     "generaAgendasPersonalizadasCon": "Genera agendas personalizadas con IA basadas en performance reciente",

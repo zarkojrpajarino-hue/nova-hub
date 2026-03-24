@@ -35,24 +35,34 @@ import { formatDistanceToNow } from 'date-fns';
 import { getDateFnsLocale } from '@/i18n';
 
 import { useTranslation } from 'react-i18next';
+import type { TFunction } from 'i18next';
 // ── Configuración de herramientas ─────────────────────────────────────────────
 
 interface ToolConfig {
   type: ToolType;
-  label: string;
-  description: string;
+  labelKey: string;
+  descKey: string;
   icon: React.ElementType;
   color: string;
 }
 
-const TOOL_CONFIG: ToolConfig[] = [
-  { type: 'buyer_persona',    label: t('founderToolkit.buyerPersona'),          description: t('founderToolkit.perfilDeTuCliente'),                  icon: Users,          color: 'violet' },
-  { type: 'lead_scoring',     label: t('founderToolkit.leadScoring'),           description: t('founderToolkit.criteriosYPuntajeDe'),                    icon: BarChart2,      color: 'blue'   },
-  { type: 'sales_playbook',   label: t('founderToolkit.salesPlaybook'),         description: t('founderToolkit.procesoDeVentaDesde'),                               icon: BookOpen,       color: 'green'  },
-  { type: 'brand_kit',        label: t('founderToolkit.brandKit'),              description: t('founderToolkit.propuestaDeValorMensajes'),                 icon: Palette,        color: 'pink'   },
-  { type: 'comms_guide',      label: t('founderToolkit.guíaDeComunicación'),   description: t('founderToolkit.plantillasPorCanalListas'),                              icon: MessageSquare,  color: 'amber'  },
-  { type: 'customer_journey', label: t('founderToolkit.customerJourney'),       description: t('founderToolkit.mapaDeEtapasCon'),                   icon: Map,            color: 'teal'   },
+const TOOL_CONFIG_KEYS: ToolConfig[] = [
+  { type: 'buyer_persona',    labelKey: 'founderToolkit.buyerPersona',          descKey: 'founderToolkit.perfilDeTuCliente',              icon: Users,          color: 'violet' },
+  { type: 'lead_scoring',     labelKey: 'founderToolkit.leadScoring',           descKey: 'founderToolkit.criteriosYPuntajeDe',            icon: BarChart2,      color: 'blue'   },
+  { type: 'sales_playbook',   labelKey: 'founderToolkit.salesPlaybook',         descKey: 'founderToolkit.procesoDeVentaDesde',            icon: BookOpen,       color: 'green'  },
+  { type: 'brand_kit',        labelKey: 'founderToolkit.brandKit',              descKey: 'founderToolkit.propuestaDeValorMensajes',       icon: Palette,        color: 'pink'   },
+  { type: 'comms_guide',      labelKey: 'founderToolkit.guíaDeComunicación',   descKey: 'founderToolkit.plantillasPorCanalListas',       icon: MessageSquare,  color: 'amber'  },
+  { type: 'customer_journey', labelKey: 'founderToolkit.customerJourney',       descKey: 'founderToolkit.mapaDeEtapasCon',               icon: Map,            color: 'teal'   },
 ];
+
+interface ResolvedToolConfig extends ToolConfig {
+  label: string;
+  description: string;
+}
+
+function resolveToolConfig(t: TFunction): ResolvedToolConfig[] {
+  return TOOL_CONFIG_KEYS.map(c => ({ ...c, label: t(c.labelKey), description: t(c.descKey) }));
+}
 
 const COLOR_MAP: Record<string, { accent: string; bg: string; border: string; iconBg: string; iconColor: string }> = {
   violet: { accent: 'text-violet-700', bg: 'bg-violet-50 dark:bg-violet-950/30', border: 'border-violet-200 dark:border-violet-800', iconBg: 'bg-violet-100 dark:bg-violet-900/50', iconColor: 'text-violet-600' },
@@ -65,7 +75,8 @@ const COLOR_MAP: Record<string, { accent: string; bg: string; border: string; ic
 
 // ── ToolCard (grid) ───────────────────────────────────────────────────────────
 
-function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: ToolkitUnlockState; onSelect: () => void }) {
+function ToolCard({ config, unlocks, onSelect }: { config: ResolvedToolConfig; unlocks: ToolkitUnlockState; onSelect: () => void }) {
+  const { t } = useTranslation();
   const info = unlocks[config.type];
   const colors = COLOR_MAP[config.color];
   const Icon = config.icon;
@@ -116,7 +127,7 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
         )}
         {(isAvailable || isGenerated) && (
           <Button size="sm" variant={isGenerated ? 'outline' : 'default'} className="w-full gap-1.5 mt-1 text-xs h-8" onClick={onSelect}>
-            {isGenerated ? 'Ver herramienta': `Generar ${config.label}`}
+            {isGenerated ? t('founderToolkit.verHerramienta') : `${t('founderToolkit.generar')} ${config.label}`}
             <ChevronRight className="h-3.5 w-3.5" />
           </Button>
         )}
@@ -128,13 +139,14 @@ function ToolCard({ config, unlocks, onSelect }: { config: ToolConfig; unlocks: 
 // ── ToolDetailView (vista de herramienta individual) ──────────────────────────
 
 function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavigateTool }: {
-  config: ToolConfig;
+  config: ResolvedToolConfig;
   projectId: string;
   onBack: () => void;
   unlockInfo?: ToolUnlockInfo;
   unlocks?: ToolkitUnlockState | null;
   onNavigateTool?: (tool: ToolType) => void;
 }) {
+  const { t } = useTranslation();
   const toolState = useFounderTool(projectId, config.type);
   const colors = COLOR_MAP[config.color];
   const Icon = config.icon;
@@ -205,7 +217,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
           <Icon className={cn('h-10 w-10', colors.iconColor, 'opacity-40')} />
           <p className="text-gray-600 dark:text-gray-400">{t('founderToolkit.noHayAnálisisGenerado')}</p>
           <Button onClick={toolState.generate} disabled={toolState.isGenerating || !toolState.canRegenerate}>
-            Generar {config.label}
+            {t('founderToolkit.generar')} {config.label}
           </Button>
         </div>
       )}
@@ -257,6 +269,7 @@ function ToolDetailView({ config, projectId, onBack, unlockInfo, unlocks, onNavi
 
 export default function FounderToolkitPage() {
   const { t } = useTranslation();
+  const TOOL_CONFIG = resolveToolConfig(t);
   const { currentProject } = useCurrentProject();
   const { unlocks, isLoading } = useToolkitUnlocks(currentProject?.id);
   const [selectedTool, setSelectedTool] = useState<ToolType | null>(null);
@@ -304,18 +317,18 @@ export default function FounderToolkitPage() {
       <div className="mb-6">
         <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100">{t('founderToolkit.founderToolkit')}</h1>
         <p className="text-sm text-gray-500 mt-1">
-          6 herramientas IA que se desbloquean según la actividad real de tu negocio
+          {t('founderToolkit.toolkitSubtitle')}
         </p>
         {!isLoading && unlocks && (availableCount > 0 || generatedCount > 0) && (
           <div className="flex items-center gap-3 mt-3">
             {availableCount > 0 && (
               <Badge className="bg-blue-100 text-blue-700 border-blue-200">
-                <Sparkles className="h-3 w-3 mr-1" />{availableCount} disponible{availableCount !== 1 ? 's' : ''} para generar
+                <Sparkles className="h-3 w-3 mr-1" />{t('founderToolkit.availableCount', { count: availableCount })}
               </Badge>
             )}
             {generatedCount > 0 && (
               <Badge className="bg-green-100 text-green-700 border-green-200">
-                <CheckCircle2 className="h-3 w-3 mr-1" />{generatedCount} generada{generatedCount !== 1 ? 's' : ''}
+                <CheckCircle2 className="h-3 w-3 mr-1" />{t('founderToolkit.generatedCount', { count: generatedCount })}
               </Badge>
             )}
           </div>

@@ -3,7 +3,7 @@
  *
  * Fuente de verdad de adaptación por fase para FASE 19.
  * Importado por: usePhaseFeatures (F19.C.2), KanbanColumn (F19.B.5),
- *                ProjectPage (F19.C.3), ProjectDashboardTab (F19.C.5).
+ *                ProjectDashboardTab (F19.C.5), NovaSidebar (SIDEBAR_PHASE_CONFIG).
  *
  * No importa componentes ni hooks — es pura data.
  */
@@ -16,12 +16,9 @@
 
 export type TabStatus = 'primary' | 'secondary' | 'teaser'
 
-// F19.V2.3 — AUDIT NOTE:
-// `reuniones` aparece aquí pero NO existe como tab en ProjectPage.tsx TABS array todavía.
-// El tab está planificado pero sin implementar. Mientras tanto:
-//   - getTabStatus('reuniones') retorna el valor abajo (inofensivo — nunca se renderiza)
-//   - NextActionFocusBlock 'open_meeting' navega a 'tareas' como fallback
-// Al implementar el tab 'reuniones': añadirlo a TABS en ProjectPage.tsx.
+// `reuniones` aparece aquí pero el tab aún no está implementado como vista.
+// getTabStatus('reuniones') retorna el valor abajo (inofensivo — nunca se renderiza).
+// NextActionFocusBlock 'open_meeting' navega a 'tareas' como fallback.
 export const PHASE_TAB_CONFIG: Record<number, Record<string, TabStatus>> = {
   0: {
     dashboard:    'primary',

@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useProfiles } from '@/hooks/useNovaData';
 import { CRMPipeline } from '@/components/crm/CRMPipeline';
-import { EmptyState } from '@/components/ui/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
 import type { Database } from '@/integrations/supabase/types';
 
 import { useTranslation } from 'react-i18next';
@@ -91,8 +91,9 @@ function ProjectCRMTabComponent({ projectId, projectName }: ProjectCRMTabProps) 
     return (
       <EmptyState
         icon={Target}
-        title={t('project.emptyCRM.title')}
-        description={t('project.emptyCRM.description')}
+        title={t('crm.emptyTitle')}
+        description={t('crm.emptyDescription')}
+        action={{ label: t('crm.createFirst'), onClick: () => {} }}
       />
     );
   }

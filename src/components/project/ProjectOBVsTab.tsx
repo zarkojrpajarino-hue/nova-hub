@@ -1,11 +1,11 @@
 import { memo, useState } from 'react';
-import { Loader2, FileCheck, CheckCircle, Clock, XCircle, Users, X } from 'lucide-react';
+import { Loader2, FileCheck, CheckCircle, Clock, XCircle, Users, X, ClipboardCheck } from 'lucide-react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useUpsertOBVParticipants } from '@/hooks/useNovaDataOptimized';
 import { Button } from '@/components/ui/button';
-import { EmptyState } from '@/components/ui/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
 import { cn } from '@/lib/utils';
 import { toast } from 'sonner';
 
@@ -256,9 +256,10 @@ function ProjectOBVsTabComponent({ projectId }: ProjectOBVsTabProps) {
 
         {obvs.length === 0 ? (
           <EmptyState
-            icon={FileCheck}
-            title={t('project.emptyOBVs.title')}
-            description={t('project.emptyOBVs.description')}
+            icon={ClipboardCheck}
+            title={t('obvs.emptyTitle')}
+            description={t('obvs.emptyDescription')}
+            action={{ label: t('obvs.createFirst'), onClick: () => {} }}
           />
         ) : (
           <div className="divide-y divide-border">

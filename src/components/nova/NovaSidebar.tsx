@@ -24,7 +24,7 @@ import {
 } from '@/components/ui/tooltip';
 
 interface NovaSidebarProps {
-  currentView: string;
+  currentView?: string; // legacy — no longer used for active state, kept for API compat
   setCurrentView: (view: string) => void;
   currentUser: {
     nombre?: string;
@@ -110,7 +110,7 @@ const systemItems: NavItem[] = [
   { id: 'notificaciones', icon: Bell, label: 'nav.notifications', route: 'notificaciones' },
 ];
 
-export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOut, onMenuHover, projectId }: NovaSidebarProps) {
+export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHover, projectId }: NovaSidebarProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
@@ -248,14 +248,13 @@ export function NovaSidebar({ currentView, setCurrentView, currentUser, onSignOu
               const isPlanLocked = !isPhaseTeaser && item.requiredFeature && !canUseFeature(item.requiredFeature);
 
               const isItemActive = () => {
-                // Teaser items are never active
                 if (isPhaseTeaser) return false;
                 if (item.route !== undefined && projectId) {
                   const basePath = `/proyecto/${projectId}`;
                   const fullPath = item.route === '' ? basePath : `${basePath}/${item.route}`;
                   return location.pathname === fullPath || location.pathname.startsWith(`${fullPath}/`);
                 }
-                return currentView === item.id;
+                return false;
               };
 
               return (

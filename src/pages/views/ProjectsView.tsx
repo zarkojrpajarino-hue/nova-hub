@@ -92,6 +92,24 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
           description={t('projects.proyectosEsElCorazón')}
           whatIsIt={t('projects.aquíCreasTuProyectostartup')}
           onViewPreview={() => setShowPreviewModal(true)}
+          dataInputs={[
+            {
+              from: t('projects.dataInputs.userInput'),
+              items: [
+                t('projects.dataInputs.ideaDescription'),
+                t('projects.dataInputs.industryAndMarket'),
+                t('projects.dataInputs.targetCustomer'),
+              ],
+            },
+            {
+              from: t('projects.dataInputs.aiGeneration'),
+              items: [
+                t('projects.dataInputs.brandingComplete'),
+                t('projects.dataInputs.productsWithPricing'),
+                t('projects.dataInputs.competitiveAnalysis'),
+              ],
+            },
+          ]}
           dataOutputs={[
             {
               to: t('projects.validaciones'),
@@ -104,8 +122,8 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
             {
               to: t('projects.crmGlobal'),
               items: [
-                'Buyer Personas (cliente ideal)',
-                'Value Propositions (por qué comprar)',
+                t('projects.dataOutputs.buyerPersonas'),
+                t('projects.dataOutputs.valuePropositions'),
                 t('projects.battleCardsVsCompetidores'),
               ],
             },

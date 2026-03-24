@@ -3014,7 +3014,21 @@ export const fr = {
     "individual": "Individuel",
     "equipo": "Équipe",
     "empresa": "Entreprise",
-    "sinRoles": "Sans Rôles"
+    "sinRoles": "Sans Rôles",
+    "dataInputs": {
+      "userInput": "Saisie utilisateur",
+      "ideaDescription": "Description de votre idée ou projet",
+      "industryAndMarket": "Industrie et marché cible",
+      "targetCustomer": "Client idéal et segment cible",
+      "aiGeneration": "Génération par IA",
+      "brandingComplete": "Branding complet (logo, couleurs, typographie)",
+      "productsWithPricing": "Produits avec tarification stratégique",
+      "competitiveAnalysis": "Analyse concurrentielle et battle cards"
+    },
+    "dataOutputs": {
+      "buyerPersonas": "Buyer Personas (client idéal)",
+      "valuePropositions": "Value Propositions (pourquoi acheter)"
+    }
   },
   "rankings": {
     "participantes": "Participants",
@@ -3692,7 +3706,15 @@ export const fr = {
     "bizum": "Bizum",
     "stripe": "Stripe",
     "númeroDeFactura": "Numéro de Facture",
-    "fechaEsperadaDeCobro": "Date Attendue de Recouvrement"
+    "fechaEsperadaDeCobro": "Date Attendue de Recouvrement",
+    "emptyTitle": "Enregistrez votre premier lead",
+    "emptyDescription": "Le CRM vous aide a gerer votre pipeline de ventes des le premier contact",
+    "createFirst": "Creer un lead"
+  },
+  "obvs": {
+    "emptyTitle": "Creez votre premiere OBV",
+    "emptyDescription": "Les OBVs valident vos hypotheses et generent des preuves pour votre entreprise",
+    "createFirst": "Creer une OBV"
   },
   "demo": {
     "modoDemostraciónActivo": "Mode Démonstration Actif",
@@ -6971,7 +6993,10 @@ export const fr = {
     "siguientePaso": "Étape suivante",
     "scriptCopiadoAlPortapapeles": "Script copié dans le presse-papiers",
     "copiado": "Copié",
-    "copiar0": "Copier"
+    "copiar0": "Copier",
+    "emptyTitle": "Creez votre premiere tache",
+    "emptyDescription": "Les taches vous aident a organiser et executer votre plan d'action",
+    "createFirst": "Creer une tache"
   },
   "team": {
     "generaAgendasPersonalizadasCon": "Générez des agendas personnalisés avec l'IA basés sur la performance récente",

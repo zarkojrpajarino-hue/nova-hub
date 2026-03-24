@@ -3014,7 +3014,21 @@ export const it = {
     "individual": "Individuale",
     "equipo": "Team",
     "empresa": "Azienda",
-    "sinRoles": "Senza Ruoli"
+    "sinRoles": "Senza Ruoli",
+    "dataInputs": {
+      "userInput": "Input dell'utente",
+      "ideaDescription": "Descrizione della tua idea o progetto",
+      "industryAndMarket": "Settore e mercato target",
+      "targetCustomer": "Cliente ideale e segmento target",
+      "aiGeneration": "Generazione con IA",
+      "brandingComplete": "Branding completo (logo, colori, tipografia)",
+      "productsWithPricing": "Prodotti con pricing strategico",
+      "competitiveAnalysis": "Analisi competitiva e battle cards"
+    },
+    "dataOutputs": {
+      "buyerPersonas": "Buyer Personas (cliente ideale)",
+      "valuePropositions": "Value Propositions (perché comprare)"
+    }
   },
   "rankings": {
     "participantes": "Partecipanti",
@@ -3692,7 +3706,15 @@ export const it = {
     "bizum": "Bizum",
     "stripe": "Stripe",
     "númeroDeFactura": "Numero Fattura",
-    "fechaEsperadaDeCobro": "Data Attesa di Incasso"
+    "fechaEsperadaDeCobro": "Data Attesa di Incasso",
+    "emptyTitle": "Registra il tuo primo lead",
+    "emptyDescription": "Il CRM ti aiuta a gestire la tua pipeline di vendita dal primo contatto",
+    "createFirst": "Crea lead"
+  },
+  "obvs": {
+    "emptyTitle": "Crea la tua prima OBV",
+    "emptyDescription": "Le OBV validano le tue ipotesi e generano evidenze per la tua azienda",
+    "createFirst": "Crea OBV"
   },
   "demo": {
     "modoDemostraciónActivo": "Modalità Dimostrazione Attiva",
@@ -6971,7 +6993,10 @@ export const it = {
     "siguientePaso": "Passo Successivo",
     "scriptCopiadoAlPortapapeles": "Script copiato negli appunti",
     "copiado": "Copiato",
-    "copiar0": "Copia"
+    "copiar0": "Copia",
+    "emptyTitle": "Crea il tuo primo task",
+    "emptyDescription": "I task ti aiutano a organizzare ed eseguire il tuo piano d'azione",
+    "createFirst": "Crea task"
   },
   "team": {
     "generaAgendasPersonalizadasCon": "Genera agende personalizzate con IA basate sulla performance recente",

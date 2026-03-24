@@ -6,7 +6,7 @@ import { useProfiles } from '@/hooks/useNovaData';
 import { KanbanBoard } from '@/components/tasks/KanbanBoard';
 import { AITaskGenerator } from '@/components/tasks/AITaskGenerator';
 import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
-import { EmptyState } from '@/components/ui/empty-state';
+import { EmptyState } from '@/components/shared/EmptyState';
 
 import { useTranslation } from 'react-i18next';
 interface ProjectTasksTabProps {
@@ -136,13 +136,9 @@ function ProjectTasksTabComponent({ projectId, project }: ProjectTasksTabProps) 
       <div className="space-y-6 animate-fade-in">
         <EmptyState
           icon={ListTodo}
-          title={t('project.emptyTasks.title')}
-          description={t('project.emptyTasks.description')}
-          suggestions={[
-            t('project.emptyTasks.suggestion1'),
-            t('project.emptyTasks.suggestion2'),
-            t('project.emptyTasks.suggestion3'),
-          ]}
+          title={t('tasks.emptyTitle')}
+          description={t('tasks.emptyDescription')}
+          action={{ label: t('tasks.createFirst'), onClick: () => {} }}
         />
         {aiProjectContext && (
           <div className="flex justify-center">

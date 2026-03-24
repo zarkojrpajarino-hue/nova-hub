@@ -3014,7 +3014,21 @@ export const de = {
     "individual": "Einzeln",
     "equipo": "Team",
     "empresa": "Unternehmen",
-    "sinRoles": "Keine Rollen"
+    "sinRoles": "Keine Rollen",
+    "dataInputs": {
+      "userInput": "Benutzereingabe",
+      "ideaDescription": "Beschreibung deiner Idee oder deines Projekts",
+      "industryAndMarket": "Branche und Zielmarkt",
+      "targetCustomer": "Idealer Kunde und Zielsegment",
+      "aiGeneration": "KI-Generierung",
+      "brandingComplete": "Komplettes Branding (Logo, Farben, Typografie)",
+      "productsWithPricing": "Produkte mit strategischer Preisgestaltung",
+      "competitiveAnalysis": "Wettbewerbsanalyse und Battle Cards"
+    },
+    "dataOutputs": {
+      "buyerPersonas": "Buyer Personas (idealer Kunde)",
+      "valuePropositions": "Value Propositions (warum kaufen)"
+    }
   },
   "rankings": {
     "participantes": "Teilnehmer",
@@ -3692,7 +3706,15 @@ export const de = {
     "bizum": "Bizum",
     "stripe": "Stripe",
     "númeroDeFactura": "Rechnungsnummer",
-    "fechaEsperadaDeCobro": "Erwartetes Zahlungsdatum"
+    "fechaEsperadaDeCobro": "Erwartetes Zahlungsdatum",
+    "emptyTitle": "Erfasse deinen ersten Lead",
+    "emptyDescription": "Das CRM hilft dir, deine Vertriebspipeline vom ersten Kontakt an zu verwalten",
+    "createFirst": "Lead erstellen"
+  },
+  "obvs": {
+    "emptyTitle": "Erstelle deine erste OBV",
+    "emptyDescription": "OBVs validieren deine Hypothesen und generieren Evidenz fuer dein Unternehmen",
+    "createFirst": "OBV erstellen"
   },
   "demo": {
     "modoDemostraciónActivo": "Demonstrationsmodus aktiv",
@@ -6971,7 +6993,10 @@ export const de = {
     "siguientePaso": "Nächster Schritt",
     "scriptCopiadoAlPortapapeles": "Skript in die Zwischenablage kopiert",
     "copiado": "Kopiert",
-    "copiar0": "Kopieren"
+    "copiar0": "Kopieren",
+    "emptyTitle": "Erstelle deine erste Aufgabe",
+    "emptyDescription": "Aufgaben helfen dir, deinen Aktionsplan zu organisieren und umzusetzen",
+    "createFirst": "Aufgabe erstellen"
   },
   "team": {
     "generaAgendasPersonalizadasCon": "Generiert KI-gestützte personalisierte Agenden basierend auf aktueller Performance",

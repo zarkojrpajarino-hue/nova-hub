@@ -24,7 +24,7 @@
  *   - No se usa setTimeout ni estado local — la transición es reactiva (React Query).
  *
  * isReentry: ausencia > 7 días desde last_seen_at. Usado como capa previa
- * en ProjectPage para mostrar ReentrySurface antes de cualquier surface.
+ * en DashboardView para mostrar ReentrySurface antes de cualquier surface.
  * No afecta la prioridad de surface.
  */
 

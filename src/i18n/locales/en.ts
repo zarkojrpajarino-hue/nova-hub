@@ -1,10 +1,11 @@
-// Auto-generated — 7274 keys
+// Auto-generated — 7549 keys
 /* eslint-disable */
 export const en = {
   "aIAnalysis": {
     "seleccionaUnProyectoDesde": "Select a project from the selector in the header",
     "diagnósticoEn3Niveles": "3-level diagnosis that unlocks progressively based on activity and integrations",
-    "análisisEstratégicoIA": "AI Strategic Analysis"
+    "análisisEstratégicoIA": "AI Strategic Analysis",
+    "tuProyectoNecesita14Dias": "Tu proyecto necesita 14 dias de actividad para desbloquear el analisis IA"
   },
   "auth": {
     "plataformaDeGestiónEstratégica": "Strategic management platform for entrepreneurs",
@@ -201,7 +202,9 @@ export const en = {
     "tocaElTipoDe": "Tap the crisis type — that's all for now",
     "opcionalCuéntanosBrevementeEl": "Optional. Tell us briefly about the context.",
     "creandoTus3Tareas": "Creating your 3 urgent tasks...",
-    "ejLlevamos2Meses": "Ex: we haven't closed any deals in 2 months despite having demos..."
+    "ejLlevamos2Meses": "Ex: we haven't closed any deals in 2 months despite having demos...",
+    "tareasCreadas": "3 tareas urgentes creadas. Redirigiendo al dashboard...",
+    "generarAnalisisCompleto": "Generar un analisis completo de tu situacion"
   },
   "evidenceTest": {
     "testTheCompleteAi": "Test the complete AI Evidence System here",
@@ -258,7 +261,12 @@ export const en = {
     "plantillasPorCanalListas": "Ready-to-use channel templates.",
     "customerJourney": "Customer Journey",
     "mapaDeEtapasCon": "Stage map with real data from Stripe and CRM.",
-    "verHerramienta": "View tool"
+    "verHerramienta": "View tool",
+    "toolkitSubtitle": "6 herramientas IA que se desbloquean según la actividad real de tu negocio",
+    "availableCount": "{{count}} disponible para generar",
+    "availableCount_plural": "{{count}} disponibles para generar",
+    "generatedCount": "{{count}} generada",
+    "generatedCount_plural": "{{count}} generadas"
   },
   "integrations": {
     "cargando": "Loading...",
@@ -884,7 +892,9 @@ export const en = {
     "seleccionaUnProyectoPrimero": "Select a project first",
     "reuniónCreadaAhoraPuedes": "Meeting created! You can now record or upload audio",
     "revisiónDePreguntasCancelada": "Question review cancelled",
-    "grabaciónCancelada": "Recording cancelled"
+    "grabaciónCancelada": "Recording cancelled",
+    "meetingIntelligence": "Meeting Intelligence",
+    "grabaTuPrimeraReunion": "Graba tu primera reunion para extraer insights automaticamente"
   },
   "meetingReview": {
     "confirmoQueEstaDecisión": "I confirm this decision should apply to the project",
@@ -1396,7 +1406,6 @@ export const en = {
     "configuraciónInicial": "Initial setup",
     "fasttrackActivado": "Fast-track activated",
     "perfilOperativoDetectado": "Operational Profile Detected",
-    "irAlDashboard": "Go to dashboard",
     "redirigiendoAutomáticamenteEn8": "Automatically redirecting in 8 seconds...",
     "errorAlCargarEl": "Error loading project",
     "errorAlGuardarLas": "Error saving answers",
@@ -1494,7 +1503,113 @@ export const en = {
     "completaTareasCreaObvs": "Complete tasks, create OBVs, ask peers for feedback",
     "saltarTutorial": "Skip tutorial",
     "anterior": "Previous",
-    "comenzar": "Get Started!"
+    "comenzar": "Get Started!",
+    "metricasObjetivas": "Métricas Objetivas",
+    "feedbackDeCompaneros": "Feedback de Compañeros",
+    "autoevaluacion": "Auto-evaluación",
+    "uneteAUnProyecto": "Únete a un proyecto o crea uno nuevo",
+    "welcomeTitle": "¡Bienvenido a OPTIMUS-K!",
+    "welcomeDesc": "es una plataforma donde aprendes haciendo y te conviertes en Master de cualquier rol.",
+    "keyConcept": "Concepto clave:",
+    "noHayJefes": "No hay jefes - organización horizontal",
+    "todosExploranRoles": "Todos exploran roles mediante experiencia práctica",
+    "meritoConDatos": "El mérito se mide con datos objetivos (Fit Score)",
+    "puedesDesafiarMaster": "Puedes desafiar a cualquier Master si cumples requisitos",
+    "threePhasesTitle": "Las 3 Fases del Camino",
+    "phase1Title": "Fase 1: Exploración (4 semanas)",
+    "phase1Desc": "Pruebas 4 roles diferentes (1 semana cada uno). Descubres qué se te da mejor. La rotación es automática cada semana.",
+    "phase2Title": "Fase 2: Especialización (2 semanas)",
+    "phase2Desc": "(1 semana cada uno). Subes tu Fit Score completando tareas, OBVs y recibiendo feedback.",
+    "phase3Title": "Fase 3: Master (permanente)",
+    "rolEstrella": "rol estrella",
+    "phase3Desc": "y un rol secundario. Te conviertes en referente del equipo. Otros pueden desafiarte si cumplen requisitos.",
+    "fitScoreTitle": "¿Qué es el Fit Score?",
+    "fitScoreIntro": "El Fit Score es tu puntuación de desempeño en cada rol (de {{score}}). Se calcula automáticamente con:",
+    "tip": "Tip",
+    "fitScoreTip": "Para obtener Fit Score alto, enfócate en completar tareas a tiempo, validar OBVs, y pedir feedback a tus compañeros.",
+    "challengesTitle": "Desafíos a Masters",
+    "todos": "TODOS",
+    "estosRequisitos": "estos requisitos",
+    "semanas": "sem",
+    "challengeTypesTitle": "3 Tipos de Desafío",
+    "performanceBattle": "Performance Battle",
+    "performanceBattleDesc": "Competencia directa en métricas (2 semanas)",
+    "projectShowdown": "Project Showdown",
+    "projectShowdownDesc": "Ambos lideran un proyecto y el equipo vota (3 semanas)",
+    "peerVote": "Peer Vote",
+    "peerVoteDesc": "El equipo vota directamente (1 semana)",
+    "gamificationTitle": "Gamificación y Badges",
+    "ganaBadges": "Gana badges completando logros y desafíos:",
+    "completaFase1": "Completa Fase 1",
+    "alcanzaFase3": "Alcanza Fase 3",
+    "diasConsecutivos": "7 días consecutivos",
+    "totalBadges": "15 badges",
+    "enTotal": "en total. Los encuentras en",
+    "readyTitle": "¡Estás listo para empezar!",
+    "nextSteps": "Próximos pasos:",
+    "comienzaExploracion": "Comienza tu primera exploración de rol (1 semana)",
+    "subeFitScore": "Sube tu Fit Score y avanza hacia Fase 3 (Master)",
+    "recuerda": "Recuerda",
+    "todoEsPublico": "Todo es público y transparente. Puedes ver el progreso de cualquier persona.",
+    "rotacionesAutomaticas": "Las rotaciones son automáticas cada semana. No necesitas hacer nada, el sistema te asignará el siguiente rol.",
+    "pasoNDeM": "Paso {{current}} de {{total}}",
+    "pasteYourUrl": "Pega la URL de tu negocio",
+    "urlAutoFillDesc": "Extraemos datos de tu web para pre-rellenar el formulario automaticamente.",
+    "urlAutoFillHint": "Pegaremos tu URL y la IA extraera nombre, descripcion e industria para ahorrarte tiempo.",
+    "yourWebsiteUrl": "URL de tu sitio web",
+    "extract": "Extraer",
+    "continueWithoutUrl": "Continuar sin URL",
+    "dataExtracted": "Datos extraidos correctamente",
+    "reviewAndEditBelow": "Revisa y edita los campos pre-rellenados",
+    "extractionFailed": "No se pudo extraer informacion de la URL",
+    "youCanTypeManually": "Puedes escribir los datos manualmente",
+    "dataExtractedFromUrl": "Datos pre-rellenados desde tu URL. Revisa y edita si es necesario.",
+    "connectTools": "Conecta tus herramientas",
+    "connectToolsDesc": "Conecta tus herramientas favoritas para importar datos automaticamente.",
+    "connectToolsHint": "Puedes conectar estas herramientas ahora o mas tarde desde el panel de integraciones.",
+    "connectAfterSetup": "Disponible despues del setup",
+    "connectAfterSetupDesc": "Podras conectar esta herramienta desde el panel de integraciones.",
+    "skipForNow": "Saltar por ahora",
+    "optional": "Opcional",
+    "analyzeYourBusiness": "Analiza tu negocio con IA",
+    "companyName": "Nombre de la empresa",
+    "whatDoesBusinessDo": "Que hace tu negocio?",
+    "briefDescriptionMinChars": "Descripcion breve de tu producto/servicio y mercado objetivo (minimo 30 caracteres)",
+    "charsMinimum": "caracteres minimo",
+    "detectedIndustry": "Industria detectada",
+    "continueToGenerate": "Continuar y generar diagnostico",
+    "pleaseEnterCompanyName": "Ingresa un nombre de empresa (minimo 3 caracteres)",
+    "pleaseProvideDescription": "Proporciona una descripcion breve (minimo 30 caracteres)",
+    "fastStartTakes5Min": "Fast Start toma ~5 minutos. Puedes completar el Deep Setup despues para desbloquear herramientas avanzadas.",
+    "knowCompetitors": "Conoces a tus competidores?",
+    "competitorUrlDesc": "Agrega URLs de competidores para un analisis SWOT basado en datos reales.",
+    "competitorUrlHint": "Analizaremos sus sitios web para identificar fortalezas, debilidades y oportunidades de diferenciacion.",
+    "addCompetitor": "Agregar competidor",
+    "dontKnowCompetitors": "No conozco competidores, continuar",
+    "competitorsAnalyzed": "Competidores analizados correctamente",
+    "competitorAnalysisFailed": "No se pudieron analizar los competidores",
+    "continuingWithoutCompetitors": "Continuando sin datos de competidores",
+    "analyzingCompetitors": "Analizando competidores...",
+    "analyzeAndContinue": "Analizar y continuar",
+    "continueWithoutCompetitors": "Continuar sin competidores",
+    "hypothesisScore": "Puntuacion de hipotesis",
+    "problemClarity": "Claridad del problema",
+    "marketSize": "Tamano del mercado",
+    "solutionFit": "Ajuste de solucion",
+    "monetization": "Monetizacion",
+    "hypothesisScoreHint": "Esta puntuacion mejora a medida que validas con datos reales. Completa el Deep Setup para refinar tu analisis.",
+    "continueToProject": "Continuar al proyecto",
+    "validateYourIdea": "Valida tu idea con IA",
+    "projectName": "Nombre del proyecto",
+    "describeYourIdea": "Describe tu idea de negocio",
+    "whatProblemMinChars": "Que problema resuelves? Quienes son tus clientes? Cual es tu solucion? (Minimo 50 caracteres)",
+    "continueToValidation": "Continuar a validacion",
+    "pleaseEnterProjectName": "Ingresa un nombre de proyecto (minimo 3 caracteres)",
+    "pleaseProvideDetailedDesc": "Proporciona una descripcion detallada (minimo 50 caracteres)",
+    "fastStartTakes4Min": "Fast Start toma ~4 minutos. Puedes completar el Deep Setup despues para desbloquear herramientas avanzadas.",
+    "threeOptionsForYourProfile": "3 opciones personalizadas para tu perfil. Elige la que mas te convenza.",
+    "geoContextHint": "En {{country}}, el sector de {{industry}} tiene oportunidades unicas. Las ideas estan adaptadas a tu mercado local.",
+    "yourIndustry": "tu industria"
   },
   "pathToMaster": {
     "cargando": "Loading...",
@@ -2164,7 +2279,22 @@ export const en = {
     "coachingCashBlindspot": "In your last cycles, cash had 0 activity. Consider adding a cash commitment.",
     "coachingCategoríaIgnorada": "There are categories being consistently ignored. Review if they're relevant for your stage.",
     "coachingSugerenciaConteo": "Based on your history, 3 commitments is more realistic than 5.",
-    "tareasDesdeCompromisos": "{{count}} draft tasks created from your commitments"
+    "tareasDesdeCompromisos": "{{count}} draft tasks created from your commitments",
+    "emptyTasks": {
+      "title": "Crea tu primera tarea",
+      "description": "Crea tu primera tarea para empezar a ejecutar. Puedes crearlas manualmente o generarlas con IA.",
+      "suggestion1": "Define las 3 tareas mas urgentes de esta semana",
+      "suggestion2": "Usa el generador IA para crear tareas contextualizadas",
+      "suggestion3": "Asigna tareas a miembros del equipo con deadlines claros"
+    },
+    "emptyCRM": {
+      "title": "Registra tu primer lead",
+      "description": "Registra tu primer lead para activar el pipeline de ventas del proyecto."
+    },
+    "emptyOBVs": {
+      "title": "Crea tu primera OBV",
+      "description": "Crea tu primera OBV para empezar a validar la actividad del equipo."
+    }
   },
   "rootRedirect": {
     "cargando": "Loading..."
@@ -2360,7 +2490,9 @@ export const en = {
     "sinEmpresa": "No company",
     "exportarListaFiltrada": "Export Filtered List",
     "pipelineCrmListaFiltrada": "CRM Pipeline - Filtered List",
-    "gestionaLeadsUsandoBuyer": "Manage leads using buyer personas and AI-generated value props"
+    "gestionaLeadsUsandoBuyer": "Manage leads using buyer personas and AI-generated value props",
+    "crmPipeline": "CRM Pipeline",
+    "registraTuPrimerLead": "Registra tu primer lead para activar el CRM"
   },
   "dashboard": {
     "dashboard": "Dashboard",
@@ -2426,7 +2558,10 @@ export const en = {
     "emptyCreateTaskDesc": "Tasks power your project's execution engine and probability.",
     "emptyExplore": "Explore your dashboard",
     "emptyExploreDesc": "Discover the metrics, alerts, and rankings you'll have when you get started.",
-    "emptyStart": "Get Started"
+    "emptyStart": "Get Started",
+    "quickNewTask": "Nueva tarea",
+    "quickNewSale": "Registrar venta",
+    "quickAIAnalysis": "Ver analisis IA"
   },
   "explorationDashboard": {
     "exploraciónDeRoles": "Role Exploration",
@@ -3014,7 +3149,21 @@ export const en = {
     "individual": "Individual",
     "equipo": "Team",
     "empresa": "Enterprise",
-    "sinRoles": "No Roles"
+    "sinRoles": "No Roles",
+    "dataInputs": {
+      "userInput": "User input",
+      "ideaDescription": "Description of your idea or project",
+      "industryAndMarket": "Industry and target market",
+      "targetCustomer": "Ideal customer and target segment",
+      "aiGeneration": "AI Generation",
+      "brandingComplete": "Complete branding (logo, colors, typography)",
+      "productsWithPricing": "Products with strategic pricing",
+      "competitiveAnalysis": "Competitive analysis and battle cards"
+    },
+    "dataOutputs": {
+      "buyerPersonas": "Buyer Personas (ideal customer)",
+      "valuePropositions": "Value Propositions (why to buy)"
+    }
   },
   "rankings": {
     "participantes": "Participants",
@@ -3692,7 +3841,10 @@ export const en = {
     "bizum": "Bizum",
     "stripe": "Stripe",
     "númeroDeFactura": "Invoice Number",
-    "fechaEsperadaDeCobro": "Expected Payment Date"
+    "fechaEsperadaDeCobro": "Expected Payment Date",
+    "emptyTitle": "Register your first lead",
+    "emptyDescription": "The CRM helps you manage your sales pipeline from the first contact",
+    "createFirst": "Create lead"
   },
   "demo": {
     "modoDemostraciónActivo": "Demo Mode Active",
@@ -6971,7 +7123,10 @@ export const en = {
     "siguientePaso": "Next step",
     "scriptCopiadoAlPortapapeles": "Script copied to clipboard",
     "copiado": "Copied",
-    "copiar0": "Copy"
+    "copiar0": "Copy",
+    "emptyTitle": "Create your first task",
+    "emptyDescription": "Tasks help you organize and execute your action plan",
+    "createFirst": "Create task"
   },
   "team": {
     "generaAgendasPersonalizadasCon": "Generate personalized meeting agendas with AI based on recent performance",
@@ -7123,7 +7278,12 @@ export const en = {
     "generaciónIaDeRoles": "AI Role Generation",
     "generaciónIaDeTareas": "AI Task Generation",
     "brandingPersonalizado": "Custom Branding",
-    "free": "Free"
+    "free": "Free",
+    "logoConIa": "Logo con IA",
+    "buyerPersonaIa": "Buyer Persona IA",
+    "accesoAApi": "Acceso a API",
+    "creaRolesDeEquipoAutomáticamente": "Crea roles de equipo automaticamente con IA",
+    "integraConTusHerramientas": "Integra con tus herramientas mediante API REST"
   },
   "validation": {
     "irAValidarAhora": "Go validate now",
@@ -7233,7 +7393,44 @@ export const en = {
     "features": "Features",
     "pricing": "Pricing",
     "signIn": "Sign In",
-    "startFree": "Start Free"
+    "startFree": "Start Free",
+    "featureRequiresPlan": "Esta funcionalidad requiere el plan {{plan}}",
+    "dashboard": "Dashboard",
+    "mySpace": "Mi Espacio",
+    "myDevelopment": "Mi Desarrollo",
+    "myModel": "Mi Modelo",
+    "projects": "Proyectos",
+    "validations": "Validaciones",
+    "obvCenter": "Centro OBV",
+    "startupOS": "Startup OS",
+    "crmGlobal": "CRM Global",
+    "financial": "Financiero",
+    "meetingIntelligence": "Meeting Intelligence",
+    "aiAnalysis": "Analisis IA",
+    "founderToolkit": "Founder Toolkit",
+    "roleExploration": "Exploracion de Roles",
+    "masterPath": "Camino a Master",
+    "rankings": "Rankings",
+    "masters": "Masters",
+    "rotation": "Rotacion",
+    "kpis": "KPIs",
+    "analytics": "Analytics",
+    "globalView": "Vista Global",
+    "settings": "Configuracion",
+    "integrations": "Integraciones",
+    "notifications": "Notificaciones",
+    "signOut": "Cerrar sesion",
+    "user": "Usuario",
+    "mainNavigation": "Navegacion principal",
+    "pending": "pendientes",
+    "sections": {
+      "core": "Principal",
+      "createValidate": "Crear y Validar",
+      "execute": "Ejecutar",
+      "team": "Equipo",
+      "measure": "Medir",
+      "system": "Sistema"
+    }
   },
   "sidebar": {
     "navigateTo": "Navigate to",
@@ -7532,5 +7729,78 @@ export const en = {
     "cash": "Cash",
     "concentrationRisk": "Riesgo de concentracion",
     "riskDetail": "{{name}}: {{percentage}}% de {{category}}. Si {{name}} se va, {{category}} cae {{percentage}}%"
+  },
+  "obvs": {
+    "emptyTitle": "Create your first OBV",
+    "emptyDescription": "OBVs validate your hypotheses and generate evidence for your business",
+    "createFirst": "Create OBV"
+  },
+  "pricing": {
+    "title": "Elige el plan perfecto para tu startup",
+    "subtitle": "Escala tu negocio con herramientas de inteligencia estrategica. Sin compromiso, cancela cuando quieras.",
+    "monthly": "Mensual",
+    "annual": "Anual",
+    "perMonth": "mes",
+    "forever": "para siempre",
+    "savePerYear": "Ahorras ${{amount}}/ano",
+    "mostPopular": "Mas popular",
+    "currentPlan": "Plan actual",
+    "upgrade": "Upgrade",
+    "downgrade": "Cambiar a Free",
+    "projects": "Proyectos",
+    "teamMembers": "Miembros de equipo",
+    "aiAnalysesPerMonth": "Analisis IA / mes",
+    "analyticsHistory": "Historial de analytics",
+    "integrations": "Integraciones",
+    "meetingIntelligence": "Meeting Intelligence",
+    "benchmarking": "Benchmarking",
+    "apiAccess": "Acceso a API",
+    "prioritySupport": "Soporte prioritario",
+    "unlimited": "Ilimitado",
+    "nDays": "{{n}} dias",
+    "month": "mes",
+    "featureComparison": "Comparacion completa de funcionalidades",
+    "feature": "Funcionalidad",
+    "cancelAnytime": "Cancela cuando quieras",
+    "sevenDayTrial": "7 dias de prueba gratis",
+    "viewPlans": "Ver planes",
+    "maybeLater": "Quiza mas tarde",
+    "alreadyOnPlan": "Ya estas en este plan",
+    "planRegistered": "Tu seleccion ha sido registrada. El sistema de pagos estara disponible pronto.",
+    "aiCalls": "Analisis IA",
+    "aiUsageBadge": "{{used}}/{{limit}} analisis usados",
+    "aiLimitReachedTitle": "Has usado {{used}}/{{limit}} analisis este mes",
+    "aiLimitReachedDesc": "Upgrade a Pro para obtener 100 analisis IA al mes, o a Scale para 500.",
+    "integrationsRequirePro": "Las integraciones requieren el plan Pro o superior",
+    "integrationsUpgradeTitle": "Integraciones requieren Pro",
+    "integrationsUpgradeDesc": "El plan Free no incluye integraciones. Upgrade a Pro para conectar Stripe, HubSpot, Asana y mas.",
+    "level2RequiresPro": "Nivel 2: Analisis financiero y pipeline requiere Pro",
+    "level3RequiresScale": "Nivel 3: Senales cruzadas y verdades duras requiere Scale",
+    "upgradeForDeeper": "Desbloquea analisis mas profundos con datos de integracion",
+    "upgradeForCrossSignals": "Desbloquea correlaciones entre fuentes de datos",
+    "analysisLevelUpgradeTitle": "Desbloquear nivel de analisis avanzado",
+    "analysisLevelUpgradeDesc": "Los niveles avanzados de analisis requieren un plan superior para acceder a insights mas profundos basados en datos de integracion.",
+    "memberLimitTitle": "Limite de {{limit}} miembros alcanzado",
+    "memberLimitDesc": "Tu plan actual permite hasta {{limit}} miembros. Upgrade para invitar a mas personas a tu equipo.",
+    "projectLimitTitle": "Limite de {{limit}} proyecto(s) alcanzado",
+    "projectLimitDesc": "Tu plan actual permite hasta {{limit}} proyecto(s). Upgrade para crear mas proyectos.",
+    "projectLimitReached": "Tu plan permite {{limit}} proyecto(s). Upgrade para crear mas."
+  },
+  "trial": {
+    "expired": "Tu periodo de prueba ha expirado",
+    "expiredSub": "Selecciona un plan para continuar con todas las funcionalidades.",
+    "lastDay": "Ultimo dia de tu prueba",
+    "lastDaySub": "Manana perderas acceso a las funcionalidades premium.",
+    "fewDays": "Quedan {{days}} dias de prueba",
+    "fewDaysSub": "Asegura tu acceso antes de que expire.",
+    "manyDays": "{{days}} dias restantes de prueba",
+    "manyDaysSub": "Explora todas las funcionalidades premium.",
+    "periodLabel": "Pro trial: {{days}} dias restantes",
+    "exploreSub": "Explora todas las funcionalidades Pro durante tu periodo de prueba.",
+    "viewPlans": "Ver planes",
+    "daysOf14": "{{days}} de 14 dias"
+  },
+  "emptyState": {
+    "suggestions": "Ideas para empezar"
   }
 } as const;
