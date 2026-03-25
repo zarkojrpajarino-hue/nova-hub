@@ -451,8 +451,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           />
         )}
 
-        {/* Core Stats — always show if project exists */}
-        {projectId && project && (
+        {/* Core Stats — always show */}
+        {projectId && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
             <StatCard icon={FileCheck} value={leadsCount || '–'} label="OBVs" progress={0} color="#5CE1E6" delay={1} />
             <StatCard icon={Trophy} value={kpiCount || '–'} label="KPIs" progress={0} color="#FF66C4" delay={2} />
