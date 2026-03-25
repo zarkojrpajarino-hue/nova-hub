@@ -5,7 +5,7 @@
  * Engine-governed cockpit (top) + legacy team widgets (bottom).
  */
 
-import { useMemo, useState, useEffect, useCallback, useRef, lazy, Suspense } from 'react';
+import { useMemo, useState, useEffect, useCallback, lazy, Suspense } from 'react';
 import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, CheckCircle2, Calendar, CheckSquare, Plus, Sparkles, ShoppingCart, ArrowRight } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
@@ -162,16 +162,18 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   }, [projectId]);
   const isZenMode = !zenDismissed && daysActive >= 0 && daysActive < 7 && currentPhase < 2;
 
-  // Counts from engineData — use ref to prevent flash (counts briefly undefined during re-fetch)
-  const lastCounts = useRef({ obvs: 0, kpis: 0, tasks: 0 });
-  if (engineData?.counts) {
-    lastCounts.current = {
-      obvs: engineData.counts.obvsCount,
-      kpis: engineData.counts.kpisCount,
-      tasks: engineData.counts.tasksDoneWeek,
-    };
-  }
-  const leadsCount = lastCounts.current.obvs;
+  // Counts from engineData — sticky state: only updates when new data arrives, never resets to 0
+  const [stickyCounts, setStickyCounts] = useState({ obvs: 0, kpis: 0, tasks: 0 });
+  useEffect(() => {
+    if (engineData?.counts) {
+      setStickyCounts({
+        obvs: engineData.counts.obvsCount,
+        kpis: engineData.counts.kpisCount,
+        tasks: engineData.counts.tasksDoneWeek,
+      });
+    }
+  }, [engineData?.counts]);
+  const leadsCount = stickyCounts.obvs;
 
   const { data: activeIntegrationsCount = 0 } = useQuery({
     queryKey: ['integration-connections-count', projectId],
@@ -187,7 +189,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     enabled: !!projectId && !!engineData,
   });
 
-  const kpiCount = lastCounts.current.kpis;
+  const kpiCount = stickyCounts.kpis;
 
   // Member roles for TeamRecommendation
   const { data: memberRoles = [] } = useQuery({
@@ -204,7 +206,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     enabled: !!projectId && !!engineData,
   });
 
-  const tasksCompletedWeekly = lastCounts.current.tasks;
+  const tasksCompletedWeekly = stickyCounts.tasks;
 
   const resolvedTeamMode = (() => {
     const onboardingTeamMode = project?.onboarding_data?.team_mode;
