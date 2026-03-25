@@ -87,15 +87,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
-    // getSession() can hang indefinitely due to navigator.locks in Supabase v2.
-    const getSessionWithTimeout = () => {
-      return Promise.race([
-        supabase.auth.getSession(),
-        new Promise<{ data: { session: null }; error: null }>((resolve) =>
-          setTimeout(() => resolve({ data: { session: null }, error: null }), 5000)
-        ),
-      ]);
-    };
+    const getSessionSafe = () => supabase.auth.getSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
@@ -120,7 +112,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // SIGNED_OUT puede dispararse por refresh fallido transitorio;
             // getSession() es la fuente de verdad: si devuelve null, la sesión murió
             hadSession.current = false; // evitar loop si SIGNED_OUT vuelve a disparar
-            getSessionWithTimeout().then(({ data: { session: currentSession } }) => {
+            getSessionSafe().then(({ data: { session: currentSession } }) => {
               if (!isMounted) return;
               if (currentSession?.user) {
                 // La sesión sigue viva (TOKEN_REFRESHED ya la restauró)
@@ -144,7 +136,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    getSessionWithTimeout().then(({ data: { session: initialSession } }) => {
+    getSessionSafe().then(({ data: { session: initialSession } }) => {
       if (!isMounted || loadingResolved) return;
       if (initialSession?.user) {
         hadSession.current = true;
