@@ -296,15 +296,8 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         <PhaseRoadmap engineData={engineData} />
       ) : null}
 
-      {/* EQ26.10 — Team Recommendation (solo Fase 2+ — en Fase 0-1 el founder está solo) */}
-      {currentPhase >= 2 && (
-        <TeamRecommendation
-          projectId={project.id}
-          currentPhase={currentPhase}
-          teamSize={teamMembers.length}
-          existingRoles={teamMembers.map(m => m.role)}
-        />
-      )}
+      {/* EQ26.10 — Team Recommendation — NOW governed by engine (team_status block) */}
+      {/* Rendered via DashboardAdapter when team_status depth != hidden */}
 
       {/* Layout: Sidebar + Main Content */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
