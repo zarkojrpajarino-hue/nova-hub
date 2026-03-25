@@ -163,15 +163,12 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const isZenMode = !zenDismissed && daysActive >= 0 && daysActive < 7 && currentPhase < 2;
 
   // Minimal count queries (head-only, no full data)
-  // Count OBVs as leads proxy (no separate leads table — CRM uses obvs with pipeline_status)
+  // Count OBVs via RPC (bypasses RLS chain issues)
   const { data: leadsCount = 0 } = useQuery({
-    queryKey: ['obvs-count', projectId],
+    queryKey: ['obvs-count-rpc', projectId],
     queryFn: async () => {
-      const { count } = await supabase
-        .from('obvs')
-        .select('id', { count: 'exact', head: true })
-        .eq('project_id', projectId!);
-      return count ?? 0;
+      const { data } = await supabase.rpc('count_project_obvs', { p_project_id: projectId! });
+      return data ?? 0;
     },
     staleTime: 5 * 60_000,
     enabled: !!projectId,
@@ -191,52 +188,50 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     enabled: !!projectId,
   });
 
-  // Roles + member IDs from project_members (not useMemberStats which has RLS issues)
-  const { data: projectMembersData = [] } = useQuery({
-    queryKey: ['project-members-basic', projectId],
+  // KPI count via RPC or direct — no dependency on memberIds chain
+  const { data: kpiCount = 0 } = useQuery({
+    queryKey: ['kpi-count-direct', projectId],
     queryFn: async () => {
-      const { data } = await supabase
-        .from('project_members')
-        .select('member_id, role')
-        .eq('project_id', projectId!);
-      return data ?? [];
+      // Count KPIs for all members of this project via subquery
+      const { data, error } = await supabase.rpc('count_project_kpis', { p_project_id: projectId! });
+      if (error) {
+        // Fallback: count via project_members join (if RPC doesn't exist)
+        const { data: members } = await supabase
+          .from('project_members')
+          .select('member_id')
+          .eq('project_id', projectId!);
+        if (!members || members.length === 0) return 0;
+        const ids = members.map(m => m.member_id);
+        const { count } = await supabase.from('kpis').select('id', { count: 'exact', head: true }).in('owner_id', ids);
+        return count ?? 0;
+      }
+      return data ?? 0;
     },
     staleTime: 5 * 60_000,
     enabled: !!projectId,
   });
-  const memberIds = useMemo(() => projectMembersData.map(m => m.member_id), [projectMembersData]);
-  const memberRoles = useMemo(() => projectMembersData.filter(m => m.role).map(m => m.role as string), [projectMembersData]);
 
-  const { data: kpiCount = 0 } = useQuery({
-    queryKey: ['kpi-count', projectId, memberIds],
+  // Member roles for TeamRecommendation
+  const { data: memberRoles = [] } = useQuery({
+    queryKey: ['member-roles', projectId],
     queryFn: async () => {
-      if (memberIds.length === 0) return 0;
-      const { count } = await supabase
-        .from('kpis')
-        .select('id', { count: 'exact', head: true })
-        .in('owner_id', memberIds);
-      return count ?? 0;
+      const { data } = await supabase
+        .from('project_members')
+        .select('role')
+        .eq('project_id', projectId!)
+        .not('role', 'is', null);
+      return (data ?? []).map(r => r.role as string);
     },
     staleTime: 5 * 60_000,
-    enabled: !!projectId && memberIds.length > 0,
+    enabled: !!projectId,
   });
 
-  const weekStart = useMemo(() => {
-    const d = new Date();
-    d.setDate(d.getDate() - d.getDay());
-    d.setHours(0, 0, 0, 0);
-    return d.toISOString();
-  }, []);
+  // Tasks done this week via RPC
   const { data: tasksCompletedWeekly = 0 } = useQuery({
-    queryKey: ['tasks-completed-weekly', projectId, weekStart],
+    queryKey: ['tasks-done-week-rpc', projectId],
     queryFn: async () => {
-      const { count } = await supabase
-        .from('tasks')
-        .select('id', { count: 'exact', head: true })
-        .eq('project_id', projectId!)
-        .eq('status', 'done')
-        .gte('updated_at', weekStart);
-      return count ?? 0;
+      const { data } = await supabase.rpc('count_project_tasks_done_week', { p_project_id: projectId! });
+      return data ?? 0;
     },
     staleTime: 5 * 60_000,
     enabled: !!projectId,
