@@ -87,6 +87,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     };
 
+    // getSession() can hang indefinitely due to navigator.locks in Supabase v2.
+    const getSessionWithTimeout = () => {
+      return Promise.race([
+        supabase.auth.getSession(),
+        new Promise<{ data: { session: null }; error: null }>((resolve) =>
+          setTimeout(() => resolve({ data: { session: null }, error: null }), 5000)
+        ),
+      ]);
+    };
+
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       async (event, newSession) => {
         if (!isMounted) return;
@@ -110,7 +120,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             // SIGNED_OUT puede dispararse por refresh fallido transitorio;
             // getSession() es la fuente de verdad: si devuelve null, la sesión murió
             hadSession.current = false; // evitar loop si SIGNED_OUT vuelve a disparar
-            supabase.auth.getSession().then(({ data: { session: currentSession } }) => {
+            getSessionWithTimeout().then(({ data: { session: currentSession } }) => {
               if (!isMounted) return;
               if (currentSession?.user) {
                 // La sesión sigue viva (TOKEN_REFRESHED ya la restauró)
@@ -134,10 +144,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       }
     );
 
-    // getSession() espera initializePromise (incluye token refresh) antes de retornar.
-    // Es el mecanismo correcto para estado inicial — sin timers, sin race conditions.
-    // .catch() cubre AbortError u otros fallos del lock — sin él, loading nunca se resuelve.
-    supabase.auth.getSession().then(({ data: { session: initialSession }, error: _error }) => {
+    getSessionWithTimeout().then(({ data: { session: initialSession } }) => {
       if (!isMounted || loadingResolved) return;
       if (initialSession?.user) {
         hadSession.current = true;
