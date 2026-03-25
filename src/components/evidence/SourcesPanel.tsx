@@ -21,14 +21,14 @@ import type { SourceUsed, SourceDiscarded, EvidenceType, ProviderSlug } from '@/
 import { trackEvidenceInspected } from '@/lib/analytics'
 
 import { useTranslation } from 'react-i18next';
-const PROVIDER_LABELS: Record<string, string> = {
-  stripe:          t('evidence.stripe'),
-  hubspot:         t('evidence.hubspot'),
-  asana:           t('evidence.asana'),
-  google_calendar: t('evidence.googleCalendar'),
-  holded:          t('evidence.holded'),
-  user_manual:     t('evidence.inputManual'),
-  ai_inferred:     t('evidence.iaInferido'),
+const PROVIDER_LABEL_KEYS: Record<string, string> = {
+  stripe:          'evidence.stripe',
+  hubspot:         'evidence.hubspot',
+  asana:           'evidence.asana',
+  google_calendar: 'evidence.googleCalendar',
+  holded:          'evidence.holded',
+  user_manual:     'evidence.inputManual',
+  ai_inferred:     'evidence.iaInferido',
 }
 
 interface SourcesPanelProps {
@@ -89,7 +89,7 @@ export function SourcesPanel({
               {sources_used.map((s, i) => (
                 <div key={i} className="flex items-center gap-2">
                   <span className="w-24 shrink-0 text-foreground/80">
-                    {PROVIDER_LABELS[s.source] ?? s.source}
+                    {PROVIDER_LABEL_KEYS[s.source] ? t(PROVIDER_LABEL_KEYS[s.source]) : s.source}
                   </span>
                   {/* Barra de confianza */}
                   <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
@@ -117,7 +117,7 @@ export function SourcesPanel({
                 <div key={i} className="flex items-start gap-1.5 text-muted-foreground/70">
                   <span className="shrink-0">└──</span>
                   <span>
-                    {PROVIDER_LABELS[s.source] ?? s.source}
+                    {PROVIDER_LABEL_KEYS[s.source] ? t(PROVIDER_LABEL_KEYS[s.source]) : s.source}
                     {' '}descartado · {s.reason.replace(/_/g, ' ')}
                   </span>
                 </div>
