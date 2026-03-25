@@ -215,6 +215,8 @@ export function useProjectCoverageData(projectId: string | undefined) {
       return data as ProjectEngineData['coverage'];
     },
     enabled: !!projectId,
+    staleTime: 2 * 60_000,
+    placeholderData: (prev: PhaseEngineData | undefined) => prev, // Keep previous data during refetch
   });
 }
 
