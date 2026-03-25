@@ -98,11 +98,11 @@ export function deriveCostOfIgnoring(
 
 const SEVERITY_CONFIG: Record<IgnoreSeverity, {
   badgeClass: string;
-  label: string;
+  labelKey: string;
 }> = {
-  low:    { badgeClass: 'text-muted-foreground bg-muted/40',           label: t('project.bajo')  },
-  medium: { badgeClass: 'text-warning bg-warning/10',                  label: t('project.medio') },
-  high:   { badgeClass: 'text-destructive bg-destructive/10',          label: t('project.alto')  },
+  low:    { badgeClass: 'text-muted-foreground bg-muted/40',           labelKey: 'project.bajo'  },
+  medium: { badgeClass: 'text-warning bg-warning/10',                  labelKey: 'project.medio' },
+  high:   { badgeClass: 'text-destructive bg-destructive/10',          labelKey: 'project.alto'  },
 };
 
 // ── Component ─────────────────────────────────────────────────────────────────
@@ -127,7 +127,7 @@ export function CostOfIgnoring({ engineData, nextAction }: CostOfIgnoringProps) 
           <span className="text-xs text-muted-foreground font-medium">{t('project.costeDeIgnorarlo')}</span>
         </div>
         <span className={`text-[10px] font-semibold px-1.5 py-0.5 rounded ${cfg.badgeClass}`}>
-          {cfg.label}
+          {t(cfg.labelKey)}
         </span>
       </div>
       <ul className="space-y-0.5 pl-1">
