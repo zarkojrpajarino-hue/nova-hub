@@ -451,13 +451,25 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           />
         )}
 
-        {/* Core Stats — always show */}
+        {/* Core Stats */}
         {projectId && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            <StatCard icon={FileCheck} value={leadsCount || '–'} label="OBVs" progress={0} color="#5CE1E6" delay={1} />
-            <StatCard icon={Trophy} value={kpiCount || '–'} label="KPIs" progress={0} color="#FF66C4" delay={2} />
-            <StatCard icon={Calendar} value={daysActive || 0} label="Días activo" progress={0} color="#7C3AED" delay={3} />
-            <StatCard icon={CheckSquare} value={tasksCompletedWeekly || '–'} label="Tareas semana" progress={0} color="#5CE1E6" delay={4} />
+            <div className="p-4 rounded-2xl bg-card border border-border text-center">
+              <p className="text-2xl font-bold text-primary">{leadsCount || '–'}</p>
+              <p className="text-xs text-muted-foreground mt-1">OBVs</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-card border border-border text-center">
+              <p className="text-2xl font-bold text-pink-500">{kpiCount || '–'}</p>
+              <p className="text-xs text-muted-foreground mt-1">KPIs</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-card border border-border text-center">
+              <p className="text-2xl font-bold text-violet-500">{daysActive}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('project.díasActivo')}</p>
+            </div>
+            <div className="p-4 rounded-2xl bg-card border border-border text-center">
+              <p className="text-2xl font-bold text-cyan-400">{tasksCompletedWeekly || '–'}</p>
+              <p className="text-xs text-muted-foreground mt-1">{t('project.tareasSemanales')}</p>
+            </div>
           </div>
         )}
 
