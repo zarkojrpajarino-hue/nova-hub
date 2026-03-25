@@ -38,6 +38,8 @@ import { GraduationCelebration } from './GraduationCelebration';
 import { InvestorSummary } from './InvestorSummary';
 
 import { useTranslation } from 'react-i18next';
+import { DashboardAdapter } from './DashboardAdapter';
+import type { BlockDepth } from '@/lib/experience-engine';
 interface ProjectStats {
   facturacion?: number;
   margen?: number;
@@ -116,30 +118,158 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
   ).length;
   const showDelegationHint = currentPhase === 4 && delegatedCount < 2;
 
+  // ── Experience Engine adapter (governs block visibility) ──────────────────
+  const engineRenderers = useMemo(() => [
+    {
+      block: 'next_action' as const,
+      render: (_depth: BlockDepth) => (
+        <NextActionFocusBlock projectId={project.id} onNavigateToTab={onNavigateToTab} />
+      ),
+    },
+    {
+      block: 'methodology' as const,
+      render: (_depth: BlockDepth) => (
+        <MomentBanner projectId={project.id} />
+      ),
+    },
+    {
+      block: 'core_stats' as const,
+      render: (depth: BlockDepth) => depth === 'hidden' ? null : (
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+          {phaseStats.includes('total_obvs' as PhaseStatKey) && totalOBVs > 0 && (
+            <StatCard icon={FileCheck} value={totalOBVs} label={t('project.obvs')} progress={0} color="#5CE1E6" delay={1} />
+          )}
+          {phaseStats.includes('team_count' as PhaseStatKey) && teamMembers.length > 0 && (
+            <StatCard icon={Users} value={teamMembers.length} label={t('project.miembros')} progress={0} color="#7C3AED" delay={2} />
+          )}
+          {phaseStats.includes('days_active' as PhaseStatKey) && daysActive > 0 && (
+            <StatCard icon={Calendar} value={daysActive} label={t('project.díasActivo')} progress={0} color="#7C3AED" delay={3} />
+          )}
+          {phaseStats.includes('tasks_completed_weekly' as PhaseStatKey) && tasksCompletedWeekly > 0 && (
+            <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={4} />
+          )}
+          {phaseStats.includes('conversion_rate' as PhaseStatKey) && Number(stats?.leads_ganados ?? 0) > 0 && (
+            <StatCard icon={TrendingUp} value={`${Math.round((Number(stats?.leads_ganados ?? 0) / Math.max(leadsCount, 1)) * 100)}%`} label={t('project.conversión')} progress={0} color="#FF66C4" delay={4} />
+          )}
+          {phaseStats.includes('facturacion' as PhaseStatKey) && facturacion > 0 && (
+            <StatCard icon={TrendingUp} value={`€${facturacion}`} label={t('project.facturación')} progress={0} color="#5CE1E6" delay={4} />
+          )}
+          {phaseStats.includes('margen' as PhaseStatKey) && margen > 0 && (
+            <StatCard icon={Wallet} value={`€${margen}`} label={t('project.margen')} progress={0} color="#FF66C4" delay={5} />
+          )}
+        </div>
+      ),
+    },
+    {
+      block: 'phase_engine' as const,
+      render: (_depth: BlockDepth) => (
+        <ProjectEnginePanel
+          projectId={project.id}
+          engineData={engineData}
+          isLoading={engineLoading}
+          viabilityStatus={viabilityData?.viability_status}
+          functionOwners={functionOwners}
+          fastStartCompleted={fastStartCompleted}
+          onNavigateToOnboarding={() => navigate(`/onboarding/${project.id}`)}
+          onAction={onNavigateToTab ? (actionType: string) => {
+            if (actionType === 'create_obv') onNavigateToTab('obvs');
+            else if (actionType === 'add_metrics') onNavigateToTab('financiero');
+            else if (actionType === 'create_task') onNavigateToTab('tareas');
+          } : undefined}
+        />
+      ),
+    },
+    {
+      block: 'alerts' as const,
+      render: (_depth: BlockDepth) => (
+        <>
+          {!isZenMode && daysActive >= 3 && <TrialCountdownBanner projectId={project.id} />}
+          <AICallsNudge projectId={project.id} />
+        </>
+      ),
+    },
+    {
+      block: 'crm_summary' as const,
+      render: (depth: BlockDepth) => {
+        if (depth === 'teaser') return (
+          <div className="p-4 rounded-2xl bg-card/50 opacity-60">
+            <p className="text-sm text-muted-foreground">{t('project.crmUnlocksWithLeads')}</p>
+          </div>
+        );
+        return <LeadConversionInsights projectId={project.id} />;
+      },
+    },
+    {
+      block: 'financial_summary' as const,
+      render: (depth: BlockDepth) => {
+        if (depth === 'teaser') return (
+          <div className="p-4 rounded-2xl bg-card/50 opacity-60">
+            <p className="text-sm text-muted-foreground">{t('project.financialUnlocksWithRevenue')}</p>
+          </div>
+        );
+        if (depth === 'summary') return (
+          <div className="p-4 rounded-2xl bg-card">
+            <p className="text-sm font-medium">{t('project.facturación')}: €{facturacion}</p>
+          </div>
+        );
+        return null; // Full financial view is in FinancieroView, not dashboard
+      },
+    },
+    {
+      block: 'team_status' as const,
+      render: (depth: BlockDepth) => {
+        if (depth === 'teaser') return null; // Solo mode, no teaser on dashboard
+        return (
+          <TeamRecommendation
+            projectId={project.id}
+            currentPhase={currentPhase}
+            teamSize={teamMembers.length}
+            existingRoles={teamMembers.map(m => m.role)}
+          />
+        );
+      },
+    },
+    {
+      block: 'obvs' as const,
+      render: (_depth: BlockDepth) => null, // OBVs are a full view, not a dashboard card
+    },
+    {
+      block: 'tasks' as const,
+      render: (_depth: BlockDepth) => null, // Tasks are a full view, not a dashboard card
+    },
+  ], [project, currentPhase, stats, teamMembers, leadsCount, engineData, engineLoading, viabilityData, functionOwners, fastStartCompleted, isZenMode, daysActive, facturacion, margen, totalOBVs, phaseStats, tasksCompletedWeekly, navigate, onNavigateToTab, t]);
+
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* PI27.5 — Moment Banner (celebraciones + coaching proactivo) */}
-      <MomentBanner projectId={project.id} />
-
-      {/* F19.A.3 — Next Action Focus Block (primer elemento del dashboard) */}
-      <NextActionFocusBlock
+      {/* ── ENGINE-GOVERNED BLOCKS ── */}
+      <DashboardAdapter
+        phase={currentPhase}
+        daysActive={daysActive}
+        isZenMode={isZenMode}
+        specializationRole={null}
+        isLead={true}
+        teamMode={teamMembers.length > 1 ? 'team' : 'solo'}
+        teamSize={teamMembers.length}
+        totalOBVs={totalOBVs}
+        totalLeads={leadsCount}
+        totalTasks={tasksCompletedWeekly}
+        hasRevenue={facturacion > 0}
+        hasIntegrations={false}
+        kpiCount={0}
+        phaseScore={engineData?.phaseState?.phase_score ?? 0}
         projectId={project.id}
-        onNavigateToTab={onNavigateToTab}
+        renderers={engineRenderers}
       />
 
-      {/* Trial Countdown Banner — [B3/U3.5] No mostrar Day 0-2 (ansiedad innecesaria) — hidden in Zen Mode */}
-      {!isZenMode && Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000) >= 3 && (
-        <TrialCountdownBanner projectId={project.id} />
+      {/* ── LEGACY BLOCKS (not yet migrated to engine) ── */}
+
+      {/* O5.9 — Primeros pasos (visible una vez, post-onboarding) — TODO: migrate to engine */}
+      {currentPhase <= 1 && (
+        <FirstStepsPanel projectId={project.id} onNavigateToTab={onNavigateToTab} />
       )}
 
-      {/* V4.5.6 — AI Calls nudge (80%+ usage warning) */}
-      <AICallsNudge projectId={project.id} />
-
-      {/* O5.9 — Primeros pasos (visible una vez, post-onboarding) */}
-      <FirstStepsPanel projectId={project.id} onNavigateToTab={onNavigateToTab} />
-
-      {/* O5.10 — Completa tu proyecto (perfil estratégico + primeras acciones) — hidden in Zen Mode */}
-      {!isZenMode && (
+      {/* O5.10 — Completa tu proyecto — TODO: migrate to engine */}
+      {!isZenMode && currentPhase <= 2 && (
         <details className="group">
           <summary className="cursor-pointer flex items-center gap-2 text-sm font-medium text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">
             <ChevronRight className="h-4 w-4 transition-transform group-open:rotate-90" />
@@ -180,53 +310,8 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
         {/* Main Content */}
         <div className="lg:col-span-9 space-y-6">
-          {/* Stats Grid — F19.C.5: adaptadas por fase (no mostrar €0 en fases tempranas) */}
-          {/* V4.1.14: hide zero-value stats — Zen Mode: hide entire grid unless any stat > 0 */}
-          {(!isZenMode || totalOBVs > 0 || leadsCount > 0 || teamMembers.length > 0 || facturacion > 0 || margen > 0 || Number(stats?.leads_ganados ?? 0) > 0) && (
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-            {phaseStats.includes('total_obvs' as PhaseStatKey) && totalOBVs > 0 && (
-              <StatCard icon={FileCheck} value={totalOBVs} label={t('project.obvs')} progress={0} color="#6366F1" delay={1} />
-            )}
-            {phaseStats.includes('leads_count' as PhaseStatKey) && leadsCount > 0 && (
-              <StatCard icon={Target} value={leadsCount} label={t('project.leads')} progress={0} color="#F59E0B" delay={2} />
-            )}
-            {phaseStats.includes('team_count' as PhaseStatKey) && teamMembers.length > 0 && (
-              <StatCard icon={Users} value={teamMembers.length} label={t('project.miembros')} progress={0} color="#EC4899" delay={3} />
-            )}
-            {phaseStats.includes('days_active' as PhaseStatKey) && (
-              <StatCard
-                icon={Calendar}
-                value={Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86_400_000)}
-                label={t('project.díasActivo')}
-                progress={0}
-                color="#8B5CF6"
-                delay={4}
-              />
-            )}
-            {phaseStats.includes('tasks_completed_weekly' as PhaseStatKey) && (
-              <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#8B5CF6" delay={4} />
-            )}
-            {phaseStats.includes('conversion_rate' as PhaseStatKey) && Number(stats?.leads_ganados ?? 0) > 0 && (
-              <StatCard
-                icon={TrendingUp}
-                value={`${Math.round((Number(stats?.leads_ganados ?? 0) / Math.max(leadsCount, 1)) * 100)}%`}
-                label={t('project.conversión')}
-                progress={0}
-                color="#3B82F6"
-                delay={4}
-              />
-            )}
-            {phaseStats.includes('facturacion' as PhaseStatKey) && facturacion > 0 && (
-              <StatCard icon={TrendingUp} value={`€${facturacion}`} label={t('project.facturación')} progress={0} color="#3B82F6" delay={4} />
-            )}
-            {phaseStats.includes('margen' as PhaseStatKey) && margen > 0 && (
-              <StatCard icon={Wallet} value={`€${margen}`} label={t('project.margen')} progress={0} color="#22C55E" delay={5} />
-            )}
-            {phaseStats.includes('leads_ganados' as PhaseStatKey) && Number(stats?.leads_ganados ?? 0) > 0 && (
-              <StatCard icon={Target} value={Number(stats?.leads_ganados ?? 0)} label={t('project.leadsGanados0')} progress={0} color="#22C55E" delay={5} />
-            )}
-          </div>
-          )}
+          {/* Stats Grid — NOW GOVERNED BY ENGINE (core_stats block) */}
+          {/* Old grid removed — stats rendered via DashboardAdapter above */}
 
           {/* Team Overview */}
       <div className="grid grid-cols-2 gap-6">
@@ -350,54 +435,29 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
           </button>
         )}
 
-        {/* Sidebar */}
+        {/* Sidebar — Legacy blocks (not yet migrated to engine) */}
         <div className="lg:col-span-3 space-y-4">
-          {/* ProjectEnginePanel — always visible (kept in Zen Mode) */}
-          <ProjectEnginePanel
-            projectId={project.id}
-            engineData={engineData}
-            isLoading={engineLoading}
-            viabilityStatus={viabilityData?.viability_status}
-            functionOwners={functionOwners}
-            fastStartCompleted={fastStartCompleted}
-            onNavigateToOnboarding={() => navigate(`/onboarding/${project.id}`)}
-            onAction={onNavigateToTab ? (actionType) => {
-              if (actionType === 'create_obv') onNavigateToTab('obvs');
-              else if (actionType === 'add_metrics') onNavigateToTab('financiero');
-              else if (actionType === 'create_task') onNavigateToTab('tareas');
-              else if (actionType === 'define_channel') {
-                const el = document.getElementById('acquisition-channel-editor');
-                if (el) {
-                  el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                  el.style.boxShadow = '0 0 0 3px var(--color-primary)';
-                  setTimeout(() => { el.style.boxShadow = ''; }, 2000);
-                }
-              }
-            } : undefined}
-          />
-          {/* Sidebar items hidden in Zen Mode */}
+          {/* ProjectEnginePanel — NOW in engine (phase_engine block) */}
+          {/* Only render here if engine puts it in deep/secondary (sidebar) */}
           {!isZenMode && (
             <>
-              {/* OptimusProfileCard removed — V4.4.15 */}
               <PlanLimitsIndicator projectId={project.id} />
-              <FeatureTeasersPanel projectId={project.id} />
+              {currentPhase <= 2 && <FeatureTeasersPanel projectId={project.id} />}
               {showDelegationHint && (
                 <FunctionDelegationHint
                   onNavigateToTeam={onNavigateToTab ? () => onNavigateToTab('equipo') : undefined}
                 />
               )}
               <DataCompletenessGuide projectId={project.id} />
-              {currentPhase >= 2 && (
+              {currentPhase >= 3 && (
                 <InvestorSummary
                   projectId={project.id}
                   projectName={project.nombre || t('project.miProyecto')}
                   engineData={engineData}
                 />
               )}
-              <LeadConversionInsights projectId={project.id} />
             </>
           )}
-          {/* ProjectTimeline — always visible (kept in Zen Mode) */}
           <ProjectTimeline projectId={project.id} />
         </div>
       </div>
