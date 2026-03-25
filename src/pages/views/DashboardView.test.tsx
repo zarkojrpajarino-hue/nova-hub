@@ -74,6 +74,46 @@ vi.mock('@/hooks/useNovaDataOptimized', () => ({
     isLoading: false
   })),
   useObjectives: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectEngineData: vi.fn(() => ({ data: null, isLoading: false })),
+  useProjectViabilityState: vi.fn(() => ({ data: null })),
+  useProjectFunctions: vi.fn(() => ({ data: [] })),
+}));
+
+// Mock engine-related hooks
+vi.mock('@/hooks/useProjects', () => ({
+  useProjectStats: vi.fn(() => ({ data: null })),
+}));
+vi.mock('@/hooks/useRolePermissions', () => ({
+  useRolePermissions: vi.fn(() => ({ permissions: { role: null, isLead: true }, isLoading: false })),
+}));
+vi.mock('@/hooks/usePhaseFeatures', () => ({
+  usePhaseFeatures: vi.fn(() => ({ phase: 0, getPhaseStats: () => [] })),
+}));
+
+// Mock engine components
+vi.mock('@/components/project/DashboardAdapter', () => ({
+  DashboardAdapter: () => <div data-testid="dashboard-adapter">Engine</div>,
+}));
+vi.mock('@/components/project/NextActionFocusBlock', () => ({
+  NextActionFocusBlock: () => null,
+}));
+vi.mock('@/components/project/MomentBanner', () => ({
+  MomentBanner: () => null,
+}));
+vi.mock('@/components/project/ProjectEnginePanel', () => ({
+  ProjectEnginePanel: () => null,
+}));
+vi.mock('@/components/subscription/TrialCountdownBanner', () => ({
+  TrialCountdownBanner: () => null,
+}));
+vi.mock('@/components/subscription/AICallsNudge', () => ({
+  AICallsNudge: () => null,
+}));
+vi.mock('@/components/project/LeadConversionInsights', () => ({
+  LeadConversionInsights: () => null,
+}));
+vi.mock('@/components/project/TeamRecommendation', () => ({
+  TeamRecommendation: () => null,
 }));
 
 // Mock demo context

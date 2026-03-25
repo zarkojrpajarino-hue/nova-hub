@@ -258,6 +258,26 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     navigate(`/proyecto/${projectId}/${routeMap[tab] || tab}`);
   }, [projectId, navigate]);
 
+  // Map objectives to easily accessible format
+  const objectivesMap = useMemo(() => {
+    const map: Record<string, number> = {
+      obvs: 150, lps: 18, bps: 66, cps: 40, facturacion: 15000, margen: 7500,
+    };
+    objectives.forEach(obj => { map[obj.name] = obj.target_value; });
+    return map;
+  }, [objectives]);
+
+  const totals = useMemo(() => {
+    return members.reduce((acc, m) => ({
+      obvs: acc.obvs + (Number(m.obvs) || 0),
+      lps: acc.lps + (Number(m.lps) || 0),
+      bps: acc.bps + (Number(m.bps) || 0),
+      cps: acc.cps + (Number(m.cps) || 0),
+      facturacion: acc.facturacion + (Number(m.facturacion) || 0),
+      margen: acc.margen + (Number(m.margen) || 0),
+    }), { obvs: 0, lps: 0, bps: 0, cps: 0, facturacion: 0, margen: 0 });
+  }, [members]);
+
   // ── Engine block renderers ──────────────────────────────────────────────
   const engineRenderers = useMemo(() => [
     {
@@ -373,33 +393,6 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     { block: 'obvs' as const, render: (_depth: BlockDepth) => null },
     { block: 'tasks' as const, render: (_depth: BlockDepth) => null },
   ], [projectId, currentPhase, members, totals, leadsCount, daysActive, isZenMode, tasksCompletedWeekly, engineData, engineLoading, viabilityData, functionOwners, project, projectStats, memberRoles, phaseStats, handleNavigateToTab, navigate, t]);
-
-  // Map objectives to easily accessible format
-  const objectivesMap = useMemo(() => {
-    const map: Record<string, number> = {
-      obvs: 150,
-      lps: 18,
-      bps: 66,
-      cps: 40,
-      facturacion: 15000,
-      margen: 7500,
-    };
-    objectives.forEach(obj => {
-      map[obj.name] = obj.target_value;
-    });
-    return map;
-  }, [objectives]);
-
-  const totals = useMemo(() => {
-    return members.reduce((acc, m) => ({
-      obvs: acc.obvs + (Number(m.obvs) || 0),
-      lps: acc.lps + (Number(m.lps) || 0),
-      bps: acc.bps + (Number(m.bps) || 0),
-      cps: acc.cps + (Number(m.cps) || 0),
-      facturacion: acc.facturacion + (Number(m.facturacion) || 0),
-      margen: acc.margen + (Number(m.margen) || 0),
-    }), { obvs: 0, lps: 0, bps: 0, cps: 0, facturacion: 0, margen: 0 });
-  }, [members]);
 
   // Team objectives (calculated from individual targets)
   const teamObjectives = {
