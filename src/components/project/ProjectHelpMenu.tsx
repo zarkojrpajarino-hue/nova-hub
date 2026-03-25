@@ -127,52 +127,55 @@ const HelpSectionDisplay = ({ icon: Icon, title, content, iconColor }: HelpSecti
   </div>
 );
 
-const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
-  <div className="space-y-1">
-    <HelpSectionDisplay
-      icon={HelpCircle}
-      title={t('project.descripción')}
-      content={content.description}
-      iconColor="bg-blue-500/10 text-blue-500"
-    />
-
-    {content.howItWorks && (
+function HelpContentDisplay({ content }: { content: HelpContent }) {
+  const { t } = useTranslation();
+  return (
+    <div className="space-y-1">
       <HelpSectionDisplay
-        icon={Target}
-        title={t('project.cómoFunciona0')}
-        content={content.howItWorks}
-        iconColor="bg-purple-500/10 text-purple-500"
+        icon={HelpCircle}
+        title={t('project.descripción')}
+        content={content.description}
+        iconColor="bg-blue-500/10 text-blue-500"
       />
-    )}
 
-    {content.dataSource && (
-      <HelpSectionDisplay
-        icon={LayoutDashboard}
-        title={t('project.origenDeDatos')}
-        content={content.dataSource}
-        iconColor="bg-green-500/10 text-green-500"
-      />
-    )}
+      {content.howItWorks && (
+        <HelpSectionDisplay
+          icon={Target}
+          title={t('project.cómoFunciona0')}
+          content={content.howItWorks}
+          iconColor="bg-purple-500/10 text-purple-500"
+        />
+      )}
 
-    {content.validation && (
-      <HelpSectionDisplay
-        icon={FileCheck}
-        title={t('project.procesoDeValidación')}
-        content={content.validation}
-        iconColor="bg-amber-500/10 text-amber-500"
-      />
-    )}
+      {content.dataSource && (
+        <HelpSectionDisplay
+          icon={LayoutDashboard}
+          title={t('project.origenDeDatos')}
+          content={content.dataSource}
+          iconColor="bg-green-500/10 text-green-500"
+        />
+      )}
 
-    {content.tips && content.tips.length > 0 && (
-      <HelpSectionDisplay
-        icon={Rocket}
-        title={t('project.consejosÚtiles')}
-        content={content.tips}
-        iconColor="bg-cyan-500/10 text-cyan-500"
-      />
-    )}
-  </div>
-);
+      {content.validation && (
+        <HelpSectionDisplay
+          icon={FileCheck}
+          title={t('project.procesoDeValidación')}
+          content={content.validation}
+          iconColor="bg-amber-500/10 text-amber-500"
+        />
+      )}
+
+      {content.tips && content.tips.length > 0 && (
+        <HelpSectionDisplay
+          icon={Rocket}
+          title={t('project.consejosÚtiles')}
+          content={content.tips}
+          iconColor="bg-cyan-500/10 text-cyan-500"
+        />
+      )}
+    </div>
+  );
+}
 
 export function ProjectHelpMenu() {
   const { t } = useTranslation();

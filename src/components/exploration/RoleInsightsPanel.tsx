@@ -34,11 +34,11 @@ interface RoleInsightsPanelProps {
 }
 
 const TIPO_CONFIG = {
-  aprendizaje: { icon: <BookOpen size={14} className="inline" />, color: 'bg-blue-500/10 text-blue-700 dark:text-blue-300', label: t('exploration.aprendizaje') },
-  reflexion: { icon: <TrendingUp size={14} className="inline" />, color: 'bg-amber-500/10 text-amber-700 dark:text-amber-300', label: t('exploration.reflexión') },
-  error: { icon: <AlertTriangle size={14} className="inline" />, color: 'bg-red-500/10 text-red-700 dark:text-red-300', label: t('exploration.error') },
-  exito: { icon: <PartyPopper size={14} className="inline" />, color: 'bg-green-500/10 text-green-700 dark:text-green-300', label: t('exploration.éxito') },
-  idea: { icon: <Lightbulb size={14} className="inline" />, color: 'bg-purple-500/10 text-purple-700 dark:text-purple-300', label: t('exploration.idea') },
+  aprendizaje: { icon: <BookOpen size={14} className="inline" />, color: 'bg-blue-500/10 text-blue-700 dark:text-blue-300', labelKey: 'exploration.aprendizaje' },
+  reflexion: { icon: <TrendingUp size={14} className="inline" />, color: 'bg-amber-500/10 text-amber-700 dark:text-amber-300', labelKey: 'exploration.reflexión' },
+  error: { icon: <AlertTriangle size={14} className="inline" />, color: 'bg-red-500/10 text-red-700 dark:text-red-300', labelKey: 'exploration.error' },
+  exito: { icon: <PartyPopper size={14} className="inline" />, color: 'bg-green-500/10 text-green-700 dark:text-green-300', labelKey: 'exploration.éxito' },
+  idea: { icon: <Lightbulb size={14} className="inline" />, color: 'bg-purple-500/10 text-purple-700 dark:text-purple-300', labelKey: 'exploration.idea' },
 };
 
 export function RoleInsightsPanel({ role, insights, currentUserId }: RoleInsightsPanelProps) {
@@ -194,7 +194,7 @@ function InsightCard({ insight, isOwn, showFitScore }: InsightCardProps) {
         {/* Tags y Tipo */}
         <div className="flex items-center gap-2 flex-wrap">
           <Badge className={config.color}>
-            {config.icon} {config.label}
+            {config.icon} {t(config.labelKey)}
           </Badge>
 
           {insight.tags.slice(0, 3).map((tag) => (

@@ -35,7 +35,7 @@ function riskDotColor(status: string, level: string): string {
   }
 }
 
-function riskLabel(status: string, level: string): string {
+function riskLabel(status: string, level: string, t: (k: string) => string): string {
   if (status !== 'active') return '—';
   const MAP: Record<string, string> = { low: t('project.bajo'), medium: t('project.medio'), high: t('project.alto'), critical: t('project.crítico') };
   return MAP[level] ?? '—';
@@ -100,7 +100,7 @@ export function EngineIndicators({ engineData }: EngineIndicatorsProps) {
       <div className="flex items-center gap-2">
         <div className={`w-2.5 h-2.5 rounded-full shrink-0 ${riskDotColor(riskStatus, riskLevel)}`} />
         <div>
-          <p className="text-base font-bold leading-none">{riskLabel(riskStatus, riskLevel)}</p>
+          <p className="text-base font-bold leading-none">{riskLabel(riskStatus, riskLevel, t)}</p>
           <p className="text-[11px] text-muted-foreground mt-0.5">{t('project.riesgo')}</p>
         </div>
       </div>

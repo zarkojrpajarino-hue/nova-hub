@@ -86,7 +86,8 @@ function riskCardConfig(status: string, level: string) {
 function probMessage(
   status: string,
   score: number | null,
-  completeness: number
+  completeness: number,
+  t: (k: string) => string
 ): string | null {
   if (status === 'inactive') return null;
   const conf = Math.round(completeness);
@@ -100,7 +101,8 @@ function probMessage(
 function riskMessage(
   status: string,
   level: string,
-  completeness: number
+  completeness: number,
+  t: (k: string) => string
 ): string {
   if (status === 'insufficient_data') return t('project.datosInsuficientes');
   const conf = Math.round(completeness);
@@ -171,10 +173,10 @@ const AGENT_DRIVER_LABELS: Record<string, string> = {
 // Coverage
 // =============================================================================
 
-const COVERAGE_LABELS: Record<string, string> = {
-  demand:   t('project.demanda'),
-  delivery: t('project.entrega'),
-  cash:     t('project.caja'),
+const COVERAGE_LABEL_KEYS: Record<string, string> = {
+  demand:   'project.demanda',
+  delivery: 'project.entrega',
+  cash:     'project.caja',
 };
 
 const COVERAGE_ORDER = ['demand', 'delivery', 'cash'];
@@ -183,15 +185,15 @@ const COVERAGE_ORDER = ['demand', 'delivery', 'cash'];
 // LastMeetingWidget — M18.23
 // =============================================================================
 
-const MEETING_TYPE_LABELS: Record<string, string> = {
-  weekly:        t('project.semanal'),
-  strategic:     t('project.estratégica'),
-  sales:         t('project.ventas'),
-  retrospective: t('project.retro'),
-  investor:      t('project.inversores'),
-  team:          t('project.equipo'),
-  kickoff:       t('project.kickoff'),
-  one_on_one:    '1:1',
+const MEETING_TYPE_LABEL_KEYS: Record<string, string> = {
+  weekly:        'project.semanal',
+  strategic:     'project.estratégica',
+  sales:         'project.ventas',
+  retrospective: 'project.retro',
+  investor:      'project.inversores',
+  team:          'project.equipo',
+  kickoff:       'project.kickoff',
+  one_on_one:    '',  // literal '1:1', no i18n key
 };
 
 interface LastMeetingRow {
@@ -208,6 +210,7 @@ interface MeetingFulfillmentRow {
 }
 
 function LastMeetingWidget({ projectId }: { projectId: string }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { projectId: routeProjectId } = useParams<{ projectId: string }>();
 
@@ -246,7 +249,8 @@ function LastMeetingWidget({ projectId }: { projectId: string }) {
   const dateStr   = new Date(lastMeeting.created_at).toLocaleDateString('es-ES', {
     day: 'numeric', month: 'short',
   });
-  const typeLabel = MEETING_TYPE_LABELS[lastMeeting.meeting_type] ?? lastMeeting.meeting_type;
+  const mtKey = MEETING_TYPE_LABEL_KEYS[lastMeeting.meeting_type];
+  const typeLabel = mtKey ? (mtKey === '' ? '1:1' : t(mtKey)) : lastMeeting.meeting_type;
 
   return (
     <div className="border-t border-border pt-3 space-y-2">
@@ -321,6 +325,7 @@ interface ProjectEnginePanelProps {
 }
 
 function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onAction, viabilityStatus, functionOwners, fastStartCompleted, onNavigateToOnboarding }: ProjectEnginePanelProps) {
+  const { t } = useTranslation();
   const { data: agentCtx } = useAgentContext(projectId);
 
   // F19.B.4 — overdue tasks badge en panel
@@ -405,7 +410,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
   const probScore    = prob?.probability_score ?? null;
   const probComp     = prob?.data_completeness_score ?? 0;
   const probCfg      = probCardConfig(probStatus, probScore);
-  const probBadge    = probMessage(probStatus, probScore, probComp);
+  const probBadge    = probMessage(probStatus, probScore, probComp, t);
 
   // Risk
   const risk         = engineData?.risk;
@@ -414,7 +419,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
   const riskScore    = risk?.risk_score  ?? null;
   const riskComp     = risk?.data_completeness_score ?? 0;
   const riskCfg      = riskCardConfig(riskStatus, riskLevel);
-  const riskBadge    = riskMessage(riskStatus, riskLevel, riskComp);
+  const riskBadge    = riskMessage(riskStatus, riskLevel, riskComp, t);
 
   // Next Action
   const nextAction = getNextAction(engineData);
@@ -543,7 +548,7 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
                   />
                 )}
                 <span className={`text-xs text-muted-foreground shrink-0 ${ownerKnown ? 'w-11' : 'w-12'}`}>
-                  {COVERAGE_LABELS[c.function_type] ?? c.function_type}
+                  {COVERAGE_LABEL_KEYS[c.function_type] ? t(COVERAGE_LABEL_KEYS[c.function_type]) : c.function_type}
                 </span>
                 <div className="flex-1 h-1.5 bg-muted rounded-full overflow-hidden">
                   <div

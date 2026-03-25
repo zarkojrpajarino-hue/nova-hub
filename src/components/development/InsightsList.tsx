@@ -11,12 +11,12 @@ import { useDemoMode } from '@/contexts/DemoModeContext';
 import { DEMO_INSIGHTS } from '@/data/demoData';
 
 import { useTranslation } from 'react-i18next';
-const TIPO_CONFIG: Record<UserInsight['tipo'], { icon: React.ElementType; color: string; label: string }> = {
-  aprendizaje: { icon: BookOpen, color: '#3B82F6', label: t('development.aprendizaje') },
-  reflexion: { icon: Lightbulb, color: '#F59E0B', label: t('development.reflexión') },
-  error: { icon: AlertTriangle, color: '#EF4444', label: t('development.error') },
-  exito: { icon: Trophy, color: '#22C55E', label: t('development.éxito') },
-  idea: { icon: Sparkles, color: '#8B5CF6', label: t('development.idea') },
+const TIPO_CONFIG: Record<UserInsight['tipo'], { icon: React.ElementType; color: string; labelKey: string }> = {
+  aprendizaje: { icon: BookOpen, color: '#3B82F6', labelKey: 'development.aprendizaje' },
+  reflexion: { icon: Lightbulb, color: '#F59E0B', labelKey: 'development.reflexión' },
+  error: { icon: AlertTriangle, color: '#EF4444', labelKey: 'development.error' },
+  exito: { icon: Trophy, color: '#22C55E', labelKey: 'development.éxito' },
+  idea: { icon: Sparkles, color: '#8B5CF6', labelKey: 'development.idea' },
 };
 
 interface InsightsListProps {
@@ -93,7 +93,7 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
             className="gap-1"
           >
             <config.icon size={14} style={{ color: filterTipo === tipo ? undefined : config.color }} />
-            {config.label}
+            {t(config.labelKey)}
           </Button>
         ))}
       </div>
@@ -143,7 +143,7 @@ export function InsightsList({ projectId, roleContext }: InsightsListProps) {
                         variant="outline"
                         style={{ borderColor: config.color, color: config.color }}
                       >
-                        {config.label}
+                        {t(config.labelKey)}
                       </Badge>
                       
                       {insight.tags.slice(0, 3).map(tag => (

@@ -363,13 +363,13 @@ interface MeetingHistoryProps {
 }
 
 const STATUS_CONFIG = {
-  configuring: { label: t('meetings.configurando'), color: 'gray', icon: Calendar },
-  recording: { label: t('meetings.grabando0'), color: 'red', icon: Mic },
-  processing_audio: { label: t('meetings.procesando'), color: 'blue', icon: Loader2 },
-  transcribing: { label: t('meetings.transcribiendo1'), color: 'blue', icon: FileText },
-  analyzing: { label: t('meetings.analizando2'), color: 'purple', icon: Target },
-  ready_for_review: { label: t('meetings.listoParaRevisar3'), color: 'orange', icon: AlertCircle },
-  completed: { label: t('meetings.completado'), color: 'green', icon: CheckCircle2 },
+  configuring: { labelKey: 'meetings.configurando', color: 'gray', icon: Calendar },
+  recording: { labelKey: 'meetings.grabando0', color: 'red', icon: Mic },
+  processing_audio: { labelKey: 'meetings.procesando', color: 'blue', icon: Loader2 },
+  transcribing: { labelKey: 'meetings.transcribiendo1', color: 'blue', icon: FileText },
+  analyzing: { labelKey: 'meetings.analizando2', color: 'purple', icon: Target },
+  ready_for_review: { labelKey: 'meetings.listoParaRevisar3', color: 'orange', icon: AlertCircle },
+  completed: { labelKey: 'meetings.completado', color: 'green', icon: CheckCircle2 },
 };
 
 export function MeetingHistory({
@@ -684,7 +684,7 @@ function MeetingCard({ meeting, onViewDetails, onReviewInsights }: MeetingCardPr
               <h3 className="text-lg font-semibold">{meeting.title}</h3>
               <Badge className={`bg-${statusConfig.color}-100 text-${statusConfig.color}-700`}>
                 <StatusIcon className="h-3 w-3 mr-1" />
-                {statusConfig.label}
+                {t(statusConfig.labelKey)}
               </Badge>
             </div>
 
@@ -794,7 +794,7 @@ function MeetingDetailsModal({ meetingId, onClose, onReviewInsights }: MeetingDe
             {meeting.title}
             <Badge className={`bg-${statusConfig.color}-100 text-${statusConfig.color}-700`}>
               <StatusIcon className="h-3 w-3 mr-1" />
-              {statusConfig.label}
+              {t(statusConfig.labelKey)}
             </Badge>
           </DialogTitle>
         </DialogHeader>

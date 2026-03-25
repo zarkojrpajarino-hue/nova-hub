@@ -21,11 +21,11 @@ interface ApplicationsListProps {
 }
 
 const STATUS_CONFIG = {
-  pending: { label: t('masters.pendiente'), color: 'bg-muted text-muted-foreground' },
-  voting: { label: t('masters.enVotación'), color: 'bg-amber-500/10 text-amber-500' },
-  approved: { label: t('masters.aprobada'), color: 'bg-success/10 text-success' },
-  rejected: { label: t('masters.rechazada'), color: 'bg-destructive/10 text-destructive' },
-  expired: { label: t('masters.expirada'), color: 'bg-muted text-muted-foreground' },
+  pending: { labelKey: 'masters.pendiente', color: 'bg-muted text-muted-foreground' },
+  voting: { labelKey: 'masters.enVotación', color: 'bg-amber-500/10 text-amber-500' },
+  approved: { labelKey: 'masters.aprobada', color: 'bg-success/10 text-success' },
+  rejected: { labelKey: 'masters.rechazada', color: 'bg-destructive/10 text-destructive' },
+  expired: { labelKey: 'masters.expirada', color: 'bg-muted text-muted-foreground' },
 };
 
 export function ApplicationsList({ applications, profiles, currentUserId }: ApplicationsListProps) {
@@ -166,7 +166,7 @@ const ApplicationCard = memo(function ApplicationCard({
               </div>
               <div className="flex items-center gap-2 mt-1">
                 <Badge variant="secondary" className={statusConfig.color}>
-                  {statusConfig.label}
+                  {t(statusConfig.labelKey)}
                 </Badge>
                 {roleConfig && (
                   <Badge variant="outline" style={{ borderColor: roleConfig.color, color: roleConfig.color }}>

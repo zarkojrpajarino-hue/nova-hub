@@ -46,20 +46,20 @@ interface MeetingQuestionViewerProps {
   };
 }
 
-const CATEGORIA_CONFIG: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
-  resultados: { label: t('meetings.resultados'), color: 'bg-green-500/10 text-green-700 border-green-200', icon: <CheckCircle2 className="w-4 h-4" /> },
-  aprendizajes: { label: t('meetings.aprendizajes'), color: 'bg-blue-500/10 text-blue-700 border-blue-200', icon: <Lightbulb className="w-4 h-4" /> },
-  desafios: { label: t('meetings.desafíos'), color: 'bg-red-500/10 text-red-700 border-red-200', icon: <AlertCircle className="w-4 h-4" /> },
-  colaboracion: { label: t('meetings.colaboración'), color: 'bg-purple-500/10 text-purple-700 border-purple-200', icon: <Users className="w-4 h-4" /> },
-  mejora_continua: { label: t('meetings.mejoraContinua'), color: 'bg-amber-500/10 text-amber-700 border-amber-200', icon: <Target className="w-4 h-4" /> },
+const CATEGORIA_CONFIG: Record<string, { labelKey: string; color: string; icon: React.ReactNode }> = {
+  resultados: { labelKey: 'meetings.resultados', color: 'bg-green-500/10 text-green-700 border-green-200', icon: <CheckCircle2 className="w-4 h-4" /> },
+  aprendizajes: { labelKey: 'meetings.aprendizajes', color: 'bg-blue-500/10 text-blue-700 border-blue-200', icon: <Lightbulb className="w-4 h-4" /> },
+  desafios: { labelKey: 'meetings.desafíos', color: 'bg-red-500/10 text-red-700 border-red-200', icon: <AlertCircle className="w-4 h-4" /> },
+  colaboracion: { labelKey: 'meetings.colaboración', color: 'bg-purple-500/10 text-purple-700 border-purple-200', icon: <Users className="w-4 h-4" /> },
+  mejora_continua: { labelKey: 'meetings.mejoraContinua', color: 'bg-amber-500/10 text-amber-700 border-amber-200', icon: <Target className="w-4 h-4" /> },
 };
 
-const FORMATO_CONFIG: Record<string, { label: string; icon: React.ReactNode }> = {
-  ronda: { label: t('meetings.ronda'), icon: <Users className="w-4 h-4" /> },
-  debate: { label: t('meetings.debate'), icon: <MessageCircle className="w-4 h-4" /> },
-  brainstorm: { label: t('meetings.brainstorm'), icon: <Lightbulb className="w-4 h-4" /> },
-  caso_estudio: { label: t('meetings.casoDeEstudio'), icon: <Target className="w-4 h-4" /> },
-  role_play: { label: t('meetings.rolePlay'), icon: <Play className="w-4 h-4" /> },
+const FORMATO_CONFIG: Record<string, { labelKey: string; icon: React.ReactNode }> = {
+  ronda: { labelKey: 'meetings.ronda', icon: <Users className="w-4 h-4" /> },
+  debate: { labelKey: 'meetings.debate', icon: <MessageCircle className="w-4 h-4" /> },
+  brainstorm: { labelKey: 'meetings.brainstorm', icon: <Lightbulb className="w-4 h-4" /> },
+  caso_estudio: { labelKey: 'meetings.casoDeEstudio', icon: <Target className="w-4 h-4" /> },
+  role_play: { labelKey: 'meetings.rolePlay', icon: <Play className="w-4 h-4" /> },
 };
 
 export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: MeetingQuestionViewerProps) {
@@ -162,7 +162,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                     <div className="flex flex-wrap items-center gap-2 mb-2">
                       <Badge className={cn("text-xs", categoria.color)}>
                         {categoria.icon}
-                        <span className="ml-1">{categoria.label}</span>
+                        <span className="ml-1">{t(categoria.labelKey)}</span>
                       </Badge>
                       <Badge variant="outline" className="text-xs">
                         <Clock className="w-3 h-3 mr-1" />
@@ -170,7 +170,7 @@ export function MeetingQuestionViewer({ questions, roleLabel, agendaSugerida }: 
                       </Badge>
                       <Badge variant="outline" className="text-xs">
                         {formato.icon}
-                        <span className="ml-1">{formato.label}</span>
+                        <span className="ml-1">{t(formato.labelKey)}</span>
                       </Badge>
                     </div>
 

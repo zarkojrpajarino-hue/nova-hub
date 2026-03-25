@@ -17,24 +17,24 @@ interface ChallengesListProps {
 }
 
 const STATUS_CONFIG = {
-  pending: { label: t('masters.pendiente'), color: 'bg-muted text-muted-foreground', icon: Clock },
-  accepted: { label: t('masters.aceptado'), color: 'bg-amber-500/10 text-amber-500', icon: CheckCircle2 },
-  in_progress: { label: t('masters.enProgreso'), color: 'bg-primary/10 text-primary', icon: Target },
-  completed: { label: t('masters.completado'), color: 'bg-success/10 text-success', icon: Trophy },
-  declined: { label: t('masters.declinado'), color: 'bg-destructive/10 text-destructive', icon: XCircle },
-  expired: { label: t('masters.expirado'), color: 'bg-muted text-muted-foreground', icon: Clock },
+  pending: { labelKey: 'masters.pendiente', color: 'bg-muted text-muted-foreground', icon: Clock },
+  accepted: { labelKey: 'masters.aceptado', color: 'bg-amber-500/10 text-amber-500', icon: CheckCircle2 },
+  in_progress: { labelKey: 'masters.enProgreso', color: 'bg-primary/10 text-primary', icon: Target },
+  completed: { labelKey: 'masters.completado', color: 'bg-success/10 text-success', icon: Trophy },
+  declined: { labelKey: 'masters.declinado', color: 'bg-destructive/10 text-destructive', icon: XCircle },
+  expired: { labelKey: 'masters.expirado', color: 'bg-muted text-muted-foreground', icon: Clock },
 };
 
 const TYPE_CONFIG = {
-  performance: { label: t('masters.rendimiento'), description: t('masters.comparaciónDeMétricasDe') },
-  project: { label: t('masters.proyecto'), description: t('masters.completarUnProyectoEspecífico') },
-  peer_vote: { label: t('masters.votación'), description: t('masters.votaciónDelEquipo') },
+  performance: { labelKey: 'masters.rendimiento', descKey: 'masters.comparaciónDeMétricasDe' },
+  project: { labelKey: 'masters.proyecto', descKey: 'masters.completarUnProyectoEspecífico' },
+  peer_vote: { labelKey: 'masters.votación', descKey: 'masters.votaciónDelEquipo' },
 };
 
 const RESULT_CONFIG = {
-  challenger_wins: { label: t('masters.victoriaDelRetador'), color: 'text-success', icon: Trophy },
-  master_wins: { label: t('masters.victoriaDelMaster'), color: 'text-primary', icon: Trophy },
-  draw: { label: t('masters.empate'), color: 'text-muted-foreground', icon: Target },
+  challenger_wins: { labelKey: 'masters.victoriaDelRetador', color: 'text-success', icon: Trophy },
+  master_wins: { labelKey: 'masters.victoriaDelMaster', color: 'text-primary', icon: Trophy },
+  draw: { labelKey: 'masters.empate', color: 'text-muted-foreground', icon: Target },
 };
 
 export function ChallengesList({ challenges, masters, profiles, currentUserId }: ChallengesListProps) {
@@ -70,10 +70,10 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
                 <div className="flex items-center gap-2">
                   <Badge variant="secondary" className={statusConfig.color}>
                     <StatusIcon size={14} className="mr-1" />
-                    {statusConfig.label}
+                    {t(statusConfig.labelKey)}
                   </Badge>
                   <Badge variant="outline">
-                    {typeConfig.label}
+                    {t(typeConfig.labelKey)}
                   </Badge>
                   {roleConfig && (
                     <Badge variant="outline" style={{ borderColor: roleConfig.color, color: roleConfig.color }}>
@@ -144,7 +144,7 @@ export function ChallengesList({ challenges, masters, profiles, currentUserId }:
               {resultConfig && (
                 <div className={`flex items-center justify-center gap-2 p-3 rounded-lg bg-muted/50 ${resultConfig.color}`}>
                   <resultConfig.icon size={20} />
-                  <span className="font-semibold">{resultConfig.label}</span>
+                  <span className="font-semibold">{t(resultConfig.labelKey)}</span>
                 </div>
               )}
               

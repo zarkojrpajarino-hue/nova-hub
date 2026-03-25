@@ -214,6 +214,7 @@ function RitualForm({
   onSkip?: () => void;
   projectId: string;
 }) {
+  const { t } = useTranslation();
   const allFilled = REQUIRED_RITUAL_FIELDS.every(f => responses[f].trim().length > 0);
 
   return (
@@ -384,6 +385,7 @@ function RitualForm({
 // =============================================================================
 
 function RitualLoading() {
+  const { t } = useTranslation();
   return (
     <div className="max-w-2xl mx-auto py-16 text-center space-y-4">
       <Loader2 size={32} className="mx-auto animate-spin text-primary" />

@@ -11,28 +11,28 @@ interface RotationRequestsListProps {
   requests: RoleRotationRequest[];
 }
 
-const statusConfig: Record<string, { label: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
-  pending: { label: t('rotation.pendiente'), variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
-  accepted: { label: t('rotation.aceptada'), variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
-  rejected: { label: t('rotation.rechazada'), variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
-  cancelled: { label: t('rotation.cancelada'), variant: 'outline', icon: <XCircle className="h-3 w-3" /> },
-  completed: { label: t('rotation.completada'), variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
+const statusConfig: Record<string, { labelKey: string; variant: 'default' | 'secondary' | 'destructive' | 'outline'; icon: React.ReactNode }> = {
+  pending: { labelKey: 'rotation.pendiente', variant: 'secondary', icon: <Clock className="h-3 w-3" /> },
+  accepted: { labelKey: 'rotation.aceptada', variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
+  rejected: { labelKey: 'rotation.rechazada', variant: 'destructive', icon: <XCircle className="h-3 w-3" /> },
+  cancelled: { labelKey: 'rotation.cancelada', variant: 'outline', icon: <XCircle className="h-3 w-3" /> },
+  completed: { labelKey: 'rotation.completada', variant: 'default', icon: <CheckCircle2 className="h-3 w-3" /> },
 };
 
-const recommendationConfig: Record<string, { label: string; color: string }> = {
-  highly_recommended: { label: t('rotation.muyRecomendado'), color: 'text-green-600' },
-  recommended: { label: t('rotation.recomendado'), color: 'text-blue-600' },
-  neutral: { label: t('rotation.neutral'), color: 'text-yellow-600' },
-  not_recommended: { label: t('rotation.noRecomendado'), color: 'text-red-600' },
+const recommendationConfig: Record<string, { labelKey: string; color: string }> = {
+  highly_recommended: { labelKey: 'rotation.muyRecomendado', color: 'text-green-600' },
+  recommended: { labelKey: 'rotation.recomendado', color: 'text-blue-600' },
+  neutral: { labelKey: 'rotation.neutral', color: 'text-yellow-600' },
+  not_recommended: { labelKey: 'rotation.noRecomendado', color: 'text-red-600' },
 };
 
-const roleLabels: Record<string, string> = {
-  sales: t('rotation.ventas'),
-  finance: t('rotation.finanzas'),
-  ai_tech: t('rotation.aitech'),
-  marketing: t('rotation.marketing'),
-  operations: t('rotation.operaciones'),
-  strategy: t('rotation.estrategia'),
+const roleLabelKeys: Record<string, string> = {
+  sales: 'rotation.ventas',
+  finance: 'rotation.finanzas',
+  ai_tech: 'rotation.aitech',
+  marketing: 'rotation.marketing',
+  operations: 'rotation.operaciones',
+  strategy: 'rotation.estrategia',
 };
 
 export function RotationRequestsList({ requests }: RotationRequestsListProps) {
@@ -72,7 +72,7 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                     <div>
                       <p className="font-medium">{request.requester?.nombre}</p>
                       <p className="text-xs text-muted-foreground">
-                        {roleLabels[request.requester_current_role] || request.requester_current_role}
+                        {roleLabelKeys[request.requester_current_role] ? t(roleLabelKeys[request.requester_current_role]) : request.requester_current_role}
                       </p>
                     </div>
                   </div>
@@ -91,7 +91,7 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                       <div>
                         <p className="font-medium">{request.target_user?.nombre}</p>
                         <p className="text-xs text-muted-foreground">
-                          {roleLabels[request.target_role || ''] || request.target_role}
+                          {roleLabelKeys[request.target_role || ''] ? t(roleLabelKeys[request.target_role || '']) : request.target_role}
                         </p>
                       </div>
                     </div>
@@ -99,7 +99,7 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                     <div className="text-muted-foreground">
                       <p className="font-medium">{t('rotation.pendienteDeAsignar')}</p>
                       <p className="text-xs">
-                        {roleLabels[request.target_role || ''] || t('rotation.cualquierRol')}
+                        {roleLabelKeys[request.target_role || ''] ? t(roleLabelKeys[request.target_role || '']) : t('rotation.cualquierRol')}
                       </p>
                     </div>
                   )}
@@ -108,7 +108,7 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                 <div className="flex items-center gap-2">
                   <Badge variant={status.variant} className="flex items-center gap-1">
                     {status.icon}
-                    {status.label}
+                    {t(status.labelKey)}
                   </Badge>
                 </div>
               </div>
@@ -149,7 +149,7 @@ export function RotationRequestsList({ requests }: RotationRequestsListProps) {
                       </span>
                       {recommendation && (
                         <span className={`text-xs ${recommendation.color}`}>
-                          ({recommendation.label})
+                          ({t(recommendation.labelKey)})
                         </span>
                       )}
                     </div>

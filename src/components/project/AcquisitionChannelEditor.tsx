@@ -37,19 +37,24 @@ interface AcquisitionChannel {
 
 // ─── Constants ───────────────────────────────────────────────────────────────
 
-const CHANNEL_LABELS: Record<string, string> = {
-  inbound:     t('project.seoOrgánico'),
-  content:     'Contenido (blog, podcast)',
-  outbound:    t('project.coldOutreach'),
-  paid_ads:    t('project.publicidadPagada'),
-  referral:    t('project.referidos'),
-  partnership: t('project.partnerships'),
-  community:   t('project.comunidadEventos'),
-  product_led: 'Product-led (freemium/viral)',
-  other:       t('project.otro'),
+const CHANNEL_LABEL_KEYS: Record<string, string> = {
+  inbound:     'project.seoOrgánico',
+  content:     '',  // literal: 'Contenido (blog, podcast)'
+  outbound:    'project.coldOutreach',
+  paid_ads:    'project.publicidadPagada',
+  referral:    'project.referidos',
+  partnership: 'project.partnerships',
+  community:   'project.comunidadEventos',
+  product_led: '',  // literal: 'Product-led (freemium/viral)'
+  other:       'project.otro',
 };
 
-const CHANNEL_TYPES = Object.keys(CHANNEL_LABELS);
+const CHANNEL_LITERAL_LABELS: Record<string, string> = {
+  content:     'Contenido (blog, podcast)',
+  product_led: 'Product-led (freemium/viral)',
+};
+
+const CHANNEL_TYPES = Object.keys(CHANNEL_LABEL_KEYS);
 
 // Days threshold for "validado recientemente" (matches O2.3 window)
 const VALIDATION_WINDOW_DAYS = 60;
@@ -241,7 +246,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <span className="font-medium text-sm">
-                    {CHANNEL_LABELS[ch.channel_type] ?? ch.channel_type}
+                    {CHANNEL_LITERAL_LABELS[ch.channel_type] ?? (CHANNEL_LABEL_KEYS[ch.channel_type] ? t(CHANNEL_LABEL_KEYS[ch.channel_type]) : ch.channel_type)}
                   </span>
                   {ch.is_primary && (
                     <Badge variant="default" className="text-xs">
@@ -389,7 +394,7 @@ export function AcquisitionChannelEditor({ projectId }: AcquisitionChannelEditor
                 <SelectContent>
                   {CHANNEL_TYPES.map((type) => (
                     <SelectItem key={type} value={type}>
-                      {CHANNEL_LABELS[type]}
+                      {CHANNEL_LITERAL_LABELS[type] ?? (CHANNEL_LABEL_KEYS[type] ? t(CHANNEL_LABEL_KEYS[type]) : type)}
                     </SelectItem>
                   ))}
                 </SelectContent>

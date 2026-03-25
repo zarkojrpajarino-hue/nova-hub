@@ -32,10 +32,10 @@ interface RolesExplanationModalProps {
 }
 
 const EXPERIENCE_LABELS = {
-  entry: { label: t('roles.junior'), color: 'bg-green-100 text-green-800' },
-  mid: { label: 'Mid', color: 'bg-blue-100 text-blue-800' },
-  senior: { label: t('roles.senior'), color: 'bg-purple-100 text-purple-800' },
-  expert: { label: t('roles.expert'), color: 'bg-amber-100 text-amber-800' },
+  entry: { labelKey: 'roles.junior', color: 'bg-green-100 text-green-800' },
+  mid: { labelKey: '', color: 'bg-blue-100 text-blue-800', literal: 'Mid' },
+  senior: { labelKey: 'roles.senior', color: 'bg-purple-100 text-purple-800' },
+  expert: { labelKey: 'roles.expert', color: 'bg-amber-100 text-amber-800' },
 };
 
 export function RolesExplanationModal({
@@ -100,7 +100,7 @@ export function RolesExplanationModal({
                         EXPERIENCE_LABELS[role.experience_level].color
                       )}
                     >
-                      {EXPERIENCE_LABELS[role.experience_level].label}
+                      {EXPERIENCE_LABELS[role.experience_level].labelKey ? t(EXPERIENCE_LABELS[role.experience_level].labelKey) : (EXPERIENCE_LABELS[role.experience_level] as { literal?: string }).literal ?? role.experience_level}
                     </Badge>
                     <Badge variant="outline" className="text-xs">
                       {role.department}

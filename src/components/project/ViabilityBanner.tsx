@@ -6,23 +6,23 @@ import { SourceBadge } from '@/components/shared/SourceBadge';
 import { useTranslation } from 'react-i18next';
 // ── Copy por trigger_type ─────────────────────────────────────────────────────
 
-const YELLOW_COPY: Record<string, { title: string; body: string }> = {
-  stagnation:      { title: t('project.proyectoSinAvance'),          body: t('project.elProyectoLlevaVarios') },
-  margin_risk:     { title: t('project.señalDeRiesgoFinanciero'),   body: t('project.elFlujoDeCaja') },
-  overload:        { title: t('project.sobrecargaOperativa'),         body: t('project.laCargaDeTareas') },
-  weak_validation: { title: t('project.validaciónExternaDébil'),     body: t('project.elProyectoTienePocas') },
+const YELLOW_COPY_KEYS: Record<string, { title: string; body: string }> = {
+  stagnation:      { title: 'project.proyectoSinAvance',          body: 'project.elProyectoLlevaVarios' },
+  margin_risk:     { title: 'project.señalDeRiesgoFinanciero',   body: 'project.elFlujoDeCaja' },
+  overload:        { title: 'project.sobrecargaOperativa',         body: 'project.laCargaDeTareas' },
+  weak_validation: { title: 'project.validaciónExternaDébil',     body: 'project.elProyectoTienePocas' },
 };
 
-const RED_COPY: Record<string, { title: string; body: string }> = {
-  stagnation:      { title: t('project.bloqueoCrítico'),              body: t('project.elProyectoLlevaDemasiados') },
-  margin_risk:     { title: t('project.riesgoDeCajaCrítico'),       body: t('project.elFlujoDeCaja0') },
-  overload:        { title: t('project.sobrecargaCrítica'),           body: t('project.laCargaOperativaImpide') },
-  weak_validation: { title: t('project.validaciónCríticamenteDébil'), body: t('project.sinSeñalDelMercado') },
+const RED_COPY_KEYS: Record<string, { title: string; body: string }> = {
+  stagnation:      { title: 'project.bloqueoCrítico',              body: 'project.elProyectoLlevaDemasiados' },
+  margin_risk:     { title: 'project.riesgoDeCajaCrítico',       body: 'project.elFlujoDeCaja0' },
+  overload:        { title: 'project.sobrecargaCrítica',           body: 'project.laCargaOperativaImpide' },
+  weak_validation: { title: 'project.validaciónCríticamenteDébil', body: 'project.sinSeñalDelMercado' },
 };
 
-const T2_COPY = {
-  title: t('project.flujoDeCajaNegativo'),
-  body:  t('project.elFlujoDeCaja1'),
+const T2_COPY_KEYS = {
+  title: 'project.flujoDeCajaNegativo',
+  body:  'project.elFlujoDeCaja1',
 };
 
 function getFallbackYellow(t: (k: string) => string) { return { title: t('project.señalesDeAlertaActivas'), body: t('project.elProyectoMuestraSeñales') }; }
@@ -48,6 +48,7 @@ interface ViabilityBannerProps {
 // ── Component ─────────────────────────────────────────────────────────────────
 
 export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerProps) {
+  const { t } = useTranslation();
   const status  = viabilityData?.viability_status ?? null;
   const trigger = viabilityData?.top_trigger_type  ?? null;
   const t2      = viabilityData?.t2_cash_flow_active ?? false;
@@ -76,9 +77,12 @@ export function ViabilityBanner({ viabilityData, projectId }: ViabilityBannerPro
   // Yellow: si está dismissed, no renderizar
   if (isYellow && dismissed) return null;
 
-  const copy = isRed
-    ? (t2 ? T2_COPY : (RED_COPY[trigger ?? ''] ?? getFallbackRed(t)))
-    : (YELLOW_COPY[trigger ?? ''] ?? getFallbackYellow(t));
+  const rawKeys = isRed
+    ? (t2 ? T2_COPY_KEYS : RED_COPY_KEYS[trigger ?? ''])
+    : YELLOW_COPY_KEYS[trigger ?? ''];
+  const copy = rawKeys
+    ? { title: t(rawKeys.title), body: t(rawKeys.body) }
+    : (isRed ? getFallbackRed(t) : getFallbackYellow(t));
 
   function handleDismiss() {
     sessionStorage.setItem(dKey, '1');

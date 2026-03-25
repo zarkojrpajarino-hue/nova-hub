@@ -11,11 +11,11 @@ const PRIORITY_COLORS: Record<number, string> = {
   3: '#22C55E', // Baja
 };
 
-const FUNCTION_TYPE_LABELS: Record<string, { label: string; color: string }> = {
-  demand:   { label: t('tasks.demanda'),  color: '#F59E0B' },
-  delivery: { label: t('tasks.delivery'), color: '#3B82F6' },
-  cash:     { label: t('tasks.cash'),     color: '#22C55E' },
-  support:  { label: t('tasks.soporte'),  color: '#A855F7' },
+const FUNCTION_TYPE_LABELS: Record<string, { labelKey: string; color: string }> = {
+  demand:   { labelKey: 'tasks.demanda',  color: '#F59E0B' },
+  delivery: { labelKey: 'tasks.delivery', color: '#3B82F6' },
+  cash:     { labelKey: 'tasks.cash',     color: '#22C55E' },
+  support:  { labelKey: 'tasks.soporte',  color: '#A855F7' },
 };
 
 interface Member {
@@ -134,7 +134,7 @@ export const TaskCard = memo(function TaskCard({
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ backgroundColor: FUNCTION_TYPE_LABELS[task.function_type].color }}
               />
-              {FUNCTION_TYPE_LABELS[task.function_type].label}
+              {t(FUNCTION_TYPE_LABELS[task.function_type].labelKey)}
             </div>
           )}
           {task.fecha_limite && (

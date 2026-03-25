@@ -23,9 +23,9 @@ interface KeyMetricRow {
 
 // ─── Helpers ─────────────────────────────────────────────────────────────────
 
-/** Format YYYY-MM-DD to t('project.mesAño') in Spanish */
+/** Format YYYY-MM-DD to month/year label */
 function formatMonthLabel(dateStr: string): string {
-  return format(new Date(dateStr + 'T12:00:00'), t('project.mmmmYyyy'), { locale: getDateFnsLocale() });
+  return format(new Date(dateStr + 'T12:00:00'), 'MMMM yyyy', { locale: getDateFnsLocale() });
 }
 
 /** First day of current month as YYYY-MM-DD */

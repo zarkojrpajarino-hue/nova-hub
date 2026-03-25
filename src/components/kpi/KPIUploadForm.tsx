@@ -20,25 +20,29 @@ interface KPIUploadFormProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const TYPE_LABELS = {
-  lp: t('kpi.learningPath'),
-  bp: t('kpi.bookPoint'),
-  cp: t('kpi.communityPoint'),
+const TYPE_LABEL_KEYS = {
+  lp: 'kpi.learningPath',
+  bp: 'kpi.bookPoint',
+  cp: 'kpi.communityPoint',
 };
 
-const TYPE_PLACEHOLDERS = {
+const TYPE_PLACEHOLDER_KEYS = {
   lp: {
-    titulo: 'Ej: Design Thinking - IDEO',
-    descripcion: t('kpi.describeQuéAprendisteY'),
+    titulo: '',  // literal: 'Ej: Design Thinking - IDEO'
+    descripcion: 'kpi.describeQuéAprendisteY',
   },
   bp: {
-    titulo: t('kpi.ejLeanStartupEric'),
-    descripcion: t('kpi.resumeLosPuntosClave'),
+    titulo: 'kpi.ejLeanStartupEric',
+    descripcion: 'kpi.resumeLosPuntosClave',
   },
   cp: {
-    titulo: t('kpi.ejMentoringConJuan'),
-    descripcion: t('kpi.describeBrevementeLaActividad'),
+    titulo: 'kpi.ejMentoringConJuan',
+    descripcion: 'kpi.describeBrevementeLaActividad',
   },
+};
+
+const TYPE_LITERAL_TITLES: Record<string, string> = {
+  lp: 'Ej: Design Thinking - IDEO',
 };
 
 export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) {
@@ -104,9 +108,9 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
       if (error) throw error;
 
       if (needsValidation) {
-        toast.success(`${TYPE_LABELS[type]} enviado a validación`);
+        toast.success(`${t(TYPE_LABEL_KEYS[type])} enviado a validación`);
       } else {
-        toast.success(`${TYPE_LABELS[type]} registrado (+${points} punto${points > 1 ? 's' : ''})`);
+        toast.success(`${t(TYPE_LABEL_KEYS[type])} registrado (+${points} punto${points > 1 ? 's' : ''})`);
       }
 
       queryClient.invalidateQueries({ queryKey: ['kpis'] });
@@ -137,7 +141,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             {getIcon()}
-            Nuevo {TYPE_LABELS[type]}
+            Nuevo {t(TYPE_LABEL_KEYS[type])}
           </DialogTitle>
         </DialogHeader>
 
@@ -166,7 +170,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
               id="kpi-titulo"
               value={formData.titulo}
               onChange={(e) => setFormData({ ...formData, titulo: e.target.value })}
-              placeholder={TYPE_PLACEHOLDERS[type].titulo}
+              placeholder={TYPE_LITERAL_TITLES[type] ?? t(TYPE_PLACEHOLDER_KEYS[type].titulo)}
               disabled={isBlocked && needsValidation}
             />
           </div>
@@ -177,7 +181,7 @@ export function KPIUploadForm({ type, open, onOpenChange }: KPIUploadFormProps) 
               id="kpi-descripcion"
               value={formData.descripcion}
               onChange={(e) => setFormData({ ...formData, descripcion: e.target.value })}
-              placeholder={TYPE_PLACEHOLDERS[type].descripcion}
+              placeholder={t(TYPE_PLACEHOLDER_KEYS[type].descripcion)}
               rows={3}
             />
           </div>

@@ -69,12 +69,12 @@ interface Insight {
 }
 
 const INSIGHT_TYPES = {
-  task: { label: t('meetings.tareas'), icon: Target, color: 'blue' },
-  decision: { label: t('meetings.decisiones'), icon: CheckCircle2, color: 'green' },
-  lead: { label: t('meetings.leads'), icon: Briefcase, color: 'purple' },
-  obv_update: { label: t('meetings.obvsMencionados'), icon: Target, color: 'orange' },
-  blocker: { label: t('meetings.blockers'), icon: AlertTriangle, color: 'red' },
-  metric: { label: t('meetings.métricas'), icon: BarChart3, color: 'indigo' },
+  task: { labelKey: 'meetings.tareas', icon: Target, color: 'blue' },
+  decision: { labelKey: 'meetings.decisiones', icon: CheckCircle2, color: 'green' },
+  lead: { labelKey: 'meetings.leads', icon: Briefcase, color: 'purple' },
+  obv_update: { labelKey: 'meetings.obvsMencionados', icon: Target, color: 'orange' },
+  blocker: { labelKey: 'meetings.blockers', icon: AlertTriangle, color: 'red' },
+  metric: { labelKey: 'meetings.métricas', icon: BarChart3, color: 'indigo' },
 };
 
 export function MeetingInsightsReview({
@@ -392,7 +392,7 @@ export function MeetingInsightsReview({
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-3">
                     <Icon className={`h-5 w-5 text-${config.color}-600`} />
-                    <CardTitle>{config.label}</CardTitle>
+                    <CardTitle>{t(config.labelKey)}</CardTitle>
                     <Badge variant="secondary">{typeInsights.length}</Badge>
                   </div>
                   {isExpanded ? (

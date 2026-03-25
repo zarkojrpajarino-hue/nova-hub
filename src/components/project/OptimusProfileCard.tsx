@@ -16,23 +16,23 @@ interface OptimusProfileCardProps {
   projectId: string;
 }
 
-const DEPTH_LABELS: Record<string, string> = {
-  conciso: t('project.respuestasConcisasYDirectas'),
-  equilibrado: t('project.balanceEntreDetalleY'),
-  detallado: t('project.respuestasDetalladasConContexto'),
+const DEPTH_LABEL_KEYS: Record<string, string> = {
+  conciso: 'project.respuestasConcisasYDirectas',
+  equilibrado: 'project.balanceEntreDetalleY',
+  detallado: 'project.respuestasDetalladasConContexto',
 };
 
-const RISK_LABELS: Record<string, string> = {
-  conservador: t('project.conservadorPrefiereSeguridad'),
-  moderado: t('project.moderadoEquilibraRiesgoY'),
-  agresivo: t('project.agresivoAbiertoAApuestas'),
+const RISK_LABEL_KEYS: Record<string, string> = {
+  conservador: 'project.conservadorPrefiereSeguridad',
+  moderado: 'project.moderadoEquilibraRiesgoY',
+  agresivo: 'project.agresivoAbiertoAApuestas',
 };
 
-const STYLE_LABELS: Record<string, string> = {
-  default: t('project.estándar'),
-  'más específico': t('project.específicoQuierePasosConcretos'),
-  'más estratégico': t('project.estratégicoQuiereVisiónDe'),
-  'más motivacional': t('project.motivacionalQuiereEmpujeY'),
+const STYLE_LABEL_KEYS: Record<string, string> = {
+  default: 'project.estándar',
+  'más específico': 'project.específicoQuierePasosConcretos',
+  'más estratégico': 'project.estratégicoQuiereVisiónDe',
+  'más motivacional': 'project.motivacionalQuiereEmpujeY',
 };
 
 export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
@@ -73,15 +73,15 @@ export function OptimusProfileCard({ projectId }: OptimusProfileCardProps) {
       <div className="space-y-1 text-xs text-muted-foreground">
         <div className="flex items-center gap-1.5">
           <ThumbsUp className="h-3 w-3 shrink-0" />
-          <span>{DEPTH_LABELS[profile.preferred_depth] ?? profile.preferred_depth}</span>
+          <span>{DEPTH_LABEL_KEYS[profile.preferred_depth] ? t(DEPTH_LABEL_KEYS[profile.preferred_depth]) : profile.preferred_depth}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <ThumbsUp className="h-3 w-3 shrink-0" />
-          <span>{RISK_LABELS[profile.risk_tolerance] ?? profile.risk_tolerance}</span>
+          <span>{RISK_LABEL_KEYS[profile.risk_tolerance] ? t(RISK_LABEL_KEYS[profile.risk_tolerance]) : profile.risk_tolerance}</span>
         </div>
         <div className="flex items-center gap-1.5">
           <ThumbsUp className="h-3 w-3 shrink-0" />
-          <span>{STYLE_LABELS[profile.response_style] ?? profile.response_style}</span>
+          <span>{STYLE_LABEL_KEYS[profile.response_style] ? t(STYLE_LABEL_KEYS[profile.response_style]) : profile.response_style}</span>
         </div>
       </div>
     </div>

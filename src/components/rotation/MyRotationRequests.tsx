@@ -13,13 +13,13 @@ interface MyRotationRequestsProps {
   requests: RoleRotationRequest[];
 }
 
-const roleLabels: Record<string, string> = {
-  sales: t('rotation.ventas'),
-  finance: t('rotation.finanzas'),
-  ai_tech: t('rotation.aitech'),
-  marketing: t('rotation.marketing'),
-  operations: t('rotation.operaciones'),
-  strategy: t('rotation.estrategia'),
+const roleLabelKeys: Record<string, string> = {
+  sales: 'rotation.ventas',
+  finance: 'rotation.finanzas',
+  ai_tech: 'rotation.aitech',
+  marketing: 'rotation.marketing',
+  operations: 'rotation.operaciones',
+  strategy: 'rotation.estrategia',
 };
 
 export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
@@ -97,7 +97,7 @@ export function MyRotationRequests({ requests }: MyRotationRequestsProps) {
                           {isRequester ? 'Tu solicitud a': t('rotation.solicitudDe')} {otherPerson?.nombre}
                         </CardTitle>
                         <CardDescription>
-                          Intercambiar {roleLabels[myCurrentRole || ''] || myCurrentRole} ↔ {roleLabels[theirCurrentRole || ''] || theirCurrentRole}
+                          Intercambiar {roleLabelKeys[myCurrentRole || ''] ? t(roleLabelKeys[myCurrentRole || '']) : myCurrentRole} ↔ {roleLabelKeys[theirCurrentRole || ''] ? t(roleLabelKeys[theirCurrentRole || '']) : theirCurrentRole}
                         </CardDescription>
                       </div>
                     </div>

@@ -13,21 +13,21 @@ interface RoleHistoryListProps {
 }
 
 // Move constants outside component for better performance
-const changeTypeConfig: Record<string, { label: string; icon: React.ReactNode; color: string }> = {
-  assignment: { label: t('rotation.asignación'), icon: <UserPlus className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
-  swap: { label: t('rotation.intercambio'), icon: <ArrowLeftRight className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
-  transfer: { label: t('rotation.transferencia'), icon: <ArrowRight className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },
-  rotation: { label: t('rotation.rotación'), icon: <RotateCcw className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
-  promotion: { label: t('rotation.promoción'), icon: <TrendingUp className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-800' },
+const changeTypeConfig: Record<string, { labelKey: string; icon: React.ReactNode; color: string }> = {
+  assignment: { labelKey: 'rotation.asignación', icon: <UserPlus className="h-4 w-4" />, color: 'bg-blue-100 text-blue-800' },
+  swap: { labelKey: 'rotation.intercambio', icon: <ArrowLeftRight className="h-4 w-4" />, color: 'bg-purple-100 text-purple-800' },
+  transfer: { labelKey: 'rotation.transferencia', icon: <ArrowRight className="h-4 w-4" />, color: 'bg-green-100 text-green-800' },
+  rotation: { labelKey: 'rotation.rotación', icon: <RotateCcw className="h-4 w-4" />, color: 'bg-orange-100 text-orange-800' },
+  promotion: { labelKey: 'rotation.promoción', icon: <TrendingUp className="h-4 w-4" />, color: 'bg-yellow-100 text-yellow-800' },
 };
 
-const roleLabels: Record<string, string> = {
-  sales: t('rotation.ventas'),
-  finance: t('rotation.finanzas'),
-  ai_tech: t('rotation.aitech'),
-  marketing: t('rotation.marketing'),
-  operations: t('rotation.operaciones'),
-  strategy: t('rotation.estrategia'),
+const roleLabelKeys: Record<string, string> = {
+  sales: 'rotation.ventas',
+  finance: 'rotation.finanzas',
+  ai_tech: 'rotation.aitech',
+  marketing: 'rotation.marketing',
+  operations: 'rotation.operaciones',
+  strategy: 'rotation.estrategia',
 };
 
 // Memoized history item card
@@ -51,19 +51,19 @@ const HistoryCard = memo(function HistoryCard({ item }: { item: RoleHistory }) {
               <span className="font-medium">{item.user?.nombre}</span>
               <Badge variant="outline" className={typeConfig.color}>
                 {typeConfig.icon}
-                <span className="ml-1">{typeConfig.label}</span>
+                <span className="ml-1">{t(typeConfig.labelKey)}</span>
               </Badge>
             </div>
 
             <div className="flex items-center gap-2 mt-1 text-sm text-muted-foreground">
               {item.old_role && (
                 <>
-                  <span>{roleLabels[item.old_role] || item.old_role}</span>
+                  <span>{roleLabelKeys[item.old_role] ? t(roleLabelKeys[item.old_role]) : item.old_role}</span>
                   <ArrowRight className="h-3 w-3" />
                 </>
               )}
               <span className="font-medium text-foreground">
-                {roleLabels[item.new_role] || item.new_role}
+                {roleLabelKeys[item.new_role] ? t(roleLabelKeys[item.new_role]) : item.new_role}
               </span>
 
               {item.project && (

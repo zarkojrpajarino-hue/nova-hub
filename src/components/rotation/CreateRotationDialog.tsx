@@ -31,13 +31,13 @@ interface CreateRotationDialogProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const roleLabels: Record<string, string> = {
-  sales: t('rotation.ventas'),
-  finance: t('rotation.finanzas'),
-  ai_tech: t('rotation.aitech'),
-  marketing: t('rotation.marketing'),
-  operations: t('rotation.operaciones'),
-  strategy: t('rotation.estrategia'),
+const roleLabelKeys: Record<string, string> = {
+  sales: 'rotation.ventas',
+  finance: 'rotation.finanzas',
+  ai_tech: 'rotation.aitech',
+  marketing: 'rotation.marketing',
+  operations: 'rotation.operaciones',
+  strategy: 'rotation.estrategia',
 };
 
 export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialogProps) {
@@ -176,7 +176,7 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
                         />
                         <span>{project?.nombre}</span>
                         <Badge variant="outline" className="ml-2">
-                          {roleLabels[membership.role] || membership.role}
+                          {roleLabelKeys[membership.role] ? t(roleLabelKeys[membership.role]) : membership.role}
                         </Badge>
                       </div>
                     </SelectItem>
@@ -206,7 +206,7 @@ export function CreateRotationDialog({ open, onOpenChange }: CreateRotationDialo
                         </Avatar>
                         <span>{target.profile?.nombre}</span>
                         <Badge variant="outline">
-                          {roleLabels[target.role] || target.role}
+                          {roleLabelKeys[target.role] ? t(roleLabelKeys[target.role]) : target.role}
                         </Badge>
                         <span className="text-xs text-muted-foreground">
                           en {target.project?.nombre}

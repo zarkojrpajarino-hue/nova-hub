@@ -16,10 +16,10 @@ interface PhaseRunwayIndicatorProps {
   scoreHistory: number[];  // últimas 8 semanas
 }
 
-const CONFIDENCE_LABELS: Record<string, string> = {
-  high: t('project.altaConfianza'),
-  medium: t('project.confianzaMedia'),
-  low: t('project.pocaData'),
+const CONFIDENCE_LABEL_KEYS: Record<string, string> = {
+  high: 'project.altaConfianza',
+  medium: 'project.confianzaMedia',
+  low: 'project.pocaData',
 };
 
 export function PhaseRunwayIndicator({ engineData, scoreHistory }: PhaseRunwayIndicatorProps) {
@@ -55,7 +55,7 @@ export function PhaseRunwayIndicator({ engineData, scoreHistory }: PhaseRunwayIn
         <AlertTriangle className="h-4 w-4 shrink-0" />
         <div>
           <span>{estimate.explanation}</span>
-          <span className="text-[10px] text-muted-foreground ml-1">({CONFIDENCE_LABELS[estimate.confidence]})</span>
+          <span className="text-[10px] text-muted-foreground ml-1">({t(CONFIDENCE_LABEL_KEYS[estimate.confidence])})</span>
         </div>
       </div>
     );
@@ -70,7 +70,7 @@ export function PhaseRunwayIndicator({ engineData, scoreHistory }: PhaseRunwayIn
       <div>
         <span className="font-medium">~{weeks} semana{weeks > 1 ? 's' : ''}</span>
         <span className="ml-1">{estimate.explanation}</span>
-        <span className="text-[10px] text-muted-foreground ml-1">({CONFIDENCE_LABELS[estimate.confidence]})</span>
+        <span className="text-[10px] text-muted-foreground ml-1">({t(CONFIDENCE_LABEL_KEYS[estimate.confidence])})</span>
       </div>
     </div>
   );

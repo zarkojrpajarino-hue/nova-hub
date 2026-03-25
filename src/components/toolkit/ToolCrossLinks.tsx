@@ -30,19 +30,19 @@ interface ToolCrossLinksProps {
   onNavigateTool: (tool: ToolType) => void;
 }
 
-const TOOL_LABELS: Record<ToolType, string> = {
-  buyer_persona:    t('toolkit.buyerPersona'),
-  lead_scoring:     t('toolkit.leadScoring'),
-  sales_playbook:   t('toolkit.salesPlaybook'),
-  brand_kit:        t('toolkit.brandKit'),
-  comms_guide:      t('toolkit.guíaDeComunicación'),
-  customer_journey: t('toolkit.customerJourney'),
+const TOOL_LABEL_KEYS: Record<ToolType, string> = {
+  buyer_persona:    'toolkit.buyerPersona',
+  lead_scoring:     'toolkit.leadScoring',
+  sales_playbook:   'toolkit.salesPlaybook',
+  brand_kit:        'toolkit.brandKit',
+  comms_guide:      'toolkit.guíaDeComunicación',
+  customer_journey: 'toolkit.customerJourney',
 };
 
-function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): CrossLink[] {
+function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState, t: (k: string) => string): CrossLink[] {
   const links: CrossLink[] = [];
-  const st = (t: ToolType) => unlocks[t].status;
-  const newData = (t: ToolType) => unlocks[t].has_new_data ?? false;
+  const st = (tool: ToolType) => unlocks[tool].status;
+  const newData = (tool: ToolType) => unlocks[tool].has_new_data ?? false;
 
   switch (toolType) {
     case 'buyer_persona': {
@@ -156,7 +156,7 @@ function computeCrossLinks(toolType: ToolType, unlocks: ToolkitUnlockState): Cro
 
 export function ToolCrossLinks({ toolType, unlocks, onNavigateTool }: ToolCrossLinksProps) {
   const { t } = useTranslation();
-  const links = computeCrossLinks(toolType, unlocks);
+  const links = computeCrossLinks(toolType, unlocks, t);
   if (links.length === 0) return null;
 
   return (
@@ -178,7 +178,7 @@ export function ToolCrossLinks({ toolType, unlocks, onNavigateTool }: ToolCrossL
           )}
           <div className="flex-1 min-w-0">
             <p className={`text-xs leading-snug ${link.type === 'warning' ? 'text-amber-700 dark:text-amber-400' : 'text-blue-700 dark:text-blue-400'}`}>
-              <span className="font-semibold">{TOOL_LABELS[link.targetTool]}</span>{' — '}{link.message}
+              <span className="font-semibold">{t(TOOL_LABEL_KEYS[link.targetTool])}</span>{' — '}{link.message}
             </p>
           </div>
           <Button

@@ -20,13 +20,13 @@ interface Suggestion {
   risks: string[];
 }
 
-const ROLE_LABELS: Record<string, string> = {
-  sales: t('rotation.sales'),
-  finance: t('rotation.finance'),
-  ai_tech: t('rotation.iatech'),
-  marketing: t('rotation.marketing'),
-  operations: t('rotation.operations'),
-  strategy: t('rotation.strategy'),
+const ROLE_LABEL_KEYS: Record<string, string> = {
+  sales: 'rotation.sales',
+  finance: 'rotation.finance',
+  ai_tech: 'rotation.iatech',
+  marketing: 'rotation.marketing',
+  operations: 'rotation.operations',
+  strategy: 'rotation.strategy',
 };
 
 export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
@@ -198,12 +198,12 @@ export function AIRotationSuggestions({ projectId }: { projectId?: string }) {
               <div className="flex items-center gap-2 flex-wrap">
                 <span className="font-medium">{getUserName(s.user1_id)}</span>
                 <Badge variant="outline" className="text-xs">
-                  {ROLE_LABELS[s.role1] || s.role1}
+                  {ROLE_LABEL_KEYS[s.role1] ? t(ROLE_LABEL_KEYS[s.role1]) : s.role1}
                 </Badge>
                 <ArrowRightLeft className="w-4 h-4 text-muted-foreground" />
                 <span className="font-medium">{getUserName(s.user2_id)}</span>
                 <Badge variant="outline" className="text-xs">
-                  {ROLE_LABELS[s.role2] || s.role2}
+                  {ROLE_LABEL_KEYS[s.role2] ? t(ROLE_LABEL_KEYS[s.role2]) : s.role2}
                 </Badge>
               </div>
               <div className="flex items-center gap-2">

@@ -67,7 +67,7 @@ function getValidationAction(maturity: HypothesisMaturity, riskiest: string | nu
 }
 
 // ── Action 3 — Operativa ─────────────────────────────────────────────────────
-function getOperationalAction(monetization: MonetizationType) {
+function getOperationalAction(monetization: MonetizationType, t: (key: string, opts?: Record<string, unknown>) => string) {
   switch (monetization) {
     case 'suscripcion':
       return {
@@ -154,7 +154,7 @@ export function FirstStepsPanel({ projectId, onNavigateToTab }: FirstStepsPanelP
   if (!visible || !data) return null;
 
   const validationAction = getValidationAction(data.hypothesisMaturity, data.riskiestAssumption, t);
-  const operationalAction = getOperationalAction(data.monetizationType);
+  const operationalAction = getOperationalAction(data.monetizationType, t);
 
   return (
     <div className="bg-card border border-border rounded-2xl p-5 animate-fade-in">

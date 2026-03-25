@@ -20,9 +20,9 @@ interface CommsGuideOutput {
 }
 
 const CANAL_CONFIG = {
-  email:    { icon: Mail,          label: t('toolkit.email'),     color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950/20', border: 'border-blue-200 dark:border-blue-800' },
-  linkedin: { icon: Linkedin,      label: t('toolkit.linkedin'),  color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950/20', border: 'border-indigo-200 dark:border-indigo-800' },
-  whatsapp: { icon: MessageCircle, label: t('toolkit.whatsapp'),  color: 'text-green-600',  bg: 'bg-green-50 dark:bg-green-950/20', border: 'border-green-200 dark:border-green-800' },
+  email:    { icon: Mail,          labelKey: 'toolkit.email',     color: 'text-blue-600',   bg: 'bg-blue-50 dark:bg-blue-950/20', border: 'border-blue-200 dark:border-blue-800' },
+  linkedin: { icon: Linkedin,      labelKey: 'toolkit.linkedin',  color: 'text-indigo-600', bg: 'bg-indigo-50 dark:bg-indigo-950/20', border: 'border-indigo-200 dark:border-indigo-800' },
+  whatsapp: { icon: MessageCircle, labelKey: 'toolkit.whatsapp',  color: 'text-green-600',  bg: 'bg-green-50 dark:bg-green-950/20', border: 'border-green-200 dark:border-green-800' },
 };
 
 function CanalCard({ canal }: { canal: Canal }) {
@@ -42,7 +42,7 @@ function CanalCard({ canal }: { canal: Canal }) {
       <CardHeader className="pb-2">
         <CardTitle className={cn('flex items-center gap-2 text-sm', cfg.color)}>
           <Icon className="h-4 w-4" />
-          {cfg.label}
+          {t(cfg.labelKey)}
         </CardTitle>
         <p className="text-xs text-gray-500">{canal.tono_especifico}</p>
       </CardHeader>
