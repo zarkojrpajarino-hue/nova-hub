@@ -13,7 +13,7 @@ import { NovaHeader } from '@/components/nova/NovaHeader';
 import { StatCard } from '@/components/nova/StatCard';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { useMemberStats, useObjectives, useProjectEngineData, useProjectViabilityState, useProjectFunctions } from '@/hooks/useNovaDataOptimized';
-import { useProjects, useProjectStats } from '@/hooks/useProjects';
+import { useProjectStats } from '@/hooks/useProjects';
 import { useRolePermissions } from '@/hooks/useRolePermissions';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
@@ -113,13 +113,31 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   }, [projectId]);
 
   // ── Experience Engine data ────────────────────────────────────────────────
-  const { data: allProjects = [] } = useProjects();
-  const project = useMemo(
-    () => allProjects.find(p => p.id === projectId),
-    [allProjects, projectId],
-  );
-  const phaseState = (project as { phase_state?: { current_phase: number; phase_score: number; graduated: boolean } | null })?.phase_state;
-  const currentPhase = phaseState?.current_phase ?? 0;
+  // Single project fetch (not useProjects which loads ALL projects)
+  const { data: project } = useQuery({
+    queryKey: ['project-with-phase', projectId],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('projects')
+        .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, graduated)')
+        .eq('id', projectId!)
+        .maybeSingle();
+      if (error) throw error;
+      return data as {
+        id: string;
+        nombre: string;
+        created_at: string;
+        created_by: string | null;
+        onboarding_data: Record<string, unknown> | null;
+        onboarding_completed: boolean;
+        tipo: string;
+        phase_state: { current_phase: number; phase_score: number; graduated: boolean } | null;
+      } | null;
+    },
+    staleTime: 2 * 60_000,
+    enabled: !!projectId,
+  });
+  const currentPhase = project?.phase_state?.current_phase ?? 0;
 
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
   const { data: viabilityData } = useProjectViabilityState(projectId);
@@ -132,16 +150,17 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     [rolePermissions.role, rolePermissions.isLead],
   );
 
+  // daysActive only meaningful when project is loaded (avoids zen mode flash with daysActive=0)
   const daysActive = project?.created_at
     ? Math.floor((Date.now() - new Date(project.created_at).getTime()) / 86400000)
-    : 0;
+    : -1; // -1 = unknown (project not loaded yet)
   const [zenDismissed, setZenDismissed] = useState(false);
   useEffect(() => {
     if (!projectId) return;
     try { setZenDismissed(JSON.parse(localStorage.getItem(`zen_dismissed_${projectId}`) || 'false')); }
     catch { /* ignore */ }
   }, [projectId]);
-  const isZenMode = !zenDismissed && daysActive < 7 && currentPhase < 2;
+  const isZenMode = !zenDismissed && daysActive >= 0 && daysActive < 7 && currentPhase < 2;
 
   // Minimal count queries (head-only, no full data)
   const { data: leadsCount = 0 } = useQuery({
@@ -472,7 +491,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         {projectId && project && (
           <DashboardAdapter
             phase={currentPhase}
-            daysActive={daysActive}
+            daysActive={Math.max(daysActive, 0)}
             isZenMode={isZenMode}
             specializationRole={rolePermissions.role}
             isLead={rolePermissions.isLead}
@@ -484,7 +503,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             hasRevenue={totals.facturacion > 0}
             hasIntegrations={activeIntegrationsCount > 0}
             kpiCount={kpiCount}
-            phaseScore={phaseState?.phase_score ?? 0}
+            phaseScore={project?.phase_state?.phase_score ?? 0}
             projectId={projectId}
             renderers={engineRenderers}
           />
