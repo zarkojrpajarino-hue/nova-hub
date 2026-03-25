@@ -350,7 +350,7 @@ METODOLOGIA x ROL (misma fase, diferente accion):
   > Logica: mapear keywords por fase. F0=explorar/investigar, F1=validar/entrevistar, F2=activar/retener, F3=optimizar/margen, F4=escalar/delegar. Si tarea no matchea → warning.
   > Crear: src/lib/methodology-guard.ts + src/components/shared/MethodologyWarning.tsx
 
-- [ ] **UX.8.2** Integrar MethodologyGuard en TaskForm: al escribir titulo, si detecta keyword fuera de fase, mostrar banner ambar con sugerencia. "Esta tarea parece de Fase 3 (operaciones). Estas en Fase 1 (discovery). Continuar?"
+- [ ] **UX.8.2** Integrar MethodologyGuard en TaskForm: SOLO en acciones claramente desalineadas (no saltar siempre). Banner ambar suave, no modal bloqueante. Ej: crear "producto" en F1 → warning. Crear "entrevista" en F1 → nada.
   > FILE: src/components/tasks/TaskForm.tsx
 
 - [ ] **UX.8.3** Integrar MethodologyGuard en OBVForm: al seleccionar tipo, si no encaja con fase, mostrar contexto. F1 + tipo='venta' → "En Customer Discovery, las OBVs de venta son prematuras. Quieres crear una de validacion?"
@@ -398,8 +398,8 @@ METODOLOGIA x ROL (misma fase, diferente accion):
   > Crear: src/components/project/WeeklyProgressDigest.tsx
   > Aparece como banner top del dashboard los lunes
 
-- [ ] **UX.9.5** Implementar streak tracking: dias consecutivos con actividad. "Racha: 5 dias. No la pierdas." Mostrar en MiEspacioView. Si se rompe: "Tu racha se perdio. Vuelve hoy para empezar una nueva."
-  > Crear: src/lib/streak.ts + display en MiEspacioView
+- [ ] **UX.9.5** Implementar consistencia tracking (NO gamificacion infantil): "3 dias seguidos registrando evidencia" con tono profesional. Mostrar en MiEspacioView. Sin emojis de fuego, sin "racha". Refuerza consistencia, no competicion.
+  > Crear: src/lib/consistency-tracker.ts + display en MiEspacioView
 
 ### B9.B — Conexion con fases avanzadas (2 tareas)
 
@@ -435,7 +435,7 @@ METODOLOGIA x ROL (misma fase, diferente accion):
 
 ### B10.B — Quality score visible (3 tareas)
 
-- [ ] **UX.10.5** Crear DataQualityScore: calcula % de datos completos del proyecto. Tareas con categoria + OBVs con outcome + metricas actualizadas + integraciones activas. Mostrar como barra en dashboard.
+- [ ] **UX.10.5** Crear DataQualityScore: NO mostrar % abstracto. Siempre con explicacion + CTA exacto. "Te faltan categoria en 4 tareas y resultado en 2 OBVs" con botones directos a cada item. Barra visual opcional, pero el texto es lo que importa.
   > Crear: src/lib/data-quality.ts + src/components/project/DataQualityBar.tsx
 
 - [ ] **UX.10.6** Integrar DataQualityScore en AI analysis: cuando el score es bajo (<50%), el analisis IA muestra disclaimer "Analisis basado en datos incompletos. Mejora la calidad para resultados mas precisos." con link a nudges.
