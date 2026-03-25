@@ -289,9 +289,12 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     {
       block: 'methodology' as const,
       render: (_depth: BlockDepth) => {
-        const methodology = PHASE_METHODOLOGY[currentPhase] || PHASE_METHODOLOGY[0];
-        const phaseLabel = PHASE_LABELS[currentPhase] || PHASE_LABELS[0];
-        const phaseDesc = PHASE_DESCRIPTIONS[currentPhase] || PHASE_DESCRIPTIONS[0];
+        // Wait for engineData to resolve the real phase (avoids showing phase 0 on load)
+        const phase = engineData?.phaseState?.current_phase ?? null;
+        if (phase === null) return null; // Loading — don't show wrong methodology
+        const methodology = PHASE_METHODOLOGY[phase] || PHASE_METHODOLOGY[0];
+        const phaseLabel = PHASE_LABELS[phase] || PHASE_LABELS[0];
+        const phaseDesc = PHASE_DESCRIPTIONS[phase] || PHASE_DESCRIPTIONS[0];
         return (
           <div className="p-5 rounded-2xl bg-gradient-to-r from-primary/5 to-violet-500/5 border border-primary/10">
             <div className="flex items-center gap-2 mb-2">
