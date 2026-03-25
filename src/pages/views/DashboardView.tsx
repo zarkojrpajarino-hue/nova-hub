@@ -164,6 +164,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
 
   // Counts come from engineData.counts (bundled with engine queries for same auth timing)
   const leadsCount = engineData?.counts?.obvsCount ?? 0;
+  // DEBUG: log counts to verify RPCs
+  if (engineData) console.log('[ENGINE COUNTS]', engineData.counts);
 
   const { data: activeIntegrationsCount = 0 } = useQuery({
     queryKey: ['integration-connections-count', projectId],
