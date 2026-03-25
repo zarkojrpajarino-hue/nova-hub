@@ -312,29 +312,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     },
     {
       block: 'core_stats' as const,
-      render: (depth: BlockDepth) => {
-        if (depth === 'hidden') return null;
-        // Use direct query counts (not members/totals which depend on RLS-affected useMemberStats)
-        const obvCount = totals.obvs || kpiCount || 0; // fallback chain
-        const hasAnyStats = daysActive > 0 || leadsCount > 0 || tasksCompletedWeekly > 0 || kpiCount > 0;
-        if (!hasAnyStats) return null;
-        return (
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {daysActive > 0 && (
-              <StatCard icon={Calendar} value={daysActive} label={t('project.díasActivo')} progress={0} color="#7C3AED" delay={1} />
-            )}
-            {leadsCount > 0 && (
-              <StatCard icon={FileCheck} value={leadsCount} label={t('project.obvs')} progress={0} color="#5CE1E6" delay={2} />
-            )}
-            {tasksCompletedWeekly > 0 && (
-              <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={3} />
-            )}
-            {kpiCount > 0 && (
-              <StatCard icon={Trophy} value={kpiCount} label={t('project.kpis')} progress={0} color="#FF66C4" delay={4} />
-            )}
-          </div>
-        );
-      },
+      render: () => null, // Rendered directly below as CoreStatsBlock (avoids re-render loops)
     },
     {
       block: 'phase_engine' as const,
@@ -515,6 +493,21 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             projectId={projectId}
             renderers={engineRenderers}
           />
+        )}
+
+        {/* Core Stats — rendered outside DashboardAdapter to avoid re-render loops */}
+        {projectId && project && (leadsCount > 0 || kpiCount > 0 || tasksCompletedWeekly > 0) && (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {leadsCount > 0 && (
+              <StatCard icon={FileCheck} value={leadsCount} label={t('project.obvs')} progress={0} color="#5CE1E6" delay={1} />
+            )}
+            {kpiCount > 0 && (
+              <StatCard icon={Trophy} value={kpiCount} label={t('project.kpis')} progress={0} color="#FF66C4" delay={2} />
+            )}
+            {tasksCompletedWeekly > 0 && (
+              <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={3} />
+            )}
+          </div>
         )}
 
         {/* Zen mode dismiss */}
