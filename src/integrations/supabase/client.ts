@@ -13,8 +13,7 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     storage: localStorage,
     persistSession: true,
     autoRefreshToken: true,
-    lock: 'no-op',            // Disable navigator.locks — prevents session hangs
-    flowType: 'implicit',     // Use implicit flow (no PKCE lock contention)
+    flowType: 'implicit',
   },
   db: {
     schema: 'public',
