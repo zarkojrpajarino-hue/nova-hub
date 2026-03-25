@@ -135,7 +135,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       } | null;
     },
     staleTime: 2 * 60_000,
-    enabled: !!projectId,
+    enabled: !!projectId && !!engineData,
   });
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
   // Use phase from engineData (same query, no duplication, same RLS path)
@@ -171,7 +171,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       return data ?? 0;
     },
     staleTime: 5 * 60_000,
-    enabled: !!projectId,
+    enabled: !!projectId && !!engineData,
   });
 
   const { data: activeIntegrationsCount = 0 } = useQuery({
@@ -185,7 +185,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       return count ?? 0;
     },
     staleTime: 5 * 60_000,
-    enabled: !!projectId,
+    enabled: !!projectId && !!engineData,
   });
 
   // KPI count via RPC or direct — no dependency on memberIds chain
@@ -208,7 +208,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       return data ?? 0;
     },
     staleTime: 5 * 60_000,
-    enabled: !!projectId,
+    enabled: !!projectId && !!engineData,
   });
 
   // Member roles for TeamRecommendation
@@ -223,7 +223,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       return (data ?? []).map(r => r.role as string);
     },
     staleTime: 5 * 60_000,
-    enabled: !!projectId,
+    enabled: !!projectId && !!engineData,
   });
 
   // Tasks done this week via RPC
@@ -234,7 +234,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       return data ?? 0;
     },
     staleTime: 5 * 60_000,
-    enabled: !!projectId,
+    enabled: !!projectId && !!engineData,
   });
 
   const resolvedTeamMode = (() => {
