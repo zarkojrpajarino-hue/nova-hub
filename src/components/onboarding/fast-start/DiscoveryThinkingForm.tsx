@@ -54,56 +54,58 @@ interface DiscoveryThinkingFormProps {
   onComplete: (data: Record<string, unknown>) => void;
 }
 
-const STEPS = [
-  {
-    field: 'usuario_segmento' as keyof DTAnswers,
-    icon: User,
-    color: 'text-blue-600',
-    bg: 'bg-blue-50',
-    border: 'border-blue-200',
-    title: t('onboarding.usuarioSegmento'),
-    question: t('onboarding.quiénTieneElProblema'),
-    hint: t('onboarding.séEspecíficoFreelancersDe'),
-    placeholder: t('onboarding.ejPequeñasEmpresasDe'),
-    minLength: 20,
-  },
-  {
-    field: 'problema' as keyof DTAnswers,
-    icon: AlertCircle,
-    color: 'text-orange-600',
-    bg: 'bg-orange-50',
-    border: 'border-orange-200',
-    title: t('onboarding.problema'),
-    question: t('onboarding.quéDolorONecesidad'),
-    hint: t('onboarding.describeLaFrustraciónReal'),
-    placeholder: t('onboarding.ejPierdenHorasActualizando'),
-    minLength: 30,
-  },
-  {
-    field: 'contexto_actual' as keyof DTAnswers,
-    icon: HelpCircle,
-    color: 'text-purple-600',
-    bg: 'bg-purple-50',
-    border: 'border-purple-200',
-    title: t('onboarding.contextoActual'),
-    question: t('onboarding.cómoLoResuelvenHoy'),
-    hint: t('onboarding.hojasDeCálculoProcesos'),
-    placeholder: 'Ej: Usan hojas de Excel y actualizan manualmente cada plataforma (Shopify, Amazon, Instagram)',
-    minLength: 20,
-  },
-  {
-    field: 'idea_solucion' as keyof DTAnswers,
-    icon: Wrench,
-    color: 'text-green-600',
-    bg: 'bg-green-50',
-    border: 'border-green-200',
-    title: t('onboarding.ideaDeSolución'),
-    question: t('onboarding.quéPodríasConstruirPara'),
-    hint: t('onboarding.noTieneQueSer'),
-    placeholder: t('onboarding.ejUnaHerramientaQue'),
-    minLength: 20,
-  },
-] as const;
+function getSteps(t: (key: string) => string) {
+  return [
+    {
+      field: 'usuario_segmento' as keyof DTAnswers,
+      icon: User,
+      color: 'text-blue-600',
+      bg: 'bg-blue-50',
+      border: 'border-blue-200',
+      title: t('onboarding.usuarioSegmento'),
+      question: t('onboarding.quiénTieneElProblema'),
+      hint: t('onboarding.séEspecíficoFreelancersDe'),
+      placeholder: t('onboarding.ejPequeñasEmpresasDe'),
+      minLength: 20,
+    },
+    {
+      field: 'problema' as keyof DTAnswers,
+      icon: AlertCircle,
+      color: 'text-orange-600',
+      bg: 'bg-orange-50',
+      border: 'border-orange-200',
+      title: t('onboarding.problema'),
+      question: t('onboarding.quéDolorONecesidad'),
+      hint: t('onboarding.describeLaFrustraciónReal'),
+      placeholder: t('onboarding.ejPierdenHorasActualizando'),
+      minLength: 30,
+    },
+    {
+      field: 'contexto_actual' as keyof DTAnswers,
+      icon: HelpCircle,
+      color: 'text-purple-600',
+      bg: 'bg-purple-50',
+      border: 'border-purple-200',
+      title: t('onboarding.contextoActual'),
+      question: t('onboarding.cómoLoResuelvenHoy'),
+      hint: t('onboarding.hojasDeCálculoProcesos'),
+      placeholder: 'Ej: Usan hojas de Excel y actualizan manualmente cada plataforma (Shopify, Amazon, Instagram)',
+      minLength: 20,
+    },
+    {
+      field: 'idea_solucion' as keyof DTAnswers,
+      icon: Wrench,
+      color: 'text-green-600',
+      bg: 'bg-green-50',
+      border: 'border-green-200',
+      title: t('onboarding.ideaDeSolución'),
+      question: t('onboarding.quéPodríasConstruirPara'),
+      hint: t('onboarding.noTieneQueSer'),
+      placeholder: t('onboarding.ejUnaHerramientaQue'),
+      minLength: 20,
+    },
+  ];
+}
 
 function formatHypothesis(a: DTAnswers): string {
   return `Creemos que ${a.usuario_segmento} tiene el problema: "${a.problema}". Actualmente lo resuelven: ${a.contexto_actual}. Una solución posible sería: ${a.idea_solucion}.`;
@@ -111,6 +113,7 @@ function formatHypothesis(a: DTAnswers): string {
 
 export function DiscoveryThinkingForm({ hypothesisMaturity, onComplete }: DiscoveryThinkingFormProps) {
   const { t } = useTranslation();
+  const STEPS = getSteps(t);
   const [step, setStep] = useState(0); // 0–3: pasos DT, 4: síntesis
   const [answers, setAnswers] = useState<DTAnswers>({
     usuario_segmento: '',
