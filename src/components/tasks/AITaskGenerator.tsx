@@ -55,14 +55,17 @@ interface AITaskGeneratorProps {
   onComplete?: () => void;
 }
 
-const PRIORITY_CONFIG: Record<number, { label: string; color: string }> = {
-  1: { label: t('tasks.alta'), color: '#EF4444' },
-  2: { label: t('tasks.media'), color: '#F59E0B' },
-  3: { label: t('tasks.baja'), color: '#22C55E' },
-};
+function getPriorityConfig(t: (k: string) => string): Record<number, { label: string; color: string }> {
+  return {
+    1: { label: t('tasks.alta'), color: '#EF4444' },
+    2: { label: t('tasks.media'), color: '#F59E0B' },
+    3: { label: t('tasks.baja'), color: '#22C55E' },
+  };
+}
 
 export function AITaskGenerator({ project, onComplete }: AITaskGeneratorProps) {
   const { t } = useTranslation();
+  const PRIORITY_CONFIG = getPriorityConfig(t);
   const queryClient = useQueryClient();
   const { user } = useAuth();
 

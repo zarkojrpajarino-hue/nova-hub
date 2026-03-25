@@ -60,7 +60,7 @@ function computeQualityScore(
   return Math.round(base * alignmentScore * fulfillmentPredictor * 100)
 }
 
-function qualityLabel(score: number): string {
+function qualityLabel(score: number, t: (k: string) => string): string {
   if (score >= 75) return t('meetings.reuniónMuyEjecutiva')
   if (score >= 50) return t('meetings.reuniónOperativa')
   if (score >= 30) return t('meetings.reuniónEstratégica')
@@ -108,7 +108,7 @@ export function MeetingCompletionSummary({
   const actionableItems = results.tasks + results.decisions
   const alignmentScore  = alignmentData?.alignment_score ?? 0.7
   const qualityScore    = computeQualityScore(actionableItems, meetingDuration ?? 30, alignmentScore)
-  const label           = qualityLabel(qualityScore)
+  const label           = qualityLabel(qualityScore, t)
 
   const totalCreated =
     results.tasks +

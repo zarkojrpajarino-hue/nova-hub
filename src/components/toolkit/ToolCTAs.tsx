@@ -39,6 +39,7 @@ async function insertTask(
   titulo: string,
   descripcion: string,
   functionType: string,
+  t: (k: string) => string,
 ): Promise<boolean> {
   const { data: active } = await supabase
     .from('tasks')
@@ -83,7 +84,7 @@ export function ToolCTAs({ toolType, output, projectId }: ToolCTAsProps) {
   const handleCreateTask = async (titulo: string, descripcion: string, functionType = 'demand') => {
     if (!profile?.id) return;
     setIsCreatingTask(true);
-    const ok = await insertTask(projectId, profile.id, titulo, descripcion, functionType);
+    const ok = await insertTask(projectId, profile.id, titulo, descripcion, functionType, t);
     if (ok) {
       queryClient.invalidateQueries({ queryKey: ['project_tasks', projectId] });
       queryClient.invalidateQueries({ queryKey: ['my_tasks'] });

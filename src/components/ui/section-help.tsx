@@ -110,42 +110,44 @@ const HelpSection = ({
   </div>
 );
 
-const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
+function HelpContentDisplay({ content }: { content: HelpContent }) {
+  const { t } = useTranslation();
+  return (
   <div className="space-y-1">
-    <HelpSection 
-      icon={Info} 
-      title={t('ui.descripción')} 
+    <HelpSection
+      icon={Info}
+      title={t('ui.descripción')}
       content={content.description}
       iconColor="bg-blue-500/10 text-blue-500"
     />
-    
+
     {content.howItWorks && (
-      <HelpSection 
-        icon={Workflow} 
-        title={t('ui.cómoFunciona0')} 
+      <HelpSection
+        icon={Workflow}
+        title={t('ui.cómoFunciona0')}
         content={content.howItWorks}
         iconColor="bg-purple-500/10 text-purple-500"
       />
     )}
-    
+
     {content.dataSource && (
-      <HelpSection 
-        icon={Database} 
-        title={t('ui.origenDeDatos')} 
+      <HelpSection
+        icon={Database}
+        title={t('ui.origenDeDatos')}
         content={content.dataSource}
         iconColor="bg-green-500/10 text-green-500"
       />
     )}
-    
+
     {content.validation && (
-      <HelpSection 
-        icon={CheckCircle2} 
-        title={t('ui.procesoDeValidación')} 
+      <HelpSection
+        icon={CheckCircle2}
+        title={t('ui.procesoDeValidación')}
         content={content.validation}
         iconColor="bg-amber-500/10 text-amber-500"
       />
     )}
-    
+
     {content.dataInputs && content.dataInputs.length > 0 && (
       <div className="flex gap-3 py-3 border-b border-border/50">
         <div className="flex-shrink-0 w-8 h-8 rounded-lg flex items-center justify-center bg-blue-500/10 text-blue-500">
@@ -205,7 +207,8 @@ const HelpContentDisplay = ({ content }: { content: HelpContent }) => (
       />
     )}
   </div>
-);
+  );
+}
 
 // Demo Button Component
 function DemoButton({ section }: { section: string }) {
