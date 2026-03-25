@@ -335,17 +335,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     },
     {
       block: 'alerts' as const,
-      render: (_depth: BlockDepth) => {
-        // Don't render wrapper if nothing to show (avoids empty space)
-        if (!projectId) return null;
-        const showTrial = !isZenMode && daysActive >= 3;
-        return (
-          <>
-            {showTrial && <TrialCountdownBanner projectId={projectId} />}
-            <AICallsNudge projectId={projectId} />
-          </>
-        );
-      },
+      render: () => null, // TrialCountdownBanner + AICallsNudge render null when inactive → avoid empty wrapper
     },
     {
       block: 'crm_summary' as const,
