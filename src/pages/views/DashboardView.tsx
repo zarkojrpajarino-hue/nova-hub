@@ -135,7 +135,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       } | null;
     },
     staleTime: 2 * 60_000,
-    enabled: !!projectId && !!engineData,
+    enabled: !!projectId,
   });
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
   // Use phase from engineData (same query, no duplication, same RLS path)
