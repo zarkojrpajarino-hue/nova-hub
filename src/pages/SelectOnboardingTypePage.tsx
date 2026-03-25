@@ -101,8 +101,8 @@ export function SelectOnboardingTypePage() {
 
     try {
       // Get session + profile directly from Supabase (not from hook — avoids race condition)
-      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
-      if (userError || !currentUser) {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
         toast.error(t('selectOnboardingType.sesiónExpiradaPorFavor'));
         setIsCreating(false);
         setSelectedType(null);
@@ -110,13 +110,14 @@ export function SelectOnboardingTypePage() {
         return;
       }
 
-      const { data: userProfile } = await supabase
+      const { data: userProfile, error: profileError } = await supabase
         .from('profiles')
         .select('id')
-        .eq('auth_id', currentUser.id)
+        .eq('auth_id', session.user.id)
         .single();
 
-      if (!userProfile) {
+      if (profileError || !userProfile) {
+        console.error('[Onboarding] Profile fetch failed:', profileError);
         toast.error(t('selectOnboardingType.debesEstarAutenticadoPara'));
         setIsCreating(false);
         setSelectedType(null);
