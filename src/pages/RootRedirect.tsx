@@ -24,13 +24,22 @@ export function RootRedirect() {
   const { currentProject, userProjects, isLoading: projectsLoading } = useCurrentProject();
   const [timedOut, setTimedOut] = useState(false);
 
-  // Timeout: if loading doesn't complete in 20s, show error
+  // Timeout: if loading doesn't complete in 30s, force redirect
   useEffect(() => {
     const timer = setTimeout(() => {
       setTimedOut(true);
-    }, 20_000);
+      // Force redirect even if still loading — don't leave user stuck
+      if (isAuthenticated && userProjects && userProjects.length > 0) {
+        const projectId = currentProject?.id || userProjects[0]?.id;
+        if (projectId) navigate(`/proyecto/${projectId}`, { replace: true });
+      } else if (isAuthenticated) {
+        navigate('/select-onboarding-type', { replace: true });
+      } else {
+        navigate('/', { replace: true });
+      }
+    }, 30_000);
     return () => clearTimeout(timer);
-  }, []);
+  }, [isAuthenticated, currentProject, userProjects, navigate]);
 
   useEffect(() => {
     // CRÍTICO: Esperar a que TODO esté cargado (auth, profile, y proyectos)
