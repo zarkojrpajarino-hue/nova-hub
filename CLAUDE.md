@@ -141,6 +141,20 @@ No traducir: rutas, CSS classes, keys de objetos técnicos, nombres de columnas 
 
 ---
 
+### Regla Experience Engine (OBLIGATORIA)
+
+**Ningun bloque del dashboard se renderiza sin pasar por el Experience Engine.**
+
+- Toda decision de visibilidad, profundidad o prioridad pasa por `getDashboardConfig()` en `src/lib/experience-engine.ts`
+- PROHIBIDO anadir `if (phase >= X)` o `if (role === Y)` directamente en componentes del dashboard
+- Si necesitas una condicion nueva: anadela al engine, no al componente
+- El hook `useExperienceEngine` es el unico punto de entrada desde React
+- El adapter `DashboardAdapter.tsx` es el unico lugar donde engine → componente
+- Debug: `localStorage.setItem('optimus_debug_engine', 'true')` para ver decisiones
+- Si esta regla se viola, el sistema de UX adaptativa se rompe
+
+---
+
 ## Contexto del proyecto
 
 Motor de fases para proyectos startup. Migraciones SQL en `supabase/migrations/`.

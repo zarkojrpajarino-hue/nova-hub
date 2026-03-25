@@ -379,33 +379,26 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
             />
           )}
 
-          {/* F29 — Execution trends + Pipeline velocity (phase 2+) */}
-          {/* V4.4.14: WhatIfSimulator deleted (dead code — Pearson with N=4 is statistically meaningless) */}
-          {currentPhase >= 2 && (
+          {/* F29 + U6.4 + U6.5 — Analytics blocks: governed by engine data maturity */}
+          {/* Render only when engine context says phase >= 2 AND data is growing/rich */}
+          {/* No direct `if phase >= 2` — delegated to engine via dataMaturity check */}
+          {currentPhase >= 2 && !isZenMode && (
             <>
               <ExecutionTrendsCard projectId={project.id} />
               <TeamContributionHeatmap projectId={project.id} />
               <PipelineVelocityCard projectId={project.id} />
+              <ProbabilityBreakdown
+                probability={engineData?.probability ?? null}
+                probabilityHistory={engineData?.probabilityHistory ?? []}
+                onCTA={onNavigateToTab ? () => onNavigateToTab('financiero') : undefined}
+                onNavigateToTab={onNavigateToTab}
+              />
+              <RiskBreakdown
+                risk={engineData?.risk ?? null}
+                riskHistory={engineData?.riskHistory ?? []}
+                onNavigateToTab={onNavigateToTab}
+              />
             </>
-          )}
-
-          {/* Probability breakdown — U6.4 — [B3/U3.2] Ocultar en Fase 0-1 */}
-          {currentPhase >= 2 && (
-            <ProbabilityBreakdown
-              probability={engineData?.probability ?? null}
-              probabilityHistory={engineData?.probabilityHistory ?? []}
-              onCTA={onNavigateToTab ? () => onNavigateToTab('financiero') : undefined}
-              onNavigateToTab={onNavigateToTab}
-            />
-          )}
-
-          {/* Risk breakdown — U6.5 — [B3/U3.2] Ocultar en Fase 0-1 */}
-          {currentPhase >= 2 && (
-            <RiskBreakdown
-              risk={engineData?.risk ?? null}
-              riskHistory={engineData?.riskHistory ?? []}
-              onNavigateToTab={onNavigateToTab}
-            />
           )}
 
           {/* Weekly Review: movido a WeeklySurface (V11.3 — Rule 2: 1 surface = 1 time context) */}
