@@ -52,14 +52,33 @@ export function CreateFirstProjectPage() {
   };
 
   const handleStartOnboarding = async () => {
-    if (!profile) {
-      toast.error(t('createFirstProject.debesEstarAutenticadoPara'));
-      return;
-    }
+    if (isCreatingProject) return;
 
     setIsCreatingProject(true);
 
     try {
+      // Get session + profile directly from Supabase (avoids hook race condition)
+      const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
+      if (userError || !currentUser) {
+        toast.error(t('createFirstProject.debesEstarAutenticadoPara'));
+        setIsCreatingProject(false);
+        navigate('/auth');
+        return;
+      }
+
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('auth_id', currentUser.id)
+        .single();
+
+      if (!userProfile) {
+        toast.error(t('createFirstProject.debesEstarAutenticadoPara'));
+        setIsCreatingProject(false);
+        navigate('/auth');
+        return;
+      }
+
       // Create minimal project with creator and onboarding type
       const onboardingType = typeMapping[typeParam] || 'generative';
 
@@ -68,7 +87,7 @@ export function CreateFirstProjectPage() {
         .insert({
           nombre: t('createFirstProject.nuevoProyecto'),
           descripcion: t('createFirstProject.proyectoEnConfiguración'),
-          created_by: profile.id,
+          created_by: userProfile.id,
           onboarding_data: {
             onboarding_type: onboardingType
           }
@@ -83,7 +102,7 @@ export function CreateFirstProjectPage() {
       // Add creator as project member
       await supabase
         .from('project_members')
-        .insert({ project_id: newProject.id, member_id: profile.id, is_lead: true });
+        .insert({ project_id: newProject.id, member_id: userProfile.id, is_lead: true });
 
       trackProjectCreated({ project_id: newProject.id });
 

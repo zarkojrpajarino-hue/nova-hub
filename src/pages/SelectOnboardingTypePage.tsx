@@ -94,21 +94,33 @@ export function SelectOnboardingTypePage() {
   ];
 
   const handleSelectType = async (typeId: string) => {
-    if (!profile) {
-      toast.error(t('selectOnboardingType.debesEstarAutenticadoPara'));
-      return;
-    }
+    if (isCreating) return;
 
     setIsCreating(true);
     setSelectedType(typeId);
 
     try {
-      // Verify token is valid with a server round-trip (forces refresh if expired)
+      // Get session + profile directly from Supabase (not from hook — avoids race condition)
       const { data: { user: currentUser }, error: userError } = await supabase.auth.getUser();
       if (userError || !currentUser) {
         toast.error(t('selectOnboardingType.sesiónExpiradaPorFavor'));
         setIsCreating(false);
         setSelectedType(null);
+        navigate('/auth');
+        return;
+      }
+
+      const { data: userProfile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('auth_id', currentUser.id)
+        .single();
+
+      if (!userProfile) {
+        toast.error(t('selectOnboardingType.debesEstarAutenticadoPara'));
+        setIsCreating(false);
+        setSelectedType(null);
+        navigate('/auth');
         return;
       }
 
@@ -118,7 +130,7 @@ export function SelectOnboardingTypePage() {
         .insert({
           nombre: t('selectOnboardingType.nuevoProyecto'),
           descripcion: t('selectOnboardingType.proyectoEnConfiguración'),
-          created_by: profile.id,
+          created_by: userProfile.id,
           onboarding_data: {
             onboarding_type: typeId
           }
@@ -133,7 +145,7 @@ export function SelectOnboardingTypePage() {
       // Add creator as project member
       await supabase
         .from('project_members')
-        .insert({ project_id: newProject.id, member_id: profile.id, is_lead: true });
+        .insert({ project_id: newProject.id, member_id: userProfile.id, is_lead: true });
 
       trackProjectCreated({ project_id: newProject.id });
 
