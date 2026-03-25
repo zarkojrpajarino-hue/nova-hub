@@ -215,9 +215,28 @@ export function useProjectEngineData(projectId: string | undefined) {
   const risk     = useProjectRiskData(projectId);
   const coverage = useProjectCoverageData(projectId);
 
+  // Dashboard stat counts — bundled here so they share the same auth timing
+  const counts = useQuery({
+    queryKey: ['project-dashboard-counts', projectId],
+    queryFn: async () => {
+      const [obvs, kpis, tasks] = await Promise.all([
+        supabase.rpc('count_project_obvs', { p_project_id: projectId! }),
+        supabase.rpc('count_project_kpis', { p_project_id: projectId! }),
+        supabase.rpc('count_project_tasks_done_week', { p_project_id: projectId! }),
+      ]);
+      return {
+        obvsCount: (obvs.data as number) ?? 0,
+        kpisCount: (kpis.data as number) ?? 0,
+        tasksDoneWeek: (tasks.data as number) ?? 0,
+      };
+    },
+    staleTime: 5 * 60_000,
+    enabled: !!projectId,
+  });
+
   const isLoading = phase.isLoading || prob.isLoading || risk.isLoading || coverage.isLoading;
 
-  const data = useMemo((): ProjectEngineData | null => {
+  const data = useMemo((): (ProjectEngineData & { counts?: { obvsCount: number; kpisCount: number; tasksDoneWeek: number } }) | null => {
     if (!projectId) return null;
     return {
       phaseState:         phase.data?.phaseState         ?? null,
@@ -227,8 +246,9 @@ export function useProjectEngineData(projectId: string | undefined) {
       risk:               risk.data?.risk                 ?? null,
       riskHistory:        risk.data?.riskHistory          ?? [],
       coverage:           coverage.data                   ?? [],
+      counts:             counts.data                     ?? undefined,
     };
-  }, [projectId, phase.data, prob.data, risk.data, coverage.data]);
+  }, [projectId, phase.data, prob.data, risk.data, coverage.data, counts.data]);
 
   return { data, isLoading };
 }

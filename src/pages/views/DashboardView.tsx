@@ -162,17 +162,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   }, [projectId]);
   const isZenMode = !zenDismissed && daysActive >= 0 && daysActive < 7 && currentPhase < 2;
 
-  // Minimal count queries (head-only, no full data)
-  // Count OBVs via RPC (bypasses RLS chain issues)
-  const { data: leadsCount = 0 } = useQuery({
-    queryKey: ['obvs-count-rpc', projectId],
-    queryFn: async () => {
-      const { data } = await supabase.rpc('count_project_obvs', { p_project_id: projectId! });
-      return data ?? 0;
-    },
-    staleTime: 5 * 60_000,
-    enabled: !!projectId && !!engineData,
-  });
+  // Counts come from engineData.counts (bundled with engine queries for same auth timing)
+  const leadsCount = engineData?.counts?.obvsCount ?? 0;
 
   const { data: activeIntegrationsCount = 0 } = useQuery({
     queryKey: ['integration-connections-count', projectId],
@@ -188,28 +179,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     enabled: !!projectId && !!engineData,
   });
 
-  // KPI count via RPC or direct — no dependency on memberIds chain
-  const { data: kpiCount = 0 } = useQuery({
-    queryKey: ['kpi-count-direct', projectId],
-    queryFn: async () => {
-      // Count KPIs for all members of this project via subquery
-      const { data, error } = await supabase.rpc('count_project_kpis', { p_project_id: projectId! });
-      if (error) {
-        // Fallback: count via project_members join (if RPC doesn't exist)
-        const { data: members } = await supabase
-          .from('project_members')
-          .select('member_id')
-          .eq('project_id', projectId!);
-        if (!members || members.length === 0) return 0;
-        const ids = members.map(m => m.member_id);
-        const { count } = await supabase.from('kpis').select('id', { count: 'exact', head: true }).in('owner_id', ids);
-        return count ?? 0;
-      }
-      return data ?? 0;
-    },
-    staleTime: 5 * 60_000,
-    enabled: !!projectId && !!engineData,
-  });
+  const kpiCount = engineData?.counts?.kpisCount ?? 0;
 
   // Member roles for TeamRecommendation
   const { data: memberRoles = [] } = useQuery({
@@ -226,16 +196,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     enabled: !!projectId && !!engineData,
   });
 
-  // Tasks done this week via RPC
-  const { data: tasksCompletedWeekly = 0 } = useQuery({
-    queryKey: ['tasks-done-week-rpc', projectId],
-    queryFn: async () => {
-      const { data } = await supabase.rpc('count_project_tasks_done_week', { p_project_id: projectId! });
-      return data ?? 0;
-    },
-    staleTime: 5 * 60_000,
-    enabled: !!projectId && !!engineData,
-  });
+  const tasksCompletedWeekly = engineData?.counts?.tasksDoneWeek ?? 0;
 
   const resolvedTeamMode = (() => {
     const onboardingTeamMode = project?.onboarding_data?.team_mode;
