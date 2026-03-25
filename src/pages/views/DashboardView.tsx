@@ -38,8 +38,9 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardAdapter } from '@/components/project/DashboardAdapter';
 import type { BlockDepth } from '@/lib/experience-engine';
 import { resolveMacroRole } from '@/lib/experience-engine';
+import { PHASE_METHODOLOGY, PHASE_LABELS, PHASE_DESCRIPTIONS } from '@/lib/engine';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
-import { MomentBanner } from '@/components/project/MomentBanner';
+// MomentBanner removed — methodology block now shows phase methodology inline
 import { ProjectEnginePanel } from '@/components/project/ProjectEnginePanel';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 import { AICallsNudge } from '@/components/subscription/AICallsNudge';
@@ -300,37 +301,49 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     },
     {
       block: 'methodology' as const,
-      render: (_depth: BlockDepth) => projectId ? (
-        <MomentBanner projectId={projectId} />
-      ) : null,
+      render: (_depth: BlockDepth) => {
+        const methodology = PHASE_METHODOLOGY[currentPhase] || PHASE_METHODOLOGY[0];
+        const phaseLabel = PHASE_LABELS[currentPhase] || PHASE_LABELS[0];
+        const phaseDesc = PHASE_DESCRIPTIONS[currentPhase] || PHASE_DESCRIPTIONS[0];
+        return (
+          <div className="p-5 rounded-2xl bg-gradient-to-r from-primary/5 to-violet-500/5 border border-primary/10">
+            <div className="flex items-center gap-2 mb-2">
+              <span className="text-xs font-semibold uppercase tracking-wider text-primary">{t('project.methodologyLabel')}</span>
+              <span className="text-xs bg-primary/10 text-primary px-2 py-0.5 rounded-full font-medium">
+                {phaseLabel}
+              </span>
+            </div>
+            <p className="text-sm font-semibold text-foreground mb-1">{methodology}</p>
+            <p className="text-xs text-muted-foreground">{phaseDesc}</p>
+          </div>
+        );
+      },
     },
     {
       block: 'core_stats' as const,
-      render: (depth: BlockDepth) => depth === 'hidden' ? null : (
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
-          {phaseStats.includes('total_obvs' as PhaseStatKey) && totals.obvs > 0 && (
-            <StatCard icon={FileCheck} value={totals.obvs} label={t('project.obvs')} progress={0} color="#5CE1E6" delay={1} />
-          )}
-          {phaseStats.includes('team_count' as PhaseStatKey) && members.length > 0 && (
-            <StatCard icon={Users} value={members.length} label={t('project.miembros')} progress={0} color="#7C3AED" delay={2} />
-          )}
-          {phaseStats.includes('days_active' as PhaseStatKey) && daysActive > 0 && (
-            <StatCard icon={Calendar} value={daysActive} label={t('project.díasActivo')} progress={0} color="#7C3AED" delay={3} />
-          )}
-          {phaseStats.includes('tasks_completed_weekly' as PhaseStatKey) && tasksCompletedWeekly > 0 && (
-            <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={4} />
-          )}
-          {phaseStats.includes('conversion_rate' as PhaseStatKey) && leadsCount > 0 && (projectStats?.leads_ganados ?? 0) > 0 && (
-            <StatCard icon={TrendingUp} value={`${Math.round(((projectStats?.leads_ganados ?? 0) / leadsCount) * 100)}%`} label={t('project.conversión')} progress={0} color="#FF66C4" delay={4} />
-          )}
-          {phaseStats.includes('facturacion' as PhaseStatKey) && totals.facturacion > 0 && (
-            <StatCard icon={TrendingUp} value={`€${totals.facturacion}`} label={t('project.facturación')} progress={0} color="#5CE1E6" delay={4} />
-          )}
-          {phaseStats.includes('margen' as PhaseStatKey) && totals.margen > 0 && (
-            <StatCard icon={Wallet} value={`€${totals.margen}`} label={t('project.margen')} progress={0} color="#FF66C4" delay={5} />
-          )}
-        </div>
-      ),
+      render: (depth: BlockDepth) => {
+        if (depth === 'hidden') return null;
+        // Use direct query counts (not members/totals which depend on RLS-affected useMemberStats)
+        const obvCount = totals.obvs || kpiCount || 0; // fallback chain
+        const hasAnyStats = daysActive > 0 || leadsCount > 0 || tasksCompletedWeekly > 0 || kpiCount > 0;
+        if (!hasAnyStats) return null;
+        return (
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            {daysActive > 0 && (
+              <StatCard icon={Calendar} value={daysActive} label={t('project.díasActivo')} progress={0} color="#7C3AED" delay={1} />
+            )}
+            {leadsCount > 0 && (
+              <StatCard icon={Users} value={leadsCount} label={t('project.leads')} progress={0} color="#5CE1E6" delay={2} />
+            )}
+            {tasksCompletedWeekly > 0 && (
+              <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={3} />
+            )}
+            {kpiCount > 0 && (
+              <StatCard icon={Trophy} value={kpiCount} label={t('project.kpis')} progress={0} color="#FF66C4" delay={4} />
+            )}
+          </div>
+        );
+      },
     },
     {
       block: 'phase_engine' as const,
