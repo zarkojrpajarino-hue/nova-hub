@@ -113,13 +113,13 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   }, [projectId]);
 
   // ── Experience Engine data ────────────────────────────────────────────────
-  // Single project fetch (not useProjects which loads ALL projects)
+  // Project fetch — separate queries to avoid RLS join failures
   const { data: project } = useQuery({
-    queryKey: ['project-with-phase', projectId],
+    queryKey: ['project-basic', projectId],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('projects')
-        .select('*, phase_state:project_phase_state!project_id(current_phase, phase_score, graduated)')
+        .select('id, nombre, created_at, created_by, onboarding_data, onboarding_completed, tipo')
         .eq('id', projectId!)
         .maybeSingle();
       if (error) throw error;
@@ -131,13 +131,25 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         onboarding_data: Record<string, unknown> | null;
         onboarding_completed: boolean;
         tipo: string;
-        phase_state: { current_phase: number; phase_score: number; graduated: boolean } | null;
       } | null;
     },
     staleTime: 2 * 60_000,
     enabled: !!projectId,
   });
-  const currentPhase = project?.phase_state?.current_phase ?? 0;
+  const { data: phaseStateData } = useQuery({
+    queryKey: ['phase-state', projectId],
+    queryFn: async () => {
+      const { data } = await supabase
+        .from('project_phase_state')
+        .select('current_phase, phase_score, graduated')
+        .eq('project_id', projectId!)
+        .maybeSingle();
+      return data as { current_phase: number; phase_score: number; graduated: boolean } | null;
+    },
+    staleTime: 2 * 60_000,
+    enabled: !!projectId,
+  });
+  const currentPhase = phaseStateData?.current_phase ?? 0;
 
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
   const { data: viabilityData } = useProjectViabilityState(projectId);
@@ -490,7 +502,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             hasRevenue={totals.facturacion > 0}
             hasIntegrations={activeIntegrationsCount > 0}
             kpiCount={kpiCount}
-            phaseScore={project?.phase_state?.phase_score ?? 0}
+            phaseScore={phaseStateData?.phase_score ?? 0}
             projectId={projectId}
             renderers={engineRenderers}
           />
