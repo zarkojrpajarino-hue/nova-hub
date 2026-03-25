@@ -1,11 +1,12 @@
-# SUPER PLAN UX DEFINITIVO — 56 TAREAS + 47 PANTALLAS
+# SUPER PLAN UX DEFINITIVO — 85 TAREAS + 47 PANTALLAS (v2)
 
-> Generado: 2026-03-25
+> Generado: 2026-03-25 (actualizado con feedback v2)
 > Basado en: 9 agentes de auditoria profunda + decisiones de producto aprobadas
 > Objetivo: UX 10/10 — cada pantalla, cada fase, cada rol perfectamente adaptado
 > Principio: accion inmediata + resultado visible + contexto metodologico
-> REGLA CLAVE: TODOS los usuarios (founder, growth, operations) ven SIEMPRE
-> la fase actual + la metodologia que la respalda + el por que
+> REGLA CLAVE: TODOS los usuarios ven SIEMPRE fase + metodologia + por que
+> REGLA OPERATIVA: La metodologia NO es solo informativa — AFECTA decisiones
+> REGLA CALIDAD: Sin datos de calidad, todo el sistema pierde valor
 
 ---
 
@@ -320,11 +321,143 @@ NUDGES: max 1/48h, priorizados overload > revenue > fase > tiempo
 AUTO-AJUSTE: solo→team si invita
 AMBOS: team_size_declared + team_members_count
 
-METODOLOGIA VISIBLE SIEMPRE:
+METODOLOGIA VISIBLE Y OPERATIVA:
   Header badge en TODAS las pantallas
   Tareas con badge de metodologia
   OBVs con proposito dentro del framework
   Invitados ven metodologia en su onboarding
   HowItWorks referencia metodologia
   PhaseGraduation explica nueva metodologia
+  BLOQUEADOR SUAVE: frena acciones fuera de fase
+  REESCRITURA: sugiere reformular tareas segun metodologia
+  PRIORIDAD: ordena tareas por relevancia metodologica
+
+METODOLOGIA x ROL (misma fase, diferente accion):
+  Founder F1: "Valida problema"
+  Growth F1: "Consigue evidencia de demanda"
+  Operations F1: "Facilita ejecucion de entrevistas"
 ```
+
+---
+
+## BLOQUE 8 — METODOLOGIA OPERATIVA (P0, diferenciador real)
+
+> La metodologia NO es un badge — es un SISTEMA que afecta decisiones.
+
+### B8.A — Bloqueador suave de acciones incorrectas (3 tareas)
+
+- [ ] **UX.8.1** Crear MethodologyGuard: cuando usuario crea tarea/OBV que no encaja con la fase, mostrar warning suave. Ej F1 usuario crea "desarrollar producto" → "Estas en Customer Discovery. Construir ahora puede invalidar aprendizaje. Seguro?" No bloquea, frena.
+  > Logica: mapear keywords por fase. F0=explorar/investigar, F1=validar/entrevistar, F2=activar/retener, F3=optimizar/margen, F4=escalar/delegar. Si tarea no matchea → warning.
+  > Crear: src/lib/methodology-guard.ts + src/components/shared/MethodologyWarning.tsx
+
+- [ ] **UX.8.2** Integrar MethodologyGuard en TaskForm: al escribir titulo, si detecta keyword fuera de fase, mostrar banner ambar con sugerencia. "Esta tarea parece de Fase 3 (operaciones). Estas en Fase 1 (discovery). Continuar?"
+  > FILE: src/components/tasks/TaskForm.tsx
+
+- [ ] **UX.8.3** Integrar MethodologyGuard en OBVForm: al seleccionar tipo, si no encaja con fase, mostrar contexto. F1 + tipo='venta' → "En Customer Discovery, las OBVs de venta son prematuras. Quieres crear una de validacion?"
+  > FILE: src/components/nova/obv-form/OBVStep1Type.tsx
+
+### B8.B — Reescritura inteligente de tareas (3 tareas)
+
+- [ ] **UX.8.4** Crear TaskRewriteSuggestion: cuando usuario crea tarea generica ("hacer web", "crear producto"), el sistema sugiere reformulacion alineada con metodologia. "Quieres reformular como validacion? Ej: 'testear landing con 10 usuarios'".
+  > Crear: src/components/tasks/TaskRewriteSuggestion.tsx
+  > Logica: llamar LLM (Haiku) con titulo + fase + metodologia → devuelve 1-2 sugerencias
+
+- [ ] **UX.8.5** Integrar TaskRewriteSuggestion en TaskForm: tras escribir titulo, si detecta tarea generica, mostrar chip "Reformular segun [Customer Discovery]" con sugerencia.
+  > FILE: src/components/tasks/TaskForm.tsx
+
+- [ ] **UX.8.6** Actualizar generate-tasks-v2: las tareas generadas por IA SIEMPRE incluyen referencia a la metodologia. Cada tarea tiene campo `methodology_context`: "Esta tarea es parte de Customer Discovery: validar demanda real antes de construir."
+  > FILE: supabase/functions/generate-tasks-v2/index.ts
+
+### B8.C — Prioridad visual por metodologia (2 tareas)
+
+- [ ] **UX.8.7** Ordenar tareas en Kanban por relevancia metodologica: tareas alineadas con la fase actual arriba (verde), tareas de otras fases abajo (gris). Usar PHASE_RELEVANCE de phase-features.ts.
+  > FILE: src/components/tasks/ (Kanban view)
+
+- [ ] **UX.8.8** Crear MethodologyRoleBadge: mismo badge de metodologia pero con traduccion por rol. Founder="Valida problema", Growth="Consigue evidencia de demanda", Operations="Facilita entrevistas". Usar PHASE_METHODOLOGY_DETAIL + macro-rol.
+  > Crear: extension de MethodologyBadge.tsx
+
+---
+
+## BLOQUE 9 — SEGUNDO LOOP / RETENCION (P0, sin esto no hay D2)
+
+> El primer loop trae al usuario. El segundo loop lo hace VOLVER.
+
+### B9.A — Continuidad dia 2-7 (5 tareas)
+
+- [ ] **UX.9.1** Crear DailyCheckIn component: al volver al dashboard despues de >12h, mostrar pregunta contextual. F0: "Hablaste con alguien sobre tu idea?" F1: "Completaste alguna entrevista?" F2: "Algun usuario se activo?"
+  > Crear: src/components/project/DailyCheckIn.tsx
+  > Respuestas: Si → registra insight/OBV rapido. No → recordatorio con contexto.
+
+- [ ] **UX.9.2** Si responde "Si" al check-in: formulario rapido para registrar insight. "Que aprendiste?" (1 campo) → crea nota/OBV automaticamente. "Insight registrado. Tu proyecto tiene 3 validaciones."
+  > Integrar en DailyCheckIn.tsx
+
+- [ ] **UX.9.3** Si responde "No": mostrar micro-coaching. "Sin validaciones, el analisis pierde fuerza. Hoy intenta [accion especifica segun NextAction]." Con boton directo a la accion.
+  > Integrar en DailyCheckIn.tsx
+
+- [ ] **UX.9.4** Crear WeeklyProgressDigest component: cada lunes, mostrar resumen de la semana. "Esta semana: 3 tareas, 1 OBV, score +5%. La semana que viene: [NextAction]." Motivacional pero con datos reales.
+  > Crear: src/components/project/WeeklyProgressDigest.tsx
+  > Aparece como banner top del dashboard los lunes
+
+- [ ] **UX.9.5** Implementar streak tracking: dias consecutivos con actividad. "Racha: 5 dias. No la pierdas." Mostrar en MiEspacioView. Si se rompe: "Tu racha se perdio. Vuelve hoy para empezar una nueva."
+  > Crear: src/lib/streak.ts + display en MiEspacioView
+
+### B9.B — Conexion con fases avanzadas (2 tareas)
+
+- [ ] **UX.9.6** DailyCheckIn adapta preguntas por fase Y rol. Growth F1: "Conseguiste algun lead calificado?" Ops F2: "Se activo algun nuevo usuario?" Finance F3: "Hubo algun cobro esta semana?"
+  > Usar PHASE_METHODOLOGY_DETAIL + macro-rol
+
+- [ ] **UX.9.7** Conectar insights del check-in con el phase engine: cada "Si" con insight registrado alimenta el phase_score. El usuario VE que su check-in impacta su progreso. "Tu insight subio el score 2 puntos."
+  > Conectar con useMomentDetector + phase scoring
+
+---
+
+## BLOQUE 10 — DATA QUALITY NUDGES (P0-P1, sin datos de calidad todo falla)
+
+> Si el usuario genera datos basura, F29/F30/F31 = ruido.
+> Los nudges educan sin bloquear.
+
+### B10.A — Quality checks en creacion (4 tareas)
+
+- [ ] **UX.10.1** Crear DataQualityNudge component: banner informativo (no bloqueante) que aparece cuando detecta datos incompletos. Tono educativo, no punitivo.
+  > Crear: src/components/shared/DataQualityNudge.tsx
+
+- [ ] **UX.10.2** Nudge en tareas: "Has creado 5 tareas sin categoria (function_type) → esto reducira la calidad del analisis IA. Quieres categorizarlas ahora?" Con boton "Categorizar".
+  > Trigger: tasks sin function_type > 3 en los ultimos 7 dias
+  > FILE: ProjectDashboardTab.tsx o TasksView
+
+- [ ] **UX.10.3** Nudge en OBVs: "Esta OBV no tiene resultado (outcome) → no se podra usar para analisis. Quieres completarla?" Con link directo.
+  > Trigger: OBV status='draft' sin outcome > 48h
+  > FILE: OBVCenterView o dashboard
+
+- [ ] **UX.10.4** Nudge en metricas: "Tu MRR no se actualiza desde hace 3 semanas → las predicciones pierden precision. Actualizar ahora?" Con link a Financial.
+  > Trigger: key_metrics.date mas reciente > 21 dias
+  > FILE: dashboard o Financial
+
+### B10.B — Quality score visible (3 tareas)
+
+- [ ] **UX.10.5** Crear DataQualityScore: calcula % de datos completos del proyecto. Tareas con categoria + OBVs con outcome + metricas actualizadas + integraciones activas. Mostrar como barra en dashboard.
+  > Crear: src/lib/data-quality.ts + src/components/project/DataQualityBar.tsx
+
+- [ ] **UX.10.6** Integrar DataQualityScore en AI analysis: cuando el score es bajo (<50%), el analisis IA muestra disclaimer "Analisis basado en datos incompletos. Mejora la calidad para resultados mas precisos." con link a nudges.
+  > FILE: AIAnalysisDashboard.tsx
+
+- [ ] **UX.10.7** Quality score impacta confidence: en evidence.ts, anadir data_quality_factor al calculo de confidence. Datos incompletos → confidence baja automaticamente. El usuario VE que completar datos mejora la fiabilidad.
+  > FILE: src/lib/evidence.ts (scoring formula)
+
+---
+
+## RESUMEN NUMERICO ACTUALIZADO
+
+| Bloque | Tareas | Prioridad | Impacto |
+|---|---|---|---|
+| B1 — Loop 2 minutos | 10 | P0 | Retencion D1 |
+| B2 — Metodologia visible | 8 | P0 | Credibilidad |
+| B3 — Equipo y roles | 17 | P0-P1 | Experiencia diferenciada |
+| B4 — Sidebar + navegacion | 5 | P1 | Descubrimiento |
+| B5 — HowItWorks + Evidence | 9 | P1-P2 | Transparencia |
+| B6 — UX Polish | 7 | P2 | Consistencia |
+| B7 — Disenar pantallas Stitch | 29 | P0 | Referencia visual |
+| **B8 — Metodologia operativa** | **8** | **P0** | **Diferenciador real** |
+| **B9 — Segundo loop / Retencion** | **7** | **P0** | **D2-D7 retention** |
+| **B10 — Data quality nudges** | **7** | **P0-P1** | **Calidad del sistema** |
+| **TOTAL** | **107 tareas** | | |
