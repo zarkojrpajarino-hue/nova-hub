@@ -472,6 +472,7 @@ export function SectionHelp({ section, variant = 'inline', className }: SectionH
 
 // Floating help widget for all sections
 export function HelpWidget({ section, className }: HelpWidgetProps) {
+  const { t } = useTranslation();
   const content = getHelp(section);
   const { isDemoMode } = useDemoMode();
   
