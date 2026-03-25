@@ -115,7 +115,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
   return useQuery({
     queryKey: queryKeys.engine.phase(projectId!),
     queryFn: async (): Promise<PhaseEngineData> => {
-      const [stateResult, historyResult, obvsCount, kpisCount, tasksDoneCount] = await Promise.all([
+      const [stateResult, historyResult] = await Promise.all([
         supabase
           .from('project_phase_state')
           .select('current_phase, phase_score, phase_status, hard_signal_met, last_calculated_at, phase_entered_at, primary_block, entry_mode, graduation_eligible_since, graduated, consecutive_low_score')
@@ -127,20 +127,31 @@ export function useProjectPhaseData(projectId: string | undefined) {
           .eq('project_id', projectId!)
           .order('calculated_at', { ascending: false })
           .limit(8),
-        supabase.from('obvs').select('id', { count: 'exact', head: true }).eq('project_id', projectId!),
-        supabase.rpc('count_project_kpis', { p_project_id: projectId! }),
-        supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('project_id', projectId!).eq('status', 'done'),
       ]);
       if (stateResult.error)   throw stateResult.error;
       if (historyResult.error) throw historyResult.error;
-      return {
-        phaseState:   stateResult.data,
-        phaseHistory: historyResult.data ?? [],
-        counts: {
+
+      // Counts fetched separately — errors don't break phase data
+      let counts: PhaseEngineData['counts'];
+      try {
+        const [obvsCount, kpisCount, tasksDoneCount] = await Promise.all([
+          supabase.from('obvs').select('id', { count: 'exact', head: true }).eq('project_id', projectId!),
+          supabase.rpc('count_project_kpis', { p_project_id: projectId! }),
+          supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('project_id', projectId!).eq('status', 'done'),
+        ]);
+        counts = {
           obvsCount: obvsCount.count ?? 0,
           kpisCount: (kpisCount.data as number) ?? 0,
           tasksDoneWeek: tasksDoneCount.count ?? 0,
-        },
+        };
+      } catch {
+        counts = undefined;
+      }
+
+      return {
+        phaseState:   stateResult.data,
+        phaseHistory: historyResult.data ?? [],
+        counts,
       };
     },
     enabled: !!projectId,
