@@ -426,13 +426,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     && totals.lps === 0
     && totals.facturacion === 0;
 
-  if (loadingMembers) {
-    return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin text-primary" />
-      </div>
-    );
-  }
+  // Don't block entire page on loadingMembers — engine section renders independently
 
   return (
     <>
