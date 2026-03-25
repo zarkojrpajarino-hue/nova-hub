@@ -100,13 +100,16 @@ export function DashboardAdapter({
     if (!render) return null;
 
     const depth = engine.getDepth(block);
+    const content = render(depth);
+    if (!content) return null; // Don't render wrapper div for empty content
+
     const priority = engine.getPriority(block);
     const reason = engine.getReason(block);
 
     return (
       <div key={block} data-engine-block={block} data-engine-priority={priority} data-engine-depth={depth}>
         <DebugBadge block={block} depth={depth} priority={priority} reason={reason} />
-        {render(depth)}
+        {content}
       </div>
     );
   };

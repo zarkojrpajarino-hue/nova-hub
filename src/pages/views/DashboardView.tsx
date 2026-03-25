@@ -137,22 +137,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     staleTime: 2 * 60_000,
     enabled: !!projectId,
   });
-  const { data: phaseStateData } = useQuery({
-    queryKey: ['phase-state', projectId],
-    queryFn: async () => {
-      const { data } = await supabase
-        .from('project_phase_state')
-        .select('current_phase, phase_score, graduated')
-        .eq('project_id', projectId!)
-        .maybeSingle();
-      return data as { current_phase: number; phase_score: number; graduated: boolean } | null;
-    },
-    staleTime: 2 * 60_000,
-    enabled: !!projectId,
-  });
-  const currentPhase = phaseStateData?.current_phase ?? 0;
-
   const { data: engineData, isLoading: engineLoading } = useProjectEngineData(projectId);
+  // Use phase from engineData (same query, no duplication, same RLS path)
+  const currentPhase = engineData?.phaseState?.current_phase ?? 0;
   const { data: viabilityData } = useProjectViabilityState(projectId);
   const { data: functionOwners } = useProjectFunctions(projectId);
   const { permissions: rolePermissions } = useRolePermissions(projectId);
@@ -366,12 +353,17 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     },
     {
       block: 'alerts' as const,
-      render: (_depth: BlockDepth) => projectId ? (
-        <>
-          {!isZenMode && daysActive >= 3 && <TrialCountdownBanner projectId={projectId} />}
-          <AICallsNudge projectId={projectId} />
-        </>
-      ) : null,
+      render: (_depth: BlockDepth) => {
+        // Don't render wrapper if nothing to show (avoids empty space)
+        if (!projectId) return null;
+        const showTrial = !isZenMode && daysActive >= 3;
+        return (
+          <>
+            {showTrial && <TrialCountdownBanner projectId={projectId} />}
+            <AICallsNudge projectId={projectId} />
+          </>
+        );
+      },
     },
     {
       block: 'crm_summary' as const,
@@ -515,7 +507,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             hasRevenue={totals.facturacion > 0}
             hasIntegrations={activeIntegrationsCount > 0}
             kpiCount={kpiCount}
-            phaseScore={phaseStateData?.phase_score ?? 0}
+            phaseScore={engineData?.phaseState?.phase_score ?? 0}
             projectId={projectId}
             renderers={engineRenderers}
           />
