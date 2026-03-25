@@ -24,11 +24,11 @@ export function RootRedirect() {
   const { currentProject, userProjects, isLoading: projectsLoading } = useCurrentProject();
   const [timedOut, setTimedOut] = useState(false);
 
-  // Timeout: if loading doesn't complete in 10s, show error
+  // Timeout: if loading doesn't complete in 20s, show error
   useEffect(() => {
     const timer = setTimeout(() => {
       setTimedOut(true);
-    }, 10_000);
+    }, 20_000);
     return () => clearTimeout(timer);
   }, []);
 
