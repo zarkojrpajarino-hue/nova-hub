@@ -451,18 +451,13 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           />
         )}
 
-        {/* Core Stats — rendered outside DashboardAdapter to avoid re-render loops */}
-        {projectId && project && (leadsCount > 0 || kpiCount > 0 || tasksCompletedWeekly > 0) && (
+        {/* Core Stats — always show if project exists */}
+        {projectId && project && (
           <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-            {leadsCount > 0 && (
-              <StatCard icon={FileCheck} value={leadsCount} label={t('project.obvs')} progress={0} color="#5CE1E6" delay={1} />
-            )}
-            {kpiCount > 0 && (
-              <StatCard icon={Trophy} value={kpiCount} label={t('project.kpis')} progress={0} color="#FF66C4" delay={2} />
-            )}
-            {tasksCompletedWeekly > 0 && (
-              <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={3} />
-            )}
+            <StatCard icon={FileCheck} value={leadsCount || '–'} label="OBVs" progress={0} color="#5CE1E6" delay={1} />
+            <StatCard icon={Trophy} value={kpiCount || '–'} label="KPIs" progress={0} color="#FF66C4" delay={2} />
+            <StatCard icon={Calendar} value={daysActive || 0} label="Días activo" progress={0} color="#7C3AED" delay={3} />
+            <StatCard icon={CheckSquare} value={tasksCompletedWeekly || '–'} label="Tareas semana" progress={0} color="#5CE1E6" delay={4} />
           </div>
         )}
 
