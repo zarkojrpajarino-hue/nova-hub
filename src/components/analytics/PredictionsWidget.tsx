@@ -10,7 +10,6 @@ import { PREMIUM_DEMO_DATA } from '@/data/premiumDemoData';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface PredictionsWidgetProps {
   members: MemberStats[];
   period: 'week' | 'month' | 'quarter' | 'year';

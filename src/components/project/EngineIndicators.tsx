@@ -2,7 +2,6 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface EngineIndicatorsProps {
   engineData: ProjectEngineData | null | undefined;
 }

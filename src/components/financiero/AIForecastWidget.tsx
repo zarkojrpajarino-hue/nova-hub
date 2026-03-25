@@ -18,7 +18,6 @@ import { cn } from '@/lib/utils';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface ForecastData {
   proyeccion_hot: number;
   proyeccion_propuesta: number;

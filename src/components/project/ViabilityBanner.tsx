@@ -4,7 +4,6 @@ import type { ViabilityStateData } from '@/hooks/useNovaDataOptimized';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 // ── Copy por trigger_type ─────────────────────────────────────────────────────
 
 const YELLOW_COPY: Record<string, { title: string; body: string }> = {

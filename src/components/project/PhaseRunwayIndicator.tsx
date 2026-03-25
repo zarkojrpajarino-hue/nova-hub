@@ -11,7 +11,6 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface PhaseRunwayIndicatorProps {
   engineData: ProjectEngineData;
   scoreHistory: number[];  // últimas 8 semanas

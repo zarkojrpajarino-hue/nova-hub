@@ -8,7 +8,6 @@ import { differenceInDays } from 'date-fns';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface Alert {
   id: string;
   type: 'inactive_member' | 'stale_leads' | 'goal_at_risk';

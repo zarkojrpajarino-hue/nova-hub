@@ -12,12 +12,15 @@
 Engine core:          HECHO — getDashboardConfig + getSidebarConfig + transitions
 Dashboard (ruta real):ACTIVO — DashboardAdapter montado en DashboardView.tsx
 Sidebar:              ACTIVO — NovaSidebar usa getSidebarConfig() con role filtering
-Role filtering:       ACTIVO — specializationRole + isLead reales (useRolePermissions)
+Role filtering:       ACTIVO — dashboard (engine + KPI Grid legacy) + sidebar
+Project fetch:        OPTIMIZADO — query directa por projectId (no useProjects)
+Zen mode:             SEGURO — no flash en carga (daysActive=-1 hasta project load)
 teamMode:             ACTIVO — solo/team/hiring desde onboarding_data
-isZenMode:            ACTIVO — created_at + localStorage + phase
 hasIntegrations:      ACTIVO — query real integration_connections
 kpiCount:             ACTIVO — query real kpis via memberIds (profiles.id confirmado)
+conversion_rate:      ACTIVO — leads_ganados real / leadsCount (no fake)
 Tests:                136/136 passing (3 test suites)
+Agujeros abiertos:    0 (6 auditados, todos cerrados o confirmados no-agujero)
 ```
 
 ### Arquitectura actual de la ruta real

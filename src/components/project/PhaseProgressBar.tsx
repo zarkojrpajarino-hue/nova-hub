@@ -6,7 +6,6 @@ import { EngineEmptyState } from './EngineEmptyState';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
 import { useTranslation } from 'react-i18next';
-import { SourceBadge } from '@/components/shared/SourceBadge';
 interface PhaseProgressBarProps {
   engineData: ProjectEngineData | null | undefined;
   onCTA?: () => void;
