@@ -148,15 +148,21 @@ const TRANSITIONS: Record<DashboardBlock, {
 export function getDashboardConfig(ctx: ExperienceContext): DashboardConfig {
   const blocks = ALL_BLOCKS.map(block => resolveBlock(block, ctx));
 
-  const primary = blocks
-    .filter(b => b.priority === 'primary')
-    .slice(0, 6); // HARD LIMIT: max 6
+  const primaryCandidates = blocks.filter(b => b.priority === 'primary');
+  const secondaryCandidates = blocks.filter(b => b.priority === 'secondary');
 
-  const secondary = blocks
-    .filter(b => b.priority === 'secondary')
-    .slice(0, 3); // HARD LIMIT: max 3
+  // HARD LIMITS: excess goes to deep (not lost)
+  const primary = primaryCandidates.slice(0, 6);
+  const primaryOverflow = primaryCandidates.slice(6).map(b => ({ ...b, priority: 'deep' as BlockPriority }));
 
-  const deep = blocks.filter(b => b.priority === 'deep');
+  const secondary = secondaryCandidates.slice(0, 3);
+  const secondaryOverflow = secondaryCandidates.slice(3).map(b => ({ ...b, priority: 'deep' as BlockPriority }));
+
+  const deep = [
+    ...blocks.filter(b => b.priority === 'deep'),
+    ...primaryOverflow,
+    ...secondaryOverflow,
+  ];
   const hidden = blocks.filter(b => b.priority === 'hidden');
 
   return { primary, secondary, deep, hidden };

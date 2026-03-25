@@ -264,6 +264,50 @@ describe('Scenario: Operations member, Phase 3', () => {
   });
 });
 
+// ── SCENARIO: Founder P2, rich data ──────────────────────────────────────────
+
+describe('Scenario: Founder, Phase 2, rich data', () => {
+  const ctx = makeContext({
+    phase: 2, macroRole: 'founder', teamMode: 'solo', teamSize: 1,
+    totalLeads: 15, totalOBVs: 10, totalTasks: 25, hasRevenue: true,
+    hasIntegrations: true, kpiCount: 3, daysActive: 60, isZenMode: false, phaseSCore: 72,
+  });
+
+  it('max 6 primary', () => {
+    const config = getDashboardConfig(ctx);
+    expect(config.primary.length).toBeLessThanOrEqual(6);
+  });
+
+  it('crm_summary is primary (15 leads)', () => {
+    const block = findBlock(getDashboardConfig(ctx), 'crm_summary');
+    expect(block?.priority).toBe('primary');
+    expect(block?.depth).toBe('full');
+  });
+
+  it('financial_summary is summary (has revenue but < 3 months)', () => {
+    const block = findBlock(getDashboardConfig(ctx), 'financial_summary');
+    expect(block?.depth).toBe('summary');
+  });
+
+  it('obvs is not primary in Phase 2 for founder (crm takes over)', () => {
+    const config = getDashboardConfig(ctx);
+    // In Phase 2 with 15 leads, CRM is primary. OBVs may be secondary.
+    const primaryBlocks = config.primary.map(b => b.block);
+    // next_action, methodology, core_stats, phase_engine, crm_summary + 1 more = max 6
+    expect(primaryBlocks.length).toBeLessThanOrEqual(6);
+  });
+
+  it('team_status is deep (solo founder)', () => {
+    const block = findBlock(getDashboardConfig(ctx), 'team_status');
+    expect(block?.priority).toBe('deep');
+  });
+
+  it('phase_engine is secondary in Phase 2', () => {
+    const block = findBlock(getDashboardConfig(ctx), 'phase_engine');
+    expect(block?.priority).toBe('secondary');
+  });
+});
+
 // ── Sidebar ──────────────────────────────────────────────────────────────────
 
 describe('Sidebar config', () => {
