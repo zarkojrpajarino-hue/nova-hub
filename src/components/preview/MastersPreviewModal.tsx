@@ -57,6 +57,7 @@ interface Achievement {
   description: string;
 }
 
+function getMastersData(t: (key: string) => string) {
 const MASTERS_DATA: Master[] = [
   { id: '1', name: t('preview.sarahChen'), role: t('preview.frontendArchitect'), avatar: '👩‍💻', level: 10, competencies: 15, achievements: 24, specialty: t('preview.reactEcosystem') },
   { id: '2', name: t('preview.marcusJohnson'), role: t('preview.backendLead'), avatar: '👨‍💼', level: 10, competencies: 18, achievements: 31, specialty: t('preview.systemDesign') },
@@ -159,9 +160,13 @@ const USER_PROGRESS = {
   overallProgress: 67,
 };
 
+return { MASTERS_DATA, FEATURED_MASTER, MASTER_COMPETENCIES, MASTER_ACHIEVEMENTS, CERTIFICATION_STEPS, MASTER_BENEFITS, USER_PROGRESS };
+}
+
 // Slide Components
 function IntroSlide() {
   const { t } = useTranslation();
+  const { MASTERS_DATA } = getMastersData(t);
   return (
     <div className="space-y-6">
       <div className="text-center space-y-3">
@@ -217,6 +222,8 @@ function IntroSlide() {
 }
 
 function MastersGallerySlide() {
+  const { t } = useTranslation();
+  const { MASTERS_DATA } = getMastersData(t);
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -257,6 +264,8 @@ function MastersGallerySlide() {
 }
 
 function MasterProfileSlide() {
+  const { t } = useTranslation();
+  const { FEATURED_MASTER, MASTER_COMPETENCIES, MASTER_ACHIEVEMENTS } = getMastersData(t);
   return (
     <div className="space-y-6 max-h-[550px] overflow-y-auto pr-2">
       <div className="text-center">
@@ -318,6 +327,8 @@ function MasterProfileSlide() {
 }
 
 function CertificationProcessSlide() {
+  const { t } = useTranslation();
+  const { CERTIFICATION_STEPS } = getMastersData(t);
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -361,6 +372,8 @@ function CertificationProcessSlide() {
 }
 
 function MasterBenefitsSlide() {
+  const { t } = useTranslation();
+  const { MASTER_BENEFITS } = getMastersData(t);
   return (
     <div className="space-y-6">
       <div className="text-center">
@@ -401,6 +414,8 @@ function MasterBenefitsSlide() {
 }
 
 function PathToMasterySlide() {
+  const { t } = useTranslation();
+  const { USER_PROGRESS } = getMastersData(t);
   const progressCategories = [
     {
       title: t('preview.levelRequirement'),
@@ -522,6 +537,8 @@ function PathToMasterySlide() {
 }
 
 export function MastersPreviewModal({ open, onOpenChange }: MastersPreviewModalProps) {
+  const { t } = useTranslation();
+  const { MASTERS_DATA, FEATURED_MASTER, MASTER_COMPETENCIES, MASTER_ACHIEVEMENTS, CERTIFICATION_STEPS, MASTER_BENEFITS, USER_PROGRESS } = getMastersData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const nextSlide = () => {

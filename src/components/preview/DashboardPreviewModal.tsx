@@ -41,7 +41,7 @@ interface DashboardPreviewModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const SLIDES = [
+function getSlides(t: (key: string) => string) { return [
   {
     id: 'intro',
     title: t('preview.dashboardTuCentroDe'),
@@ -683,10 +683,11 @@ const SLIDES = [
       </div>
     ),
   },
-];
+]; }
 
 export function DashboardPreviewModal({ open, onOpenChange }: DashboardPreviewModalProps) {
   const { t } = useTranslation();
+  const SLIDES = getSlides(t);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {

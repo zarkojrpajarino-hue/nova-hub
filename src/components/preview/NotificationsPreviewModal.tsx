@@ -30,6 +30,7 @@ interface Notification {
   details?: string;
 }
 
+function getNotificationsData(t: (key: string) => string) {
 const mockNotifications: Notification[] = [
   {
     id: "1",
@@ -145,9 +146,12 @@ const typeConfig: Record<NotificationType, { label: string; color: string; bgCol
   system: { label: t('preview.system'), color: "text-gray-600", bgColor: "bg-gray-100" },
   achievement: { label: t('preview.achievement'), color: "text-green-600", bgColor: "bg-green-100" },
 };
+return { mockNotifications, typeConfig };
+}
 
 export function NotificationsPreviewModal({ open, onOpenChange }: NotificationsPreviewModalProps) {
   const { t } = useTranslation();
+  const { mockNotifications, typeConfig } = getNotificationsData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedFilter, setSelectedFilter] = useState<NotificationType | "all">("all");
   const [selectedNotification, setSelectedNotification] = useState<Notification>(mockNotifications[0]);

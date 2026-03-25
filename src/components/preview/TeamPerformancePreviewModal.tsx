@@ -37,6 +37,7 @@ interface Project {
   allocation: { [key: string]: number };
 }
 
+function getTeamData(t: (key: string) => string) {
 const teamMembers: TeamMember[] = [
   { id: '1', name: t('preview.sarahChen4'), role: t('preview.engineeringLead5'), department: t('preview.engineering'), performance: 95, utilization: 88, projects: [t('preview.projectAlpha'), t('preview.projectBeta')], manager: 'CEO', skills: { 'Leadership': 95, 'Technical': 90, 'Communication': 88, 'Strategy': 85 } },
   { id: '2', name: t('preview.marcusWilliams'), role: t('preview.seniorDeveloper'), department: t('preview.engineering'), performance: 92, utilization: 85, projects: [t('preview.projectAlpha'), t('preview.projectGamma')], manager: '1', skills: { 'Leadership': 75, 'Technical': 95, 'Communication': 80, 'Strategy': 70 } },
@@ -92,10 +93,14 @@ const projects: Project[] = [
   { name: t('preview.projectNu'), members: [t('preview.ninaKowalski'), t('preview.emmaWatson')], allocation: { 'Nina Kowalski': 60, 'Emma Watson': 70 } },
 ];
 
+return { teamMembers, departments, projects };
+}
+
 function getSkills(t: (k: string) => string) { return [t('preview.leadership'), t('preview.technical'), t('preview.communication'), t('preview.strategy')]; }
 
 export function TeamPerformancePreviewModal({ open, onOpenChange }: TeamPerformancePreviewModalProps) {
   const { t } = useTranslation();
+  const { teamMembers, departments, projects } = getTeamData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const totalSlides = 7;

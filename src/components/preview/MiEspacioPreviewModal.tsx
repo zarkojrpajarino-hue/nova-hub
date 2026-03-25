@@ -42,6 +42,7 @@ interface MiEspacioPreviewModalProps {
 }
 
 // Datos demo enterprise-level de un usuario real
+function getMiEspacioData(t: (key: string) => string) {
 const DEMO_USER = {
   nombre: t('preview.maríaGarcía'),
   rol: t('preview.seniorProductManager'),
@@ -1009,9 +1010,12 @@ const SLIDES = [
     ),
   },
 ];
+return { DEMO_USER, SLIDES };
+}
 
 export function MiEspacioPreviewModal({ open, onOpenChange }: MiEspacioPreviewModalProps) {
   const { t } = useTranslation();
+  const { SLIDES } = getMiEspacioData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {

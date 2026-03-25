@@ -21,12 +21,14 @@ function isValidSiguienteAccion(text: string): boolean {
   return true;
 }
 
-const FUNCTION_TYPE_OPTIONS = [
-  { value: 'demand',   label: t('tasks.demanda'),  color: '#F59E0B', description: t('tasks.generaciónDeLeadsVentas') },
-  { value: 'delivery', label: t('tasks.delivery'), color: '#3B82F6', description: t('tasks.productoDesarrolloEntregaAl') },
-  { value: 'cash',     label: t('tasks.cash'),     color: '#22C55E', description: t('tasks.facturaciónCobrosGestiónFinanciera') },
-  { value: 'support',  label: t('tasks.soporte'),  color: '#A855F7', description: t('tasks.operacionesAtenciónAlCliente') },
-] as const;
+function getFunctionTypeOptions(t: (key: string) => string) {
+  return [
+    { value: 'demand',   label: t('tasks.demanda'),  color: '#F59E0B', description: t('tasks.generaciónDeLeadsVentas') },
+    { value: 'delivery', label: t('tasks.delivery'), color: '#3B82F6', description: t('tasks.productoDesarrolloEntregaAl') },
+    { value: 'cash',     label: t('tasks.cash'),     color: '#22C55E', description: t('tasks.facturaciónCobrosGestiónFinanciera') },
+    { value: 'support',  label: t('tasks.soporte'),  color: '#A855F7', description: t('tasks.operacionesAtenciónAlCliente') },
+  ] as const;
+}
 
 interface TaskCompletionDialogProps {
   open: boolean;
@@ -68,6 +70,7 @@ export function TaskCompletionDialog({
   onComplete
 }: TaskCompletionDialogProps) {
   const { t } = useTranslation();
+  const FUNCTION_TYPE_OPTIONS = getFunctionTypeOptions(t);
   const navigate = useNavigate();
   const [isGeneratingQuestions, setIsGeneratingQuestions] = useState(false);
   const [aiQuestions, setAiQuestions] = useState<AIQuestion[]>([]);

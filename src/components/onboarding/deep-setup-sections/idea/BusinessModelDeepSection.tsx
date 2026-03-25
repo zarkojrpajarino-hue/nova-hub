@@ -40,80 +40,82 @@ interface BusinessModelDeepSectionProps {
   onCancel: () => void;
 }
 
-const BMC_BLOCKS = [
-  {
-    id: 'customer_segments',
-    name: t('onboarding.customerSegments'),
-    icon: Users,
-    color: 'bg-blue-500',
-    question: t('onboarding.whoAreYourMost'),
-    placeholder: 'e.g., Small businesses (10-50 employees) in retail sector, tech-savvy millennials, enterprise companies...',
-  },
-  {
-    id: 'value_propositions',
-    name: t('onboarding.valuePropositions'),
-    icon: Heart,
-    color: 'bg-red-500',
-    question: t('onboarding.whatValueDoYou'),
-    placeholder: 'e.g., Save 10 hours/week on manual tasks, reduce costs by 30%, provide peace of mind...',
-  },
-  {
-    id: 'channels',
-    name: t('onboarding.channels'),
-    icon: MessageSquare,
-    color: 'bg-green-500',
-    question: t('onboarding.howDoYouReach'),
-    placeholder: 'e.g., Direct sales, website, mobile app, retail stores, partnerships...',
-  },
-  {
-    id: 'customer_relationships',
-    name: t('onboarding.customerRelationships'),
-    icon: Handshake,
-    color: 'bg-purple-500',
-    question: t('onboarding.whatTypeOfRelationship'),
-    placeholder: 'e.g., Personal assistance, self-service, automated, communities...',
-  },
-  {
-    id: 'revenue_streams',
-    name: t('onboarding.revenueStreams'),
-    icon: DollarSign,
-    color: 'bg-yellow-500',
-    question: t('onboarding.howDoYouMake'),
-    placeholder: 'e.g., Subscription $99/mo, transaction fees 3%, one-time license $500...',
-  },
-  {
-    id: 'key_resources',
-    name: t('onboarding.keyResources'),
-    icon: Boxes,
-    color: 'bg-orange-500',
-    question: t('onboarding.whatKeyResourcesDo'),
-    placeholder: 'e.g., Technology platform, brand, intellectual property, human resources...',
-  },
-  {
-    id: 'key_activities',
-    name: t('onboarding.keyActivities'),
-    icon: Zap,
-    color: 'bg-pink-500',
-    question: t('onboarding.whatKeyActivitiesMust'),
-    placeholder: 'e.g., Software development, customer support, marketing, supply chain...',
-  },
-  {
-    id: 'key_partnerships',
-    name: t('onboarding.keyPartnerships'),
-    icon: Network,
-    color: 'bg-indigo-500',
-    question: t('onboarding.whoAreYourKey'),
-    placeholder: 'e.g., Cloud providers (AWS), payment processors (Stripe), strategic alliances...',
-  },
-  {
-    id: 'cost_structure',
-    name: t('onboarding.costStructure'),
-    icon: TrendingUp,
-    color: 'bg-cyan-500',
-    question: t('onboarding.whatAreYourMost'),
-    placeholder: 'e.g., Salaries $50k/mo, cloud infrastructure $5k/mo, marketing $10k/mo...',
-  },
-];
+function getBmcBlocks(t: (key: string) => string) {
+  return [
+    {
+      id: 'customer_segments',
+      name: t('onboarding.customerSegments'),
+      icon: Users,
+      color: 'bg-blue-500',
+      question: t('onboarding.whoAreYourMost'),
+      placeholder: 'e.g., Small businesses (10-50 employees) in retail sector, tech-savvy millennials, enterprise companies...',
+    },
+    {
+      id: 'value_propositions',
+      name: t('onboarding.valuePropositions'),
+      icon: Heart,
+      color: 'bg-red-500',
+      question: t('onboarding.whatValueDoYou'),
+      placeholder: 'e.g., Save 10 hours/week on manual tasks, reduce costs by 30%, provide peace of mind...',
+    },
+    {
+      id: 'channels',
+      name: t('onboarding.channels'),
+      icon: MessageSquare,
+      color: 'bg-green-500',
+      question: t('onboarding.howDoYouReach'),
+      placeholder: 'e.g., Direct sales, website, mobile app, retail stores, partnerships...',
+    },
+    {
+      id: 'customer_relationships',
+      name: t('onboarding.customerRelationships'),
+      icon: Handshake,
+      color: 'bg-purple-500',
+      question: t('onboarding.whatTypeOfRelationship'),
+      placeholder: 'e.g., Personal assistance, self-service, automated, communities...',
+    },
+    {
+      id: 'revenue_streams',
+      name: t('onboarding.revenueStreams'),
+      icon: DollarSign,
+      color: 'bg-yellow-500',
+      question: t('onboarding.howDoYouMake'),
+      placeholder: 'e.g., Subscription $99/mo, transaction fees 3%, one-time license $500...',
+    },
+    {
+      id: 'key_resources',
+      name: t('onboarding.keyResources'),
+      icon: Boxes,
+      color: 'bg-orange-500',
+      question: t('onboarding.whatKeyResourcesDo'),
+      placeholder: 'e.g., Technology platform, brand, intellectual property, human resources...',
+    },
+    {
+      id: 'key_activities',
+      name: t('onboarding.keyActivities'),
+      icon: Zap,
+      color: 'bg-pink-500',
+      question: t('onboarding.whatKeyActivitiesMust'),
+      placeholder: 'e.g., Software development, customer support, marketing, supply chain...',
+    },
+    {
+      id: 'key_partnerships',
+      name: t('onboarding.keyPartnerships'),
+      icon: Network,
+      color: 'bg-indigo-500',
+      question: t('onboarding.whoAreYourKey'),
+      placeholder: 'e.g., Cloud providers (AWS), payment processors (Stripe), strategic alliances...',
+    },
+    {
+      id: 'cost_structure',
+      name: t('onboarding.costStructure'),
+      icon: TrendingUp,
+      color: 'bg-cyan-500',
+      question: t('onboarding.whatAreYourMost'),
+      placeholder: 'e.g., Salaries $50k/mo, cloud infrastructure $5k/mo, marketing $10k/mo...',
+    },
+  ];
+}
 
 export function BusinessModelDeepSection({
   projectId: _projectId,
@@ -121,6 +123,7 @@ export function BusinessModelDeepSection({
   onCancel,
 }: BusinessModelDeepSectionProps) {
   const { t } = useTranslation();
+  const BMC_BLOCKS = getBmcBlocks(t);
   const [currentBlock, setCurrentBlock] = useState(0);
   const [bmcData, setBmcData] = useState<Record<string, string>>({});
   const [isAnalyzing, setIsAnalyzing] = useState(false);

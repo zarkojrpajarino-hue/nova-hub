@@ -66,6 +66,7 @@ interface ValidationHistory {
   rating: number;
 }
 
+function getValidacionesData(t: (key: string) => string) {
 const VALIDATION_QUEUE: ValidationItem[] = [
   {
     id: "VAL-2024-089",
@@ -201,9 +202,12 @@ const VALIDATION_HISTORY: ValidationHistory[] = [
     rating: 5
   }
 ];
+return { VALIDATION_QUEUE, VALIDATION_HISTORY };
+}
 
 export function ValidacionesPreviewModal({ open, onOpenChange }: ValidacionesPreviewModalProps) {
   const { t } = useTranslation();
+  const { VALIDATION_QUEUE, VALIDATION_HISTORY } = getValidacionesData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedValidation, setSelectedValidation] = useState<ValidationItem>(VALIDATION_QUEUE[0]);
   const [validationComment, setValidationComment] = useState("");

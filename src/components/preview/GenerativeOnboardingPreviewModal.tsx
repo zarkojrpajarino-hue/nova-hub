@@ -35,6 +35,7 @@ interface GenerativeOnboardingPreviewModalProps {
 }
 
 // Demo data
+function getOnboardingDemoData(t: (key: string) => string) {
 const demoCompanyData = {
   name: 'TechVision AI',
   industry: 'Artificial Intelligence & SaaS',
@@ -180,11 +181,15 @@ const generatedTasks = [
   },
 ];
 
+return { demoCompanyData, generatedRoles, generatedTasks };
+}
+
 export function GenerativeOnboardingPreviewModal({
   open,
   onOpenChange,
 }: GenerativeOnboardingPreviewModalProps) {
   const { t } = useTranslation();
+  const { demoCompanyData, generatedRoles, generatedTasks } = getOnboardingDemoData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [isGenerating, setIsGenerating] = useState(false);
   const totalSlides = 6;

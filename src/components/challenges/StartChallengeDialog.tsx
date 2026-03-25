@@ -29,35 +29,37 @@ interface StartChallengeDialogProps {
   onSuccess?: () => void;
 }
 
-const CHALLENGE_TYPES = [
-  {
-    id: 'performance_battle',
-    name: t('challenges.performanceBattle'),
-    icon: Zap,
-    duration: '2 semanas',
-    description: t('challenges.competenciaDirectaEnMétricas'),
-    details: t('challenges.ganaQuienTengaMayor'),
-    color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
-  },
-  {
-    id: 'project_showdown',
-    name: t('challenges.projectShowdown'),
-    icon: Trophy,
-    duration: '3 semanas',
-    description: t('challenges.ambosLideranUnProyecto'),
-    details: t('challenges.ganaQuienRecibaMás'),
-    color: 'from-purple-500/20 to-pink-500/20 border-purple-500/30',
-  },
-  {
-    id: 'peer_vote',
-    name: t('challenges.peerVote'),
-    icon: Users,
-    duration: '1 semana',
-    description: t('challenges.elEquipoVotaDirectamente'),
-    details: t('challenges.masterNecesita51De'),
-    color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
-  },
-];
+function getChallengeTypes(t: (key: string) => string) {
+  return [
+    {
+      id: 'performance_battle',
+      name: t('challenges.performanceBattle'),
+      icon: Zap,
+      duration: '2 semanas',
+      description: t('challenges.competenciaDirectaEnMétricas'),
+      details: t('challenges.ganaQuienTengaMayor'),
+      color: 'from-amber-500/20 to-orange-500/20 border-amber-500/30',
+    },
+    {
+      id: 'project_showdown',
+      name: t('challenges.projectShowdown'),
+      icon: Trophy,
+      duration: '3 semanas',
+      description: t('challenges.ambosLideranUnProyecto'),
+      details: t('challenges.ganaQuienRecibaMás'),
+      color: 'from-purple-500/20 to-pink-500/20 border-purple-500/30',
+    },
+    {
+      id: 'peer_vote',
+      name: t('challenges.peerVote'),
+      icon: Users,
+      duration: '1 semana',
+      description: t('challenges.elEquipoVotaDirectamente'),
+      details: t('challenges.masterNecesita51De'),
+      color: 'from-blue-500/20 to-cyan-500/20 border-blue-500/30',
+    },
+  ];
+}
 
 export function StartChallengeDialog({
   open,
@@ -68,6 +70,7 @@ export function StartChallengeDialog({
   onSuccess,
 }: StartChallengeDialogProps) {
   const { t } = useTranslation();
+  const CHALLENGE_TYPES = getChallengeTypes(t);
   const [selectedType, setSelectedType] = useState<string>('performance_battle');
   const [isLoading, setIsLoading] = useState(false);
 

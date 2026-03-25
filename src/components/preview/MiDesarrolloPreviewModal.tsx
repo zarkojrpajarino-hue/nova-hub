@@ -40,7 +40,7 @@ interface MiDesarrolloPreviewModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
-const SLIDES = [
+function getSlides(t: (key: string) => string) { return [
   {
     id: 'intro',
     title: t('preview.tuPlanDeDesarrollo'),
@@ -762,10 +762,11 @@ const SLIDES = [
       </div>
     ),
   },
-];
+]; }
 
 export function MiDesarrolloPreviewModal({ open, onOpenChange }: MiDesarrolloPreviewModalProps) {
   const { t } = useTranslation();
+  const SLIDES = getSlides(t);
   const [currentSlide, setCurrentSlide] = useState(0);
 
   const handleNext = () => {

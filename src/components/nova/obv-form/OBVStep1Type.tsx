@@ -4,11 +4,14 @@ import { cn } from '@/lib/utils';
 import type { OBVFormData } from './useOBVFormLogic';
 
 import { useTranslation } from 'react-i18next';
-const OBV_TYPES = [
-  { id: 'exploracion', Icon: Search, title: t('obv.exploración'), desc: t('obv.primerContactoInvestigaciónDe'), color: '#6366F1' },
-  { id: 'validacion', Icon: CheckCircle, title: t('obv.validación'), desc: t('obv.reuniónDemoPropuestaEnviada'), color: '#F59E0B' },
-  { id: 'venta', Icon: Wallet, title: t('obv.venta'), desc: t('obv.cierreConfirmadoConTransacción'), color: '#22C55E' },
-];
+
+function getObvTypes(t: (key: string) => string) {
+  return [
+    { id: 'exploracion', Icon: Search, title: t('obv.exploración'), desc: t('obv.primerContactoInvestigaciónDe'), color: '#6366F1' },
+    { id: 'validacion', Icon: CheckCircle, title: t('obv.validación'), desc: t('obv.reuniónDemoPropuestaEnviada'), color: '#F59E0B' },
+    { id: 'venta', Icon: Wallet, title: t('obv.venta'), desc: t('obv.cierreConfirmadoConTransacción'), color: '#22C55E' },
+  ];
+}
 
 interface OBVStep1TypeProps {
   formData: OBVFormData;
@@ -17,6 +20,7 @@ interface OBVStep1TypeProps {
 
 export const OBVStep1Type = memo(function OBVStep1Type({ formData, onUpdate }: OBVStep1TypeProps) {
   const { t } = useTranslation();
+  const OBV_TYPES = getObvTypes(t);
   return (
     <>
       <h4 className="text-lg font-semibold text-center mb-6">{t('obv.quéTipoDeActividad')}</h4>

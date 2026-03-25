@@ -44,6 +44,8 @@ interface Role {
   salary: string;
 }
 
+function getExplorationData(t: (key: string) => string) {
+
 const roles: Role[] = [
   {
     id: 'ceo',
@@ -190,11 +192,15 @@ const departments = [
   t('preview.data'),
 ];
 
+return { roles, departments };
+}
+
 export function ExplorationDashboardPreviewModal({
   open,
   onOpenChange,
 }: ExplorationDashboardPreviewModalProps) {
   const { t } = useTranslation();
+  const { roles, departments } = getExplorationData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
   const [selectedRole, setSelectedRole] = useState<Role | null>(null);
   const [comparisonRoles, setComparisonRoles] = useState<Role[]>([]);

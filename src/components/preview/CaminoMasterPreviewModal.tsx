@@ -12,6 +12,8 @@ interface CaminoMasterPreviewModalProps {
   onOpenChange: (open: boolean) => void;
 }
 
+function getCaminoData(t: (key: string) => string) {
+
 const learningPaths = [
   {
     id: 1,
@@ -151,8 +153,12 @@ const leaderboard = [
   { rank: 5, name: t('preview.davidKim'), avatar: 'DK', role: 'Associate PM', hours: 64, certificates: 3, streak: 15, trend: 'up' },
 ];
 
+return { learningPaths, pathModules, courses, achievements, leaderboard };
+}
+
 export function CaminoMasterPreviewModal({ open, onOpenChange }: CaminoMasterPreviewModalProps) {
   const { t } = useTranslation();
+  const { learningPaths, pathModules, courses, achievements, leaderboard } = getCaminoData(t);
   const [currentSlide, setCurrentSlide] = useState(0);
   const totalSlides = 6;
 

@@ -38,7 +38,7 @@ interface TriggerContext {
 
 // ── Reglas de sugerencia (prioridad ascendente = más urgente) ─────────────────
 
-const TRIGGER_RULES: TriggerRule[] = [
+function getTriggerRules(t: (key: string) => string): TriggerRule[] { return [
   {
     tool:     'sales_playbook',
     label:    t('project.salesPlaybook'),
@@ -93,7 +93,7 @@ const TRIGGER_RULES: TriggerRule[] = [
       ctx.phase >= 3 &&
       !ctx.generatedTools.includes('customer_journey'),
   },
-];
+]; }
 
 // ── Hooks de datos ────────────────────────────────────────────────────────────
 
@@ -144,6 +144,8 @@ export function PlaybookTriggerBanner({
   phase,
   onNavigate,
 }: PlaybookTriggerBannerProps) {
+  const { t } = useTranslation();
+  const TRIGGER_RULES = getTriggerRules(t);
   const [dismissed, setDismissed] = useState<Set<string>>(() => {
     if (!projectId) return new Set();
     const stored = TRIGGER_RULES
