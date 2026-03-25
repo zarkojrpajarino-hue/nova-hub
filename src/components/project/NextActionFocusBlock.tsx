@@ -103,14 +103,14 @@ const RELIABILITY_CONFIG = {
   low:    { icon: ShieldOff,    className: 'text-red-500 dark:text-red-400'        },
 }
 
-const SOURCE_LABEL: Partial<Record<string, string>> = {
-  stripe:          t('project.stripe'),
-  holded:          t('project.holded'),
-  hubspot:         t('project.hubspot'),
-  asana:           t('project.asana'),
-  google_calendar: t('project.calendar'),
-  user_manual:     t('project.manual'),
-  ai_inferred:     t('project.estimación'),
+const SOURCE_LABEL_KEYS: Partial<Record<string, string>> = {
+  stripe:          'project.stripe',
+  holded:          'project.holded',
+  hubspot:         'project.hubspot',
+  asana:           'project.asana',
+  google_calendar: 'project.calendar',
+  user_manual:     'project.manual',
+  ai_inferred:     'project.estimación',
 }
 
 export const NextActionFocusBlock = memo(function NextActionFocusBlock({
@@ -281,7 +281,7 @@ export const NextActionFocusBlock = memo(function NextActionFocusBlock({
             <span>{ri.label}</span>
             {ri.source && (
               <span className="text-muted-foreground/70">
-                · {SOURCE_LABEL[ri.source] ?? ri.source}
+                · {SOURCE_LABEL_KEYS[ri.source] ? t(SOURCE_LABEL_KEYS[ri.source]!) : ri.source}
               </span>
             )}
           </div>

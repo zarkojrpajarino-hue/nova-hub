@@ -34,9 +34,9 @@ interface OBVCenterViewProps {
 }
 
 const OUTCOME_OPTIONS = [
-  { value: 'success', label: t('oBVCenter.éxito'),    icon: CheckCircle2, color: 'text-success',     bg: 'bg-success/10 border-success/40' },
-  { value: 'partial', label: t('oBVCenter.parcial'),  icon: MinusCircle,  color: 'text-warning',     bg: 'bg-warning/10 border-warning/40' },
-  { value: 'fail',    label: t('oBVCenter.noValidó'), icon: XCircle,     color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/40' },
+  { value: 'success', labelKey: 'oBVCenter.éxito',    icon: CheckCircle2, color: 'text-success',     bg: 'bg-success/10 border-success/40' },
+  { value: 'partial', labelKey: 'oBVCenter.parcial',  icon: MinusCircle,  color: 'text-warning',     bg: 'bg-warning/10 border-warning/40' },
+  { value: 'fail',    labelKey: 'oBVCenter.noValidó', icon: XCircle,     color: 'text-destructive', bg: 'bg-destructive/10 border-destructive/40' },
 ] as const;
 
 export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
@@ -298,7 +298,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                               title={t('oBVCenter.cambiarResultado')}
                             >
                               <outcomeOpt.icon size={12} />
-                              {outcomeOpt.label}
+                              {t(outcomeOpt.labelKey)}
                             </button>
                           ) : (
                             <button
@@ -338,7 +338,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
                               )}
                             >
                               <opt.icon size={11} className={obv.obv_outcome === opt.value ? opt.color : ''} />
-                              {opt.label}
+                              {t(opt.labelKey)}
                             </button>
                           ))}
                           {obv.obv_outcome && (

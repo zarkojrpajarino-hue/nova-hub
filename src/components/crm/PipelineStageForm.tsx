@@ -134,142 +134,35 @@ function getStageConfig(t: (key: string) => string): Record<LeadStatus, StageCon
   };
 }
 
-// Definición de todos los campos posibles
-const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
-  // Campos básicos
-  nombre_contacto: {
-    label: t('crm.nombreDelContacto'),
-    type: 'text',
-    icon: User,
-    required: true,
-    placeholder: t('crm.ejJuanPérez'),
-  },
-  empresa: {
-    label: t('crm.empresa'),
-    type: 'text',
-    icon: Building2,
-    required: true,
-    placeholder: t('crm.ejAcmeCorp'),
-  },
-  email_contacto: {
-    label: t('crm.email'),
-    type: 'email',
-    icon: Mail,
-    placeholder: 'juan@acme.com',
-  },
-  telefono_contacto: {
-    label: t('crm.teléfono'),
-    type: 'tel',
-    icon: Phone,
-    placeholder: '+34 600 123 456',
-  },
-  valor_potencial: {
-    label: t('crm.valorPotencial'),
-    type: 'number',
-    icon: DollarSign,
-    placeholder: '5000',
-    prefix: '€',
-  },
-
-  // Campos de acción
-  proxima_accion: {
-    label: t('crm.próximaAcción'),
-    type: 'text',
-    icon: CheckCircle,
-    placeholder: t('crm.ejLlamarParaSeguimiento'),
-  },
-  proxima_accion_fecha: {
-    label: t('crm.fechaDePróximaAcción'),
-    type: 'date',
-    icon: Calendar,
-  },
-  notas: {
-    label: t('crm.notas'),
-    type: 'textarea',
-    icon: FileText,
-    placeholder: t('crm.observacionesDetallesAdicionales'),
-  },
-
-  // Campos de propuesta
-  producto: {
-    label: t('crm.productoservicio'),
-    type: 'text',
-    icon: Package,
-    placeholder: t('crm.ejConsultoríaDigital'),
-  },
-  cantidad: {
-    label: t('crm.cantidad'),
-    type: 'number',
-    icon: Calculator,
-    placeholder: '1',
-  },
-  precio_unitario: {
-    label: t('crm.precioUnitario'),
-    type: 'number',
-    icon: DollarSign,
-    placeholder: '5000',
-    prefix: '€',
-  },
-
-  // Campos de negociación
-  costes_estimados: {
-    label: t('crm.costesEstimados'),
-    type: 'number',
-    icon: Calculator,
-    placeholder: '2000',
-    prefix: '€',
-  },
-
-  // Campos de venta (cerrado ganado)
-  facturacion: {
-    label: t('crm.facturaciónTotal'),
-    type: 'number',
-    icon: DollarSign,
-    required: true,
-    placeholder: '5000',
-    prefix: '€',
-    readonly: true, // Calculado automáticamente
-  },
-  costes: {
-    label: t('crm.costesTotales'),
-    type: 'number',
-    icon: Calculator,
-    placeholder: '2000',
-    prefix: '€',
-  },
-  margen: {
-    label: t('crm.margen'),
-    type: 'number',
-    icon: DollarSign,
-    placeholder: '3000',
-    prefix: '€',
-    readonly: true, // Calculado automáticamente
-  },
-  forma_pago: {
-    label: t('crm.formaDePago'),
-    type: 'select',
-    icon: DollarSign,
-    options: [
+function getFieldDefinitions(t: (key: string) => string): Record<string, FieldDefinition> {
+  return {
+    nombre_contacto: { label: t('crm.nombreDelContacto'), type: 'text', icon: User, required: true, placeholder: t('crm.ejJuanPérez') },
+    empresa: { label: t('crm.empresa'), type: 'text', icon: Building2, required: true, placeholder: t('crm.ejAcmeCorp') },
+    email_contacto: { label: t('crm.email'), type: 'email', icon: Mail, placeholder: 'juan@acme.com' },
+    telefono_contacto: { label: t('crm.teléfono'), type: 'tel', icon: Phone, placeholder: '+34 600 123 456' },
+    valor_potencial: { label: t('crm.valorPotencial'), type: 'number', icon: DollarSign, placeholder: '5000', prefix: '€' },
+    proxima_accion: { label: t('crm.próximaAcción'), type: 'text', icon: CheckCircle, placeholder: t('crm.ejLlamarParaSeguimiento') },
+    proxima_accion_fecha: { label: t('crm.fechaDePróximaAcción'), type: 'date', icon: Calendar },
+    notas: { label: t('crm.notas'), type: 'textarea', icon: FileText, placeholder: t('crm.observacionesDetallesAdicionales') },
+    producto: { label: t('crm.productoservicio'), type: 'text', icon: Package, placeholder: t('crm.ejConsultoríaDigital') },
+    cantidad: { label: t('crm.cantidad'), type: 'number', icon: Calculator, placeholder: '1' },
+    precio_unitario: { label: t('crm.precioUnitario'), type: 'number', icon: DollarSign, placeholder: '5000', prefix: '€' },
+    costes_estimados: { label: t('crm.costesEstimados'), type: 'number', icon: Calculator, placeholder: '2000', prefix: '€' },
+    facturacion: { label: t('crm.facturaciónTotal'), type: 'number', icon: DollarSign, required: true, placeholder: '5000', prefix: '€', readonly: true },
+    costes: { label: t('crm.costesTotales'), type: 'number', icon: Calculator, placeholder: '2000', prefix: '€' },
+    margen: { label: t('crm.margen'), type: 'number', icon: DollarSign, placeholder: '3000', prefix: '€', readonly: true },
+    forma_pago: { label: t('crm.formaDePago'), type: 'select', icon: DollarSign, options: [
       { value: 'transferencia', label: t('crm.transferenciaBancaria') },
       { value: 'tarjeta', label: t('crm.tarjetaDeCrédito') },
       { value: 'efectivo', label: t('crm.efectivo') },
       { value: 'paypal', label: t('crm.paypal') },
       { value: 'bizum', label: t('crm.bizum') },
       { value: 'stripe', label: t('crm.stripe') },
-    ],
-  },
-  numero_factura: {
-    label: t('crm.númeroDeFactura'),
-    type: 'text',
-    icon: FileText,
-    placeholder: 'FAC-2026-001',
-  },
-  cobro_fecha_esperada: {
-    label: t('crm.fechaEsperadaDeCobro'),
-    type: 'date',
-    icon: Calendar,
-  },
-};
+    ]},
+    numero_factura: { label: t('crm.númeroDeFactura'), type: 'text', icon: FileText, placeholder: 'FAC-2026-001' },
+    cobro_fecha_esperada: { label: t('crm.fechaEsperadaDeCobro'), type: 'date', icon: Calendar },
+  };
+}
 
 export function PipelineStageForm({
   currentStage,
@@ -280,6 +173,7 @@ export function PipelineStageForm({
 }: PipelineStageFormProps) {
   const { t } = useTranslation();
   const STAGE_CONFIG = useMemo(() => getStageConfig(t), [t]);
+  const FIELD_DEFINITIONS = useMemo(() => getFieldDefinitions(t), [t]);
   const stageConfig = STAGE_CONFIG[currentStage];
   const StageIcon = stageConfig.icon;
 
