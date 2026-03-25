@@ -20,65 +20,68 @@ import { Loader2, ArrowLeft, CheckCircle, Siren, Wallet, TrendingDown, Timer, Re
 import { useTranslation } from 'react-i18next';
 // ── Tipos de crisis y sus 3 tareas por defecto ───────────────────────────────
 
-const CRISIS_TYPES = [
-  {
-    id:       'cash_crisis',
-    label:    t('emergencyOnboarding.crisisDeCaja'),
-    Icon:     Wallet,
-    subtitle: t('emergencyOnboarding.meQuedoSinDinero'),
-    tasks: [
-      t('emergencyOnboarding.calcularRunwayRealCuántos'),
-      t('emergencyOnboarding.listarLos3Mayores'),
-      t('emergencyOnboarding.contactarALos3'),
-    ],
-  },
-  {
-    id:       'sales_stalled',
-    label:    t('emergencyOnboarding.ventasParadas'),
-    Icon:     TrendingDown,
-    subtitle: t('emergencyOnboarding.noEstamosGenerandoNuevos'),
-    tasks: [
-      t('emergencyOnboarding.analizarPorQuéFallaron'),
-      t('emergencyOnboarding.identificarElSegmentoDe'),
-      'Planificar 5 conversaciones de venta esta semana (no demos — ventas)',
-    ],
-  },
-  {
-    id:       'runway_risk',
-    label:    t('emergencyOnboarding.riesgoDeRunway'),
-    Icon:     Timer,
-    subtitle: t('emergencyOnboarding.menosDe3Meses'),
-    tasks: [
-      'Preparar un plan de reducción de costes urgente (objetivo: -30% burn)',
-      'Evaluar opciones de financiación de emergencia (inversores, préstamos, revenue-based)',
-      'Definir el "default alive" plan: qué se necesita para llegar a breakeven',
-    ],
-  },
-  {
-    id:       'product_pivot',
-    label:    t('emergencyOnboarding.pivoteUrgente'),
-    Icon:     RefreshCw,
-    subtitle: t('emergencyOnboarding.elProductoNoEstá'),
-    tasks: [
-      t('emergencyOnboarding.hacer5EntrevistasCon'),
-      t('emergencyOnboarding.definirLaHipótesisDel'),
-      t('emergencyOnboarding.decidirQuéEliminarDel'),
-    ],
-  },
-  {
-    id:       'team_conflict',
-    label:    t('emergencyOnboarding.conflictoDeEquipo'),
-    Icon:     Handshake,
-    subtitle: t('emergencyOnboarding.problemasGravesConCofounders'),
-    tasks: [
-      'Programar una conversación directa y honesta con la(s) persona(s) involucrada(s)',
-      t('emergencyOnboarding.revisarElAcuerdoDe'),
-      t('emergencyOnboarding.consultarConUnAdvisor'),
-    ],
-  },
-] as const;
+const CRISIS_IDS = ['cash_crisis', 'sales_stalled', 'runway_risk', 'product_pivot', 'team_conflict'] as const;
+type CrisisId = typeof CRISIS_IDS[number];
 
-type CrisisId = typeof CRISIS_TYPES[number]['id'];
+function getCrisisTypes(t: (k: string) => string) {
+  return [
+    {
+      id:       'cash_crisis' as const,
+      label:    t('emergencyOnboarding.crisisDeCaja'),
+      Icon:     Wallet,
+      subtitle: t('emergencyOnboarding.meQuedoSinDinero'),
+      tasks: [
+        t('emergencyOnboarding.calcularRunwayRealCuántos'),
+        t('emergencyOnboarding.listarLos3Mayores'),
+        t('emergencyOnboarding.contactarALos3'),
+      ],
+    },
+    {
+      id:       'sales_stalled' as const,
+      label:    t('emergencyOnboarding.ventasParadas'),
+      Icon:     TrendingDown,
+      subtitle: t('emergencyOnboarding.noEstamosGenerandoNuevos'),
+      tasks: [
+        t('emergencyOnboarding.analizarPorQuéFallaron'),
+        t('emergencyOnboarding.identificarElSegmentoDe'),
+        'Planificar 5 conversaciones de venta esta semana (no demos — ventas)',
+      ],
+    },
+    {
+      id:       'runway_risk' as const,
+      label:    t('emergencyOnboarding.riesgoDeRunway'),
+      Icon:     Timer,
+      subtitle: t('emergencyOnboarding.menosDe3Meses'),
+      tasks: [
+        'Preparar un plan de reducción de costes urgente (objetivo: -30% burn)',
+        'Evaluar opciones de financiación de emergencia (inversores, préstamos, revenue-based)',
+        'Definir el "default alive" plan: qué se necesita para llegar a breakeven',
+      ],
+    },
+    {
+      id:       'product_pivot' as const,
+      label:    t('emergencyOnboarding.pivoteUrgente'),
+      Icon:     RefreshCw,
+      subtitle: t('emergencyOnboarding.elProductoNoEstá'),
+      tasks: [
+        t('emergencyOnboarding.hacer5EntrevistasCon'),
+        t('emergencyOnboarding.definirLaHipótesisDel'),
+        t('emergencyOnboarding.decidirQuéEliminarDel'),
+      ],
+    },
+    {
+      id:       'team_conflict' as const,
+      label:    t('emergencyOnboarding.conflictoDeEquipo'),
+      Icon:     Handshake,
+      subtitle: t('emergencyOnboarding.problemasGravesConCofounders'),
+      tasks: [
+        'Programar una conversación directa y honesta con la(s) persona(s) involucrada(s)',
+        t('emergencyOnboarding.revisarElAcuerdoDe'),
+        t('emergencyOnboarding.consultarConUnAdvisor'),
+      ],
+    },
+  ];
+}
 
 // ── Componente ────────────────────────────────────────────────────────────────
 
@@ -92,6 +95,7 @@ export function EmergencyOnboardingPage() {
   const [context, setContext]     = useState('');
   const [saving, setSaving]       = useState(false);
 
+  const CRISIS_TYPES = getCrisisTypes(t);
   const selectedCrisis = CRISIS_TYPES.find(c => c.id === crisisId);
 
   // ── Paso 1: Selección de crisis ──────────────────────────────────────────

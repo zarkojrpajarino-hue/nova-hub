@@ -10,29 +10,32 @@ interface KPITabContentProps {
   type: 'lp' | 'bp' | 'cp';
 }
 
-const TYPE_CONFIG = {
-  lp: {
-    label: t('kpi.learningPath'),
-    icon: BookOpen,
-    color: 'text-warning',
-    bgColor: 'bg-warning/20',
-  },
-  bp: {
-    label: t('kpi.bookPoint'),
-    icon: Trophy,
-    color: 'text-success',
-    bgColor: 'bg-success/20',
-  },
-  cp: {
-    label: t('kpi.communityPoint'),
-    icon: Users,
-    color: 'text-pink-500',
-    bgColor: 'bg-pink-500/20',
-  },
-};
+function getTypeConfig(t: (k: string) => string) {
+  return {
+    lp: {
+      label: t('kpi.learningPath'),
+      icon: BookOpen,
+      color: 'text-warning',
+      bgColor: 'bg-warning/20',
+    },
+    bp: {
+      label: t('kpi.bookPoint'),
+      icon: Trophy,
+      color: 'text-success',
+      bgColor: 'bg-success/20',
+    },
+    cp: {
+      label: t('kpi.communityPoint'),
+      icon: Users,
+      color: 'text-pink-500',
+      bgColor: 'bg-pink-500/20',
+    },
+  };
+}
 
 export function KPITabContent({ type }: KPITabContentProps) {
   const { t } = useTranslation();
+  const TYPE_CONFIG = getTypeConfig(t);
   const [showUploadForm, setShowUploadForm] = useState(false);
   const config = TYPE_CONFIG[type];
   const Icon = config.icon;

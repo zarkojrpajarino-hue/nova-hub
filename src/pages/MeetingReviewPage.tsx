@@ -56,11 +56,13 @@ const TYPE_ICON: Record<string, React.ElementType> = {
   metric:     BarChart3,
 };
 
-const LEVEL_LABEL: Record<string, string> = {
-  high:   t('meetingReview.estratégico'),
-  medium: t('meetingReview.operativo'),
-  low:    t('meetingReview.informativo'),
-};
+function getLevelLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    high:   t('meetingReview.estratégico'),
+    medium: t('meetingReview.operativo'),
+    low:    t('meetingReview.informativo'),
+  };
+}
 
 const LEVEL_BADGE: Record<string, string> = {
   high:   'bg-purple-100 text-purple-700',
@@ -81,6 +83,8 @@ function InsightCard({
   onApprove:  (id: string) => void;
   onReject:   (id: string) => void;
 }) {
+  const { t } = useTranslation();
+  const LEVEL_LABEL = getLevelLabels(t);
   const [confirmed, setConfirmed] = useState(false);
   const Icon  = TYPE_ICON[insight.insight_type] ?? Target;
   const title = (insight.content.title ?? insight.content.name ?? t('meetingReview.sinTítulo')) as string;
@@ -292,6 +296,8 @@ function LiveSummaryPanel({ insights }: { insights: InsightLocal[] }) {
 // ── Page component ────────────────────────────────────────────────────────────
 
 export default function MeetingReviewPage() {
+  const { t } = useTranslation();
+  const LEVEL_LABEL = getLevelLabels(t);
   const { meetingId } = useParams<{ meetingId: string }>();
   const navigate      = useNavigate();
   const { currentProject } = useCurrentProject();

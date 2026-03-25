@@ -60,20 +60,24 @@ interface PageData {
 
 // ── Label maps ────────────────────────────────────────────────────────────────
 
-const MARKET_SCOPE_LABELS: Record<string, string> = {
-  local: 'Local (ciudad / región)',
-  nacional: t('primerInicio.nacional'),
-  national: t('primerInicio.nacional'),
-  global: 'Global (varios países)',
-  international: 'Global (varios países)',
-};
+function getMarketScopeLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    local: 'Local (ciudad / región)',
+    nacional: t('primerInicio.nacional'),
+    national: t('primerInicio.nacional'),
+    global: 'Global (varios países)',
+    international: 'Global (varios países)',
+  };
+}
 
-const MONETIZATION_LABELS: Record<string, string> = {
-  transaccional: t('primerInicio.ventaÚnica'),
-  suscripcion: t('primerInicio.suscripciónRecurrente'),
-  ticket_alto: t('primerInicio.ticketAltoServicio'),
-  contrato: t('primerInicio.contratoProyecto'),
-};
+function getMonetizationLabels(t: (k: string) => string): Record<string, string> {
+  return {
+    transaccional: t('primerInicio.ventaÚnica'),
+    suscripcion: t('primerInicio.suscripciónRecurrente'),
+    ticket_alto: t('primerInicio.ticketAltoServicio'),
+    contrato: t('primerInicio.contratoProyecto'),
+  };
+}
 
 // ── Optimus suggestion ────────────────────────────────────────────────────────
 
@@ -84,7 +88,7 @@ interface OptimusSuggestion {
   obvLabel: string;
 }
 
-function getOptimusSuggestion(phase: number): OptimusSuggestion {
+function getOptimusSuggestion(phase: number, t: (k: string) => string): OptimusSuggestion {
   if (phase <= 1) {
     return {
       Icon: Search,
@@ -140,6 +144,7 @@ function InfoCard({
 // ── Main page ─────────────────────────────────────────────────────────────────
 
 export function PrimerInicioPage() {
+  const { t } = useTranslation();
   const { projectId } = useParams<{ projectId: string }>();
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
@@ -224,7 +229,9 @@ export function PrimerInicioPage() {
 
   if (!data) return null;
 
-  const suggestion = getOptimusSuggestion(data.currentPhase);
+  const MARKET_SCOPE_LABELS = getMarketScopeLabels(t);
+  const MONETIZATION_LABELS = getMonetizationLabels(t);
+  const suggestion = getOptimusSuggestion(data.currentPhase, t);
   const fa = data.faseAAnswers;
 
   // ── Build info cards for Modelo Estratégico v1 ──────────────────────────

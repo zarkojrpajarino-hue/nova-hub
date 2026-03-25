@@ -39,50 +39,48 @@ import type { FaseAAnswers } from '@/components/onboarding/fast-start/FaseACommo
 import { useTranslation } from 'react-i18next';
 // ── Label maps ─────────────────────────────────────────────────────────────────
 
-const SALES_CYCLE_LABELS: Record<string, string> = {
-  days: t('miModelo.mismoDía'),
-  weeks: '1–7 días',
-  months: '1–4 semanas',
-  quarters: '1–3 meses',
-};
-
-const MONETIZATION_LABELS: Record<string, string> = {
-  transaccional: t('miModelo.ventaÚnica'),
-  suscripcion: t('miModelo.suscripciónRecurrente'),
-  ticket_alto: t('miModelo.ticketAltoServicio'),
-  contrato: t('miModelo.contratoProyecto'),
-};
-
-const MARKET_SCOPE_LABELS: Record<string, string> = {
-  local: t('miModelo.local'),
-  national: t('miModelo.nacional'),
-  international: 'Internacional (global)',
-};
-
-const PHASE_STATUS_LABELS: Record<string, string> = {
-  healthy: t('miModelo.saludable'),
-  friction: t('miModelo.fricción'),
-  critical: t('miModelo.crítico'),
-};
-
-const VIABILITY_STATUS_LABELS: Record<string, string> = {
-  healthy: t('miModelo.saludable'),
-  monitoring: t('miModelo.enSeguimiento'),
-  stagnation: t('miModelo.estancado'),
-  critical: t('miModelo.crítico'),
-};
-
-const COVERAGE_LEVEL_LABELS: Record<string, string> = {
-  none: t('miModelo.sinCobertura'),
-  basic: t('miModelo.básica'),
-  strong: t('miModelo.fuerte'),
-};
-
-const FUNCTION_TYPE_LABELS: Record<string, string> = {
-  demand: t('miModelo.demanda'),
-  delivery: t('miModelo.entrega'),
-  cash: t('miModelo.caja'),
-};
+function getMiModeloLabels(t: (k: string) => string) {
+  return {
+    salesCycle: {
+      days: t('miModelo.mismoDía'),
+      weeks: '1–7 días',
+      months: '1–4 semanas',
+      quarters: '1–3 meses',
+    } as Record<string, string>,
+    monetization: {
+      transaccional: t('miModelo.ventaÚnica'),
+      suscripcion: t('miModelo.suscripciónRecurrente'),
+      ticket_alto: t('miModelo.ticketAltoServicio'),
+      contrato: t('miModelo.contratoProyecto'),
+    } as Record<string, string>,
+    marketScope: {
+      local: t('miModelo.local'),
+      national: t('miModelo.nacional'),
+      international: 'Internacional (global)',
+    } as Record<string, string>,
+    phaseStatus: {
+      healthy: t('miModelo.saludable'),
+      friction: t('miModelo.fricción'),
+      critical: t('miModelo.crítico'),
+    } as Record<string, string>,
+    viabilityStatus: {
+      healthy: t('miModelo.saludable'),
+      monitoring: t('miModelo.enSeguimiento'),
+      stagnation: t('miModelo.estancado'),
+      critical: t('miModelo.crítico'),
+    } as Record<string, string>,
+    coverageLevel: {
+      none: t('miModelo.sinCobertura'),
+      basic: t('miModelo.básica'),
+      strong: t('miModelo.fuerte'),
+    } as Record<string, string>,
+    functionType: {
+      demand: t('miModelo.demanda'),
+      delivery: t('miModelo.entrega'),
+      cash: t('miModelo.caja'),
+    } as Record<string, string>,
+  };
+}
 
 // ── Status color helpers ────────────────────────────────────────────────────────
 
@@ -185,6 +183,15 @@ function ScoreBar({ score, color = 'bg-blue-500' }: { score: number; color?: str
 // ── Main view ───────────────────────────────────────────────────────────────────
 
 export function MiModeloView() {
+  const { t } = useTranslation();
+  const labels = getMiModeloLabels(t);
+  const SALES_CYCLE_LABELS = labels.salesCycle;
+  const MONETIZATION_LABELS = labels.monetization;
+  const MARKET_SCOPE_LABELS = labels.marketScope;
+  const PHASE_STATUS_LABELS = labels.phaseStatus;
+  const VIABILITY_STATUS_LABELS = labels.viabilityStatus;
+  const COVERAGE_LEVEL_LABELS = labels.coverageLevel;
+  const FUNCTION_TYPE_LABELS = labels.functionType;
   const { projectId } = useParams<{ projectId: string }>();
 
   // Realtime sync: when engine tables update, ['project-engine', projectId] is invalidated

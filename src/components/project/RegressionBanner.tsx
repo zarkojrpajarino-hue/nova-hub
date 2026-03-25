@@ -52,16 +52,18 @@ export function deriveRegression(
 
 // ── Copy ──────────────────────────────────────────────────────────────────────
 
-const COPY: Record<RegressionInfo['type'], { title: string; body: string }> = {
-  phase_drop: {
-    title: t('project.elProyectoHaRetrocedido'),
-    body:  t('project.laFaseActualSe'),
-  },
-  score_drop: {
-    title: t('project.seDetectóUnaPérdida'),
-    body:  t('project.algunasSeñalesDelProyecto'),
-  },
-};
+function getCopy(t: (k: string) => string): Record<RegressionInfo['type'], { title: string; body: string }> {
+  return {
+    phase_drop: {
+      title: t('project.elProyectoHaRetrocedido'),
+      body:  t('project.laFaseActualSe'),
+    },
+    score_drop: {
+      title: t('project.seDetectóUnaPérdida'),
+      body:  t('project.algunasSeñalesDelProyecto'),
+    },
+  };
+}
 
 // ── Props ─────────────────────────────────────────────────────────────────────
 
@@ -75,6 +77,7 @@ interface RegressionBannerProps {
 
 export function RegressionBanner({ engineData, projectId, onCTA }: RegressionBannerProps) {
   const { t } = useTranslation();
+  const COPY = getCopy(t);
   const regression = deriveRegression(engineData?.phaseHistory ?? []);
 
   const dKey = regression

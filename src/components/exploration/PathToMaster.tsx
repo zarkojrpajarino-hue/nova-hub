@@ -21,60 +21,63 @@ interface PathToMasterProps {
   onStartExploration: (role: string) =>Promise<void>;
 }
 
-const ROLE_INFO = {
-  sales: {
-    name: t('exploration.sales'),
-    Icon: Wallet,
-    description: t('exploration.ventasCaptaciónDeClientes'),
-    difficulty: t('exploration.media'),
-    duration: '2-4 semanas',
-  },
-  finance: {
-    name: t('exploration.finance'),
-    Icon: BarChart3,
-    description: t('exploration.finanzasPresupuestosAnálisisEconómico'),
-    difficulty: t('exploration.alta'),
-    duration: '3-4 semanas',
-  },
-  ai_tech: {
-    name: t('exploration.aiTech'),
-    Icon: Bot,
-    description: t('exploration.tecnologíaAutomatizaciónDesarrollo'),
-    difficulty: t('exploration.alta'),
-    duration: '3-5 semanas',
-  },
-  marketing: {
-    name: t('exploration.marketing'),
-    Icon: Megaphone,
-    description: t('exploration.marketingDigitalContenidoBranding'),
-    difficulty: t('exploration.media'),
-    duration: '2-3 semanas',
-  },
-  operations: {
-    name: t('exploration.operations'),
-    Icon: Settings,
-    description: t('exploration.operacionesProcesosLogística'),
-    difficulty: t('exploration.media'),
-    duration: '2-3 semanas',
-  },
-  strategy: {
-    name: t('exploration.strategy'),
-    Icon: Target,
-    description: t('exploration.estrategiaPlanificaciónVisión'),
-    difficulty: t('exploration.alta'),
-    duration: '3-4 semanas',
-  },
-  customer: {
-    name: t('exploration.customerSuccess'),
-    Icon: MessageCircle,
-    description: t('exploration.atenciónAlClienteSoporte'),
-    difficulty: t('exploration.baja'),
-    duration: '2 semanas',
-  },
-};
+function getRoleInfo(t: (k: string) => string) {
+  return {
+    sales: {
+      name: t('exploration.sales'),
+      Icon: Wallet,
+      description: t('exploration.ventasCaptaciónDeClientes'),
+      difficulty: t('exploration.media'),
+      duration: '2-4 semanas',
+    },
+    finance: {
+      name: t('exploration.finance'),
+      Icon: BarChart3,
+      description: t('exploration.finanzasPresupuestosAnálisisEconómico'),
+      difficulty: t('exploration.alta'),
+      duration: '3-4 semanas',
+    },
+    ai_tech: {
+      name: t('exploration.aiTech'),
+      Icon: Bot,
+      description: t('exploration.tecnologíaAutomatizaciónDesarrollo'),
+      difficulty: t('exploration.alta'),
+      duration: '3-5 semanas',
+    },
+    marketing: {
+      name: t('exploration.marketing'),
+      Icon: Megaphone,
+      description: t('exploration.marketingDigitalContenidoBranding'),
+      difficulty: t('exploration.media'),
+      duration: '2-3 semanas',
+    },
+    operations: {
+      name: t('exploration.operations'),
+      Icon: Settings,
+      description: t('exploration.operacionesProcesosLogística'),
+      difficulty: t('exploration.media'),
+      duration: '2-3 semanas',
+    },
+    strategy: {
+      name: t('exploration.strategy'),
+      Icon: Target,
+      description: t('exploration.estrategiaPlanificaciónVisión'),
+      difficulty: t('exploration.alta'),
+      duration: '3-4 semanas',
+    },
+    customer: {
+      name: t('exploration.customerSuccess'),
+      Icon: MessageCircle,
+      description: t('exploration.atenciónAlClienteSoporte'),
+      difficulty: t('exploration.baja'),
+      duration: '2 semanas',
+    },
+  };
+}
 
 export function PathToMaster({ currentRoles, allRoles, onStartExploration }: PathToMasterProps) {
   const { t } = useTranslation();
+  const ROLE_INFO = getRoleInfo(t);
   const [selectedRole, setSelectedRole] = useState<string | null>(null);
   const [isStarting, setIsStarting] = useState(false);
 

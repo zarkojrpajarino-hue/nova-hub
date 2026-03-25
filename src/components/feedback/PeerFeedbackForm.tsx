@@ -49,28 +49,30 @@ interface Ratings {
   technical: number;
 }
 
-const RATING_LABELS = {
-  collaboration: {
-    title: t('feedback.colaboración'),
-    description: t('feedback.quéTanBienTrabaja'),
-  },
-  quality: {
-    title: t('feedback.calidadDeTrabajo'),
-    description: t('feedback.suTrabajoCumpleCon'),
-  },
-  communication: {
-    title: t('feedback.comunicación'),
-    description: t('feedback.seComunicaClaramenteY'),
-  },
-  initiative: {
-    title: t('feedback.iniciativaliderazgo'),
-    description: t('feedback.proponeIdeasYToma'),
-  },
-  technical: {
-    title: t('feedback.habilidadesTécnicas'),
-    description: t('feedback.tieneLasSkillsNecesarias'),
-  },
-};
+function getRatingLabels(t: (k: string) => string) {
+  return {
+    collaboration: {
+      title: t('feedback.colaboración'),
+      description: t('feedback.quéTanBienTrabaja'),
+    },
+    quality: {
+      title: t('feedback.calidadDeTrabajo'),
+      description: t('feedback.suTrabajoCumpleCon'),
+    },
+    communication: {
+      title: t('feedback.comunicación'),
+      description: t('feedback.seComunicaClaramenteY'),
+    },
+    initiative: {
+      title: t('feedback.iniciativaliderazgo'),
+      description: t('feedback.proponeIdeasYToma'),
+    },
+    technical: {
+      title: t('feedback.habilidadesTécnicas'),
+      description: t('feedback.tieneLasSkillsNecesarias'),
+    },
+  };
+}
 
 export function PeerFeedbackForm({
   toMember,
@@ -79,6 +81,7 @@ export function PeerFeedbackForm({
   onSuccess,
 }: PeerFeedbackFormProps) {
   const { t } = useTranslation();
+  const RATING_LABELS = getRatingLabels(t);
   const [ratings, setRatings] = useState<Ratings>({
     collaboration: 0,
     quality: 0,

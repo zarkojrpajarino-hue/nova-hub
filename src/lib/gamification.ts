@@ -55,8 +55,9 @@ export function getAchievements(): Omit<Achievement, 'unlocked' | 'unlockedAt'>[
   ];
 }
 
-// Re-export for backward compat
-export const ACHIEVEMENTS = getAchievements();
+// Lazy accessor — avoid calling getAchievements() at module-load time
+// (i18next may not be initialized yet when the module is first imported)
+export function getAchievementsList() { return getAchievements(); }
 
 export function getBadges(): Badge[] {
   return [
@@ -68,7 +69,8 @@ export function getBadges(): Badge[] {
   ];
 }
 
-export const BADGES = getBadges();
+// Lazy accessor — avoid calling getBadges() at module-load time
+export function getBadgesList() { return getBadges(); }
 
 export class GamificationSystem {
   projectId: string;

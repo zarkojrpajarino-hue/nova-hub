@@ -233,7 +233,8 @@ const PROVIDER_ILLUSTRATION: Record<string, () => ReactNode> = {
   notion: NotionIllustration,
 }
 
-const GUIDES: Record<string, ProviderGuide> = {
+function getGuides(t: (k: string) => string): Record<string, ProviderGuide> {
+  return {
   stripe: {
     provider: 'stripe',
     title: t('integrations.cómoObtenerTuSecret'),
@@ -418,6 +419,7 @@ const GUIDES: Record<string, ProviderGuide> = {
     ],
     warning: t('integrations.guideNotionWarning'),
   },
+  };
 }
 
 interface ApiKeyGuideProps {
@@ -426,6 +428,7 @@ interface ApiKeyGuideProps {
 
 export function ApiKeyGuide({ provider }: ApiKeyGuideProps) {
   const { t } = useTranslation();
+  const GUIDES = getGuides(t);
   const guide = GUIDES[provider]
   if (!guide) return null
 

@@ -36,7 +36,7 @@ interface SyncRun {
   is_partial: boolean
 }
 
-function formatRelativeTime(iso: string | null): string {
+function formatRelativeTime(iso: string | null, t: (k: string) => string): string {
   if (!iso) return t('integrations.nunca')
   const diff = Date.now() - new Date(iso).getTime()
   const minutes = Math.floor(diff / 60_000)
@@ -80,6 +80,7 @@ function StatusBadge({ status, isPartial }: { status: string; isPartial: boolean
 }
 
 export function SyncHealthCard({ connectionId, provider: _provider }: SyncHealthCardProps) {
+  const { t } = useTranslation();
   const { data: lastRun, isLoading } = useQuery({
     queryKey: ['sync_runs', connectionId, 'last'],
     enabled: !!connectionId,
@@ -114,7 +115,7 @@ export function SyncHealthCard({ connectionId, provider: _provider }: SyncHealth
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Clock size={13} />
-                {formatRelativeTime(lastRun.completed_at ?? lastRun.started_at)}
+                {formatRelativeTime(lastRun.completed_at ?? lastRun.started_at, t)}
               </div>
               <StatusBadge status={lastRun.status} isPartial={lastRun.is_partial} />
             </div>

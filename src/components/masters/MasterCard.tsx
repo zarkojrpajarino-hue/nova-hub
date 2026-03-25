@@ -26,14 +26,17 @@ interface MasterCardProps {
   onChallenge?: () => void;
 }
 
-const LEVEL_CONFIG = {
-  1: { label: t('masters.master'), icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/10' },
-  2: { label: t('masters.seniorMaster'), icon: Shield, color: 'text-purple-500', bg: 'bg-purple-500/10' },
-  3: { label: t('masters.grandMaster'), icon: Star, color: 'text-rose-500', bg: 'bg-rose-500/10' },
-};
+function getLevelConfig(t: (k: string) => string) {
+  return {
+    1: { label: t('masters.master'), icon: Crown, color: 'text-amber-500', bg: 'bg-amber-500/10' },
+    2: { label: t('masters.seniorMaster'), icon: Shield, color: 'text-purple-500', bg: 'bg-purple-500/10' },
+    3: { label: t('masters.grandMaster'), icon: Star, color: 'text-rose-500', bg: 'bg-rose-500/10' },
+  };
+}
 
 export function MasterCard({ master, canChallenge, onChallenge }: MasterCardProps) {
   const { t } = useTranslation();
+  const LEVEL_CONFIG = getLevelConfig(t);
   const roleConfig = ROLE_CONFIG[master.role_name];
   const levelConfig = LEVEL_CONFIG[master.level as keyof typeof LEVEL_CONFIG] || LEVEL_CONFIG[1];
   const LevelIcon = levelConfig.icon;
