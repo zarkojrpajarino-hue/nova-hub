@@ -163,11 +163,12 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const isZenMode = !zenDismissed && daysActive >= 0 && daysActive < 7 && currentPhase < 2;
 
   // Minimal count queries (head-only, no full data)
+  // Count OBVs as leads proxy (no separate leads table — CRM uses obvs with pipeline_status)
   const { data: leadsCount = 0 } = useQuery({
-    queryKey: ['leads-count', projectId],
+    queryKey: ['obvs-count', projectId],
     queryFn: async () => {
       const { count } = await supabase
-        .from('leads')
+        .from('obvs')
         .select('id', { count: 'exact', head: true })
         .eq('project_id', projectId!);
       return count ?? 0;
@@ -190,22 +191,22 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
     enabled: !!projectId,
   });
 
-  const memberIds = useMemo(() => members.map(m => m.id), [members]);
-
-  // Roles of project members (for TeamRecommendation)
-  const { data: memberRoles = [] } = useQuery({
-    queryKey: ['member-roles', projectId],
+  // Roles + member IDs from project_members (not useMemberStats which has RLS issues)
+  const { data: projectMembersData = [] } = useQuery({
+    queryKey: ['project-members-basic', projectId],
     queryFn: async () => {
       const { data } = await supabase
         .from('project_members')
-        .select('role')
-        .eq('project_id', projectId!)
-        .not('role', 'is', null);
-      return (data ?? []).map(r => r.role as string);
+        .select('member_id, role')
+        .eq('project_id', projectId!);
+      return data ?? [];
     },
     staleTime: 5 * 60_000,
     enabled: !!projectId,
   });
+  const memberIds = useMemo(() => projectMembersData.map(m => m.member_id), [projectMembersData]);
+  const memberRoles = useMemo(() => projectMembersData.filter(m => m.role).map(m => m.role as string), [projectMembersData]);
+
   const { data: kpiCount = 0 } = useQuery({
     queryKey: ['kpi-count', projectId, memberIds],
     queryFn: async () => {
@@ -323,7 +324,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
               <StatCard icon={Calendar} value={daysActive} label={t('project.díasActivo')} progress={0} color="#7C3AED" delay={1} />
             )}
             {leadsCount > 0 && (
-              <StatCard icon={Users} value={leadsCount} label={t('project.leads')} progress={0} color="#5CE1E6" delay={2} />
+              <StatCard icon={FileCheck} value={leadsCount} label={t('project.obvs')} progress={0} color="#5CE1E6" delay={2} />
             )}
             {tasksCompletedWeekly > 0 && (
               <StatCard icon={CheckSquare} value={tasksCompletedWeekly} label={t('project.tareasSemanales')} progress={0} color="#5CE1E6" delay={3} />

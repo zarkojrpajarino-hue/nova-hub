@@ -107,7 +107,7 @@ export function DashboardAdapter({
     const reason = engine.getReason(block);
 
     return (
-      <div key={block} data-engine-block={block} data-engine-priority={priority} data-engine-depth={depth}>
+      <div key={block} data-engine-block={block} data-engine-priority={priority} data-engine-depth={depth} className="empty:hidden">
         <DebugBadge block={block} depth={depth} priority={priority} reason={reason} />
         {content}
       </div>
