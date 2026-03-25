@@ -43,13 +43,13 @@ interface HowItWorksProps {
   requiredPlan?: 'pro' | 'advanced' | 'enterprise'; // Plan mínimo requerido
 }
 
-// Map premium features to user-friendly names
-const featureNames: Record<string, string> = {
-  advanced_analytics: t('ui.analyticsAvanzados'),
-  api_access: 'Acceso API',
-  ai_role_generation: t('ui.generaciónIaDeRoles'),
-  ai_task_generation: t('ui.generaciónIaDeTareas'),
-  custom_branding: t('ui.brandingPersonalizado'),
+// Map premium features to user-friendly names (keys only — translated inside component)
+const featureNameKeys: Record<string, string> = {
+  advanced_analytics: 'ui.analyticsAvanzados',
+  api_access: 'ui.accesoApi',
+  ai_role_generation: 'ui.generaciónIaDeRoles',
+  ai_task_generation: 'ui.generaciónIaDeTareas',
+  custom_branding: 'ui.brandingPersonalizado',
 };
 
 
@@ -223,11 +223,11 @@ export function HowItWorks({
             <VisuallyHidden>
               <DialogTitle>{t('ui.actualizarPlan')}</DialogTitle>
               <DialogDescription>
-                Actualiza tu plan para desbloquear {featureNames[premiumFeature] || title}
+                Actualiza tu plan para desbloquear {t(featureNameKeys[premiumFeature] || '', premiumFeature) || title}
               </DialogDescription>
             </VisuallyHidden>
             <LockedFeatureOverlay
-              featureName={featureNames[premiumFeature] || title}
+              featureName={t(featureNameKeys[premiumFeature] || '', premiumFeature) || title}
               requiredPlan={requiredPlan.charAt(0).toUpperCase() + requiredPlan.slice(1)}
               description={description}
               currentPlan={currentPlanName}

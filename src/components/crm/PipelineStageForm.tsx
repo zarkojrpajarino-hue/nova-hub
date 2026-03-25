@@ -73,120 +73,66 @@ interface FieldDefinition {
 }
 
 // Configuración de campos por fase
-const STAGE_CONFIG: Record<LeadStatus, StageConfig> = {
-  frio: {
-    title: t('crm.leadFrío'),
-    color: '#64748B',
-    icon: AlertCircle,
-    description: t('crm.contactoInicialSinEngagement'),
-    fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial'],
-    nextStage: 'tibio',
-  },
-  tibio: {
-    title: t('crm.leadTibio'),
-    color: '#F59E0B',
-    icon: AlertCircle,
-    description: t('crm.contactoConInterésMostrado'),
-    fields: [
-      'nombre_contacto',
-      'empresa',
-      'email_contacto',
-      'telefono_contacto',
-      'valor_potencial',
-      'notas',
-    ],
-    nextStage: 'hot',
-  },
-  hot: {
-    title: t('crm.leadHot'),
-    color: '#EF4444',
-    icon: AlertCircle,
-    description: t('crm.oportunidadCalificada'),
-    fields: [
-      'nombre_contacto',
-      'empresa',
-      'email_contacto',
-      'telefono_contacto',
-      'valor_potencial',
-      'proxima_accion',
-      'proxima_accion_fecha',
-      'notas',
-    ],
-    nextStage: 'propuesta',
-  },
-  propuesta: {
-    title: t('crm.propuestaEnviada'),
-    color: '#A855F7',
-    icon: FileText,
-    description: t('crm.propuestaComercialActiva'),
-    fields: [
-      'nombre_contacto',
-      'empresa',
-      'email_contacto',
-      'telefono_contacto',
-      'valor_potencial',
-      'producto',
-      'cantidad',
-      'precio_unitario',
-      'proxima_accion',
-      'proxima_accion_fecha',
-      'notas',
-    ],
-    nextStage: 'negociacion',
-  },
-  negociacion: {
-    title: t('crm.enNegociación'),
-    color: '#3B82F6',
-    icon: DollarSign,
-    description: t('crm.negociandoTérminosFinales'),
-    fields: [
-      'nombre_contacto',
-      'empresa',
-      'email_contacto',
-      'telefono_contacto',
-      'valor_potencial',
-      'producto',
-      'cantidad',
-      'precio_unitario',
-      'costes_estimados',
-      'proxima_accion',
-      'proxima_accion_fecha',
-      'notas',
-    ],
-    nextStage: 'cerrado_ganado',
-  },
-  cerrado_ganado: {
-    title: t('crm.cerradoGanado'),
-    color: '#22C55E',
-    icon: CheckCircle,
-    description: t('crm.convertirAVenta'),
-    fields: [
-      'nombre_contacto',
-      'empresa',
-      'email_contacto',
-      'telefono_contacto',
-      'producto',
-      'cantidad',
-      'precio_unitario',
-      'facturacion',
-      'costes',
-      'margen',
-      'forma_pago',
-      'numero_factura',
-      'cobro_fecha_esperada',
-      'notas',
-    ],
-    nextStage: null,
-  },
-  cerrado_perdido: {
-    title: t('crm.cerradoPerdido'),
-    color: '#6B7280',
-    icon: AlertCircle,
-    description: t('crm.oportunidadPerdida'),
-    fields: ['nombre_contacto', 'empresa', 'notas'],
-    nextStage: null,
-  },
-};
+function getStageConfig(t: (key: string) => string): Record<LeadStatus, StageConfig> {
+  return {
+    frio: {
+      title: t('crm.leadFrío'),
+      color: '#64748B',
+      icon: AlertCircle,
+      description: t('crm.contactoInicialSinEngagement'),
+      fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial'],
+      nextStage: 'tibio',
+    },
+    tibio: {
+      title: t('crm.leadTibio'),
+      color: '#F59E0B',
+      icon: AlertCircle,
+      description: t('crm.contactoConInterésMostrado'),
+      fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial', 'notas'],
+      nextStage: 'hot',
+    },
+    hot: {
+      title: t('crm.leadHot'),
+      color: '#EF4444',
+      icon: AlertCircle,
+      description: t('crm.oportunidadCalificada'),
+      fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial', 'proxima_accion', 'proxima_accion_fecha', 'notas'],
+      nextStage: 'propuesta',
+    },
+    propuesta: {
+      title: t('crm.propuestaEnviada'),
+      color: '#A855F7',
+      icon: FileText,
+      description: t('crm.propuestaComercialActiva'),
+      fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial', 'producto', 'cantidad', 'precio_unitario', 'proxima_accion', 'proxima_accion_fecha', 'notas'],
+      nextStage: 'negociacion',
+    },
+    negociacion: {
+      title: t('crm.enNegociación'),
+      color: '#3B82F6',
+      icon: DollarSign,
+      description: t('crm.negociandoTérminosFinales'),
+      fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'valor_potencial', 'producto', 'cantidad', 'precio_unitario', 'costes_estimados', 'proxima_accion', 'proxima_accion_fecha', 'notas'],
+      nextStage: 'cerrado_ganado',
+    },
+    cerrado_ganado: {
+      title: t('crm.cerradoGanado'),
+      color: '#22C55E',
+      icon: CheckCircle,
+      description: t('crm.convertirAVenta'),
+      fields: ['nombre_contacto', 'empresa', 'email_contacto', 'telefono_contacto', 'producto', 'cantidad', 'precio_unitario', 'facturacion', 'costes', 'margen', 'forma_pago', 'numero_factura', 'cobro_fecha_esperada', 'notas'],
+      nextStage: null,
+    },
+    cerrado_perdido: {
+      title: t('crm.cerradoPerdido'),
+      color: '#6B7280',
+      icon: AlertCircle,
+      description: t('crm.oportunidadPerdida'),
+      fields: ['nombre_contacto', 'empresa', 'notas'],
+      nextStage: null,
+    },
+  };
+}
 
 // Definición de todos los campos posibles
 const FIELD_DEFINITIONS: Record<string, FieldDefinition> = {
@@ -333,6 +279,7 @@ export function PipelineStageForm({
   showStageSelector = true,
 }: PipelineStageFormProps) {
   const { t } = useTranslation();
+  const STAGE_CONFIG = useMemo(() => getStageConfig(t), [t]);
   const stageConfig = STAGE_CONFIG[currentStage];
   const StageIcon = stageConfig.icon;
 
