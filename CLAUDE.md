@@ -64,6 +64,17 @@ Si se modifica un string existente, actualizar la key en `es.ts` y re-ejecutar e
 Namespaces: usar el nombre del directorio del componente (crm, dashboard, project, nova, etc.).
 No traducir: rutas, CSS classes, keys de objetos técnicos, nombres de columnas BD.
 
+### Regla de commits
+
+- **Commit local** cada vez que se completa una unidad lógica de cambios (feature, fix, refactor).
+- **Máximo 1 hora** de trabajo activo sin commit. Si pasa 1 hora, commit de lo que haya estable.
+- **Al final de cada sesión**, commit obligatorio de todo lo pendiente + push a origin.
+- Mensaje de commit descriptivo: qué cambió y por qué, no solo "WIP".
+- **Antes de cada commit**: `tsc --noEmit` + `vitest run` (tests relevantes). No commitear si falla.
+- No commitear archivos con secrets (.env, API keys) ni código que rompa el build.
+- Si hay trabajo en progreso que no compila, crear branch temporal o stash antes de cerrar sesión.
+- Si se detecta que hay trabajo sin commitear de sesiones anteriores, commitear primero antes de empezar trabajo nuevo.
+
 ### Otras reglas
 
 - Leer archivos antes de modificarlos. Verificar nombres de columnas, enums y escalas en migraciones antes de escribir código.

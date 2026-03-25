@@ -40,6 +40,7 @@ import { InvestorSummary } from './InvestorSummary';
 import { useTranslation } from 'react-i18next';
 import { DashboardAdapter } from './DashboardAdapter';
 import type { BlockDepth } from '@/lib/experience-engine';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
 interface ProjectStats {
   facturacion?: number;
   margen?: number;
@@ -76,6 +77,48 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
   const { data: functionOwners } = useProjectFunctions(project.id);
   const phaseFeatures = usePhaseFeatures(project.id);
   const phaseStats = phaseFeatures.getPhaseStats();
+
+  // ── Real role data for Experience Engine ──
+  const { permissions: rolePermissions } = useRolePermissions(project.id);
+
+  const { data: activeIntegrationsCount = 0 } = useQuery({
+    queryKey: ['integration-connections-count', project.id],
+    queryFn: async () => {
+      const { count } = await supabase
+        .from('integration_connections')
+        .select('id', { count: 'exact', head: true })
+        .eq('project_id', project.id)
+        .eq('status', 'active');
+      return count ?? 0;
+    },
+    staleTime: 5 * 60_000,
+    enabled: !!project.id,
+  });
+
+  // kpis table has owner_id (FK → profiles), not project_id.
+  // Count KPIs owned by any member of this project.
+  const memberIds = useMemo(() => teamMembers.map(m => m.id), [teamMembers]);
+  const { data: kpiCount = 0 } = useQuery({
+    queryKey: ['kpi-count', project.id, memberIds],
+    queryFn: async () => {
+      if (memberIds.length === 0) return 0;
+      const { count } = await supabase
+        .from('kpis')
+        .select('id', { count: 'exact', head: true })
+        .in('owner_id', memberIds);
+      return count ?? 0;
+    },
+    staleTime: 5 * 60_000,
+    enabled: !!project.id && memberIds.length > 0,
+  });
+
+  // Resolve teamMode: check onboarding_data first, then fallback to member count
+  const resolvedTeamMode = (() => {
+    const onboardingTeamMode = project.onboarding_data?.team_mode;
+    if (onboardingTeamMode === 'hiring') return 'hiring' as const;
+    if (onboardingTeamMode === 'team' || teamMembers.length > 1) return 'team' as const;
+    return 'solo' as const;
+  })();
 
 
   // V5.2.5 — Tasks completed this week (secondary signal for Phases 1-2)
@@ -246,16 +289,16 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
         phase={currentPhase}
         daysActive={daysActive}
         isZenMode={isZenMode}
-        specializationRole={null}
-        isLead={true}
-        teamMode={teamMembers.length > 1 ? 'team' : 'solo'}
+        specializationRole={rolePermissions.role}
+        isLead={rolePermissions.isLead}
+        teamMode={resolvedTeamMode}
         teamSize={teamMembers.length}
         totalOBVs={totalOBVs}
         totalLeads={leadsCount}
         totalTasks={tasksCompletedWeekly}
         hasRevenue={facturacion > 0}
-        hasIntegrations={false}
-        kpiCount={0}
+        hasIntegrations={activeIntegrationsCount > 0}
+        kpiCount={kpiCount}
         phaseScore={engineData?.phaseState?.phase_score ?? 0}
         projectId={project.id}
         renderers={engineRenderers}

@@ -6748,7 +6748,7 @@ export const es = {
     "análisisCompletoDeRendimiento": "Análisis completo de rendimiento, estructura y capacidades del equipo",
     "departments": "Departments",
     "advancedAnalytics": "Advanced Analytics",
-    "teamOverview": "Team Overview",
+    "teamOverview": "Resumen del equipo",
     "totalHeadcount": "Total Headcount",
     "avgPerformance": "Avg Performance",
     "avgUtilization": "Avg Utilization",

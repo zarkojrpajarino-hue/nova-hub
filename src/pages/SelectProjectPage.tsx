@@ -120,6 +120,7 @@ export function SelectProjectPage() {
 }
 
 function ProjectCard({ project, onSelect }: { project: Record<string, unknown> & { id: string; nombre: string; updated_at: string }; onSelect: () => void }) {
+  const { t } = useTranslation();
   const { data: subscription } = useProjectPlan(project.id);
 
   const getPlanBadge = () => {

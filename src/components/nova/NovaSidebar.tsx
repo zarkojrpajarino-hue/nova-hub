@@ -14,6 +14,8 @@ import { useAvailablePlans } from '@/hooks/useSubscription';
 import { useProjectContext } from '@/hooks/useProjectContext';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import { SIDEBAR_PHASE_CONFIG, SIDEBAR_TEASER_REASONS, type SidebarItemStatus } from '@/lib/phase-features';
+import { useRolePermissions } from '@/hooks/useRolePermissions';
+import { getSidebarConfig, resolveMacroRole, type ExperienceContext } from '@/lib/experience-engine';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 import {
@@ -121,9 +123,35 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
   const { data: projectContext } = useProjectContext(projectId);
   const isSoloMode = projectContext?.mode === 'solo';
 
-  // UI.A — Phase-adaptive sidebar
+  // UI.A — Phase-adaptive sidebar with role filtering via Experience Engine
   const { phase } = usePhaseFeatures(projectId);
   const phaseConfig = SIDEBAR_PHASE_CONFIG[phase] ?? SIDEBAR_PHASE_CONFIG[4];
+  const { permissions: rolePermissions } = useRolePermissions(projectId);
+  const macroRole = useMemo(
+    () => resolveMacroRole(rolePermissions.role, rolePermissions.isLead),
+    [rolePermissions.role, rolePermissions.isLead],
+  );
+
+  // Engine sidebar config — combines phase + role + team mode
+  const engineSidebar = useMemo(() => {
+    const ctx: ExperienceContext = {
+      phase,
+      macroRole,
+      teamMode: isSoloMode ? 'solo' : (projectContext?.teamSize ?? 1) > 1 ? 'team' : 'solo',
+      dataMaturity: 'minimal',
+      daysActive: 0,
+      isZenMode: false,
+      totalOBVs: 0,
+      totalLeads: 0,
+      totalTasks: 0,
+      teamSize: projectContext?.teamSize ?? 1,
+      hasRevenue: false,
+      hasIntegrations: false,
+      kpiCount: 0,
+      phaseSCore: 0,
+    };
+    return getSidebarConfig(ctx);
+  }, [phase, macroRole, isSoloMode, projectContext?.teamSize]);
 
   // UI.A.4 — "NUEVO" badge: detect newly visible items after phase change
   // V5.4.8 — Persist NEW badge for 7 days using first-seen timestamps
@@ -197,8 +225,12 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
   }, [lsKey, newlyVisibleItems, clickedNewItems, phase]);
 
   const getSidebarItemStatus = useCallback((itemId: string): SidebarItemStatus => {
+    // Engine sidebar includes role overrides (Growth hides financial, Ops hides CRM in phase < 3)
+    const engineItem = engineSidebar.items.find(i => i.id === itemId);
+    if (engineItem) return engineItem.visibility as SidebarItemStatus;
+    // Fallback to phase config for items not in engine
     return phaseConfig[itemId] ?? 'visible';
-  }, [phaseConfig]);
+  }, [engineSidebar, phaseConfig]);
 
   // V5.4.8 — isNew checks 7-day persistence window
   const isNewItem = useCallback((itemId: string): boolean => {
@@ -379,8 +411,8 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
         {renderSection('core', Home, t('nav.sections.core'), coreItems)}
         {renderSection('create', Rocket, t('nav.sections.createValidate'), createValidateItems)}
         {renderSection('execute', Briefcase, t('nav.sections.execute'), executeItems)}
-        {/* S4.6 — Hide team section in solo mode */}
-        {!isSoloMode && renderSection('team', Users, t('nav.sections.team'), teamItems)}
+        {/* S4.6 — Team section: engine handles solo/team filtering per item */}
+        {renderSection('team', Users, t('nav.sections.team'), teamItems)}
         {renderSection('measure', BarChart3, t('nav.sections.measure'), measureItems)}
         {renderSection('system', Settings, t('nav.sections.system'), systemItems)}
       </nav>
