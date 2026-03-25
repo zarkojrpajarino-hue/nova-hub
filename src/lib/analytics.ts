@@ -103,6 +103,37 @@ export function trackFocusBlockCTAClicked(props: {
   posthog.capture('focus_block_cta_clicked', props);
 }
 
+/**
+ * ENGINE BEHAVIOR FUNNEL — The chain that proves the system works:
+ *   focus_block_impression → focus_block_cta_clicked → action_completed_post_cta → session_return_d1
+ *
+ * This event fires AFTER the user completes the action that the CTA suggested.
+ * E.g., CTA = "Crear OBV" → user creates OBV → this fires.
+ * The `originated_from` field links it back to the CTA click.
+ */
+export function trackActionCompletedPostCTA(props: {
+  project_id: string;
+  action_type: string;       // create_obv, add_metrics, create_task, define_channel, etc.
+  originated_from: 'next_action' | 'first_steps' | 'moment' | 'nudge' | 'direct';
+  time_to_complete_ms: number; // Time between CTA click and action completion
+  phase: number;
+}) {
+  posthog.capture('action_completed_post_cta', props);
+}
+
+/**
+ * Fires when user returns after 12h+ absence.
+ * Combined with action_completed_post_cta, this measures retention.
+ */
+export function trackSessionReturn(props: {
+  project_id: string;
+  hours_since_last: number;
+  phase: number;
+  actions_last_session: number; // How many actions they completed last time
+}) {
+  posthog.capture('session_return', props);
+}
+
 export function trackTaskLoopTriggered(props: {
   project_id: string;
   task_count: number;

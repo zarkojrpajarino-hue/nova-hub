@@ -157,6 +157,16 @@ export function TaskForm({ projectId, projectMembers, open, onOpenChange }: Task
       if (error) throw error;
 
       toast.success(t('tasks.tareaCreada'));
+      // Engine behavior funnel: track action completion
+      import('@/lib/analytics').then(({ trackActionCompletedPostCTA }) => {
+        trackActionCompletedPostCTA({
+          project_id: projectId,
+          action_type: 'create_task',
+          originated_from: 'direct',
+          time_to_complete_ms: 0,
+          phase: 0, // caller should provide, 0 = unknown
+        });
+      });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.byProject(projectId) });
       queryClient.invalidateQueries({ queryKey: queryKeys.tasks.all });
 
