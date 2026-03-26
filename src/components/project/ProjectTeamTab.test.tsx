@@ -102,7 +102,8 @@ describe('ProjectTeamTab', () => {
 
   it('displays roles legend section', () => {
     render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
-    expect(screen.getByText('Roles del Equipo')).toBeInTheDocument();
+    // t() without i18n mock returns the key
+    expect(screen.getByText('project.rolesDelEquipo')).toBeInTheDocument();
   });
 
   it('shows member count per role', () => {
@@ -126,7 +127,8 @@ describe('ProjectTeamTab', () => {
 
   it('shows fact. label for facturación', () => {
     render(<ProjectTeamTab project={mockProject} teamMembers={mockTeamMembers} />, { wrapper });
-    const labels = screen.getAllByText('Fact.');
+    // t() without i18n mock returns the key
+    const labels = screen.getAllByText('project.fact');
     expect(labels.length).toBe(2);
   });
 });
