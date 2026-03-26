@@ -46,7 +46,7 @@ export type NextAction = {
   ctaLabel?: string;
 } | null;
 
-export function getNextAction(engineData: ProjectEngineData | null | undefined): NextAction {
+export function getNextAction(engineData: ProjectEngineData | null | undefined, macroRole: 'founder' | 'growth' | 'operations' = 'founder'): NextAction {
   if (!engineData) return null;
 
   const phase         = engineData.phaseState?.current_phase  ?? 1;
@@ -97,11 +97,27 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
   // 3. Fase 1
   if (phase === 1) {
     if (!hardSignalMet || demandWeak) {
+      if (macroRole === 'growth') {
+        return {
+          title: 'Consigue las primeras señales de demanda',
+          description: 'Tu foco es encontrar leads calificados y validar interés real del mercado.',
+          actionType: 'create_obv',
+          ctaLabel: 'Ir al pipeline',
+        };
+      }
+      if (macroRole === 'operations') {
+        return {
+          title: 'Facilita la validación del problema',
+          description: 'Organiza los procesos para que el equipo pueda validar rápidamente.',
+          actionType: 'create_task',
+          ctaLabel: 'Ver tareas',
+        };
+      }
       return {
         title: 'Valida el problema con señales reales',
         description: 'Aún falta evidencia suficiente de demanda. Crea un OBV de descubrimiento.',
         actionType: 'create_obv',
-        ctaLabel: 'Crear OBV',
+        ctaLabel: 'Crear evidencia',
       };
     }
   }
@@ -110,11 +126,27 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
   if (phase === 2) {
     // 4. Sin hard signal + demand débil → seguir validando demanda
     if (!hardSignalMet && demandWeak) {
+      if (macroRole === 'growth') {
+        return {
+          title: 'Consigue evidencia de demanda desde el mercado',
+          description: 'Tu foco es conseguir leads calificados y señales de conversión reales.',
+          actionType: 'create_obv',
+          ctaLabel: 'Ir al pipeline',
+        };
+      }
+      if (macroRole === 'operations') {
+        return {
+          title: 'Estructura los procesos de activación',
+          description: 'El equipo necesita procesos claros para activar y retener usuarios.',
+          actionType: 'create_task',
+          ctaLabel: 'Ver tareas',
+        };
+      }
       return {
-        title: 'Valida la demanda con más evidencia',
+        title: 'Demuestra que tu solución genera demanda real',
         description: 'Todavía no hay señal fuerte de demanda. Necesitas más evidencia antes de estructurar adquisición.',
         actionType: 'create_obv',
-        ctaLabel: 'Crear OBV',
+        ctaLabel: 'Registrar validación',
       };
     }
 
@@ -152,13 +184,29 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
 
   // 7–8. Fase 3
   if (phase === 3) {
-    // 7. Ops débiles (none o basic) — incluye basic porque escalar con basic también es prematuro
+    // 7. Ops débiles (none o basic)
     if (opsWeak) {
+      if (macroRole === 'operations') {
+        return {
+          title: 'Estabiliza la entrega antes de escalar',
+          description: 'Los procesos de entrega y cobro necesitan consolidarse para sostener crecimiento.',
+          actionType: 'create_obv',
+          ctaLabel: 'Documentar entrega',
+        };
+      }
+      if (macroRole === 'growth') {
+        return {
+          title: 'El equipo necesita consolidar operaciones',
+          description: 'Antes de escalar canales, la entrega y caja deben estabilizarse.',
+          actionType: 'create_obv',
+          ctaLabel: 'Ver estado',
+        };
+      }
       return {
         title: 'Refuerza la operación antes de escalar',
         description: 'Entrega y caja aún no están suficientemente consolidadas para sostener crecimiento.',
         actionType: 'create_obv',
-        ctaLabel: 'Crear OBV',
+        ctaLabel: 'Documentar operación',
       };
     }
 
@@ -168,7 +216,7 @@ export function getNextAction(engineData: ProjectEngineData | null | undefined):
         title: 'Consolida evidencia operativa clave',
         description: 'La fase actual necesita señales más sólidas antes de seguir avanzando.',
         actionType: 'create_obv',
-        ctaLabel: 'Crear OBV',
+        ctaLabel: 'Registrar evidencia',
       };
     }
   }

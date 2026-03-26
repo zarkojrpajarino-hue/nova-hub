@@ -24,6 +24,7 @@ export interface ProjectContext {
   mode:                  'solo' | 'team'
   teamSize:              number
   operationalComplexity: 'low' | 'medium' | 'high'
+  macroRole?:            'founder' | 'growth' | 'operations'
 }
 
 export interface EnrichedNextAction {
@@ -167,7 +168,7 @@ export function buildNextAction(
   }
 
   // ── 6. Fallback al getNextAction() base del motor ───────────────────────────
-  const base = getNextAction(engineData)
+  const base = getNextAction(engineData, context.macroRole ?? 'founder')
   if (!base) {
     return {
       title:       '',
@@ -216,11 +217,11 @@ export function buildNextAction(
     if (score < 75 && phase < 4) {
       const gap = 75 - Math.round(score)
       if (phase <= 1) {
-        signals.push(`💡 Crear 1 OBV validada puede subir score ~${Math.min(15, gap)}%.`)
+        signals.push(`Crear 1 OBV validada puede subir score ~${Math.min(15, gap)}%.`)
       } else if (phase === 2) {
-        signals.push(`💡 Registrar 1 pago verificado puede subir score ~${Math.min(20, gap)}%.`)
+        signals.push(`Registrar 1 pago verificado puede subir score ~${Math.min(20, gap)}%.`)
       } else if (phase === 3) {
-        signals.push(`💡 Completar 3 tareas esta semana puede subir score ~${Math.min(10, gap)}%.`)
+        signals.push(`Completar 3 tareas esta semana puede subir score ~${Math.min(10, gap)}%.`)
       }
     }
   }

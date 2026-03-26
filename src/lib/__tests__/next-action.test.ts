@@ -134,7 +134,7 @@ describe('getNextAction', () => {
       }),
     );
     expect(result!.actionType).toBe('create_obv');
-    expect(result!.title).toContain('Valida la demanda');
+    expect(result!.title).toContain('demanda');
   });
 
   it('phase 2: returns define_channel when demand weak + hardSignal + score >= 70', () => {

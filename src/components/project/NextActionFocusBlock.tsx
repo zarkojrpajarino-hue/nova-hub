@@ -149,11 +149,19 @@ export const NextActionFocusBlock = memo(function NextActionFocusBlock({
   const riskLevel = engineData?.risk?.risk_level ?? 'low'
   const isDigestMode = agentInsights.length >= 3 && riskLevel !== 'critical'
 
+  // Get macroRole from engineData membership (bundled in same query)
+  const membership = engineData?.membership as { role: string | null; isLead: boolean } | undefined;
+  const macroRole = membership
+    ? (membership.isLead || membership.role === 'strategy' ? 'founder'
+      : membership.role === 'sales' || membership.role === 'marketing' ? 'growth'
+      : 'operations') as 'founder' | 'growth' | 'operations'
+    : 'founder';
+
   const nextAction = buildNextAction(
     engineData,
     agentInsights,
     { overdueCount, oldestOverdueDays },
-    projectCtx ?? { mode: 'solo', teamSize: 0, operationalComplexity: 'low' },
+    { ...(projectCtx ?? { mode: 'solo', teamSize: 0, operationalComplexity: 'low' }), macroRole },
     urgentDecisions,
     benchmarkSignal,
   )
