@@ -488,10 +488,13 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   );
 
   // O5.V2.2 — Check if user has zero data
-  const hasZeroData = members.length === 0
-    && totals.obvs === 0
-    && totals.lps === 0
-    && totals.facturacion === 0;
+  // hasZeroData: only show EmptyStateDashboard when we KNOW there's no data.
+  // Wait for engineData to load (counts come from the working queryFn).
+  // Never show empty state while loading — avoids false "welcome" over real data.
+  const hasZeroData = engineData !== null
+    && stickyCounts.obvs === 0
+    && stickyCounts.kpis === 0
+    && stickyCounts.tasks === 0;
 
   // Don't block entire page on loadingMembers — engine section renders independently
 
