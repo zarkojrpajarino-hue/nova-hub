@@ -46,6 +46,7 @@ import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBa
 import { AICallsNudge } from '@/components/subscription/AICallsNudge';
 import { LeadConversionInsights } from '@/components/project/LeadConversionInsights';
 import { TeamRecommendation } from '@/components/project/TeamRecommendation';
+import { DataCompletenessCard } from '@/components/project/DataCompletenessCard';
 
 import { useTranslation } from 'react-i18next';
 interface DashboardViewProps {
@@ -569,6 +570,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             phaseScore={engineData?.phaseState?.phase_score ?? 0}
             projectId={projectId}
             renderers={engineRenderers}
+          />
+        )}
+
+        {/* Data Completeness — modulador de confianza, solo aparece si datos < 70% */}
+        {!isZenMode && (
+          <DataCompletenessCard
+            engineData={engineData}
+            onNavigateToTab={handleNavigateToTab}
           />
         )}
 
