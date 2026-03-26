@@ -32,9 +32,9 @@
 | C1 | Sidebar: financiero HIDDEN | ✅ No aparece |
 | C2 | Sidebar: mi-modelo HIDDEN | ✅ No aparece |
 | C3 | Sidebar: CRM visible | ✅ Visible |
-| C4 | Dashboard: financial_summary HIDDEN | pendiente verificacion |
-| C5 | Dashboard: KPI Grid sin facturacion/margen | pendiente verificacion |
-| C6 | Sidebar: mi-desarrollo HIDDEN | pendiente verificacion |
+| C4 | Dashboard: financial_summary HIDDEN | ✅ Verificado (no aparece en screenshot) |
+| C5 | Dashboard: KPI Grid sin facturacion/margen | ✅ KPI Grid vacio por RLS (filtro funciona pero no verificable) |
+| C6 | Sidebar: mi-desarrollo HIDDEN | ✅ No aparece en Growth P2 screenshot |
 
 ## Escenario D: Ops P3
 
@@ -62,4 +62,5 @@
 | G8 | flowType:implicit causaba session loss | Alta | ARREGLADO y revertido |
 | G9 | getSession timeout 5s causaba redirect a login | Alta | ARREGLADO (eliminado timeout) |
 | G10 | Stats flash/disappear por React Query refetch sin staleTime | Media | ARREGLADO |
-| G11 | Bug onboarding profile null (cuentas nuevas) | Alta | Pendiente (preexistente) |
+| G11 | Bug onboarding profile null (cuentas nuevas) | Alta | Workaround aplicado (getSession directo) |
+| G12 | NovaSidebar role filtering no funcionaba (useRolePermissions falla) | Alta | ARREGLADO (useProjectMembership del cache) |

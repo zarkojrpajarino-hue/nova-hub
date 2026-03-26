@@ -14,7 +14,7 @@ import { useAvailablePlans } from '@/hooks/useSubscription';
 import { useProjectContext } from '@/hooks/useProjectContext';
 import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import { SIDEBAR_PHASE_CONFIG, SIDEBAR_TEASER_REASONS, type SidebarItemStatus } from '@/lib/phase-features';
-import { useRolePermissions } from '@/hooks/useRolePermissions';
+import { useProjectMembership } from '@/hooks/useProjectMembership';
 import { getSidebarConfig, resolveMacroRole, type ExperienceContext } from '@/lib/experience-engine';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
@@ -126,10 +126,10 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
   // UI.A — Phase-adaptive sidebar with role filtering via Experience Engine
   const { phase } = usePhaseFeatures(projectId);
   const phaseConfig = SIDEBAR_PHASE_CONFIG[phase] ?? SIDEBAR_PHASE_CONFIG[4];
-  const { permissions: rolePermissions } = useRolePermissions(projectId);
+  const { membership } = useProjectMembership(projectId);
   const macroRole = useMemo(
-    () => resolveMacroRole(rolePermissions.role, rolePermissions.isLead),
-    [rolePermissions.role, rolePermissions.isLead],
+    () => resolveMacroRole(membership?.role ?? null, membership?.isLead ?? true),
+    [membership?.role, membership?.isLead],
   );
 
   // Engine sidebar config — combines phase + role + team mode
