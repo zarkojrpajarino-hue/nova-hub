@@ -93,6 +93,7 @@ interface IntegrationsViewProps {
 
 // Componente interno que renderiza el contenido
 function IntegrationsContent({ isDemoMode = false }: IntegrationsViewProps = {}) {
+  const { t } = useTranslation();
   const { goBack, canGoBack } = useNavigation();
   const { currentProject } = useCurrentProject();
   const demoData = PREMIUM_DEMO_DATA.integrations;
