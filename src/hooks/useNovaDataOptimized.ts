@@ -96,7 +96,7 @@ export interface ProjectEngineData {
 export interface PhaseEngineData {
   phaseState: ProjectEngineData['phaseState'];
   phaseHistory: ProjectEngineData['phaseHistory'];
-  counts?: { obvsCount: number; kpisCount: number; tasksDoneWeek: number };
+  counts?: { obvsCount: number; kpisCount: number; tasksDoneWeek: number; hasRevenue: boolean };
   membership?: { role: string | null; isLead: boolean };
 }
 
@@ -140,10 +140,11 @@ export function useProjectPhaseData(projectId: string | undefined) {
         const { data: { session } } = await supabase.auth.getSession();
         const authId = session?.user?.id;
 
-        const [obvsCount, kpisCount, tasksDoneCount, profileResult] = await Promise.all([
+        const [obvsCount, kpisCount, tasksDoneCount, revenueResult, profileResult] = await Promise.all([
           supabase.from('obvs').select('id', { count: 'exact', head: true }).eq('project_id', projectId!),
           supabase.rpc('count_project_kpis', { p_project_id: projectId! }),
           supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('project_id', projectId!).eq('status', 'done'),
+          supabase.from('obvs').select('facturacion').eq('project_id', projectId!).eq('es_venta', true).eq('status', 'validated').gt('facturacion', 0).limit(1),
           authId
             ? supabase.from('profiles').select('id').eq('auth_id', authId).maybeSingle()
             : Promise.resolve({ data: null }),
@@ -153,6 +154,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
           obvsCount: obvsCount.count ?? 0,
           kpisCount: (kpisCount.data as number) ?? 0,
           tasksDoneWeek: tasksDoneCount.count ?? 0,
+          hasRevenue: (revenueResult.data?.length ?? 0) > 0,
         };
 
         // Get role from project_members using profile_id

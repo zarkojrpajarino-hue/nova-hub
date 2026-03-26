@@ -554,7 +554,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             totalOBVs={totals.obvs}
             totalLeads={leadsCount}
             totalTasks={tasksCompletedWeekly}
-            hasRevenue={totals.facturacion > 0}
+            hasRevenue={engineData?.counts?.hasRevenue ?? totals.facturacion > 0}
             hasIntegrations={activeIntegrationsCount > 0}
             kpiCount={kpiCount}
             phaseScore={engineData?.phaseState?.phase_score ?? 0}
