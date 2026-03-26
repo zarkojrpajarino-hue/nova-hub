@@ -6,7 +6,7 @@
  */
 
 import { useMemo, useState, useEffect, useCallback, lazy, Suspense } from 'react';
-import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, CheckCircle2, Calendar, CheckSquare, Plus, Sparkles, ShoppingCart, ArrowRight } from 'lucide-react';
+import { FileCheck, BookOpen, Trophy, Users, TrendingUp, Wallet, Loader2, AlertTriangle, CheckCircle2, Calendar, CheckSquare, Plus, Sparkles, ShoppingCart, ArrowRight, Phone } from 'lucide-react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useQuery } from '@tanstack/react-query';
 import { NovaHeader } from '@/components/nova/NovaHeader';
@@ -310,34 +310,159 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       block: 'crm_summary' as const,
       render: (depth: BlockDepth) => {
         if (!projectId) return null;
+        const obvCount = stickyCounts.obvs;
+
+        // TEASER: no hay OBVs/leads — solo invitación a empezar
         if (depth === 'teaser') return (
-          <div className="p-4 rounded-2xl bg-card/50 opacity-60">
-            <p className="text-sm text-muted-foreground">{t('project.crmUnlocksWithLeads')}</p>
+          <div className="p-4 rounded-2xl border border-dashed border-border/50 bg-card/30">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                <Phone size={16} className="text-primary" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{t('project.crmUnlocksWithLeads')}</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">{t('project.creaObvsParaActivar', 'Crea OBVs de validación para activar el pipeline')}</p>
+              </div>
+            </div>
           </div>
         );
+
+        // SUMMARY: hay algunos datos — mostrar resumen compacto
+        if (depth === 'summary') return (
+          <div className="p-4 rounded-2xl bg-card border border-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                  <Phone size={16} className="text-primary" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{t('project.pipeline', 'Pipeline')}</p>
+                  <p className="text-xs text-muted-foreground">{obvCount} OBVs · {t('project.faseActiva', 'Fase activa')}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleNavigateToTab('crm')}
+                className="text-xs text-primary hover:underline"
+              >
+                {t('project.verCrm', 'Ver CRM →')}
+              </button>
+            </div>
+          </div>
+        );
+
+        // FULL: vista completa con LeadConversionInsights
         return <LeadConversionInsights projectId={projectId} />;
       },
     },
     {
       block: 'financial_summary' as const,
       render: (depth: BlockDepth) => {
+        const revenue = totals.facturacion;
+        const margin = totals.margen;
+
+        // TEASER: sin revenue — invitación
         if (depth === 'teaser') return (
-          <div className="p-4 rounded-2xl bg-card/50 opacity-60">
-            <p className="text-sm text-muted-foreground">{t('project.financialUnlocksWithRevenue')}</p>
+          <div className="p-4 rounded-2xl border border-dashed border-border/50 bg-card/30">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                <Wallet size={16} className="text-emerald-500" />
+              </div>
+              <div>
+                <p className="text-sm font-medium text-muted-foreground">{t('project.financialUnlocksWithRevenue')}</p>
+                <p className="text-xs text-muted-foreground/60 mt-0.5">{t('project.registraIngresoParaActivar', 'Registra tu primer ingreso para activar proyecciones')}</p>
+              </div>
+            </div>
           </div>
         );
+
+        // SUMMARY: revenue básico — lectura rápida
         if (depth === 'summary') return (
-          <div className="p-4 rounded-2xl bg-card">
-            <p className="text-sm font-medium">{t('project.facturación')}: €{totals.facturacion}</p>
+          <div className="p-4 rounded-2xl bg-card border border-border">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
+                  <Wallet size={16} className="text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{t('project.facturación')}</p>
+                  <p className="text-xl font-bold text-emerald-500">€{revenue.toLocaleString()}</p>
+                </div>
+              </div>
+              {margin > 0 && (
+                <div className="text-right">
+                  <p className="text-xs text-muted-foreground">{t('project.margen')}</p>
+                  <p className="text-sm font-semibold text-emerald-400">€{margin.toLocaleString()}</p>
+                </div>
+              )}
+            </div>
           </div>
         );
-        return null;
+
+        // FULL: vista completa con facturación + margen + link a financiero
+        return (
+          <div className="p-5 rounded-2xl bg-card border border-border space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/10 flex items-center justify-center">
+                  <Wallet size={20} className="text-emerald-500" />
+                </div>
+                <div>
+                  <p className="text-sm font-semibold">{t('project.resumenFinanciero', 'Resumen financiero')}</p>
+                  <p className="text-xs text-muted-foreground">{daysActive} {t('project.díasActivo')}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => handleNavigateToTab('financiero')}
+                className="text-xs text-primary hover:underline"
+              >
+                {t('project.verFinanciero', 'Ver financiero →')}
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="p-3 rounded-xl bg-background">
+                <p className="text-xs text-muted-foreground">{t('project.facturación')}</p>
+                <p className="text-2xl font-bold text-emerald-500">€{revenue.toLocaleString()}</p>
+              </div>
+              <div className="p-3 rounded-xl bg-background">
+                <p className="text-xs text-muted-foreground">{t('project.margen')}</p>
+                <p className="text-2xl font-bold text-emerald-400">€{margin.toLocaleString()}</p>
+                {revenue > 0 && (
+                  <p className="text-xs text-muted-foreground">{Math.round((margin / revenue) * 100)}%</p>
+                )}
+              </div>
+            </div>
+          </div>
+        );
       },
     },
     {
       block: 'team_status' as const,
       render: (depth: BlockDepth) => {
-        if (!projectId || depth === 'teaser') return null;
+        if (!projectId) return null;
+
+        // TEASER: solo founder — sugerencia ligera de equipo
+        if (depth === 'teaser') return (
+          <div className="p-4 rounded-2xl border border-dashed border-border/50 bg-card/30">
+            <div className="flex items-center gap-3">
+              <div className="w-8 h-8 rounded-lg bg-violet-500/10 flex items-center justify-center">
+                <Users size={16} className="text-violet-500" />
+              </div>
+              <p className="text-sm text-muted-foreground">{t('project.equipoSugerencia', 'Founders con equipo avanzan 40% más rápido')}</p>
+            </div>
+          </div>
+        );
+
+        // SUMMARY: equipo básico — recomendación compacta
+        if (depth === 'summary') return (
+          <TeamRecommendation
+            projectId={projectId}
+            currentPhase={currentPhase}
+            teamSize={members.length}
+            existingRoles={memberRoles}
+          />
+        );
+
+        // FULL: estado completo del equipo
         return (
           <TeamRecommendation
             projectId={projectId}
