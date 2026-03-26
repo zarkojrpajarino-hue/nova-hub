@@ -312,17 +312,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         if (!projectId) return null;
         const obvCount = stickyCounts.obvs;
 
-        // TEASER: no hay OBVs/leads — solo invitación a empezar
+        // TEASER: texto accionable — empuja intención sin botón
         if (depth === 'teaser') return (
           <div className="p-4 rounded-2xl border border-dashed border-border/50 bg-card/30">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
                 <Phone size={16} className="text-primary" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t('project.crmUnlocksWithLeads')}</p>
-                <p className="text-xs text-muted-foreground/60 mt-0.5">{t('project.creaObvsParaActivar', 'Crea OBVs de validación para activar el pipeline')}</p>
-              </div>
+              <p className="text-sm text-muted-foreground">{t('project.crmTeaserAccionable', 'Añade tu primer lead para activar el CRM')}</p>
             </div>
           </div>
         );
@@ -360,17 +357,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         const revenue = totals.facturacion;
         const margin = totals.margen;
 
-        // TEASER: sin revenue — invitación
+        // TEASER: texto accionable con contexto de por qué
         if (depth === 'teaser') return (
           <div className="p-4 rounded-2xl border border-dashed border-border/50 bg-card/30">
             <div className="flex items-center gap-3">
               <div className="w-8 h-8 rounded-lg bg-emerald-500/10 flex items-center justify-center">
                 <Wallet size={16} className="text-emerald-500" />
               </div>
-              <div>
-                <p className="text-sm font-medium text-muted-foreground">{t('project.financialUnlocksWithRevenue')}</p>
-                <p className="text-xs text-muted-foreground/60 mt-0.5">{t('project.registraIngresoParaActivar', 'Registra tu primer ingreso para activar proyecciones')}</p>
-              </div>
+              <p className="text-sm text-muted-foreground">{t('project.financialTeaserAccionable', 'Registra tu primer ingreso para medir la viabilidad del negocio')}</p>
             </div>
           </div>
         );
@@ -452,17 +446,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         );
 
-        // SUMMARY: equipo básico — recomendación compacta
-        if (depth === 'summary') return (
-          <TeamRecommendation
-            projectId={projectId}
-            currentPhase={currentPhase}
-            teamSize={members.length}
-            existingRoles={memberRoles}
-          />
-        );
-
-        // FULL: estado completo del equipo
+        // SUMMARY + FULL: TeamRecommendation (full === summary until richer team component exists)
         return (
           <TeamRecommendation
             projectId={projectId}
