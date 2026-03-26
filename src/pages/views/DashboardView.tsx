@@ -38,7 +38,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { DashboardAdapter } from '@/components/project/DashboardAdapter';
 import type { BlockDepth } from '@/lib/experience-engine';
 import { resolveMacroRole } from '@/lib/experience-engine';
-import { PHASE_METHODOLOGY, PHASE_LABELS, PHASE_DESCRIPTIONS } from '@/lib/engine';
+import { PHASE_METHODOLOGY, PHASE_LABELS, PHASE_DESCRIPTIONS, PHASE_METHODOLOGY_DETAIL } from '@/lib/engine';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
 // MomentBanner removed — methodology block now shows phase methodology inline
 import { ProjectEnginePanel } from '@/components/project/ProjectEnginePanel';
@@ -265,6 +265,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
         const methodology = PHASE_METHODOLOGY[phase] || PHASE_METHODOLOGY[0];
         const phaseLabel = PHASE_LABELS[phase] || PHASE_LABELS[0];
         const phaseDesc = PHASE_DESCRIPTIONS[phase] || PHASE_DESCRIPTIONS[0];
+        const detail = PHASE_METHODOLOGY_DETAIL[phase] || PHASE_METHODOLOGY_DETAIL[0];
+        const roleFocus = detail.focus[macroRole as keyof typeof detail.focus] || detail.focus.founder;
         return (
           <div className="p-5 rounded-2xl bg-gradient-to-r from-primary/5 to-violet-500/5 border border-primary/10">
             <div className="flex items-center gap-2 mb-2">
@@ -274,7 +276,11 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
               </span>
             </div>
             <p className="text-sm font-semibold text-foreground mb-1">{methodology}</p>
-            <p className="text-xs text-muted-foreground">{phaseDesc}</p>
+            <p className="text-xs text-muted-foreground mb-3">{phaseDesc}</p>
+            <div className="border-t border-primary/10 pt-3 space-y-1.5">
+              <p className="text-xs text-foreground"><span className="font-semibold text-primary">Tu foco:</span> {roleFocus}</p>
+              <p className="text-xs text-muted-foreground"><span className="font-medium">Principio clave:</span> {detail.principle}</p>
+            </div>
           </div>
         );
       },

@@ -31,6 +31,53 @@ export const PHASE_DESCRIPTIONS: Record<number, string> = {
   4: 'El modelo está validado. El objetivo es consolidar la operación y escalar de forma sostenible.',
 };
 
+// Methodology detail — focus per role + key principle per phase
+export const PHASE_METHODOLOGY_DETAIL: Record<number, {
+  focus: { founder: string; growth: string; operations: string };
+  principle: string;
+}> = {
+  0: {
+    focus: {
+      founder: 'Descubre un problema que valga la pena',
+      growth: 'Investiga qué busca el mercado',
+      operations: 'Organiza la investigación',
+    },
+    principle: 'No elijas solución antes de entender el problema',
+  },
+  1: {
+    focus: {
+      founder: 'Valida que el problema es real y frecuente',
+      growth: 'Consigue señales de demanda reales',
+      operations: 'Facilita que el equipo valide rápido',
+    },
+    principle: 'Habla con clientes antes de construir',
+  },
+  2: {
+    focus: {
+      founder: 'Demuestra que tu solución activa y retiene a los primeros usuarios',
+      growth: 'Convierte interés en activaciones reales',
+      operations: 'Estructura los procesos de activación',
+    },
+    principle: 'Activación antes que retención',
+  },
+  3: {
+    focus: {
+      founder: 'Demuestra que el modelo genera margen',
+      growth: 'Escala solo los canales que ya son rentables',
+      operations: 'Controla costes, entrega y cobro sin fricción',
+    },
+    principle: 'Si no es rentable unitariamente, escalar lo empeora',
+  },
+  4: {
+    focus: {
+      founder: 'Delega y sistematiza lo que funciona',
+      growth: 'Multiplica los canales validados',
+      operations: 'Automatiza procesos repetitivos',
+    },
+    principle: 'Escala lo que ya funciona, no lo que esperas que funcione',
+  },
+};
+
 /**
  * i18n-aware phase labels. Use this hook in components instead of importing PHASE_LABELS directly.
  * Falls back to Spanish constants if i18n is not available.
