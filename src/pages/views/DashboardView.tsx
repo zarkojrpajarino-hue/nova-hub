@@ -142,12 +142,15 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const currentPhase = engineData?.phaseState?.current_phase ?? 0;
   const { data: viabilityData } = useProjectViabilityState(projectId);
   const { data: functionOwners } = useProjectFunctions(projectId);
-  const { permissions: rolePermissions } = useRolePermissions(projectId);
+  // Role from engineData.membership (same auth timing as engine queries)
+  const roleFromEngine = engineData?.membership;
+  const rolePermissionsRole = roleFromEngine?.role ?? null;
+  const rolePermissionsIsLead = roleFromEngine?.isLead ?? true; // default to founder if not loaded
   const phaseFeatures = usePhaseFeatures(projectId);
   const phaseStats = phaseFeatures.getPhaseStats();
   const macroRole = useMemo(
-    () => resolveMacroRole(rolePermissions.role, rolePermissions.isLead),
-    [rolePermissions.role, rolePermissions.isLead],
+    () => resolveMacroRole(rolePermissionsRole, rolePermissionsIsLead),
+    [rolePermissionsRole, rolePermissionsIsLead],
   );
 
   // daysActive only meaningful when project is loaded (avoids zen mode flash with daysActive=0)
@@ -435,8 +438,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             phase={currentPhase}
             daysActive={Math.max(daysActive, 0)}
             isZenMode={isZenMode}
-            specializationRole={rolePermissions.role}
-            isLead={rolePermissions.isLead}
+            specializationRole={rolePermissionsRole}
+            isLead={rolePermissionsIsLead}
             teamMode={resolvedTeamMode}
             teamSize={members.length}
             totalOBVs={totals.obvs}

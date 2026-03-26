@@ -106,7 +106,7 @@ export function computePermissions(role: string | null, isLead: boolean): RolePe
 export function useRolePermissions(projectId: string | undefined) {
   const { data, isLoading } = useQuery({
     queryKey: queryKeys.rolePermissions(projectId!),
-    staleTime: 30 * 60_000,  // Permisos rara vez cambian
+    staleTime: 60_000,  // 1 min — reduced for testing (was 30 min)
     queryFn: async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return computePermissions(null, false);

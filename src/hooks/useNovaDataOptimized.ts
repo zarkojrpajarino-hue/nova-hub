@@ -97,6 +97,7 @@ export interface PhaseEngineData {
   phaseState: ProjectEngineData['phaseState'];
   phaseHistory: ProjectEngineData['phaseHistory'];
   counts?: { obvsCount: number; kpisCount: number; tasksDoneWeek: number };
+  membership?: { role: string | null; isLead: boolean };
 }
 
 export interface ProbabilityEngineData {
@@ -131,19 +132,41 @@ export function useProjectPhaseData(projectId: string | undefined) {
       if (stateResult.error)   throw stateResult.error;
       if (historyResult.error) throw historyResult.error;
 
-      // Counts fetched separately — errors don't break phase data
+      // Extra data fetched separately — errors don't break phase data
       let counts: PhaseEngineData['counts'];
+      let membership: PhaseEngineData['membership'];
       try {
-        const [obvsCount, kpisCount, tasksDoneCount] = await Promise.all([
+        // Get current user's auth_id → profile_id → project_members role
+        const { data: { session } } = await supabase.auth.getSession();
+        const authId = session?.user?.id;
+
+        const [obvsCount, kpisCount, tasksDoneCount, profileResult] = await Promise.all([
           supabase.from('obvs').select('id', { count: 'exact', head: true }).eq('project_id', projectId!),
           supabase.rpc('count_project_kpis', { p_project_id: projectId! }),
           supabase.from('tasks').select('id', { count: 'exact', head: true }).eq('project_id', projectId!).eq('status', 'done'),
+          authId
+            ? supabase.from('profiles').select('id').eq('auth_id', authId).maybeSingle()
+            : Promise.resolve({ data: null }),
         ]);
+
         counts = {
           obvsCount: obvsCount.count ?? 0,
           kpisCount: (kpisCount.data as number) ?? 0,
           tasksDoneWeek: tasksDoneCount.count ?? 0,
         };
+
+        // Get role from project_members using profile_id
+        if (profileResult.data?.id) {
+          const { data: pm } = await supabase
+            .from('project_members')
+            .select('role, is_lead')
+            .eq('project_id', projectId!)
+            .eq('member_id', profileResult.data.id)
+            .maybeSingle();
+          if (pm) {
+            membership = { role: pm.role, isLead: pm.is_lead };
+          }
+        }
       } catch {
         counts = undefined;
       }
@@ -152,6 +175,7 @@ export function useProjectPhaseData(projectId: string | undefined) {
         phaseState:   stateResult.data,
         phaseHistory: historyResult.data ?? [],
         counts,
+        membership,
       };
     },
     enabled: !!projectId,
@@ -250,6 +274,7 @@ export function useProjectEngineData(projectId: string | undefined) {
       riskHistory:        risk.data?.riskHistory          ?? [],
       coverage:           coverage.data                   ?? [],
       counts:             phase.data?.counts,
+      membership:         phase.data?.membership,
     };
   }, [projectId, phase.data, prob.data, risk.data, coverage.data]);
 
