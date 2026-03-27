@@ -73,7 +73,10 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
   });
 
   // Fetch user's projects (same query as before)
-  const { data: userProjects = [], isLoading } = useQuery<Project[]>({
+  // isPending = "no data yet" — true even when query is disabled (waiting for profile).
+  // isLoading = isPending && isFetching — false when disabled, causing a 1-render gap
+  // where RootRedirect sees projectsLoading=false + userProjects=[] → onboarding.
+  const { data: userProjects = [], isPending: isLoading } = useQuery<Project[]>({
     queryKey: ['user-projects', user?.id, profile?.id],
     queryFn: async () => {
       if (!user || !profile) return [];
