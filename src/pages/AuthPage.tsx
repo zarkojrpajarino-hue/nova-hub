@@ -70,7 +70,10 @@ export default function AuthPage() {
       // 1. Check localStorage first (instant)
       const savedId = localStorage.getItem('nova-hub:current-project-id');
       if (savedId) {
-        navigate(`/proyecto/${savedId}`, { replace: true });
+        // Full page reload — forces auth to reinitialize cleanly.
+        // SPA navigate causes race conditions where DashboardView
+        // mounts before AuthContext finishes processing the login.
+        window.location.replace(`/proyecto/${savedId}`);
         return;
       }
 
@@ -96,7 +99,7 @@ export default function AuthPage() {
 
           if (projects?.length) {
             localStorage.setItem('nova-hub:current-project-id', projects[0].id);
-            navigate(`/proyecto/${projects[0].id}`, { replace: true });
+            window.location.replace(`/proyecto/${projects[0].id}`);
             return;
           }
         }
@@ -104,7 +107,7 @@ export default function AuthPage() {
         // Query failed — fall through to /home
       }
 
-      navigate('/home', { replace: true });
+      window.location.replace('/home');
     };
 
     const checkSession = async () => {
