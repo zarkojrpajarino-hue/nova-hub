@@ -5,8 +5,9 @@
  * Recibe OBVs de Validaciones y genera tareas para el equipo.
  */
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
+import { trackActionCompletedPostCTA } from '@/lib/analytics';
 import { Loader2, FileCheck, CheckCircle, Clock, XCircle, MinusCircle, CheckCircle2, Search, Wallet } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { OBVForm } from '@/components/nova/OBVForm';
@@ -46,6 +47,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
   const cameFromNextAction = searchParams.get('from') === 'nextaction';
+  const entryTimestamp = useRef(cameFromNextAction ? Date.now() : 0);
   const [activeTab, setActiveTab] = useState('subir');
   const [showForm, setShowForm] = useState(true);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -130,6 +132,14 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
   const handleFormSuccess = () => {
     if (cameFromNextAction && projectId) {
+      // Track funnel: action completed after NextAction CTA
+      trackActionCompletedPostCTA({
+        project_id: projectId,
+        action_type: 'create_obv',
+        originated_from: 'next_action',
+        time_to_complete_ms: Date.now() - entryTimestamp.current,
+        phase: 0, // Phase not available here — PostHog can join with project props
+      });
       // Loop closure: redirect back to dashboard with impact toast
       toast.success(t('project.evidenciaRegistradaVuelve', 'Evidencia registrada. Vuelve al cockpit para ver el impacto.'));
       navigate(`/proyecto/${projectId}`);
