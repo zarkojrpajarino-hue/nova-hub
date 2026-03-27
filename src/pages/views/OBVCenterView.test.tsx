@@ -1,6 +1,7 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { MemoryRouter } from 'react-router-dom';
 import { OBVCenterView } from './OBVCenterView';
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -60,9 +61,11 @@ describe('OBVCenterView', () => {
   });
 
   const renderComponent = () => render(
-    <QueryClientProvider client={queryClient}>
-      <OBVCenterView />
-    </QueryClientProvider>
+    <MemoryRouter>
+      <QueryClientProvider client={queryClient}>
+        <OBVCenterView />
+      </QueryClientProvider>
+    </MemoryRouter>
   );
 
   it('renders centro obvs title', () => {
