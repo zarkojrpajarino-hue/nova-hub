@@ -16,6 +16,7 @@ import { AITaskExecutor } from '@/components/tasks/AITaskExecutor';
 import { HowItWorks } from '@/components/ui/how-it-works';
 import { OBVCenterPreviewModal } from '@/components/preview/OBVCenterPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
@@ -53,6 +54,8 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [editingOutcomeId, setEditingOutcomeId] = useState<string | null>(null);
   const { profile } = useAuth();
+  const { data: teamMembers = [] } = useProjectMembers();
+  const isSoloUser = teamMembers.length <= 1;
   const queryClient = useQueryClient();
 
   // Fetch user's OBVs
@@ -225,7 +228,7 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
         {/* Tabs */}
         <div className="flex gap-1 bg-background p-1 rounded-xl mb-6 w-fit">
-          {TABS.map(tab => (
+          {TABS.filter(tab => !isSoloUser || !['validar', 'ai-executor'].includes(tab.id)).map(tab => (
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}

@@ -16,6 +16,8 @@ import { HelpWidget } from '@/components/ui/section-help';
 import { BlockedBanner } from '@/components/validation/BlockedBanner';
 import { ValidacionesPreviewModal } from '@/components/preview/ValidacionesPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
+import { useParams } from 'react-router-dom';
+import { useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 
@@ -27,7 +29,10 @@ interface ValidacionesViewProps {
 export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
   const { t } = useTranslation();
   const { profile } = useAuth();
+  const { projectId } = useParams<{ projectId: string }>();
   const [activeTab, setActiveTab] = useState('obvs');
+  const { data: teamMembers = [] } = useProjectMembers();
+  const isSoloUser = teamMembers.length <= 1;
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Contar validaciones pendientes de OBVs
@@ -248,6 +253,14 @@ export function ValidacionesView({ onNewOBV }: ValidacionesViewProps) {
             </div>
           )}
         </div>
+
+        {isSoloUser && (
+          <div className="p-4 rounded-lg border border-amber-200 bg-amber-50 dark:bg-amber-950/30 dark:border-amber-800">
+            <p className="text-sm text-amber-800 dark:text-amber-200">
+              {t('validaciones.soloUserNotice')}
+            </p>
+          </div>
+        )}
 
         {/* Tabs */}
         <Tabs value={activeTab} onValueChange={setActiveTab}>

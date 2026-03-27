@@ -19,9 +19,15 @@ import { MastersPreviewModal } from '@/components/preview/MastersPreviewModal';
 import type { Master, MasterChallenge, Profile, ProjectMember, EnrichedMaster, MastersByRole } from '@/types/masters';
 
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { useProjectEngineData } from '@/hooks/useNovaDataOptimized';
+
 export function MastersView() {
   const { t } = useTranslation();
   const { profile } = useAuth();
+  const { projectId } = useParams<{ projectId: string }>();
+  const { data: engineData } = useProjectEngineData(projectId);
+  const currentPhase = engineData?.phaseState?.current_phase ?? 0;
 
   // Only real data - no demo mode
   const { data: masters = [], isLoading: loadingMasters } = useTeamMasters();
@@ -33,6 +39,22 @@ export function MastersView() {
 
   const [showApplyDialog, setShowApplyDialog] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
+
+  // Runtime guard: Masters requires Phase 4 + team
+  if (currentPhase < 4 || projectMembers.length < 2) {
+    return (
+      <>
+        <NovaHeader title={t('masters.masters')} subtitle="" />
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="text-center max-w-md">
+            <Crown className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold mb-2">{t('masters.notAvailableYet', 'No disponible aún')}</h2>
+            <p className="text-sm text-muted-foreground">{t('masters.requiresTeamAndPhase4', 'El programa de Masters requiere Fase 4 y equipo de 2+ miembros.')}</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   // Get user's roles for applying
   const userRoles = useMemo<string[]>(() => {

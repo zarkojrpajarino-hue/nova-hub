@@ -150,7 +150,7 @@ export const SIDEBAR_PHASE_CONFIG: Record<number, Record<string, SidebarItemStat
     'proyectos': 'hidden',
     'validaciones': 'hidden',
     'obvs': 'hidden',
-    'startup-os': 'visible',
+    'startup-os': 'hidden',
     'crm': 'hidden',
     'financiero': 'hidden',
     'meetings': 'hidden',

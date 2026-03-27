@@ -3482,7 +3482,9 @@ export const es = {
     "rankingDeValidadores": "Ranking de Validadores",
     "rankingDeValidadores0": "Ranking de Validadores",
     "bloqueado": "Bloqueado",
-    "noHayDatosDe": "No hay datos de validación aún"
+    "noHayDatosDe": "No hay datos de validación aún",
+    "notAvailableYet": "Rankings no disponibles aún",
+    "requiresTeamAndPhase3": "Los rankings requieren al menos 2 miembros en el equipo y estar en Fase 3 o superior."
   },
   "roleRotation": {
     "rotaciónDeRoles": "Rotación de Roles",
@@ -3626,7 +3628,9 @@ export const es = {
     "guardarCambios": "Guardar cambios"
   },
   "startupOS": {
-    "noProjectSelected": "No project selected"
+    "noProjectSelected": "No project selected",
+    "notAvailableYet": "Startup OS no disponible aún",
+    "availableFromPhase1": "Esta vista estará disponible a partir de la Fase 1. Completa la configuración de tu proyecto para acceder."
   },
   "teamPerformanceDashboard": {
     "vistaGlobalDeEquipos": "Vista Global de Equipos",
@@ -3714,7 +3718,8 @@ export const es = {
     "aprobado": "Aprobado",
     "rechazado": "Rechazado",
     "sinTítulo": "Sin título",
-    "desconocido": "Desconocido"
+    "desconocido": "Desconocido",
+    "soloUserNotice": "Eres el único miembro del equipo. Las validaciones peer-to-peer requieren al menos 2 personas. Invita a tu equipo para activar esta funcionalidad."
   },
   "analysis": {
     "analisisPreliminar": "Analisis preliminar",

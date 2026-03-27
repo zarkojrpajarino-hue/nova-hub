@@ -89,7 +89,7 @@ function ProjectCardComponent({ project, currentPhase, members, roles, showRoles
       {/* Title */}
       <h3 className="font-bold text-lg mb-1">{project.nombre}</h3>
       <p className="text-sm text-muted-foreground mb-5">
-        Fase {currentPhase} — {PHASE_LABELS[currentPhase]}
+        Fase {currentPhase ?? 0} — {PHASE_LABELS[currentPhase ?? 0] ?? 'Configurando'}
       </p>
 
       {/* Team Avatars or Onboarding Badge */}

@@ -1,11 +1,12 @@
 import { useState, useMemo } from 'react';
+import { useParams } from 'react-router-dom';
 import { Trophy, TrendingUp, Medal, Crown, Star, Loader2 } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useRoleRankings, useRolePerformance } from '@/hooks/useDevelopment';
-import { useProfiles, useProjects, useProjectMembers } from '@/hooks/useNovaDataOptimized';
+import { useProfiles, useProjects, useProjectMembers, useProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { useAuth } from '@/hooks/useAuth';
 import { ROLE_CONFIG } from '@/data/mockData';
 import { RankingLeaderboard } from '@/components/rankings/RankingLeaderboard';
@@ -26,6 +27,9 @@ export function RankingsView() {
   const { data: profiles = [] } = useProfiles();
   const { data: projects = [] } = useProjects();
   const { data: projectMembers = [] } = useProjectMembers();
+  const { projectId } = useParams<{ projectId: string }>();
+  const { data: engineData } = useProjectEngineData(projectId);
+  const currentPhase = engineData?.phaseState?.current_phase ?? 0;
 
   const [selectedRole, setSelectedRole] = useState<string>('all');
   const [selectedProject, setSelectedProject] = useState<string>('all');
@@ -84,6 +88,21 @@ export function RankingsView() {
     
     return { totalParticipants, rolesWithRankings, avgScore };
   }, [rankings]);
+
+  if (currentPhase < 3 || projectMembers.length < 2) {
+    return (
+      <>
+        <NovaHeader title={t('rankings.rankings')} subtitle="" />
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="text-center max-w-md">
+            <Trophy className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+            <h2 className="text-lg font-semibold mb-2">{t('rankings.notAvailableYet')}</h2>
+            <p className="text-sm text-muted-foreground">{t('rankings.requiresTeamAndPhase3')}</p>
+          </div>
+        </div>
+      </>
+    );
+  }
 
   if (loadingRankings) {
     return (

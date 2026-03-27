@@ -17,9 +17,16 @@ import { BackButton } from '@/components/navigation/BackButton';
 import { RoleRotationPreviewModal } from '@/components/preview/RoleRotationPreviewModal';
 
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
+import { useProjectEngineData, useProjectMembers } from '@/hooks/useNovaDataOptimized';
+
 export default function RoleRotationView() {
   const { t } = useTranslation();
   const { goBack, canGoBack } = useNavigation();
+  const { projectId } = useParams<{ projectId: string }>();
+  const { data: engineData } = useProjectEngineData(projectId);
+  const { data: projectMembers = [] } = useProjectMembers();
+  const currentPhase = engineData?.phaseState?.current_phase ?? 0;
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
 
@@ -31,6 +38,19 @@ export default function RoleRotationView() {
   const pendingRequests = allRequests.filter(r => r.status === 'pending');
   const completedRotations = allRequests.filter(r => r.status === 'completed');
   const myPendingRequests = myRequests.filter(r => r.status === 'pending');
+
+  // Runtime guard: Rotation requires Phase 4 + team
+  if (currentPhase < 4 || projectMembers.length < 2) {
+    return (
+      <div className="flex items-center justify-center h-[60vh]">
+        <div className="text-center max-w-md">
+          <ArrowLeftRight className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
+          <h2 className="text-lg font-semibold mb-2">{t('rotation.notAvailableYet', 'No disponible aún')}</h2>
+          <p className="text-sm text-muted-foreground">{t('rotation.requiresTeamAndPhase4', 'La rotación de roles requiere Fase 4 y equipo de 2+ miembros.')}</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <>

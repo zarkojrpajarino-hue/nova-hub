@@ -206,7 +206,7 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
                   >
                     <ProjectCard
                       project={project}
-                      currentPhase={project.phase_state!.current_phase}
+                      currentPhase={project.phase_state?.current_phase ?? 0}
                       members={membersForCard}
                       roles={projectRoles}
                       showRoles
