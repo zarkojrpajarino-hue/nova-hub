@@ -42,33 +42,48 @@ export function RootRedirect() {
   }, [isAuthenticated, currentProject, userProjects, navigate]);
 
   useEffect(() => {
-    // CRÍTICO: Esperar a que TODO esté cargado (auth, profile, y proyectos)
-    if (authLoading || projectsLoading || profileLoading) {
+    // Wait for auth to settle first
+    if (authLoading || profileLoading) {
+      return;
+    }
+
+    // Not authenticated → landing
+    if (!isAuthenticated) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    // Fast path: if we have a saved project ID in localStorage, go directly
+    // to it without waiting for the projects query. This avoids the race
+    // condition where AbortError makes the query return [] → onboarding.
+    // The project page reads projectId from URL, so it works independently.
+    const savedProjectId = localStorage.getItem('nova-hub:current-project-id');
+    if (savedProjectId) {
+      navigate(`/proyecto/${savedProjectId}`, { replace: true });
+      return;
+    }
+
+    // No saved project — wait for the projects query
+    if (projectsLoading) {
       return;
     }
 
     // Loading completed — cancel timeout state
     setTimedOut(false);
 
-    // Si no está autenticado, ir a landing
-    if (!isAuthenticated) {
-      navigate('/', { replace: true });
-      return;
-    }
-
-    // Si no tiene proyectos, ir a seleccionar tipo de onboarding
+    // No projects → onboarding
     if (!userProjects || userProjects.length === 0) {
       navigate('/select-onboarding-type', { replace: true });
       return;
     }
 
-    // Si tiene proyectos pero no hay uno seleccionado, ir a seleccionar
+    // Has projects but none selected → select page
     if (!currentProject) {
       navigate('/select-project', { replace: true });
       return;
     }
 
-    // Si tiene proyecto seleccionado, ir al dashboard de ese proyecto
+    // Has selected project → dashboard
     navigate(`/proyecto/${currentProject.id}`, { replace: true });
   }, [isAuthenticated, authLoading, projectsLoading, profileLoading, currentProject, userProjects, navigate]);
 

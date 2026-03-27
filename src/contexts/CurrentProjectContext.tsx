@@ -92,10 +92,13 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
       ).order('created_at', { ascending: false });
 
       if (error) {
-        return [];
+        // CRITICAL: throw instead of returning [].
+        // Returning [] makes RootRedirect think "no projects" → redirect to onboarding.
+        // Throwing lets React Query retry until auth settles and the query succeeds.
+        throw error;
       }
 
-      return data;
+      return data ?? [];
     },
     enabled: !!user && !!profile,
     staleTime: 1000 * 60 * 5,

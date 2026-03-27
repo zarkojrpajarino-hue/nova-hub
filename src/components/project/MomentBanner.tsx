@@ -4,9 +4,12 @@
  * Muestra el momento más importante detectado.
  * Celebraciones: confetti + dismiss.
  * Warnings: banner persistente con CTA.
+ *
+ * Persists active moment in sessionStorage so it survives
+ * component unmount/remount cycles.
  */
 
-import { useEffect, useState, memo } from 'react';
+import { useEffect, useState, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, PartyPopper, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -14,6 +17,8 @@ import { useMomentDetector, markMomentSeen, persistMoment } from '@/hooks/useMom
 import confetti from '@/lib/confetti';
 import type { Moment } from '@/lib/moment-detector';
 import { SourceBadge } from '@/components/shared/SourceBadge';
+
+const SESSION_KEY_PREFIX = 'moment_banner_active_';
 
 interface MomentBannerProps {
   projectId: string;
@@ -25,28 +30,28 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
   const isWarning = moment.severity === 'warning';
 
   const bgClass = isCelebration
-    ? 'bg-green-50 border-green-200'
+    ? 'bg-green-50 border-green-200 dark:bg-green-950/30 dark:border-green-800'
     : isWarning
-      ? 'bg-amber-50 border-amber-200'
-      : 'bg-blue-50 border-blue-200';
+      ? 'bg-amber-50 border-amber-200 dark:bg-amber-950/30 dark:border-amber-800'
+      : 'bg-blue-50 border-blue-200 dark:bg-blue-950/30 dark:border-blue-800';
 
   const Icon = isCelebration ? PartyPopper : isWarning ? AlertTriangle : Info;
   const iconColor = isCelebration ? 'text-green-500' : isWarning ? 'text-amber-500' : 'text-blue-500';
-  const titleColor = isCelebration ? 'text-green-800' : isWarning ? 'text-amber-800' : 'text-blue-800';
+  const titleColor = isCelebration ? 'text-green-800 dark:text-green-200' : isWarning ? 'text-amber-800 dark:text-amber-200' : 'text-blue-800 dark:text-blue-200';
 
   const handleDismiss = () => {
-    // For revenue milestones, mark the specific milestone (e.g., revenue_milestone_1000)
-    // For other moments, mark the type
     const weekKey = Math.floor(Date.now() / (7 * 86_400_000));
     let key: string;
     if (moment.type === 'revenue_milestone' && moment.data?.milestone) {
       key = `revenue_milestone_${moment.data.milestone}`;
     } else if (moment.severity === 'warning' || moment.severity === 'info') {
-      key = `${moment.type}_${weekKey}`;  // Weekly cooldown for warnings
+      key = `${moment.type}_${weekKey}`;
     } else {
-      key = moment.type;  // One-time for celebrations
+      key = moment.type;
     }
     markMomentSeen(projectId, key);
+    // Clear session cache on dismiss
+    try { sessionStorage.removeItem(`${SESSION_KEY_PREFIX}${projectId}`); } catch { /* */ }
     onDismiss();
   };
 
@@ -57,7 +62,7 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
         <div className="flex-1">
           <p className={`text-sm font-semibold ${titleColor}`}>{moment.title}</p>
           <p className="text-xs text-muted-foreground mt-0.5">{moment.message}</p>
-        <SourceBadge type="inferred" source={t('transparency.detectorDeMomentos')} reliability={0.5} size="sm" />
+          <SourceBadge type="inferred" source={t('transparency.detectorDeMomentos')} reliability={0.5} size="sm" />
         </div>
         <Button size="sm" variant="ghost" onClick={handleDismiss} className="shrink-0 h-6 w-6 p-0">
           <X className="h-3.5 w-3.5" />
@@ -70,33 +75,47 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
 export const MomentBanner = memo(function MomentBanner({ projectId }: MomentBannerProps) {
   const { topMoment } = useMomentDetector(projectId);
   const [dismissed, setDismissed] = useState(false);
-  const [confettiFired, setConfettiFired] = useState(false);
-  // Sticky moment: once captured, doesn't disappear when hook recalculates
-  const [stickyMoment, setStickyMoment] = useState<typeof topMoment>(null);
+  const confettiFiredRef = useRef(false);
 
-  // Capture first valid moment — don't let it disappear on re-render
-  useEffect(() => {
-    if (topMoment && !stickyMoment && !dismissed) {
-      setStickyMoment(topMoment);
+  // Read from sessionStorage on mount (survives unmount/remount)
+  const [activeMoment, setActiveMoment] = useState<Moment | null>(() => {
+    try {
+      const cached = sessionStorage.getItem(`${SESSION_KEY_PREFIX}${projectId}`);
+      return cached ? JSON.parse(cached) : null;
+    } catch {
+      return null;
     }
-  }, [topMoment, stickyMoment, dismissed]);
+  });
 
-  // Fire confetti for celebrations
+  // Capture first valid moment — persist to sessionStorage
   useEffect(() => {
-    if (stickyMoment?.severity === 'celebration' && !confettiFired) {
-      confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
-      setConfettiFired(true);
+    if (topMoment && !activeMoment && !dismissed) {
+      setActiveMoment(topMoment);
+      try {
+        sessionStorage.setItem(`${SESSION_KEY_PREFIX}${projectId}`, JSON.stringify(topMoment));
+      } catch { /* quota exceeded — non-critical */ }
     }
-  }, [stickyMoment, confettiFired]);
+  }, [topMoment, activeMoment, dismissed, projectId]);
 
-  const activeMoment = stickyMoment;
+  // Fire confetti once per session (ref survives re-renders, sessionStorage survives remounts)
+  useEffect(() => {
+    if (activeMoment?.severity === 'celebration' && !confettiFiredRef.current) {
+      const firedKey = `moment_confetti_fired_${projectId}`;
+      if (!sessionStorage.getItem(firedKey)) {
+        confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
+        sessionStorage.setItem(firedKey, '1');
+      }
+      confettiFiredRef.current = true;
+    }
+  }, [activeMoment, projectId]);
+
   if (!activeMoment || dismissed) return null;
 
   return (
     <BannerContent
       moment={activeMoment}
       onDismiss={() => {
-        if (activeMoment && projectId) persistMoment(projectId, activeMoment);
+        persistMoment(projectId, activeMoment);
         setDismissed(true);
       }}
       projectId={projectId}
