@@ -119,9 +119,9 @@ export default function AuthPage() {
     try {
       emailSchema.parse(email);
       passwordSchema.parse(password);
-    } catch (_error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        toast.error(validationError.errors[0].message);
         return;
       }
     }
@@ -140,7 +140,7 @@ export default function AuthPage() {
       } else {
         toast.success(t('auth.bienvenidoDeVuelta'));
       }
-    } catch (_error) {
+    } catch (validationError) {
       toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
@@ -156,9 +156,9 @@ export default function AuthPage() {
       nameSchema.parse(nombre);
       emailSchema.parse(email);
       passwordSchema.parse(password);
-    } catch (_error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        toast.error(validationError.errors[0].message);
         return;
       }
     }
@@ -193,7 +193,7 @@ export default function AuthPage() {
         setEmailSent(true);
         toast.success(t('auth.cuentaCreadaRevisaTu'));
       }
-    } catch (_error) {
+    } catch (validationError) {
       toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
@@ -206,9 +206,9 @@ export default function AuthPage() {
 
     try {
       emailSchema.parse(email);
-    } catch (_error) {
-      if (error instanceof z.ZodError) {
-        toast.error(error.errors[0].message);
+    } catch (validationError) {
+      if (validationError instanceof z.ZodError) {
+        toast.error(validationError.errors[0].message);
         return;
       }
     }
@@ -227,7 +227,7 @@ export default function AuthPage() {
         setEmailSent(true);
         toast.success(t('auth.emailEnviadoRevisaTu'));
       }
-    } catch (_error) {
+    } catch (validationError) {
       toast.error(t('auth.errorDeConexión'));
     } finally {
       setLoading(false);
