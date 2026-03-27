@@ -65,27 +65,59 @@ export default function AuthPage() {
 
   // Check if already authenticated
   useEffect(() => {
-    // Navigate to saved project or /home as fallback
-    const goToProject = () => {
+    // Find user's project and navigate directly — no race conditions
+    const goToProject = async (userId: string) => {
+      // 1. Check localStorage first (instant)
       const savedId = localStorage.getItem('nova-hub:current-project-id');
       if (savedId) {
         navigate(`/proyecto/${savedId}`, { replace: true });
-      } else {
-        navigate('/home', { replace: true });
+        return;
       }
+
+      // 2. Query for user's project directly (waits for data)
+      try {
+        const { data: profile } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('auth_id', userId)
+          .maybeSingle();
+
+        if (profile?.id) {
+          const { data: projects } = await supabase
+            .from('projects')
+            .select('id')
+            .or(`created_by.eq.${profile.id},id.in.(${
+              await supabase.from('project_members').select('project_id').eq('member_id', profile.id)
+                .then(r => (r.data ?? []).map(p => p.project_id).join(',') || '00000000-0000-0000-0000-000000000000')
+            })`)
+            .is('deleted_at', null)
+            .order('created_at', { ascending: false })
+            .limit(1);
+
+          if (projects?.length) {
+            localStorage.setItem('nova-hub:current-project-id', projects[0].id);
+            navigate(`/proyecto/${projects[0].id}`, { replace: true });
+            return;
+          }
+        }
+      } catch {
+        // Query failed — fall through to /home
+      }
+
+      navigate('/home', { replace: true });
     };
 
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        goToProject();
+        goToProject(session.user.id);
       }
     };
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        goToProject();
+        goToProject(session.user.id);
       }
     });
 
