@@ -2031,6 +2031,7 @@ export const es = {
     "verFinanciero": "Ver financiero →",
     "creaObvsParaActivar": "Crea OBVs de validación para activar el pipeline",
     "registraIngresoParaActivar": "Registra tu primer ingreso para activar proyecciones",
+    "evidenciaRegistradaVuelve": "Evidencia registrada. Vuelve al cockpit para ver el impacto.",
     "methodologyLabel": "Metodología activa",
     "perfecto": "Perfecto",
   },

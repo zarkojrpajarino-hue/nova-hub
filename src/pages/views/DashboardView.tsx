@@ -226,7 +226,10 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       obvs: 'obvs', crm: 'crm', financiero: 'financiero', tareas: 'startup-os',
       equipo: 'exploration', 'negocio-ia': 'analisis-ia', meetings: 'meetings',
     };
-    navigate(`/proyecto/${projectId}/${routeMap[tab] || tab}`);
+    const route = routeMap[tab] || tab;
+    // Tag navigation from NextAction CTA so destination can redirect back
+    const suffix = (tab === 'obvs' || tab === 'tareas') ? '?from=nextaction' : '';
+    navigate(`/proyecto/${projectId}/${route}${suffix}`);
   }, [projectId, navigate]);
 
   // Map objectives to easily accessible format

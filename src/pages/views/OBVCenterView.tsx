@@ -6,6 +6,7 @@
  */
 
 import { useState } from 'react';
+import { useSearchParams, useNavigate, useParams } from 'react-router-dom';
 import { Loader2, FileCheck, CheckCircle, Clock, XCircle, MinusCircle, CheckCircle2, Search, Wallet } from 'lucide-react';
 import { NovaHeader } from '@/components/nova/NovaHeader';
 import { OBVForm } from '@/components/nova/OBVForm';
@@ -41,6 +42,10 @@ const OUTCOME_OPTIONS = [
 
 export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const { t } = useTranslation();
+  const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
+  const { projectId } = useParams<{ projectId: string }>();
+  const cameFromNextAction = searchParams.get('from') === 'nextaction';
   const [activeTab, setActiveTab] = useState('subir');
   const [showForm, setShowForm] = useState(true);
   const [showPreviewModal, setShowPreviewModal] = useState(false);
@@ -124,6 +129,12 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   });
 
   const handleFormSuccess = () => {
+    if (cameFromNextAction && projectId) {
+      // Loop closure: redirect back to dashboard with impact toast
+      toast.success(t('project.evidenciaRegistradaVuelve', 'Evidencia registrada. Vuelve al cockpit para ver el impacto.'));
+      navigate(`/proyecto/${projectId}`);
+      return;
+    }
     setShowForm(false);
     setTimeout(() => setShowForm(true), 100);
   };
