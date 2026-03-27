@@ -42,6 +42,9 @@ export function RootRedirect() {
   }, [isAuthenticated, currentProject, userProjects, navigate]);
 
   useEffect(() => {
+    // DEBUG: track state in document.title (Vite doesn't strip this)
+    document.title = `[auth:${!authLoading} prof:${!profileLoading} projL:${projectsLoading} projs:${userProjects?.length ?? '?'} saved:${!!localStorage.getItem('nova-hub:current-project-id')}]`;
+
     // Wait for auth to settle first
     if (authLoading || profileLoading) {
       return;
@@ -54,9 +57,6 @@ export function RootRedirect() {
     }
 
     // Fast path: if we have a saved project ID in localStorage, go directly
-    // to it without waiting for the projects query. This avoids the race
-    // condition where AbortError makes the query return [] → onboarding.
-    // The project page reads projectId from URL, so it works independently.
     const savedProjectId = localStorage.getItem('nova-hub:current-project-id');
     if (savedProjectId) {
       navigate(`/proyecto/${savedProjectId}`, { replace: true });
