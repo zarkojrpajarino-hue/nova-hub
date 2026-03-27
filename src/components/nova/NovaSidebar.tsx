@@ -1,7 +1,7 @@
 import { useState, useCallback, useEffect, useMemo } from 'react';
 import {
-  LayoutDashboard, User, FolderKanban, FileCheck, Phone, Wallet,
-  BookOpen, Settings, LogOut, LucideIcon, BarChart3, TrendingUp, Trophy, Crown, ArrowLeftRight, Shield, Plug, Bell, Rocket, Sparkles, ChevronDown, ChevronRight, Lock, Mic, Target, Layers, Home, Users, Briefcase
+  LayoutDashboard, FileCheck, Settings, LogOut, LucideIcon,
+  ChevronDown, ChevronRight, Lock, Home, Plus
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { OptimusLogo } from '@/components/brand/OptimusLogo';
@@ -47,69 +47,21 @@ interface NavItem {
   requiredPlan?: 'starter' | 'pro' | 'advanced' | 'enterprise'; // Plan mínimo (para mostrar en badge)
 }
 
-// Navegación reorganizada con jerarquía lógica
-// NOTA: Las rutas son relativas al proyecto (/proyecto/:projectId)
+// CORE navigation — only routes that exist post-prune
 const coreItems: NavItem[] = [
-  { id: 'dashboard', icon: LayoutDashboard, label: 'nav.dashboard', route: '' }, // ruta vacía = base del proyecto
-  { id: 'mi-espacio', icon: User, label: 'nav.mySpace', route: 'mi-espacio' },
-  { id: 'mi-desarrollo', icon: TrendingUp, label: 'nav.myDevelopment', route: 'mi-desarrollo' },
-  { id: 'mi-modelo', icon: Layers, label: 'nav.myModel', route: 'mi-modelo' },
+  { id: 'dashboard', icon: LayoutDashboard, label: 'nav.dashboard', route: '' },
 ];
 
 const createValidateItems: NavItem[] = [
-  { id: 'proyectos', icon: FolderKanban, label: 'nav.projects', route: 'proyectos' },
-  { id: 'validaciones', icon: Shield, label: 'nav.validations', route: 'validaciones' },
   { id: 'obvs', icon: FileCheck, label: 'nav.obvCenter', route: 'obvs' },
 ];
 
-const executeItems: NavItem[] = [
-  { id: 'startup-os', icon: Target, label: 'nav.startupOS', route: 'startup-os' },
-  { id: 'crm', icon: Phone, label: 'nav.crmGlobal', route: 'crm' },
-  { id: 'financiero', icon: Wallet, label: 'nav.financial', route: 'financiero' },
-  { id: 'meetings', icon: Mic, label: 'nav.meetingIntelligence', route: 'meetings' },
-  { id: 'analisis-ia', icon: Sparkles, label: 'nav.aiAnalysis', route: 'analisis-ia' },
-  { id: 'toolkit', icon: Layers, label: 'nav.founderToolkit', route: 'toolkit' },
-];
-
-const teamItems: NavItem[] = [
-  { id: 'exploration', icon: Rocket, label: 'nav.roleExploration', route: 'exploration' },
-  { id: 'path-to-master', icon: Trophy, label: 'nav.masterPath', route: 'path-to-master' },
-  { id: 'rankings', icon: Trophy, label: 'nav.rankings', route: 'rankings' },
-  { id: 'masters', icon: Crown, label: 'nav.masters', route: 'masters' },
-  { id: 'rotacion', icon: ArrowLeftRight, label: 'nav.rotation', route: 'rotacion' },
-];
-
-const measureItems: NavItem[] = [
-  { id: 'kpis', icon: BookOpen, label: 'nav.kpis', route: 'kpis' },
-  {
-    id: 'analytics',
-    icon: BarChart3,
-    label: 'nav.analytics',
-    route: 'analytics',
-    requiredFeature: 'advanced_analytics',
-    requiredPlan: 'advanced'
-  },
-  {
-    id: 'team-performance',
-    icon: BarChart3,
-    label: 'nav.globalView',
-    route: 'team-performance',
-    requiredFeature: 'advanced_analytics',
-    requiredPlan: 'advanced'
-  },
-];
+const executeItems: NavItem[] = [];
+const teamItems: NavItem[] = [];
+const measureItems: NavItem[] = [];
 
 const systemItems: NavItem[] = [
   { id: 'settings', icon: Settings, label: 'nav.settings', route: 'settings' },
-  {
-    id: 'integrations',
-    icon: Plug,
-    label: 'nav.integrations',
-    route: 'integrations',
-    requiredFeature: 'api_access',
-    requiredPlan: 'advanced'
-  },
-  { id: 'notificaciones', icon: Bell, label: 'nav.notifications', route: 'notificaciones' },
 ];
 
 export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHover, projectId }: NovaSidebarProps) {
@@ -394,8 +346,7 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
                   className="w-8 h-8 rounded-lg flex items-center justify-center bg-primary/10 hover:bg-primary/20 text-primary transition-colors"
                   aria-label={t('sidebarExtra.newProject')}
                 >
-                  <FolderKanban size={14} className="absolute opacity-0" />
-                  <span className="text-lg font-light leading-none">+</span>
+                  <Plus size={14} />
                 </button>
               </TooltipTrigger>
               <TooltipContent side="bottom">
@@ -409,12 +360,8 @@ export function NovaSidebar({ setCurrentView, currentUser, onSignOut, onMenuHove
       {/* Navigation con Accordion */}
       <nav className="flex-1 p-3 overflow-y-auto space-y-2" aria-label={t('nova.menúDeNavegación')}>
         {renderSection('core', Home, t('nav.sections.core'), coreItems)}
-        {renderSection('create', Rocket, t('nav.sections.createValidate'), createValidateItems)}
-        {renderSection('execute', Briefcase, t('nav.sections.execute'), executeItems)}
-        {/* S4.6 — Team section: engine handles solo/team filtering per item */}
-        {renderSection('team', Users, t('nav.sections.team'), teamItems)}
-        {renderSection('measure', BarChart3, t('nav.sections.measure'), measureItems)}
-        {renderSection('system', Settings, t('nav.sections.system'), systemItems)}
+        {createValidateItems.length > 0 && renderSection('create', FileCheck, t('nav.sections.createValidate'), createValidateItems)}
+        {systemItems.length > 0 && renderSection('system', Settings, t('nav.sections.system'), systemItems)}
       </nav>
 
       {/* User Section */}

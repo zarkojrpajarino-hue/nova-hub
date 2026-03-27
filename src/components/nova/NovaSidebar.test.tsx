@@ -121,15 +121,6 @@ describe('NovaSidebar', () => {
     expect(screen.getByText('Dashboard')).toBeInTheDocument();
   });
 
-  it('renders Mi Espacio nav item in default open section', () => {
-    renderSidebar();
-    expect(screen.getByText('Mi Espacio')).toBeInTheDocument();
-  });
-
-  it('renders Mi Desarrollo nav item in default open section', () => {
-    renderSidebar();
-    expect(screen.getByText('Mi Desarrollo')).toBeInTheDocument();
-  });
 
   it('renders user name', () => {
     renderSidebar();
@@ -185,11 +176,6 @@ describe('NovaSidebar', () => {
     expect(dashboardButton).toHaveAttribute('aria-current', 'page');
   });
 
-  it('does not highlight inactive views', () => {
-    renderSidebar({ currentView: 'dashboard' });
-    const miEspacioButton = screen.getByText('Mi Espacio').closest('button');
-    expect(miEspacioButton).not.toHaveAttribute('aria-current', 'page');
-  });
 
   it('renders user avatar with default color when no color provided', () => {
     const userWithoutColor = { nombre: 'Test User' };
