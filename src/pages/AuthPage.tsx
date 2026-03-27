@@ -63,12 +63,19 @@ export default function AuthPage() {
   const [emailValid, setEmailValid] = useState<boolean | null>(null);
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | null>(null);
 
-  // Check if already authenticated
+  // Check if already authenticated — validate session with server before redirecting
   useEffect(() => {
+    let cancelled = false;
+
     const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        navigate('/home');
+      try {
+        // getUser() validates with the server, unlike getSession() which reads local cache
+        const { data: { user: validUser } } = await supabase.auth.getUser();
+        if (validUser && !cancelled) {
+          navigate('/home');
+        }
+      } catch {
+        // Invalid/expired session — stay on auth page
       }
     };
     checkSession();
@@ -79,7 +86,10 @@ export default function AuthPage() {
       }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      cancelled = true;
+      subscription.unsubscribe();
+    };
   }, [navigate]);
 
   // Email validation en tiempo real
