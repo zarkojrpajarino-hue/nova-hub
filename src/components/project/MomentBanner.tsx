@@ -70,24 +70,23 @@ export const MomentBanner = memo(function MomentBanner({ projectId }: MomentBann
   const [dismissed, setDismissed] = useState(false);
   const [confettiFired, setConfettiFired] = useState(false);
 
-  // Fire confetti for celebrations + persist to history
+  // Fire confetti for celebrations (persist only on dismiss, not on mount)
   useEffect(() => {
     if (topMoment?.severity === 'celebration' && !confettiFired) {
       confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
       setConfettiFired(true);
     }
-    // [P4.3] Persist moment to history for retry + tracking
-    if (topMoment && projectId) {
-      persistMoment(projectId, topMoment);
-    }
-  }, [topMoment, confettiFired, projectId]);
+  }, [topMoment, confettiFired]);
 
   if (!topMoment || dismissed) return null;
 
   return (
     <BannerContent
       moment={topMoment}
-      onDismiss={() => setDismissed(true)}
+      onDismiss={() => {
+        if (topMoment && projectId) persistMoment(projectId, topMoment);
+        setDismissed(true);
+      }}
       projectId={projectId}
     />
   );
