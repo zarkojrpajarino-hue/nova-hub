@@ -28,7 +28,7 @@ import { usePhaseFeatures } from '@/hooks/usePhaseFeatures';
 import type { PhaseStatKey } from '@/lib/phase-features';
 import { PhaseRoadmap } from './PhaseRoadmap';
 import { CycleDashboard } from './CycleDashboard';
-import { MomentBanner } from './MomentBanner';
+// MomentBanner moved to DashboardView (prop-driven)
 // OptimusProfileCard removed from dashboard — component file kept for Settings migration
 import { ProjectTimeline } from './ProjectTimeline';
 import { TeamRecommendation } from './TeamRecommendation';
@@ -171,9 +171,7 @@ function ProjectDashboardTabComponent({ project, currentPhase, stats, teamMember
     },
     {
       block: 'methodology' as const,
-      render: (_depth: BlockDepth) => (
-        <MomentBanner projectId={project.id} />
-      ),
+      render: (_depth: BlockDepth) => null, // MomentBanner moved to DashboardView
     },
     {
       block: 'core_stats' as const,

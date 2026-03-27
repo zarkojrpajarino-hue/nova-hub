@@ -1,31 +1,40 @@
 /**
  * PI27.2 — MomentBanner
  *
- * Muestra el momento más importante detectado.
- * Celebraciones: confetti + dismiss.
- * Warnings: banner persistente con CTA.
+ * Presentational component — receives moment as prop from DashboardView.
+ * DashboardView owns the moment state (never unmounts), so it's stable.
  *
- * Persists active moment in sessionStorage so it survives
- * component unmount/remount cycles.
+ * Celebraciones: confetti on first render.
+ * Warnings/info: dismiss with X.
  */
 
-import { useEffect, useState, useRef, memo } from 'react';
+import { useEffect, useRef, memo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { X, PartyPopper, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { useMomentDetector, markMomentSeen, persistMoment } from '@/hooks/useMomentDetector';
+import { markMomentSeen, persistMoment } from '@/hooks/useMomentDetector';
 import confetti from '@/lib/confetti';
 import type { Moment } from '@/lib/moment-detector';
 import { SourceBadge } from '@/components/shared/SourceBadge';
 
-const SESSION_KEY_PREFIX = 'moment_banner_active_';
-
 interface MomentBannerProps {
   projectId: string;
+  moment: Moment;
+  onDismissed: () => void;
 }
 
-function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDismiss: () => void; projectId: string }) {
+export const MomentBanner = memo(function MomentBanner({ projectId, moment, onDismissed }: MomentBannerProps) {
   const { t } = useTranslation();
+  const confettiFiredRef = useRef(false);
+
+  // Fire confetti once for celebrations
+  useEffect(() => {
+    if (moment.severity === 'celebration' && !confettiFiredRef.current) {
+      confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
+      confettiFiredRef.current = true;
+    }
+  }, [moment.severity]);
+
   const isCelebration = moment.severity === 'celebration';
   const isWarning = moment.severity === 'warning';
 
@@ -37,7 +46,11 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
 
   const Icon = isCelebration ? PartyPopper : isWarning ? AlertTriangle : Info;
   const iconColor = isCelebration ? 'text-green-500' : isWarning ? 'text-amber-500' : 'text-blue-500';
-  const titleColor = isCelebration ? 'text-green-800 dark:text-green-200' : isWarning ? 'text-amber-800 dark:text-amber-200' : 'text-blue-800 dark:text-blue-200';
+  const titleColor = isCelebration
+    ? 'text-green-800 dark:text-green-200'
+    : isWarning
+      ? 'text-amber-800 dark:text-amber-200'
+      : 'text-blue-800 dark:text-blue-200';
 
   const handleDismiss = () => {
     const weekKey = Math.floor(Date.now() / (7 * 86_400_000));
@@ -50,9 +63,8 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
       key = moment.type;
     }
     markMomentSeen(projectId, key);
-    // Clear session cache on dismiss
-    try { sessionStorage.removeItem(`${SESSION_KEY_PREFIX}${projectId}`); } catch { /* */ }
-    onDismiss();
+    persistMoment(projectId, moment);
+    onDismissed();
   };
 
   return (
@@ -69,56 +81,5 @@ function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDis
         </Button>
       </div>
     </div>
-  );
-}
-
-export const MomentBanner = memo(function MomentBanner({ projectId }: MomentBannerProps) {
-  const { topMoment } = useMomentDetector(projectId);
-  const [dismissed, setDismissed] = useState(false);
-  const confettiFiredRef = useRef(false);
-
-  // Read from sessionStorage on mount (survives unmount/remount)
-  const [activeMoment, setActiveMoment] = useState<Moment | null>(() => {
-    try {
-      const cached = sessionStorage.getItem(`${SESSION_KEY_PREFIX}${projectId}`);
-      return cached ? JSON.parse(cached) : null;
-    } catch {
-      return null;
-    }
-  });
-
-  // Capture first valid moment — persist to sessionStorage
-  useEffect(() => {
-    if (topMoment && !activeMoment && !dismissed) {
-      setActiveMoment(topMoment);
-      try {
-        sessionStorage.setItem(`${SESSION_KEY_PREFIX}${projectId}`, JSON.stringify(topMoment));
-      } catch { /* quota exceeded — non-critical */ }
-    }
-  }, [topMoment, activeMoment, dismissed, projectId]);
-
-  // Fire confetti once per session (ref survives re-renders, sessionStorage survives remounts)
-  useEffect(() => {
-    if (activeMoment?.severity === 'celebration' && !confettiFiredRef.current) {
-      const firedKey = `moment_confetti_fired_${projectId}`;
-      if (!sessionStorage.getItem(firedKey)) {
-        confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
-        sessionStorage.setItem(firedKey, '1');
-      }
-      confettiFiredRef.current = true;
-    }
-  }, [activeMoment, projectId]);
-
-  if (!activeMoment || dismissed) return null;
-
-  return (
-    <BannerContent
-      moment={activeMoment}
-      onDismiss={() => {
-        persistMoment(projectId, activeMoment);
-        setDismissed(true);
-      }}
-      projectId={projectId}
-    />
   );
 });

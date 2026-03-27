@@ -41,6 +41,8 @@ import { resolveMacroRole } from '@/lib/experience-engine';
 import { PHASE_METHODOLOGY, PHASE_LABELS, PHASE_DESCRIPTIONS, PHASE_METHODOLOGY_DETAIL } from '@/lib/engine';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
 import { MomentBanner } from '@/components/project/MomentBanner';
+import { useMomentDetector } from '@/hooks/useMomentDetector';
+import type { Moment } from '@/lib/moment-detector';
 import { ProjectEnginePanel } from '@/components/project/ProjectEnginePanel';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 import { AICallsNudge } from '@/components/subscription/AICallsNudge';
@@ -62,6 +64,16 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const [userId, setUserId] = useState<string>('');
   // V5.4.9 — Revenue confirmation banner for existing/scale businesses
   const [showRevenueBanner, setShowRevenueBanner] = useState(false);
+
+  // Moment detection — state lives here in DashboardView (never unmounts).
+  // MomentBanner receives the moment as prop instead of running its own hook.
+  const { topMoment } = useMomentDetector(projectId);
+  const [capturedMoment, setCapturedMoment] = useState<Moment | null>(null);
+  useEffect(() => {
+    if (topMoment && !capturedMoment) {
+      setCapturedMoment(topMoment);
+    }
+  }, [topMoment, capturedMoment]);
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
   const { data: projectStats } = useProjectStats(projectId);
@@ -554,9 +566,14 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         )}
 
-        {/* Celebration / warning moments — always mounted so sticky state survives.
-            useMomentDetector returns [] when there's no data, so the component renders null. */}
-        {projectId && <MomentBanner projectId={projectId} />}
+        {/* Celebration / warning moments — moment state lives in DashboardView (stable) */}
+        {projectId && capturedMoment && (
+          <MomentBanner
+            projectId={projectId}
+            moment={capturedMoment}
+            onDismissed={() => setCapturedMoment(null)}
+          />
+        )}
 
         {/* ── EXPERIENCE ENGINE — Strategic Cockpit ── */}
         {projectId && project && (
