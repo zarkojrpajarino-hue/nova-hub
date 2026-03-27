@@ -68,7 +68,7 @@ export const MomentBanner = memo(function MomentBanner({ projectId, moment, onDi
   };
 
   return (
-    <div className={`border rounded-lg p-3 ${bgClass} animate-fade-in`}>
+    <div className={`border rounded-lg p-3 ${bgClass}`}>
       <div className="flex items-start gap-3">
         <Icon className={`h-5 w-5 ${iconColor} shrink-0 mt-0.5`} />
         <div className="flex-1">

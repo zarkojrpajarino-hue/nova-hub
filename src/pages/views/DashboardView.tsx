@@ -83,6 +83,12 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       __capturedMomentCache = topMoment;
     }
   }, [topMoment, capturedMoment, momentDismissed]);
+
+  // Stable reference for memo'd MomentBanner — inline arrows break memo()
+  const handleMomentDismissed = useCallback(() => {
+    setMomentDismissed(true);
+    __momentDismissed = true;
+  }, []);
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
   const { data: projectStats } = useProjectStats(projectId);
@@ -580,10 +586,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           <MomentBanner
             projectId={projectId}
             moment={capturedMoment}
-            onDismissed={() => {
-              setMomentDismissed(true);
-              __momentDismissed = true;
-            }}
+            onDismissed={handleMomentDismissed}
           />
         )}
 
