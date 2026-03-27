@@ -60,7 +60,6 @@ interface DashboardViewProps {
 // Only a full page refresh clears this.
 let __capturedMomentCache: Moment | null = null;
 let __momentDismissed = false;
-let __mountCount = 0;
 
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const { t } = useTranslation();
@@ -77,8 +76,6 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const [capturedMoment, setCapturedMoment] = useState<Moment | null>(__capturedMomentCache);
   const [momentDismissed, setMomentDismissed] = useState(__momentDismissed);
 
-  // Track mount count at module level for debugging
-  const [mountId] = useState(() => ++__mountCount);
 
   useEffect(() => {
     if (topMoment && !capturedMoment && !momentDismissed) {
@@ -578,12 +575,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         )}
 
-        {/* DEBUG — temporary visual trace (remove after fixing) */}
-        <div style={{ position: 'fixed', bottom: 4, right: 4, zIndex: 9999, background: '#000', color: '#0f0', fontSize: 10, padding: '2px 6px', borderRadius: 4, opacity: 0.8, fontFamily: 'monospace' }}>
-          M:{mountId} top:{topMoment?.type ?? 'null'} cap:{capturedMoment?.type ?? 'null'} dis:{String(momentDismissed)}
-        </div>
-
-        {/* Celebration / warning moments — module-level cache, indestructible */}
+        {/* Celebration / warning moments — module-level cache survives remounts */}
         {projectId && capturedMoment && !momentDismissed && (
           <MomentBanner
             projectId={projectId}
