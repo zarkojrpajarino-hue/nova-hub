@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Read(//c/Python314/Scripts/**)",
+      "Read(//c/Users/Zarko/AppData/Roaming/Python/Python314/Scripts/**)"
+    ]
+  }
+}
