@@ -5,6 +5,13 @@ import App from "./App.tsx";
 import "./index.css";
 import "./i18n";
 
+// Global fallback: prevent "t is not defined" crashes from module-level t() calls
+// This is a safety net — the real fix is to not use t() at module level.
+// When a file evaluates t('key') before React renders, this returns the key as-is.
+if (typeof window !== 'undefined' && !(window as unknown as Record<string, unknown>).t) {
+  (window as unknown as Record<string, unknown>).t = (key: string) => key;
+}
+
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   enabled: import.meta.env.PROD,
