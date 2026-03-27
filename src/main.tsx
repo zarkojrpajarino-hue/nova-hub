@@ -44,7 +44,7 @@ Sentry.init({
 if (import.meta.env.VITE_POSTHOG_KEY) {
   posthog.init(import.meta.env.VITE_POSTHOG_KEY as string, {
     api_host: "https://eu.i.posthog.com",
-    capture_pageview: false,
+    capture_pageview: true,
   });
 }
 
