@@ -62,9 +62,15 @@ vi.mock('@/hooks/useMasters', () => ({
   useMyMasterApplications: vi.fn(() => ({ data: [], isLoading: false })),
 }));
 
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useParams: () => ({ projectId: 'test-project-id' }) };
+});
+
 vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProfiles: vi.fn(() => ({ data: [], isLoading: false })),
-  useProjectMembers: vi.fn(() => ({ data: [], isLoading: false })),
+  useProjectMembers: vi.fn(() => ({ data: [{ id: '1' }, { id: '2' }], isLoading: false })),
+  useProjectEngineData: vi.fn(() => ({ data: { phaseState: { current_phase: 4 } }, isLoading: false })),
 }));
 
 describe('MastersView', () => {

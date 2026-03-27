@@ -87,11 +87,15 @@ describe('Phase 0 — PHASE_TAB_CONFIG', () => {
 describe('Phase 0 — SIDEBAR_PHASE_CONFIG', () => {
   const phase0 = SIDEBAR_PHASE_CONFIG[0];
 
-  it('only dashboard, startup-os, settings, notificaciones are visible', () => {
+  it('only dashboard, settings, notificaciones are visible', () => {
     const visible = Object.entries(phase0)
       .filter(([, status]) => status === 'visible')
       .map(([key]) => key);
-    expect(visible.sort()).toEqual(['dashboard', 'notificaciones', 'settings', 'startup-os'].sort());
+    expect(visible.sort()).toEqual(['dashboard', 'notificaciones', 'settings'].sort());
+  });
+
+  it('startup-os is hidden in phase 0', () => {
+    expect(phase0['startup-os']).toBe('hidden');
   });
 
   it('everything else is hidden (not teaser) in phase 0', () => {

@@ -23,10 +23,16 @@ vi.mock('@/hooks/useDevelopment', () => ({
   useRolePerformance: () => ({ data: [] }),
 }));
 
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useParams: () => ({ projectId: 'test-project-id' }) };
+});
+
 vi.mock('@/hooks/useNovaDataOptimized', () => ({
   useProfiles: () => ({ data: [] }),
   useProjects: () => ({ data: [], isLoading: false }),
-  useProjectMembers: () => ({ data: [] }),
+  useProjectMembers: () => ({ data: [{ id: '1' }, { id: '2' }] }),
+  useProjectEngineData: () => ({ data: { phaseState: { current_phase: 3 } }, isLoading: false }),
 }));
 
 vi.mock('@/contexts/DemoModeContext', () => ({

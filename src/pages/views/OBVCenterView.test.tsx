@@ -1,7 +1,6 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen } from '@testing-library/react';
 import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
-import { MemoryRouter } from 'react-router-dom';
 import { OBVCenterView } from './OBVCenterView';
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -52,6 +51,20 @@ vi.mock('@/components/preview/OBVCenterPreviewModal', () => ({
   OBVCenterPreviewModal: () => <div data-testid="preview-modal" />,
 }));
 
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return {
+    ...actual,
+    useParams: () => ({ projectId: 'test-project-id' }),
+    useSearchParams: () => [new URLSearchParams(), vi.fn()],
+    useNavigate: () => vi.fn(),
+  };
+});
+
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
+  useProjectMembers: vi.fn(() => ({ data: [{ id: '1' }, { id: '2' }], isLoading: false })),
+}));
+
 describe('OBVCenterView', () => {
   let queryClient: QueryClient;
 
@@ -61,11 +74,9 @@ describe('OBVCenterView', () => {
   });
 
   const renderComponent = () => render(
-    <MemoryRouter>
-      <QueryClientProvider client={queryClient}>
-        <OBVCenterView />
-      </QueryClientProvider>
-    </MemoryRouter>
+    <QueryClientProvider client={queryClient}>
+      <OBVCenterView />
+    </QueryClientProvider>
   );
 
   it('renders centro obvs title', () => {

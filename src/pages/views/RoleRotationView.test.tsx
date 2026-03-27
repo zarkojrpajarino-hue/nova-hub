@@ -63,6 +63,16 @@ vi.mock('@/components/navigation/BackButton', () => ({
   BackButton: () => <div data-testid="back-button">Back</div>,
 }));
 
+vi.mock('react-router-dom', async () => {
+  const actual = await vi.importActual('react-router-dom');
+  return { ...actual, useParams: () => ({ projectId: 'test-project-id' }) };
+});
+
+vi.mock('@/hooks/useNovaDataOptimized', () => ({
+  useProjectEngineData: vi.fn(() => ({ data: { phaseState: { current_phase: 4 } }, isLoading: false })),
+  useProjectMembers: vi.fn(() => ({ data: [{ id: '1' }, { id: '2' }], isLoading: false })),
+}));
+
 describe('RoleRotationView', () => {
   let queryClient: QueryClient;
 
