@@ -161,7 +161,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 1:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.generasIngresosHoy')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.generasIngresosHoy')}</h2>
             <div className="space-y-2">
               <RadioOption
                 value="yes"
@@ -216,7 +216,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 2:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuántosClientesActivosTienes')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.cuántosClientesActivosTienes')}</h2>
             <p className="text-sm text-gray-500">{t('onboarding.pon0SiAún')}</p>
             <Input
               type="number"
@@ -234,7 +234,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 3:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuántasPersonasTrabajanEn')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.cuántasPersonasTrabajanEn')}</h2>
             <p className="text-sm text-gray-500">{t('onboarding.inclúyeteATiMismo')}</p>
             <Input
               type="number"
@@ -252,7 +252,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 4:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuálEsTuTicket')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.cuálEsTuTicket')}</h2>
             <div className="space-y-2">
               {([
                 { label: 'Menos de €50', value: 25 },
@@ -282,7 +282,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 5:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuántoTiempoPasaEntre')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.cuántoTiempoPasaEntre')}</h2>
             <div className="space-y-2">
               {([
                 { label: t('onboarding.menosDe1Semana'), value: 'days' as const },
@@ -312,7 +312,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 6:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cómoMonetizas')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.cómoMonetizas')}</h2>
             <div className="space-y-2">
               {([
                 { label: 'Venta única (transaccional)', value: 'transaccional' as const },
@@ -342,7 +342,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 7:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.enQuéPaísOperas')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.enQuéPaísOperas')}</h2>
             <Input
               type="text"
               placeholder={t('onboarding.ejEspañaMéxicoUsa')}
@@ -362,7 +362,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 8:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.tuMercadoEsLocal')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.tuMercadoEsLocal')}</h2>
             <div className="space-y-2">
               <RadioOption
                 value="local"
@@ -390,7 +390,7 @@ export function FaseACommon({ onComplete }: FaseACommonProps) {
       case 9:
         return (
           <div className="space-y-4">
-            <h2 className="text-xl font-bold text-gray-900">{t('onboarding.cuálEsTuObjetivo')}</h2>
+            <h2 className="text-xl font-bold text-white">{t('onboarding.cuálEsTuObjetivo')}</h2>
             <div className="space-y-2">
               {([
                 t('onboarding.validarQueHayMercado'),
