@@ -167,7 +167,7 @@ export function ProjectsView({ onNewOBV }: ProjectsViewProps) {
                 <h3 className="text-lg font-semibold">
                   {projects.length === 0
                     ? t('projects.aúnNoTienesProyectos')
-                    : `${projects.length} ${projects.length === 1 ? Proyecto : Proyectos}`}
+                    : `${projects.length} ${projects.length === 1 ? 'Proyecto' : 'Proyectos'}`}
                 </h3>
                 <p className="text-sm text-muted-foreground">
                   {projects.length === 0
