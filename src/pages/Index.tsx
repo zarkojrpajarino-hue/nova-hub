@@ -21,34 +21,10 @@ import { usePhaseTransitionNotification } from '@/hooks/usePhaseTransitionNotifi
 import { PhaseTransitionModal } from '@/components/nova/PhaseTransitionModal';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 
-// Lazy load views for better code splitting
+// Lazy load views — only CORE routes (Phase 0-2 solo user flow)
 const DashboardView = lazy(() => import('./views/DashboardView').then(m => ({ default: m.DashboardView })));
-const MiEspacioView = lazy(() => import('./views/MiEspacioView').then(m => ({ default: m.MiEspacioView })));
-const MiDesarrolloView = lazy(() => import('./views/MiDesarrolloView').then(m => ({ default: m.MiDesarrolloView })));
-const RankingsView = lazy(() => import('./views/RankingsView').then(m => ({ default: m.RankingsView })));
-const MastersView = lazy(() => import('./views/MastersView').then(m => ({ default: m.MastersView })));
-const RoleRotationView = lazy(() => import('./views/RoleRotationView'));
-const ProjectsView = lazy(() => import('./views/ProjectsView').then(m => ({ default: m.ProjectsView })));
 const OBVCenterView = lazy(() => import('./views/OBVCenterView').then(m => ({ default: m.OBVCenterView })));
-const CRMView = lazy(() => import('./views/CRMView').then(m => ({ default: m.CRMView })));
-const FinancieroView = lazy(() => import('./views/FinancieroView').then(m => ({ default: m.FinancieroView })));
-const KPIsView = lazy(() => import('./views/KPIsView').then(m => ({ default: m.KPIsView })));
-const _RolesMeetingView = lazy(() => import('./views/RolesMeetingView').then(m => ({ default: m.RolesMeetingView })));
-const AnalyticsView = lazy(() => import('./views/AnalyticsView').then(m => ({ default: m.AnalyticsView })));
 const SettingsView = lazy(() => import('./views/SettingsView').then(m => ({ default: m.SettingsView })));
-const NotificationsView = lazy(() => import('./views/NotificationsView').then(m => ({ default: m.NotificationsView })));
-const ValidacionesView = lazy(() => import('./views/ValidacionesView').then(m => ({ default: m.ValidacionesView })));
-const IntegrationsView = lazy(() => import('./IntegrationsView'));
-const ExplorationDashboard = lazy(() => import('./views/ExplorationDashboard').then(m => ({ default: m.ExplorationDashboard })));
-const TeamPerformanceDashboard = lazy(() => import('./views/TeamPerformanceDashboard').then(m => ({ default: m.TeamPerformanceDashboard })));
-const PathToMasterPage = lazy(() => import('./PathToMasterPage').then(m => ({ default: m.PathToMasterPage })));
-const MeetingIntelligencePage = lazy(() => import('./MeetingIntelligencePage'));
-const MeetingReviewPage = lazy(() => import('./MeetingReviewPage'));
-const AIAnalysisPage = lazy(() => import('./AIAnalysisPage'));
-const FounderToolkitPage = lazy(() => import('./FounderToolkitPage'));
-const StartupOSView = lazy(() => import('./views/StartupOSView').then(m => ({ default: m.StartupOSView })));
-const MiModeloView = lazy(() => import('./views/MiModeloView').then(m => ({ default: m.MiModeloView })));
-const PricingPageView = lazy(() => import('@/components/subscription/PricingPage').then(m => ({ default: m.PricingPage })));
 
 function IndexContent() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -106,55 +82,9 @@ function IndexContent() {
     },
   });
 
-  // ✨ OPTIMIZADO: Preloading inteligente de vistas frecuentes
-  useEffect(() => {
-    // Precargar vistas más usadas después de 2 segundos de la carga inicial
-    const preloadTimer = setTimeout(() => {
-      // Preload top 5 vistas más frecuentes
-      import('./views/ProjectsView');
-      import('./views/CRMView');
-      import('./views/OBVCenterView');
-      import('./views/ValidacionesView');
-      import('./views/AnalyticsView');
-    }, 2000);
-
-    return () => clearTimeout(preloadTimer);
-  }, []);
-
-  // ✨ OPTIMIZADO: Preload en hover del sidebar (predictivo)
+  // Preload OBVCenterView on hover
   const handleMenuHover = (view: string) => {
-    switch (view) {
-      case 'proyectos':
-        import('./views/ProjectsView');
-        break;
-      case 'startup-os':
-        import('./views/StartupOSView');
-        break;
-      case 'crm':
-        import('./views/CRMView');
-        break;
-      case 'obvs':
-        import('./views/OBVCenterView');
-        break;
-      case 'validaciones':
-        import('./views/ValidacionesView');
-        break;
-      case 'analytics':
-        import('./views/AnalyticsView');
-        break;
-      case 'kpis':
-        import('./views/KPIsView');
-        break;
-      case 'financiero':
-        import('./views/FinancieroView');
-        break;
-      case 'masters':
-        import('./views/MastersView');
-        break;
-      case 'rotacion':
-        import('./views/RoleRotationView');
-        break;
-    }
+    if (view === 'obvs') import('./views/OBVCenterView');
   };
 
   const LoadingFallback = () => (
@@ -227,33 +157,10 @@ function IndexContent() {
           <FeatureErrorBoundary featureName="Main Content">
           <Suspense fallback={<LoadingFallback />}>
             <Routes>
-              {/* Rutas relativas al proyecto */}
+              {/* CORE routes only — Phase 0-2 solo user flow */}
               <Route index element={<DashboardView onNewOBV={handleNewOBV} />} />
-              <Route path="mi-espacio" element={<MiEspacioView onNewOBV={handleNewOBV} />} />
-              <Route path="mi-desarrollo" element={<MiDesarrolloView />} />
-              <Route path="proyectos" element={<ProjectsView onNewOBV={handleNewOBV} />} />
-              <Route path="validaciones" element={<ValidacionesView onNewOBV={handleNewOBV} />} />
               <Route path="obvs" element={<OBVCenterView onNewOBV={handleNewOBV} />} />
-              <Route path="crm" element={<CRMView onNewOBV={handleNewOBV} />} />
-              <Route path="financiero" element={<FinancieroView onNewOBV={handleNewOBV} />} />
-              <Route path="meetings" element={<MeetingIntelligencePage />} />
-              <Route path="meeting-review/:meetingId" element={<MeetingReviewPage />} />
-              <Route path="analisis-ia" element={<AIAnalysisPage />} />
-              <Route path="toolkit" element={<FounderToolkitPage />} />
-              <Route path="mi-modelo" element={<MiModeloView />} />
-              <Route path="startup-os" element={<StartupOSView />} />
-              <Route path="exploration" element={<ExplorationDashboard />} />
-              <Route path="path-to-master" element={<PathToMasterPage />} />
-              <Route path="rankings" element={<RankingsView />} />
-              <Route path="masters" element={<MastersView />} />
-              <Route path="rotacion" element={<RoleRotationView />} />
-              <Route path="kpis" element={<KPIsView onNewOBV={handleNewOBV} />} />
-              <Route path="analytics" element={<AnalyticsView onNewOBV={handleNewOBV} />} />
-              <Route path="team-performance" element={<TeamPerformanceDashboard />} />
               <Route path="settings" element={<SettingsView onNewOBV={handleNewOBV} />} />
-              <Route path="integrations" element={<IntegrationsView />} />
-              <Route path="notificaciones" element={<NotificationsView onNewOBV={handleNewOBV} onNavigate={handleNavigate} />} />
-              <Route path="pricing" element={<PricingPageView />} />
             </Routes>
           </Suspense>
           </FeatureErrorBoundary>

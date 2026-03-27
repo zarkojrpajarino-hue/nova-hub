@@ -11,21 +11,17 @@ import { DemoModeProvider } from "@/contexts/DemoModeContext";
 import { CurrentProjectProvider } from "@/contexts/CurrentProjectContext";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
 
-// Page-level lazy imports for route-based code splitting
+// Page-level lazy imports — CORE routes only
 const RootRedirect = lazy(() => import("./pages/RootRedirect").then(m => ({ default: m.RootRedirect })));
 const AuthPage = lazy(() => import("./pages/AuthPage"));
 const LandingPage = lazy(() => import("./pages/LandingPage"));
 const Index = lazy(() => import("./pages/Index"));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const CreateFirstProjectPage = lazy(() => import("./pages/CreateFirstProjectPage").then(m => ({ default: m.CreateFirstProjectPage })));
 const SelectProjectPage = lazy(() => import("./pages/SelectProjectPage").then(m => ({ default: m.SelectProjectPage })));
 const SelectOnboardingTypePage = lazy(() => import("./pages/SelectOnboardingTypePage").then(m => ({ default: m.SelectOnboardingTypePage })));
 const OnboardingPage = lazy(() => import("./pages/OnboardingPage").then(m => ({ default: m.OnboardingPage })));
 const EmergencyOnboardingPage = lazy(() => import("./pages/EmergencyOnboardingPage").then(m => ({ default: m.EmergencyOnboardingPage })));
-const DeepSetupPage = lazy(() => import("./pages/DeepSetupPage").then(m => ({ default: m.DeepSetupPage })));
 const PrimerInicioPage = lazy(() => import("./pages/PrimerInicioPage").then(m => ({ default: m.PrimerInicioPage })));
-const EvidenceTestPage = lazy(() => import("./pages/EvidenceTestPage"));
-const InvitePage = lazy(() => import("./pages/InvitePage"));
 
 // ✨ OPTIMIZADO: Configuración de React Query mejorada
 const queryClient = new QueryClient({
@@ -113,77 +109,13 @@ const App = () => (
                       </ProtectedRoute>
                     }
                   />
-                  <Route
-                    path="/create-first-project"
-                    element={
-                      <ProtectedRoute>
-                        <CreateFirstProjectPage />
-                      </ProtectedRoute>
-                    }
-                  />
+                  {/* Onboarding */}
+                  <Route path="/onboarding/:projectId" element={<ProtectedRoute><OnboardingPage /></ProtectedRoute>} />
+                  <Route path="/emergency-onboarding/:projectId" element={<ProtectedRoute><EmergencyOnboardingPage /></ProtectedRoute>} />
+                  <Route path="/proyecto/:projectId/primer-inicio" element={<ProtectedRoute><PrimerInicioPage /></ProtectedRoute>} />
 
-                  {/* Onboarding standalone - Experiencia separada del dashboard */}
-                  <Route
-                    path="/onboarding/:projectId"
-                    element={
-                      <ProtectedRoute>
-                        <OnboardingPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* O5.V2.3 — Modo Emergencia: flujo urgente ≤3min */}
-                  <Route
-                    path="/emergency-onboarding/:projectId"
-                    element={
-                      <ProtectedRoute>
-                        <EmergencyOnboardingPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Deep Setup standalone - Optional advanced onboarding */}
-                  <Route
-                    path="/proyecto/:projectId/deep-setup/*"
-                    element={
-                      <ProtectedRoute>
-                        <DeepSetupPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Primer Inicio standalone - Activación post-onboarding (O5.9) */}
-                  <Route
-                    path="/proyecto/:projectId/primer-inicio"
-                    element={
-                      <ProtectedRoute>
-                        <PrimerInicioPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Rutas del proyecto - TODAS las vistas van aquí */}
-                  <Route
-                    path="/proyecto/:projectId/*"
-                    element={
-                      <ProtectedRoute>
-                        <Index />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* Evidence System Test Page */}
-                  <Route
-                    path="/evidence-test"
-                    element={
-                      <ProtectedRoute>
-                        <EvidenceTestPage />
-                      </ProtectedRoute>
-                    }
-                  />
-
-                  {/* EQ26.3 — Invitación por enlace (semi-pública) */}
-                  <Route path="/invite/:token" element={<InvitePage />} />
+                  {/* Main app shell */}
+                  <Route path="/proyecto/:projectId/*" element={<ProtectedRoute><Index /></ProtectedRoute>} />
 
                   {/* 404 */}
                   <Route path="*" element={<NotFound />} />
