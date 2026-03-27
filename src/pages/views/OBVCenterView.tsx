@@ -14,7 +14,6 @@ import { OBVForm } from '@/components/nova/OBVForm';
 import { OBVValidationList } from '@/components/nova/OBVValidationList';
 import { AITaskExecutor } from '@/components/tasks/AITaskExecutor';
 import { HowItWorks } from '@/components/ui/how-it-works';
-import { OBVCenterPreviewModal } from '@/components/preview/OBVCenterPreviewModal';
 import { useAuth } from '@/hooks/useAuth';
 import { useProjectMembers } from '@/hooks/useNovaDataOptimized';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
@@ -51,7 +50,6 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
   const entryTimestamp = useRef(cameFromNextAction ? Date.now() : 0);
   const [activeTab, setActiveTab] = useState('subir');
   const [showForm, setShowForm] = useState(true);
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [editingOutcomeId, setEditingOutcomeId] = useState<string | null>(null);
   const { profile } = useAuth();
   const { data: teamMembers = [] } = useProjectMembers();
@@ -223,7 +221,6 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
             action: t('oBVCenter.creaObvElEquipo'),
             destination: t('oBVCenter.ejecutaTareasAsignadasY'),
           }}
-          onViewPreview={() => setShowPreviewModal(true)}
         />
 
         {/* Tabs */}
@@ -446,10 +443,6 @@ export function OBVCenterView({ onNewOBV }: OBVCenterViewProps) {
 
       <HelpWidget section="obvs" />
 
-      <OBVCenterPreviewModal
-        open={showPreviewModal}
-        onOpenChange={setShowPreviewModal}
-      />
     </>
   );
 }

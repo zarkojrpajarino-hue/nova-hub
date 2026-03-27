@@ -27,7 +27,6 @@ import { PendingValidationsWidget } from '@/components/dashboard/PendingValidati
 import { SmartAlertsWidget } from '@/components/dashboard/SmartAlertsWidget';
 import { EmptyStateDashboard } from '@/components/dashboard/EmptyStateDashboard';
 import { HelpWidget } from '@/components/ui/section-help';
-import { DashboardPreviewModal } from '@/components/preview/DashboardPreviewModal';
 import { OnboardingProgressBanner } from '@/components/onboarding/OnboardingProgressBanner';
 import { RegenerationTriggersWidget } from '@/components/onboarding/RegenerationTriggersWidget';
 import { GamificationWidget } from '@/components/onboarding/GamificationWidget';
@@ -65,7 +64,6 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { projectId } = useParams<{ projectId: string }>();
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
   const [onboardingProgress, setOnboardingProgress] = useState<{ progress: number; fastStartCompleted: boolean; deepSetupSections: string[]; onboardingType: string } | null>(null);
   const [userId, setUserId] = useState<string>('');
   // V5.4.9 — Revenue confirmation banner for existing/scale businesses
@@ -706,7 +704,6 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           title={t('dashboard.cómoFunciona')}
           description={t('dashboard.vistaGeneralConsolidadaDe')}
           whatIsIt={t('dashboard.dashboardPrincipalQueAgrega')}
-          onViewPreview={() => setShowPreviewModal(true)}
           dataInputs={[
             {
               from: t('dashboard.todasLasSecciones'),
@@ -835,8 +832,6 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
       {/* Floating Help Widget */}
       <HelpWidget section="dashboard" />
 
-      {/* Dashboard Preview Modal */}
-      <DashboardPreviewModal open={showPreviewModal} onOpenChange={setShowPreviewModal} />
     </>
   );
 }

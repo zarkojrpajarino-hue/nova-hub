@@ -3,7 +3,7 @@ import { Users, Crown, UserPlus } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROLE_CONFIG } from '@/data/mockData';
 import type { Project } from '@/hooks/useNovaDataOptimized';
-import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
+// InviteLinkDialog removed (roles module pruned)
 import { ProjectLifecycleActions } from './ProjectLifecycleActions';
 import { MembersNudge } from '@/components/subscription/MembersNudge';
 import { useTranslation } from 'react-i18next';
@@ -54,11 +54,6 @@ function ProjectTeamTabComponent({ project, teamMembers }: ProjectTeamTabProps) 
           </div>
         </div>
 
-        <InviteLinkDialog
-          isOpen={showInvite}
-          onClose={() => setShowInvite(false)}
-          projectId={project.id}
-        />
 
         <div className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">

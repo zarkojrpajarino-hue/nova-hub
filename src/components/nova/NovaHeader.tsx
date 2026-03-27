@@ -4,7 +4,7 @@ import { NotificationCenterV2 } from '@/components/notifications/NotificationCen
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useSearch } from '@/contexts/SearchContext';
 import { cn } from '@/lib/utils';
-import { BackButton } from '@/components/navigation/BackButton';
+import { ArrowLeft } from 'lucide-react';
 import { useNavigation } from '@/contexts/NavigationContext';
 
 import { useTranslation } from 'react-i18next';
@@ -26,7 +26,7 @@ export function NovaHeader({ title, subtitle, onNewOBV, showBackButton = false }
       {/* Back Button Row */}
       {showBackButton && canGoBack && (
         <div className="px-4 md:px-8 pt-4">
-          <BackButton onClick={goBack} />
+          <Button variant="ghost" size="sm" onClick={goBack} className="gap-1"><ArrowLeft className="h-4 w-4" />{t('common.back', 'Atrás')}</Button>
         </div>
       )}
 

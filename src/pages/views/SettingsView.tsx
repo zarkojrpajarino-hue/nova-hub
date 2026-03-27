@@ -14,7 +14,6 @@ import { DocumentManager } from '@/components/evidence';
 import { ManageSubscription } from '@/components/subscription/ManageSubscription';
 import { HelpWidget } from '@/components/ui/section-help';
 import { HowItWorks } from '@/components/ui/how-it-works';
-import { SettingsPreviewModal } from '@/components/preview/SettingsPreviewModal';
 
 import { useTranslation } from 'react-i18next';
 interface SettingsViewProps {
@@ -30,7 +29,6 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
   const { data: userRoles = [] } = useUserRoles();
   const { currentProject } = useCurrentProject();
   const [activeTab, setActiveTab] = useState<SettingsTab>('profile');
-  const [showPreviewModal, setShowPreviewModal] = useState(false);
 
   // Check if current user is admin or tlt
   const currentUserRole = userRoles.find(r => r.user_id === profile?.id)?.role;
@@ -89,7 +87,6 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
               action: t('settings.personalizaTuPerfilY'),
               destination: t('settings.mejoraTuExperienciaDiaria')
             }}
-            onViewPreview={() => setShowPreviewModal(true)}
           />
         </div>
 
@@ -143,11 +140,6 @@ export function SettingsView({ onNewOBV }: SettingsViewProps) {
 
       <HelpWidget section="settings" />
 
-      {/* Preview Modal */}
-      <SettingsPreviewModal
-        open={showPreviewModal}
-        onOpenChange={setShowPreviewModal}
-      />
     </>
   );
 }

@@ -5,8 +5,6 @@ import { NovaSidebar } from '@/components/nova/NovaSidebar';
 import { NavigationProvider } from '@/contexts/NavigationContext';
 import { SearchProvider, useSearch } from '@/contexts/SearchContext';
 import { GlobalSearch } from '@/components/search/GlobalSearch';
-import { DemoModeBanner } from '@/components/demo/DemoModeBanner';
-import { useDemoMode } from '@/contexts/DemoModeContext';
 import { useKeyboardShortcuts } from '@/hooks/useKeyboardShortcuts';
 import { useAuth } from '@/hooks/useAuth';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -93,7 +91,6 @@ function IndexContent() {
     </div>
   );
 
-  const { isDemoMode } = useDemoMode();
 
   return (
     <NavigationProvider
@@ -103,7 +100,6 @@ function IndexContent() {
     >
       <div className="flex min-h-screen bg-background">
         {/* Demo Mode Banner */}
-        <DemoModeBanner />
 
         {/* Mobile menu button */}
         {isMobile && (
@@ -111,7 +107,7 @@ function IndexContent() {
             onClick={() => setSidebarOpen(!sidebarOpen)}
             className={cn(
               "fixed left-4 z-[60] w-10 h-10 rounded-xl bg-card border border-border flex items-center justify-center shadow-lg",
-              isDemoMode ? "top-16" : "top-4"
+              "top-4"
             )}
           >
             {sidebarOpen ? <X size={20} /> : <Menu size={20} />}
@@ -131,8 +127,7 @@ function IndexContent() {
           "transition-transform duration-300 ease-in-out",
           isMobile && "fixed z-50",
           isMobile && !sidebarOpen && "-translate-x-full",
-          isDemoMode && "pt-12"
-        )}>
+                  )}>
           <NovaSidebar
             currentView={currentView}
             setCurrentView={handleNavigate}
@@ -147,8 +142,7 @@ function IndexContent() {
         <main className={cn(
           "flex-1 min-h-screen transition-all duration-300",
           !isMobile && "ml-64",
-          isDemoMode && "pt-12"
-        )}>
+                  )}>
           {/* Trial Countdown Banner — visible on ALL pages */}
           {currentProject?.id && (
             <TrialCountdownBanner projectId={currentProject.id} className="mx-8 mt-4" />
