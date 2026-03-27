@@ -36,12 +36,15 @@ const queryClient = new QueryClient({
       refetchOnWindowFocus: true, // ✨ Activado - datos siempre actualizados al volver
       refetchOnReconnect: true, // ✨ Activado - actualizar al reconectar
       retry: (failureCount, error) => {
-        // Retry inteligente: no reintentar errores 4xx (cliente)
+        // Don't retry AbortError — Supabase aborts in-flight requests during auth
+        // state changes. The query will succeed on the next automatic refetch.
+        if (error instanceof DOMException && error.name === 'AbortError') return false;
+        // Don't retry 4xx (client errors)
         if (error instanceof Error && 'statusCode' in error) {
           const statusCode = (error as Error & { statusCode: number }).statusCode;
           if (statusCode >= 400 && statusCode < 500) return false;
         }
-        return failureCount < 2; // Máximo 2 reintentos para errores 5xx
+        return failureCount < 2;
       },
       networkMode: 'online', // Solo ejecutar queries cuando hay conexión
     },

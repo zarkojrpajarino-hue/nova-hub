@@ -12,6 +12,15 @@ if (typeof window !== 'undefined' && !(window as unknown as Record<string, unkno
   (window as unknown as Record<string, unknown>).t = (key: string) => key;
 }
 
+// Suppress AbortError from Supabase auth state changes.
+// When auth initializes or refreshes, the Supabase client aborts in-flight requests.
+// React Query retries them successfully — the console errors are harmless noise.
+window.addEventListener('unhandledrejection', (event) => {
+  if (event.reason?.name === 'AbortError') {
+    event.preventDefault();
+  }
+});
+
 Sentry.init({
   dsn: import.meta.env.VITE_SENTRY_DSN,
   enabled: import.meta.env.PROD,
@@ -21,6 +30,12 @@ Sentry.init({
     Sentry.replayIntegration({ maskAllText: false, blockAllMedia: false }),
   ],
   tracesSampleRate: 0.1,
+  beforeSend(event) {
+    // Filter out AbortError from Supabase auth state changes
+    const msg = event.exception?.values?.[0]?.type;
+    if (msg === 'AbortError') return null;
+    return event;
+  },
   replaysSessionSampleRate: 0.05,
   replaysOnErrorSampleRate: 1.0,
 });
