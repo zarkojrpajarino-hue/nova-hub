@@ -165,7 +165,9 @@ export function useMomentDetector(projectId: string | undefined) {
         projectCount: projectCountResult.count ?? 0,
       };
     },
-    enabled: !!projectId,
+    // Wait for engineData (auth established) before firing standalone queries.
+    // Without this guard, Supabase queries abort due to auth timing (AbortError).
+    enabled: !!projectId && !!engineData?.phaseState,
     staleTime: 5 * 60_000,
   });
 
