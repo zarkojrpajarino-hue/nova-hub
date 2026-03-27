@@ -7,6 +7,7 @@
  */
 
 import { useEffect, useState, memo } from 'react';
+import { useTranslation } from 'react-i18next';
 import { X, PartyPopper, AlertTriangle, Info } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useMomentDetector, markMomentSeen, persistMoment } from '@/hooks/useMomentDetector';
@@ -19,6 +20,7 @@ interface MomentBannerProps {
 }
 
 function BannerContent({ moment, onDismiss, projectId }: { moment: Moment; onDismiss: () => void; projectId: string }) {
+  const { t } = useTranslation();
   const isCelebration = moment.severity === 'celebration';
   const isWarning = moment.severity === 'warning';
 

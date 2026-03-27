@@ -554,12 +554,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         )}
 
-        {/* MomentBanner temporarily disabled — flash/disappear bug in production.
-            The banner appears for 1s then vanishes because useMomentDetector
-            recalculates on every DashboardView re-render, losing the moment.
-            TODO: fix by moving moment detection to a stable context/ref.
-        */}
-        {/* {projectId && !hasZeroData && <MomentBanner projectId={projectId} />} */}
+        {/* Celebration / warning moments — above cockpit, hidden when EmptyState active */}
+        {projectId && !hasZeroData && <MomentBanner projectId={projectId} />}
 
         {/* ── EXPERIENCE ENGINE — Strategic Cockpit ── */}
         {projectId && project && (
