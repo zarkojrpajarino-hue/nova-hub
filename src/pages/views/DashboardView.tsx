@@ -554,8 +554,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         )}
 
-        {/* Celebration / warning moments — above cockpit, hidden when EmptyState active */}
-        {projectId && !hasZeroData && <MomentBanner projectId={projectId} />}
+        {/* Celebration / warning moments — always mounted so sticky state survives.
+            useMomentDetector returns [] when there's no data, so the component renders null. */}
+        {projectId && <MomentBanner projectId={projectId} />}
 
         {/* ── EXPERIENCE ENGINE — Strategic Cockpit ── */}
         {projectId && project && (
