@@ -5,7 +5,7 @@
  * Mantiene lista de momentos ya vistos en localStorage.
  */
 
-import { useMemo } from 'react';
+import { useMemo, useEffect } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { queryKeys } from '@/lib/queryKeys';
