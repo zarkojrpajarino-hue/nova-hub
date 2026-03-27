@@ -55,6 +55,12 @@ interface DashboardViewProps {
   onNewOBV?: () => void;
 }
 
+// Module-level moment cache — survives ANY React lifecycle event
+// (remounts, error boundary resets, Suspense, route changes).
+// Only a full page refresh clears this.
+let __capturedMomentCache: Moment | null = null;
+let __momentDismissed = false;
+
 export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -65,15 +71,24 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   // V5.4.9 — Revenue confirmation banner for existing/scale businesses
   const [showRevenueBanner, setShowRevenueBanner] = useState(false);
 
-  // Moment detection — state lives here in DashboardView (never unmounts).
-  // MomentBanner receives the moment as prop instead of running its own hook.
+  // Moment detection — module-level cache makes it indestructible.
   const { topMoment } = useMomentDetector(projectId);
-  const [capturedMoment, setCapturedMoment] = useState<Moment | null>(null);
+  const [capturedMoment, setCapturedMoment] = useState<Moment | null>(__capturedMomentCache);
+  const [momentDismissed, setMomentDismissed] = useState(__momentDismissed);
+
   useEffect(() => {
-    if (topMoment && !capturedMoment) {
+    if (topMoment && !capturedMoment && !momentDismissed) {
+      console.log('[MomentBanner] Captured moment:', topMoment.type, topMoment.title);
       setCapturedMoment(topMoment);
+      __capturedMomentCache = topMoment;
     }
-  }, [topMoment, capturedMoment]);
+  }, [topMoment, capturedMoment, momentDismissed]);
+
+  // Debug: log every DashboardView mount to trace remounts
+  useEffect(() => {
+    console.log('[DashboardView] MOUNTED — capturedMoment:', __capturedMomentCache?.type ?? 'null', 'dismissed:', __momentDismissed);
+    return () => console.log('[DashboardView] UNMOUNTED');
+  }, []);
   const { data: members = [], isLoading: loadingMembers } = useMemberStats();
   const { data: objectives = [] } = useObjectives();
   const { data: projectStats } = useProjectStats(projectId);
@@ -566,12 +581,16 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         )}
 
-        {/* Celebration / warning moments — moment state lives in DashboardView (stable) */}
-        {projectId && capturedMoment && (
+        {/* Celebration / warning moments — module-level cache, indestructible */}
+        {projectId && capturedMoment && !momentDismissed && (
           <MomentBanner
             projectId={projectId}
             moment={capturedMoment}
-            onDismissed={() => setCapturedMoment(null)}
+            onDismissed={() => {
+              console.log('[MomentBanner] Dismissed by user');
+              setMomentDismissed(true);
+              __momentDismissed = true;
+            }}
           />
         )}
 
