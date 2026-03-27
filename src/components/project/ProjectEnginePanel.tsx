@@ -8,7 +8,6 @@ import type { ProjectEngineData } from '@/hooks/useNovaDataOptimized';
 import { PHASE_LABELS } from '@/lib/engine';
 import { getNextAction } from '@/lib/next-action';
 import { CostOfIgnoring } from './CostOfIgnoring';
-import { MeetingInsightsCard } from '@/components/integrations/MeetingInsightsCard';
 import { UnlockModeCard } from './UnlockModeCard';
 import { trackEngineViewed, trackNextActionClicked } from '@/lib/analytics';
 import { useAgentContext } from '@/hooks/useAgentContext';
@@ -666,8 +665,6 @@ function ProjectEnginePanelComponent({ projectId, engineData, isLoading, onActio
         )}
       </div>
 
-      {/* M18.5 — Meeting Agent insights */}
-      <MeetingInsightsCard projectId={projectId} />
 
       {/* M18.23 — Última reunión completada */}
       {projectId && <LastMeetingWidget projectId={projectId} />}

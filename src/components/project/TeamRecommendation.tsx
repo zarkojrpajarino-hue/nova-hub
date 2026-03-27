@@ -13,7 +13,6 @@ import { useTranslation } from 'react-i18next';
 import { UserPlus, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { ROLE_CONFIG } from '@/data/mockData';
-import { InviteLinkDialog } from '@/components/roles/InviteLinkDialog';
 
 // Roles recommended per phase transition
 // reasonKey maps to teamRec.marketing, teamRec.operations, etc.
@@ -76,11 +75,6 @@ export function TeamRecommendation({
         </div>
       </div>
 
-      <InviteLinkDialog
-        isOpen={showInvite}
-        onClose={() => setShowInvite(false)}
-        projectId={projectId}
-      />
     </>
   );
 }

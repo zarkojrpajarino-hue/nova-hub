@@ -37,8 +37,6 @@ import {
   TooltipTrigger,
 } from './tooltip';
 import { getHelp } from '@/data/helpContent';
-import { useDemoMode } from '@/contexts/DemoModeContext';
-import { getDemoData, type DemoDataSection } from '@/data/demoData';
 
 import { useTranslation } from 'react-i18next';
 export interface DataFlow {
@@ -210,127 +208,8 @@ function HelpContentDisplay({ content }: { content: HelpContent }) {
   );
 }
 
-// Demo Button Component
-function DemoButton({ section }: { section: string }) {
-  const { t } = useTranslation();
-  const { isDemoMode, enableDemo, disableDemo, setDemoSection } = useDemoMode();
-  const [showDemoDialog, setShowDemoDialog] = useState(false);
-  
-  const demoSection = section.split('.')[0] as DemoDataSection;
-  const demoData = getDemoData(demoSection);
-  
-  if (!demoData) return null;
-
-  const handleEnableDemo = () => {
-    enableDemo();
-    setDemoSection(section);
-    setShowDemoDialog(false);
-  };
-
-  const handleDisableDemo = () => {
-    disableDemo();
-    setShowDemoDialog(false);
-  };
-
-  return (
-    <Dialog open={showDemoDialog} onOpenChange={setShowDemoDialog}>
-      <DialogTrigger asChild>
-        <Button
-          variant={isDemoMode ? "default" : "outline"}
-          size="sm"
-          className={cn(
-            "gap-2 mt-4 w-full",
-            isDemoMode && "bg-amber-500 hover:bg-amber-600 text-white"
-          )}
-        >
-          {isDemoMode ? (
-            <>
-              <Eye className="w-4 h-4" />{t('ui.modoDemoActivoClic')}</>
-          ) : (
-            <>
-              <Play className="w-4 h-4" />{t('ui.mostrarDatosDemo')}</>
-          )}
-        </Button>
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 flex items-center justify-center">
-              <Eye className="w-5 h-5 text-amber-500" />
-            </div>
-            <div>
-              <span className="text-lg">{t('ui.modoDemostración')}</span>
-              <p className="text-sm font-normal text-muted-foreground mt-0.5">
-                {isDemoMode ? 'Actualmente activo': t('ui.verFuncionalidadesConDatos')}
-              </p>
-            </div>
-          </DialogTitle>
-          <DialogDescription className="sr-only">{t('ui.activaODesactivaEl')}</DialogDescription>
-        </DialogHeader>
-        
-        <div className="space-y-4 mt-4">
-          {isDemoMode ? (
-            <>
-              <div className="p-4 rounded-lg bg-amber-500/10 border border-amber-500/20">
-                <p className="text-sm text-amber-700 dark:text-amber-300">
-                  El modo demo está activo. Estás viendo datos de ejemplo que muestran 
-                  todas las funcionalidades de la plataforma.
-                </p>
-              </div>
-              <Button 
-                onClick={handleDisableDemo} 
-                className="w-full"
-                variant="outline"
-              >{t('ui.desactivarModoDemo')}</Button>
-            </>
-          ) : (
-            <>
-              <div className="space-y-3">
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <Database className="w-4 h-4 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium">{t('ui.datosRealistas')}</h4>
-                    <p className="text-xs text-muted-foreground">
-                      9 miembros del equipo, 5 proyectos activos, OBVs, leads y más
-                    </p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="w-8 h-8 rounded-lg bg-green-500/10 flex items-center justify-center flex-shrink-0">
-                    <CheckCircle2 className="w-4 h-4 text-green-500" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium">{t('ui.funcionalidadesCompletas')}</h4>
-                    <p className="text-xs text-muted-foreground">{t('ui.exploraValidacionesRankingsCrm')}</p>
-                  </div>
-                </div>
-                
-                <div className="flex items-start gap-3 p-3 rounded-lg bg-muted/50">
-                  <div className="w-8 h-8 rounded-lg bg-blue-500/10 flex items-center justify-center flex-shrink-0">
-                    <Sparkles className="w-4 h-4 text-blue-500" />
-                  </div>
-                  <div>
-                    <h4 className="text-sm font-medium">{t('ui.sinAfectarTusDatos')}</h4>
-                    <p className="text-xs text-muted-foreground">{t('ui.losDatosDemoSon')}</p>
-                  </div>
-                </div>
-              </div>
-              
-              <Button 
-                onClick={handleEnableDemo} 
-                className="w-full gap-2 bg-amber-500 hover:bg-amber-600"
-              >
-                <Play className="w-4 h-4" />{t('ui.activarModoDemo')}</Button>
-            </>
-          )}
-        </div>
-      </DialogContent>
-    </Dialog>
-  );
-}
+// Demo mode removed during prune
+function DemoButton(_props: { section: string }) { return null; }
 
 // Inline variant - expandable button
 function InlineHelp({ section, className }: SectionHelpProps) {
