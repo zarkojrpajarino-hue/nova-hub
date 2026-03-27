@@ -65,17 +65,27 @@ export default function AuthPage() {
 
   // Check if already authenticated
   useEffect(() => {
+    // Navigate to saved project or /home as fallback
+    const goToProject = () => {
+      const savedId = localStorage.getItem('nova-hub:current-project-id');
+      if (savedId) {
+        navigate(`/proyecto/${savedId}`, { replace: true });
+      } else {
+        navigate('/home', { replace: true });
+      }
+    };
+
     const checkSession = async () => {
       const { data: { session } } = await supabase.auth.getSession();
       if (session?.user) {
-        navigate('/home');
+        goToProject();
       }
     };
     checkSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
-        navigate('/home');
+        goToProject();
       }
     });
 
