@@ -214,23 +214,27 @@ export function useMomentDetector(projectId: string | undefined) {
     };
 
     const detected = detectMoments(input);
-
-    // Wire TTFV tracking for first-value moments
-    const ttfvTypes = ['first_obv_validated', 'first_task_completed'] as const;
-    const createdAt = engineData?.project?.created_at;
-    if (createdAt && projectId) {
-      const signupTime = new Date(createdAt).getTime();
-      const secondsSinceSignup = Math.floor((Date.now() - signupTime) / 1000);
-      for (const m of detected) {
-        if (ttfvTypes.includes(m.type as typeof ttfvTypes[number]) && !getSeenMoments(projectId).includes(`ttfv_${m.type}`)) {
-          trackTTFV({ project_id: projectId, action: m.type as 'first_obv_validated' | 'first_task_completed', time_from_signup_seconds: secondsSinceSignup });
-          markMomentSeen(projectId, `ttfv_${m.type}`);
-        }
-      }
-    }
-
     return detected;
   }, [engineData, extraData, activeCycle, projectId]);
+
+  // TTFV tracking moved to useEffect (was a side effect inside useMemo — anti-pattern)
+  useEffect(() => {
+    if (!moments.length || !projectId) return;
+    const ttfvTypes = ['first_obv_validated', 'first_task_completed'] as const;
+    const createdAt = (engineData as Record<string, unknown>)?.project
+      ? ((engineData as Record<string, unknown>).project as Record<string, string>)?.created_at
+      : undefined;
+    if (!createdAt) return;
+    const signupTime = new Date(createdAt).getTime();
+    const secondsSinceSignup = Math.floor((Date.now() - signupTime) / 1000);
+    for (const m of moments) {
+      if (ttfvTypes.includes(m.type as typeof ttfvTypes[number]) && !getSeenMoments(projectId).includes(`ttfv_${m.type}`)) {
+        trackTTFV({ project_id: projectId, action: m.type as 'first_obv_validated' | 'first_task_completed', time_from_signup_seconds: secondsSinceSignup });
+        markMomentSeen(projectId, `ttfv_${m.type}`);
+      }
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [moments.length, projectId]);
 
   return { moments, topMoment: moments[0] ?? null };
 }
