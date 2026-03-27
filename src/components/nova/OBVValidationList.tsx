@@ -65,6 +65,7 @@ const OBVCard = memo(function OBVCard({
   onConfirmReject: () => void;
   onVote: (approved: boolean) => void;
 }) {
+  const { t } = useTranslation();
   return (
     <div
       className="bg-card border border-border rounded-2xl overflow-hidden animate-fade-in"
