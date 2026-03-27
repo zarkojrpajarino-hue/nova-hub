@@ -110,13 +110,9 @@ export default function AuthPage() {
       window.location.replace('/home');
     };
 
-    const checkSession = async () => {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (session?.user) {
-        goToProject(session.user.id);
-      }
-    };
-    checkSession();
+    // Don't auto-redirect on mount — let user explicitly login.
+    // checkSession was finding stale sessions after signOut and
+    // redirecting with invalid auth → "Usuario" on dashboard.
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session?.user) {
