@@ -523,8 +523,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           />
         )}
 
-        {/* Onboarding Progress Banner — only first 7 days */}
-        {projectId && daysActive < 7 && onboardingProgress && onboardingProgress.progress < 100 && (
+        {/* Onboarding Progress Banner — only first 7 days, hidden when EmptyState active */}
+        {projectId && !hasZeroData && daysActive < 7 && onboardingProgress && onboardingProgress.progress < 100 && (
           <OnboardingProgressBanner
             projectId={projectId}
             progress={onboardingProgress.progress}
@@ -551,8 +551,8 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
           </div>
         )}
 
-        {/* Celebration / warning moments — above cockpit, only when active */}
-        {projectId && <MomentBanner projectId={projectId} />}
+        {/* Celebration / warning moments — above cockpit, hidden when EmptyState active */}
+        {projectId && !hasZeroData && <MomentBanner projectId={projectId} />}
 
         {/* ── EXPERIENCE ENGINE — Strategic Cockpit ── */}
         {projectId && project && (
