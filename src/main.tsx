@@ -40,12 +40,16 @@ Sentry.init({
   replaysOnErrorSampleRate: 1.0,
 });
 
-// PostHog: no-op si VITE_POSTHOG_KEY no está definido.
-if (import.meta.env.VITE_POSTHOG_KEY) {
-  posthog.init(import.meta.env.VITE_POSTHOG_KEY as string, {
+// PostHog init + expose on window for debugging
+try {
+  posthog.init(import.meta.env.VITE_POSTHOG_KEY as string || 'phc_S1tWyeIgWkkp19IecJtsu8ZjREQiY53S1zg7CK25DYx', {
     api_host: "https://eu.i.posthog.com",
     capture_pageview: true,
   });
+  (window as unknown as Record<string, unknown>).__ph = posthog;
+  (window as unknown as Record<string, unknown>).__ph_status = 'initialized';
+} catch (e) {
+  (window as unknown as Record<string, unknown>).__ph_status = 'error: ' + String(e);
 }
 
 createRoot(document.getElementById("root")!).render(<App />);
