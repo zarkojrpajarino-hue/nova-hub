@@ -64,17 +64,8 @@ export default function AuthPage() {
   const [passwordStrength, setPasswordStrength] = useState<'weak' | 'medium' | 'strong' | null>(null);
 
   // Check if already authenticated
-  useEffect(() => {
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
-        const savedId = localStorage.getItem('nova-hub:current-project-id');
-        // Full page reload — no SPA navigate, no async queries, no race conditions
-        window.location.replace(savedId ? `/proyecto/${savedId}` : '/home');
-      }
-    });
-
-    return () => subscription.unsubscribe();
-  }, []);
+  // No useEffect, no onAuthStateChange listener.
+  // Redirect happens directly in handleLogin after signInWithPassword succeeds.
 
   // Email validation en tiempo real
   useEffect(() => {
@@ -131,12 +122,15 @@ export default function AuthPage() {
       if (error) {
         logError(t('auth.authsignin'), error);
         toast.error(mapAuthError(error));
+        setLoading(false);
       } else {
-        toast.success(t('auth.bienvenidoDeVuelta'));
+        // Login succeeded — full page reload to project or home
+        const savedId = localStorage.getItem('nova-hub:current-project-id');
+        window.location.replace(savedId ? `/proyecto/${savedId}` : '/home');
+        // Don't setLoading(false) — page is reloading
       }
     } catch (validationError) {
       toast.error(t('auth.errorDeConexión'));
-    } finally {
       setLoading(false);
     }
   };
