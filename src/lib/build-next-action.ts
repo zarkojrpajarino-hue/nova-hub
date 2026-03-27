@@ -167,6 +167,31 @@ export function buildNextAction(
     signals.push(`${agentTypeLabel(w.agent_type)}: ${w.content.summary}`)
   }
 
+  // ── 5b. Data quality gate — si datos muy insuficientes, priorizar generación de evidencia
+  const probComp = (engineData?.probability as Record<string, unknown>)?.data_completeness_score;
+  const riskComp = (engineData?.risk as Record<string, unknown>)?.data_completeness_score;
+  const avgCompleteness = (
+    (typeof probComp === 'number' ? probComp : 1) +
+    (typeof riskComp === 'number' ? riskComp : 1)
+  ) / 2;
+
+  if (avgCompleteness < 0.5) {
+    const pct = Math.round(avgCompleteness * 100);
+    return {
+      title:       'Genera más evidencia antes de decidir',
+      description: 'Con los datos actuales, las recomendaciones son aproximadas. Crea OBVs y completa tareas para que el sistema pueda darte señales fiables.',
+      type:        'obv',
+      urgency:     'medium',
+      source:      'engine',
+      actionType:  'create_obv',
+      ctaLabel:    'Crear evidencia',
+      signals:     [
+        ...signals,
+        `Calidad de datos baja: ${pct}% — las recomendaciones aún se basan en señal limitada`,
+      ],
+    }
+  }
+
   // ── 6. Fallback al getNextAction() base del motor ───────────────────────────
   const base = getNextAction(engineData, context.macroRole ?? 'founder')
   if (!base) {
