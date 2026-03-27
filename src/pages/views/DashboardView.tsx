@@ -78,19 +78,26 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   const [momentDismissed, setMomentDismissed] = useState(__momentDismissed);
 
   useEffect(() => {
-    // Capture new moment
-    if (topMoment && !capturedMoment && !momentDismissed) {
+    // Don't react during loading — keep cached moment visible
+    if (!isReady) return;
+
+    const newType = topMoment?.type ?? null;
+    const currentType = capturedMoment?.type ?? null;
+
+    if (newType && newType !== currentType) {
+      // New moment or type changed → capture/replace + reset dismiss
       setCapturedMoment(topMoment);
       __capturedMomentCache = topMoment;
-    }
-    // Invalidate when data loaded but moment no longer exists
-    // (e.g., seed OBVs deleted → first_customer no longer triggers)
-    if (isReady && !topMoment && capturedMoment) {
+      setMomentDismissed(false);
+      __momentDismissed = false;
+    } else if (!newType && currentType) {
+      // Data loaded, no moments → clear cache
       setCapturedMoment(null);
       __capturedMomentCache = null;
+      setMomentDismissed(false);
       __momentDismissed = false;
     }
-  }, [topMoment, capturedMoment, momentDismissed, isReady]);
+  }, [topMoment, capturedMoment, isReady]);
 
   // Stable reference for memo'd MomentBanner — inline arrows break memo()
   const handleMomentDismissed = useCallback(() => {
