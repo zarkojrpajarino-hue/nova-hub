@@ -69,22 +69,32 @@ export const MomentBanner = memo(function MomentBanner({ projectId }: MomentBann
   const { topMoment } = useMomentDetector(projectId);
   const [dismissed, setDismissed] = useState(false);
   const [confettiFired, setConfettiFired] = useState(false);
+  // Sticky moment: once captured, doesn't disappear when hook recalculates
+  const [stickyMoment, setStickyMoment] = useState<typeof topMoment>(null);
 
-  // Fire confetti for celebrations (persist only on dismiss, not on mount)
+  // Capture first valid moment — don't let it disappear on re-render
   useEffect(() => {
-    if (topMoment?.severity === 'celebration' && !confettiFired) {
+    if (topMoment && !stickyMoment && !dismissed) {
+      setStickyMoment(topMoment);
+    }
+  }, [topMoment, stickyMoment, dismissed]);
+
+  // Fire confetti for celebrations
+  useEffect(() => {
+    if (stickyMoment?.severity === 'celebration' && !confettiFired) {
       confetti({ particleCount: 80, spread: 60, origin: { y: 0.3 } });
       setConfettiFired(true);
     }
-  }, [topMoment, confettiFired]);
+  }, [stickyMoment, confettiFired]);
 
-  if (!topMoment || dismissed) return null;
+  const activeMoment = stickyMoment;
+  if (!activeMoment || dismissed) return null;
 
   return (
     <BannerContent
-      moment={topMoment}
+      moment={activeMoment}
       onDismiss={() => {
-        if (topMoment && projectId) persistMoment(projectId, topMoment);
+        if (activeMoment && projectId) persistMoment(projectId, activeMoment);
         setDismissed(true);
       }}
       projectId={projectId}
