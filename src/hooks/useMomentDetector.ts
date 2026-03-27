@@ -238,5 +238,8 @@ export function useMomentDetector(projectId: string | undefined) {
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [moments.length, projectId]);
 
-  return { moments, topMoment: moments[0] ?? null };
+  // isReady = data fully loaded (not just temporarily empty during refetch)
+  const isReady = !!engineData?.phaseState && !!extraData;
+
+  return { moments, topMoment: moments[0] ?? null, isReady };
 }

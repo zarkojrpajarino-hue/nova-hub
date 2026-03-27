@@ -71,18 +71,26 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
   // V5.4.9 — Revenue confirmation banner for existing/scale businesses
   const [showRevenueBanner, setShowRevenueBanner] = useState(false);
 
-  // Moment detection — module-level cache makes it indestructible.
-  const { topMoment } = useMomentDetector(projectId);
+  // Moment detection — module-level cache survives remounts (M:2).
+  // isReady = data loaded. Used to invalidate cache when moments genuinely disappear.
+  const { topMoment, isReady } = useMomentDetector(projectId);
   const [capturedMoment, setCapturedMoment] = useState<Moment | null>(__capturedMomentCache);
   const [momentDismissed, setMomentDismissed] = useState(__momentDismissed);
 
-
   useEffect(() => {
+    // Capture new moment
     if (topMoment && !capturedMoment && !momentDismissed) {
       setCapturedMoment(topMoment);
       __capturedMomentCache = topMoment;
     }
-  }, [topMoment, capturedMoment, momentDismissed]);
+    // Invalidate when data loaded but moment no longer exists
+    // (e.g., seed OBVs deleted → first_customer no longer triggers)
+    if (isReady && !topMoment && capturedMoment) {
+      setCapturedMoment(null);
+      __capturedMomentCache = null;
+      __momentDismissed = false;
+    }
+  }, [topMoment, capturedMoment, momentDismissed, isReady]);
 
   // Stable reference for memo'd MomentBanner — inline arrows break memo()
   const handleMomentDismissed = useCallback(() => {
