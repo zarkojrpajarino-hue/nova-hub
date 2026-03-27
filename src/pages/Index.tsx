@@ -81,9 +81,7 @@ function IndexContent() {
 
   const handleSignOut = async () => {
     await signOut();
-    // Full reload clears all Supabase client state, React Query cache,
-    // and module-level variables. SPA navigate leaves stale state.
-    window.location.replace('/auth');
+    navigate('/auth');
   };
 
   const handleNavigate = (view: string) => {

@@ -73,10 +73,7 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
   });
 
   // Fetch user's projects (same query as before)
-  // isPending = "no data yet" — true even when query is disabled (waiting for profile).
-  // isLoading = isPending && isFetching — false when disabled, causing a 1-render gap
-  // where RootRedirect sees projectsLoading=false + userProjects=[] → onboarding.
-  const { data: userProjects = [], isPending: isLoading } = useQuery<Project[]>({
+  const { data: userProjects = [], isLoading } = useQuery<Project[]>({
     queryKey: ['user-projects', user?.id, profile?.id],
     queryFn: async () => {
       if (!user || !profile) return [];
@@ -95,13 +92,10 @@ export function CurrentProjectProvider({ children }: CurrentProjectProviderProps
       ).order('created_at', { ascending: false });
 
       if (error) {
-        // CRITICAL: throw instead of returning [].
-        // Returning [] makes RootRedirect think "no projects" → redirect to onboarding.
-        // Throwing lets React Query retry until auth settles and the query succeeds.
-        throw error;
+        return [];
       }
 
-      return data ?? [];
+      return data;
     },
     enabled: !!user && !!profile,
     staleTime: 1000 * 60 * 5,

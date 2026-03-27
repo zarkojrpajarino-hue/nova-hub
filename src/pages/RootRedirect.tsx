@@ -42,48 +42,33 @@ export function RootRedirect() {
   }, [isAuthenticated, currentProject, userProjects, navigate]);
 
   useEffect(() => {
-    // DEBUG: track state in document.title (Vite doesn't strip this)
-    document.title = `[auth:${!authLoading} prof:${!profileLoading} projL:${projectsLoading} projs:${userProjects?.length ?? '?'} saved:${!!localStorage.getItem('nova-hub:current-project-id')}]`;
-
-    // Wait for auth to settle first
-    if (authLoading || profileLoading) {
-      return;
-    }
-
-    // Not authenticated → landing
-    if (!isAuthenticated) {
-      navigate('/', { replace: true });
-      return;
-    }
-
-    // Fast path: if we have a saved project ID in localStorage, go directly
-    const savedProjectId = localStorage.getItem('nova-hub:current-project-id');
-    if (savedProjectId) {
-      navigate(`/proyecto/${savedProjectId}`, { replace: true });
-      return;
-    }
-
-    // No saved project — wait for the projects query
-    if (projectsLoading) {
+    // CRÍTICO: Esperar a que TODO esté cargado (auth, profile, y proyectos)
+    if (authLoading || projectsLoading || profileLoading) {
       return;
     }
 
     // Loading completed — cancel timeout state
     setTimedOut(false);
 
-    // No projects → onboarding
+    // Si no está autenticado, ir a landing
+    if (!isAuthenticated) {
+      navigate('/', { replace: true });
+      return;
+    }
+
+    // Si no tiene proyectos, ir a seleccionar tipo de onboarding
     if (!userProjects || userProjects.length === 0) {
       navigate('/select-onboarding-type', { replace: true });
       return;
     }
 
-    // Has projects but none selected → select page
+    // Si tiene proyectos pero no hay uno seleccionado, ir a seleccionar
     if (!currentProject) {
       navigate('/select-project', { replace: true });
       return;
     }
 
-    // Has selected project → dashboard
+    // Si tiene proyecto seleccionado, ir al dashboard de ese proyecto
     navigate(`/proyecto/${currentProject.id}`, { replace: true });
   }, [isAuthenticated, authLoading, projectsLoading, profileLoading, currentProject, userProjects, navigate]);
 
