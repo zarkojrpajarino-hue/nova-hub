@@ -268,7 +268,7 @@ export function EmergencyOnboardingPage() {
             </p>
             <div className="flex flex-col gap-2 mt-4">
               <button
-                onClick={() => navigate(`/proyecto/${projectId}/analisis-ia`)}
+                onClick={() => navigate(`/proyecto/${projectId}`)}
                 className="text-sm text-primary hover:text-primary/80 underline underline-offset-2"
               >
                 {t('emergencyOnboarding.generarAnalisisCompleto')}

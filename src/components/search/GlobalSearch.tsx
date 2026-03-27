@@ -86,7 +86,7 @@ export function GlobalSearch({ open, onOpenChange }: GlobalSearchProps) {
           subtitle: `Fase ${project.phase_state?.current_phase ?? 1} — ${PHASE_LABELS[project.phase_state?.current_phase ?? 1]}`,
           icon: <span className="text-lg">{project.icon}</span>,
           action: () => {
-            navigate('proyectos');
+            navigate('');
             onOpenChange(false);
           },
         });

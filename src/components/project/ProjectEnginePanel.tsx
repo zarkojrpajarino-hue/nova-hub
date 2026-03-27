@@ -260,7 +260,7 @@ function LastMeetingWidget({ projectId }: { projectId: string }) {
           <span className="text-xs text-muted-foreground font-medium">{t('project.últimaReunión')}</span>
         </div>
         <button
-          onClick={() => navigate(`/proyecto/${routeProjectId}/meetings`)}
+          onClick={() => navigate(`/proyecto/${routeProjectId}`)}
           className="flex items-center gap-0.5 text-xs text-primary hover:underline"
         >{t('project.verTodas')}<ExternalLink size={10} />
         </button>

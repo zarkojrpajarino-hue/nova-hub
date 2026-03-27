@@ -689,7 +689,7 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             {t('dashboard.quickNewSale')}
           </button>
           <button
-            onClick={() => navigate(projectId ? `/proyecto/${projectId}/analisis-ia` : '/ai-analysis')}
+            onClick={() => navigate(projectId ? `/proyecto/${projectId}` : '')}
             className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-purple-500/10 hover:bg-purple-500/20 text-purple-700 dark:text-purple-400 text-sm font-medium transition-colors border border-purple-500/20"
           >
             <Sparkles size={16} />

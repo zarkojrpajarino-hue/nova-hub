@@ -132,7 +132,7 @@ export function NotificationDropdown() {
             <DropdownMenuSeparator />
             <DropdownMenuItem
               className="text-center text-sm text-primary justify-center"
-              onClick={() => navigate('notificaciones')}
+              onClick={() => navigate('')}
             >{t('notifications.verTodasLasNotificaciones')}</DropdownMenuItem>
           </>
         )}
