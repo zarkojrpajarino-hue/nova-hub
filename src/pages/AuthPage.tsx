@@ -65,63 +65,16 @@ export default function AuthPage() {
 
   // Check if already authenticated
   useEffect(() => {
-    // Find user's project and navigate directly — no race conditions
-    const goToProject = async (userId: string) => {
-      // 1. Check localStorage first (instant)
-      const savedId = localStorage.getItem('nova-hub:current-project-id');
-      if (savedId) {
-        // Full page reload — forces auth to reinitialize cleanly.
-        // SPA navigate causes race conditions where DashboardView
-        // mounts before AuthContext finishes processing the login.
-        window.location.replace(`/proyecto/${savedId}`);
-        return;
-      }
-
-      // 2. Query for user's project directly (waits for data)
-      try {
-        const { data: profile } = await supabase
-          .from('profiles')
-          .select('id')
-          .eq('auth_id', userId)
-          .maybeSingle();
-
-        if (profile?.id) {
-          const { data: projects } = await supabase
-            .from('projects')
-            .select('id')
-            .or(`created_by.eq.${profile.id},id.in.(${
-              await supabase.from('project_members').select('project_id').eq('member_id', profile.id)
-                .then(r => (r.data ?? []).map(p => p.project_id).join(',') || '00000000-0000-0000-0000-000000000000')
-            })`)
-            .is('deleted_at', null)
-            .order('created_at', { ascending: false })
-            .limit(1);
-
-          if (projects?.length) {
-            localStorage.setItem('nova-hub:current-project-id', projects[0].id);
-            window.location.replace(`/proyecto/${projects[0].id}`);
-            return;
-          }
-        }
-      } catch {
-        // Query failed — fall through to /home
-      }
-
-      window.location.replace('/home');
-    };
-
-    // Don't auto-redirect on mount — let user explicitly login.
-    // checkSession was finding stale sessions after signOut and
-    // redirecting with invalid auth → "Usuario" on dashboard.
-
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
-      if (event === 'SIGNED_IN' && session?.user) {
-        goToProject(session.user.id);
+      if ((event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED') && session?.user) {
+        const savedId = localStorage.getItem('nova-hub:current-project-id');
+        // Full page reload — no SPA navigate, no async queries, no race conditions
+        window.location.replace(savedId ? `/proyecto/${savedId}` : '/home');
       }
     });
 
     return () => subscription.unsubscribe();
-  }, [navigate]);
+  }, []);
 
   // Email validation en tiempo real
   useEffect(() => {
