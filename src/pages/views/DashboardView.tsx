@@ -40,7 +40,7 @@ import type { BlockDepth } from '@/lib/experience-engine';
 import { resolveMacroRole } from '@/lib/experience-engine';
 import { PHASE_METHODOLOGY, PHASE_LABELS, PHASE_DESCRIPTIONS, PHASE_METHODOLOGY_DETAIL } from '@/lib/engine';
 import { NextActionFocusBlock } from '@/components/project/NextActionFocusBlock';
-// MomentBanner removed — methodology block now shows phase methodology inline
+import { MomentBanner } from '@/components/project/MomentBanner';
 import { ProjectEnginePanel } from '@/components/project/ProjectEnginePanel';
 import { TrialCountdownBanner } from '@/components/subscription/TrialCountdownBanner';
 import { AICallsNudge } from '@/components/subscription/AICallsNudge';
@@ -550,6 +550,9 @@ export function DashboardView({ onNewOBV }: DashboardViewProps) {
             </button>
           </div>
         )}
+
+        {/* Celebration / warning moments — above cockpit, only when active */}
+        {projectId && <MomentBanner projectId={projectId} />}
 
         {/* ── EXPERIENCE ENGINE — Strategic Cockpit ── */}
         {projectId && project && (
